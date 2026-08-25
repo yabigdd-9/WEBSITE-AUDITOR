@@ -48,3 +48,18 @@ Either: (a) authorise a research pass to fill the 12 mandatory fields per prospe
 business's own published page (no purchased/scraped lists — s.13), then ratify each row; or
 (b) switch first touch to phone (02904556680), which is outside UEMA email rules per the
 existing APR-005 decision. Until then, this table is the blocker, not the gate.
+
+## Infrastructure blocker on the auto-research pass (2026-08-26)
+The research pass to fill the gate fields was attempted but is currently BLOCKED by tooling:
+- `web_extract` is configured on the search-only backend (`ddgs`); it cannot fetch page
+  content (returns len:0 for all 9 sites). No firecrawl/tavily/exa key is set in env.
+- The browser tool (faithful DOM read) is blocked on Chrome's "Allow remote debugging?"
+  popup — needs a one-time manual Approve on this Mac (or `browser-harness mac-approve`).
+
+To unblock option (a), pick one:
+1. Set a real extract backend key (FIRECRAWL/TAVILY/EXA) and re-run the research pass, OR
+2. Click "Allow" on the Chrome remote-debugging prompt, then Hermes can drive the browser
+   to read each business's own page text and fill the 12 fields (still unratified — you sign off).
+
+Per the gate, Hermes will NOT self-ratify — `human_ratified_by` stays empty until you confirm
+each prospect's inferred-consent rationale.
