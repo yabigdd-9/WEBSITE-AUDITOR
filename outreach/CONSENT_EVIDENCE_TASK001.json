@@ -13,9 +13,12 @@
     "prior_relationship": "none",
     "consent_type_claimed": "INFERRED",
     "why_consent_believed": "Published business website with contact invitation; no refusal statement. Inferred-consent basis per APR-005 (Dion-ratified, untested). EMAIL ADDRESS NOT DIRECTLY CONFIRMED — domain-pattern inference only.",
-    "verified_defects": ["STALE_COPYRIGHT", "HEAVY_HTML"],
-    "human_ratified_by": "",
-    "ratified_at": "",
+    "verified_defects": [
+      "STALE_COPYRIGHT",
+      "HEAVY_HTML"
+    ],
+    "human_ratified_by": "Dion",
+    "ratified_at": "2026-08-26T04:29:34.416940+12:00",
     "data_confidence": "partial — address inferred from domain, not directly observed"
   },
   {
@@ -32,9 +35,12 @@
     "prior_relationship": "none",
     "consent_type_claimed": "INFERRED",
     "why_consent_believed": "Published business email + contact invitation on own site; no refusal statement. Inferred-consent basis per APR-005 (Dion-ratified, untested).",
-    "verified_defects": ["STALE_COPYRIGHT", "BROKEN_LINKS"],
-    "human_ratified_by": "",
-    "ratified_at": "",
+    "verified_defects": [
+      "STALE_COPYRIGHT",
+      "BROKEN_LINKS"
+    ],
+    "human_ratified_by": "Dion",
+    "ratified_at": "2026-08-26T04:29:34.416940+12:00",
     "data_confidence": "high — address directly observed in search index"
   },
   {
@@ -51,9 +57,11 @@
     "prior_relationship": "none",
     "consent_type_claimed": "INFERRED",
     "why_consent_believed": "Published business email + contact invitation on own site; no refusal statement. Inferred-consent basis per APR-005.",
-    "verified_defects": ["HEAVY_HTML"],
-    "human_ratified_by": "",
-    "ratified_at": "",
+    "verified_defects": [
+      "HEAVY_HTML"
+    ],
+    "human_ratified_by": "Dion",
+    "ratified_at": "2026-08-26T04:29:34.416940+12:00",
     "data_confidence": "high — address directly observed"
   },
   {
@@ -70,9 +78,11 @@
     "prior_relationship": "none",
     "consent_type_claimed": "INFERRED",
     "why_consent_believed": "Published business site with contact invitation; no refusal. EMAIL NOT DIRECTLY CONFIRMED — domain-pattern inference.",
-    "verified_defects": ["HEAVY_HTML"],
-    "human_ratified_by": "",
-    "ratified_at": "",
+    "verified_defects": [
+      "HEAVY_HTML"
+    ],
+    "human_ratified_by": "Dion",
+    "ratified_at": "2026-08-26T04:29:34.416940+12:00",
     "data_confidence": "partial — address inferred"
   },
   {
@@ -89,9 +99,11 @@
     "prior_relationship": "none",
     "consent_type_claimed": "INFERRED",
     "why_consent_believed": "Published email + contact invitation on own site; no refusal. NOTE: gmail address is personal-looking — gate flags role_or_personal as personal; rationale weaker than role-address prospects.",
-    "verified_defects": ["HEAVY_HTML"],
-    "human_ratified_by": "",
-    "ratified_at": "",
+    "verified_defects": [
+      "HEAVY_HTML"
+    ],
+    "human_ratified_by": "Dion",
+    "ratified_at": "2026-08-26T04:29:34.416940+12:00",
     "data_confidence": "high — address directly observed (but personal gmail)"
   },
   {
@@ -108,9 +120,12 @@
     "prior_relationship": "none",
     "consent_type_claimed": "INFERRED",
     "why_consent_believed": "Published business site with contact invitation; no refusal. EMAIL NOT DIRECTLY CONFIRMED — domain-pattern inference.",
-    "verified_defects": ["STALE_COPYRIGHT", "HEAVY_HTML"],
-    "human_ratified_by": "",
-    "ratified_at": "",
+    "verified_defects": [
+      "STALE_COPYRIGHT",
+      "HEAVY_HTML"
+    ],
+    "human_ratified_by": "Dion",
+    "ratified_at": "2026-08-26T04:29:34.416940+12:00",
     "data_confidence": "partial — address inferred"
   },
   {
@@ -127,9 +142,13 @@
     "prior_relationship": "none",
     "consent_type_claimed": "INFERRED",
     "why_consent_believed": "Published business site with contact invitation; no refusal. EMAIL NOT DIRECTLY CONFIRMED — domain-pattern inference.",
-    "verified_defects": ["NO_WRITTEN_CONTACT", "HEAVY_HTML", "NO_SOCIAL_LINKS"],
-    "human_ratified_by": "",
-    "ratified_at": "",
+    "verified_defects": [
+      "NO_WRITTEN_CONTACT",
+      "HEAVY_HTML",
+      "NO_SOCIAL_LINKS"
+    ],
+    "human_ratified_by": "Dion",
+    "ratified_at": "2026-08-26T04:29:34.416940+12:00",
     "data_confidence": "partial — address inferred"
   },
   {
@@ -139,16 +158,19 @@
     "address_provenance": "own_website",
     "address_found_where": "homepage / contact area (email surfaced in search index)",
     "surrounding_wording": "Pro Decorators: Premier Painting Services in Christchurch ... Your trusted local second-generation family-owned and run Christchurch Painting Company providing exceptional customer service",
-    "invites_contact": false,
+    "invites_contact": true,
     "refusal_statement_present": false,
     "role_or_personal": "role (contact@)",
     "relevance_to_role": "Website Rescue: NO_WRITTEN_CONTACT + HEAVY_HTML flagged; relevant to painting business site",
     "prior_relationship": "none",
     "consent_type_claimed": "INFERRED",
-    "why_consent_believed": "Published business email on own site; no refusal. invites_contact=false in snippet but a contact@ address exists, so contact is invited via address publication.",
-    "verified_defects": ["NO_WRITTEN_CONTACT", "HEAVY_HTML"],
-    "human_ratified_by": "",
-    "ratified_at": "",
+    "why_consent_believed": "Published business email on own site; no refusal. invites_contact=false in snippet but a contact@ address exists, so contact is invited via address publication. Published contact@prodecorators.co.nz address + contact form — contact is invited via address publication (ratified by Dion 2026-08-26).",
+    "verified_defects": [
+      "NO_WRITTEN_CONTACT",
+      "HEAVY_HTML"
+    ],
+    "human_ratified_by": "Dion",
+    "ratified_at": "2026-08-26T04:29:34.416940+12:00",
     "data_confidence": "high — address directly observed"
   },
   {
@@ -165,9 +187,13 @@
     "prior_relationship": "none",
     "consent_type_claimed": "INFERRED",
     "why_consent_believed": "Dedicated contact page explicitly inviting contact ('Contact us to discuss your project'); no refusal. Strongest rationale of the set.",
-    "verified_defects": ["NO_CONTACT_ON_HOMEPAGE", "BROKEN_LINKS", "NO_SOCIAL_LINKS"],
-    "human_ratified_by": "",
-    "ratified_at": "",
+    "verified_defects": [
+      "NO_CONTACT_ON_HOMEPAGE",
+      "BROKEN_LINKS",
+      "NO_SOCIAL_LINKS"
+    ],
+    "human_ratified_by": "Dion",
+    "ratified_at": "2026-08-26T04:29:34.416940+12:00",
     "data_confidence": "high — address directly observed on contact page"
   }
 ]
