@@ -1,0 +1,95 @@
+id: ACTIVE-3
+name: CATALYX Flooring Lead Engine
+source_engines:
+- ME-0001
+- ME-0449
+- ME-0452
+- ME-0453
+- ME-0454
+category: lead_gen
+automation_tier: automatable
+note: Generic rubric scores ME-0001 at 41/100 because of physical/site-visit cost. Retained by explicit
+  plan mandate as the CATALYX proving ground.
+pricing:
+  status: product pricing owned by Dion — agent never states a flooring price
+ideal_customer: Christchurch/Canterbury property owners, builders, developers, body corporates, facilities
+  managers and insurance repair contractors needing garage/commercial flooring
+exact_offer: Generate qualified, source-cited Canterbury flooring prospects with a reason-for-fit and
+  a prepared approach.
+data_inputs:
+- name: catalyx_product_catalogue
+  type: yaml
+  required: true
+  note: GF-01 Garage Essential, GF-02 series etc. — must come from Dion's real catalogue, never invented
+- name: prospect_candidates
+  type: csv
+  required: true
+  fields:
+  - entity_name
+  - entity_type
+  - region
+  - trigger_signal
+  - source_url
+- name: approved_price_bands
+  type: yaml
+  required: false
+  note: absent = agent must not quote
+researcher:
+  needs_external_data: true
+  sources:
+  - NZBN register
+  - Canterbury building consent notices (public)
+  - body corporate / facilities directories
+  - commercial property listings
+  - builder and developer directories
+  rules:
+  - public sources only
+  - cite source URL per prospect
+  - never invent a project, consent or contact
+delegator:
+  thresholds:
+    min_qualification_score: 60
+  reject_if:
+  - outside Canterbury service area
+  - residential single-room retail job below viable size
+  - entity defunct
+executor_1:
+  operations:
+  - classify_entity_type
+  - match_to_product_line
+  - estimate_indicative_area_band
+  - score_qualification_0_100
+executor_2:
+  output_template: flooring_prospect_approach
+  must_not_include:
+  - final pricing
+  - guaranteed lead times
+  - fabricated past project references
+judge:
+  min_score: 80
+proofer:
+  extra_checks:
+  - product codes match real CATALYX catalogue
+  - no price or lead-time commitment
+  - entity name and region correct
+  - UEMA 2007 compliance fields present
+delivery:
+  format: prospect_pack_plus_email_draft
+  frequency: daily_batch
+  approval_required:
+  - external_communication
+  - pricing_commitment
+  - publishing
+  - quote_with_final_pricing
+  sender_identity:
+    email: team.catalyxlabs@gmail.com
+    phone: 02904556680
+    signoff: CATALYX Labs
+daily_targets:
+  candidates_researched:
+  - 60
+  - 100
+  qualified:
+  - 20
+  - 30
+  sent: 0

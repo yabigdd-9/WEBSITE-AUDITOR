@@ -1,0 +1,139 @@
+id: ACTIVE-1
+name: Website Rescue Lead Engine
+source_engines:
+- ME-0462
+- ME-0008
+- ME-0331
+- ME-0380
+- ME-0387
+category: trigger_leads
+automation_tier: automatable
+pricing:
+  setup:
+  - 149
+  - 799
+  monthly:
+  - 99
+  - 499
+  currency: NZD
+  status: UNAPPROVED — Dion must confirm before any quote
+ideal_customer: NZ small businesses (Christchurch/Canterbury first) with an outdated, broken or non-mobile
+  website
+exact_offer: Identify objectively observable website defects from public data and deliver a proof-backed
+  mini-audit with a fix offer.
+data_inputs:
+- name: prospect_candidates
+  type: csv
+  required: true
+  fields:
+  - business_name
+  - website_url
+  - region
+  - industry
+  - source_url
+  provenance: public directories only — NZBN, Google Maps, trade directories
+- name: detection_methodology
+  type: md
+  required: true
+  path: outputs/RESEARCH_website_rescue_methodology.md
+researcher:
+  needs_external_data: true
+  sources:
+  - NZBN register
+  - Google Maps listings
+  - regional chamber directories
+  - trade association directories
+  rules:
+  - public data only
+  - record source URL for every candidate
+  - never fabricate a business, defect or metric
+  - mark confidence on every detected defect
+delegator:
+  thresholds:
+    min_defects_to_qualify: 2
+    min_qualification_score: 60
+  reject_if:
+  - site rebuilt in last 12 months
+  - existing agency footer credit
+  - enterprise/franchise
+  - business appears defunct
+executor_1:
+  operations:
+  - detect_defects_from_public_signals
+  - attach_evidence_artifact
+  - score_qualification_0_100
+  - rank_candidates
+  - deduplicate
+executor_2:
+  output_template: website_rescue_mini_audit
+  tone: plain, specific, non-salesy, NZ English
+  must_include:
+  - named defect
+  - how it was observed
+  - commercial consequence
+  - single clear next step
+  must_not_include:
+  - invented traffic or revenue numbers
+  - fake urgency
+  - claims of Google partnership
+  - guaranteed rankings
+judge:
+  min_score: 80
+  criteria:
+    accuracy: 20
+    impact: 20
+    specificity: 15
+    confidence: 15
+    actionability: 15
+    repeatability: 10
+    risk: 5
+proofer:
+  extra_checks:
+  - business name spelled exactly as public listing
+  - every defect claim has a verifiable source URL
+  - no placeholder tokens remain
+  - no price stated unless Dion-approved
+  - sender identity + unsubscribe present per UEMA 2007
+delivery:
+  format: email_draft_plus_audit_pdf
+  frequency: daily_batch
+  uema_consent_gate:
+    module: outreach/consent_gate.py
+    policy: DEFAULT_DENY
+    rule: No email artifact may be generated for any prospect the gate does not return PERMITTED for.
+    publication_is_not_permission: true
+    hermes_may_self_ratify: false
+    override_flag_exists: false
+    blocked_prospects: retain research, queue for manual review, route to phone or post
+    self_test: 6/6 passing
+    live_result_batch_001: 9 of 9 real prospects BLOCKED (no consent evidence collected yet)
+  volume_limits:
+    first_touch_emails_per_day: 20
+    max_messages_per_business_per_90_days: 1
+    max_follow_ups: 1
+  mandatory_message_fields:
+  - accurate sender identity (name, working reply address, working phone) — s.10
+  - plain-language reason for contacting this specific business
+  - functional opt-out honoured immediately and permanently — s.11
+  - no price until APR-004 approved
+  approval_required:
+  - external_communication
+  - pricing_commitment
+  - publishing
+  sender_identity:
+    email: team.catalyxlabs@gmail.com
+    phone: '02904556680'
+    signoff: CATALYX Labs
+    send_capability: LIVE — SMTP app-password auth verified 2026-08-18 (test send succeeded to yabigdd@gmail.com)
+    send_method: smtp gmail (smtp.gmail.com:587, starttls, app password)
+daily_targets:
+  candidates_researched:
+  - 60
+  - 100
+  qualified:
+  - 20
+  - 30
+  proof_assets:
+  - 20
+  - 30
+  sent: 0

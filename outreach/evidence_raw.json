@@ -1,0 +1,170 @@
+[
+ {
+  "business_name": "www.whiteandtaylor.co.nz",
+  "site": "https://www.whiteandtaylor.co.nz",
+  "collected_at": "2026-08-18T09:44:52+12:00",
+  "pages_checked": [
+   "https://www.whiteandtaylor.co.nz"
+  ],
+  "candidates": [],
+  "refusal_statement_present": false,
+  "refusal_quote": "",
+  "errors": []
+ },
+ {
+  "business_name": "www.bcplumbers.co.nz",
+  "site": "https://www.bcplumbers.co.nz",
+  "collected_at": "2026-08-18T09:44:53+12:00",
+  "pages_checked": [
+   "https://www.bcplumbers.co.nz"
+  ],
+  "candidates": [],
+  "refusal_statement_present": false,
+  "refusal_quote": "",
+  "errors": []
+ },
+ {
+  "business_name": "www.clyne-bennie.co.nz",
+  "site": "https://www.clyne-bennie.co.nz",
+  "collected_at": "2026-08-18T09:44:54+12:00",
+  "pages_checked": [
+   "https://clyne-bennie.co.nz/",
+   "https://clyne-bennie.co.nz/contact-us/book-a-job/",
+   "https://clyne-bennie.co.nz/contact-us/get-a-quote/",
+   "https://clyne-bennie.co.nz/about/who-we-are/",
+   "https://clyne-bennie.co.nz/about/who-we-are/"
+  ],
+  "candidates": [
+   {
+    "address": "service@clyne-bennie.co.nz",
+    "found_where": "plain text on page",
+    "link_text": "",
+    "surrounding_wording": "Plumbing & Electrical | North Canterbury 9 Regeant Avenue, Rangiora, Canterbury, 7400 (03) 310 8206 Clyne & Bennie Nelson / Tasman Service provided by our joint venture partner CBNT Ltd T/A Clyne & Bennie Nelson Tasman (03) 547 0002 Get in Touch 0800 37 47 37 service@clyne-bennie.co.nz LinkedIn Facebook Instagram \u00a9 2026 Clyne & Bennie Ltd. All rights reserved. Created by Kreiva Digital \u269c\ufe0e Your cart (items: 0) Products in cart Product Details Total Available on backorder Previous pr",
+    "address_source_url": "https://clyne-bennie.co.nz/",
+    "invites_contact": true,
+    "invitation_evidence": [
+     "get in touch"
+    ],
+    "role_or_personal": "personal_or_named"
+   }
+  ],
+  "refusal_statement_present": false,
+  "refusal_quote": "",
+  "errors": []
+ },
+ {
+  "business_name": "www.jcconstruction.co.nz",
+  "site": "https://www.jcconstruction.co.nz",
+  "collected_at": "2026-08-18T09:45:08+12:00",
+  "pages_checked": [
+   "https://www.jcconstruction.co.nz",
+   "https://www.jcconstruction.co.nz/about-us"
+  ],
+  "candidates": [
+   {
+    "address": "jason@jcconstruction.co.nz",
+    "found_where": "mailto: link",
+    "link_text": "jason@jcconstruction.co.nz",
+    "surrounding_wording": "akxmn_r_comp-m0a01bnb19\" class=\"N8MGzv _v6ohL PO9MfV comp-kbgakxmn_r_comp-m0a01bnb19 wixui-rich-text\" data-testid=\"richTextElement\"> Christchurch, New Zealand JASON: 027 378 0000 PAGAN: 027 373 0230 jason@jcconstruction.co.nz <div id=\"comp-kbgakxmn_r_comp-m0a01bne3\" class=\"N8MGzv _v6ohL PO9MfV comp-kbgakxmn_r_comp-m0a01bne3 wixui-rich-text\" d",
+    "address_source_url": "https://www.jcconstruction.co.nz",
+    "invites_contact": true,
+    "invitation_evidence": [],
+    "role_or_personal": "personal_or_named"
+   }
+  ],
+  "refusal_statement_present": false,
+  "refusal_quote": "",
+  "errors": []
+ },
+ {
+  "business_name": "www.tbir.co.nz",
+  "site": "https://www.tbir.co.nz",
+  "collected_at": "2026-08-18T09:45:17+12:00",
+  "pages_checked": [
+   "https://www.tbir.co.nz",
+   "https://www.tbir.co.nz/about",
+   "https://www.tbir.co.nz/contact"
+  ],
+  "candidates": [
+   {
+    "address": "tbirgrass@gmail.com",
+    "found_where": "mailto: link",
+    "link_text": "tbirgrass@gmail.com",
+    "surrounding_wording": "ich-text__text\" style=\"line-height:1.5em; font-size:15px;\"> Based in Lincoln, Christchurch - servicing all of Canterbury tbirgrass@gmail.com +64-273-789-451 <div id=",
+    "address_source_url": "https://www.tbir.co.nz",
+    "invites_contact": true,
+    "invitation_evidence": [],
+    "role_or_personal": "personal_or_named"
+   }
+  ],
+  "refusal_statement_present": false,
+  "refusal_quote": "",
+  "errors": []
+ },
+ {
+  "business_name": "www.greenscapes.co.nz",
+  "site": "https://www.greenscapes.co.nz",
+  "collected_at": "2026-08-18T09:45:20+12:00",
+  "pages_checked": [
+   "https://www.greenscapes.co.nz"
+  ],
+  "candidates": [],
+  "refusal_statement_present": false,
+  "refusal_quote": "",
+  "errors": []
+ },
+ {
+  "business_name": "dyerdecorating.co.nz",
+  "site": "https://dyerdecorating.co.nz",
+  "collected_at": "2026-08-18T09:45:22+12:00",
+  "pages_checked": [
+   "https://dyerdecorating.co.nz",
+   "https://dyerdecorating.co.nz/about",
+   "https://dyerdecorating.co.nz/contact"
+  ],
+  "candidates": [],
+  "refusal_statement_present": false,
+  "refusal_quote": "",
+  "errors": []
+ },
+ {
+  "business_name": "prodecorators.co.nz",
+  "site": "https://prodecorators.co.nz",
+  "collected_at": "2026-08-18T09:45:24+12:00",
+  "pages_checked": [
+   "https://prodecorators.co.nz",
+   "https://prodecorators.co.nz/about/",
+   "https://prodecorators.co.nz/contact/",
+   "https://prodecorators.co.nz/contact-us-thank-you/"
+  ],
+  "candidates": [
+   {
+    "address": "contact@prodecorators.co.nz",
+    "found_where": "plain text on page",
+    "link_text": "",
+    "surrounding_wording": "r Home or Business. \u00a9 2026 , Pro Decorators Company About Interior House Painting Exterior House Painting Painting Tips & Advice Interior Painting Resources Exterior Painting Resources Legal Privacy Policy Terms and Conditions Contact Phone: 03 3652204 Email: contact@prodecorators.co.nz christchurch, roof, auckland, wellington, plaster, spray painting, tauranga, renovation, bathroom, canterbury region, house painters, residential painting, house painter, commercial painting, custome",
+    "address_source_url": "https://prodecorators.co.nz",
+    "invites_contact": false,
+    "invitation_evidence": [],
+    "role_or_personal": "role"
+   }
+  ],
+  "refusal_statement_present": false,
+  "refusal_quote": "",
+  "errors": []
+ },
+ {
+  "business_name": "www.davidrobertson.co.nz",
+  "site": "https://www.davidrobertson.co.nz",
+  "collected_at": "2026-08-18T09:45:29+12:00",
+  "pages_checked": [
+   "https://www.davidrobertson.co.nz",
+   "https://www.davidrobertson.co.nz/about.html",
+   "https://www.davidrobertson.co.nz/contact.html"
+  ],
+  "candidates": [],
+  "refusal_statement_present": false,
+  "refusal_quote": "",
+  "errors": []
+ }
+]

@@ -1,0 +1,114 @@
+id: ACTIVE-2
+name: Reputation / Unanswered Review Engine
+source_engines:
+- ME-0007
+- ME-0006
+- ME-0042
+- ME-0392
+- ME-0393
+category: reputation
+automation_tier: needs_integration
+viability_gate: RESOLVED 2026-08-18 — PARTIAL. Unanswered-review auto-detection is NOT lawfully
+  automatable (Places API returns max 5 reviews and PlaceReview has no owner-reply field, verified
+  directly on Google docs; GBP API is owner-scoped; Maps scraping barred by Terms 3.2.3(a)).
+  Engine re-scoped to a Reputation Completeness & Visible-Sentiment Scanner. See
+  outputs/VIABILITY_DECISION_ACTIVE_2.md
+reserve_engines_promoted:
+- ME-0274 Competitor Review Velocity Monitor (93/100, recurring NZ$99-999/month)
+- ME-0327 Website Content Freshness Monitor (93/100, recurring NZ$99-999/month)
+hard_constraints:
+- Never state or imply a business has not responded to reviews unless a human has viewed the
+  public profile and confirmed it.
+- Every snapshot must disclose its evidence basis and the 5-review API ceiling.
+- No Google Maps scraping under any circumstances.
+detectable_signals_lawful:
+- low review volume vs local peers (user_ratings_total)
+- low aggregate rating (rating)
+- recent visible 1-2 star review (reviews_sort=newest, within 5 returned)
+- profile completeness gaps (missing website/phone/hours/photos)
+not_detectable_at_scale:
+- owner response rate
+- unanswered review count
+- full review history
+pricing:
+  setup:
+  - 149
+  - 499
+  monthly:
+  - 99
+  - 599
+  currency: NZD
+  status: UNAPPROVED — Dion must confirm before any quote
+ideal_customer: NZ local service businesses with visible unanswered reviews and an active trading presence
+exact_offer: Deliver an honest reputation snapshot showing unanswered reviews, response-rate gap and profile
+  completeness, plus a managed response service.
+data_inputs:
+- name: prospect_candidates
+  type: csv
+  required: true
+  fields:
+  - business_name
+  - listing_url
+  - region
+  - industry
+  - source_url
+- name: detection_methodology
+  type: md
+  required: true
+  path: outputs/RESEARCH_reputation_engine_methodology.md
+researcher:
+  needs_external_data: true
+  rules:
+  - only lawful access paths confirmed by the methodology file
+  - no Google Maps scraping if it breaches Terms of Service
+  - never invent a review, rating or count
+  - record retrieval method + timestamp per data point
+delegator:
+  thresholds:
+    min_unanswered_reviews: 3
+    min_qualification_score: 60
+  reject_if:
+  - owner already responds to most reviews
+  - profile unclaimed and business dormant
+  - national chain with central marketing
+executor_1:
+  operations:
+  - compute_owner_response_rate
+  - count_unanswered_negative
+  - measure_review_recency_gap
+  - profile_completeness_check
+  - score_qualification_0_100
+executor_2:
+  output_template: reputation_snapshot
+  tone: respectful, factual, non-alarmist
+  must_not_include:
+  - implication of Google endorsement or partnership
+  - fabricated competitor comparison
+  - invented review text
+judge:
+  min_score: 80
+proofer:
+  extra_checks:
+  - every review statistic traceable to retrieval method
+  - no Google trademark misuse
+  - no fabricated competitor data
+  - UEMA 2007 compliance fields present
+delivery:
+  format: email_draft_plus_snapshot
+  frequency: daily_batch
+  approval_required:
+  - external_communication
+  - pricing_commitment
+  - publishing
+  sender_identity:
+    email: team.catalyxlabs@gmail.com
+    phone: 02904556680
+    signoff: CATALYX Labs
+daily_targets:
+  candidates_researched:
+  - 60
+  - 100
+  qualified:
+  - 20
+  - 30
+  sent: 0

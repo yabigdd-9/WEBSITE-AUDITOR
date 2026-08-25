@@ -1,0 +1,21 @@
+# Caches / builds
+__pycache__/
+*.pyc
+build/
+dist/
+.cache/
+.DS_Store
+*.log
+
+# Virtual environments
+venv/
+
+# Secrets / credentials (NEVER track)
+.env
+.env.*
+*.pem
+id_rsa
+id_rsa.*
+service-account*.json
+*credentials*
+*secret*

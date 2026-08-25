@@ -1,0 +1,173 @@
+[
+ {
+  "business_name": "www.whiteandtaylor.co.nz",
+  "address": "",
+  "address_source_url": "",
+  "address_provenance": "own_website",
+  "address_found_where": "",
+  "surrounding_wording": "",
+  "invites_contact": "",
+  "refusal_statement_present": "",
+  "role_or_personal": "",
+  "relevance_to_role": "",
+  "prior_relationship": "none",
+  "consent_type_claimed": "",
+  "why_consent_believed": "",
+  "verified_defects": [
+   "STALE_COPYRIGHT",
+   "HEAVY_HTML"
+  ]
+ },
+ {
+  "business_name": "www.bcplumbers.co.nz",
+  "address": "",
+  "address_source_url": "",
+  "address_provenance": "own_website",
+  "address_found_where": "",
+  "surrounding_wording": "",
+  "invites_contact": "",
+  "refusal_statement_present": "",
+  "role_or_personal": "",
+  "relevance_to_role": "",
+  "prior_relationship": "none",
+  "consent_type_claimed": "",
+  "why_consent_believed": "",
+  "verified_defects": [
+   "STALE_COPYRIGHT",
+   "BROKEN_LINKS"
+  ]
+ },
+ {
+  "business_name": "www.clyne-bennie.co.nz",
+  "address": "",
+  "address_source_url": "",
+  "address_provenance": "own_website",
+  "address_found_where": "",
+  "surrounding_wording": "",
+  "invites_contact": "",
+  "refusal_statement_present": "",
+  "role_or_personal": "",
+  "relevance_to_role": "",
+  "prior_relationship": "none",
+  "consent_type_claimed": "",
+  "why_consent_believed": "",
+  "verified_defects": [
+   "NO_WRITTEN_CONTACT",
+   "HEAVY_HTML"
+  ]
+ },
+ {
+  "business_name": "www.jcconstruction.co.nz",
+  "address": "",
+  "address_source_url": "",
+  "address_provenance": "own_website",
+  "address_found_where": "",
+  "surrounding_wording": "",
+  "invites_contact": "",
+  "refusal_statement_present": "",
+  "role_or_personal": "",
+  "relevance_to_role": "",
+  "prior_relationship": "none",
+  "consent_type_claimed": "",
+  "why_consent_believed": "",
+  "verified_defects": [
+   "HEAVY_HTML"
+  ]
+ },
+ {
+  "business_name": "www.tbir.co.nz",
+  "address": "",
+  "address_source_url": "",
+  "address_provenance": "own_website",
+  "address_found_where": "",
+  "surrounding_wording": "",
+  "invites_contact": "",
+  "refusal_statement_present": "",
+  "role_or_personal": "",
+  "relevance_to_role": "",
+  "prior_relationship": "none",
+  "consent_type_claimed": "",
+  "why_consent_believed": "",
+  "verified_defects": [
+   "HEAVY_HTML"
+  ]
+ },
+ {
+  "business_name": "www.greenscapes.co.nz",
+  "address": "",
+  "address_source_url": "",
+  "address_provenance": "own_website",
+  "address_found_where": "",
+  "surrounding_wording": "",
+  "invites_contact": "",
+  "refusal_statement_present": "",
+  "role_or_personal": "",
+  "relevance_to_role": "",
+  "prior_relationship": "none",
+  "consent_type_claimed": "",
+  "why_consent_believed": "",
+  "verified_defects": [
+   "STALE_COPYRIGHT",
+   "HEAVY_HTML"
+  ]
+ },
+ {
+  "business_name": "dyerdecorating.co.nz",
+  "address": "",
+  "address_source_url": "",
+  "address_provenance": "own_website",
+  "address_found_where": "",
+  "surrounding_wording": "",
+  "invites_contact": "",
+  "refusal_statement_present": "",
+  "role_or_personal": "",
+  "relevance_to_role": "",
+  "prior_relationship": "none",
+  "consent_type_claimed": "",
+  "why_consent_believed": "",
+  "verified_defects": [
+   "NO_WRITTEN_CONTACT",
+   "HEAVY_HTML",
+   "NO_SOCIAL_LINKS"
+  ]
+ },
+ {
+  "business_name": "prodecorators.co.nz",
+  "address": "",
+  "address_source_url": "",
+  "address_provenance": "own_website",
+  "address_found_where": "",
+  "surrounding_wording": "",
+  "invites_contact": "",
+  "refusal_statement_present": "",
+  "role_or_personal": "",
+  "relevance_to_role": "",
+  "prior_relationship": "none",
+  "consent_type_claimed": "",
+  "why_consent_believed": "",
+  "verified_defects": [
+   "NO_WRITTEN_CONTACT",
+   "HEAVY_HTML"
+  ]
+ },
+ {
+  "business_name": "www.davidrobertson.co.nz",
+  "address": "",
+  "address_source_url": "",
+  "address_provenance": "own_website",
+  "address_found_where": "",
+  "surrounding_wording": "",
+  "invites_contact": "",
+  "refusal_statement_present": "",
+  "role_or_personal": "",
+  "relevance_to_role": "",
+  "prior_relationship": "none",
+  "consent_type_claimed": "",
+  "why_consent_believed": "",
+  "verified_defects": [
+   "NO_CONTACT_ON_HOMEPAGE",
+   "BROKEN_LINKS",
+   "NO_SOCIAL_LINKS"
+  ]
+ }
+]

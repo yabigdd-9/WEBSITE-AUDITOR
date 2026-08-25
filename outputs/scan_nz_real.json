@@ -1,0 +1,633 @@
+[
+ {
+  "input_url": "https://www.whiteandtaylor.co.nz",
+  "host": "www.whiteandtaylor.co.nz",
+  "checked_at": "2026-08-18T07:42:19+12:00",
+  "defects": [
+   {
+    "code": "STALE_COPYRIGHT",
+    "severity": "medium",
+    "finding": "Copyright notice says 2020 \u2014 site looks abandoned to visitors.",
+    "evidence": "footer copyright year 2020, current year 2026"
+   },
+   {
+    "code": "HEAVY_HTML",
+    "severity": "low",
+    "finding": "HTML document alone is 420KB.",
+    "evidence": "430524 bytes of HTML before images/scripts"
+   }
+  ],
+  "errors": [],
+  "signals": {
+   "ssl": {
+    "valid": true,
+    "expires": "2026-10-31",
+    "days_left": 74,
+    "issuer": "Let's Encrypt"
+   },
+   "http_status": 200,
+   "final_url": "https://www.whiteandtaylor.co.nz",
+   "load_ms": 301,
+   "page_bytes": 430524,
+   "title": "Canterbury Plumbers | White and Taylor Plumbing Christchurch",
+   "meta_description_len": 201,
+   "copyright_year": 2020,
+   "has_form": true,
+   "phone_found": true,
+   "email_found": false,
+   "has_contact_page": false,
+   "links_sampled": 9,
+   "links_broken": 0,
+   "socials": {
+    "facebook.com": true,
+    "instagram.com": false,
+    "linkedin.com": false
+   }
+  },
+  "fetch_ok": true,
+  "defect_score": 13,
+  "defect_count": 2,
+  "tier": "NURTURE"
+ },
+ {
+  "input_url": "https://www.bcplumbers.co.nz",
+  "host": "www.bcplumbers.co.nz",
+  "checked_at": "2026-08-18T07:42:27+12:00",
+  "defects": [
+   {
+    "code": "STALE_COPYRIGHT",
+    "severity": "medium",
+    "finding": "Copyright notice says 2018 \u2014 site looks abandoned to visitors.",
+    "evidence": "footer copyright year 2018, current year 2026"
+   },
+   {
+    "code": "BROKEN_LINKS",
+    "severity": "high",
+    "finding": "1 of 12 sampled internal links are broken.",
+    "evidence": "[{\"url\": \"https://www.bcplumbers.co.nz/commercial-plumbers-christchurch\", \"result\": \"HTTP 404\"}]"
+   }
+  ],
+  "errors": [],
+  "signals": {
+   "ssl": {
+    "valid": true,
+    "expires": "2026-10-22",
+    "days_left": 65,
+    "issuer": "Let's Encrypt"
+   },
+   "http_status": 200,
+   "final_url": "https://www.bcplumbers.co.nz",
+   "load_ms": 132,
+   "page_bytes": 103635,
+   "title": "Expert Plumbers Christchurch - Residential &amp; Commercial | BC Plumbers",
+   "meta_description_len": 145,
+   "copyright_year": 2018,
+   "has_form": true,
+   "phone_found": true,
+   "email_found": false,
+   "has_contact_page": false,
+   "links_sampled": 12,
+   "links_broken": 1,
+   "socials": {
+    "facebook.com": true,
+    "instagram.com": false,
+    "linkedin.com": false
+   }
+  },
+  "fetch_ok": true,
+  "defect_score": 27,
+  "defect_count": 2,
+  "tier": "WARM"
+ },
+ {
+  "input_url": "https://www.clyne-bennie.co.nz",
+  "host": "www.clyne-bennie.co.nz",
+  "checked_at": "2026-08-18T07:42:33+12:00",
+  "defects": [
+   {
+    "code": "NO_WRITTEN_CONTACT",
+    "severity": "medium",
+    "finding": "No contact form or email address \u2014 phone only.",
+    "evidence": "no <form> and no mailto: on homepage"
+   },
+   {
+    "code": "HEAVY_HTML",
+    "severity": "low",
+    "finding": "HTML document alone is 401KB.",
+    "evidence": "410531 bytes of HTML before images/scripts"
+   }
+  ],
+  "errors": [],
+  "signals": {
+   "ssl": {
+    "valid": true,
+    "expires": "2026-11-15",
+    "days_left": 89,
+    "issuer": "Let's Encrypt"
+   },
+   "http_status": 200,
+   "final_url": "https://clyne-bennie.co.nz/",
+   "load_ms": 2968,
+   "page_bytes": 410531,
+   "title": "Home - Clyne &amp; Bennie",
+   "meta_description_len": 74,
+   "copyright_year": 2026,
+   "has_form": false,
+   "phone_found": true,
+   "email_found": false,
+   "has_contact_page": true,
+   "links_sampled": 12,
+   "links_broken": 0,
+   "socials": {
+    "facebook.com": true,
+    "instagram.com": true,
+    "linkedin.com": true
+   }
+  },
+  "fetch_ok": true,
+  "defect_score": 13,
+  "defect_count": 2,
+  "tier": "NURTURE"
+ },
+ {
+  "input_url": "https://cohesive.net.nz",
+  "host": "cohesive.net.nz",
+  "checked_at": "2026-08-18T07:43:01+12:00",
+  "defects": [],
+  "errors": [],
+  "signals": {
+   "ssl": {
+    "valid": true,
+    "expires": "2026-09-19",
+    "days_left": 33,
+    "issuer": "Google Trust Services"
+   },
+   "http_status": 200,
+   "final_url": "https://cohesive.net.nz",
+   "load_ms": 611,
+   "page_bytes": 395952,
+   "title": "NZ\u2019s Leading Construction Company | Cohesive Construction",
+   "meta_description_len": 157,
+   "copyright_year": 2026,
+   "has_form": true,
+   "phone_found": true,
+   "email_found": false,
+   "has_contact_page": true,
+   "links_sampled": 12,
+   "links_broken": 0,
+   "socials": {
+    "facebook.com": true,
+    "instagram.com": true,
+    "linkedin.com": true
+   }
+  },
+  "fetch_ok": true,
+  "defect_score": 0,
+  "defect_count": 0,
+  "tier": "CLEAN"
+ },
+ {
+  "input_url": "https://www.jcconstruction.co.nz",
+  "host": "www.jcconstruction.co.nz",
+  "checked_at": "2026-08-18T07:43:11+12:00",
+  "defects": [
+   {
+    "code": "HEAVY_HTML",
+    "severity": "low",
+    "finding": "HTML document alone is 2524KB.",
+    "evidence": "2584575 bytes of HTML before images/scripts"
+   }
+  ],
+  "errors": [],
+  "signals": {
+   "ssl": {
+    "valid": true,
+    "expires": "2026-11-10",
+    "days_left": 84,
+    "issuer": "Let's Encrypt"
+   },
+   "http_status": 200,
+   "final_url": "https://www.jcconstruction.co.nz",
+   "load_ms": 3753,
+   "page_bytes": 2584575,
+   "title": "JC Construction | Christchurch Builders",
+   "meta_description_len": 161,
+   "copyright_year": 2025,
+   "has_form": true,
+   "phone_found": true,
+   "email_found": true,
+   "has_contact_page": true,
+   "links_sampled": 12,
+   "links_broken": 0,
+   "socials": {
+    "facebook.com": true,
+    "instagram.com": true,
+    "linkedin.com": false
+   }
+  },
+  "fetch_ok": true,
+  "defect_score": 4,
+  "defect_count": 1,
+  "tier": "NURTURE"
+ },
+ {
+  "input_url": "https://www.stroudhomes.co.nz",
+  "host": "www.stroudhomes.co.nz",
+  "checked_at": "2026-08-18T07:43:30+12:00",
+  "defects": [],
+  "errors": [],
+  "signals": {
+   "ssl": {
+    "valid": true,
+    "expires": "2026-11-04",
+    "days_left": 78,
+    "issuer": "Let's Encrypt"
+   },
+   "http_status": 200,
+   "final_url": "https://www.stroudhomes.co.nz",
+   "load_ms": 778,
+   "page_bytes": 116975,
+   "title": "New Home Builders NZ - House Builders",
+   "meta_description_len": 157,
+   "copyright_year": 2026,
+   "has_form": true,
+   "phone_found": true,
+   "email_found": false,
+   "has_contact_page": true,
+   "links_sampled": 12,
+   "links_broken": 0,
+   "socials": {
+    "facebook.com": true,
+    "instagram.com": true,
+    "linkedin.com": false
+   }
+  },
+  "fetch_ok": true,
+  "defect_score": 0,
+  "defect_count": 0,
+  "tier": "CLEAN"
+ },
+ {
+  "input_url": "https://www.clsonline.co.nz",
+  "host": "www.clsonline.co.nz",
+  "checked_at": "2026-08-18T07:43:45+12:00",
+  "defects": [],
+  "errors": [],
+  "signals": {
+   "ssl": {
+    "valid": true,
+    "expires": "2026-10-18",
+    "days_left": 61,
+    "issuer": "Let's Encrypt"
+   },
+   "http_status": 200,
+   "final_url": "https://www.clsonline.co.nz",
+   "load_ms": 193,
+   "page_bytes": 39390,
+   "title": "Canterbury Landscape Supplies",
+   "meta_description_len": 193,
+   "copyright_year": 2026,
+   "has_form": false,
+   "phone_found": true,
+   "email_found": true,
+   "has_contact_page": true,
+   "links_sampled": 12,
+   "links_broken": 0,
+   "socials": {
+    "facebook.com": true,
+    "instagram.com": false,
+    "linkedin.com": false
+   }
+  },
+  "fetch_ok": true,
+  "defect_score": 0,
+  "defect_count": 0,
+  "tier": "CLEAN"
+ },
+ {
+  "input_url": "https://www.tbir.co.nz",
+  "host": "www.tbir.co.nz",
+  "checked_at": "2026-08-18T07:43:50+12:00",
+  "defects": [
+   {
+    "code": "HEAVY_HTML",
+    "severity": "low",
+    "finding": "HTML document alone is 1344KB.",
+    "evidence": "1376054 bytes of HTML before images/scripts"
+   }
+  ],
+  "errors": [],
+  "signals": {
+   "ssl": {
+    "valid": true,
+    "expires": "2026-10-18",
+    "days_left": 61,
+    "issuer": "Let's Encrypt"
+   },
+   "http_status": 200,
+   "final_url": "https://www.tbir.co.nz",
+   "load_ms": 610,
+   "page_bytes": 1376054,
+   "title": "Canterbury Landscaping Company | TBIR Landscaping",
+   "meta_description_len": 187,
+   "copyright_year": 2025,
+   "has_form": true,
+   "phone_found": true,
+   "email_found": true,
+   "has_contact_page": true,
+   "links_sampled": 10,
+   "links_broken": 0,
+   "socials": {
+    "facebook.com": true,
+    "instagram.com": true,
+    "linkedin.com": false
+   }
+  },
+  "fetch_ok": true,
+  "defect_score": 4,
+  "defect_count": 1,
+  "tier": "NURTURE"
+ },
+ {
+  "input_url": "https://www.greenscapes.co.nz",
+  "host": "www.greenscapes.co.nz",
+  "checked_at": "2026-08-18T07:44:01+12:00",
+  "defects": [
+   {
+    "code": "STALE_COPYRIGHT",
+    "severity": "medium",
+    "finding": "Copyright notice says 2024 \u2014 site looks abandoned to visitors.",
+    "evidence": "footer copyright year 2024, current year 2026"
+   },
+   {
+    "code": "HEAVY_HTML",
+    "severity": "low",
+    "finding": "HTML document alone is 1371KB.",
+    "evidence": "1403541 bytes of HTML before images/scripts"
+   }
+  ],
+  "errors": [],
+  "signals": {
+   "ssl": {
+    "valid": true,
+    "expires": "2026-10-13",
+    "days_left": 56,
+    "issuer": "Let's Encrypt"
+   },
+   "http_status": 200,
+   "final_url": "https://www.greenscapes.co.nz",
+   "load_ms": 479,
+   "page_bytes": 1403541,
+   "title": "Landscaping Christchurch - Landscape Architect Rangiora &amp; Rolleston",
+   "meta_description_len": 165,
+   "copyright_year": 2024,
+   "has_form": true,
+   "phone_found": true,
+   "email_found": false,
+   "has_contact_page": false,
+   "links_sampled": 12,
+   "links_broken": 0,
+   "socials": {
+    "facebook.com": true,
+    "instagram.com": false,
+    "linkedin.com": true
+   }
+  },
+  "fetch_ok": true,
+  "defect_score": 13,
+  "defect_count": 2,
+  "tier": "NURTURE"
+ },
+ {
+  "input_url": "https://egn.co.nz",
+  "host": "egn.co.nz",
+  "checked_at": "2026-08-18T07:44:09+12:00",
+  "defects": [],
+  "errors": [],
+  "signals": {
+   "ssl": {
+    "valid": true,
+    "expires": "2026-10-19",
+    "days_left": 62,
+    "issuer": "Let's Encrypt"
+   },
+   "http_status": 200,
+   "final_url": "https://egn.co.nz",
+   "load_ms": 91,
+   "page_bytes": 168979,
+   "title": "Christchurch Certified Landscapers; Design, Build &amp; Supply | Forever Green",
+   "meta_description_len": 164,
+   "has_form": true,
+   "phone_found": true,
+   "email_found": false,
+   "has_contact_page": true,
+   "links_sampled": 12,
+   "links_broken": 0,
+   "socials": {
+    "facebook.com": true,
+    "instagram.com": true,
+    "linkedin.com": false
+   }
+  },
+  "fetch_ok": true,
+  "defect_score": 0,
+  "defect_count": 0,
+  "tier": "CLEAN"
+ },
+ {
+  "input_url": "https://dyerdecorating.co.nz",
+  "host": "dyerdecorating.co.nz",
+  "checked_at": "2026-08-18T07:44:13+12:00",
+  "defects": [
+   {
+    "code": "NO_WRITTEN_CONTACT",
+    "severity": "medium",
+    "finding": "No contact form or email address \u2014 phone only.",
+    "evidence": "no <form> and no mailto: on homepage"
+   },
+   {
+    "code": "HEAVY_HTML",
+    "severity": "low",
+    "finding": "HTML document alone is 556KB.",
+    "evidence": "569361 bytes of HTML before images/scripts"
+   },
+   {
+    "code": "NO_SOCIAL_LINKS",
+    "severity": "low",
+    "finding": "No social profile links found on homepage.",
+    "evidence": "no facebook/instagram/linkedin URLs in HTML"
+   }
+  ],
+  "errors": [],
+  "signals": {
+   "ssl": {
+    "valid": true,
+    "expires": "2026-10-14",
+    "days_left": 58,
+    "issuer": "Google Trust Services"
+   },
+   "http_status": 200,
+   "final_url": "https://dyerdecorating.co.nz",
+   "load_ms": 402,
+   "page_bytes": 569361,
+   "title": "Painters Christchurch - Dyer Decorating | House Painters Christchurch",
+   "meta_description_len": 147,
+   "copyright_year": 2025,
+   "has_form": false,
+   "phone_found": true,
+   "email_found": false,
+   "has_contact_page": true,
+   "links_sampled": 9,
+   "links_broken": 0,
+   "socials": {
+    "facebook.com": false,
+    "instagram.com": false,
+    "linkedin.com": false
+   }
+  },
+  "fetch_ok": true,
+  "defect_score": 17,
+  "defect_count": 3,
+  "tier": "NURTURE"
+ },
+ {
+  "input_url": "https://prodecorators.co.nz",
+  "host": "prodecorators.co.nz",
+  "checked_at": "2026-08-18T07:44:18+12:00",
+  "defects": [
+   {
+    "code": "NO_WRITTEN_CONTACT",
+    "severity": "medium",
+    "finding": "No contact form or email address \u2014 phone only.",
+    "evidence": "no <form> and no mailto: on homepage"
+   },
+   {
+    "code": "HEAVY_HTML",
+    "severity": "low",
+    "finding": "HTML document alone is 748KB.",
+    "evidence": "765831 bytes of HTML before images/scripts"
+   }
+  ],
+  "errors": [],
+  "signals": {
+   "ssl": {
+    "valid": true,
+    "expires": "2026-09-22",
+    "days_left": 36,
+    "issuer": "Google Trust Services"
+   },
+   "http_status": 200,
+   "final_url": "https://prodecorators.co.nz",
+   "load_ms": 207,
+   "page_bytes": 765831,
+   "title": "Pro Decorators: Premier Painting Services in Christchurch",
+   "meta_description_len": 152,
+   "has_form": false,
+   "phone_found": true,
+   "email_found": false,
+   "has_contact_page": true,
+   "links_sampled": 12,
+   "links_broken": 0,
+   "socials": {
+    "facebook.com": true,
+    "instagram.com": true,
+    "linkedin.com": true
+   }
+  },
+  "fetch_ok": true,
+  "defect_score": 13,
+  "defect_count": 2,
+  "tier": "NURTURE"
+ },
+ {
+  "input_url": "https://www.davidrobertson.co.nz",
+  "host": "www.davidrobertson.co.nz",
+  "checked_at": "2026-08-18T07:44:24+12:00",
+  "defects": [
+   {
+    "code": "NO_CONTACT_ON_HOMEPAGE",
+    "severity": "medium",
+    "finding": "Homepage shows no phone, email or form \u2014 visitors must click through to a contact page to reach the business.",
+    "evidence": "no <form>/tel:/mailto: on homepage; separate contact page found (/contact.html). Extra click = lost enquiries, but the business IS contactable \u2014 do not claim otherwise."
+   },
+   {
+    "code": "BROKEN_LINKS",
+    "severity": "high",
+    "finding": "1 of 7 sampled internal links are broken.",
+    "evidence": "[{\"url\": \"https://www.davidrobertson.co.nz/_blank\", \"result\": \"HTTP 404\"}]"
+   },
+   {
+    "code": "NO_SOCIAL_LINKS",
+    "severity": "low",
+    "finding": "No social profile links found on homepage.",
+    "evidence": "no facebook/instagram/linkedin URLs in HTML"
+   }
+  ],
+  "errors": [],
+  "signals": {
+   "ssl": {
+    "valid": true,
+    "expires": "2026-10-07",
+    "days_left": 51,
+    "issuer": "Google Trust Services"
+   },
+   "http_status": 200,
+   "final_url": "https://www.davidrobertson.co.nz",
+   "load_ms": 233,
+   "page_bytes": 32135,
+   "title": "David Robertson Painters and Decorators Christchurch - Home",
+   "meta_description_len": 231,
+   "has_form": false,
+   "phone_found": false,
+   "email_found": false,
+   "has_contact_page": true,
+   "links_sampled": 7,
+   "links_broken": 1,
+   "socials": {
+    "facebook.com": false,
+    "instagram.com": false,
+    "linkedin.com": false
+   }
+  },
+  "fetch_ok": true,
+  "defect_score": 31,
+  "defect_count": 3,
+  "tier": "WARM"
+ },
+ {
+  "input_url": "https://a1decorating.co.nz",
+  "host": "a1decorating.co.nz",
+  "checked_at": "2026-08-18T07:44:27+12:00",
+  "defects": [],
+  "errors": [],
+  "signals": {
+   "ssl": {
+    "valid": true,
+    "expires": "2026-09-25",
+    "days_left": 38,
+    "issuer": "Let's Encrypt"
+   },
+   "http_status": 200,
+   "final_url": "https://a1decorating.co.nz",
+   "load_ms": 102,
+   "page_bytes": 50827,
+   "title": "Christchurch Painters | Residential &amp; Commercial | A1 Decorating",
+   "meta_description_len": 139,
+   "has_form": true,
+   "phone_found": true,
+   "email_found": true,
+   "has_contact_page": true,
+   "links_sampled": 12,
+   "links_broken": 0,
+   "socials": {
+    "facebook.com": true,
+    "instagram.com": false,
+    "linkedin.com": false
+   }
+  },
+  "fetch_ok": true,
+  "defect_score": 0,
+  "defect_count": 0,
+  "tier": "CLEAN"
+ }
+]

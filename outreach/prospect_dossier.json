@@ -1,0 +1,140 @@
+[
+ {
+  "business_name": "www.whiteandtaylor.co.nz",
+  "verdict": "NO_EMAIL_PUBLISHED",
+  "reason": "no address on own site -> phone/post only",
+  "refusal_statement_present": false,
+  "verified_defects": [
+   "STALE_COPYRIGHT",
+   "HEAVY_HTML"
+  ]
+ },
+ {
+  "business_name": "www.bcplumbers.co.nz",
+  "verdict": "NO_EMAIL_PUBLISHED",
+  "reason": "no address on own site -> phone/post only",
+  "refusal_statement_present": false,
+  "verified_defects": [
+   "STALE_COPYRIGHT",
+   "BROKEN_LINKS"
+  ]
+ },
+ {
+  "business_name": "www.clyne-bennie.co.nz",
+  "verdict": "EVIDENCE_READY",
+  "verified_defects": [
+   "NO_WRITTEN_CONTACT",
+   "HEAVY_HTML"
+  ],
+  "refusal_statement_present": false,
+  "address": "service@clyne-bennie.co.nz",
+  "address_source_url": "https://clyne-bennie.co.nz/",
+  "address_found_where": "plain text on page",
+  "role_or_personal": "personal_or_named",
+  "invites_contact": true,
+  "address_provenance": "own_website",
+  "surrounding_wording": "d by our joint venture partner CBNT Ltd T/A Clyne & Bennie Nelson Tasman (03) 547 0002 Get in Touch 0800 37 47 37 service@clyne-bennie.co.nz LinkedIn Facebook Instagram \u00a9 2026 Clyne & Bennie Ltd. All rights reserved. Created by Kreiva Digital \u269c\ufe0e Your cart (items: 0) Products in cart Product Details Total Available on backorder Previous pr",
+  "relevance_to_role": "address is published in a block that invites business contact; message concerns a verified defect on this business's own site",
+  "prior_relationship": "none",
+  "consent_type_claimed": "INFERRED",
+  "why_consent_believed": "",
+  "human_ratified_by": "",
+  "human_ratified": false
+ },
+ {
+  "business_name": "www.jcconstruction.co.nz",
+  "verdict": "EVIDENCE_READY",
+  "verified_defects": [
+   "HEAVY_HTML"
+  ],
+  "refusal_statement_present": false,
+  "address": "jason@jcconstruction.co.nz",
+  "address_source_url": "https://www.jcconstruction.co.nz",
+  "address_found_where": "mailto: link",
+  "role_or_personal": "personal_or_named",
+  "invites_contact": true,
+  "address_provenance": "own_website",
+  "surrounding_wording": "n_r_comp-m0a01bnb19\" class=\"N8MGzv _v6ohL PO9MfV comp-kbgakxmn_r_comp-m0a01bnb19 wixui-rich-text\" data-testid=\"richTextElement\"> Christchurch, New Zealand JASON: 027 378 0000 PAGAN: 027 373 0230 jason@jcconstruction.co.nz <div id=\"comp-kbgakxmn_r_comp-m0a01bne3\" class=\"N8MGzv _v6ohL PO9MfV comp-kbgakxmn_r_comp-m0a01bne3 wixui-rich-text\" d",
+  "relevance_to_role": "address is published in a block that invites business contact; message concerns a verified defect on this business's own site",
+  "prior_relationship": "none",
+  "consent_type_claimed": "INFERRED",
+  "why_consent_believed": "",
+  "human_ratified_by": "",
+  "human_ratified": false
+ },
+ {
+  "business_name": "www.tbir.co.nz",
+  "verdict": "EVIDENCE_READY",
+  "verified_defects": [
+   "HEAVY_HTML"
+  ],
+  "refusal_statement_present": false,
+  "address": "tbirgrass@gmail.com",
+  "address_source_url": "https://www.tbir.co.nz",
+  "address_found_where": "mailto: link",
+  "role_or_personal": "personal_or_named",
+  "invites_contact": true,
+  "address_provenance": "own_website",
+  "surrounding_wording": "ich-text__text\" style=\"line-height:1.5em; font-size:15px;\"> Based in Lincoln, Christchurch - servicing all of Canterbury tbirgrass@gmail.com +64-273-789-451 <div id=",
+  "relevance_to_role": "address is published in a block that invites business contact; message concerns a verified defect on this business's own site",
+  "prior_relationship": "none",
+  "consent_type_claimed": "INFERRED",
+  "why_consent_believed": "",
+  "human_ratified_by": "",
+  "human_ratified": false
+ },
+ {
+  "business_name": "www.greenscapes.co.nz",
+  "verdict": "NO_EMAIL_PUBLISHED",
+  "reason": "no address on own site -> phone/post only",
+  "refusal_statement_present": false,
+  "verified_defects": [
+   "STALE_COPYRIGHT",
+   "HEAVY_HTML"
+  ]
+ },
+ {
+  "business_name": "dyerdecorating.co.nz",
+  "verdict": "NO_EMAIL_PUBLISHED",
+  "reason": "no address on own site -> phone/post only",
+  "refusal_statement_present": false,
+  "verified_defects": [
+   "NO_WRITTEN_CONTACT",
+   "HEAVY_HTML",
+   "NO_SOCIAL_LINKS"
+  ]
+ },
+ {
+  "business_name": "prodecorators.co.nz",
+  "verdict": "EVIDENCE_READY",
+  "verified_defects": [
+   "NO_WRITTEN_CONTACT",
+   "HEAVY_HTML"
+  ],
+  "refusal_statement_present": false,
+  "address": "contact@prodecorators.co.nz",
+  "address_source_url": "https://prodecorators.co.nz",
+  "address_found_where": "plain text on page",
+  "role_or_personal": "role",
+  "invites_contact": false,
+  "address_provenance": "own_website",
+  "surrounding_wording": "Resources Exterior Painting Resources Legal Privacy Policy Terms and Conditions Contact Phone: 03 3652204 Email: contact@prodecorators.co.nz christchurch, roof, auckland, wellington, plaster, spray painting, tauranga, renovation, bathroom, canterbury region, house painters, residential painting, house painter, commercial painting, custome",
+  "relevance_to_role": "address is published in a block that invites business contact; message concerns a verified defect on this business's own site",
+  "prior_relationship": "none",
+  "consent_type_claimed": "INFERRED",
+  "why_consent_believed": "",
+  "human_ratified_by": "",
+  "human_ratified": false
+ },
+ {
+  "business_name": "www.davidrobertson.co.nz",
+  "verdict": "NO_EMAIL_PUBLISHED",
+  "reason": "no address on own site -> phone/post only",
+  "refusal_statement_present": false,
+  "verified_defects": [
+   "NO_CONTACT_ON_HOMEPAGE",
+   "BROKEN_LINKS",
+   "NO_SOCIAL_LINKS"
+  ]
+ }
+]
