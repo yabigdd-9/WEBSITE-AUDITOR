@@ -1,0 +1,18 @@
+{
+  "verifier_version": "email-v2.0.1",
+  "precision_target": 0.95,
+  "max_pages_per_business": 5,
+  "max_requests_per_business": 8,
+  "concurrency": 1,
+  "evidence_max_age_days": 7,
+  "dns_cache_hours": 1,
+  "dns_gate_max_age_hours": 24,
+  "smtp_probing_enabled": false,
+  "model_execution_enabled": false,
+  "paid_inference_enabled": false,
+  "default_selection_state": "VERIFIED_HIGH",
+  "policy_mode_source": "SQLite email_policy plus email_release_policy; observation holds production persistence and eligibility",
+  "release_mode": "POST_DEPLOYMENT_OBSERVATION",
+  "notes": "Public attribution is not mailbox delivery or permission. V1 rollback holds all new email approvals. Suppression overrides every mode.",
+  "deployment_mode": "POST_DEPLOYMENT_OBSERVATION"
+}

@@ -1,0 +1,15 @@
+Act as JUDGE for MoneyMachine Batch 001. Review this opportunity independently.
+
+BUSINESS: Christchurch Renovations Limited (ID chch_renovations). Website: https://www.chchrenovations.nz/
+AUDIT SCORE: 62/100 (B band)
+KEY FINDINGS: Christchurch Renovations Limited, NZBN 9429051234010, Company #8686266, registered April 2023, 37 Mays Road St Albans. Two named directors (Paula & Paulo Jacinto). Greens + Reece tapware partner. STAFFED Tue-Sat. BUT: 0 Google reviews, 0 Facebook reviews, 12 Facebook followers, stock photos (Unsplash/Pinterest) instead of real project photos, phone-only booking (021 280 7633), bare-bones contact form (name/email/message only), no CRM, no automation, no quote tool, 'Winter Upgrade Campaign' banner on homepage in September (NZ spring - content rot). Auditor proposed phased NZD 4,500-6,500 digital foundation. Auditor confidence: 6/10. Business is real and registered but small startup with weak digital signals.
+
+Read the full audit at /Users/yabigdd/MoneyMachine/reports/AUDIT_chch_renovations_audit.json (may not exist — use what you have)
+Read the scoring rubric at /Users/yabigdd/MoneyMachine/control-plane/SCORING_RUBRIC.md
+Read the judge spec at /Users/yabigdd/MoneyMachine/control-plane/JUDGE_SPEC.md
+
+Be independent. 1) Is a small registered startup (2023) with 0 reviews and stock photos worth pursuing? 2) Can they afford NZD 4,500+? Or is NZD 2,500-3,500 Phase 1 the right entry? 3) Does the revised 62 score feel right? 4) Greens/Reece partnership + staffed Tue-Sat - does this change purchaseability?
+
+Write your decision as JSON to /Users/yabigdd/MoneyMachine/reports/JUDGE_chch_renovations.json
+Use EXACTLY this format (no other text, no markdown fence):
+{"business_id": chch_renovations, "business_name": "Christchurch Renovations Limited", "judge_decision": "ACCEPT" or "REVISE" or "REJECT", "original_score": 62, "confidence": 0-10, "reasons": ["reason1", "reason2"], "judge_score_adjustment": {"overall_score_new": 0-100} or null, "notes": "your notes"}

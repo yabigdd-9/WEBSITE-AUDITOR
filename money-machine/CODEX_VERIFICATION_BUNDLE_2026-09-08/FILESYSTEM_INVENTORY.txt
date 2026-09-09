@@ -1,0 +1,111 @@
+# Filesystem Inventory: ~/MoneyMachine
+**Generated:** 2026-09-07T19:03:40.127372+00:00
+**Total files:** 1038 (including .git and data/playwright)
+**Total directories:** 127
+
+## Top-Level Structure
+| Path | Type | Size | Modified |
+|------|------|------|----------|
+| MoneyMachine/ | dir | - | - |
+| MoneyMachine/.env | file | 84B | Sep 4 23:46 |
+| MoneyMachine/.gitignore | file | 102B | Sep 5 00:05 |
+| MoneyMachine/.git/ | dir | - | - |
+| MoneyMachine/BACKUP_MANIFEST.md | file | 11K | Sep 8 02:52 |
+| MoneyMachine/CURRENT_STATE.md | file | 17K | Sep 8 02:45 |
+| MoneyMachine/EXECUTION_PLAN.md | file | 18K | Sep 8 02:50 |
+| MoneyMachine/FIRST_REVENUE.md | file | 5.7K | Sep 8 01:28 |
+| MoneyMachine/GAP_ANALYSIS.md | file | 18K | Sep 8 02:48 |
+| MoneyMachine/README.md | file | 571B | Sep 8 01:26 |
+| MoneyMachine/check_db.py | file | 2.8K | Sep 8 02:05 |
+| MoneyMachine/check_db2.py | file | 1.4K | Sep 8 02:08 |
+| MoneyMachine/check_routing.py | file | 431B | Sep 8 02:12 |
+| MoneyMachine/docker-compose.yml | file | 458B | Sep 4 23:38 |
+
+## Directories
+- **backups/** — 8 backup snapshots (20260907-210021, 20260908-015124, 20260908-015112, 20260908-021500, first-revenue-20260908-011901, operator-20260908-012335, pre-scaffold-20260904-234645, control-plane-20260908-020040.tgz)
+- **cache/** — empty
+- **completed/** — empty
+- **config/** — HERMES_MASTER_OPERATOR.md, HERMES_MONEY_MACHINE_MASTER_PLAN.md, approval_gates.yaml
+- **control-plane/** — scripts/, config/, state/, roles/, PROMPTS/, BATCH_001_CONSOLIDATOR.py, FINAL_CONSOLIDATOR.py, JUDGE_SPEC.md, MASTER_OPERATOR.md, MONEY_MACHINE_POLISH_OPERATOR.md, SCORING_RUBRIC.md
+- **data/** — npm-cache/, playwright/ (chromium-1223, chromium-1234, chromium_headless_shell-1223, chromium_headless_shell-1234), n8n/, batches/BATCH-001/
+- **database/** — money_machine.db (148K), money_machine.db-shm (32K), money_machine.db-wal (0B), schema.sql (4.9K)
+- **demos/** — (empty or minimal)
+- **evidence/** — (empty or minimal)
+- **experiments/** — (empty)
+- **exports/** — (empty)
+- **logs/** — bootstrap logs, run logs, smoke-test logs, phased logs
+- **outbox/** — 5.md (2.5K), 15.md (2.5K)
+- **outputs/** — outreach-drafts/BATCH-001/, proposals/BATCH-001/
+- **projects/** — (empty)
+- **proposals/** — 5-pilot.md, 15-pilot.md, PILOT_PROPOSAL_TEMPLATE.md, proposal-5-20260908-012343151187.md
+- **prospects/** — evoke-renovations/ (audit.md, offer.md, outreach.md, demo/, evidence/), heat-force/ (audit.md, offer.md, outreach.md, demo/, evidence/)
+- **reports/** — CURRENT_STATE.md, DAILY_OPERATOR.md, KPI_DASHBOARD.md, TOKEN_AUDIT.md, SYSTEM_SNAPSHOT_20260908.md, BATCH_001_*.md/json, AUDIT_*.json, JUDGE_*.json, PROOFER_*.json, VERIFICATION_*.json, OFFER_*.md, daily-operator/ (dashboard.json, index.html), native-diagnostics-20260907-222718/, etc.
+- **sandbox/** — (empty)
+- **scripts/** — mm_operator.py (18K), init_db.py (408B), run_dummy_pipeline.py (6.0K), seed_data.py (BLOCKED), fix_contacts.py (BLOCKED), mark_sent.py (BLOCKED), __pycache__/
+- **workspace/** — (empty)
+
+## Empty Files
+- MoneyMachine/database/money_machine.db-wal (0B)
+- MoneyMachine/data/npm-cache/_update-notifier-last-checked (0B)
+- MoneyMachine/data/playwright/chromium_headless_shell-1223/DEPENDENCIATED_VALIDATED (0B)
+
+## Scripts (Active)
+- scripts/mm_operator.py — Local-only CLI operator (18K, WORKING)
+- scripts/init_db.py — Database initialization (408B, WORKING)
+- scripts/run_dummy_pipeline.py — Synthetic test pipeline (6.0K, WORKING)
+- scripts/check_db.py — DB inspection utility (2.8K)
+- scripts/check_db2.py — DB inspection utility (1.4K)
+- scripts/check_routing.py — Routing check (431B)
+
+## Scripts (Blocked/Retired)
+- scripts/seed_data.py — BLOCKED (raises SystemExit)
+- scripts/fix_contacts.py — BLOCKED (raises SystemExit)
+- scripts/mark_sent.py — BLOCKED (raises SystemExit)
+
+## Databases
+- database/money_machine.db — 148K, SQLite, 22 tables, 4 triggers
+- data/n8n/database.sqlite — n8n workflow data (if present)
+
+## Reports
+- reports/CURRENT_STATE.md — 17K
+- reports/DAILY_OPERATOR.md — (generated daily)
+- reports/KPI_DASHBOARD.md — (generated daily)
+- reports/TOKEN_AUDIT.md — (generated daily)
+- reports/SYSTEM_SNAPSHOT_20260908.md — 11K
+- reports/BATCH_001_MASTER_REPORT.md — 23K
+- reports/BATCH_001_PIPELINE_STATUS.md — 18K
+- reports/BATCH_001_CONSOLIDATED_JUDGMENT.json — 33K
+- reports/BATCH_001_RANKING_FINAL.json — 32K
+- Plus ~30+ audit/judge/proffer/verification JSON files
+
+## Logs
+- logs/bootstrap-20260904-220436.log through logs/bootstrap-20260908-013449.log
+- logs/run-20260907-210047/ through logs/run-20260908-015230/
+- logs/smoke-test-20260908-015834/ through logs/smoke-test-20260908-020117/
+- logs/phased-20260907-223251/
+- logs/hermes-doctor-after-setup.txt
+- logs/free-route-smoke-20260904.json
+
+## Prospects
+- prospects/evoke-renovations/ — audit.md (3.0K), offer.md (1.8K), outreach.md (1.7K), demo/testimonial-section.html (4.8K), evidence/
+- prospects/heat-force/ — audit.md (2.4K), offer.md (1.4K), outreach.md (1.6K), demo/enquiry-form.html (4.4K), evidence/
+
+## Outbox
+- outbox/5.md — Heat Force approval queue entry (2.5K)
+- outbox/15.md — Evoke Renovations approval queue entry (2.5K)
+
+## Proposals
+- proposals/5-pilot.md — Heat Force pilot proposal
+- proposals/15-pilot.md — Evoke Renovations pilot proposal
+- proposals/PILOT_PROPOSAL_TEMPLATE.md — Reusable template
+- proposals/proposal-5-20260908-012343151187.md — Generated proposal
+
+## Backups
+- backups/20260908-015124/ — Full snapshot (config, control-plane, .env, etc.)
+- backups/20260908-021500/ — State snapshot
+- backups/operator-20260908-012335/ — Operator backup (demos, db, scripts)
+- backups/first-revenue-20260908-011901/ — Hermes jobs snapshot
+- backups/pre-scaffold-20260904-234645/ — Pre-scaffold snapshot
+- backups/20260907-210021/ — Config snapshot
+- backups/control-plane-20260908-020040.tgz — Control-plane tarball
+- backups/money_machine-before-safety-repair-20260907T055126Z.db — DB backup

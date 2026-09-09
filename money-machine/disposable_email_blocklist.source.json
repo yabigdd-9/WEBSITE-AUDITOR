@@ -1,0 +1,9 @@
+{
+  "source": "https://github.com/disposable-email-domains/disposable-email-domains",
+  "download_url": "https://raw.githubusercontent.com/disposable-email-domains/disposable-email-domains/main/disposable_email_blocklist.conf",
+  "captured_at": "2026-09-08T05:33:00.955025+00:00",
+  "sha256": "a53449b4811524be1b506ab8ff2401ff16092720249332c76c9eb8e413c33511",
+  "entries": 8740,
+  "license": "Public-domain dedication / Unlicense; see upstream LICENSE.txt",
+  "limitation": "Known-domain snapshot only; no blocklist can establish that all unlisted services are permanent."
+}

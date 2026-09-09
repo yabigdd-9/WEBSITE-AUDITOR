@@ -1,0 +1,249 @@
+{
+  "captured_at": "2026-09-08T05:22:30.232057+00:00",
+  "results": {
+    "aes.nz": {
+      "domain": "aes.nz",
+      "checked_at": "2026-09-08T05:22:25.802142+00:00",
+      "domain_resolves": true,
+      "mx_present": true,
+      "mx_hosts": [
+        "aes-nz.mail.protection.outlook.com"
+      ],
+      "domain_accepts_mail": true,
+      "status": "mx",
+      "method": "DNS MX and public MX target address resolution",
+      "routable_mx_hosts": [
+        "aes-nz.mail.protection.outlook.com"
+      ]
+    },
+    "atlelectrical.co.nz": {
+      "domain": "atlelectrical.co.nz",
+      "checked_at": "2026-09-08T05:22:26.688671+00:00",
+      "domain_resolves": true,
+      "mx_present": true,
+      "mx_hosts": [
+        "aspmx.l.google.com",
+        "alt1.aspmx.l.google.com",
+        "alt2.aspmx.l.google.com",
+        "aspmx2.googlemail.com",
+        "aspmx3.googlemail.com"
+      ],
+      "domain_accepts_mail": true,
+      "status": "mx",
+      "method": "DNS MX and public MX target address resolution",
+      "routable_mx_hosts": [
+        "aspmx.l.google.com",
+        "alt1.aspmx.l.google.com",
+        "alt2.aspmx.l.google.com",
+        "aspmx2.googlemail.com",
+        "aspmx3.googlemail.com"
+      ]
+    },
+    "baheatpumps.co.nz": {
+      "domain": "baheatpumps.co.nz",
+      "checked_at": "2026-09-08T05:22:26.964281+00:00",
+      "domain_resolves": true,
+      "mx_present": true,
+      "mx_hosts": [
+        "baheatpumps-co-nz.mail.protection.outlook.com"
+      ],
+      "domain_accepts_mail": true,
+      "status": "mx",
+      "method": "DNS MX and public MX target address resolution",
+      "routable_mx_hosts": [
+        "baheatpumps-co-nz.mail.protection.outlook.com"
+      ]
+    },
+    "bestnestbuilding.co.nz": {
+      "domain": "bestnestbuilding.co.nz",
+      "checked_at": "2026-09-08T05:22:27.375161+00:00",
+      "domain_resolves": true,
+      "mx_present": true,
+      "mx_hosts": [
+        "aspmx.l.google.com",
+        "alt1.aspmx.l.google.com",
+        "alt2.aspmx.l.google.com",
+        "alt3.aspmx.l.google.com",
+        "alt4.aspmx.l.google.com"
+      ],
+      "domain_accepts_mail": true,
+      "status": "mx",
+      "method": "DNS MX and public MX target address resolution",
+      "routable_mx_hosts": [
+        "aspmx.l.google.com",
+        "alt1.aspmx.l.google.com",
+        "alt2.aspmx.l.google.com",
+        "alt3.aspmx.l.google.com",
+        "alt4.aspmx.l.google.com"
+      ]
+    },
+    "blizzard.co.nz": {
+      "domain": "blizzard.co.nz",
+      "checked_at": "2026-09-08T05:22:27.449858+00:00",
+      "domain_resolves": true,
+      "mx_present": true,
+      "mx_hosts": [
+        "ASPMX.L.GOOGLE.COM",
+        "ALT1.ASPMX.L.GOOGLE.COM",
+        "ALT2.ASPMX.L.GOOGLE.COM",
+        "ALT3.ASPMX.L.GOOGLE.COM",
+        "ALT4.ASPMX.L.GOOGLE.COM"
+      ],
+      "domain_accepts_mail": true,
+      "status": "mx",
+      "method": "DNS MX and public MX target address resolution",
+      "routable_mx_hosts": [
+        "ASPMX.L.GOOGLE.COM",
+        "ALT1.ASPMX.L.GOOGLE.COM",
+        "ALT2.ASPMX.L.GOOGLE.COM",
+        "ALT3.ASPMX.L.GOOGLE.COM",
+        "ALT4.ASPMX.L.GOOGLE.COM"
+      ]
+    },
+    "chchrenovations.nz": {
+      "domain": "chchrenovations.nz",
+      "checked_at": "2026-09-08T05:22:27.640058+00:00",
+      "domain_resolves": true,
+      "mx_present": true,
+      "mx_hosts": [
+        "aspmx.l.google.com",
+        "alt1.aspmx.l.google.com",
+        "alt2.aspmx.l.google.com",
+        "alt3.aspmx.l.google.com",
+        "alt4.aspmx.l.google.com"
+      ],
+      "domain_accepts_mail": true,
+      "status": "mx",
+      "method": "DNS MX and public MX target address resolution",
+      "routable_mx_hosts": [
+        "aspmx.l.google.com",
+        "alt1.aspmx.l.google.com",
+        "alt2.aspmx.l.google.com",
+        "alt3.aspmx.l.google.com",
+        "alt4.aspmx.l.google.com"
+      ]
+    },
+    "evoke-reno.co.nz": {
+      "domain": "evoke-reno.co.nz",
+      "checked_at": "2026-09-08T05:22:27.750260+00:00",
+      "domain_resolves": true,
+      "mx_present": true,
+      "mx_hosts": [
+        "aspmx.l.google.com",
+        "alt1.aspmx.l.google.com",
+        "alt2.aspmx.l.google.com",
+        "alt3.aspmx.l.google.com",
+        "alt4.aspmx.l.google.com"
+      ],
+      "domain_accepts_mail": true,
+      "status": "mx",
+      "method": "DNS MX and public MX target address resolution",
+      "routable_mx_hosts": [
+        "aspmx.l.google.com",
+        "alt1.aspmx.l.google.com",
+        "alt2.aspmx.l.google.com",
+        "alt3.aspmx.l.google.com",
+        "alt4.aspmx.l.google.com"
+      ]
+    },
+    "heatforce.co.nz": {
+      "domain": "heatforce.co.nz",
+      "checked_at": "2026-09-08T05:22:27.863380+00:00",
+      "domain_resolves": true,
+      "mx_present": true,
+      "mx_hosts": [
+        "heatforce-co-nz.mail.protection.outlook.com"
+      ],
+      "domain_accepts_mail": true,
+      "status": "mx",
+      "method": "DNS MX and public MX target address resolution",
+      "routable_mx_hosts": [
+        "heatforce-co-nz.mail.protection.outlook.com"
+      ]
+    },
+    "imperialhvac.co.nz": {
+      "domain": "imperialhvac.co.nz",
+      "checked_at": "2026-09-08T05:22:28.402861+00:00",
+      "domain_resolves": true,
+      "mx_present": true,
+      "mx_hosts": [
+        "mail.imperialhvac.co.nz"
+      ],
+      "domain_accepts_mail": true,
+      "status": "mx",
+      "method": "DNS MX and public MX target address resolution",
+      "routable_mx_hosts": [
+        "mail.imperialhvac.co.nz"
+      ]
+    },
+    "kiwiheatpumps.co.nz": {
+      "domain": "kiwiheatpumps.co.nz",
+      "checked_at": "2026-09-08T05:22:28.626412+00:00",
+      "domain_resolves": true,
+      "mx_present": true,
+      "mx_hosts": [
+        "mail.kiwiheatpumps.co.nz"
+      ],
+      "domain_accepts_mail": true,
+      "status": "mx",
+      "method": "DNS MX and public MX target address resolution",
+      "routable_mx_hosts": [
+        "mail.kiwiheatpumps.co.nz"
+      ]
+    },
+    "simpsoncc.co.nz": {
+      "domain": "simpsoncc.co.nz",
+      "checked_at": "2026-09-08T05:22:28.750819+00:00",
+      "domain_resolves": true,
+      "mx_present": true,
+      "mx_hosts": [
+        "aspmx.l.google.com",
+        "alt1.aspmx.l.google.com",
+        "alt2.aspmx.l.google.com",
+        "alt3.aspmx.l.google.com",
+        "alt4.aspmx.l.google.com"
+      ],
+      "domain_accepts_mail": true,
+      "status": "mx",
+      "method": "DNS MX and public MX target address resolution",
+      "routable_mx_hosts": [
+        "aspmx.l.google.com",
+        "alt1.aspmx.l.google.com",
+        "alt2.aspmx.l.google.com",
+        "alt3.aspmx.l.google.com",
+        "alt4.aspmx.l.google.com"
+      ]
+    },
+    "superiorrenovations.co.nz": {
+      "domain": "superiorrenovations.co.nz",
+      "checked_at": "2026-09-08T05:22:28.819030+00:00",
+      "domain_resolves": true,
+      "mx_present": true,
+      "mx_hosts": [
+        "superiorrenovations-co-nz.mail.protection.outlook.com"
+      ],
+      "domain_accepts_mail": true,
+      "status": "mx",
+      "method": "DNS MX and public MX target address resolution",
+      "routable_mx_hosts": [
+        "superiorrenovations-co-nz.mail.protection.outlook.com"
+      ]
+    },
+    "trident.nz": {
+      "domain": "trident.nz",
+      "checked_at": "2026-09-08T05:22:29.484609+00:00",
+      "domain_resolves": true,
+      "mx_present": true,
+      "mx_hosts": [
+        "trident-nz.mail.protection.outlook.com"
+      ],
+      "domain_accepts_mail": true,
+      "status": "mx",
+      "method": "DNS MX and public MX target address resolution",
+      "routable_mx_hosts": [
+        "trident-nz.mail.protection.outlook.com"
+      ]
+    }
+  },
+  "smtp": "Not probed; no mailbox-existence or delivery claim"
+}

@@ -1,0 +1,41 @@
+# Process and Schedule Audit
+**Generated:** 2026-09-07T19:03:40.127368+00:00
+
+## Active Hermes Processes (ps aux)
+PID 71234: /Applications/Hermes.app/Contents/MacOS/Hermes (main app, started 4:37AM)
+PID 71264: Hermes Helper (Renderer) --type=renderer
+PID 71243: Hermes Helper (GPU) --type=gpu-process
+PID 71288: Hermes Helper (Audio) --type=audio.mojom.AudioService
+PID 71244: Hermes Helper (Network) --type=network.mojom.NetworkService
+PID 71196: python -m hermes_cli.main gateway run --external-supervisor
+PID 71194: python -m hermes_cli.stderr_timestamp --error-log ~/.hermes/logs/gateway.error.log
+PID 71274: python -m hermes_cli.main serve --host 127.0.0.1 --port 0
+PID 79284: hermes_kernel_runner.py (session kernel)
+PID 78719: hermes_kernel_runner.py (session kernel)
+PID 78654: hermes_kernel_runner.py (session kernel)
+PID 78194: hermes_kernel_runner.py (session kernel)
+
+## Crontab
+$ crontab -l
+Result: no crontab for yabigdd
+
+## LaunchAgents (~/Library/LaunchAgents)
+Only ai.hermes.gateway.plist (Hermes gateway, not MoneyMachine)
+No MoneyMachine-specific LaunchAgents found.
+
+## Hermes Scheduled Jobs (~/.hermes/cron/jobs.json)
+Job 1: "Money Machine Daily Email Check" (ID: 946df1bcd233)
+  - Schedule: 0 9 * * * (every day at 9am)
+  - State: PAUSED
+  - Reason: "MoneyMachine revenue upgrade: manual operator workflow; per-message approval required; legacy unsubscribe status unresolved"
+  - Last run: never
+
+Job 2: "Money Machine 7-Day Follow-up" (ID: 9e7ee8d9a697)
+  - Schedule: 0 10 * * 1 (every Monday 10am)
+  - State: PAUSED
+  - Reason: "MoneyMachine revenue upgrade: manual operator workflow; per-message approval required; legacy unsubscribe status unresolved"
+  - Last run: never
+
+## Persistent Supervisors
+- Hermes gateway (PID 71196): python -m hermes_cli.main gateway run --external-supervisor
+- No MoneyMachine-specific persistent supervisors active.

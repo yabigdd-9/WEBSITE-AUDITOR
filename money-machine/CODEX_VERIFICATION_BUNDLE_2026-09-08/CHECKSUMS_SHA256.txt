@@ -1,0 +1,18 @@
+# SHA256 Checksums
+**Generated:** 2026-09-07T19:08:56.398902+00:00
+
+0781c431674ad6ffc6a62b990ef0c1efa3d36a936f09018366e865394ad8536d  /Users/yabigdd/MoneyMachine/database/money_machine.db
+03777791599c15243f1ccb7fc30919790ac3f297fb1e7c521f48eb3602e87b43  /Users/yabigdd/MoneyMachine/reports/CURRENT_STATE.md
+a55c188d62efedbb2d693286bbf64fe86ebb001a7321707b07b1854ac541a446  /Users/yabigdd/MoneyMachine/reports/DAILY_OPERATOR.md
+319ac6edd2019a3f8de957e338b2887429b3354cb238375a5686722c139daf41  /Users/yabigdd/MoneyMachine/reports/KPI_DASHBOARD.md
+13bd99d2bd065ba11137b4d748d5399f08e9d7f2379be297ea005d23e3b71584  /Users/yabigdd/MoneyMachine/reports/TOKEN_AUDIT.md
+75620bf8ccbe7596ef45230c3454d3376fb81e7d918d9f579469314b319bbcf5  /Users/yabigdd/MoneyMachine/outbox/5.md
+995867f90e888c812f633dbf1bbb117bef998f1a5afd3a90a3fef2d5857068df  /Users/yabigdd/MoneyMachine/outbox/15.md
+a01ab00d50472a1ef6db0b932871ebbda83778d890bfb5d40f096f4b85719f8d  /Users/yabigdd/MoneyMachine/proposals/5-pilot.md
+62fc3c45a00b566b7d3d297ff3ff829257e839194f89ac0b6182a6bd0d4ebdc7  /Users/yabigdd/MoneyMachine/proposals/15-pilot.md
+d3657aa07a5b290449507298bc4c2ae2f95c5dda95b58129961e53f0f3d2cb2a  /Users/yabigdd/MoneyMachine/proposals/PILOT_PROPOSAL_TEMPLATE.md
+1da338c97704808c20a8055de312e1ecab2cdcfff8073eaa8d0387c35a4bee42  /Users/yabigdd/MoneyMachine/scripts/mm_operator.py
+6efa0ceb7bfc60d6b0db4b9f5f9bb776569199af4d3d0c2ec9805656adda54c9  /Users/yabigdd/MoneyMachine/scripts/init_db.py
+03a39d82b159710dee6546e4f467b4897387f887e8e56c9d1e84e60da605edf3  /Users/yabigdd/MoneyMachine/scripts/run_dummy_pipeline.py
+d4699506eb8e1341b12865575698b53d34672eee1d30093075b084793dc3fafa  /Users/yabigdd/MoneyMachine/prospects/heat-force/demo/enquiry-form.html
+e0533f444a114315e8f3eb225ee33c045597c4b5cafb56199aa69058b83e885b  /Users/yabigdd/MoneyMachine/prospects/evoke-renovations/demo/testimonial-section.html

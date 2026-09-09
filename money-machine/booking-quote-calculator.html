@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking + Quote Calculator Demo</title>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --success: #0d904f;
+            --warning: #f9ab00;
+            --danger: #ea4335;
+            --gray-50: #f8f9fa;
+            --gray-100: #f1f3f4;
+            --gray-200: #e8eaed;
+            --gray-300: #dadce0;
+            --gray-500: #5f6368;
+            --gray-700: #3c4043;
+            --gray-900: #202124;
+            --radius: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --shadow-lg: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            padding: 20px 0;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .industry-selector {
+            display: flex;
+            gap: 8px;
+        }
+
+        .industry-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--gray-300);
+            background: white;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .industry-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .industry-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .demo-badge {
+            display: inline-block;
+            background: var(--warning);
+            color: var(--gray-900);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            color: var(--gray-900);
+        }
+
+        .subtitle {
+            color: var(--gray-500);
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 16px;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-indicator {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .step {
+            flex: 1;
+            height: 4px;
+            background: var(--gray-200);
+            border-radius: 2px;
+        }
+
+        .step.active {
+            background: var(--primary);
+        }
+
+        .step.completed {
+            background: var(--success);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--gray-700);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: var(--gray-50);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .checkbox-item:hover {
+            background: var(--gray-100);
+        }
+
+        .checkbox-item input {
+            width: auto;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-200);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .quote-result {
+            background: linear-gradient(135deg, #f0f9f4 0%, #e8f5e9 100%);
+            border: 1px solid #c8e6c9;
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-top: 20px;
+        }
+
+        .quote-amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .quote-range {
+            font-size: 1rem;
+            color: var(--gray-500);
+            margin-top: 4px;
+        }
+
+        .quote-breakdown {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #c8e6c9;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 0.9rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .booking-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-top: 12px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calendar-day:hover:not(.disabled):not(.selected) {
+            background: var(--gray-100);
+        }
+
+        .calendar-day.selected {
+            background: var(--primary);
+            color: white;
+        }
+
+        .calendar-day.disabled {
+            color: var(--gray-300);
+            cursor: not-allowed;
+        }
+
+        .calendar-day.today {
+            border: 2px solid var(--primary);
+        }
+
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .time-slot {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .time-slot:hover:not(.booked):not(.selected) {
+            border-color: var(--primary);
+        }
+
+        .time-slot.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .time-slot.booked {
+            background: var(--gray-100);
+            color: var(--gray-500);
+            cursor: not-allowed;
+            text-decoration: line-through;
+        }
+
+        .confirmation {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .confirmation-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--success);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 20px;
+        }
+
+        .confirmation h2 {
+            justify-content: center;
+        }
+
+        .next-steps {
+            background: var(--gray-50);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .next-steps li {
+            margin: 8px 0;
+            margin-left: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .time-slots {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .industry-selector {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body><div style="padding:20px;background:#ffebad;color:#222">ARCHIVED SIMULATION: prices and availability are fictional; dates may be stale. No booking is created. Use enquiry-pilot.html for the current sales concept.</div>
+    <header>
+        <div class="header-content">
+            <div class="logo">🏢 Demo Company</div>
+            <div class="industry-selector">
+                <button class="industry-btn active" data-industry="hvac">HVAC</button>
+                <button class="industry-btn" data-industry="reno">Renovations</button>
+                <button class="industry-btn" data-industry="bath">Bathrooms</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="demo-badge">Demo Preview</div>
+        <h1>Get Your Free Quote & Book Online</h1>
+        <p class="subtitle">Get an instant estimate in 2 minutes. No obligation, no sales pitch.</p>
+
+        <div class="step-indicator">
+            <div class="step active" id="step1"></div>
+            <div class="step" id="step2"></div>
+            <div class="step" id="step3"></div>
+            <div class="step" id="step4"></div>
+        </div>
+
+        <!-- Step 1: Service Selection -->
+        <div class="card" id="step-1">
+            <h2>What do you need help with?</h2>
+            
+            <div class="form-group">
+                <label>Service Type</label>
+                <select id="service-type">
+                    <option value="">Select a service...</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>How would you describe the job?</label>
+                <select id="job-size">
+                    <option value="">Select size...</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="extra-options">
+                <label>Additional Options</label>
+                <div class="checkbox-group" id="options-group">
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="calculateQuote()">
+                Get My Estimate →
+            </button>
+        </div>
+
+        <!-- Step 2: Quote Result -->
+        <div class="card hidden" id="step-2">
+            <h2>Your Estimate</h2>
+            
+            <div class="quote-result">
+                <div class="quote-amount" id="quote-amount">$0</div>
+                <div class="quote-range" id="quote-range">Estimated range</div>
+                <div class="quote-breakdown" id="quote-breakdown">
+                </div>
+            </div>
+
+            <p style="margin-top: 16px; color: var(--gray-500); font-size: 0.9rem;">
+                ⚠️ This is an indicative estimate. Final pricing may vary based on site inspection and specific requirements.
+            </p>
+
+            <div style="display: flex; gap: 12px; margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="goBack(1)">← Start Over</button>
+                <button class="btn btn-primary" onclick="showBooking()">
+                    Book a Free Consultation →
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Booking -->
+        <div class="card hidden" id="step-3">
+            <h2>Book Your Consultation</h2>
+            
+            <div class="form-group">
+                <label>Select a Date</label>
+                <div class="booking-calendar" id="calendar"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Select a Time</label>
+                <div class="time-slots" id="time-slots"></div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" id="customer-name" placeholder="John Smith">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="customer-phone" placeholder="021 234 5678">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="customer-email" placeholder="john@example.com">
+            </div>
+
+            <div class="form-group">
+                <label>Notes (optional)</label>
+                <textarea id="customer-notes" rows="3" placeholder="Tell us more about your project..."></textarea>
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-secondary" onclick="goBack(2)">← Back</button>
+                <button class="btn btn-success" onclick="confirmBooking()">
+                    Confirm Booking ✓
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 4: Confirmation -->
+        <div class="card hidden" id="step-4">
+            <div class="confirmation">
+                <div class="confirmation-icon">✓</div>
+                <h2>Booking Confirmed!</h2>
+                <p style="color: var(--gray-500); margin-top: 8px;">
+                    We'll see you on <strong id="confirm-date"></strong> at <strong id="confirm-time"></strong>
+                </p>
+                
+                <div class="next-steps">
+                    <strong>What happens next:</strong>
+                    <ul>
+                        <li>You'll receive a confirmation email shortly</li>
+                        <li>We'll call you 24 hours before to confirm</li>
+                        <li>Our team will arrive at the scheduled time</li>
+                        <li>After the consultation, you'll receive a detailed quote</li>
+                    </ul>
+                </div>
+
+                <button class="btn btn-secondary" onclick="resetAll()" style="margin-top: 20px;">
+                    Start New Quote
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const industryData = {
+            hvac: {
+                name: 'HVAC Services',
+                services: [
+                    { value: 'install', label: 'Heat Pump Installation', base: 2500 },
+                    { value: 'service', label: 'Annual Service', base: 180 },
+                    { value: 'repair', label: 'Repair / Fault Diagnosis', base: 150 },
+                    { value: 'ducted', label: 'Ducted System Quote', base: 8000 }
+                ],
+                sizes: [
+                    { value: '1bed', label: '1 Bedroom / Small Room', mult: 0.8 },
+                    { value: '2bed', label: '2 Bedroom / Medium Room', mult: 1.0 },
+                    { value: '3bed', label: '3 Bedroom / Large Room', mult: 1.3 },
+                    { value: '4bed', label: '4+ Bedroom / Whole Home', mult: 1.8 }
+                ],
+                options: [
+                    { value: 'ceiling', label: 'Ceiling Cassette', add: 800 },
+                    { value: 'ducted', label: 'Ducted System', add: 3000 },
+                    { value: 'multi', label: 'Multi-room Setup', add: 1200 },
+                    { value: 'wifi', label: 'WiFi Control', add: 200 }
+                ]
+            },
+            reno: {
+                name: 'Renovation Services',
+                services: [
+                    { value: 'kitchen', label: 'Kitchen Renovation', base: 25000 },
+                    { value: 'bathroom', label: 'Bathroom Renovation', base: 15000 },
+                    { value: 'laundry', label: 'Laundry Renovation', base: 8000 },
+                    { value: 'full', label: 'Full Home Renovation', base: 80000 }
+                ],
+                sizes: [
+                    { value: 'small', label: 'Small / Basic Finish', mult: 0.7 },
+                    { value: 'medium', label: 'Medium / Standard Finish', mult: 1.0 },
+                    { value: 'large', label: 'Large / Premium Finish', mult: 1.5 },
+                    { value: 'luxury', label: 'Luxury / High-End', mult: 2.5 }
+                ],
+                options: [
+                    { value: 'design', label: 'Design Service', add: 2500 },
+                    { value: 'consent', label: 'Building Consent', add: 1500 },
+                    { value: 'plumbing', label: 'Plumbing Relocation', add: 3000 },
+                    { value: 'electrical', label: 'Electrical Rewiring', add: 4000 }
+                ]
+            },
+            bath: {
+                name: 'Bathroom Services',
+                services: [
+                    { value: 'full', label: 'Full Bathroom Renovation', base: 18000 },
+                    { value: 'shower', label: 'Shower Replacement', base: 6000 },
+                    { value: 'vanity', label: 'Vanity & Tiling', base: 4500 },
+                    { value: 'waterproof', label: 'Waterproofing Only', base: 3500 }
+                ],
+                sizes: [
+                    { value: 'small', label: 'Small Bathroom (< 4m²)', mult: 0.8 },
+                    { value: 'medium', label: 'Medium Bathroom (4-8m²)', mult: 1.0 },
+                    { value: 'large', label: 'Large Bathroom (> 8m²)', mult: 1.4 },
+                    { value: 'ensuite', label: 'Ensuite', mult: 0.9 }
+                ],
+                options: [
+                    { value: 'tiling', label: 'Floor & Wall Tiling', add: 2500 },
+                    { value: 'heating', label: 'Underfloor Heating', add: 1800 },
+                    { value: 'lighting', label: 'LED Lighting', add: 800 },
+                    { value: 'extract', label: 'Extraction Fan Upgrade', add: 400 }
+                ]
+            }
+        };
+
+        let currentIndustry = 'hvac';
+        let currentQuote = 0;
+        let selectedDate = null;
+        let selectedTime = null;
+
+        function init() {
+            setupIndustryButtons();
+            loadIndustry('hvac');
+            generateCalendar();
+        }
+
+        function setupIndustryButtons() {
+            document.querySelectorAll('.industry-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.industry-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    loadIndustry(btn.dataset.industry);
+                });
+            });
+        }
+
+        function loadIndustry(industry) {
+            currentIndustry = industry;
+            const data = industryData[industry];
+            
+            // Update service dropdown
+            const serviceSelect = document.getElementById('service-type');
+            serviceSelect.innerHTML = '<option value="">Select a service...</option>';
+            data.services.forEach(s => {
+                serviceSelect.innerHTML += `<option value="${s.value}" data-base="${s.base}">${s.label}</option>`;
+            });
+
+            // Update size dropdown
+            const sizeSelect = document.getElementById('job-size');
+            sizeSelect.innerHTML = '<option value="">Select size...</option>';
+            data.sizes.forEach(s => {
+                sizeSelect.innerHTML += `<option value="${s.value}" data-mult="${s.mult}">${s.label}</option>`;
+            });
+
+            // Update options
+            const optionsGroup = document.getElementById('options-group');
+            optionsGroup.innerHTML = '';
+            data.options.forEach(o => {
+                optionsGroup.innerHTML += `
+                    <label class="checkbox-item">
+                        <input type="checkbox" value="${o.value}" data-add="${o.add}">
+                        ${o.label}
+                    </label>
+                `;
+            });
+
+            // Reset to step 1
+            showStep(1);
+        }
+
+        function calculateQuote() {
+            const serviceSelect = document.getElementById('service-type');
+            const sizeSelect = document.getElementById('job-size');
+            
+            if (!serviceSelect.value || !sizeSelect.value) {
+                alert('Please select a service type and size');
+                return;
+            }
+
+            const base = parseFloat(serviceSelect.selectedOptions[0].dataset.base);
+            const mult = parseFloat(sizeSelect.selectedOptions[0].dataset.mult);
+            
+            let total = base * mult;
+            let breakdown = [{ item: serviceSelect.selectedOptions[0].text, cost: base * mult }];
+
+            // Add selected options
+            document.querySelectorAll('#options-group input:checked').forEach(cb => {
+                const add = parseFloat(cb.dataset.add);
+                total += add;
+                breakdown.push({ item: cb.parentElement.textContent.trim(), cost: add });
+            });
+
+            currentQuote = total;
+
+            // Display result
+            document.getElementById('quote-amount').textContent = '$' + Math.round(total).toLocaleString();
+            document.getElementById('quote-range').textContent = `Estimated range: $${Math.round(total * 0.85).toLocaleString()} – $${Math.round(total * 1.15).toLocaleString()}`;
+            
+            const breakdownEl = document.getElementById('quote-breakdown');
+            breakdownEl.innerHTML = '<strong>Cost Breakdown:</strong>';
+            breakdown.forEach(b => {
+                breakdownEl.innerHTML += `
+                    <div class="breakdown-item">
+                        <span>${b.item}</span>
+                        <span>$${Math.round(b.cost).toLocaleString()}</span>
+                    </div>
+                `;
+            });
+
+            showStep(2);
+        }
+
+        function generateCalendar() {
+            const calendar = document.getElementById('calendar');
+            const today = new Date();
+            const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+            
+            // Header
+            days.forEach(d => {
+                calendar.innerHTML += `<div class="calendar-day" style="font-weight: 600; cursor: default;">${d}</div>`;
+            });
+
+            // Days
+            for (let i = 1; i <= 30; i++) {
+                const date = new Date(today.getFullYear(), today.getMonth(), i);
+                const isToday = i === today.getDate();
+                const isPast = date < today;
+                const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                
+                let classes = 'calendar-day';
+                if (isToday) classes += ' today';
+                if (isPast || isWeekend) classes += ' disabled';
+                
+                calendar.innerHTML += `<div class="${classes}" data-date="${i}">${i}</div>`;
+            }
+
+            // Click handlers
+            calendar.querySelectorAll('.calendar-day:not(.disabled)').forEach(day => {
+                day.addEventListener('click', () => {
+                    calendar.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
+                    day.classList.add('selected');
+                    selectedDate = day.dataset.date;
+                    generateTimeSlots();
+                });
+            });
+        }
+
+        function generateTimeSlots() {
+            const slots = document.getElementById('time-slots');
+            const times = ['9:00 AM', '10:00 AM', '11:00 AM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM'];
+            const booked = ['10:00 AM', '2:00 PM']; // Simulated booked slots
+            
+            slots.innerHTML = '';
+            times.forEach(t => {
+                const isBooked = booked.includes(t);
+                let classes = 'time-slot';
+                if (isBooked) classes += ' booked';
+                slots.innerHTML += `<div class="${classes}" data-time="${t}">${t}</div>`;
+            });
+
+            slots.querySelectorAll('.time-slot:not(.booked)').forEach(slot => {
+                slot.addEventListener('click', () => {
+                    slots.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                    slot.classList.add('selected');
+                    selectedTime = slot.dataset.time;
+                });
+            });
+        }
+
+        function confirmBooking() {
+            const name = document.getElementById('customer-name').value;
+            const phone = document.getElementById('customer-phone').value;
+            const email = document.getElementById('customer-email').value;
+
+            if (!name || !phone || !email) {
+                alert('Please fill in your contact details');
+                return;
+            }
+
+            if (!selectedDate || !selectedTime) {
+                alert('Please select a date and time');
+                return;
+            }
+
+            document.getElementById('confirm-date').textContent = `March ${selectedDate}, 2026`;
+            document.getElementById('confirm-time').textContent = selectedTime;
+            showStep(4);
+        }
+
+        function showStep(n) {
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`step-${i}`).classList.add('hidden');
+                const stepEl = document.getElementById(`step${i}`);
+                stepEl.classList.remove('active', 'completed');
+                if (i < n) stepEl.classList.add('completed');
+                if (i === n) stepEl.classList.add('active');
+            }
+            document.getElementById(`step-${n}`).classList.remove('hidden');
+        }
+
+        function goBack(n) {
+            showStep(n);
+        }
+
+        function showBooking() {
+            showStep(3);
+        }
+
+        function resetAll() {
+            selectedDate = null;
+            selectedTime = null;
+            document.getElementById('customer-name').value = '';
+            document.getElementById('customer-phone').value = '';
+            document.getElementById('customer-email').value = '';
+            document.getElementById('customer-notes').value = '';
+            showStep(1);
+        }
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>

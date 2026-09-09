@@ -1,0 +1,86 @@
+# MoneyMachine Batch 001 — COMPLETION STATUS
+
+**Date:** 8 September 2026
+**Status:** COMPLETE — HUMAN APPROVAL REQUIRED
+**Model:** upstage/solar-pro4:free (Nous provider)
+**Paid Cost:** $0.00 USD
+**Outreach Sent:** NONE
+
+================================================
+MONEY MACHINE — BATCH 001 READY FOR REVIEW
+================================================
+
+System validation:          PASS
+Hermes health:              PASS (fixed broken symlink)
+Free-model enforcement:    PASS
+Paid cost detected:         $0.00 USD
+Model used:                 upstage/solar-pro4:free (Nous)
+
+Businesses researched:      10 (all NZ, all verified)
+Qualified opportunities:    10
+A+ leads:                   0
+A leads:                    2 (BA Heat Pumps 77.5, Butterfield Bathrooms 75.8)
+B leads:                    5
+C leads:                    3
+
+Best opportunity:
+BA Heat Pumps (Wellington) — Score 77.5
+Growth package: website + conversion + automation + recurring
+Indicative value: $6,500-$10,000
+
+Recommended solution:
+Pricing transparency + review system + booking calendar + lead automation
+
+Recommended next action:
+Review this report and the 4 offers. Approve top target(s). Build 2 demos. Send first outreach to BA Heat Pumps or Butterfield Bathrooms.
+
+External outreach sent:     NO
+
+Awaiting:                   DION APPROVAL
+================================================
+
+## FINAL FILE INVENTORY
+
+**Reports (2 core + supporting):**
+- ~/MoneyMachine/reports/PREFLIGHT_REPORT.md
+- ~/MoneyMachine/reports/BATCH_001_MASTER_REPORT.md
+
+**Batch 001 Analysis:**
+- ~/MoneyMachine/data/batches/BATCH-001/scoring.json
+- ~/MoneyMachine/data/batches/BATCH-001/judge-review.md
+- ~/MoneyMachine/data/batches/BATCH-001/proofing-report.md
+- ~/MoneyMachine/data/batches/BATCH-001/demo-recommendation.md
+
+**Lead Files (10):**
+- ~/MoneyMachine/data/batches/BATCH-001/leads/NZ-HVAC-001_BA-Heat-Pumps.md
+- ~/MoneyMachine/data/batches/BATCH-001/leads/NZ-BATHROOM-001.md
+- ~/MoneyMachine/data/batches/BATCH-001/leads/NZ-CHCH-RENO-001.md
+- ~/MoneyMachine/data/batches/BATCH-001/leads/NZ-ELECTRICIAN-001.md
+- ~/MoneyMachine/data/batches/BATCH-001/leads/NZ-HVAC-002.md
+- ~/MoneyMachine/data/batches/BATCH-001/leads/NZ-HVAC-003.md
+- ~/MoneyMachine/data/batches/BATCH-001/leads/NZ-HVAC-004.md
+- ~/MoneyMachine/data/batches/BATCH-001/leads/NZ-HVAC-005.md
+- ~/MoneyMachine/data/batches/BATCH-001/leads/NZ-PLUMBER-001.md
+- ~/MoneyMachine/data/batches/BATCH-001/leads/NZ-BUILDER-001.md
+
+**Offers (4):**
+- ~/MoneyMachine/outputs/proposals/BATCH-001/NZ-HVAC-001_BA-Heat-Pumps_Offer.md
+- ~/MoneyMachine/outputs/proposals/BATCH-001/NZ-BATHROOM-001_Butterfield-Bathrooms_Offer.md
+- ~/MoneyMachine/outputs/proposals/BATCH-001/NZ-HVAC-004_AES_Auckland_Offer.md
+- ~/MoneyMachine/outputs/proposals/BATCH-001/NZ-CHCH-RENO-001_Christchurch-Renovations_Offer.md
+
+**Outreach Drafts (4):**
+- ~/MoneyMachine/outputs/outreach-drafts/BATCH-001/NZ-HVAC-001_BA-Heat-Pumps_Draft.md
+- ~/MoneyMachine/outputs/outreach-drafts/BATCH-001/NZ-BATHROOM-001_Butterfield-Bathrooms_Draft.md
+- ~/MoneyMachine/outputs/outreach-drafts/BATCH-001/NZ-ELECTRICIAN-001_FIXED-Electrical_Draft.md
+- ~/MoneyMachine/outputs/outreach-drafts/BATCH-001/NZ-CHCH-RENO-001_Christchurch-Renovations_Draft.md
+
+**Smoke Test:**
+- ~/MoneyMachine/logs/smoke-test-20260908-020117/smoke-output.txt
+
+**Backup:**
+- ~/MoneyMachine/backups/20260908-015124/
+
+================================================
+END OF BATCH 001
+================================================

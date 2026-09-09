@@ -1,0 +1,32 @@
+{
+  "timestamp": "2026-09-08T01:57:26.821338",
+  "provider": "nous",
+  "default_model": "upstage/solar-pro4:free",
+  "base_url": "https://inference-api.nousresearch.com/v1",
+  "auth_nous_configured": true,
+  "roles": {
+    "MASTER_ORCHESTRATOR": {
+      "model": "meituan/longcat-2.0:free",
+      "classification": "FREE"
+    },
+    "JUDGE": {
+      "model": "tencent/hy3:free",
+      "classification": "FREE"
+    },
+    "RESEARCHER": {
+      "model": "upstage/solar-pro4:free",
+      "classification": "FREE"
+    },
+    "FAST_RESEARCHER": {
+      "model": "stepfun/step-3.7-flash:free",
+      "classification": "FREE"
+    },
+    "CODER": {
+      "model": "poolside/laguna-s-2.1:free",
+      "classification": "FREE"
+    }
+  },
+  "all_models_free": true,
+  "paid_cost_allowed": false,
+  "zero_cost_enforcement": "PASS"
+}

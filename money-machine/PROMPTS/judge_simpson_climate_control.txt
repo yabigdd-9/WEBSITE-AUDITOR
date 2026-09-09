@@ -1,0 +1,23 @@
+Act as JUDGE for MoneyMachine Batch 001. Review this opportunity independently.
+
+BUSINESS: Simpson Climate Control (ID 8), Auckland. Website: https://www.simpsoncc.co.nz/
+AUDIT SCORE: 54/100 (C band — B band lower edge)
+KEY FINDINGS: Sole owner-operator (Ben) doing everything manually — every quote request, booking, lead follow-up, review solicitation, service reminder by phone/email with no CRM, no booking calendar, no customer portal, no automation. Quote form captures leads but provides no instant pricing. No automated review solicitation. 10 automation gaps identified.
+TRUST: 49 Google reviews (5.0★ self-reported), transparent pricing (heat pump installs from $1,745 NZ), working 3-step quote form + sizing calculator, Facebook 253 followers. Owner Ben is the public face. Site is genuinely good for a trade business. No company registration number found (may be sole trader). Address discrepancy (29 Norana Ave vs 124 Meadowland Drive). TrustPilot 3 reviews vs claimed Google 49 — credibility gap.
+AUDITOR PROPOSED: Phased NZD 3k-8k stack: CRM + follow-up (Phase 1), booking widget (Phase 2), maintenance plan subscription (Phase 3), review solicitation (Phase 4).
+CONFIDENCE: 7/10. Commercial question: will a solo operator with no demonstrated software spend pay NZD 3k-8k for automation? Ben's site quality suggests he is commercially literate. The address discrepancy and missing hot water cylinder page are minor issues.
+
+Read the full audit at /Users/yabigdd/MoneyMachine/reports/AUDIT_simpson_climate_control.json
+Read the scoring rubric at /Users/yabigdd/MoneyMachine/control-plane/SCORING_RUBRIC.md
+Read the judge spec at /Users/yabigdd/MoneyMachine/control-plane/JUDGE_SPEC.md
+
+Be independent — ask:
+1. Is this a genuine opportunity or speculative? Ben does everything manually — real time cost, but NZ 3k-8k?
+2. Does the phased stack make sense? Or is NZD 750-1500 lightweight tool the right offer?
+3. Is Simpson (owner-operator, no company reg found) a good target or too small/risky?
+4. Scores: trust 8, quote_flow 6, booking_flow 2, crm 2, follow_up_quality 3 — add up to 54?
+5. Address discrepancy and missing hot water cylinder page — minor?
+
+Write your decision as JSON to /Users/yabigdd/MoneyMachine/reports/JUDGE_simpson_climate_control.json
+Use EXACTLY this format (no other text, no markdown fence):
+{"business_id": 8, "business_name": "Simpson Climate Control", "judge_decision": "ACCEPT" or "REVISE" or "REJECT", "original_score": 54, "confidence": 0-10, "reasons": ["reason1", "reason2"], "judge_score_adjustment": {"overall_score_new": 0-100} or null, "notes": "your notes"}

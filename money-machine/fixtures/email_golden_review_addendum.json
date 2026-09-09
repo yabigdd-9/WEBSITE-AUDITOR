@@ -1,0 +1,9 @@
+{
+  "golden_original_sha256": "cdc1218db47e844a405a3aeded418d24c0019c9b21f7a5ba4476e27c543aeb20",
+  "truth_labels_changed": false,
+  "notes": [
+    "The frozen Kitchen Studio record stays ambiguous: two branches are present. Subsequent deterministic Cloudflare decoding found christchurchnorth@kitchenstudio.co.nz on the North page and christchurchsouth@kitchenstudio.co.nz plus elisec@kitchenstudio.co.nz on the South page. This corrects the initial note saying no address found; it does not establish which branch/person the generic prospect represents. These addresses are retained as unverified candidates, excluded from confirmed-email accuracy denominators.",
+    "Fendalton's JSON-LD independently repeats Lower Hutt as its address region, conflicting with the unchanged DB Auckland region.",
+    "No scoring weights were fit to these business names. General extraction corrections include Cloudflare decoding, all heading levels, and rejection of HTML comments as visible evidence."
+  ]
+}

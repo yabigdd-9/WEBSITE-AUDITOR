@@ -1,0 +1,125 @@
+{
+  "timestamp": "2026-09-08T02:03:54.568319",
+  "essential_ok": false,
+  "missing_essential": [
+    "node",
+    "npm",
+    "npx"
+  ],
+  "tools": [
+    {
+      "name": "hermes",
+      "status": "FOUND",
+      "path": "/Users/yabigdd/.local/bin/hermes",
+      "version": "Hermes Agent v0.21.0 (2026.8.31) \u00b7 upstream d70fb4e6",
+      "required": true
+    },
+    {
+      "name": "git",
+      "status": "FOUND",
+      "path": "/usr/local/bin/git",
+      "version": "git version 2.55.0",
+      "required": true
+    },
+    {
+      "name": "python3",
+      "status": "FOUND",
+      "path": "/usr/local/bin/python3",
+      "version": "Python 3.14.7",
+      "required": true
+    },
+    {
+      "name": "node",
+      "status": "BROKEN",
+      "path": "/Users/yabigdd/.local/bin/node",
+      "version": "empty file",
+      "required": true,
+      "notes": "0-byte stub; not required for Batch 001"
+    },
+    {
+      "name": "npm",
+      "status": "BROKEN",
+      "path": "/Users/yabigdd/.local/bin/npm",
+      "version": "empty file",
+      "required": true,
+      "notes": "0-byte stub; not required for Batch 001"
+    },
+    {
+      "name": "npx",
+      "status": "BROKEN",
+      "path": "/Users/yabigdd/.local/bin/npx",
+      "version": "empty file",
+      "required": true,
+      "notes": "0-byte stub; not required for Batch 001"
+    },
+    {
+      "name": "curl",
+      "status": "FOUND",
+      "path": "/usr/bin/curl",
+      "version": "curl 8.7.1 (x86_64-apple-darwin24.0) libcurl/8.7.1 (SecureTransport) LibreSSL/3.",
+      "required": true
+    },
+    {
+      "name": "bash",
+      "status": "FOUND",
+      "path": "/bin/bash",
+      "version": "GNU bash, version 3.2.57(1)-release (x86_64-apple-darwin24)",
+      "required": true
+    },
+    {
+      "name": "zsh",
+      "status": "FOUND",
+      "path": "/bin/zsh",
+      "version": "zsh 5.9 (x86_64-apple-darwin24.0)",
+      "required": true
+    },
+    {
+      "name": "goose",
+      "status": "BROKEN",
+      "path": "/Users/yabigdd/.local/bin/goose",
+      "version": "empty file",
+      "required": false,
+      "notes": "0-byte stub; not required for Batch 001"
+    },
+    {
+      "name": "opencode",
+      "status": "FOUND",
+      "path": "/usr/local/bin/opencode",
+      "version": "1.18.27",
+      "required": false
+    },
+    {
+      "name": "ollama",
+      "status": "BROKEN",
+      "path": "/usr/local/bin/ollama",
+      "version": "empty file",
+      "required": false,
+      "notes": "0-byte stub; not required for Batch 001"
+    },
+    {
+      "name": "docker",
+      "status": "FOUND",
+      "path": "/usr/local/bin/docker",
+      "version": "Docker version 29.7.2, build a7dcaa6",
+      "required": false
+    },
+    {
+      "name": "gh",
+      "status": "FOUND",
+      "path": "/usr/local/bin/gh",
+      "version": "gh version 2.100.0 (2026-09-03)",
+      "required": false
+    },
+    {
+      "name": "npm",
+      "status": "BROKEN",
+      "path": "/Users/yabigdd/.local/bin/npm",
+      "version": "empty file",
+      "required": false,
+      "notes": "0-byte stub; not required for Batch 001"
+    }
+  ],
+  "node_available": false,
+  "node_required_for_batch": false,
+  "batch_can Proceed": true
+}

@@ -1,0 +1,961 @@
+{
+  "version": 1,
+  "frozen_at": "2026-09-08T02:51:18.932121+00:00",
+  "scope": "All 18 existing real DB businesses. No additional prospect discovery. Ground truth reviewed before scoring implementation. Synthetic policy fixtures are separate.",
+  "reviewer": "Codex direct review of captured first-party text, mailto and deterministic Cloudflare decoding; no business confirmation and no SMTP delivery test.",
+  "truth_definition": "Public email attribution to business, not guaranteed delivery or permission. All pages retained with source URL, capture time and SHA-256.",
+  "coverage_limitations": [
+    "18 businesses, not 100; existing database is insufficient for 100.",
+    "Three unknown/ambiguous businesses; no invented expected answers.",
+    "No known wrong-person historical raw capture; synthetic tests cover it.",
+    "No verified real free-mail case in existing population; controlled regression tests cover it.",
+    "Golden set used once as evaluation; weights fixed using separate synthetic policy cases, not optimized for these names."
+  ],
+  "cases": [
+    {
+      "id": 2,
+      "business": {
+        "id": 2,
+        "name": "Blizzard HVAC & Electrical",
+        "region": "Wellington",
+        "public_website": "https://blizzard.co.nz/"
+      },
+      "truth_label": "publicly_confirmed",
+      "confirmed_emails": [
+        "info@blizzard.co.nz"
+      ],
+      "invalid_emails": [
+        "info@blizzard.co",
+        "info@blizzard.co.n"
+      ],
+      "v1_emails": [
+        "info@blizzard.co.nz"
+      ],
+      "v1_confidence": null,
+      "suppressed_business": false,
+      "notes": "Exact mailto is intact. Visible text is split info@blizzard.co.n z; never repair that fragment as evidence.",
+      "pages": [
+        {
+          "url": "https://blizzard.co.nz/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:47:16.210785+00:00",
+          "sha256": "5f6947a41c4834bd625c3dc8a8415d2fa6b349cbcc0d16685b5cb41fda77f721",
+          "requested_url": "https://blizzard.co.nz/",
+          "path": "tests/fixtures/email_captures/2-0.html",
+          "title": "Wellington's Highest Quality 5-Star Reviewed Heat Pump Company"
+        },
+        {
+          "url": "https://blizzard.co.nz/contact-us/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:47:17.463870+00:00",
+          "sha256": "dfed0cb62704904a3c978bf2acbd20fe646da84e001fe0cbe810c9d4d68a3796",
+          "requested_url": "https://blizzard.co.nz/contact-us/",
+          "path": "tests/fixtures/email_captures/2-1.html",
+          "title": "Contact Blizzard HVAC & Electrical Wellington"
+        },
+        {
+          "url": "https://blizzard.co.nz/about-us/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:47:18.876199+00:00",
+          "sha256": "c01471f7cc0bfeaddf659c81df00a8b4960f6fe165abe2122c64a80cc341040f",
+          "requested_url": "https://blizzard.co.nz/about-us/",
+          "path": "tests/fixtures/email_captures/2-2.html",
+          "title": "About Us | Blizzard HVAC and Electrical Wellington"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": 3,
+      "business": {
+        "id": 3,
+        "name": "Trident Electrical & Air Conditioning",
+        "region": "Auckland",
+        "public_website": "https://trident.nz/heat-pumps"
+      },
+      "truth_label": "publicly_confirmed",
+      "confirmed_emails": [
+        "info@trident.nz"
+      ],
+      "invalid_emails": [],
+      "v1_emails": [
+        "info@trident.nz"
+      ],
+      "v1_confidence": null,
+      "suppressed_business": false,
+      "notes": "Cloudflare data-cfemail deterministically decodes to info@trident.nz.",
+      "pages": [
+        {
+          "url": "https://trident.nz/heat-pumps",
+          "redirects": [],
+          "content_type": "text/html; charset=utf-8",
+          "captured_at": "2026-09-08T02:47:20.011204+00:00",
+          "sha256": "e8c894eda737475849f34f3bcdba61546ae5f7560b00345bc91e5d803e25ec0e",
+          "requested_url": "https://trident.nz/heat-pumps",
+          "path": "tests/fixtures/email_captures/3-0.html",
+          "title": "Heat Pumps Auckland | Trident Electrical & Air Conditioning"
+        },
+        {
+          "url": "https://trident.nz/contact",
+          "redirects": [],
+          "content_type": "text/html; charset=utf-8",
+          "captured_at": "2026-09-08T02:47:20.806501+00:00",
+          "sha256": "2f3dae4839ace222078594093f8e4d6e1f5aad1f085fa267117e88b2d8aac856",
+          "requested_url": "https://trident.nz/contact",
+          "path": "tests/fixtures/email_captures/3-1.html",
+          "title": "Contact Trident Electrical & Air Conditioning | Auckland"
+        },
+        {
+          "url": "https://trident.nz/about",
+          "redirects": [],
+          "content_type": "text/html; charset=utf-8",
+          "captured_at": "2026-09-08T02:47:21.577371+00:00",
+          "sha256": "c0cb1de19e049595da56e918eceaaa49b413c182a59c49603bbe92ade71cbc3e",
+          "requested_url": "https://trident.nz/about",
+          "path": "tests/fixtures/email_captures/3-2.html",
+          "title": "About Us | Trident Electrical & Air Conditioning"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": 4,
+      "business": {
+        "id": 4,
+        "name": "ATL Heat Pumps",
+        "region": "Christchurch",
+        "public_website": "https://www.atlelectrical.co.nz/heat-pumps"
+      },
+      "truth_label": "publicly_confirmed",
+      "confirmed_emails": [
+        "info@atlelectrical.co.nz"
+      ],
+      "invalid_emails": [],
+      "v1_emails": [
+        "info@atlelectrical.co.nz"
+      ],
+      "v1_confidence": null,
+      "suppressed_business": true,
+      "notes": "Published email manually reviewed in retained official page capture; attribution truth only, delivery untested.",
+      "pages": [
+        {
+          "url": "https://www.atlelectrical.co.nz/heat-pumps",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:47:26.623725+00:00",
+          "sha256": "556aaa328ba524e0d2af83534ee1276c9e55757e1b68efe2046a45d448aaa354",
+          "requested_url": "https://www.atlelectrical.co.nz/heat-pumps",
+          "path": "tests/fixtures/email_captures/4-0.html",
+          "title": "Heat Pumps Christchurch | Residential & Commercial"
+        },
+        {
+          "url": "https://www.atlelectrical.co.nz/contact",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:47:32.757980+00:00",
+          "sha256": "667b066821ee37b732d18ab420ac823228560cadcbb1c9afec60fb9ff3b18f0a",
+          "requested_url": "https://www.atlelectrical.co.nz/contact",
+          "path": "tests/fixtures/email_captures/4-1.html",
+          "title": "Contact ATL | Electricians, Heat Pumps & Smart Technology | Christchurch"
+        },
+        {
+          "url": "https://www.atlelectrical.co.nz/contact-your-security-expert",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:47:38.578358+00:00",
+          "sha256": "7d65009c6f96e33e300776d16e3f9d8b1664dca66a7701e5aa02ed99e6e29bae",
+          "requested_url": "https://www.atlelectrical.co.nz/contact-your-security-expert",
+          "path": "tests/fixtures/email_captures/4-2.html",
+          "title": "Contact your security expert | ATL Electrical"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": 5,
+      "business": {
+        "id": 5,
+        "name": "Heat Force",
+        "region": "Christchurch",
+        "public_website": "https://www.heatforce.co.nz/"
+      },
+      "truth_label": "publicly_confirmed",
+      "confirmed_emails": [
+        "info@heatforce.co.nz"
+      ],
+      "invalid_emails": [],
+      "v1_emails": [
+        "info@heatforce.co.nz"
+      ],
+      "v1_confidence": 0.9,
+      "suppressed_business": false,
+      "notes": "Published email manually reviewed in retained official page capture; attribution truth only, delivery untested.",
+      "pages": [
+        {
+          "url": "https://www.heatforce.co.nz/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:47:41.963185+00:00",
+          "sha256": "3f5c04aa7babe091030b1e330b75108f66120a815da8103dbbbfe5dc76ccf231",
+          "requested_url": "https://www.heatforce.co.nz/",
+          "path": "tests/fixtures/email_captures/5-0.html",
+          "title": "Heat Force: Your Christchurch Heat Pump Specialists for Sales & Service"
+        },
+        {
+          "url": "https://www.heatforce.co.nz/contact-us",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:47:43.302239+00:00",
+          "sha256": "a2da93639191195835481424e6e40de31bbee5c50cdb4c3f9f83e619129e4c71",
+          "requested_url": "https://www.heatforce.co.nz/contact-us",
+          "path": "tests/fixtures/email_captures/5-1.html",
+          "title": "Contact Heat Force: Free Heat Pump Quotes in Christchurch"
+        },
+        {
+          "url": "https://www.heatforce.co.nz/about-us",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:47:45.404488+00:00",
+          "sha256": "7198a1fc5c92e5e472d95f2cceed200a3fb45b7e2787406c648d07064591f1e6",
+          "requested_url": "https://www.heatforce.co.nz/about-us",
+          "path": "tests/fixtures/email_captures/5-2.html",
+          "title": "About Heat Force: Christchurch's 30+ Year Heat Pump Specialists"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": 6,
+      "business": {
+        "id": 6,
+        "name": "BA Heat Pumps",
+        "region": "Wellington",
+        "public_website": "https://www.baheatpumps.co.nz/"
+      },
+      "truth_label": "publicly_confirmed",
+      "confirmed_emails": [
+        "office@baheatpumps.co.nz",
+        "quotes@baheatpumps.co.nz"
+      ],
+      "invalid_emails": [],
+      "v1_emails": [
+        "office@baheatpumps.co.nz",
+        "quotes@baheatpumps.co.nz"
+      ],
+      "v1_confidence": null,
+      "suppressed_business": false,
+      "notes": "Published email manually reviewed in retained official page capture; attribution truth only, delivery untested.",
+      "pages": [
+        {
+          "url": "https://www.baheatpumps.co.nz/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:47:46.556645+00:00",
+          "sha256": "3e2522a6c251ce5392cfe1ccc78c1ffcafcf22417ca97081a6bfd9a9a5e0a567",
+          "requested_url": "https://www.baheatpumps.co.nz/",
+          "path": "tests/fixtures/email_captures/6-0.html",
+          "title": "Heat Pump Installation Wellington, Porirua, Lower Hutt, Kapiti"
+        },
+        {
+          "url": "https://www.baheatpumps.co.nz/contact-us/",
+          "redirects": [
+            {
+              "from": "https://www.baheatpumps.co.nz/contact-us",
+              "to": "https://www.baheatpumps.co.nz/contact-us/",
+              "status": 301
+            }
+          ],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:47:48.071009+00:00",
+          "sha256": "99c88edb56d8998e46519ba7b7139e891cb29c0ac9809cf9cbba3a6210333a4d",
+          "requested_url": "https://www.baheatpumps.co.nz/contact-us",
+          "path": "tests/fixtures/email_captures/6-1.html",
+          "title": "Heat Pump Deals Kapiti - Heat Pump Prices Installed Wellington"
+        },
+        {
+          "url": "https://www.baheatpumps.co.nz/contact-us/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:47:49.036380+00:00",
+          "sha256": "418f23f44b3c41a24e1f66e7dd56215b1a9fc0d957d4025b0a6f839497f3b042",
+          "requested_url": "https://www.baheatpumps.co.nz/contact-us/",
+          "path": "tests/fixtures/email_captures/6-2.html",
+          "title": "Heat Pump Deals Kapiti - Heat Pump Prices Installed Wellington"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": 7,
+      "business": {
+        "id": 7,
+        "name": "AES",
+        "region": "Auckland",
+        "public_website": "https://www.aes.nz/heat-pumps/"
+      },
+      "truth_label": "publicly_confirmed",
+      "confirmed_emails": [
+        "yes@aes.nz"
+      ],
+      "invalid_emails": [],
+      "v1_emails": [
+        "yes@aes.nz"
+      ],
+      "v1_confidence": null,
+      "suppressed_business": false,
+      "notes": "Published email manually reviewed in retained official page capture; attribution truth only, delivery untested.",
+      "pages": [
+        {
+          "url": "https://aes.nz/heat-pumps/",
+          "redirects": [
+            {
+              "from": "https://www.aes.nz/heat-pumps/",
+              "to": "https://aes.nz/heat-pumps/",
+              "status": 301
+            }
+          ],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:47:51.748847+00:00",
+          "sha256": "7b7018d245a0abd0067a31eceea5a209dd22c44c0476e3e41c7f13a6d9586286",
+          "requested_url": "https://www.aes.nz/heat-pumps/",
+          "path": "tests/fixtures/email_captures/7-0.html",
+          "title": "Heat Pump Installation & Maintenance | AES"
+        },
+        {
+          "url": "https://aes.nz/contact-us/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:47:52.990069+00:00",
+          "sha256": "9f0837b647e34640f3a34967aca8832dc406458d26e35372b74176524724881a",
+          "requested_url": "https://aes.nz/contact-us/",
+          "path": "tests/fixtures/email_captures/7-1.html",
+          "title": "Contact Us - AES Heat Pump"
+        },
+        {
+          "url": "https://aes.nz/about-us/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:47:54.510451+00:00",
+          "sha256": "34c30593b9c706d40b277c7b182a69bc4e2dd4a627844706ea65bf47cbd340e5",
+          "requested_url": "https://aes.nz/about-us/",
+          "path": "tests/fixtures/email_captures/7-2.html",
+          "title": "About Us - AES Heat Pump"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": 8,
+      "business": {
+        "id": 8,
+        "name": "Simpson Climate Control",
+        "region": "Auckland",
+        "public_website": "https://www.simpsoncc.co.nz/"
+      },
+      "truth_label": "publicly_confirmed",
+      "confirmed_emails": [
+        "ben@simpsoncc.co.nz"
+      ],
+      "invalid_emails": [],
+      "v1_emails": [
+        "ben@simpsoncc.co.nz"
+      ],
+      "v1_confidence": null,
+      "suppressed_business": false,
+      "notes": "Cloudflare data-cfemail decodes to ben@simpsoncc.co.nz. Sole-trader evidence; no independent mailbox probe.",
+      "pages": [
+        {
+          "url": "https://www.simpsoncc.co.nz/",
+          "redirects": [],
+          "content_type": "text/html; charset=utf-8",
+          "captured_at": "2026-09-08T02:47:55.307462+00:00",
+          "sha256": "4cb092768ccd42e980ffe92edd03c6448ae1da00b1830142450da5e614ae4652",
+          "requested_url": "https://www.simpsoncc.co.nz/",
+          "path": "tests/fixtures/email_captures/8-0.html",
+          "title": "Heat Pumps Auckland | Supply & Install | Simpson CC"
+        },
+        {
+          "url": "https://www.simpsoncc.co.nz/about",
+          "redirects": [],
+          "content_type": "text/html; charset=utf-8",
+          "captured_at": "2026-09-08T02:47:56.142704+00:00",
+          "sha256": "6a4e622f4d29bc38dc89358f164821c08f56b96f16f2f9d64b54f2cc9311ca4a",
+          "requested_url": "https://www.simpsoncc.co.nz/about",
+          "path": "tests/fixtures/email_captures/8-1.html",
+          "title": "About Simpson Climate Control | Auckland Heat Pumps"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": 9,
+      "business": {
+        "id": 9,
+        "name": "Kiwi Heat Pumps",
+        "region": "Auckland",
+        "public_website": "https://kiwiheatpumps.co.nz/"
+      },
+      "truth_label": "publicly_confirmed",
+      "confirmed_emails": [
+        "jason@kiwiheatpumps.co.nz"
+      ],
+      "invalid_emails": [],
+      "v1_emails": [
+        "jason@kiwiheatpumps.co.nz"
+      ],
+      "v1_confidence": null,
+      "suppressed_business": false,
+      "notes": "Cloudflare data-cfemail decodes to jason@kiwiheatpumps.co.nz.",
+      "pages": [
+        {
+          "url": "https://kiwiheatpumps.co.nz/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:47:57.957580+00:00",
+          "sha256": "483ba8816ebf7808ffc0398f4032f30a0ef4766fbe34bca4be92f764ed863a92",
+          "requested_url": "https://kiwiheatpumps.co.nz/",
+          "path": "tests/fixtures/email_captures/9-0.html",
+          "title": "Kiwi Heat Pumps | Air Conditioning Installers And Servicing"
+        },
+        {
+          "url": "https://kiwiheatpumps.co.nz/contact_us/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:47:59.052952+00:00",
+          "sha256": "b1842000fe59e3a9e22c8cf0a5844fcaf131318fd99502377f1840cfa34609fb",
+          "requested_url": "https://kiwiheatpumps.co.nz/contact_us/",
+          "path": "tests/fixtures/email_captures/9-1.html",
+          "title": "Contact Us | Kiwi Heat Pumps"
+        },
+        {
+          "url": "https://kiwiheatpumps.co.nz/about-us-ezp-22/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:48:00.501821+00:00",
+          "sha256": "7963b6387fb5a68cebc4dea9e8e7f3d1d036d6786aea67d5653b9db16474fd0e",
+          "requested_url": "https://kiwiheatpumps.co.nz/about-us-ezp-22/",
+          "path": "tests/fixtures/email_captures/9-2.html",
+          "title": "About Us | Kiwi Heat Pumps"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": 10,
+      "business": {
+        "id": 10,
+        "name": "Imperial HVAC",
+        "region": "Wellington",
+        "public_website": "https://imperialhvac.co.nz/"
+      },
+      "truth_label": "publicly_confirmed",
+      "confirmed_emails": [
+        "info@imperialhvac.co.nz"
+      ],
+      "invalid_emails": [
+        "info@mydomain.com"
+      ],
+      "v1_emails": [],
+      "v1_confidence": null,
+      "suppressed_business": false,
+      "notes": "Visible published address confirmed; mailto points at unrelated template info@mydomain.com (invalid attribution).",
+      "pages": [
+        {
+          "url": "https://imperialhvac.co.nz/",
+          "redirects": [],
+          "content_type": "text/html",
+          "captured_at": "2026-09-08T02:48:03.645397+00:00",
+          "sha256": "06a0f01709d42032a8f2279b02733e4ff3a9e0f43d49c7602d0ef7746c07203b",
+          "requested_url": "https://imperialhvac.co.nz/",
+          "path": "tests/fixtures/email_captures/10-0.html",
+          "title": "Imperial HVAC Wellington | Heat Pump Installation & Servicing Experts"
+        },
+        {
+          "url": "https://imperialhvac.co.nz/contact-best-heating-and-cooling-solutions/",
+          "redirects": [],
+          "content_type": "text/html",
+          "captured_at": "2026-09-08T02:48:07.307336+00:00",
+          "sha256": "4154d12746b48c1bf5803c4fb7abf58f9d32e53dd6fdee65a69588c86de14259",
+          "requested_url": "https://imperialhvac.co.nz/contact-best-heating-and-cooling-solutions/",
+          "path": "tests/fixtures/email_captures/10-1.html",
+          "title": "Contact Imperial HVAC Wellington | Fast HVAC Support"
+        },
+        {
+          "url": "https://imperialhvac.co.nz/contact-us-2/",
+          "redirects": [],
+          "content_type": "text/html",
+          "captured_at": "2026-09-08T02:48:11.110430+00:00",
+          "sha256": "cd3d29bbfcacd59f8e9cd8ea3c7bbc4ccd14116c406c8839a2422b875815cb11",
+          "requested_url": "https://imperialhvac.co.nz/contact-us-2/",
+          "path": "tests/fixtures/email_captures/10-2.html",
+          "title": ""
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": 11,
+      "business": {
+        "id": 11,
+        "name": "New Zealand Heat Pumps",
+        "region": "Christchurch",
+        "public_website": "https://newzealandheatpumps.co.nz/"
+      },
+      "truth_label": "no_known_email",
+      "confirmed_emails": [],
+      "invalid_emails": [],
+      "v1_emails": [],
+      "v1_confidence": null,
+      "suppressed_business": false,
+      "notes": "Only contact forms/phone found in three bounded page captures; no known public email is not proof of absence everywhere.",
+      "pages": [
+        {
+          "url": "https://newzealandheatpumps.co.nz/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:48:12.843386+00:00",
+          "sha256": "270556e81d9c94753f4684639b6a35fc27e1257112613f9305df5a3facfd8721",
+          "requested_url": "https://newzealandheatpumps.co.nz/",
+          "path": "tests/fixtures/email_captures/11-0.html",
+          "title": "Affordable Heat Pump Prices | New Zealand Heat Pumps"
+        },
+        {
+          "url": "https://newzealandheatpumps.co.nz/contact/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:48:20.374589+00:00",
+          "sha256": "9ebe77912cf36f6c933b6d3d3eb03f3ca972976d773cfb2b2162ee6ef8f3be9f",
+          "requested_url": "https://newzealandheatpumps.co.nz/contact/",
+          "path": "tests/fixtures/email_captures/11-1.html",
+          "title": "Contact New Zealand Heat Pumps - New Zealand Heat Pumps"
+        },
+        {
+          "url": "https://newzealandheatpumps.co.nz/about-us/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:48:20.980709+00:00",
+          "sha256": "d193f68fb60b17d60c4f7f1318b0b2d576e37f83aefa0c5a17861c3a4e294733",
+          "requested_url": "https://newzealandheatpumps.co.nz/about-us/",
+          "path": "tests/fixtures/email_captures/11-2.html",
+          "title": "About New Zealand Heat Pumps | New Zealand Heat Pumps"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": 12,
+      "business": {
+        "id": 12,
+        "name": "Superior Renovations",
+        "region": "Auckland",
+        "public_website": "https://superiorrenovations.co.nz/"
+      },
+      "truth_label": "publicly_confirmed",
+      "confirmed_emails": [
+        "admin@superiorrenovations.co.nz"
+      ],
+      "invalid_emails": [],
+      "v1_emails": [],
+      "v1_confidence": null,
+      "suppressed_business": false,
+      "notes": "Published email manually reviewed in retained official page capture; attribution truth only, delivery untested.",
+      "pages": [
+        {
+          "url": "https://superiorrenovations.co.nz/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:48:21.940406+00:00",
+          "sha256": "d3ebcd8bebfed790840f4492922e2f537e111cf6c8f9f077b5d6d1171cfe06fa",
+          "requested_url": "https://superiorrenovations.co.nz/",
+          "path": "tests/fixtures/email_captures/12-0.html",
+          "title": "Superior Renovations: Auckland House Renovations & Kitchens"
+        },
+        {
+          "url": "https://superiorrenovations.co.nz/contact-us/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:48:22.613798+00:00",
+          "sha256": "4f2060896f7d931951701d0761bec8dc0064d205571541842d6953a87b6bd02f",
+          "requested_url": "https://superiorrenovations.co.nz/contact-us/",
+          "path": "tests/fixtures/email_captures/12-1.html",
+          "title": "Contact us - Superior Renovations"
+        },
+        {
+          "url": "https://superiorrenovations.co.nz/about-us/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:48:23.221749+00:00",
+          "sha256": "ae20cea2ce47294135fe01d0825183ecaab1a783da3c65c455d44b3589e03fd7",
+          "requested_url": "https://superiorrenovations.co.nz/about-us/",
+          "path": "tests/fixtures/email_captures/12-2.html",
+          "title": "Our Story: Auckland Home Renovation Experts"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": 13,
+      "business": {
+        "id": 13,
+        "name": "Christchurch Renovations",
+        "region": "Christchurch",
+        "public_website": "https://www.chchrenovations.nz/"
+      },
+      "truth_label": "publicly_confirmed",
+      "confirmed_emails": [
+        "hello@chchrenovations.nz"
+      ],
+      "invalid_emails": [],
+      "v1_emails": [
+        "hello@chchrenovations.nz"
+      ],
+      "v1_confidence": null,
+      "suppressed_business": true,
+      "notes": "Published email manually reviewed in retained official page capture; attribution truth only, delivery untested.",
+      "pages": [
+        {
+          "url": "https://www.chchrenovations.nz/",
+          "redirects": [],
+          "content_type": "text/html;charset=utf-8",
+          "captured_at": "2026-09-08T02:48:26.823986+00:00",
+          "sha256": "4fac23628d76b6ab36a58603944b4be4b6a821c2a0a74f79fb351b008910e09a",
+          "requested_url": "https://www.chchrenovations.nz/",
+          "path": "tests/fixtures/email_captures/13-0.html",
+          "title": "Christchurch Renovations - Kitchen, Bathroom, and Home Renovations"
+        },
+        {
+          "url": "https://www.chchrenovations.nz/contact",
+          "redirects": [],
+          "content_type": "text/html;charset=utf-8",
+          "captured_at": "2026-09-08T02:48:29.380318+00:00",
+          "sha256": "a190dcd83a12f6084fa368dcbec04ce718b6cd19e5daff6d08e6d67da03ef213",
+          "requested_url": "https://www.chchrenovations.nz/contact",
+          "path": "tests/fixtures/email_captures/13-1.html",
+          "title": "Contact Christchurch Renovations | Get Your Renovation Quote Today \u2014 Christchurch Renovations"
+        },
+        {
+          "url": "https://www.chchrenovations.nz/about",
+          "redirects": [],
+          "content_type": "text/html;charset=utf-8",
+          "captured_at": "2026-09-08T02:48:31.783828+00:00",
+          "sha256": "2431894a51954d22f0453a638341286db72a6d5dffc5d5cc7da94a65fca6bb91",
+          "requested_url": "https://www.chchrenovations.nz/about",
+          "path": "tests/fixtures/email_captures/13-2.html",
+          "title": "About \u2014 Christchurch Renovations"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": 14,
+      "business": {
+        "id": 14,
+        "name": "Butterfield Bathrooms",
+        "region": "Christchurch",
+        "public_website": "https://www.butterfieldbathrooms.co.nz/"
+      },
+      "truth_label": "publicly_confirmed",
+      "confirmed_emails": [
+        "design@butterfield.co.nz"
+      ],
+      "invalid_emails": [],
+      "v1_emails": [
+        "design@butterfield.co.nz"
+      ],
+      "v1_confidence": null,
+      "suppressed_business": true,
+      "notes": "Official contact page directly publishes legacy cross-domain address. Mail domain ownership still requires corroboration; business remains suppressed.",
+      "pages": [
+        {
+          "url": "https://www.butterfieldbathrooms.co.nz/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:48:33.787202+00:00",
+          "sha256": "879688af31cd7b742cdfbc4680573720f47eb485bc759a8fdfa9a830f21729e5",
+          "requested_url": "https://www.butterfieldbathrooms.co.nz/",
+          "path": "tests/fixtures/email_captures/14-0.html",
+          "title": "Bathroom Renovations Christchurch | Butterfield Bathrooms"
+        },
+        {
+          "url": "https://www.butterfieldbathrooms.co.nz/contact-us/",
+          "redirects": [
+            {
+              "from": "https://www.butterfieldbathrooms.co.nz/contact-us",
+              "to": "https://www.butterfieldbathrooms.co.nz/contact-us/",
+              "status": 301
+            }
+          ],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:48:36.106982+00:00",
+          "sha256": "e0b9f80a559a58f7a5accd53708b054a5f5c1798dabf8682564cb1260092d2df",
+          "requested_url": "https://www.butterfieldbathrooms.co.nz/contact-us",
+          "path": "tests/fixtures/email_captures/14-1.html",
+          "title": "Contact | Butterfield Bathrooms"
+        },
+        {
+          "url": "https://www.butterfieldbathrooms.co.nz/about-us/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:48:36.991131+00:00",
+          "sha256": "985428ab2bb8640f8db887408374fe22ac9e726f284c2ce2f6fef35e7006de63",
+          "requested_url": "https://www.butterfieldbathrooms.co.nz/about-us/",
+          "path": "tests/fixtures/email_captures/14-2.html",
+          "title": "About Us - Butterfield Bathrooms"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": 15,
+      "business": {
+        "id": 15,
+        "name": "Evoke Renovations",
+        "region": "Christchurch",
+        "public_website": "https://www.evoke-reno.co.nz/"
+      },
+      "truth_label": "publicly_confirmed",
+      "confirmed_emails": [
+        "aw@evoke-reno.co.nz"
+      ],
+      "invalid_emails": [],
+      "v1_emails": [
+        "aw@evoke-reno.co.nz"
+      ],
+      "v1_confidence": 0.9,
+      "suppressed_business": false,
+      "notes": "Published email manually reviewed in retained official page capture; attribution truth only, delivery untested.",
+      "pages": [
+        {
+          "url": "https://www.evoke-reno.co.nz/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:48:42.025856+00:00",
+          "sha256": "94e5c2cc8e88a9c60ea272ff6909180da47eaba6be4ff7f753500c3b7370dbc3",
+          "requested_url": "https://www.evoke-reno.co.nz/",
+          "path": "tests/fixtures/email_captures/15-0.html",
+          "title": "Kitchen and Bathroom Renovations in Christchurch | Evoke"
+        },
+        {
+          "url": "https://www.evoke-reno.co.nz/contact",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:48:46.159774+00:00",
+          "sha256": "5ce9eea07a2b29fdcb7bc7f58a8ed54a5eb98f6796e9ce2bcd79c77fe66d5927",
+          "requested_url": "https://www.evoke-reno.co.nz/contact",
+          "path": "tests/fixtures/email_captures/15-1.html",
+          "title": "CONTACT US | Evoke Bathrooms and Kitchens"
+        },
+        {
+          "url": "https://www.evoke-reno.co.nz/about",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:48:49.125652+00:00",
+          "sha256": "f097cf6c2f2f7fef961858cb1b6dff8987c78c4f94cb9e0874a442fb0bb28ffc",
+          "requested_url": "https://www.evoke-reno.co.nz/about",
+          "path": "tests/fixtures/email_captures/15-2.html",
+          "title": "ABOUT US | Evoke Bathrooms and Kitchens"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": 16,
+      "business": {
+        "id": 16,
+        "name": "Modern Age Kitchens",
+        "region": "Christchurch",
+        "public_website": null
+      },
+      "truth_label": "ambiguous",
+      "confirmed_emails": [],
+      "invalid_emails": [],
+      "v1_emails": [],
+      "v1_confidence": null,
+      "suppressed_business": false,
+      "notes": "No website recorded. No invented domain or email.",
+      "pages": [],
+      "errors": []
+    },
+    {
+      "id": 17,
+      "business": {
+        "id": 17,
+        "name": "Kitchen Studio Christchurch",
+        "region": "Christchurch",
+        "public_website": "https://kitchenstudio.co.nz"
+      },
+      "truth_label": "ambiguous",
+      "confirmed_emails": [],
+      "invalid_emails": [],
+      "v1_emails": [],
+      "v1_confidence": null,
+      "suppressed_business": false,
+      "notes": "Two distinct Christchurch showroom pages; branch association ambiguous; no address found in bounded captures.",
+      "pages": [
+        {
+          "url": "https://www.kitchenstudio.co.nz/",
+          "redirects": [
+            {
+              "from": "https://kitchenstudio.co.nz/",
+              "to": "http://www.kitchenstudio.co.nz/",
+              "status": 301
+            },
+            {
+              "from": "http://www.kitchenstudio.co.nz/",
+              "to": "https://www.kitchenstudio.co.nz/",
+              "status": 301
+            }
+          ],
+          "content_type": "text/html; charset=utf-8",
+          "captured_at": "2026-09-08T02:48:50.566696+00:00",
+          "sha256": "d89a30bd0627cb748508552996c78f4a17c38f475fa0cfe535927b007a9568b5",
+          "requested_url": "https://kitchenstudio.co.nz",
+          "path": "tests/fixtures/email_captures/17-0.html",
+          "title": "NZ's Most Trusted Kitchen Brand | 10 Years Running"
+        },
+        {
+          "url": "https://www.kitchenstudio.co.nz/our-showrooms/christchurch-north",
+          "redirects": [
+            {
+              "from": "https://www.kitchenstudio.co.nz/showroom/christchurch-north",
+              "to": "https://www.kitchenstudio.co.nz/our-showrooms/showroom/christchurch-north",
+              "status": 302
+            },
+            {
+              "from": "https://www.kitchenstudio.co.nz/our-showrooms/showroom/christchurch-north",
+              "to": "https://www.kitchenstudio.co.nz/our-showrooms/christchurch-north",
+              "status": 302
+            }
+          ],
+          "content_type": "text/html; charset=utf-8",
+          "captured_at": "2026-09-08T02:49:59.411884+00:00",
+          "sha256": "f2d32f12964f870ad47f1fcb68a0ae1c4bb39c68afa28fdc2186c66e0f57d00a",
+          "requested_url": "https://www.kitchenstudio.co.nz/showroom/christchurch-north",
+          "path": "tests/fixtures/email_captures/17-1.html",
+          "title": "Christchurch North | Our Showrooms - Kitchen Studio"
+        },
+        {
+          "url": "https://www.kitchenstudio.co.nz/our-showrooms/christchurch-south",
+          "redirects": [
+            {
+              "from": "https://www.kitchenstudio.co.nz/showroom/christchurch-south",
+              "to": "https://www.kitchenstudio.co.nz/our-showrooms/showroom/christchurch-south",
+              "status": 302
+            },
+            {
+              "from": "https://www.kitchenstudio.co.nz/our-showrooms/showroom/christchurch-south",
+              "to": "https://www.kitchenstudio.co.nz/our-showrooms/christchurch-south",
+              "status": 302
+            }
+          ],
+          "content_type": "text/html; charset=utf-8",
+          "captured_at": "2026-09-08T02:50:00.903629+00:00",
+          "sha256": "61f1c7e9ff9babb5ca96749ad5b1afd8494688973769e26658898080394b8f34",
+          "requested_url": "https://www.kitchenstudio.co.nz/showroom/christchurch-south",
+          "path": "tests/fixtures/email_captures/17-2.html",
+          "title": "Christchurch South | Our Showrooms - Kitchen Studio"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": 18,
+      "business": {
+        "id": 18,
+        "name": "Best Nest Building Co",
+        "region": "Auckland",
+        "public_website": "https://bestnestbuilding.co.nz/"
+      },
+      "truth_label": "publicly_confirmed",
+      "confirmed_emails": [
+        "luke@bestnestbuilding.co.nz"
+      ],
+      "invalid_emails": [],
+      "v1_emails": [],
+      "v1_confidence": null,
+      "suppressed_business": false,
+      "notes": "Published email manually reviewed in retained official page capture; attribution truth only, delivery untested.",
+      "pages": [
+        {
+          "url": "https://bestnestbuilding.co.nz/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:48:51.988811+00:00",
+          "sha256": "b50cdb6e8b5cb4e54c4c64edccdfbd65112e5a4f1e7d6ac7e67fe82d96a3456d",
+          "requested_url": "https://bestnestbuilding.co.nz/",
+          "path": "tests/fixtures/email_captures/18-0.html",
+          "title": "Quality Modern Construction Experts | Best Nest Building Co"
+        },
+        {
+          "url": "https://bestnestbuilding.co.nz/contact-us/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:48:53.170339+00:00",
+          "sha256": "b9b5b7d0fc6037f263fa918c1442eafb9230e4d17164fb5a1ae79ae08cc4e3df",
+          "requested_url": "https://bestnestbuilding.co.nz/contact-us/",
+          "path": "tests/fixtures/email_captures/18-1.html",
+          "title": "Contact Us - Best Nest Building Co"
+        },
+        {
+          "url": "https://bestnestbuilding.co.nz/contact-us/",
+          "redirects": [
+            {
+              "from": "https://bestnestbuilding.co.nz/index.php/contact-us/",
+              "to": "https://bestnestbuilding.co.nz/contact-us/",
+              "status": 301
+            }
+          ],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:48:55.930278+00:00",
+          "sha256": "b9b5b7d0fc6037f263fa918c1442eafb9230e4d17164fb5a1ae79ae08cc4e3df",
+          "requested_url": "https://bestnestbuilding.co.nz/index.php/contact-us/",
+          "path": "tests/fixtures/email_captures/18-2.html",
+          "title": "Contact Us - Best Nest Building Co"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "id": 19,
+      "business": {
+        "id": 19,
+        "name": "Fendalton Construction",
+        "region": "Auckland",
+        "public_website": "https://www.fendaltonconstruction.co.nz/"
+      },
+      "truth_label": "ambiguous",
+      "confirmed_emails": [],
+      "invalid_emails": [],
+      "v1_emails": [],
+      "v1_confidence": null,
+      "suppressed_business": false,
+      "notes": "Database says Auckland, but official pages say Wellington/Lower Hutt. Entity location conflict; do not silently repair CRM.",
+      "pages": [
+        {
+          "url": "https://www.fendaltonconstruction.co.nz/",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:48:56.982773+00:00",
+          "sha256": "c4d9e3881e264eac14800d90caf0b35d180561f0cd8a2dfc0cf34af617fe4705",
+          "requested_url": "https://www.fendaltonconstruction.co.nz/",
+          "path": "tests/fixtures/email_captures/19-0.html",
+          "title": "Home renovations Wellington wide, building services Lower Hutt"
+        },
+        {
+          "url": "https://www.fendaltonconstruction.co.nz/house-building-companies",
+          "redirects": [],
+          "content_type": "text/html; charset=UTF-8",
+          "captured_at": "2026-09-08T02:50:02.744662+00:00",
+          "sha256": "1cad57e67b257f5d6ee4511c18e00b521a41998de04c911622aafb173760f34c",
+          "requested_url": "https://www.fendaltonconstruction.co.nz/house-building-companies",
+          "path": "tests/fixtures/email_captures/19-1.html",
+          "title": "House building companies Wellington construction Lower Hutt"
+        }
+      ],
+      "errors": []
+    }
+  ]
+}
