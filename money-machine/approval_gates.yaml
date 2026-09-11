@@ -1,0 +1,30 @@
+defaults:
+  external_send: denied
+  purchases: denied
+  paid_model_or_api_billing: denied
+  contracts_or_subscriptions: denied
+  production_mutation: denied
+  destructive_action: denied
+  mass_personal_data_collection: denied
+
+allowed_without_approval:
+  - public_business_research
+  - evidence_capture
+  - local_draft_creation
+  - local_sandbox_prototype
+  - database_updates
+  - dry_run
+
+approval_requirements:
+  external_send:
+    required: true
+    approver: Dion
+    per_message: true
+    require_contact_permission_basis: true
+    require_truthful_sender_identity: true
+    require_opt_out_handling: true
+  production_mutation:
+    required: true
+    require_backup: true
+    require_rollback_plan: true
+

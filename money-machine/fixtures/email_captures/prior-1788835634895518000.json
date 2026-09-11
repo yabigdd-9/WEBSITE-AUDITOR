@@ -1,0 +1,267 @@
+[
+  {
+    "business": {
+      "id": 2,
+      "name": "Blizzard HVAC & Electrical",
+      "region": "Wellington",
+      "public_website": "https://blizzard.co.nz/"
+    },
+    "pages": [],
+    "errors": [
+      {
+        "url": "https://blizzard.co.nz/",
+        "reason": "SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1082)"
+      }
+    ]
+  },
+  {
+    "business": {
+      "id": 3,
+      "name": "Trident Electrical & Air Conditioning",
+      "region": "Auckland",
+      "public_website": "https://trident.nz/heat-pumps"
+    },
+    "pages": [],
+    "errors": [
+      {
+        "url": "https://trident.nz/heat-pumps",
+        "reason": "SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1082)"
+      }
+    ]
+  },
+  {
+    "business": {
+      "id": 4,
+      "name": "ATL Heat Pumps",
+      "region": "Christchurch",
+      "public_website": "https://www.atlelectrical.co.nz/heat-pumps"
+    },
+    "pages": [],
+    "errors": [
+      {
+        "url": "https://www.atlelectrical.co.nz/heat-pumps",
+        "reason": "SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1082)"
+      }
+    ]
+  },
+  {
+    "business": {
+      "id": 5,
+      "name": "Heat Force",
+      "region": "Christchurch",
+      "public_website": "https://www.heatforce.co.nz/"
+    },
+    "pages": [],
+    "errors": [
+      {
+        "url": "https://www.heatforce.co.nz/",
+        "reason": "SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1082)"
+      }
+    ]
+  },
+  {
+    "business": {
+      "id": 6,
+      "name": "BA Heat Pumps",
+      "region": "Wellington",
+      "public_website": "https://www.baheatpumps.co.nz/"
+    },
+    "pages": [],
+    "errors": [
+      {
+        "url": "https://www.baheatpumps.co.nz/",
+        "reason": "SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1082)"
+      }
+    ]
+  },
+  {
+    "business": {
+      "id": 7,
+      "name": "AES",
+      "region": "Auckland",
+      "public_website": "https://www.aes.nz/heat-pumps/"
+    },
+    "pages": [],
+    "errors": [
+      {
+        "url": "https://www.aes.nz/heat-pumps/",
+        "reason": "SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1082)"
+      }
+    ]
+  },
+  {
+    "business": {
+      "id": 8,
+      "name": "Simpson Climate Control",
+      "region": "Auckland",
+      "public_website": "https://www.simpsoncc.co.nz/"
+    },
+    "pages": [],
+    "errors": [
+      {
+        "url": "https://www.simpsoncc.co.nz/",
+        "reason": "SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1082)"
+      }
+    ]
+  },
+  {
+    "business": {
+      "id": 9,
+      "name": "Kiwi Heat Pumps",
+      "region": "Auckland",
+      "public_website": "https://kiwiheatpumps.co.nz/"
+    },
+    "pages": [],
+    "errors": [
+      {
+        "url": "https://kiwiheatpumps.co.nz/",
+        "reason": "SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1082)"
+      }
+    ]
+  },
+  {
+    "business": {
+      "id": 10,
+      "name": "Imperial HVAC",
+      "region": "Wellington",
+      "public_website": "https://imperialhvac.co.nz/"
+    },
+    "pages": [],
+    "errors": [
+      {
+        "url": "https://imperialhvac.co.nz/",
+        "reason": "SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1082)"
+      }
+    ]
+  },
+  {
+    "business": {
+      "id": 11,
+      "name": "New Zealand Heat Pumps",
+      "region": "Christchurch",
+      "public_website": "https://newzealandheatpumps.co.nz/"
+    },
+    "pages": [],
+    "errors": [
+      {
+        "url": "https://newzealandheatpumps.co.nz/",
+        "reason": "SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1082)"
+      }
+    ]
+  },
+  {
+    "business": {
+      "id": 12,
+      "name": "Superior Renovations",
+      "region": "Auckland",
+      "public_website": "https://superiorrenovations.co.nz/"
+    },
+    "pages": [],
+    "errors": [
+      {
+        "url": "https://superiorrenovations.co.nz/",
+        "reason": "SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1082)"
+      }
+    ]
+  },
+  {
+    "business": {
+      "id": 13,
+      "name": "Christchurch Renovations",
+      "region": "Christchurch",
+      "public_website": "https://www.chchrenovations.nz/"
+    },
+    "pages": [],
+    "errors": [
+      {
+        "url": "https://www.chchrenovations.nz/",
+        "reason": "SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1082)"
+      }
+    ]
+  },
+  {
+    "business": {
+      "id": 14,
+      "name": "Butterfield Bathrooms",
+      "region": "Christchurch",
+      "public_website": "https://www.butterfieldbathrooms.co.nz/"
+    },
+    "pages": [],
+    "errors": [
+      {
+        "url": "https://www.butterfieldbathrooms.co.nz/",
+        "reason": "SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1082)"
+      }
+    ]
+  },
+  {
+    "business": {
+      "id": 15,
+      "name": "Evoke Renovations",
+      "region": "Christchurch",
+      "public_website": "https://www.evoke-reno.co.nz/"
+    },
+    "pages": [],
+    "errors": [
+      {
+        "url": "https://www.evoke-reno.co.nz/",
+        "reason": "SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1082)"
+      }
+    ]
+  },
+  {
+    "business": {
+      "id": 16,
+      "name": "Modern Age Kitchens",
+      "region": "Christchurch",
+      "public_website": null
+    },
+    "pages": [],
+    "errors": []
+  },
+  {
+    "business": {
+      "id": 17,
+      "name": "Kitchen Studio Christchurch",
+      "region": "Christchurch",
+      "public_website": "https://kitchenstudio.co.nz"
+    },
+    "pages": [],
+    "errors": [
+      {
+        "url": "https://kitchenstudio.co.nz",
+        "reason": "SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1082)"
+      }
+    ]
+  },
+  {
+    "business": {
+      "id": 18,
+      "name": "Best Nest Building Co",
+      "region": "Auckland",
+      "public_website": "https://bestnestbuilding.co.nz/"
+    },
+    "pages": [],
+    "errors": [
+      {
+        "url": "https://bestnestbuilding.co.nz/",
+        "reason": "SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1082)"
+      }
+    ]
+  },
+  {
+    "business": {
+      "id": 19,
+      "name": "Fendalton Construction",
+      "region": "Auckland",
+      "public_website": "https://www.fendaltonconstruction.co.nz/"
+    },
+    "pages": [],
+    "errors": [
+      {
+        "url": "https://www.fendaltonconstruction.co.nz/",
+        "reason": "SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1082)"
+      }
+    ]
+  }
+]

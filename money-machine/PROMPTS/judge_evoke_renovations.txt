@@ -1,0 +1,23 @@
+Act as JUDGE for MoneyMachine Batch 001. Review this opportunity independently.
+
+BUSINESS: Evoke Renovations (ID 15), Christchurch. Website: https://www.evoke-reno.co.nz/
+AUDIT SCORE: 62/100 (B band — revised up from 57)
+KEY FINDINGS: Family-owned by Anthony & Joanne Wheeler since 2016, trading as Evoke Bathrooms and Kitchens (acquired Cabinet Craft 2021, amalgamated 2023). 30+ years combined experience, LBP registered, in-house joinery workshop, full team page with photos. MoneyHub recognition, 5.0 Google rating, #5 "Best for Personalised Service" 2026 Christchurch kitchen renovations (10best.co.nz). Q Card finance, price match promise, charity partnerships. Location: 260b Port Hills Road, Hillsborough, Christchurch 8022 (moved to larger workshop 2026).
+KEY PROBLEM: TESTIMONIAL PLACEHOLDERS on homepage, contact, kitchens, and bathrooms pages — Wix template placeholder text "This is your Testimonial quote..." attributed to Sandy Williams, Casey Johnson, Robbie White — no actual review content. This is visible on 4 pages and is a conversion-killer for a trust-driven renovation business. FAQ page shows questions but no answers (collapsed content). No online booking, no quote tool, phone/email-only, no CRM, no automation.
+AUDITOR PROPOSED: Phase 1 NZD 750 (replace 3-5 placeholder testimonials with real reviews, strengthen trust signals, polish mobile layout around testimonial/CTA sections, deploy to live Wix site, one revision round, before/after screenshot measurement). Phase 2 optional NZD 1,500–3,000 (quote form, auto-acknowledgement, nurture sequence, review collection, booking widget).
+CONFIDENCE: 7/10. Cold outreach, no existing relationship, small family business. Recommendation: PARK for Batch 002 (Band A candidates should go first). Do not suppress.
+
+Read the full audit at /Users/yabigdd/MoneyMachine/reports/AUDIT_evoke_renovations.json
+Read the scoring rubric at /Users/yabigdd/MoneyMachine/control-plane/SCORING_RUBRIC.md
+Read the judge spec at /Users/yabigdd/MoneyMachine/control-plane/JUDGE_SPEC.md
+
+Be independent — ask:
+1. Are Wix template placeholder testimonials on a renovation homepage a real conversion-killer or cosmetic?
+2. Is NZD 750 Phase 1 the right scope? Too small to matter?
+3. Is Evoke (family business, 2016, growing — new workshop 2026) a good target or too small?
+4. Scores: trust 3, conversion 4, quote_flow 3, booking_flow 3 — add up to 62?
+5. PARK for Batch 002 or pursue now?
+
+Write your decision as JSON to /Users/yabigdd/MoneyMachine/reports/JUDGE_evoke_renovations.json
+Use EXACTLY this format (no other text, no markdown fence):
+{"business_id": 15, "business_name": "Evoke Renovations", "judge_decision": "ACCEPT" or "REVISE" or "REJECT", "original_score": 62, "confidence": 0-10, "reasons": ["reason1", "reason2"], "judge_score_adjustment": {"overall_score_new": 0-100} or null, "notes": "your notes"}

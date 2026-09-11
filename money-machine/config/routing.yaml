@@ -1,0 +1,83 @@
+# Canonical explicit role routing. Unattended CRM adapters remain paused.
+execution_mode: manual_deterministic
+model_execution_enabled: false
+manual_role_requests_enabled: true
+version: 2
+catalog_source: https://openrouter.ai/api/v1/models
+catalog_verified_utc: '2026-09-09T16:05:25Z'
+provider: openrouter
+
+policy:
+  paid_tokens: false
+  prefer_free_models: true
+  providers_sort: price
+  require_parameters: true
+  data_collection: allow
+  max_price: {prompt: 0, completion: 0, request: 0, image: 0}
+  catalog_price_check_before_request: true
+  free_suffix_required: true
+  account_quota_exhausted: stop_and_log
+  endpoint_failure: next_role_fallback_then_stop
+
+  max_concurrent_children: 1
+  max_retries_per_stage: 2
+  max_stage_repeats: 2
+
+  duplicate_task_guard: true
+  recursive_delegation_guard: true
+  proof_required_before_complete: true
+
+roles:
+
+  MASTER_ORCHESTRATOR:
+    preferred: nvidia/nemotron-3-ultra-550b-a55b:free
+    fallbacks: [nvidia/nemotron-3-super-120b-a12b:free]
+  DELEGATOR:
+    preferred: nvidia/nemotron-3-ultra-550b-a55b:free
+    fallbacks: [nvidia/nemotron-3-super-120b-a12b:free]
+  PLANNER:
+    preferred: nvidia/nemotron-3-ultra-550b-a55b:free
+    fallbacks: [nvidia/nemotron-3-super-120b-a12b:free]
+  JUDGE:
+    preferred: nvidia/nemotron-3-super-120b-a12b:free
+    fallbacks: [nvidia/nemotron-3-ultra-550b-a55b:free]
+  CRITIC:
+    preferred: nvidia/nemotron-3-super-120b-a12b:free
+    fallbacks: [nvidia/nemotron-3-ultra-550b-a55b:free]
+  RESEARCHER:
+    preferred: thinkingmachines/inkling:free
+    fallbacks: [nvidia/nemotron-3.5-lightning:free, thinkingmachines/inkling-small:free]
+  FAST_RESEARCHER:
+    preferred: nvidia/nemotron-3.5-lightning:free
+    fallbacks: [thinkingmachines/inkling-small:free, cohere/north-mini-code:free]
+  CODER:
+    preferred: poolside/laguna-s-2.1:free
+    fallbacks: [cohere/north-mini-code:free, poolside/laguna-xs-2.1:free]
+  PRIMARY_CODER:
+    preferred: poolside/laguna-s-2.1:free
+    fallbacks: [cohere/north-mini-code:free, poolside/laguna-xs-2.1:free]
+  SECONDARY_CODER:
+    preferred: cohere/north-mini-code:free
+    fallbacks: [poolside/laguna-xs-2.1:free]
+  VISION:
+    preferred: nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
+    fallbacks: [thinkingmachines/inkling:free]
+  MULTIMODAL:
+    preferred: nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
+    fallbacks: [thinkingmachines/inkling:free]
+  FINANCE_AGENT:
+    preferred: inclusionai/ling-3.0-flash-fin:free
+    fallbacks: [nvidia/nemotron-3-ultra-550b-a55b:free]
+  BULK_WORKERS:
+    preferred: nvidia/nemotron-3.5-lightning:free
+    fallbacks: [thinkingmachines/inkling-small:free, cohere/north-mini-code:free]
+
+rules:
+  - Never silently switch to paid token usage.
+  - Prefer another available free model if the preferred model fails.
+  - Never allow recursive agent spawning.
+  - Do not duplicate work unless comparison is deliberately required.
+  - Ultra plans; specialists produce bounded drafts; Super judges; Ultra resolves disagreements.
+  - A judge using the creator model is not an independent review; require a human or distinct-model reviewer.
+  - Role responses cannot approve leads, clear suppression, send outreach, or modify the CRM.
+  - Public or synthetic prompts only; never send secrets or confidential customer data to free endpoints.

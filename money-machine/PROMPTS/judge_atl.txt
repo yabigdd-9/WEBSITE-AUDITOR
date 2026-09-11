@@ -1,0 +1,15 @@
+Act as JUDGE for MoneyMachine Batch 001. Review this opportunity independently.
+
+BUSINESS: ATL Heat Pumps (ID atl). Website: https://www.atlelectrical.co.nz/heat-pumps
+AUDIT SCORE: 74/100 (A band)
+KEY FINDINGS: ATL Christchurch Ltd, NZBN 9429033276489, Company #1960892, est. 2007, 30 staff, 87 Builderscrank reviews, 74 jobs completed, 0800 555 770 toll-free. Wix-built site, content-thin and repetitive. No online booking calendar, no instant quote tool, no CRM signals, no automated confirmation, no post-enquiry nurture, no maintenance plan, no customer portal. Strong trust signals buried (87 Builderscrank reviews, B2B testimonials from 10-year commercial relationships, GAF Roofing partnership for 5 years, 0800 number, physical office at 351 Blenheim Road, Upper Riccarton). Auditor proposed NZD 5,500 rebuild + booking calendar + instant quote tool + showroom booking (offer 16) and NZD 3,200 instant quote tool (offer 17). Auditor confidence: 7.5/10.
+
+Read the full audit at /Users/yabigdd/MoneyMachine/reports/AUDIT_atl_audit.json (may not exist — use what you have)
+Read the scoring rubric at /Users/yabigdd/MoneyMachine/control-plane/SCORING_RUBRIC.md
+Read the judge spec at /Users/yabigdd/MoneyMachine/control-plane/JUDGE_SPEC.md
+
+Be independent. 1) Is a Wix-built site with 30 staff and 87 reviews worth pursuing? 2) Is NZD 5,500 rebuild + booking + quote tool the right scope, or too much? 3) Is a 16+ year business with 30 staff likely to pay, or already have systems? 4) Scores: trust 9, quote_flow 2, booking_flow 2, crm 2 — add up to 74?
+
+Write your decision as JSON to /Users/yabigdd/MoneyMachine/reports/JUDGE_atl.json
+Use EXACTLY this format (no other text, no markdown fence):
+{"business_id": atl, "business_name": "ATL Heat Pumps", "judge_decision": "ACCEPT" or "REVISE" or "REJECT", "original_score": 74, "confidence": 0-10, "reasons": ["reason1", "reason2"], "judge_score_adjustment": {"overall_score_new": 0-100} or null, "notes": "your notes"}
