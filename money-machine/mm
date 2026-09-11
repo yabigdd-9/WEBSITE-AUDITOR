@@ -6,4 +6,4 @@ if [ ! -x "$MM_PYTHON" ]; then
     echo "BLOCKED: Python email environment missing. See requirements-email.txt and reports/EMAIL_FINDER_V2_IMPLEMENTATION.md." >&2
     exit 2
 fi
-exec "$MM_PYTHON" "$MM_COMMAND_DIR/scripts/mm_operator.py" "$@"
+exec "$MM_PYTHON" "$MM_COMMAND_DIR/mm_operator.py" "$@"
