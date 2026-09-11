@@ -227,19 +227,35 @@ After each send batch:
 
 - tracks results and pricing compliance
 
+### Backup Agent
+
+- maintains a clean recovery snapshot before major changes
+- keeps evidence and state artifacts copy-safe and reviewable
+- restores the last known good state if a task fails unexpectedly
+- verifies the rollback target before any destructive action
+
+### Fast-Path Agent
+
+- handles parallelized low-risk work such as research triage, document sorting, and evidence packaging
+- does not bypass approval gates or consent checks
+- escalates anything ambiguous to the orchestrator or compliance ratifier
+- accelerates the queue without creating new compliance risk
+
 ---
 
 ## Recommended next run order
 
-1. Check approval queue
-2. Confirm price approval status
-3. Complete research evidence pack
-4. Run judge scoring
-5. Run proofer review
-6. Perform consent ratification
-7. Build only approved outreach
-8. Human approval
-9. Send + log
-10. Review reply and revenue outcome
+1. Backup Agent snapshots repo/state before any batch starts
+2. Check approval queue
+3. Confirm price approval status
+4. Fast-Path Agent gathers and prepares low-risk research sub-batches
+5. Complete research evidence pack
+6. Run judge scoring
+7. Run proofer review
+8. Perform consent ratification
+9. Build only approved outreach
+10. Human approval
+11. Send + log
+12. Review reply and revenue outcome
 
 This is the minimum safe operational path for the next execution cycle.
