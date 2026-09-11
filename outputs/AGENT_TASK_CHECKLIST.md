@@ -241,6 +241,20 @@ After each send batch:
 - escalates anything ambiguous to the orchestrator or compliance ratifier
 - accelerates the queue without creating new compliance risk
 
+### Boosted Agent
+
+- runs the highest-confidence, low-friction work in parallel when the approval gate is already green
+- handles duplicate cleanup, summarization, and structured note generation
+- works only on already approved tasks and never on final sending or value commitments
+- escalates anything involving money, legal risk, or unclear consent to the orchestrator
+
+### Parallel Batch Agent
+
+- coordinates multiple small research or validation tasks at the same time
+- ensures each sub-task remains isolated and evidence-backed
+- merges outputs into a single reviewed evidence pack before handoff
+- does not combine blocked or ambiguous leads into the final batch
+
 ---
 
 ## Recommended next run order
@@ -248,14 +262,15 @@ After each send batch:
 1. Backup Agent snapshots repo/state before any batch starts
 2. Check approval queue
 3. Confirm price approval status
-4. Fast-Path Agent gathers and prepares low-risk research sub-batches
-5. Complete research evidence pack
-6. Run judge scoring
-7. Run proofer review
-8. Perform consent ratification
-9. Build only approved outreach
-10. Human approval
-11. Send + log
-12. Review reply and revenue outcome
+4. Fast-Path Agent and Parallel Batch Agent gather low-risk research sub-batches
+5. Boosted Agent handles approved, low-friction parallel tasks
+6. Complete research evidence pack
+7. Run judge scoring
+8. Run proofer review
+9. Perform consent ratification
+10. Build only approved outreach
+11. Human approval
+12. Send + log
+13. Review reply and revenue outcome
 
 This is the minimum safe operational path for the next execution cycle.
