@@ -1,0 +1,38 @@
+{
+  "url": "https://www.jcconstruction.co.nz",
+  "domain": "www.jcconstruction.co.nz",
+  "defects": [
+    {
+      "defect": "Missing page title",
+      "how": "No <title> tag found in HTML source",
+      "impact": "Google shows blank/untitled results; visitors see no context"
+    },
+    {
+      "defect": "Missing meta description",
+      "how": "No <meta name='description'> found",
+      "impact": "Lower click-through from search results"
+    },
+    {
+      "defect": "No contact form",
+      "how": "No <form> element found on contact page",
+      "impact": "Every enquiry requires manual step; leads are lost"
+    },
+    {
+      "defect": "976 HTML markup error(s)",
+      "how": "W3C validator found 976 errors",
+      "impact": "Inconsistent rendering across browsers; SEO impact"
+    }
+  ],
+  "defect_count": 4,
+  "score": 45,
+  "evidence": {
+    "social_links": [],
+    "w3c_errors": 976
+  },
+  "meta": {
+    "title": null,
+    "meta_description": null
+  },
+  "social": [],
+  "timestamp": "2026-09-16T13:10:29.330150"
+}

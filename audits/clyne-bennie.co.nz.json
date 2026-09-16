@@ -1,0 +1,33 @@
+{
+  "url": "https://clyne-bennie.co.nz",
+  "domain": "clyne-bennie.co.nz",
+  "defects": [
+    {
+      "defect": "No contact form",
+      "how": "No <form> element found on contact page",
+      "impact": "Every enquiry requires manual step; leads are lost"
+    },
+    {
+      "defect": "1 broken link(s) detected",
+      "how": "Sampled internal links returned HTTP 4xx errors",
+      "impact": "Frustrates visitors and wastes marketing spend"
+    },
+    {
+      "defect": "135 HTML markup error(s)",
+      "how": "W3C validator found 135 errors",
+      "impact": "Inconsistent rendering across browsers; SEO impact"
+    }
+  ],
+  "defect_count": 3,
+  "score": 30,
+  "evidence": {
+    "social_links": [],
+    "w3c_errors": 135
+  },
+  "meta": {
+    "title": "Christchurch Plumber, Gas Fitter, Drainlayer, Electrician",
+    "meta_description": "Clyne &amp; Bennie\u2019s friendly, professional team can look after all your plumbing, gas fitting, drainage, electrical and heating requirements."
+  },
+  "social": [],
+  "timestamp": "2026-09-16T13:09:10.707681"
+}
