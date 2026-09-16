@@ -1,0 +1,36 @@
+{
+  "generated": "2026-09-16T16:47:02.529091",
+  "total_sites": 6,
+  "sites": [
+    {
+      "domain": "clyne-bennie.co.nz",
+      "score": 30,
+      "actions": 3
+    },
+    {
+      "domain": "prodecorators.co.nz",
+      "score": 35,
+      "actions": 3
+    },
+    {
+      "domain": "www.clyne-bennie.co.nz",
+      "score": 30,
+      "actions": 3
+    },
+    {
+      "domain": "www.davidrobertson.co.nz",
+      "score": 35,
+      "actions": 3
+    },
+    {
+      "domain": "www.jcconstruction.co.nz",
+      "score": 45,
+      "actions": 4
+    },
+    {
+      "domain": "www.tbir.co.nz",
+      "score": 45,
+      "actions": 4
+    }
+  ]
+}

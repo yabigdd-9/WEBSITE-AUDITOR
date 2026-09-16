@@ -1,0 +1,65 @@
+{
+  "domain": "prodecorators.co.nz",
+  "score": 35,
+  "total_defects": 3,
+  "generated": "2026-09-16T16:47:02.516278",
+  "actions": [
+    {
+      "defect": "Missing page title",
+      "impact": "Google shows blank/untitled results; visitors see no context",
+      "priority": 3,
+      "fix": {
+        "title": "Add Page Title Tag",
+        "effort": "5 min/page",
+        "cost": "Free",
+        "code": "<title>Your Keyword | Business Name</title>",
+        "docs": "https://developers.google.com/search/docs/appearance/title-link",
+        "steps": [
+          "Add <title> to <head> on each page",
+          "Keep under 60 characters",
+          "Include primary keyword"
+        ]
+      }
+    },
+    {
+      "defect": "No contact form",
+      "impact": "Every enquiry requires manual step; leads are lost",
+      "priority": 3,
+      "fix": {
+        "title": "Add Contact Form",
+        "effort": "15 min",
+        "cost": "Free (Formspree/Netlify)",
+        "code": "<form action=\"https://formspree.io/f/YOUR_ID\" method=\"POST\"><input name=\"email\" type=\"email\" required><textarea name=\"message\" required></textarea><button type=\"submit\">Send</button></form>",
+        "docs": "https://formspree.io/",
+        "steps": [
+          "Sign up at formspree.io (free)",
+          "Add form HTML to contact page",
+          "Verify email forwarding works"
+        ]
+      }
+    },
+    {
+      "defect": "969 HTML markup error(s)",
+      "impact": "Inconsistent rendering across browsers; SEO impact",
+      "priority": 5,
+      "fix": {
+        "title": "Fix HTML Validation Errors",
+        "effort": "15-60 min",
+        "cost": "Free",
+        "code": null,
+        "docs": "https://validator.w3.org/",
+        "steps": [
+          "Run W3C validator",
+          "Fix missing closing tags",
+          "Validate nested elements",
+          "Re-validate"
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "high": 2,
+    "medium": 1,
+    "low": 0
+  }
+}

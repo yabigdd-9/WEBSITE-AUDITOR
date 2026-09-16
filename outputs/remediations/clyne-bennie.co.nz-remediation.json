@@ -1,0 +1,66 @@
+{
+  "domain": "clyne-bennie.co.nz",
+  "score": 30,
+  "total_defects": 3,
+  "generated": "2026-09-16T16:47:02.513389",
+  "actions": [
+    {
+      "defect": "No contact form",
+      "impact": "Every enquiry requires manual step; leads are lost",
+      "priority": 3,
+      "fix": {
+        "title": "Add Contact Form",
+        "effort": "15 min",
+        "cost": "Free (Formspree/Netlify)",
+        "code": "<form action=\"https://formspree.io/f/YOUR_ID\" method=\"POST\"><input name=\"email\" type=\"email\" required><textarea name=\"message\" required></textarea><button type=\"submit\">Send</button></form>",
+        "docs": "https://formspree.io/",
+        "steps": [
+          "Sign up at formspree.io (free)",
+          "Add form HTML to contact page",
+          "Verify email forwarding works"
+        ]
+      }
+    },
+    {
+      "defect": "1 broken link(s) detected",
+      "impact": "Frustrates visitors and wastes marketing spend",
+      "priority": 4,
+      "fix": {
+        "title": "Fix Broken Links",
+        "effort": "10-30 min",
+        "cost": "Free",
+        "code": null,
+        "docs": "https://support.google.com/webmasters/answer/9019367",
+        "steps": [
+          "Identify broken URLs",
+          "Fix or remove links",
+          "Set 301 redirects for moved pages",
+          "Re-scan to verify"
+        ]
+      }
+    },
+    {
+      "defect": "135 HTML markup error(s)",
+      "impact": "Inconsistent rendering across browsers; SEO impact",
+      "priority": 5,
+      "fix": {
+        "title": "Fix HTML Validation Errors",
+        "effort": "15-60 min",
+        "cost": "Free",
+        "code": null,
+        "docs": "https://validator.w3.org/",
+        "steps": [
+          "Run W3C validator",
+          "Fix missing closing tags",
+          "Validate nested elements",
+          "Re-validate"
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "high": 1,
+    "medium": 2,
+    "low": 0
+  }
+}

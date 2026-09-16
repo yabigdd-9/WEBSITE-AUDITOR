@@ -3,31 +3,70 @@
   "domain": "prodecorators.co.nz",
   "defects": [
     {
-      "defect": "Missing page title",
-      "how": "No <title> tag found in HTML source",
-      "impact": "Google shows blank/untitled results; visitors see no context"
+      "defect": "Missing HSTS",
+      "impact": "Missing HSTS \u2014 reduces XSS/clickjacking protection"
     },
     {
-      "defect": "No contact form",
-      "how": "No <form> element found on contact page",
-      "impact": "Every enquiry requires manual step; leads are lost"
+      "defect": "Missing X-Frame-Options",
+      "impact": "Missing X-Frame-Options \u2014 reduces XSS/clickjacking protection"
     },
     {
-      "defect": "969 HTML markup error(s)",
-      "how": "W3C validator found 969 errors",
-      "impact": "Inconsistent rendering across browsers; SEO impact"
+      "defect": "Missing X-Content-Type",
+      "impact": "Missing X-Content-Type \u2014 reduces XSS/clickjacking protection"
+    },
+    {
+      "defect": "Missing Referrer-Policy",
+      "impact": "Missing Referrer-Policy \u2014 reduces XSS/clickjacking protection"
+    },
+    {
+      "defect": "Missing Permissions-Policy",
+      "impact": "Missing Permissions-Policy \u2014 reduces XSS/clickjacking protection"
+    },
+    {
+      "defect": "4 broken link(s)",
+      "impact": "Frustrates visitors; wastes crawl budget"
     }
   ],
-  "defect_count": 3,
-  "score": 35,
+  "defect_count": 6,
+  "score": 37,
   "evidence": {
-    "social_links": [],
-    "w3c_errors": 969
+    "schema_org": {
+      "count": 4,
+      "types": [
+        "WebSite",
+        "Organization",
+        "Organization",
+        "Unknown"
+      ]
+    },
+    "social_links": [
+      "facebook",
+      "instagram",
+      "linkedin",
+      "youtube"
+    ],
+    "emails": [
+      "contact@prodecorators.co.nz"
+    ],
+    "readability": {
+      "flesch": null,
+      "grade": null
+    },
+    "word_count": 1780,
+    "broken_links": 4
   },
   "meta": {
-    "title": null,
-    "meta_description": "Pro Decorators: Christchurch&#039;s premier painting experts delivering exceptional home services with uncompromising quality and customer satisfaction."
+    "title": "Pro Decorators: Premier Painting Services in Christchurch",
+    "meta_description": "Pro Decorators: Christchurch's premier painting experts delivering exceptional home services with uncompromising quality and customer satisfaction."
   },
-  "social": [],
-  "timestamp": "2026-09-16T13:11:02.395964"
+  "social": [
+    "facebook",
+    "instagram",
+    "linkedin",
+    "youtube"
+  ],
+  "emails": [
+    "contact@prodecorators.co.nz"
+  ],
+  "timestamp": "2026-09-16T16:25:11.374845"
 }
