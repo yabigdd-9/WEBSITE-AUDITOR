@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Competitor Comparison: clyne-bennie.co.nz</title>
+<style>
+@page { size: A4; margin: 1.5cm; }
+* { box-sizing: border-box; }
+body { 
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+    background: #0d1117; 
+    color: #e6edf3; 
+    margin: 0; 
+    padding: 2em; 
+    line-height: 1.6;
+}
+.container { max-width: 1400px; margin: 0 auto; }
+
+.header {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    border-bottom: 3px solid #30363d; 
+    padding-bottom: 1em; 
+    margin-bottom: 2em;
+}
+.logo { 
+    font-size: 1.5em; 
+    font-weight: 700; 
+    background: linear-gradient(135deg, #58a6ff 0%, #a371f7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.report-meta { text-align: right; color: #8b949e; }
+.report-meta strong { color: #e6edf3; }
+
+.score-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5em;
+    margin-bottom: 2em;
+}
+.score-card {
+    border-radius: 12px;
+    padding: 1.5em;
+    color: #fff;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    transition: transform 0.2s;
+}
+.score-card:hover { transform: translateY(-2px); }
+.score-label { font-size: 0.85em; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5em; }
+.score-domain { font-size: 0.9em; opacity: 0.8; margin-bottom: 0.5em; word-break: break-all; }
+.score-big { font-size: 3.5em; font-weight: 700; line-height: 1; margin: 0.5em 0; }
+.score-tier { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 0.8em; font-weight: 600; margin-bottom: 0.5em; }
+.score-defects { font-size: 0.9em; opacity: 0.9; }
+
+.comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 2em;
+}
+.comparison-table th,
+.comparison-table td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid #21262d;
+    vertical-align: middle;
+}
+.comparison-table th {
+    background: #161b22;
+    color: #8b949e;
+    font-size: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+.comparison-table tr:last-child td { border-bottom: none; }
+.comparison-table tr:hover { background: #1c2128; }
+
+.metric-name { 
+    font-weight: 500; 
+    min-width: 220px;
+    background: #161b22;
+}
+.metric-client { 
+    background: rgba(88, 166, 255, 0.1);
+    font-weight: 600;
+}
+.metric-comp { text-align: center; }
+.metric-gap, .metric-gap-best { 
+    text-align: center; 
+    font-weight: 600; 
+    font-size: 0.9em;
+}
+.gap-positive { color: #3fb950; }
+.gap-negative { color: #f85149; }
+.gap-neutral { color: #8b949e; }
+
+.category-row .metric-name {
+    color: #8b949e;
+    font-weight: 400;
+    padding-left: 2em;
+    font-size: 0.9em;
+}
+.score-row .metric-name, .defect-row .metric-name {
+    font-weight: 700;
+    color: #f0f6fc;
+}
+
+.section {
+    margin: 2.5em 0;
+}
+.section h2 {
+    color: #58a6ff;
+    border-bottom: 2px solid #30363d;
+    padding-bottom: 0.5em;
+    margin-bottom: 1.5em;
+    font-size: 1.4em;
+}
+
+.defect-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5em;
+}
+.defect-column {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 1.5em;
+}
+.defect-column h4 {
+    color: #58a6ff;
+    margin-top: 0;
+    margin-bottom: 1em;
+    padding-bottom: 0.5em;
+    border-bottom: 1px solid #30363d;
+    font-size: 1em;
+}
+.defect-list { list-style: none; padding: 0; margin: 0; }
+.defect-list li {
+    padding: 0.75em 0;
+    border-bottom: 1px solid #21262d;
+    font-size: 0.85em;
+}
+.defect-list li:last-child { border-bottom: none; }
+.defect-list small { color: #8b949e; display: block; margin-top: 0.25em; }
+.more-defects { color: #8b949e; font-style: italic; }
+
+.why-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5em;
+}
+.why-card {
+    background: linear-gradient(135deg, #161b22 0%, #1c2128 100%);
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 1.5em;
+    border-left: 4px solid #58a6ff;
+}
+.why-card h4 {
+    margin: 0 0 0.75em 0;
+    color: #58a6ff;
+    font-size: 1em;
+}
+.why-card p {
+    margin: 0 0 1em 0;
+    color: #c9d1d9;
+    font-size: 0.9em;
+    line-height: 1.7;
+}
+.why-client-status {
+    font-size: 0.85em;
+    color: #f85149;
+    padding: 0.75em;
+    background: rgba(248, 81, 73, 0.1);
+    border-radius: 6px;
+    border: 1px solid rgba(248, 81, 73, 0.2);
+}
+
+.industry-insight {
+    background: linear-gradient(135deg, #1f2a3a 0%, #161b22 100%);
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 1.5em;
+    border-left: 4px solid #a371f7;
+}
+.industry-insight h3 {
+    margin: 0 0 1em 0;
+    color: #a371f7;
+    font-size: 1.1em;
+}
+.industry-insight p {
+    margin: 0;
+    color: #c9d1d9;
+    line-height: 1.7;
+}
+
+.footer {
+    margin-top: 3em;
+    padding-top: 1.5em;
+    border-top: 2px solid #30363d;
+    text-align: center;
+    color: #8b949e;
+    font-size: 0.85em;
+}
+.footer strong { color: #e6edf3; }
+
+@media print {
+    body { padding: 0; background: #fff; color: #1a1a2e; }
+    .score-card { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .comparison-table th { background: #f0f0f0 !important; -webkit-print-color-adjust: exact; }
+    .metric-client { background: #e8f0fe !important; -webkit-print-color-adjust: exact; }
+    .why-card { border-left-color: #003366 !important; -webkit-print-color-adjust: exact; }
+    .industry-insight { border-left-color: #6600cc !important; -webkit-print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="logo">CATALYX Labs</div>
+        <div class="report-meta">
+            <strong>Competitor Comparison Report</strong><br>
+            16 Sep 2026<br>
+            Industry: Plumbing
+        </div>
+    </div>
+
+    <div class="score-grid">
+        
+        <div class="score-card" style="background: linear-gradient(135deg, #FF1A1A 0%, #FF6B6B 100%);">
+            <div class="score-label">Client</div>
+            <div class="score-domain">clyne-bennie.co.nz</div>
+            <div class="score-big">32/100</div>
+            <div class="score-tier" style="background: #FF1A1A; color: #fff;">CRITICAL</div>
+            <div class="score-defects">5 defects</div>
+        </div>
+        <div class="score-card" style="background: linear-gradient(135deg, #FF1A1A 0%, #FF6B6B 100%);">
+            <div class="score-label">Competitor 1</div>
+            <div class="score-domain">prodecorators.co.nz</div>
+            <div class="score-big">37/100</div>
+            <div class="score-tier" style="background: #FF1A1A; color: #fff;">CRITICAL</div>
+            <div class="score-defects">6 defects</div>
+        </div>
+        <div class="score-card" style="background: linear-gradient(135deg, #FF8A00 0%, #FFB340 100%);">
+            <div class="score-label">Competitor 2</div>
+            <div class="score-domain">www.jcconstruction.co.nz</div>
+            <div class="score-big">45/100</div>
+            <div class="score-tier" style="background: #FF8A00; color: #fff;">NEEDS WORK</div>
+            <div class="score-defects">4 defects</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📊 Side-by-Side Comparison</h2>
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th class="metric-client">Client</th>
+                    <th class="metric-comp">Competitor 1</th>
+                    <th class="metric-comp">Competitor 2</th>
+                    <th class="metric-comp">Competitor 3</th>
+                    <th class="metric-gap">vs Avg</th>
+                    <th class="metric-gap-best">vs Best</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+    <tr class="metric-row score-row">
+        <td class="metric-name">🏆 Health Score</td>
+        <td class="metric-client"><strong>32/100</strong></td><td class="metric-comp">37/100</td><td class="metric-comp">45/100</td>
+        <td class="metric-gap"><span class='gap-negative'>-9.0 ✗</span></td>
+        <td class="metric-gap-best"><span class='gap-negative'>-13.0 ✗</span></td>
+    </tr>
+    <tr class="metric-row defect-row">
+        <td class="metric-name">🐛 Total Defects</td>
+        <td class="metric-client"><strong>5</strong></td><td class="metric-comp">6</td><td class="metric-comp">4</td>
+        <td class="metric-gap"><span class='gap-neutral'>0</span></td>
+        <td class="metric-gap-best"><span class='gap-negative'>+1.0 ✗</span></td>
+    </tr>
+        <tr class="metric-row category-row">
+            <td class="metric-name">🔒 Security Headers</td>
+            <td class="metric-client"><strong>4</strong></td><td class="metric-comp">5</td><td class="metric-comp">0</td>
+            <td class="metric-gap"><span class='gap-negative'>+1.5 ✗</span></td>
+            <td class="metric-gap-best"><span class='gap-negative'>+1.5 ✗</span></td>
+        </tr>
+        <tr class="metric-row category-row">
+            <td class="metric-name">🔍 SEO & Search Visibility</td>
+            <td class="metric-client"><strong>0</strong></td><td class="metric-comp">0</td><td class="metric-comp">2</td>
+            <td class="metric-gap"><span class='gap-positive'>-1.0 ✓</span></td>
+            <td class="metric-gap-best"><span class='gap-positive'>-1.0 ✓</span></td>
+        </tr>
+        <tr class="metric-row category-row">
+            <td class="metric-name">⚡ Performance & Core Web Vitals</td>
+            <td class="metric-client"><strong>0</strong></td><td class="metric-comp">0</td><td class="metric-comp">0</td>
+            <td class="metric-gap"><span class='gap-neutral'>0</span></td>
+            <td class="metric-gap-best"><span class='gap-neutral'>0</span></td>
+        </tr>
+        <tr class="metric-row category-row">
+            <td class="metric-name">♿ Accessibility & Usability</td>
+            <td class="metric-client"><strong>0</strong></td><td class="metric-comp">0</td><td class="metric-comp">0</td>
+            <td class="metric-gap"><span class='gap-neutral'>0</span></td>
+            <td class="metric-gap-best"><span class='gap-neutral'>0</span></td>
+        </tr>
+        <tr class="metric-row category-row">
+            <td class="metric-name">📝 Content Quality & Technical Health</td>
+            <td class="metric-client"><strong>1</strong></td><td class="metric-comp">1</td><td class="metric-comp">1</td>
+            <td class="metric-gap"><span class='gap-neutral'>0</span></td>
+            <td class="metric-gap-best"><span class='gap-neutral'>0</span></td>
+        </tr>
+        <tr class="metric-row category-row">
+            <td class="metric-name">💰 Conversion & Trust Signals</td>
+            <td class="metric-client"><strong>0</strong></td><td class="metric-comp">0</td><td class="metric-comp">1</td>
+            <td class="metric-gap"><span class='gap-positive'>-0.5 ✓</span></td>
+            <td class="metric-gap-best"><span class='gap-positive'>-0.5 ✓</span></td>
+        </tr>
+            </tbody>
+        </table>
+        <p style="color: #8b949e; font-size: 0.85em; margin-top: 1em;">
+            <strong>Gap Legend:</strong> 
+            <span class="gap-positive">Green = You're ahead</span> | 
+            <span class="gap-negative">Red = Competitor leads</span> | 
+            <span class="gap-neutral">Grey = Parity</span>
+            <br>Positive score gap = you lead. Negative defect gap = you have fewer defects (good).
+        </p>
+    </div>
+
+    <div class="section">
+        <h2>🔍 Detailed Defect Breakdown</h2>
+        <div class="defect-grid">
+            
+        <div class="defect-column">
+            <h4>Client: clyne-bennie.co.nz</h4>
+            <ul class="defect-list"><li>Missing HSTS<br><small>Missing HSTS — reduces XSS/clickjacking protection</small></li><li>Missing X-Frame-Options<br><small>Missing X-Frame-Options — reduces XSS/clickjacking protection</small></li><li>Missing Referrer-Policy<br><small>Missing Referrer-Policy — reduces XSS/clickjacking protection</small></li><li>Missing Permissions-Policy<br><small>Missing Permissions-Policy — reduces XSS/clickjacking protection</small></li><li>1 broken link(s)<br><small>Frustrates visitors; wastes crawl budget</small></li>
+            </ul>
+        </div>
+        <div class="defect-column">
+            <h4>Competitor 1: prodecorators.co.nz</h4>
+            <ul class="defect-list"><li>Missing HSTS<br><small>Missing HSTS — reduces XSS/clickjacking protection</small></li><li>Missing X-Frame-Options<br><small>Missing X-Frame-Options — reduces XSS/clickjacking protection</small></li><li>Missing X-Content-Type<br><small>Missing X-Content-Type — reduces XSS/clickjacking protection</small></li><li>Missing Referrer-Policy<br><small>Missing Referrer-Policy — reduces XSS/clickjacking protection</small></li><li>Missing Permissions-Policy<br><small>Missing Permissions-Policy — reduces XSS/clickjacking protection</small></li><li>4 broken link(s)<br><small>Frustrates visitors; wastes crawl budget</small></li>
+            </ul>
+        </div>
+        <div class="defect-column">
+            <h4>Competitor 2: www.jcconstruction.co.nz</h4>
+            <ul class="defect-list"><li>Missing page title<br><small>Google shows blank/untitled results; visitors see no context</small></li><li>Missing meta description<br><small>Lower click-through from search results</small></li><li>No contact form<br><small>Every enquiry requires manual step; leads are lost</small></li><li>976 HTML markup error(s)<br><small>Inconsistent rendering across browsers; SEO impact</small></li>
+            </ul>
+        </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>💡 Why This Matters — Impact Analysis</h2>
+        <div class="industry-insight">
+            <h3>🎯 Industry Context: Plumbing</h3>
+            <p>Plumbing customers search with high intent (emergency leaks, blocked drains). Mobile speed and click-to-call are critical. Missing H1/meta description = lost emergency calls.</p>
+        </div>
+        <div class="why-grid">
+            
+            <div class="why-card">
+                <h4>🔒 Security Headers</h4>
+                <p>Missing security headers expose visitors to clickjacking, XSS attacks, and data leakage. Modern browsers penalize sites without HSTS, CSP, and frame protection. For NZ businesses handling customer data, this is a compliance and trust issue.</p>
+                <div class="why-client-status">
+                    <strong>Your site:</strong> 4 issues in this category
+                </div>
+            </div>
+            <div class="why-card">
+                <h4>📝 Content Quality & Technical Health</h4>
+                <p>Thin content (<300 words) signals low authority to Google. Broken links frustrate users and waste crawl budget. HTML errors cause rendering bugs across browsers. Regular content audits keep your site trustworthy and competitive.</p>
+                <div class="why-client-status">
+                    <strong>Your site:</strong> 1 issue in this category
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🎯 Recommended Action Priority</h2>
+        <ol style="padding-left: 1.5em; color: #c9d1d9;">
+            <li><strong>Fix Critical Security Gaps:</strong> SSL expiry, missing HSTS/CSP, broken links — these cause immediate trust loss and browser warnings.</li>
+            <li><strong>Close SEO Gap vs Best Competitor:</strong> Add missing H1, meta descriptions, Schema.org, canonical URLs to match or exceed the leader.</li>
+            <li><strong>Optimize Conversion Elements:</strong> Contact form, clear CTAs, phone/email visibility, analytics — every missing piece loses leads.</li>
+            <li><strong>Improve Content Depth:</strong> Target 800+ words per service page, fix readability, add FAQ schema for rich results.</li>
+            <li><strong>Performance & Accessibility:</strong> Compress images, enable caching, fix contrast/alt text — compounds SEO + conversion gains.</li>
+        </ol>
+    </div>
+
+    <div class="footer">
+        <p><strong>CATALYX Labs Ltd</strong> | NZBN 9429053638892<br>
+        team@catalyxlabs.shop | catalyxlabs.shop</p>
+        <p>Report generated 2026-09-16 17:58 | Based on automated audit data — verify manually before action.</p>
+    </div>
+</div>
+</body>
+</html>

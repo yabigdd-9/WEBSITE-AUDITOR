@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Before/After: clyne-bennie.co.nz</title>
+<style>
+@page { size: A4; margin: 1.5cm; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, sans-serif; background: #0d1117; color: #c9d1d9; padding: 2em; max-width: 900px; margin: 0 auto; }
+.header { text-align: center; margin-bottom: 2em; }
+.header h1 { font-size: 2em; margin-bottom: 0.3em; color: #fff; }
+.subtitle { color: #8b949e; font-size: 1.1em; }
+.comparison { display: grid; grid-template-columns: 1fr auto 1fr; gap: 2em; align-items: center; margin: 2em 0; }
+.score-card { padding: 2em; border-radius: 16px; text-align: center; }
+.score-card.before { background: linear-gradient(135deg, #FF1A1A, #cc0000); color: #fff; }
+.score-card.after { background: linear-gradient(135deg, #00D4A3, #00CFFF); color: #0d1117; }
+.score-big { font-size: 4em; font-weight: bold; }
+.score-label { font-size: 1.2em; opacity: 0.9; margin-top: 0.5em; }
+.vs { font-size: 2em; font-weight: bold; color: #58a6ff; }
+.improvement-badge { display: inline-block; background: #003366; color: #fff; padding: 8px 20px; border-radius: 20px; font-size: 1.2em; font-weight: bold; margin: 1em 0; }
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5em; margin: 2em 0; }
+.stat-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 1.5em; text-align: center; }
+.stat-val { font-size: 2em; font-weight: bold; color: #58a6ff; }
+.stat-label { font-size: 0.85em; color: #8b949e; margin-top: 0.3em; }
+.section { margin: 2em 0; }
+.section h2 { color: #58a6ff; border-bottom: 2px solid #30363d; padding-bottom: 0.3em; margin-bottom: 1em; }
+.fixed-list { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1.5em; }
+.fixed-item { display: flex; align-items: center; gap: 0.5em; padding: 0.5em 0; border-bottom: 1px solid #21262d; }
+.fixed-item:last-child { border-bottom: none; }
+.checkmark { font-size: 1.2em; }
+.defect-name { font-size: 0.95em; }
+.roi-card { background: linear-gradient(135deg, #00D4A3, #00CFFF); color: #fff; padding: 2em; border-radius: 12px; text-align: center; margin: 2em 0; }
+.roi-card h3 { color: #fff; border: none; margin-top: 0; }
+.roi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1em; margin-top: 1em; }
+.roi-item { text-align: center; }
+.roi-val { font-size: 1.8em; font-weight: bold; }
+.roi-label { font-size: 0.8em; opacity: 0.9; }
+.footer { text-align: center; margin-top: 3em; padding-top: 1em; border-top: 2px solid #30363d; color: #666; font-size: 0.85em; }
+@media print { body { padding: 0; } }
+</style>
+</head>
+<body>
+<div class="header">
+    <h1>🏆 Before & After</h1>
+    <div class="subtitle">clyne-bennie.co.nz</div>
+    <div class="improvement-badge">+50 points improvement</div>
+</div>
+
+<div class="comparison">
+    <div class="score-card before">
+        <div class="score-label">Before</div>
+        <div class="score-big">35</div>
+        <div class="score-label">/100</div>
+    </div>
+    <div class="vs">→</div>
+    <div class="score-card after">
+        <div class="score-label">After</div>
+        <div class="score-big">85</div>
+        <div class="score-label">/100</div>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-val">12</div>
+        <div class="stat-label">Issues Fixed</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-val">50%</div>
+        <div class="stat-label">Score Improvement</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-val">250</div>
+        <div class="stat-label">Additional Monthly Visitors</div>
+    </div>
+</div>
+
+<div class="section">
+    <h2>✅ What We Fixed</h2>
+    <div class="fixed-list">
+        
+        <div class="fixed-item">
+            <span class="checkmark">✅</span>
+            <span class="defect-name">Missing HSTS</span>
+        </div>
+        <div class="fixed-item">
+            <span class="checkmark">✅</span>
+            <span class="defect-name">Missing X-Frame-Options</span>
+        </div>
+        <div class="fixed-item">
+            <span class="checkmark">✅</span>
+            <span class="defect-name">Missing Referrer-Policy</span>
+        </div>
+        <div class="fixed-item">
+            <span class="checkmark">✅</span>
+            <span class="defect-name">Missing Permissions-Policy</span>
+        </div>
+        <div class="fixed-item">
+            <span class="checkmark">✅</span>
+            <span class="defect-name">1 broken link(s)</span>
+        </div>
+    </div>
+</div>
+
+<div class="roi-card">
+    <h3>💰 Projected 12-Month Impact</h3>
+    <div class="roi-grid">
+        <div class="roi-item">
+            <div class="roi-val">$5,000</div>
+            <div class="roi-label">Annual Revenue Gain</div>
+        </div>
+        <div class="roi-item">
+            <div class="roi-val">$417</div>
+            <div class="roi-label">Monthly Revenue Gain</div>
+        </div>
+        <div class="roi-item">
+            <div class="roi-val">50%</div>
+            <div class="roi-label">Improvement</div>
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    <p><strong>CATALYX Labs Ltd</strong> | NZBN 9429053638892<br>
+    team@catalyxlabs.shop | catalyxlabs.shop</p>
+    <p>Generated: 16 Sep 2026</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { 
+    width: 1500px; 
+    height: 500px; 
+    background: linear-gradient(135deg, #003366 0%, #0066cc 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, sans-serif;
+    color: #fff;
+}
+.title { font-size: 2em; opacity: 0.9; margin-bottom: 0.5em; }
+.industry { 
+    font-size: 3em; 
+    font-weight: bold; 
+    text-transform: uppercase;
+    margin-bottom: 1em;
+}
+.rank-badge {
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    border: 10px solid #FFD700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5em;
+    font-weight: bold;
+    color: #FFD700;
+    margin: 1em 0;
+}
+.rank-label { font-size: 1.5em; }
+.domain { font-size: 1.5em; opacity: 0.8; margin-top: 1em; }
+</style>
+</head>
+<body>
+    <div class="title">Industry Ranking</div>
+    <div class="industry">general</div>
+    <div class="rank-badge">#3</div>
+    <div class="rank-label">out of 50 businesses audited</div>
+    <div class="domain">clyne-bennie.co.nz</div>
+</body>
+</html>

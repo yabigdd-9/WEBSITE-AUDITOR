@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { 
+    width: 1080px; 
+    height: 1920px; 
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, sans-serif;
+    color: #fff;
+    gap: 3em;
+}
+.side { text-align: center; }
+.label { font-size: 1.2em; color: #8b949e; margin-bottom: 0.5em; }
+.score { font-size: 5em; font-weight: bold; }
+.before .score { color: #FF8A00; }
+.after .score { color: #00D4A3; }
+.sublabel { font-size: 0.9em; color: #666; }
+.arrow { font-size: 4em; color: #58a6ff; }
+.improvement { 
+    position: absolute;
+    bottom: 2em;
+    font-size: 1.5em;
+    color: #00D4A3;
+    font-weight: bold;
+}
+</style>
+</head>
+<body>
+    <div class="side before">
+        <div class="label">BEFORE</div>
+        <div class="score">45</div>
+        <div class="sublabel">/100</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="side after">
+        <div class="label">AFTER</div>
+        <div class="score">85</div>
+        <div class="sublabel">/100</div>
+    </div>
+    <div class="improvement">+40 POINTS</div>
+</body>
+</html>

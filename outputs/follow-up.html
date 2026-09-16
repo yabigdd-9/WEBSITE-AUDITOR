@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Follow-Up Pipeline — CATALYX Labs</title>
+<style>
+body { font-family: -apple-system, sans-serif; background: #0d1117; color: #c9d1d9; padding: 2em; max-width: 1200px; margin: 0 auto; }
+h1 { color: #58a6ff; }
+h2 { color: #8b949e; border-bottom: 2px solid #30363d; padding-bottom: 0.3em; margin-top: 2em; }
+.pipeline { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1em; margin: 2em 0; }
+.pipeline-stage { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1em; }
+.pipeline-stage h3 { margin-top: 0; font-size: 0.9em; text-transform: uppercase; color: #8b949e; }
+.count { font-weight: normal; }
+.stage-cards { min-height: 100px; }
+.pipeline-card { background: #0d1117; border: 1px solid #21262d; border-radius: 6px; padding: 0.8em; margin: 0.5em 0; }
+.card-domain { font-weight: 600; font-size: 0.9em; }
+.card-tier { font-size: 0.75em; margin: 0.2em 0; }
+.tier-hot { color: #FF1A1A; }
+.tier-warm { color: #FF8A00; }
+.tier-nurture { color: #EFFF00; }
+.tier-cold { color: #8b949e; }
+.card-score { font-size: 0.85em; color: #58a6ff; }
+.card-next { font-size: 0.75em; color: #8b949e; }
+.empty { color: #666; font-style: italic; font-size: 0.85em; }
+.today-table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+.today-table th, .today-table td { padding: 10px; text-align: left; border-bottom: 1px solid #21262d; }
+.today-table th { background: #161b22; color: #8b949e; font-size: 0.8em; text-transform: uppercase; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1em; margin: 2em 0; }
+.stat { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1em; text-align: center; }
+.stat-val { font-size: 2em; font-weight: bold; color: #58a6ff; }
+.stat-label { font-size: 0.8em; color: #8b949e; }
+.footer { text-align: center; margin-top: 3em; padding-top: 1em; border-top: 2px solid #30363d; color: #666; font-size: 0.85em; }
+</style>
+</head>
+<body>
+<h1>📞 Follow-Up Pipeline</h1>
+<p style="color:#8b949e">Last updated: 16 Sep 2026 17:59</p>
+
+<div class="stats">
+    <div class="stat">
+        <div class="stat-val">6</div>
+        <div class="stat-label">Total Prospects</div>
+    </div>
+    <div class="stat">
+        <div class="stat-val">0</div>
+        <div class="stat-label">Due Today</div>
+    </div>
+    <div class="stat">
+        <div class="stat-val">0</div>
+        <div class="stat-label">HOT Leads</div>
+    </div>
+</div>
+
+<h2>Pipeline</h2>
+<div class="pipeline">
+    
+        <div class="pipeline-stage">
+            <h3>AUDIT <span class="count">(6)</span></h3>
+            <div class="stage-cards">
+                
+            <div class="pipeline-card">
+                <div class="card-domain">clyne-bennie.co.nz</div>
+                <div class="card-tier tier-warm">WARM</div>
+                <div class="card-score">56/100</div>
+                <div class="card-next">Call or email</div>
+            </div>
+            <div class="pipeline-card">
+                <div class="card-domain">prodecorators.co.nz</div>
+                <div class="card-tier tier-warm">WARM</div>
+                <div class="card-score">52/100</div>
+                <div class="card-next">Call or email</div>
+            </div>
+            <div class="pipeline-card">
+                <div class="card-domain">www.clyne-bennie.co.nz</div>
+                <div class="card-tier tier-cold">COLD</div>
+                <div class="card-score">20/100</div>
+                <div class="card-next">Add to newsletter</div>
+            </div>
+            <div class="pipeline-card">
+                <div class="card-domain">www.davidrobertson.co.nz</div>
+                <div class="card-tier tier-cold">COLD</div>
+                <div class="card-score">18/100</div>
+                <div class="card-next">Add to newsletter</div>
+            </div>
+            <div class="pipeline-card">
+                <div class="card-domain">www.jcconstruction.co.nz</div>
+                <div class="card-tier tier-cold">COLD</div>
+                <div class="card-score">16/100</div>
+                <div class="card-next">Add to newsletter</div>
+            </div>
+            <div class="pipeline-card">
+                <div class="card-domain">www.tbir.co.nz</div>
+                <div class="card-tier tier-cold">COLD</div>
+                <div class="card-score">14/100</div>
+                <div class="card-next">Add to newsletter</div>
+            </div>
+            </div>
+        </div>
+        <div class="pipeline-stage">
+            <h3>CONTACTED <span class="count">(0)</span></h3>
+            <div class="stage-cards">
+                <div class="empty">None</div>
+            </div>
+        </div>
+        <div class="pipeline-stage">
+            <h3>QUOTED <span class="count">(0)</span></h3>
+            <div class="stage-cards">
+                <div class="empty">None</div>
+            </div>
+        </div>
+        <div class="pipeline-stage">
+            <h3>WON <span class="count">(0)</span></h3>
+            <div class="stage-cards">
+                <div class="empty">None</div>
+            </div>
+        </div>
+        <div class="pipeline-stage">
+            <h3>LOST <span class="count">(0)</span></h3>
+            <div class="stage-cards">
+                <div class="empty">None</div>
+            </div>
+        </div>
+</div>
+
+<h2>📋 Today's Follow-Ups</h2>
+<table class="today-table">
+    <thead>
+        <tr>
+            <th>Domain</th>
+            <th>Tier</th>
+            <th>Action</th>
+            <th>Notes</th>
+            <th>Contact</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td colspan="5" style="text-align:center;color:#666">Nothing due today</td></tr>
+    </tbody>
+</table>
+
+<div class="footer">
+    <p><strong>CATALYX Labs Ltd</strong> | team@catalyxlabs.shop</p>
+</div>
+</body>
+</html>

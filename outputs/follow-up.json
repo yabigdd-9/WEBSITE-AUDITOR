@@ -1,0 +1,115 @@
+{
+  "contacts": [
+    {
+      "domain": "clyne-bennie.co.nz",
+      "name": "clyne-bennie.co.nz",
+      "tier": "WARM",
+      "score": 55.5,
+      "last_contact": "2026-09-06T17:59:41.494894",
+      "next_action": "Call or email",
+      "next_date": "2026-09-18T17:59:41.494959",
+      "notes": "Top defect: Missing HSTS",
+      "contact_info": {
+        "emails": [
+          "service.cbnt@clyne-bennie.co.nz",
+          "service@clyne-bennie.co.nz"
+        ],
+        "phone": "",
+        "social": [
+          "facebook",
+          "instagram",
+          "linkedin"
+        ]
+      },
+      "history": []
+    },
+    {
+      "domain": "prodecorators.co.nz",
+      "name": "prodecorators.co.nz",
+      "tier": "WARM",
+      "score": 52.3,
+      "last_contact": "2026-09-05T17:59:41.494987",
+      "next_action": "Call or email",
+      "next_date": "2026-09-18T17:59:41.495003",
+      "notes": "Top defect: Missing HSTS",
+      "contact_info": {
+        "emails": [
+          "contact@prodecorators.co.nz"
+        ],
+        "phone": "",
+        "social": [
+          "facebook",
+          "instagram",
+          "linkedin",
+          "youtube"
+        ]
+      },
+      "history": []
+    },
+    {
+      "domain": "www.clyne-bennie.co.nz",
+      "name": "clyne-bennie.co.nz",
+      "tier": "COLD",
+      "score": 20.4,
+      "last_contact": "2026-08-30T17:59:41.495022",
+      "next_action": "Add to newsletter",
+      "next_date": "2026-10-16T17:59:41.495032",
+      "notes": "Top defect: No contact form",
+      "contact_info": {
+        "emails": [],
+        "phone": "",
+        "social": []
+      },
+      "history": []
+    },
+    {
+      "domain": "www.davidrobertson.co.nz",
+      "name": "davidrobertson.co.nz",
+      "tier": "COLD",
+      "score": 17.6,
+      "last_contact": "2026-08-29T17:59:41.495045",
+      "next_action": "Add to newsletter",
+      "next_date": "2026-10-16T17:59:41.495055",
+      "notes": "Top defect: Missing page title",
+      "contact_info": {
+        "emails": [],
+        "phone": "",
+        "social": []
+      },
+      "history": []
+    },
+    {
+      "domain": "www.jcconstruction.co.nz",
+      "name": "jcconstruction.co.nz",
+      "tier": "COLD",
+      "score": 16.2,
+      "last_contact": "2026-08-29T17:59:41.495067",
+      "next_action": "Add to newsletter",
+      "next_date": "2026-10-16T17:59:41.495075",
+      "notes": "Top defect: Missing page title",
+      "contact_info": {
+        "emails": [],
+        "phone": "",
+        "social": []
+      },
+      "history": []
+    },
+    {
+      "domain": "www.tbir.co.nz",
+      "name": "tbir.co.nz",
+      "tier": "COLD",
+      "score": 13.5,
+      "last_contact": "2026-08-28T17:59:41.495086",
+      "next_action": "Add to newsletter",
+      "next_date": "2026-10-16T17:59:41.495095",
+      "notes": "Top defect: Missing page title",
+      "contact_info": {
+        "emails": [],
+        "phone": "",
+        "social": []
+      },
+      "history": []
+    }
+  ],
+  "last_updated": "2026-09-16T17:59:41.495106"
+}

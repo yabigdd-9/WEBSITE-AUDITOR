@@ -1,0 +1,187 @@
+#!/usr/bin/env python3
+"""Client Onboarding Generator — Access checklist & kickoff questionnaire.
+
+Usage:
+    python3 client_onboarding.py --domain example.com --package performance --client "Acme Ltd"
+    python3 client_onboarding.py --domain example.com --package complete
+"""
+import argparse, json, re
+from datetime import datetime, timedelta
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+
+
+def generate_html(domain: str, package: str, client_name: str = None) -> str:
+    """Generate onboarding HTML."""
+    
+    start_date = datetime.now()
+    kickoff_date = start_date + timedelta(days=2)
+    launch_date = start_date + timedelta(days=7 if package == "essential" else 14 if package == "performance" else 28)
+    
+    client_name = client_name or domain
+    
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Onboarding: {domain}</title>
+<style>
+body {{ font-family: -apple-system, sans-serif; background: #0d1117; color: #c9d1d9; padding: 2em; max-width: 900px; margin: 0 auto; }}
+h1 {{ color: #58a6ff; }}
+h2 {{ color: #8b949e; border-bottom: 2px solid #30363d; padding-bottom: 0.3em; margin-top: 2em; }}
+.card {{ background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1.5em; margin: 1em 0; }}
+.checklist {{ list-style: none; padding: 0; }}
+.checklist li {{ padding: 0.8em 0; border-bottom: 1px solid #21262d; display: flex; align-items: flex-start; gap: 0.8em; }}
+.checklist li:last-child {{ border-bottom: none; }}
+.checkbox {{ width: 20px; height: 20px; border: 2px solid #30363d; border-radius: 4px; flex-shrink: 0; margin-top: 2px; }}
+.checklist label {{ cursor: pointer; }}
+.section {{ margin: 1.5em 0; }}
+.question {{ margin: 1.5em 0; }}
+.question label {{ display: block; font-weight: 600; margin-bottom: 0.5em; }}
+.question input, .question textarea {{ width: 100%; padding: 12px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; font-size: 0.95em; }}
+.question textarea {{ min-height: 80px; resize: vertical; }}
+.timeline {{ background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1.5em; }}
+.timeline-item {{ display: flex; gap: 1em; padding: 1em 0; border-bottom: 1px solid #21262d; }}
+.timeline-item:last-child {{ border-bottom: none; }}
+.timeline-date {{ min-width: 100px; color: #58a6ff; font-weight: 600; }}
+.urgent {{ background: rgba(248, 81, 73, 0.1); border: 1px solid rgba(248, 81, 73, 0.3); border-radius: 8px; padding: 1em; margin: 1em 0; }}
+.urgent h3 {{ color: #f85149; margin-top: 0; }}
+.contact {{ background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1.5em; margin: 2em 0; }}
+.contact h3 {{ margin-top: 0; }}
+.contact a {{ color: #58a6ff; }}
+@media print {{ body {{ padding: 0; }} input, textarea {{ border: none; }} }}
+</style>
+</head>
+<body>
+<h1>🚀 Project Kickoff — {domain}</h1>
+<p><strong>Client:</strong> {client_name} | <strong>Package:</strong> {package.title()} | <strong>Start:</strong> {start_date.strftime('%d %b %Y')}</p>
+
+<div class="urgent">
+    <h3>⚡ Immediate Access Required</h3>
+    <p>To start on time, we need these within <strong>24 hours</strong>:</p>
+    <ul>
+        <li>🔑 Hosting/cPanel login (or create one)</li>
+        <li>🌐 Domain registrar access (if different from hosting)</li>
+        <li>📧 Email hosting access (for SPF/DKIM records)</li>
+    </ul>
+</div>
+
+<h2>📋 Access Checklist</h2>
+<div class="card">
+    <ul class="checklist">
+        <li><div class="checkbox"></div><label>Hosting/cPanel credentials</label></li>
+        <li><div class="checkbox"></div><label>Domain registrar credentials</li>
+        <li><div class="checkbox"></div><label>CMS admin login (WordPress/Shopify/etc.)</label></li>
+        <li><div class="checkbox"></div><label>Email hosting access</label></li>
+        <li><div class="checkbox"></div><label>Google Analytics access (if existing)</label></li>
+        <li><div class="checkbox"></div><label>Search Console access (if existing)</label></li>
+        <li><div class="checkbox"></div><label>Social media accounts (Facebook, Instagram)</label></li>
+        <li><div class="checkbox"></div><label>Logo files (SVG/PNG high-res)</label></li>
+        <li><div class="checkbox"></div><label>Brand guidelines (colors, fonts)</label></li>
+        <li><div class="checkbox"></div><label>Existing photos/videos of work</label></li>
+    </ul>
+</div>
+
+<h2>🎯 Kickoff Questionnaire</h2>
+<div class="card">
+    <div class="section">
+        <div class="question">
+            <label>1. What are your top 3 business goals for this project?</label>
+            <textarea placeholder="e.g., Get more phone calls, rank #1 on Google for 'plumber auckland', look professional..."></textarea>
+        </div>
+        <div class="question">
+            <label>2. Who are your top 3 competitors?</label>
+            <input type="text" placeholder="competitor1.co.nz, competitor2.co.nz...">
+        </div>
+        <div class="question">
+            <label>3. What makes you different from competitors?</label>
+            <textarea placeholder="What's your unique selling point?"></textarea>
+        </div>
+        <div class="question">
+            <label>4. What's your primary call-to-action? (What should visitors do?)</label>
+            <input type="text" placeholder="Call us, fill out form, request quote...">
+        </div>
+        <div class="question">
+            <label>5. Do you have existing brand colors/fonts?</label>
+            <input type="text" placeholder="#003366, Roboto, etc.">
+        </div>
+        <div class="question">
+            <label>6. What websites in your industry do you like? (URLs)</label>
+            <textarea placeholder="https://example.com — I like the clean layout..."></textarea>
+        </div>
+        <div class="question">
+            <label>7. What websites do you NOT want to look like?</label>
+            <textarea placeholder="Avoid: cluttered layouts, stock photos..."></textarea>
+        </div>
+        <div class="question">
+            <label>8. Who approves final work? (Name, role, email)</label>
+            <input type="text" placeholder="John Smith, Owner, john@example.com">
+        </div>
+        <div class="question">
+            <label>9. Any hard deadlines or launch dates?</label>
+            <input type="text" placeholder="15 October for trade show, etc.">
+        </div>
+        <div class="question">
+            <label>10. Any technical constraints we should know?</label>
+            <textarea placeholder="Old hosting, specific CMS required, etc."></textarea>
+        </div>
+    </div>
+</div>
+
+<h2>📅 Project Timeline</h2>
+<div class="timeline">
+    <div class="timeline-item">
+        <div class="timeline-date">{start_date.strftime('%d %b')}</div>
+        <div><strong>Project Start</strong> — Access credentials due</div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-date">{kickoff_date.strftime('%d %b')}</div>
+        <div><strong>Kickoff Call</strong> — Review questionnaire, align on priorities</div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-date">{(start_date + timedelta(days=3)).strftime('%d %b')}</div>
+        <div><strong>Work Begins</strong> — Critical fixes first</div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-date">{(launch_date - timedelta(days=2)).strftime('%d %b')}</div>
+        <div><strong>Review Draft</strong> — Client feedback window</div>
+    </div>
+    <div class="timeline-item">
+        <div class="timeline-date">{launch_date.strftime('%d %b')}</div>
+        <div><strong>Launch Day</strong> — Go live + post-launch monitoring</div>
+    </div>
+</div>
+
+<div class="contact">
+    <h3>📞 Emergency Contact</h3>
+    <p><strong>Dion Lammas</strong><br>
+    📧 team@catalyxlabs.shop<br>
+    📱 021 XXX XXXX<br>
+    🕐 Response time: &lt;4 hours during business hours</p>
+</div>
+
+<p style="color:#666; font-size:0.85em; margin-top:2em;">CATALYX Labs Ltd | NZBN 9429053638892</p>
+</body>
+</html>"""
+    return html
+
+
+def main():
+    p = argparse.ArgumentParser(description="Client Onboarding Generator")
+    p.add_argument("--domain", required=True, help="Domain name")
+    p.add_argument("--package", choices=["essential", "performance", "complete"], default="performance")
+    p.add_argument("--client", help="Client/business name")
+    p.add_argument("--output", "-o", help="Output file")
+    args = p.parse_args()
+    
+    output = generate_html(args.domain, args.package, args.client)
+    output_path = args.output or f"outputs/onboarding_{args.domain}.html"
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    Path(output_path).write_text(output)
+    print(f"✅ Onboarding saved: {output_path}")
+
+
+if __name__ == "__main__":
+    main()
