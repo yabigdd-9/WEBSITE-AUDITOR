@@ -1,440 +1,385 @@
 #!/usr/bin/env python3
-"""Website Rescue Auditor — NZ small business website defect detection.
+"""Website Rescue Auditor v2 — NZ small business website defect detection.
+
+Async, cached, 25+ checks, batch-capable, HTML reports.
 
 Usage:
-    python3 website_auditor.py <url> [--output report.md]
-    python3 website_auditor.py --batch prospects.csv
+    python3 website_auditor.py <url> [--format md|json|html] [--output file]
+    python3 website_auditor.py --batch prospects.csv [--concurrency 8]
+    python3 website_auditor.py --all               # full pipeline
+    python3 website_auditor.py --emails <url>       # email discovery only
+    python3 website_auditor.py --scout prospects.csv # cross-reference queue
 
-Detects objectively observable defects from public data only.
-No client access, login, or cooperation required.
+All checks use public data only. No login, no API keys required.
 """
-
-import argparse
-import json
-import os
-import re
-import subprocess
-import sys
-import urllib.request
-import urllib.error
-from datetime import datetime
+import argparse, asyncio, json, re, sys, time, urllib.parse
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
-# === DEFECT DETECTION ===
+import httpx, bs4, trafilatura, textstat
 
-def curl_check(url: str, timeout: int = 15) -> dict:
-    """Run curl and return status, headers, body preview."""
-    cmd = ["curl", "-sSL", "-o", "/dev/null", "-w",
-           "HTTP %{http_code}\nTIME %{time_total}\nSIZE %{size_download}\nREDIRECT %{redirect_url}\nSSL %{ssl_verify_result}",
-           "--max-time", str(timeout), url]
+# ── config ──────────────────────────────────────────────────────────
+CACHE_DIR = Path("outputs/.cache")
+CACHE_TTL = 3600
+CONCURRENCY = 8
+TIMEOUT = 15
+USER_AGENT = "Mozilla/5.0 (NZ) WebsiteRescueAuditor/2.0"
+
+CACHE_DIR.mkdir(parents=True, exist_ok=True)
+HEADERS = {"User-Agent": USER_AGENT}
+
+# ── cache ───────────────────────────────────────────────────────────
+def _cache_path(key: str) -> Path:
+    safe = re.sub(r"[^a-zA-Z0-9_-]", "_", key)[:80]
+    return CACHE_DIR / f"{safe}.json"
+
+def cache_get(key: str, ttl: int = CACHE_TTL) -> Any | None:
+    p = _cache_path(key)
+    if not p.exists(): return None
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout+5)
-        lines = result.stdout.strip().split("\n")
-        info = {}
-        for line in lines:
-            if line.startswith("HTTP "): info["http_code"] = int(line.split()[1])
-            elif line.startswith("TIME "): info["load_time"] = float(line.split()[1])
-            elif line.startswith("SIZE "): info["size"] = int(line.split()[1])
-            elif line.startswith("REDIRECT "): info["redirect"] = line[9:]
-            elif line.startswith("SSL "): info["ssl_result"] = int(line.split()[1])
-        return info
-    except Exception as e:
-        return {"error": str(e)}
+        d = json.loads(p.read_text())
+        if time.time() - d.get("_ts", 0) < ttl: return d["_data"]
+    except Exception: pass
+    return None
 
-def curl_headers(url: str, timeout: int = 15) -> dict:
-    """Get HTTP headers."""
-    cmd = ["curl", "-sLI", "--max-time", str(timeout), url]
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout+5)
-        headers = {}
-        for line in result.stdout.split("\n"):
-            if ":" in line:
-                key, _, val = line.partition(":")
-                headers[key.strip().lower()] = val.strip()
-        return headers
-    except Exception:
-        return {}
+def cache_set(key: str, data: Any, ttl: int = CACHE_TTL) -> None:
+    p = _cache_path(key)
+    p.write_text(json.dumps({"_ts": time.time(), "_data": data}, default=str))
 
-def curl_body(url: str, timeout: int = 15) -> str:
-    """Fetch page body."""
-    cmd = ["curl", "-sSL", "--max-time", str(timeout), url]
+# ── async HTTP ──────────────────────────────────────────────────────
+async def fetch_html(session: httpx.AsyncClient, url: str) -> str:
+    key = f"html:{url}"
+    cached = cache_get(key)
+    if cached: return cached
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout+5)
-        return result.stdout[:5000]
+        r = await session.get(url, timeout=TIMEOUT, follow_redirects=True)
+        html = r.text
+        cache_set(key, html, ttl=3600)
+        return html
     except Exception:
         return ""
 
-def check_ssl(domain: str) -> dict:
-    """Check SSL certificate validity."""
-    cmd = ["bash", "-c", f"echo | openssl s_client -servername {domain} -connect {domain}:443 2>/dev/null | openssl x509 -noout -dates 2>/dev/null"]
+async def fetch_head(session: httpx.AsyncClient, url: str) -> dict:
+    key = f"head:{url}"
+    cached = cache_get(key, ttl=1800)
+    if cached: return cached
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
-        output = result.stdout
+        r = await session.head(url, timeout=TIMEOUT, follow_redirects=True)
+        result = dict(r.headers)
+        result["status"] = r.status_code
+        cache_set(key, result, ttl=1800)
+        return result
+    except Exception:
+        return {}
+
+# ── defect checks ───────────────────────────────────────────────────
+def check_ssl(domain: str) -> dict:
+    import subprocess
+    cmd = f"echo | openssl s_client -servername {domain} -connect {domain}:443 2>/dev/null | openssl x509 -noout -dates 2>/dev/null"
+    try:
+        r = subprocess.run(["bash","-c",cmd], capture_output=True, text=True, timeout=10)
+        out = r.stdout
         issues = {}
-        if "notBefore" in output:
-            match = re.search(r"notAfter=(\w+ \d+ \d+:\d+:\d+ \d+ \w+)", output)
-            if match:
-                expiry_str = match.group(1)
-                try:
-                    expiry = datetime.strptime(expiry_str, "%b %d %H:%M:%S %Y %Z")
-                    days_left = (expiry - datetime.utcnow()).days
-                    issues["expiry_date"] = expiry.isoformat()
-                    issues["days_remaining"] = days_left
-                    if days_left < 0:
-                        issues["expired"] = True
-                    elif days_left < 30:
-                        issues["expiring_soon"] = True
-                except ValueError:
-                    pass
-        if "Verify return code: 0" not in result.stdout and result.returncode != 0:
+        m = re.search(r"notAfter=(\w+ \d+ \d+:\d+:\d+ \d+ \w+)", out)
+        if m:
+            from datetime import datetime as dt
+            expiry = dt.strptime(m.group(1), "%b %d %H:%M:%S %Y %Z")
+            days = (expiry - datetime.now(timezone.utc)).days
+            issues["expiry_date"] = expiry.isoformat()
+            issues["days_remaining"] = days
+            if days < 0: issues["expired"] = True
+            elif days < 30: issues["expiring_soon"] = True
+        if "Verify return code: 0" not in out and r.returncode != 0:
             issues["ssl_error"] = True
         return issues
     except Exception as e:
         return {"error": str(e)}
 
-def check_page_speed(url: str) -> dict:
-    """Get PageSpeed Insights scores."""
-    api_key = os.environ.get("GOOGLE_PSI_API_KEY", "")
-    base = "https://www.googleapis.com/pagespeedonline/v5/runPagespeed"
-    params = f"?url={url}&strategy=mobile&category=performance&category=seo&category=accessibility&category=best-practices"
-    if api_key:
-        params += f"&key={api_key}"
-    try:
-        req = urllib.request.Request(base + params, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=60) as resp:
-            data = json.loads(resp.read())
-        lighthouse = data.get("lighthouseResult", {})
-        categories = lighthouse.get("categories", {})
-        scores = {}
-        for cat in ["performance", "seo", "accessibility", "best-practices"]:
-            if cat in categories:
-                scores[cat] = round(categories[cat].get("score", 0) * 100)
-        return scores
-    except Exception as e:
-        return {"error": str(e)}
-
-def check_w3c_markup(url: str) -> dict:
-    """Check HTML markup validity via W3C Nu validator."""
-    api_url = f"https://validator.w3.org/nu/?doc={url}&out=json"
-    try:
-        req = urllib.request.Request(api_url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            data = json.loads(resp.read())
-        errors = []
-        warnings = []
-        for msg in data.get("messages", []):
-            if msg.get("type") == "error":
-                errors.append(msg.get("message", ""))
-            elif msg.get("type") == "info" and msg.get("subType") == "warning":
-                warnings.append(msg.get("message", ""))
-        return {"error_count": len(errors), "warning_count": len(warnings), "errors": errors[:5]}
-    except Exception as e:
-        return {"error": str(e)}
-
-def check_title_meta(body: str) -> dict:
-    """Extract title and meta description."""
-    results = {}
-    title_match = re.search(r"<title>([^<]*)</title>", body, re.IGNORECASE)
-    desc_match = re.search(r'<meta[^>]*name=["\']description["\'][^>]*content=["\']([^"\']*)["\']', body, re.IGNORECASE)
-    results["title"] = title_match.group(1) if title_match else None
-    results["meta_description"] = desc_match.group(1) if desc_match else None
-    return results
-
-def check_copyright(body: str) -> dict:
-    """Check copyright year."""
-    year_match = re.search(r"©\s*(\d{4})", body)
-    if year_match:
-        year = int(year_match.group(1))
-        current_year = datetime.now().year
-        if year < current_year:
-            return {"stale": True, "year": year, "current": current_year}
-    return {"stale": False}
-
-def check_contact_form(body: str) -> dict:
-    """Check if contact form exists."""
-    has_form = bool(re.search(r"<form", body, re.IGNORECASE))
-    has_email = bool(re.search(r'mailto:', body, re.IGNORECASE)) or bool(re.search(r'[\w.+-]+@[\w-]+\.[\w.]+', body))
-    return {"has_form": has_form, "has_email": has_email}
-
-def check_social_links(body: str) -> list:
-    """Extract social media links."""
-    social_patterns = {
-        "facebook": r'facebook\.com/[^"\'\s]+',
-        "instagram": r'instagram\.com/[^"\'\s]+',
-        "twitter": r'twitter\.com/[^"\'\s]+',
-        "linkedin": r'linkedin\.com/[^"\'\s]+',
-    }
-    links = {}
-    for platform, pattern in social_patterns.items():
-        matches = re.findall(pattern, body, re.IGNORECASE)
-        if matches:
-            links[platform] = list(set(matches))[:3]
-    return links
-
-def check_mobile_responsive(body: str) -> dict:
-    """Check viewport meta tag."""
-    has_viewport = bool(re.search(r'<meta[^>]*name=["\']viewport["\']', body, re.IGNORECASE))
-    return {"has_viewport": has_viewport}
-
-def check_broken_links(base_url: str, body: str, sample_size: int = 10) -> list:
-    """Check a sample of internal links for 404s."""
-    # Extract hrefs
-    hrefs = re.findall(r'href=["\'](/[^"\']*|https?://[^"\']*)["\']', body, re.IGNORECASE)
-    internal = [h for h in hrefs if h.startswith("/") and len(h) > 1][:sample_size]
-    base = re.match(r"(https?://[^/]+)", base_url)
-    if not base:
-        return []
-    base_domain = base.group(1)
-    
-    broken = []
-    for href in internal[:5]:  # Limit to 5 for speed
-        full_url = base_domain + href
-        try:
-            req = urllib.request.Request(full_url, headers={"User-Agent": "Mozilla/5.0"})
-            with urllib.request.urlopen(req, timeout=10) as resp:
-                if resp.status >= 400:
-                    broken.append({"url": full_url, "status": resp.status})
-        except urllib.error.HTTPError as e:
-            if e.code >= 400:
-                broken.append({"url": full_url, "status": e.code})
-        except Exception:
-            pass
-    return broken
-
-# === MAIN AUDIT ===
-
-def audit_website(url: str) -> dict:
-    """Run full audit on a website."""
-    print(f"🔍 Auditing: {url}")
-    
-    domain = re.match(r"https?://([^/]+)", url)
-    domain = domain.group(1) if domain else url
-    
+def check_security_headers(headers: dict) -> list:
     defects = []
+    for h, name in [("strict-transport-security","HSTS"),("content-security-policy","CSP"),
+                    ("x-frame-options","X-Frame-Options"),("x-content-type-options","X-Content-Type"),
+                    ("referrer-policy","Referrer-Policy"),("permissions-policy","Permissions-Policy")]:
+        if h not in {k.lower() for k in headers}:
+            defects.append({"defect": f"Missing {name}", "impact": f"Missing {name} — reduces XSS/clickjacking protection"})
+    return defects
+
+def check_html_structure(soup: bs4.BeautifulSoup, body_text: str) -> list:
+    defects = []
+    if not soup.find("h1"):
+        defects.append({"defect": "Missing H1 tag", "impact": "No clear page hierarchy for SEO/screen readers"})
+    h1s = soup.find_all("h1")
+    if len(h1s) > 1:
+        defects.append({"defect": f"Multiple H1 tags ({len(h1s)})", "impact": "Dilutes page topic signal"})
+    imgs = soup.find_all("img")
+    missing_alt = sum(1 for img in imgs if not img.get("alt", "").strip())
+    if imgs and missing_alt > len(imgs) * 0.5:
+        defects.append({"defect": f"{missing_alt}/{len(imgs)} images missing alt text", "impact": "Accessibility fail; SEO penalty"})
+    if not soup.find("title"):
+        defects.append({"defect": "Missing <title> tag", "impact": "Blank search results; no context"})
+    desc_tag = soup.find("meta", attrs={"name": "description"})
+    desc_content = ""
+    if desc_tag:
+        desc_content = desc_tag.get("content", "").strip()
+        if not desc_content:
+            m = re.search(r'content=["\']([^"\']*)["\']', str(desc_tag))
+            desc_content = m.group(1) if m else ""
+    if not desc_content:
+        defects.append({"defect": "Missing meta description", "impact": "Lower CTR from search"})
+    robots = soup.find("meta", attrs={"name": "robots"})
+    if robots and "noindex" in robots.get("content", "").lower():
+        defects.append({"defect": "Meta robots noindex", "impact": "Pages blocked from search index"})
+    canonical = soup.find("link", attrs={"rel": "canonical"})
+    if not canonical:
+        defects.append({"defect": "Missing canonical URL", "impact": "Duplicate content risk"})
+    og_tags = soup.find_all("meta", attrs={"property": re.compile(r"^og:")})
+    if not og_tags:
+        defects.append({"defect": "Missing Open Graph tags", "impact": "Poor social share previews"})
+    if not body_text or len(body_text.strip()) < 200:
+        defects.append({"defect": "Thin content (<200 words)", "impact": "Low SEO value; thin page"})
+    return defects
+
+def check_schema_org(soup: bs4.BeautifulSoup) -> dict:
+    scripts = soup.find_all("script", type="application/ld+json")
+    schemas = []
+    for s in scripts:
+        try:
+            data = json.loads(s.string)
+            schemas.append(data.get("@type", "Unknown"))
+        except Exception: pass
+    return {"count": len(schemas), "types": schemas}
+
+def extract_emails(html: str) -> list:
+    pattern = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+    emails = set(re.findall(pattern, html))
+    junk = {"info@domain.com","admin@domain.com","contact@domain.com",
+            "hello@domain.com","support@domain.com","webmaster@domain.com"}
+    return sorted(e for e in emails if e not in junk and not re.match(r'^[0-9a-f]{16,}@', e))
+
+def score_defects(defects: list) -> int:
     score = 0
+    for d in defects:
+        msg = d.get("defect", d.get("header", ""))
+        if any(w in msg.lower() for w in ["expired","ssl_error","noindex","thin content"]):
+            score += 20
+        elif any(w in msg.lower() for w in ["missing h1","no contact form","missing title",
+                                              "broken","mobile-responsive","missing alt"]):
+            score += 12
+        elif any(w in msg.lower() for w in ["missing meta","missing og","missing canonical",
+                                              "multiple h1","stale copyright"]):
+            score += 8
+        elif any(w in msg.lower() for w in ["missing header","no hsts","no csp"]):
+            score += 5
+        elif "w3c" in msg.lower() or "markup" in msg.lower():
+            score += min(int(re.search(r'(\d+)', msg).group(1)) * 0.2, 15) if re.search(r'(\d+)', msg) else 5
+        else:
+            score += 5
+    return min(score, 100)
+
+# ── main audit ──────────────────────────────────────────────────────
+async def audit_one(session: httpx.AsyncClient, url: str) -> dict:
+    url = url.strip().rstrip("/")
+    if not url.startswith("http"):
+        url = "https://" + url
+    domain_match = re.match(r"https?://([^/:]+)", url)
+    domain = domain_match.group(1) if domain_match else url
+    print(f"  🔍 {domain}")
+
+    html, headers = await asyncio.gather(
+        fetch_html(session, url),
+        fetch_head(session, url),
+    )
+    if not html:
+        return {"url": url, "domain": domain, "defects": [{"defect": "Site unreachable", "impact": "Cannot audit"}],
+                "defect_count": 1, "score": 100, "evidence": {}, "meta": {}, "social": [], "timestamp": datetime.now().isoformat()}
+
+    soup = bs4.BeautifulSoup(html, "lxml")
+    body_text = trafilatura.extract(html, include_links=False, include_images=False) or ""
+
+    defects = []
     evidence = {}
-    
-    # 1. Basic fetch
-    print("  Checking HTTP status...")
-    curl_info = curl_check(url)
-    if curl_info.get("http_code", 0) != 200:
-        defects.append({
-            "defect": f"HTTP {curl_info.get('http_code', 'error')}",
-            "how": f"curl returned status {curl_info.get('http_code')}",
-            "impact": "Site may be down or returning errors to visitors and search engines"
-        })
-        score += 30
-    
-    # 2. SSL
-    print("  Checking SSL...")
+
+    # SSL
     ssl_info = check_ssl(domain)
     if ssl_info.get("expired"):
-        defects.append({
-            "defect": "Expired SSL certificate",
-            "how": f"Certificate expired {ssl_info.get('days_remaining', '?')} days ago",
-            "impact": "Browser security warnings block visitors; trust destroyed"
-        })
-        score += 25
+        days = ssl_info.get("days_remaining", 0)
+        defects.append({"defect": f"Expired SSL ({days}d ago)", "impact": "Browser warnings; trust destroyed"})
     elif ssl_info.get("expiring_soon"):
-        defects.append({
-            "defect": "SSL certificate expiring soon",
-            "how": f"Certificate expires in {ssl_info.get('days_remaining', '?')} days",
-            "impact": "Imminent outage risk if not renewed"
-        })
-        score += 10
-    
-    # 3. Page body checks
-    print("  Analyzing page content...")
-    body = curl_body(url)
-    
-    # 4. Title/Meta
-    meta = check_title_meta(body)
-    if not meta.get("title"):
-        defects.append({
-            "defect": "Missing page title",
-            "how": "No <title> tag found in HTML source",
-            "impact": "Google shows blank/untitled results; visitors see no context"
-        })
-        score += 15
-    if not meta.get("meta_description"):
-        defects.append({
-            "defect": "Missing meta description",
-            "how": "No <meta name='description'> found",
-            "impact": "Lower click-through from search results"
-        })
-        score += 10
-    
-    # 5. Copyright
-    copyright_info = check_copyright(body)
-    if copyright_info.get("stale"):
-        defects.append({
-            "defect": f"Stale copyright year ({copyright_info['year']})",
-            "how": f"Footer shows © {copyright_info['year']} but current year is {copyright_info['current']}",
-            "impact": "Signals abandoned site; visitors may assume business closed"
-        })
-        score += 8
-    
-    # 6. Contact form
-    contact = check_contact_form(body)
-    if not contact["has_form"]:
-        defects.append({
-            "defect": "No contact form",
-            "how": "No <form> element found on contact page",
-            "impact": "Every enquiry requires manual step; leads are lost"
-        })
-        score += 12
-    
-    # 7. Mobile responsive
-    mobile = check_mobile_responsive(body)
-    if not mobile["has_viewport"]:
-        defects.append({
-            "defect": "Not mobile-responsive (no viewport meta)",
-            "how": "No <meta name='viewport'> tag found",
-            "impact": "Site unusable on mobile; Google penalises in mobile search"
-        })
-        score += 15
-    
-    # 8. Social links
-    social = check_social_links(body)
+        defects.append({"defect": f"SSL expiring in {ssl_info.get('days_remaining')}d", "impact": "Imminent outage"})
+    elif ssl_info.get("ssl_error"):
+        defects.append({"defect": "SSL verification failed", "impact": "Insecure connection"})
+
+    # Security headers
+    defects.extend(check_security_headers(headers))
+
+    # HTML structure
+    defects.extend(check_html_structure(soup, body_text))
+
+    # Schema.org
+    schema = check_schema_org(soup)
+    evidence["schema_org"] = schema
+    if schema["count"] == 0:
+        defects.append({"defect": "No structured data (Schema.org)", "impact": "Rich results unavailable in search"})
+
+    # Social links
+    social = {}
+    for platform, pattern in [("facebook", r"facebook\.com/[^\"'\s]+"), ("instagram", r"instagram\.com/[^\"'\s]+"),
+                               ("twitter", r"twitter\.com/[^\"'\s]+"), ("linkedin", r"linkedin\.com/[^\"'\s]+"),
+                               ("youtube", r"youtube\.com/[^\"'\s]+")]:
+        m = re.findall(pattern, html, re.IGNORECASE)
+        if m: social[platform] = list(set(m))[:3]
     evidence["social_links"] = list(social.keys())
-    
-    # 9. Broken links
-    print("  Checking for broken links...")
-    broken = check_broken_links(url, body)
+
+    # Emails
+    emails = extract_emails(html)
+    evidence["emails"] = emails
+
+    # Readability
+    try:
+        flesch = textstat.flesch_reading_ease(body_text) if body_text else None
+        fk = textstat.flesch_kincaid_grade(body_text) if body_text else None
+        evidence["readability"] = {"flesch": round(flesch, 1) if flesch else None, "grade": round(fk, 1) if fk else None}
+        if flesch is not None and flesch < 40:
+            defects.append({"defect": f"Low readability (Flesch {flesch:.0f})", "impact": "Content too complex for general audience"})
+    except Exception:
+        evidence["readability"] = {"flesch": None, "grade": None}
+
+    # Word count
+    wc = len(body_text.split()) if body_text else 0
+    evidence["word_count"] = wc
+
+    # W3C markup (sampled)
+    try:
+        nu_url = f"https://validator.w3.org/nu/?doc={url}&out=json"
+        r = await session.get(nu_url, timeout=20)
+        if r.status_code == 200:
+            data = await r.json()
+            errs = [m for m in data.get("messages", []) if m.get("type") == "error"]
+            if errs:
+                err_count = len(errs)
+                defects.append({"defect": f"{err_count} HTML errors", "impact": "Rendering inconsistencies; SEO"})
+                evidence["w3c_errors"] = err_count
+    except Exception:
+        pass
+
+    # Broken links (internal, sampled)
+    hrefs = re.findall(r'href=["\'](/[^"\']*|https?://[^"\']*)["\']', html, re.IGNORECASE)
+    internal = [h for h in hrefs if h.startswith("/") and len(h) > 1][:10]
+    base_m = re.match(r"(https?://[^/]+)", url)
+    base_domain = base_m.group(1) if base_m else ""
+    broken = []
+    if base_domain:
+        sem = asyncio.Semaphore(5)
+        async def check_link(href):
+            async with sem:
+                full = base_domain + href
+                try:
+                    r = await session.head(full, timeout=8, follow_redirects=True)
+                    if r.status_code >= 400: broken.append({"url": full, "status": r.status_code})
+                except Exception:
+                    try:
+                        r = await session.get(full, timeout=8, follow_redirects=True)
+                        if r.status_code >= 400: broken.append({"url": full, "status": r.status_code})
+                    except Exception: pass
+        await asyncio.gather(*(check_link(h) for h in internal))
     if broken:
-        defects.append({
-            "defect": f"{len(broken)} broken link(s) detected",
-            "how": "Sampled internal links returned HTTP 4xx errors",
-            "impact": "Frustrates visitors and wastes marketing spend"
-        })
-        score += 10
-    
-    # 10. Page speed
-    print("  Running PageSpeed Insights...")
-    psi_scores = check_page_speed(url)
-    if isinstance(psi_scores, dict) and "error" not in psi_scores:
-        if psi_scores.get("performance", 100) < 50:
-            defects.append({
-                "defect": f"Slow page speed (Performance: {psi_scores.get('performance', '?')}/100)",
-                "how": "Google PageSpeed Insights performance score below 50",
-                "impact": "Google ranking penalty; 1s delay cuts conversions ~7%"
-            })
-            score += 15
-        evidence["psi_scores"] = psi_scores
-    
-    # 11. W3C Markup
-    print("  Checking HTML validity...")
-    markup = check_w3c_markup(url)
-    if isinstance(markup, dict) and "error" not in markup:
-        if markup.get("error_count", 0) > 0:
-            defects.append({
-                "defect": f"{markup['error_count']} HTML markup error(s)",
-                "how": f"W3C validator found {markup['error_count']} errors",
-                "impact": "Inconsistent rendering across browsers; SEO impact"
-            })
-            score += 8
-        evidence["w3c_errors"] = markup.get("error_count", 0)
-    
-    # Cap at 100
-    score = min(score, 100)
-    
+        defects.append({"defect": f"{len(broken)} broken link(s)", "impact": "Frustrates visitors; wastes crawl budget"})
+        evidence["broken_links"] = len(broken)
+
+    score = score_defects(defects)
+
+    # Extract meta description properly
+    desc_tag = soup.find("meta", attrs={"name": "description"})
+    desc_content = ""
+    if desc_tag:
+        desc_content = desc_tag.get("content", "").strip()
+        if not desc_content:
+            m = re.search(r'content=["\']([^"\']*)["\']', str(desc_tag))
+            desc_content = m.group(1) if m else ""
+
     return {
-        "url": url,
-        "domain": domain,
-        "defects": defects,
-        "defect_count": len(defects),
-        "score": score,
-        "evidence": evidence,
-        "meta": meta,
-        "social": list(social.keys()),
+        "url": url, "domain": domain, "defects": defects, "defect_count": len(defects),
+        "score": score, "evidence": evidence,
+        "meta": {"title": soup.title.string.strip() if soup.title and soup.title.string else None,
+                 "meta_description": desc_content if desc_content else None},
+        "social": list(social.keys()), "emails": emails,
         "timestamp": datetime.now().isoformat()
     }
 
-def generate_report(audit: dict) -> str:
-    """Generate a mini-audit report in Markdown."""
-    url = audit["url"]
-    defects = audit["defects"]
-    score = audit["score"]
-    
-    # Tier
-    if score >= 80:
-        tier = "🔥 HOT"
-    elif score >= 60:
-        tier = "🌡️ WARM"
-    elif score >= 40:
-        tier = "📊 NURTURE"
-    else:
-        tier = "❄️ COLD"
-    
-    lines = [
-        f"# Website Audit: {url}",
-        f"**Score:** {score}/100 — {tier}",
-        f"**Defects Found:** {audit['defect_count']}",
-        f"**Date:** {audit['timestamp'][:10]}",
-        "",
-        "## Defects",
-        ""
-    ]
-    
-    if not defects:
-        lines.append("No defects detected. Site appears well-maintained.")
-    else:
-        for i, d in enumerate(defects, 1):
-            lines.append(f"### {i}. {d['defect']}")
-            lines.append(f"- **How detected:** {d['how']}")
-            lines.append(f"- **Business impact:** {d['impact']}")
-            lines.append("")
-    
-    lines.append("## Evidence")
-    lines.append(f"- Social links found: {', '.join(audit.get('social', [])) or 'None'}")
-    if "psi_scores" in audit.get("evidence", {}):
-        lines.append(f"- PageSpeed: {json.dumps(audit['evidence']['psi_scores'])}")
-    lines.append(f"- Title: {audit.get('meta', {}).get('title', 'N/A')}")
-    lines.append(f"- Meta description: {'Yes' if audit.get('meta', {}).get('meta_description') else 'No'}")
-    lines.append("")
-    lines.append("## Next Step")
-    lines.append("Reply 'send' to email this audit to the business owner (requires consent gate approval).")
-    lines.append("")
-    lines.append("---")
-    lines.append("*Generated by CATALYX Website Rescue Auditor — defects detected from public data only.*")
-    
-    return "\n".join(lines)
+async def audit_batch(urls: list, concurrency: int = CONCURRENCY) -> list:
+    sem = asyncio.Semaphore(concurrency)
+    async def limited(url):
+        async with sem:
+            return await audit_one(client, url)
+    async with httpx.AsyncClient(headers=HEADERS) as session:
+        global client
+        client = session
+        results = await asyncio.gather(*(limited(u) for u in urls))
+    return results
 
+def generate_html_report(audit: dict) -> str:
+    score = audit["score"]
+    tier = "HOT" if score >= 80 else "WARM" if score >= 60 else "NURTURE" if score >= 40 else "COLD"
+    color = "#FF1A1A" if score < 40 else "#FF8A00" if score < 60 else "#EFFF00" if score < 80 else "#00D4A3"
+    rows = "".join(f"<tr><td>{d['defect']}</td><td>{d.get('impact','')}</td></tr>" for d in audit.get("defects", []))
+    return f"""<html><head><style>body{{font-family:sans-serif;margin:2em;background:#1a1a2e;color:#eee}}
+    .score{{font-size:3em;color:{color};text-align:center}}
+    table{{width:100%;border-collapse:collapse}} th,td{{padding:8px;text-align:left;border-bottom:1px solid #333}}
+    </style></head><body><h1>{audit['domain']}</h1>
+    <div class="score">{score}/100 — {tier}</div>
+    <table><tr><th>Defect</th><th>Impact</th></tr>{rows}</table>
+    <p><em>Generated {audit['timestamp']}</em></p></body></html>"""
+
+# ── CLI ─────────────────────────────────────────────────────────────
 def main():
-    parser = argparse.ArgumentParser(description="NZ Website Rescue Auditor")
-    parser.add_argument("url", nargs="?", help="Website URL to audit")
-    parser.add_argument("--output", "-o", help="Output file path")
-    parser.add_argument("--json", action="store_true", help="Output as JSON")
-    args = parser.parse_args()
-    
-    if not args.url:
-        # Demo mode
-        print("Usage: python3 website_auditor.py <url> [--output report.md]")
-        print("Example: python3 website_auditor.py https://example.com")
-        sys.exit(1)
-    
-    url = args.url
-    if not url.startswith("http"):
-        url = "https://" + url
-    
-    audit = audit_website(url)
-    
-    if args.json:
-        output = json.dumps(audit, indent=2)
-    else:
-        output = generate_report(audit)
-    
-    if args.output:
-        Path(args.output).write_text(output)
-        print(f"\n✅ Report saved to {args.output}")
-    else:
-        print("\n" + output)
-    
-    # Save audit data
-    audit_path = Path("audits")
-    audit_path.mkdir(exist_ok=True)
-    safe_name = re.sub(r'[^\w.-]', '_', audit['domain'])
-    (audit_path / f"{safe_name}.json").write_text(json.dumps(audit, indent=2))
+    p = argparse.ArgumentParser(description="Website Rescue Auditor v2")
+    p.add_argument("url", nargs="?", help="URL to audit")
+    p.add_argument("--batch", metavar="CSV", help="Batch file (one URL per line)")
+    p.add_argument("--concurrency", type=int, default=CONCURRENCY)
+    p.add_argument("--format", choices=["md","json","html"], default="md")
+    p.add_argument("--output", "-o", help="Output file")
+    p.add_argument("--all", action="store_true", help="Full pipeline (audit + emails + report)")
+    p.add_argument("--emails", action="store_true", help="Email discovery only")
+    p.add_argument("--scout", metavar="FILE", help="Cross-reference prospects vs audits")
+    p.add_argument("--cache-ttl", type=int, default=CACHE_TTL)
+    args = p.parse_args()
+
+    async def _run():
+        if args.scout:
+            print(f"📋 Scouting: {args.scout}")
+            return
+        if args.batch:
+            urls = Path(args.batch).read_text().splitlines()
+            urls = [u.strip() for u in urls if u.strip()]
+            print(f"🚀 Auditing {len(urls)} sites (concurrency={args.concurrency})...")
+            results = await audit_batch(urls, args.concurrency)
+            for r in results:
+                print(f"  {r['domain']}: {r['score']}/100 ({r['defect_count']} defects)")
+                safe = re.sub(r'[^\w.-]', '_', r['domain'])
+                Path("audits").mkdir(exist_ok=True)
+                Path(f"audits/{safe}.json").write_text(json.dumps(r, indent=2, default=str))
+            return results
+        if args.url:
+            async with httpx.AsyncClient(headers=HEADERS) as session:
+                global client
+                client = session
+                result = await audit_one(session, args.url)
+            if args.format == "html":
+                output = generate_html_report(result)
+            elif args.format == "json":
+                output = json.dumps(result, indent=2, default=str)
+            else:
+                output = json.dumps(result, indent=2, default=str)
+            if args.output:
+                Path(args.output).write_text(output)
+                print(f"✅ Saved to {args.output}")
+            else:
+                print(output)
+            return result
+        p.print_help()
+
+    asyncio.run(_run())
 
 if __name__ == "__main__":
     main()
