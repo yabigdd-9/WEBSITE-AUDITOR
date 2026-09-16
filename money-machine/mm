@@ -1,9 +1,17 @@
 #!/bin/sh
 set -eu
 MM_COMMAND_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-MM_PYTHON="$MM_COMMAND_DIR/.venv-email/bin/python"
+MM_PYTHON=${MM_PYTHON:-"$MM_COMMAND_DIR/../.venv-email/bin/python"}
 if [ ! -x "$MM_PYTHON" ]; then
-    echo "BLOCKED: Python email environment missing. See requirements-email.txt and reports/EMAIL_FINDER_V2_IMPLEMENTATION.md." >&2
+    printf 'BLOCKED_RUNTIME: Python email environment missing.\nWorkspace: %s\nPython: %s\nCreate the environment using requirements-email.txt or set MM_PYTHON to a verified interpreter.\n' "${MM_ROOT:-$MM_COMMAND_DIR/..}" "$MM_PYTHON" >&2
     exit 2
 fi
+if ! "$MM_PYTHON" -c 'import sys; sys.exit(0 if sys.version_info >= (3,11) else 1)'; then
+    printf 'BLOCKED_RUNTIME: Python 3.11 or newer required; selected %s\n' "$MM_PYTHON" >&2
+    exit 2
+fi
+if [ "${1:-}" = '--runtime' ]; then
+    exec "$MM_PYTHON" -c 'import json,os,pathlib,sys; print(json.dumps({"project":"WEBSITES/BUISNESSaudits","workspace":str(pathlib.Path(os.environ.get("MM_ROOT",sys.argv[1])).resolve()),"python":sys.executable}))' "$MM_COMMAND_DIR/.."
+fi
+if [ "$#" -eq 0 ]; then set -- --help; fi
 exec "$MM_PYTHON" "$MM_COMMAND_DIR/mm_operator.py" "$@"

@@ -1,3 +1,7 @@
+# WEBSITES/BUISNESSaudits — compatibility entrypoint
+
+The current operator is the root `mm`; see [current README](../README.md) and [current state](../reports/CURRENT_STATE.md). The instructions below are historical and may reference the original layout.
+
 # MoneyMachine
 
 A local, evidence-based operator. It does not send messages or call models.

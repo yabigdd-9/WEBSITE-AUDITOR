@@ -1,0 +1,32 @@
+[
+  {
+    "sku": "A-X PRO 1L",
+    "price": 39.99,
+    "tagline": "From $39.99"
+  },
+  {
+    "sku": "B-X PRO 1L",
+    "price": 39.99,
+    "tagline": "From $39.99"
+  },
+  {
+    "sku": "MICRO-X 250mL",
+    "price": 29.99,
+    "tagline": "From $29.99"
+  },
+  {
+    "sku": "PK-X 250mL",
+    "price": 39.99,
+    "tagline": "From $39.99"
+  },
+  {
+    "sku": "ROOT-X 250mL",
+    "price": 29.99,
+    "tagline": "From $29.99"
+  },
+  {
+    "sku": "RIPEN-X 250mL",
+    "price": 39.99,
+    "tagline": "From $39.99"
+  }
+]

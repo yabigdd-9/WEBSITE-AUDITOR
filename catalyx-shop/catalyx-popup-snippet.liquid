@@ -1,0 +1,28 @@
+<!-- CATALYX Exit-Intent Popup - Shopify Snippet -->
+<div id="catalyx-popup" style="display:none; position:fixed; bottom:20px; right:20px; z-index:9999; 
+  background:#1a1a2e; color:#fff; border-radius:16px; padding:24px; width:380px; 
+  box-shadow:0 8px 32px rgba(0,0,0,0.3); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <button onclick="document.getElementById('catalyx-popup').style.display='none'" 
+    style="background:none; border:none; color:#aaa; font-size:20px; cursor:pointer; position:absolute; top:8px; right:12px;">×</button>
+  <h3 style="margin:0 0 8px; font-size:20px; color:#00d4a3;">Wait! Get 10% off your first order</h3>
+  <p style="margin:0 0 16px; font-size:14px; color:#ccc;">NZ plant nutrition experts. Free shipping over $50.</p>
+  <input type="email" id="catalyx-email" placeholder="Your email address" 
+    style="width:100%; padding:12px; border-radius:8px; border:1px solid #444; background:#2a2a4e; color:#fff; font-size:14px; margin-bottom:10px; box-sizing:border-box;">
+  <button onclick="catalyxSubmit()" 
+    style="width:100%; padding:14px; border-radius:8px; border:none; background:#00d4a3; color:#1a1a2e; font-size:16px; font-weight:bold; cursor:pointer;">Get 10% Off</button>
+  <p style="margin:10px 0 0; font-size:11px; color:#888; text-align:center;">One-time use. Min. purchase $30. Expires in 7 days.</p>
+</div>
+
+<script>
+document.addEventListener('mouseout', function(e) {
+  if (e.clientY < 50) document.getElementById('catalyx-popup').style.display = 'block';
+});
+function catalyxSubmit() {
+  var email = document.getElementById('catalyx-email').value;
+  if (email && email.includes('@')) {
+    console.log('Email captured:', email);
+    document.getElementById('catalyx-popup').style.display = 'none';
+    alert('Thanks! Check your email for WELCOME10.');
+  } else { alert('Please enter a valid email.'); }
+}
+</script>

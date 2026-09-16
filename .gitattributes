@@ -1,0 +1,3 @@
+# Preserve recovered historical evidence byte-for-byte; do not normalize it.
+reports/email-observation-evidence/** binary
+reports/rename-reference-inventory.csv binary

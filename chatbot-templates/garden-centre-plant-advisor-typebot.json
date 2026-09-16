@@ -1,0 +1,157 @@
+{
+  "name": "garden-centre-plant-advisor",
+  "title": "Plant Advisor Bot",
+  "theme": {
+    "branding": {
+      "logo": "",
+      "favicon": "",
+      "lightTheme": {
+        "background": "#ffffff",
+        "chatBg": "#f0f0f0",
+        "text": "#1a1a2e",
+        "chatBubble": "#1a1a2e",
+        "chatBubbleText": "#ffffff",
+        "sendButton": "#00d4a3",
+        "sendButtonText": "#ffffff",
+        "inputBg": "#ffffff",
+        "inputBorder": "#dddddd"
+      },
+      "darkTheme": {
+        "background": "#1a1a2e",
+        "chatBg": "#2a2a4e",
+        "text": "#ffffff",
+        "chatBubble": "#00d4a3",
+        "chatBubbleText": "#1a1a2e",
+        "sendButton": "#00d4a3",
+        "sendButtonText": "#1a1a2e",
+        "inputBg": "#2a2a4e",
+        "inputBorder": "#444466"
+      }
+    },
+    "fonts": {
+      "heading": "Inter",
+      "body": "Inter"
+    }
+  },
+  "steps": [
+    {
+      "id": "start",
+      "type": "startChat",
+      "content": {
+        "type": "text",
+        "text": "\ud83c\udf3f Welcome! What are you planting?"
+      },
+      "outgoingEdgeId": "location"
+    },
+    {
+      "id": "location",
+      "type": "choice",
+      "content": {
+        "type": "text",
+        "text": "Where are you in NZ?",
+        "choices": [
+          {
+            "id": "north",
+            "label": "\u2600\ufe0f North (Auckland/Northland)"
+          },
+          {
+            "id": "central",
+            "label": "\ud83c\udf24\ufe0f Central (Wellington/Manawatu)"
+          },
+          {
+            "id": "south",
+            "label": "\u2744\ufe0f South (Canterbury/Otago)"
+          },
+          {
+            "id": "coastal",
+            "label": "\ud83c\udf0a Coastal"
+          }
+        ]
+      },
+      "outgoingEdgeId": "sun"
+    },
+    {
+      "id": "sun",
+      "type": "choice",
+      "content": {
+        "type": "text",
+        "text": "Sun exposure?",
+        "choices": [
+          {
+            "id": "full",
+            "label": "\u2600\ufe0f Full sun"
+          },
+          {
+            "id": "partial",
+            "label": "\u26c5 Partial shade"
+          },
+          {
+            "id": "shade",
+            "label": "\ud83c\udf33 Shade"
+          }
+        ]
+      },
+      "outgoingEdgeId": "skill"
+    },
+    {
+      "id": "skill",
+      "type": "choice",
+      "content": {
+        "type": "text",
+        "text": "Your skill level?",
+        "choices": [
+          {
+            "id": "beginner",
+            "label": "\ud83d\udc23 Beginner"
+          },
+          {
+            "id": "intermediate",
+            "label": "\ud83d\udee0\ufe0f Intermediate"
+          },
+          {
+            "id": "advanced",
+            "label": "\ud83d\udc68\u200d\ud83c\udf3e Advanced"
+          }
+        ]
+      },
+      "outgoingEdgeId": "plant_rec"
+    },
+    {
+      "id": "plant_rec",
+      "type": "text",
+      "content": {
+        "type": "text",
+        "text": "Based on your conditions, here are your best picks:\n\n\u2600\ufe0f Full sun: Tomatoes, peppers, cucumbers, zinnias\n\u26c5 Partial: Lettuce, spinach, herbs, ferns\n\ud83c\udf33 Shade: Hostas, ferns, moss, shade-loving greens\n\n\ud83c\udf31 Beginner-friendly: Lettuce, radishes, herbs\n\ud83d\udee0\ufe0f Intermediate: Tomatoes, peppers, beans\n\ud83d\udc68\u200d\ud83c\udf3e Advanced: Cauliflower, asparagus, roses\n\nVisit our store to check availability! \ud83d\udccd"
+      },
+      "outgoingEdgeId": "email_capture"
+    },
+    {
+      "id": "email_capture",
+      "type": "email",
+      "content": {
+        "type": "text",
+        "text": "Enter your email for a free planting guide:"
+      },
+      "outgoingEdgeId": "thank_you"
+    },
+    {
+      "id": "thank_you",
+      "type": "text",
+      "content": {
+        "type": "text",
+        "text": "\u2705 Check your email for your planting guide!\n\nHappy growing! \ud83c\udf3f"
+      },
+      "outgoingEdgeId": "end"
+    },
+    {
+      "id": "end",
+      "type": "endChat",
+      "content": {
+        "type": "text",
+        "text": "Thanks for chatting!"
+      }
+    }
+  ],
+  "variables": [],
+  "edges": []
+}

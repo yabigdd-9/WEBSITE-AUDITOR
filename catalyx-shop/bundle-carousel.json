@@ -1,0 +1,73 @@
+[
+  {
+    "name": "Starter",
+    "price": 89.99,
+    "savings": 10,
+    "items": [
+      "A-X PRO 250mL",
+      "MICRO-X 250mL",
+      "PK-X 250mL"
+    ],
+    "items_str": "A-X PRO 250mL + MICRO-X 250mL + PK-X 250mL",
+    "tagline": "Save $10 \u2014 Starter Bundle"
+  },
+  {
+    "name": "Enhancement",
+    "price": 139.99,
+    "savings": 20,
+    "items": [
+      "A-X PRO 1L",
+      "MICRO-X 250mL",
+      "PK-X 250mL",
+      "FLUSH-X 250mL"
+    ],
+    "items_str": "A-X PRO 1L + MICRO-X 250mL + PK-X 250mL + FLUSH-X 250mL",
+    "tagline": "Save $20 \u2014 Enhancement Bundle"
+  },
+  {
+    "name": "Performance",
+    "price": 179.99,
+    "savings": 30,
+    "items": [
+      "A-X PRO 1L",
+      "B-X PRO 1L",
+      "MICRO-X 250mL",
+      "PK-X 250mL",
+      "TRACE-X 250mL"
+    ],
+    "items_str": "A-X PRO 1L + B-X PRO 1L + MICRO-X 250mL + PK-X 250mL + TRACE-X 250mL",
+    "tagline": "Save $30 \u2014 Performance Bundle"
+  },
+  {
+    "name": "Control",
+    "price": 169.99,
+    "savings": 25,
+    "items": [
+      "A-X PRO 1L",
+      "MICRO-X 250mL",
+      "PK-X 250mL",
+      "RIPEN-X 250mL",
+      "FLUSH-X 250mL"
+    ],
+    "items_str": "A-X PRO 1L + MICRO-X 250mL + PK-X 250mL + RIPEN-X 250mL + FLUSH-X 250mL",
+    "tagline": "Save $25 \u2014 Control Bundle"
+  },
+  {
+    "name": "Pro",
+    "price": 299.99,
+    "savings": 80,
+    "items": [
+      "A-X PRO 1L",
+      "B-X PRO 1L",
+      "MICRO-X 250mL",
+      "PK-X 250mL",
+      "TRACE-X 250mL",
+      "ROOT-X 250mL",
+      "VITAL-X 250mL",
+      "RIPEN-X 250mL",
+      "FLUSH-X 250mL"
+    ],
+    "items_str": "A-X PRO 1L + B-X PRO 1L + MICRO-X 250mL + PK-X 250mL + TRACE-X 250mL + ROOT-X 250mL + VITAL-X 250mL + RIPEN-X 250mL + FLUSH-X 250mL",
+    "tagline": "Save $80 \u2014 Pro Bundle"
+  }
+]

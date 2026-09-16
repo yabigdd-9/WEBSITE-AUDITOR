@@ -89,12 +89,23 @@ INDUSTRY_ALIASES = {
     "hvac": ("hvac", "heating", "cooling", "ventilation", "air conditioning", "heat pump", "climate control"),
     "saas": ("saas", "software as a service"),
     "software": ("software", "app", "application", "web development", "web design"),
-    "tech": ("technology", "it", "digital", "agency"),
+    "tech": ("technology", "it", "digital", "agency", "digital agency"),
     "retail": ("retail", "shop", "store", "boutique"),
     "ecommerce": ("ecommerce", "e-commerce", "online store", "online shop"),
     "services": ("services", "service", "consulting", "consultancy"),
     "default": (),
 }
+
+
+def normalize_industry(industry):
+    """Resolve the documented aliases used by the qualification integration."""
+    value = re.sub(r"\s+", " ", str(industry or "").strip().lower())
+    if value in INDUSTRY_FRESHNESS_DAYS:
+        return value
+    for canonical, aliases in INDUSTRY_ALIASES.items():
+        if value in aliases:
+            return canonical
+    return "default"
 
 
 def detect_job_signals(text):
@@ -121,7 +132,7 @@ def detect_job_signals(text):
 
 def detect_budget_signals(text):
     if not text:
-        return {"strength": "none", "signals": [], "snippets": [], "score": 0}
+        return {"strength": "none", "signals": [], "snippets": [], "amounts": [], "score": 0}
     signals = []
     snippets = []
     score = 0
@@ -141,7 +152,7 @@ def detect_budget_signals(text):
                         snippets.append(snippet)
                 score += 3 if strength == "high" else 1
     strength = "high" if score >= 3 else "medium" if score >= 1 else "none"
-    return {"strength": strength, "signals": signals, "snippets": snippets[:5], "score": min(score, 10), "detected_at": now()}
+    return {"strength": strength, "signals": signals, "snippets": snippets[:5], "amounts": [x for x in amounts if re.match(r'(?:NZ\$|\$|GBP|EUR)\s*\d', x, re.I)], "score": min(score, 10), "detected_at": now()}
 
 
 def industry_freshness_days(industry):

@@ -1,0 +1,165 @@
+{
+  "name": "grow-shop-nutrient-advisor",
+  "title": "CATALYX Nutrient Advisor",
+  "theme": {
+    "branding": {
+      "logo": "",
+      "favicon": "",
+      "lightTheme": {
+        "background": "#ffffff",
+        "chatBg": "#f0f0f0",
+        "text": "#1a1a2e",
+        "chatBubble": "#1a1a2e",
+        "chatBubbleText": "#ffffff",
+        "sendButton": "#00d4a3",
+        "sendButtonText": "#ffffff",
+        "inputBg": "#ffffff",
+        "inputBorder": "#dddddd"
+      },
+      "darkTheme": {
+        "background": "#1a1a2e",
+        "chatBg": "#2a2a4e",
+        "text": "#ffffff",
+        "chatBubble": "#00d4a3",
+        "chatBubbleText": "#1a1a2e",
+        "sendButton": "#00d4a3",
+        "sendButtonText": "#1a1a2e",
+        "inputBg": "#2a2a4e",
+        "inputBorder": "#444466"
+      }
+    },
+    "fonts": {
+      "heading": "Inter",
+      "body": "Inter"
+    }
+  },
+  "steps": [
+    {
+      "id": "start",
+      "type": "startChat",
+      "content": {
+        "type": "text",
+        "text": "\ud83c\udf31 Welcome to CATALYX Nutrient Advisor! What are you growing?"
+      },
+      "outgoingEdgeId": "crop_choice"
+    },
+    {
+      "id": "crop_choice",
+      "type": "choice",
+      "content": {
+        "type": "text",
+        "text": "What are you growing?",
+        "choices": [
+          {
+            "id": "tomato",
+            "label": "\ud83c\udf45 Tomatoes"
+          },
+          {
+            "id": "pepper",
+            "label": "\ud83c\udf36\ufe0f Peppers"
+          },
+          {
+            "id": "leafy",
+            "label": "\ud83e\udd6c Leafy greens"
+          },
+          {
+            "id": "herbs",
+            "label": "\ud83c\udf3f Herbs"
+          },
+          {
+            "id": "flowers",
+            "label": "\ud83c\udf38 Flowers"
+          }
+        ]
+      },
+      "outgoingEdgeId": "growth_stage"
+    },
+    {
+      "id": "growth_stage",
+      "type": "choice",
+      "content": {
+        "type": "text",
+        "text": "What growth stage?",
+        "choices": [
+          {
+            "id": "seedling",
+            "label": "\ud83c\udf3e Seedling"
+          },
+          {
+            "id": "veg",
+            "label": "\ud83c\udf3f Vegetative"
+          },
+          {
+            "id": "flower",
+            "label": "\ud83c\udf3a Flowering"
+          },
+          {
+            "id": "harvest",
+            "label": "\ud83c\udf48 Harvest/Flush"
+          }
+        ]
+      },
+      "outgoingEdgeId": "setup_type"
+    },
+    {
+      "id": "setup_type",
+      "type": "choice",
+      "content": {
+        "type": "text",
+        "text": "What setup type?",
+        "choices": [
+          {
+            "id": "hydro",
+            "label": "\ud83d\udca7 Hydro"
+          },
+          {
+            "id": "soil",
+            "label": "\ud83c\udf31 Soil"
+          },
+          {
+            "id": "coco",
+            "label": "\ud83e\udd65 Coco coir"
+          }
+        ]
+      },
+      "outgoingEdgeId": "recommendation"
+    },
+    {
+      "id": "recommendation",
+      "type": "text",
+      "content": {
+        "type": "text",
+        "text": "Based on your setup, here's your CATALYX recommendation:\n\n\ud83c\udf31 Seedling: MICRO-X 1ml/L\n\ud83c\udf3f Veg: A-X PRO + MICRO-X 2ml/L each\n\ud83c\udf3a Flower: PK-X + A-X PRO 2ml/L each\n\ud83c\udf48 Harvest: RIPEN-X + PK-X 3ml/L each\n\ud83d\udd04 Flush: FLUSH-X 2ml/L for 3 days\n\nWant a personalised feeding plan? Drop your email below!"
+      },
+      "outgoingEdgeId": "email_capture"
+    },
+    {
+      "id": "email_capture",
+      "type": "email",
+      "content": {
+        "type": "text",
+        "text": "Enter your email for your free feeding plan + CATALYX updates:"
+      },
+      "outgoingEdgeId": "thank_you"
+    },
+    {
+      "id": "thank_you",
+      "type": "text",
+      "content": {
+        "type": "text",
+        "text": "\u2705 Done! Check your email for your personalised feeding plan.\n\nFollow us for NZ grow tips \ud83c\udf31\nCATALYX Labs \u2014 catalyxlabs.shop"
+      },
+      "outgoingEdgeId": "end"
+    },
+    {
+      "id": "end",
+      "type": "endChat",
+      "content": {
+        "type": "text",
+        "text": "Thanks for chatting!"
+      }
+    }
+  ],
+  "variables": [],
+  "edges": []
+}

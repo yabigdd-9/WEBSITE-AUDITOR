@@ -20,6 +20,7 @@ from email.message import EmailMessage
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 from consent_gate import check as consent_check          # noqa: E402
+from execution_gate import require_external_release
 
 TOKEN = Path.home() / ".config/catalyx/gmail_token.json"
 CONTACT_LOG = ROOT / "contact_log.csv"
@@ -34,6 +35,7 @@ OPT_OUT = ("\n\n---\nIf you'd rather not hear from me, reply with \"no thanks\" 
 
 
 def service():
+    require_external_release()
     import json as _j
     from google.oauth2.credentials import Credentials
     from google.auth.transport.requests import Request
@@ -130,6 +132,7 @@ def draft(prospects):
 
 
 def send(drafts, approved):
+    require_external_release()
     if not approved:
         print("REFUSED: --send requires --i-approve. Nothing transmitted.", file=sys.stderr)
         return 2
@@ -163,6 +166,7 @@ def send(drafts, approved):
 
 
 def selftest():
+    require_external_release()
     svc, _ = service()
     addr = me(svc)
     m = EmailMessage()

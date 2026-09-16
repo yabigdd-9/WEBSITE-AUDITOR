@@ -1,0 +1,112 @@
+[
+  {
+    "name": "local_garden_centre",
+    "subject": "NZ nutrient brand looking for retail partners \u2014 CATALYX",
+    "placeholder_fields": [
+      "{name}",
+      "{business}",
+      "{region}"
+    ],
+    "status": "AWAITING_PROSPECT_LIST",
+    "file": "local_garden_centre.md"
+  },
+  {
+    "name": "grow_shop",
+    "subject": "Indoor grow shop in NZ? CATALYX nutrients might be your next SKU",
+    "placeholder_fields": [
+      "{name}",
+      "{business}",
+      "{region}"
+    ],
+    "status": "AWAITING_PROSPECT_LIST",
+    "file": "grow_shop.md"
+  },
+  {
+    "name": "hydro_guru",
+    "subject": "NZ hydro nutrients \u2014 CATALYX could replace your current line",
+    "placeholder_fields": [
+      "{name}",
+      "{business}",
+      "{region}"
+    ],
+    "status": "AWAITING_PROSPECT_LIST",
+    "file": "hydro_guru.md"
+  },
+  {
+    "name": "greenhouse_ops",
+    "subject": "Greenhouse operation in NZ? CATALYX has a winter feeding solution",
+    "placeholder_fields": [
+      "{name}",
+      "{business}",
+      "{region}"
+    ],
+    "status": "AWAITING_PROSPECT_LIST",
+    "file": "greenhouse_ops.md"
+  },
+  {
+    "name": "online_grower",
+    "subject": "NZ grower community \u2014 CATALYX nutrients, free sample for feedback",
+    "placeholder_fields": [
+      "{name}",
+      "{business}",
+      "{region}"
+    ],
+    "status": "AWAITING_PROSPECT_LIST",
+    "file": "online_grower.md"
+  },
+  {
+    "name": "retail_chain",
+    "subject": "Wholesale inquiry \u2014 CATALYX plant nutrients for {region} retailers",
+    "placeholder_fields": [
+      "{name}",
+      "{business}",
+      "{region}"
+    ],
+    "status": "AWAITING_PROSPECT_LIST",
+    "file": "retail_chain.md"
+  },
+  {
+    "name": "agricultural_supplier",
+    "subject": "NZ ag input supplier \u2014 CATALYX biostimulant line",
+    "placeholder_fields": [
+      "{name}",
+      "{business}",
+      "{region}"
+    ],
+    "status": "AWAITING_PROSPECT_LIST",
+    "file": "agricultural_supplier.md"
+  },
+  {
+    "name": "school_horticulture",
+    "subject": "Horticulture program in NZ? CATALYX educational pricing",
+    "placeholder_fields": [
+      "{name}",
+      "{business}",
+      "{region}"
+    ],
+    "status": "AWAITING_PROSPECT_LIST",
+    "file": "school_horticulture.md"
+  },
+  {
+    "name": "cannabis_grow_shop",
+    "subject": "Cannabis grow shop in NZ? CATALYX nutrients work great for flower",
+    "placeholder_fields": [
+      "{name}",
+      "{business}",
+      "{region}"
+    ],
+    "status": "AWAITING_PROSPECT_LIST",
+    "file": "cannabis_grow_shop.md"
+  },
+  {
+    "name": "nursery_owner",
+    "subject": "NZ nursery \u2014 CATALYX nutrients for your stock plants",
+    "placeholder_fields": [
+      "{name}",
+      "{business}",
+      "{region}"
+    ],
+    "status": "AWAITING_PROSPECT_LIST",
+    "file": "nursery_owner.md"
+  }
+]

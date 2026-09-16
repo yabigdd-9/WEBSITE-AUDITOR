@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""MoneyMachine: deterministic local operator. Never sends or calls a model."""
+"""WEBSITES/BUISNESSaudits: deterministic local operator. Never sends or calls a model."""
 import argparse
 import contextlib
 import datetime as dt
@@ -114,14 +114,14 @@ def run_day(d,write=True):
         for row in d.execute('SELECT id FROM businesses WHERE is_dummy=0 ORDER BY id').fetchall():
             contact=email_status(d,row[0]);selected=contact.get('selected') or {};identity=contact.get('identity') or {}
             email_contacts.append({'business_id':row[0],'business':contact['business'],'website':contact.get('website'),'canonical_domain':identity.get('canonical_root_domain'),'email':contact['email'],'confidence':contact.get('confidence'),'why':selected.get('reasons') or identity.get('reasons'),'evidence_count':selected.get('source_count',0),'verification':selected.get('confidence_label','NO_VERIFIED_EMAIL'),'catch_all':selected.get('catch_all_status','unknown'),'last_checked':contact.get('last_checked'),'human_review':'REQUIRED','outreach_eligible':contact.get('outreach_eligible',False)})
-    data={'generated_at':now(),'metrics':metrics(d),'email_contacts':email_contacts,'pipeline_stages':dict(d.execute('SELECT stage,count(*) FROM mm_deals GROUP BY stage')),'human_queue':queue,'blocked':blocked,'missing_or_stale':stale,'next_revenue_action':queue[0] if queue else None,'elapsed_ms':round((time.perf_counter()-start)*1000,2),'model_calls':0,'external_sends':0}
+    data={'project':'WEBSITES/BUISNESSaudits','workspace':str(root()),'generated_at':now(),'metrics':metrics(d),'email_contacts':email_contacts,'pipeline_stages':dict(d.execute('SELECT stage,count(*) FROM mm_deals GROUP BY stage')),'human_queue':queue,'blocked':blocked,'missing_or_stale':stale,'next_revenue_action':queue[0] if queue else None,'elapsed_ms':round((time.perf_counter()-start)*1000,2),'model_calls':0,'external_sends':0}
     from mm_outreach import health as outreach_health
     data['outreach_self_audit']=outreach_health(d)
     if write:
         out=root()/'reports/daily-operator'
         atomic_write(out/'dashboard.json',json.dumps(data,indent=2))
         sections=''.join('<li><strong>'+html.escape(q['name'])+'</strong> — '+html.escape(q['action'])+'</li>' for q in queue)
-        html_doc='<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MoneyMachine · Today</title><style>body{font:17px/1.6 system-ui;max-width:1000px;margin:32px auto;padding:20px;color:#16352c;background:#f4f7f5}li{margin:20px 0}pre{white-space:pre-wrap;background:white;padding:24px}h1{font-size:38px}</style><h1>MoneyMachine · Today</h1><p>Human decisions only. Nothing is sent. Model execution is paused.</p><p>Net received: NZ$'+str(data['metrics']['net_received_nzd'])+' · Verified sends: '+str(data['metrics']['verified_sends'])+'</p><ol>'+sections+'</ol><h2>Records needing evidence</h2><pre>'+html.escape(json.dumps(blocked,indent=2))+'</pre></html>'
+        html_doc='<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>WEBSITES/BUISNESSaudits · Today</title><style>body{font:17px/1.6 system-ui;max-width:1000px;margin:32px auto;padding:20px;color:#16352c;background:#f4f7f5}li{margin:20px 0}pre{white-space:pre-wrap;background:white;padding:24px}h1{font-size:38px}</style><h1>WEBSITES/BUISNESSaudits · Today</h1><p>Human decisions only. Nothing is sent. Model execution is paused.</p><p>Net received: NZ$'+str(data['metrics']['net_received_nzd'])+' · Verified sends: '+str(data['metrics']['verified_sends'])+'</p><ol>'+sections+'</ol><h2>Records needing evidence</h2><pre>'+html.escape(json.dumps(blocked,indent=2))+'</pre></html>'
         email_rows=''.join('<tr><td>'+html.escape(x['business'])+'</td><td>'+html.escape(x['canonical_domain'] or 'Unconfirmed')+'</td><td>'+html.escape(x['email'])+'</td><td>'+html.escape(str(x['confidence'] or '—'))+'</td><td>'+str(x['evidence_count'])+'</td><td>Required</td></tr>' for x in email_contacts)
         html_doc=html_doc.replace('</html>','<h2>Verified contact evidence</h2><p>Public attribution with mail routing; mailbox existence and permission are separate. Use <code>mm email-status ID</code> for source evidence.</p><table><thead><tr><th>Business</th><th>Domain</th><th>Email</th><th>Confidence</th><th>Sources</th><th>Human review</th></tr></thead><tbody>'+email_rows+'</tbody></table></html>')
         html_doc=html_doc.replace('</html>','<h2>Outreach self-audit</h2><p>Copy issues: '+str(len(data['outreach_self_audit']['copy_issues']))+'. Delivery and bounce rates: unknown. No transport is connected.</p><p>Use <code>mm outreach-health</code> for details and <code>mm outreach-plan --brief PATH</code> for a relevant service portfolio.</p></html>')
@@ -149,6 +149,8 @@ def main(argv=None):
     p=argparse.ArgumentParser(description=__doc__);s=p.add_subparsers(dest='cmd',required=True)
     for cmd in ('daily','run-day','status','money','learn','backup','init','doctor'):s.add_parser(cmd)
     q=s.add_parser('outreach-plan');q.add_argument('--brief',required=True)
+    s.add_parser('polish-status')
+    q=s.add_parser('audit-packet');q.add_argument('--case',required=True);q.add_argument('--output',required=True);q.add_argument('--rendered-review')
     q=s.add_parser('outreach-audit');q.add_argument('--packet',required=True)
     q=s.add_parser('outreach-preflight');q.add_argument('id',type=int)
     q=s.add_parser('outreach-dsn');q.add_argument('--eml',required=True);q.add_argument('--recipient',required=True);q.add_argument('--original-message-id',required=True)
@@ -180,6 +182,13 @@ def main(argv=None):
     q=s.add_parser('experiment');q.add_argument('id',type=int);q.add_argument('--industry',required=True);q.add_argument('--problem',choices=ONTOLOGY,required=True);q.add_argument('--offer',required=True);q.add_argument('--price-band',required=True);q.add_argument('--style',required=True);q.add_argument('--demo-type',required=True)
     q=s.add_parser('run-job');q.add_argument('--key',required=True);q.add_argument('--kind',choices=['status','learn'],required=True)
     a=p.parse_args(argv)
+    if a.cmd=='polish-status':
+        report=json.loads((root()/'reports/polish-status.json').read_text())
+        report.update(workspace=str(root()),python=sys.executable,snapshot_only=True)
+        print(json.dumps(report,indent=2));return 0
+    if a.cmd=='audit-packet':
+        import mm_audit_workflow
+        return mm_audit_workflow.main(['--case',a.case,'--output',a.output]+(['--rendered-review',a.rendered_review] if a.rendered_review else []))
     if a.cmd.startswith('outreach-'):
         import mm_outreach
         with contextlib.closing(connect(readonly=True)) as d:

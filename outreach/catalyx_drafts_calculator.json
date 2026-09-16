@@ -1,0 +1,66 @@
+[
+  {
+    "to": "service@clyne-bennie.co.nz",
+    "subject": "Website audit: www.clyne-bennie.co.nz — NO_WRITTEN_CONTACT, HEAVY_HTML",
+    "body": "Hi,\n\nI audited www.clyne-bennie.co.nz and found NO_WRITTEN_CONTACT, HEAVY_HTML.\n\nFree website audit + ROI calculator showing what a proper contact form would bring in. No obligation — just the numbers.\n\nWebsite ROI Calculator — free, no signup, just the numbers.\n\nWant me to send over the full audit?\n\nDion\nCATALYX Labs\nteam.catalyxlabs@gmail.com\n\n---\nNo thanks? Reply \"no\" and I'll stop.",
+    "business": "www.clyne-bennie.co.nz",
+    "calculator": "Website ROI Calculator",
+    "offer": "Free website audit + ROI calculator showing what a proper contact form would bring in. No obligation — just the numbers.",
+    "defects": [
+      "NO_WRITTEN_CONTACT",
+      "HEAVY_HTML"
+    ],
+    "status": "READY_TO_SEND"
+  },
+  {
+    "to": "jason@jcconstruction.co.nz",
+    "subject": "Website audit: www.jcconstruction.co.nz — HEAVY_HTML",
+    "body": "Hi,\n\nI audited www.jcconstruction.co.nz and found HEAVY_HTML.\n\nFree lead value calculator + site audit. Shows how many leads you're losing with no working contact form.\n\nLead Value Calculator — free, no signup, just the numbers.\n\nWant me to send over the full audit?\n\nDion\nCATALYX Labs\nteam.catalyxlabs@gmail.com\n\n---\nNo thanks? Reply \"no\" and I'll stop.",
+    "business": "www.jcconstruction.co.nz",
+    "calculator": "Lead Value Calculator",
+    "offer": "Free lead value calculator + site audit. Shows how many leads you're losing with no working contact form.",
+    "defects": [
+      "HEAVY_HTML"
+    ],
+    "status": "READY_TO_SEND"
+  },
+  {
+    "to": "tbirgrass@gmail.com",
+    "subject": "Website audit: www.tbir.co.nz — HEAVY_HTML",
+    "body": "Hi,\n\nI audited www.tbir.co.nz and found HEAVY_HTML.\n\nFree conversion tracker + site audit. See exactly how much business your current site is leaving on the table.\n\nConversion Tracker — free, no signup, just the numbers.\n\nWant me to send over the full audit?\n\nDion\nCATALYX Labs\nteam.catalyxlabs@gmail.com\n\n---\nNo thanks? Reply \"no\" and I'll stop.",
+    "business": "www.tbir.co.nz",
+    "calculator": "Conversion Tracker",
+    "offer": "Free conversion tracker + site audit. See exactly how much business your current site is leaving on the table.",
+    "defects": [
+      "HEAVY_HTML"
+    ],
+    "status": "READY_TO_SEND"
+  },
+  {
+    "to": "contact@prodecorators.co.nz",
+    "subject": "Website audit: prodecorators.co.nz — NO_WRITTEN_CONTACT, HEAVY_HTML",
+    "body": "Hi,\n\nI audited prodecorators.co.nz and found NO_WRITTEN_CONTACT, HEAVY_HTML.\n\nFree quote comparison tool + site audit. Shows how many quotes you're missing without a working contact form.\n\nQuote Comparison Tool — free, no signup, just the numbers.\n\nWant me to send over the full audit?\n\nDion\nCATALYX Labs\nteam.catalyxlabs@gmail.com\n\n---\nNo thanks? Reply \"no\" and I'll stop.",
+    "business": "prodecorators.co.nz",
+    "calculator": "Quote Comparison Tool",
+    "offer": "Free quote comparison tool + site audit. Shows how many quotes you're missing without a working contact form.",
+    "defects": [
+      "NO_WRITTEN_CONTACT",
+      "HEAVY_HTML"
+    ],
+    "status": "READY_TO_SEND"
+  },
+  {
+    "to": "enquiries@davidrobertson.co.nz",
+    "subject": "Website audit: www.davidrobertson.co.nz — NO_CONTACT_ON_HOMEPAGE, BROKEN_LINKS, NO_SOCIAL_LINKS",
+    "body": "Hi,\n\nI audited www.davidrobertson.co.nz and found NO_CONTACT_ON_HOMEPAGE, BROKEN_LINKS, NO_SOCIAL_LINKS.\n\nFree broken link cost calculator + site audit. Shows revenue impact of your 404 errors.\n\nBroken Link Cost Calculator — free, no signup, just the numbers.\n\nWant me to send over the full audit?\n\nDion\nCATALYX Labs\nteam.catalyxlabs@gmail.com\n\n---\nNo thanks? Reply \"no\" and I'll stop.",
+    "business": "www.davidrobertson.co.nz",
+    "calculator": "Broken Link Cost Calculator",
+    "offer": "Free broken link cost calculator + site audit. Shows revenue impact of your 404 errors.",
+    "defects": [
+      "NO_CONTACT_ON_HOMEPAGE",
+      "BROKEN_LINKS",
+      "NO_SOCIAL_LINKS"
+    ],
+    "status": "READY_TO_SEND"
+  }
+]

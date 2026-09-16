@@ -1,0 +1,96 @@
+ENERGYSMART — SITE AUDIT + COLD OUTREACH
+========================================
+
+AUDIT FINDINGS
+---------------
+
+Business: EnergySmart
+Site: energysmart.co.nz
+Phone: 0800 777 111 (toll-free)
+Hours: Mon-Fri 8am-5:30pm
+Service areas: Nationwide (Auckland, BOP, Waikato, Manawatu, Wellington/Kapiti, Canterbury, South Canterbury/North Otago)
+
+They're an EECA-approved provider for:
+- Heat pumps (Daikin specialists)
+- Insulation (ceiling + underfloor)
+- Ventilation (SmartVent etc.)
+- Ground moisture barriers
+- Insulation & heating subsidies (Warmer Kiwi Homes)
+- EV chargers
+
+(1) How does their booking/assessment flow work?
+"BOOK YOUR FREE ASSESSMENT" links to /contact-us. The contact page has:
+- A big "CALL NOW 0800 777 111" CTA
+- Hours: Mon-Fri 8am-5:30pm, closed weekends
+- Location branches listed (Canterbury, Auckland, etc.)
+- No visible online booking calendar on the contact page itself
+- The insulation subsidy page has "Check my eligibility" → /contact-us, and "Book your free in-home assessment" → /contact-us
+
+So the flow is: land on site → click "Book free assessment" → go to contact page → call OR (probably) fill a form → someone calls back. It's a phone/form funnel, not an automated booking system. No instant quote estimator on the site.
+
+(2) Do they have an instant quote estimator?
+NO. No heat pump calculator, no insulation cost estimator, no instant quote tool. Their "calculator" angle is the subsidy calculator (how much % off you get), not a product quote.
+
+(3) The gap: Warmer Kiwi Homes = high lead volume that they process manually
+This is the core pain. Warmer Kiwi Homes is a GOVERNMENT subsidy programme — EECA approved. EnergySmart is a registered provider. The 2026 changes broadened eligibility significantly:
+- Income threshold raised from $90K to $120K for high-deprivation areas
+- Rental properties now eligible (landlord co-contributes 33%)
+- Heat pump grants up to $3,000
+
+That means a LOT more eligible homes. Every one of those homes needs:
+1. An eligibility check
+2. A free home assessment
+3. Subsidy application processing
+4. Installation booking
+5. Follow-up
+
+EnergySmart's site funnels all of this through "call 0800 777 111" or a contact form. For a company processing government-subsidy leads across 7 regions, that's a LOT of manual phone/follow-up work. The "response within 24 hours" (their standard on the quote page) becomes "assessment booked within X days" when volume is high.
+
+The gap: high-intent, government-subsidised leads coming in → manual phone/form processing → slow response → leads going elsewhere or going cold. A proper booking + quote automation system would:
+- Let people check eligibility and book an assessment online (capture the lead instantly, even after hours)
+- Automate the subsidy application intake (collect the info you need for the EECA application up front)
+- Book the in-home assessment on a calendar (no back-and-forth phone tag)
+- Send automated confirmations, reminders, follow-ups
+
+(4) Contact info:
+- Phone: 0800 777 111
+- Contact page: /contact-us (forms for each region probably)
+- Facebook: facebook.com/energysmartnz
+- No obvious individual name on the contact page — it's a company funnel
+
+(5) Strongest angle:
+Warmer Kiwi Homes 2026 expansion = more eligible homes = more leads. They're an EECA-approved provider processing these leads through phone + form. That's the bottleneck. The pitch: they're sitting on a high-volume lead stream that they process manually, and automation would let them capture more of those leads, book more assessments, and process subsidy applications faster — without hiring more phone staff. This is a volume + efficiency pitch, not a "you have no online presence" pitch. They clearly have one — it's the processing that's the gap.
+
+
+DRAFT COLD OUTREACH
+-------------------
+
+SUBJECT: Warmer Kiwi Homes leads — how fast are you catching them?
+
+Hi there,
+
+I was looking at energysmart.co.nz — solid site, clear offer, and the Warmer Kiwi Homes work is obviously a big part of what you do.
+
+One thing worth thinking about: the 2026 WKH changes widened eligibility quite a bit (income threshold up to $120K for high-deprivation areas, rentals now in scope, heat pump grants up to $3,000). That means a lot more homes are eligible now than before, and that trend is going to keep growing.
+
+The question is how those leads flow through to you. Right now the site funnels everything through "call 0800 777 111" or a contact form. For a company processing government-subsidy leads across several regions, that's a lot of manual phone and follow-up work — and after-hours visitors (when people actually research insulation and heating) wait until morning.
+
+A couple of things that would help you catch more of those leads and process them faster:
+
+1. An online eligibility + assessment booking flow — let people check if they qualify and book a free in-home assessment on a calendar, instead of waiting for a callback. Captures the lead instantly.
+
+2. Automated subsidy application intake — collect the info you need for the EECA application up front (address, household details, eligibility criteria) so the assessment call starts with the hard stuff already done.
+
+3. Automated confirmations and reminders — assessment bookings, quote follow-ups, post-install check-ins. All the things that currently take phone time.
+
+The point isn't to replace your team — it's to let them focus on the assessments and installations instead of phone tag and data entry.
+
+I help NZ energy and home-comfort businesses add this kind of tooling. Happy to do a quick look at your current lead flow and point out where automation would help most — no pitch, just practical advice.
+
+If it's worth a look, give me a call on 02904556680 or reply to this email.
+
+Cheers,
+Dion Lammas
+CATALYX Labs
+catalyxlabs.shop
+02904556680

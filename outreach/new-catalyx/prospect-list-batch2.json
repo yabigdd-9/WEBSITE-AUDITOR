@@ -1,0 +1,178 @@
+[
+  {
+    "name": "Kings Plant Barn Botany",
+    "business": "Kings Plant Barn Botany",
+    "region": "Auckland",
+    "email": "info@kingsplantbarn.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Kings Plant Barn Henderson",
+    "business": "Kings Plant Barn Henderson",
+    "region": "Auckland",
+    "email": "info@kingsplantbarn.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Kings Plant Barn Remuera",
+    "business": "Kings Plant Barn Remuera",
+    "region": "Auckland",
+    "email": "info@kingsplantbarn.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Kings Plant Barn St Lukes",
+    "business": "Kings Plant Barn St Lukes",
+    "region": "Auckland",
+    "email": "info@kingsplantbarn.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Kings Plant Barn Silverdale",
+    "business": "Kings Plant Barn Silverdale",
+    "region": "Auckland",
+    "email": "info@kingsplantbarn.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Kings Plant Barn Takapuna",
+    "business": "Kings Plant Barn Takapuna",
+    "region": "Auckland",
+    "email": "info@kingsplantbarn.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Palmers Remuera",
+    "business": "Palmers Remuera",
+    "region": "Auckland",
+    "email": "info@palmers.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Gardenified",
+    "business": "Gardenified",
+    "region": "Auckland",
+    "email": "info@gardenified.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Church Street Garden Central",
+    "business": "Church Street Garden Central",
+    "region": "Auckland",
+    "email": "info@churchstreetgarden.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Gubba Online Garden Store",
+    "business": "Gubba Online",
+    "region": "Auckland",
+    "email": "info@gubbaonline.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "California Home & Garden",
+    "business": "California Home & Garden",
+    "region": "Wellington",
+    "email": "info@californiahome.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Plantbase",
+    "business": "Plantbase",
+    "region": "Paraparaumu",
+    "email": "info@plantbase.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Plant Baby",
+    "business": "Plant Baby",
+    "region": "Paraparaumu",
+    "email": "info@plantbaby.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Urban Botanist",
+    "business": "Urban Botanist",
+    "region": "Paraparaumu",
+    "email": "info@urbanbotanist.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Naturally Neem",
+    "business": "Naturally Neem",
+    "region": "Paraparaumu",
+    "email": "info@naturallyneem.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Hello Plants",
+    "business": "Hello Plants",
+    "region": "Paraparaumu",
+    "email": "info@helloplants.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Aston Norwood Garden Centre",
+    "business": "Aston Norwood Garden Centre",
+    "region": "Upper Hutt",
+    "email": "info@astonnorwood.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Palmers Miramar",
+    "business": "Palmers Miramar",
+    "region": "Wellington",
+    "email": "info@palmers.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Palmers Plimmerton",
+    "business": "Palmers Plimmerton",
+    "region": "Porirua",
+    "email": "info@palmers.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Oderings Garden Centre Christchurch",
+    "business": "Oderings Garden Centre",
+    "region": "Christchurch",
+    "email": "info@oderings.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Portstone Garden Centre",
+    "business": "Portstone Garden Centre",
+    "region": "Christchurch",
+    "email": "info@portstone.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Texture Plants",
+    "business": "Texture Plants",
+    "region": "Christchurch",
+    "email": "info@textureplants.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  }
+]

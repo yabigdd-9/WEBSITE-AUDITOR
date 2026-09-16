@@ -1,0 +1,93 @@
+{
+  "name": "trades-website-audit-bot",
+  "title": "Website Audit Bot",
+  "theme": {
+    "branding": {
+      "logo": "",
+      "favicon": "",
+      "lightTheme": {
+        "background": "#ffffff",
+        "chatBg": "#f0f0f0",
+        "text": "#1a1a2e",
+        "chatBubble": "#1a1a2e",
+        "chatBubbleText": "#ffffff",
+        "sendButton": "#00d4a3",
+        "sendButtonText": "#ffffff",
+        "inputBg": "#ffffff",
+        "inputBorder": "#dddddd"
+      },
+      "darkTheme": {
+        "background": "#1a1a2e",
+        "chatBg": "#2a2a4e",
+        "text": "#ffffff",
+        "chatBubble": "#00d4a3",
+        "chatBubbleText": "#1a1a2e",
+        "sendButton": "#00d4a3",
+        "sendButtonText": "#1a1a2e",
+        "inputBg": "#2a2a4e",
+        "inputBorder": "#444466"
+      }
+    },
+    "fonts": {
+      "heading": "Inter",
+      "body": "Inter"
+    }
+  },
+  "steps": [
+    {
+      "id": "start",
+      "type": "startChat",
+      "content": {
+        "type": "text",
+        "text": "\ud83d\udd0d Want a FREE website audit? I'll check your site for defects that cost you leads."
+      },
+      "outgoingEdgeId": "email_capture"
+    },
+    {
+      "id": "email_capture",
+      "type": "email",
+      "content": {
+        "type": "text",
+        "text": "Enter your business email:"
+      },
+      "outgoingEdgeId": "website"
+    },
+    {
+      "id": "website",
+      "type": "shortText",
+      "content": {
+        "type": "text",
+        "text": "What's your website URL?"
+      },
+      "outgoingEdgeId": "audit"
+    },
+    {
+      "id": "audit",
+      "type": "text",
+      "content": {
+        "type": "text",
+        "text": "\ud83d\udd2c Auditing your site now... I'll check for:\n\u2705 Contact form working\n\u2705 Page load speed\n\u2705 Mobile-friendliness\n\u2705 Broken links\n\u2705 Missing SEO data\n\nI'll send the full report to your email within 24 hours!"
+      },
+      "outgoingEdgeId": "thank_you"
+    },
+    {
+      "id": "thank_you",
+      "type": "text",
+      "content": {
+        "type": "text",
+        "text": "\u2705 Audit queued! Check your email for the full report.\n\n\ud83d\udca1 Most businesses find 3-5 defects that cost them leads.\n\n\u2014 Dion, CATALYX Labs\nteam.catalyxlabs@gmail.com"
+      },
+      "outgoingEdgeId": "end"
+    },
+    {
+      "id": "end",
+      "type": "endChat",
+      "content": {
+        "type": "text",
+        "text": "Thanks!"
+      }
+    }
+  ],
+  "variables": [],
+  "edges": []
+}

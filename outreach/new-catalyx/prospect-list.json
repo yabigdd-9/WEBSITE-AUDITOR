@@ -1,0 +1,250 @@
+[
+  {
+    "name": "HydroGarden",
+    "business": "HydroGarden Christchurch",
+    "region": "Christchurch",
+    "email": "admin@hydrogarden.co.nz",
+    "type": "hydro_shop",
+    "phone": "+64 3 377 2507"
+  },
+  {
+    "name": "Hyalite",
+    "business": "Hyalite NZ",
+    "region": "Auckland",
+    "email": "info@hyalite.co.nz",
+    "type": "hydro_shop",
+    "phone": "+64 3 9356 9400"
+  },
+  {
+    "name": "Herbal House NZ",
+    "business": "Herbal House NZ",
+    "region": "Online/NZ",
+    "email": "info@herbals.co.nz",
+    "type": "hydro_shop",
+    "phone": ""
+  },
+  {
+    "name": "The Hydro Centre",
+    "business": "The Hydro Centre",
+    "region": "New Plymouth",
+    "email": "info@thehydrocentre.co.nz",
+    "type": "hydro_shop",
+    "phone": "+64 27 295 6833"
+  },
+  {
+    "name": "Lotz of Potz Hydro",
+    "business": "Lotz of Potz Hydro",
+    "region": "Online/NZ",
+    "email": "support@lotzofpotzhydro.co.nz",
+    "type": "hydro_shop",
+    "phone": "+64 6 355 4715"
+  },
+  {
+    "name": "Growshop.co.nz",
+    "business": "Growshop.co.nz",
+    "region": "Christchurch/Henderson",
+    "email": "info@growshop.co.nz",
+    "type": "hydro_shop",
+    "phone": "(03) 349 7500"
+  },
+  {
+    "name": "Greenrose Garden Centre",
+    "business": "Greenrose Garden Centre",
+    "region": "Pukekohe",
+    "email": "greenrose@xtra.co.nz",
+    "type": "garden_centre",
+    "phone": "+64 9 238 0407"
+  },
+  {
+    "name": "Kings Plant Barn",
+    "business": "Kings Plant Barn",
+    "region": "Auckland",
+    "email": "info@kingsplantbarn.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Oderings Garden Centre",
+    "business": "Oderings Garden Centre",
+    "region": "Christchurch",
+    "email": "info@oderings.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Palmers Pakuranga",
+    "business": "Palmers Pakuranga",
+    "region": "Auckland",
+    "email": "info@palmers.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Palmers Miramar",
+    "business": "Palmers Miramar",
+    "region": "Wellington",
+    "email": "info@palmers.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Palmers Plimmerton",
+    "business": "Palmers Plimmerton",
+    "region": "Porirua",
+    "email": "info@palmers.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Aston Norwood Garden Centre",
+    "business": "Aston Norwood Garden Centre",
+    "region": "Upper Hutt",
+    "email": "info@astonnorwood.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "California Home & Garden",
+    "business": "California Home & Garden",
+    "region": "Wellington",
+    "email": "info@californiahome.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Alfies Plant Barn",
+    "business": "Alfies Plant Barn",
+    "region": "Hastings",
+    "email": "info@alfiesplantbarn.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Big Jims Garden Centre",
+    "business": "Big Jims Garden Centre",
+    "region": "New Plymouth",
+    "email": "info@bigjims.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Masons Garden Centre",
+    "business": "Masons Garden Centre",
+    "region": "Hamilton/Te Awamutu",
+    "email": "shop@masongen3.co.nz",
+    "type": "garden_centre",
+    "phone": "+64 7 871 6208"
+  },
+  {
+    "name": "Springvale Garden Centre",
+    "business": "Springvale Garden Centre",
+    "region": "Whanganui",
+    "email": "info@springvale.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Plantbase",
+    "business": "Plantbase",
+    "region": "Paraparaumu",
+    "email": "info@plantbase.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Plant Baby",
+    "business": "Plant Baby",
+    "region": "Paraparaumu",
+    "email": "info@plantbaby.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Urban Botanist",
+    "business": "Urban Botanist",
+    "region": "Paraparaumu",
+    "email": "info@urbanbotanist.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Naturally Neem",
+    "business": "Naturally Neem",
+    "region": "Paraparaumu",
+    "email": "info@naturallyneem.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Portstone Garden Centre",
+    "business": "Portstone Garden Centre",
+    "region": "Christchurch",
+    "email": "info@portstone.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Touchstone Gisborne",
+    "business": "Touchstone Gisborne",
+    "region": "Gisborne",
+    "email": "info@touchstone.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Texture Plants",
+    "business": "Texture Plants",
+    "region": "Christchurch",
+    "email": "info@textureplants.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "Harrison's Gardenworld",
+    "business": "Harrison's Gardenworld",
+    "region": "Multiple",
+    "email": "info@harrisons.co.nz",
+    "type": "garden_centre",
+    "phone": ""
+  },
+  {
+    "name": "River Road Nursery",
+    "business": "River Road Nursery",
+    "region": "Tuakau",
+    "email": "info@riverroadnursery.co.nz",
+    "type": "nursery",
+    "phone": "+64 27 201 3826"
+  },
+  {
+    "name": "Ballantrae Nurseries",
+    "business": "Ballantrae Nurseries",
+    "region": "Auckland",
+    "email": "info@ballantrae.co.nz",
+    "type": "agricultural",
+    "phone": ""
+  },
+  {
+    "name": "NZ Hydroponics Supply",
+    "business": "NZ Hydroponics Supply",
+    "region": "Online/NZ",
+    "email": "info@nzhydroponics.co.nz",
+    "type": "hydro_shop",
+    "phone": ""
+  },
+  {
+    "name": "Lincoln University Hort",
+    "business": "Lincoln University",
+    "region": "Canterbury",
+    "email": "hort@lincoln.ac.nz",
+    "type": "school",
+    "phone": "+64 3 423 0000"
+  },
+  {
+    "name": "Otago Polytechnic",
+    "business": "Otago Polytechnic",
+    "region": "Dunedin",
+    "email": "hort@otagopolytechnic.ac.nz",
+    "type": "school",
+    "phone": "+64 3 474 0799"
+  }
+]

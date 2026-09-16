@@ -1,0 +1,52 @@
+[
+  {
+    "id": "ME-0328",
+    "name": "Broken-Link / Stale Page Report Service",
+    "score": 93,
+    "price": "$99-999",
+    "target": "local businesses",
+    "offer": "Scan business websites for broken links, stale pages, missing contact info. Generate report with fix recommendations.",
+    "action": "Use website_rescue_lead_engine to find prospects + consent_gate for compliance",
+    "automation": "5/5"
+  },
+  {
+    "id": "ME-0217",
+    "name": "Post-Job Customer Care Engine",
+    "score": 93,
+    "price": "$149-999/mo",
+    "target": "trades and service businesses",
+    "offer": "Generate care instructions, maintenance tips, review requests and referral follow-ups after job completion.",
+    "action": "Build automated post-job care sequence via himalaya + Hermes agent",
+    "automation": "5/5"
+  },
+  {
+    "id": "ME-0274",
+    "name": "Competitor Review Velocity Monitor",
+    "score": 93,
+    "price": "$99-999/mo",
+    "target": "local businesses",
+    "offer": "Flag sudden changes in competitor review volume/activity. Alert business owners to opportunities.",
+    "action": "Monitor Google Reviews for local businesses, send weekly digest",
+    "automation": "5/5"
+  },
+  {
+    "id": "ME-0090",
+    "name": "Business Intelligence Assistant Subscription",
+    "score": 93,
+    "price": "TBD",
+    "target": "small businesses",
+    "offer": "Recurring intelligence pack: competitor changes, lead opportunities, review trends, content ideas, 5 recommended actions.",
+    "action": "Weekly AI-generated business intelligence brief for NZ small businesses",
+    "automation": "5/5"
+  },
+  {
+    "id": "ME-0239",
+    "name": "Route Planning Preparation",
+    "score": 95,
+    "price": "$299-1500/mo",
+    "target": "mobile service businesses",
+    "offer": "Group jobs geographically for human-approved scheduling and route decisions.",
+    "action": "Optimize service routes for NZ trades/field businesses",
+    "automation": "5/5"
+  }
+]

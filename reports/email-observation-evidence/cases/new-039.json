@@ -1,0 +1,877 @@
+{
+  "mode": "POST_DEPLOYMENT_OBSERVATION",
+  "case": {
+    "case_id": "new-039",
+    "cohort": "new_observation",
+    "business": {
+      "name": "Skilled Electrical Christchurch",
+      "region": "Christchurch",
+      "public_website": "https://www.skilledelectrical.co.nz/",
+      "phone": "+6433821668",
+      "address": "8 Moncur Place, Addington, Christchurch 8024",
+      "id": "observation-39"
+    },
+    "suppressed_business": false,
+    "legacy": [],
+    "strata": [
+      "electricians/christchurch"
+    ],
+    "discovery_sources": [
+      {
+        "url": "https://www.top5.nz/electricians/christchurch/",
+        "type": "third_party_sampling_only",
+        "sha256": "7b3af1a791b938ff7c84453c0e1a32154889da53e7302f3ea2cbb754586b756a",
+        "captured_at": "2026-09-08T10:30:20.374711+00:00",
+        "path": "reports/email-observation-evidence/frame/electricians-christchurch.html",
+        "original_website": "https://www.skilledelectrical.co.nz/",
+        "original_name": "Skilled Electrical Christchurch"
+      }
+    ]
+  },
+  "started_at": "2026-09-08T10:57:10.904476+00:00",
+  "finished_at": "2026-09-08T10:58:10.606373+00:00",
+  "sample_hash": "662c8e69a2e5e62004dda6dfcbfd29a5d42b7b628cf1df172a2c2bad301e8652",
+  "result": {
+    "business_id": "observation-39",
+    "business": "Skilled Electrical Christchurch",
+    "website": "https://www.skilledelectrical.co.nz/",
+    "identity": {
+      "canonical_business_name": "Skilled Electrical Christchurch",
+      "trading_name": null,
+      "legal_name": null,
+      "website_url_discovered": "https://www.skilledelectrical.co.nz/",
+      "canonical_root_domain": "skilledelectrical.co.nz",
+      "proposed_root_domain": "skilledelectrical.co.nz",
+      "redirected_destination": "https://skilledelectrical.co.nz/",
+      "page_titles": [
+        "Skilled Electrical, Aircon & Solar Christchurch | Skilled Electrical",
+        "Contact Skilled Electrical | Christchurch and Canterbury electricians",
+        "About us - Skilled Electrical values, story, team, and more",
+        "Contact Skilled Electrical | Christchurch and Canterbury electricians",
+        "About us - Skilled Electrical values, story, team, and more"
+      ],
+      "organization_names": [
+        "Skilled Electrical Ltd.",
+        "Skilled Electrical, Aircon & Solar"
+      ],
+      "physical_location": "8 Moncur Place, Addington, Christchurch 8024",
+      "phone": "+6433821668",
+      "observed_phones": [
+        "03 382 1668",
+        "03-382-1668",
+        "03-382-1668 027-239",
+        "0800-754-55-33"
+      ],
+      "social_links": [
+        "https://www.facebook.com/skilledelectrical/",
+        "https://www.instagram.com/skilledelectrical/",
+        "https://www.linkedin.com/company/skilledelectricalnz"
+      ],
+      "evidence_urls": [
+        "http://skilledelectrical.co.nz/about/",
+        "http://skilledelectrical.co.nz/contact-us/",
+        "https://skilledelectrical.co.nz/",
+        "https://skilledelectrical.co.nz/about/",
+        "https://skilledelectrical.co.nz/contact-us/"
+      ],
+      "checked_at": "2026-09-08T10:58:08.592067+00:00",
+      "page_evidence": [
+        {
+          "url": "https://skilledelectrical.co.nz/",
+          "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/a774deb4430a6caf269388df6ea868e4d0858e7f3451aab8f1ce295aeb0ffe3e.capture",
+          "capture_hash": "a774deb4430a6caf269388df6ea868e4d0858e7f3451aab8f1ce295aeb0ffe3e",
+          "captured_at": "2026-09-08T10:57:22.003261+00:00"
+        },
+        {
+          "url": "https://skilledelectrical.co.nz/contact-us/",
+          "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/89799e272c0ed7cde25974bd3a8931161971cb9f1d7ad07798391bcba5cff813.capture",
+          "capture_hash": "89799e272c0ed7cde25974bd3a8931161971cb9f1d7ad07798391bcba5cff813",
+          "captured_at": "2026-09-08T10:57:28.559854+00:00"
+        },
+        {
+          "url": "https://skilledelectrical.co.nz/about/",
+          "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/0959ce8b242774ebad32130c9ebfee2a7e36cac61c0c4cf0c06ee7a6d0e92709.capture",
+          "capture_hash": "0959ce8b242774ebad32130c9ebfee2a7e36cac61c0c4cf0c06ee7a6d0e92709",
+          "captured_at": "2026-09-08T10:57:35.005241+00:00"
+        },
+        {
+          "url": "http://skilledelectrical.co.nz/contact-us/",
+          "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/dc06f910578d517294b2e333eafbfc502da361635604a8f70220f62a35798321.capture",
+          "capture_hash": "dc06f910578d517294b2e333eafbfc502da361635604a8f70220f62a35798321",
+          "captured_at": "2026-09-08T10:57:55.381947+00:00"
+        },
+        {
+          "url": "http://skilledelectrical.co.nz/about/",
+          "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/7850cb8e38c6f27abebc3be9e27018f7b3d11f24a38c5544df4335f2824aad32.capture",
+          "capture_hash": "7850cb8e38c6f27abebc3be9e27018f7b3d11f24a38c5544df4335f2824aad32",
+          "captured_at": "2026-09-08T10:58:08.592067+00:00"
+        }
+      ],
+      "status": "HIGH",
+      "signals": {
+        "prominent_name": true,
+        "body_name": true,
+        "region": true,
+        "phone": true,
+        "address": true,
+        "structured_name": false
+      },
+      "reasons": [],
+      "accepted_roots": [
+        "skilledelectrical.co.nz"
+      ],
+      "entity_key": "ff8cbaf0a4bd53127ebf48fee14a3dd7108663e0d15027f5047d5066d00ad3d5"
+    },
+    "results": [
+      {
+        "email": "admin@skilledelectrical.co.nz",
+        "syntax_valid": true,
+        "domain_resolves": true,
+        "mx_present": true,
+        "mx_hosts": [
+          "skilledelectrical-co-nz.mail.protection.outlook.com"
+        ],
+        "domain_accepts_mail": true,
+        "dns_checked_at": "2026-09-08T10:58:09.097062+00:00",
+        "smtp_result": "not_probed",
+        "catch_all_status": "unknown",
+        "mailbox_verification": "inconclusive",
+        "disposable_status": "not_in_local_blocklist",
+        "role_account": "office",
+        "first_party_observed": true,
+        "source_count": 2,
+        "independent_source_count": 1,
+        "person_match": "not_requested",
+        "person": null,
+        "person_company_evidence": null,
+        "business_match": true,
+        "domain_match": true,
+        "free_mail": false,
+        "freshness": "current",
+        "confidence_score": 98,
+        "confidence_label": "VERIFIED_HIGH",
+        "rejection_reasons": [],
+        "reasons": [
+          "Exact address observed in captured official source",
+          "Business/domain identity has multiple agreeing signals",
+          "Current routable MX records",
+          "Individual mailbox existence is not confirmed"
+        ],
+        "score_components": {
+          "first_party": 55,
+          "identity": 15,
+          "mx": 10,
+          "fresh": 5,
+          "second_official_page": 5,
+          "relevant_contact": 8
+        },
+        "evidence": [
+          {
+            "email": "admin@skilledelectrical.co.nz",
+            "observed_email": "If you want to exercise either of the above rights, email us at admin@skilledelectrical.co.nz. Your email should provide evidence of who you are and set out the details of your request (e.g. the personal information, or the correction, that you are requesting).",
+            "syntax_error": null,
+            "method": "visible_text",
+            "source_url": "https://skilledelectrical.co.nz/contact-us/",
+            "title": "Contact Skilled Electrical | Christchurch and Canterbury electricians",
+            "context": "If you want to exercise either of the above rights, email us at admin@skilledelectrical.co.nz. Your email should provide evidence of who you are and set out the details of your request (e.g. the personal information, or the correction, that you are requesting).",
+            "observed_at": "2026-09-08T10:57:28.559854+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/89799e272c0ed7cde25974bd3a8931161971cb9f1d7ad07798391bcba5cff813.capture",
+            "capture_hash": "89799e272c0ed7cde25974bd3a8931161971cb9f1d7ad07798391bcba5cff813",
+            "role": "office"
+          },
+          {
+            "email": "admin@skilledelectrical.co.nz",
+            "observed_email": "If you have any questions about this privacy policy, our privacy practices, or if you would like to request access to, or correction of, your personal information, you can contact us at admin@skilledelectrical.co.nz.",
+            "syntax_error": null,
+            "method": "visible_text",
+            "source_url": "https://skilledelectrical.co.nz/contact-us/",
+            "title": "Contact Skilled Electrical | Christchurch and Canterbury electricians",
+            "context": "CONTACTING US If you have any questions about this privacy policy, our privacy practices, or if you would like to request access to, or correction of, your personal information, you can contact us at admin@skilledelectrical.co.nz.",
+            "observed_at": "2026-09-08T10:57:28.559854+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/89799e272c0ed7cde25974bd3a8931161971cb9f1d7ad07798391bcba5cff813.capture",
+            "capture_hash": "89799e272c0ed7cde25974bd3a8931161971cb9f1d7ad07798391bcba5cff813",
+            "role": "office"
+          },
+          {
+            "email": "admin@skilledelectrical.co.nz",
+            "observed_email": "If you want to exercise either of the above rights, email us at admin@skilledelectrical.co.nz. Your email should provide evidence of who you are and set out the details of your request (e.g. the personal information, or the correction, that you are requesting).",
+            "syntax_error": null,
+            "method": "visible_text",
+            "source_url": "http://skilledelectrical.co.nz/contact-us/",
+            "title": "Contact Skilled Electrical | Christchurch and Canterbury electricians",
+            "context": "If you want to exercise either of the above rights, email us at admin@skilledelectrical.co.nz. Your email should provide evidence of who you are and set out the details of your request (e.g. the personal information, or the correction, that you are requesting).",
+            "observed_at": "2026-09-08T10:57:55.381947+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/dc06f910578d517294b2e333eafbfc502da361635604a8f70220f62a35798321.capture",
+            "capture_hash": "dc06f910578d517294b2e333eafbfc502da361635604a8f70220f62a35798321",
+            "role": "office"
+          },
+          {
+            "email": "admin@skilledelectrical.co.nz",
+            "observed_email": "If you have any questions about this privacy policy, our privacy practices, or if you would like to request access to, or correction of, your personal information, you can contact us at admin@skilledelectrical.co.nz.",
+            "syntax_error": null,
+            "method": "visible_text",
+            "source_url": "http://skilledelectrical.co.nz/contact-us/",
+            "title": "Contact Skilled Electrical | Christchurch and Canterbury electricians",
+            "context": "CONTACTING US If you have any questions about this privacy policy, our privacy practices, or if you would like to request access to, or correction of, your personal information, you can contact us at admin@skilledelectrical.co.nz.",
+            "observed_at": "2026-09-08T10:57:55.381947+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/dc06f910578d517294b2e333eafbfc502da361635604a8f70220f62a35798321.capture",
+            "capture_hash": "dc06f910578d517294b2e333eafbfc502da361635604a8f70220f62a35798321",
+            "role": "office"
+          }
+        ],
+        "candidate_method": "observed",
+        "checked_at": "2026-09-08T10:58:10.598904+00:00",
+        "verifier_version": "email-v2.0.0"
+      },
+      {
+        "email": "office@skilledelectrical.co.nz",
+        "syntax_valid": true,
+        "domain_resolves": true,
+        "mx_present": true,
+        "mx_hosts": [
+          "skilledelectrical-co-nz.mail.protection.outlook.com"
+        ],
+        "domain_accepts_mail": true,
+        "dns_checked_at": "2026-09-08T10:58:09.097062+00:00",
+        "smtp_result": "not_probed",
+        "catch_all_status": "unknown",
+        "mailbox_verification": "inconclusive",
+        "disposable_status": "not_in_local_blocklist",
+        "role_account": "office",
+        "first_party_observed": true,
+        "source_count": 5,
+        "independent_source_count": 1,
+        "person_match": "not_requested",
+        "person": null,
+        "person_company_evidence": null,
+        "business_match": true,
+        "domain_match": true,
+        "free_mail": false,
+        "freshness": "current",
+        "confidence_score": 98,
+        "confidence_label": "VERIFIED_HIGH",
+        "rejection_reasons": [],
+        "reasons": [
+          "Exact address observed in captured official source",
+          "Business/domain identity has multiple agreeing signals",
+          "Current routable MX records",
+          "Individual mailbox existence is not confirmed"
+        ],
+        "score_components": {
+          "first_party": 55,
+          "identity": 15,
+          "mx": 10,
+          "fresh": 5,
+          "second_official_page": 5,
+          "relevant_contact": 8
+        },
+        "evidence": [
+          {
+            "email": "office@skilledelectrical.co.nz",
+            "observed_email": "mailto:office@skilledelectrical.co.nz",
+            "syntax_error": null,
+            "method": "mailto",
+            "source_url": "https://skilledelectrical.co.nz/",
+            "title": "Skilled Electrical, Aircon & Solar Christchurch | Skilled Electrical",
+            "context": "8 Moncur Place, Addington, Christchurch \u00b7 office@skilledelectrical.co.nz",
+            "observed_at": "2026-09-08T10:57:22.003261+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/a774deb4430a6caf269388df6ea868e4d0858e7f3451aab8f1ce295aeb0ffe3e.capture",
+            "capture_hash": "a774deb4430a6caf269388df6ea868e4d0858e7f3451aab8f1ce295aeb0ffe3e",
+            "role": "office"
+          },
+          {
+            "email": "office@skilledelectrical.co.nz",
+            "observed_email": "mailto:office@skilledelectrical.co.nz",
+            "syntax_error": null,
+            "method": "mailto",
+            "source_url": "https://skilledelectrical.co.nz/",
+            "title": "Skilled Electrical, Aircon & Solar Christchurch | Skilled Electrical",
+            "context": "CONTACT US Phone: 03-382-1668 Email: office@skilledelectrical.co.nz",
+            "observed_at": "2026-09-08T10:57:22.003261+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/a774deb4430a6caf269388df6ea868e4d0858e7f3451aab8f1ce295aeb0ffe3e.capture",
+            "capture_hash": "a774deb4430a6caf269388df6ea868e4d0858e7f3451aab8f1ce295aeb0ffe3e",
+            "role": "office"
+          },
+          {
+            "email": "office@skilledelectrical.co.nz",
+            "observed_email": "office@skilledelectrical.co.nz",
+            "syntax_error": null,
+            "method": "visible_text",
+            "source_url": "https://skilledelectrical.co.nz/",
+            "title": "Skilled Electrical, Aircon & Solar Christchurch | Skilled Electrical",
+            "context": "office@skilledelectrical.co.nz",
+            "observed_at": "2026-09-08T10:57:22.003261+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/a774deb4430a6caf269388df6ea868e4d0858e7f3451aab8f1ce295aeb0ffe3e.capture",
+            "capture_hash": "a774deb4430a6caf269388df6ea868e4d0858e7f3451aab8f1ce295aeb0ffe3e",
+            "role": "office"
+          },
+          {
+            "email": "office@skilledelectrical.co.nz",
+            "observed_email": "office@skilledelectrical.co.nz",
+            "syntax_error": null,
+            "method": "visible_text",
+            "source_url": "https://skilledelectrical.co.nz/",
+            "title": "Skilled Electrical, Aircon & Solar Christchurch | Skilled Electrical",
+            "context": "office@skilledelectrical.co.nz",
+            "observed_at": "2026-09-08T10:57:22.003261+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/a774deb4430a6caf269388df6ea868e4d0858e7f3451aab8f1ce295aeb0ffe3e.capture",
+            "capture_hash": "a774deb4430a6caf269388df6ea868e4d0858e7f3451aab8f1ce295aeb0ffe3e",
+            "role": "office"
+          },
+          {
+            "email": "office@skilledelectrical.co.nz",
+            "observed_email": "office@skilledelectrical.co.nz",
+            "syntax_error": null,
+            "method": "structured_data",
+            "source_url": "https://skilledelectrical.co.nz/",
+            "title": "Skilled Electrical, Aircon & Solar Christchurch | Skilled Electrical",
+            "context": "{\"name\": \"Skilled Electrical, Aircon & Solar\", \"email\": \"office@skilledelectrical.co.nz\", \"telephone\": \"+6433821668\"}",
+            "observed_at": "2026-09-08T10:57:22.003261+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/a774deb4430a6caf269388df6ea868e4d0858e7f3451aab8f1ce295aeb0ffe3e.capture",
+            "capture_hash": "a774deb4430a6caf269388df6ea868e4d0858e7f3451aab8f1ce295aeb0ffe3e",
+            "role": "office"
+          },
+          {
+            "email": "office@skilledelectrical.co.nz",
+            "observed_email": "mailto:office@skilledelectrical.co.nz",
+            "syntax_error": null,
+            "method": "mailto",
+            "source_url": "https://skilledelectrical.co.nz/contact-us/",
+            "title": "Contact Skilled Electrical | Christchurch and Canterbury electricians",
+            "context": "EMAIL US office@skilledelectrical.co.nz",
+            "observed_at": "2026-09-08T10:57:28.559854+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/89799e272c0ed7cde25974bd3a8931161971cb9f1d7ad07798391bcba5cff813.capture",
+            "capture_hash": "89799e272c0ed7cde25974bd3a8931161971cb9f1d7ad07798391bcba5cff813",
+            "role": "office"
+          },
+          {
+            "email": "office@skilledelectrical.co.nz",
+            "observed_email": "mailto:office@skilledelectrical.co.nz",
+            "syntax_error": null,
+            "method": "mailto",
+            "source_url": "https://skilledelectrical.co.nz/contact-us/",
+            "title": "Contact Skilled Electrical | Christchurch and Canterbury electricians",
+            "context": "EMAIL US office@skilledelectrical.co.nz",
+            "observed_at": "2026-09-08T10:57:28.559854+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/89799e272c0ed7cde25974bd3a8931161971cb9f1d7ad07798391bcba5cff813.capture",
+            "capture_hash": "89799e272c0ed7cde25974bd3a8931161971cb9f1d7ad07798391bcba5cff813",
+            "role": "office"
+          },
+          {
+            "email": "office@skilledelectrical.co.nz",
+            "observed_email": "mailto:office@skilledelectrical.co.nz",
+            "syntax_error": null,
+            "method": "mailto",
+            "source_url": "https://skilledelectrical.co.nz/contact-us/",
+            "title": "Contact Skilled Electrical | Christchurch and Canterbury electricians",
+            "context": "CONTACT US Phone: 03-382-1668 Email: office@skilledelectrical.co.nz",
+            "observed_at": "2026-09-08T10:57:28.559854+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/89799e272c0ed7cde25974bd3a8931161971cb9f1d7ad07798391bcba5cff813.capture",
+            "capture_hash": "89799e272c0ed7cde25974bd3a8931161971cb9f1d7ad07798391bcba5cff813",
+            "role": "office"
+          },
+          {
+            "email": "office@skilledelectrical.co.nz",
+            "observed_email": "office@skilledelectrical.co.nz",
+            "syntax_error": null,
+            "method": "visible_text",
+            "source_url": "https://skilledelectrical.co.nz/contact-us/",
+            "title": "Contact Skilled Electrical | Christchurch and Canterbury electricians",
+            "context": "office@skilledelectrical.co.nz",
+            "observed_at": "2026-09-08T10:57:28.559854+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/89799e272c0ed7cde25974bd3a8931161971cb9f1d7ad07798391bcba5cff813.capture",
+            "capture_hash": "89799e272c0ed7cde25974bd3a8931161971cb9f1d7ad07798391bcba5cff813",
+            "role": "office"
+          },
+          {
+            "email": "office@skilledelectrical.co.nz",
+            "observed_email": "office@skilledelectrical.co.nz",
+            "syntax_error": null,
+            "method": "visible_text",
+            "source_url": "https://skilledelectrical.co.nz/contact-us/",
+            "title": "Contact Skilled Electrical | Christchurch and Canterbury electricians",
+            "context": "office@skilledelectrical.co.nz",
+            "observed_at": "2026-09-08T10:57:28.559854+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/89799e272c0ed7cde25974bd3a8931161971cb9f1d7ad07798391bcba5cff813.capture",
+            "capture_hash": "89799e272c0ed7cde25974bd3a8931161971cb9f1d7ad07798391bcba5cff813",
+            "role": "office"
+          },
+          {
+            "email": "office@skilledelectrical.co.nz",
+            "observed_email": "mailto:office@skilledelectrical.co.nz",
+            "syntax_error": null,
+            "method": "mailto",
+            "source_url": "https://skilledelectrical.co.nz/about/",
+            "title": "About us - Skilled Electrical values, story, team, and more",
+            "context": "CONTACT US Phone: 03-382-1668 Email: office@skilledelectrical.co.nz",
+            "observed_at": "2026-09-08T10:57:35.005241+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/0959ce8b242774ebad32130c9ebfee2a7e36cac61c0c4cf0c06ee7a6d0e92709.capture",
+            "capture_hash": "0959ce8b242774ebad32130c9ebfee2a7e36cac61c0c4cf0c06ee7a6d0e92709",
+            "role": "office"
+          },
+          {
+            "email": "office@skilledelectrical.co.nz",
+            "observed_email": "office@skilledelectrical.co.nz",
+            "syntax_error": null,
+            "method": "visible_text",
+            "source_url": "https://skilledelectrical.co.nz/about/",
+            "title": "About us - Skilled Electrical values, story, team, and more",
+            "context": "office@skilledelectrical.co.nz",
+            "observed_at": "2026-09-08T10:57:35.005241+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/0959ce8b242774ebad32130c9ebfee2a7e36cac61c0c4cf0c06ee7a6d0e92709.capture",
+            "capture_hash": "0959ce8b242774ebad32130c9ebfee2a7e36cac61c0c4cf0c06ee7a6d0e92709",
+            "role": "office"
+          },
+          {
+            "email": "office@skilledelectrical.co.nz",
+            "observed_email": "mailto:office@skilledelectrical.co.nz",
+            "syntax_error": null,
+            "method": "mailto",
+            "source_url": "http://skilledelectrical.co.nz/contact-us/",
+            "title": "Contact Skilled Electrical | Christchurch and Canterbury electricians",
+            "context": "EMAIL US office@skilledelectrical.co.nz",
+            "observed_at": "2026-09-08T10:57:55.381947+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/dc06f910578d517294b2e333eafbfc502da361635604a8f70220f62a35798321.capture",
+            "capture_hash": "dc06f910578d517294b2e333eafbfc502da361635604a8f70220f62a35798321",
+            "role": "office"
+          },
+          {
+            "email": "office@skilledelectrical.co.nz",
+            "observed_email": "mailto:office@skilledelectrical.co.nz",
+            "syntax_error": null,
+            "method": "mailto",
+            "source_url": "http://skilledelectrical.co.nz/contact-us/",
+            "title": "Contact Skilled Electrical | Christchurch and Canterbury electricians",
+            "context": "EMAIL US office@skilledelectrical.co.nz",
+            "observed_at": "2026-09-08T10:57:55.381947+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/dc06f910578d517294b2e333eafbfc502da361635604a8f70220f62a35798321.capture",
+            "capture_hash": "dc06f910578d517294b2e333eafbfc502da361635604a8f70220f62a35798321",
+            "role": "office"
+          },
+          {
+            "email": "office@skilledelectrical.co.nz",
+            "observed_email": "mailto:office@skilledelectrical.co.nz",
+            "syntax_error": null,
+            "method": "mailto",
+            "source_url": "http://skilledelectrical.co.nz/contact-us/",
+            "title": "Contact Skilled Electrical | Christchurch and Canterbury electricians",
+            "context": "CONTACT US Phone: 03-382-1668 Email: office@skilledelectrical.co.nz",
+            "observed_at": "2026-09-08T10:57:55.381947+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/dc06f910578d517294b2e333eafbfc502da361635604a8f70220f62a35798321.capture",
+            "capture_hash": "dc06f910578d517294b2e333eafbfc502da361635604a8f70220f62a35798321",
+            "role": "office"
+          },
+          {
+            "email": "office@skilledelectrical.co.nz",
+            "observed_email": "office@skilledelectrical.co.nz",
+            "syntax_error": null,
+            "method": "visible_text",
+            "source_url": "http://skilledelectrical.co.nz/contact-us/",
+            "title": "Contact Skilled Electrical | Christchurch and Canterbury electricians",
+            "context": "office@skilledelectrical.co.nz",
+            "observed_at": "2026-09-08T10:57:55.381947+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/dc06f910578d517294b2e333eafbfc502da361635604a8f70220f62a35798321.capture",
+            "capture_hash": "dc06f910578d517294b2e333eafbfc502da361635604a8f70220f62a35798321",
+            "role": "office"
+          },
+          {
+            "email": "office@skilledelectrical.co.nz",
+            "observed_email": "office@skilledelectrical.co.nz",
+            "syntax_error": null,
+            "method": "visible_text",
+            "source_url": "http://skilledelectrical.co.nz/contact-us/",
+            "title": "Contact Skilled Electrical | Christchurch and Canterbury electricians",
+            "context": "office@skilledelectrical.co.nz",
+            "observed_at": "2026-09-08T10:57:55.381947+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/dc06f910578d517294b2e333eafbfc502da361635604a8f70220f62a35798321.capture",
+            "capture_hash": "dc06f910578d517294b2e333eafbfc502da361635604a8f70220f62a35798321",
+            "role": "office"
+          },
+          {
+            "email": "office@skilledelectrical.co.nz",
+            "observed_email": "mailto:office@skilledelectrical.co.nz",
+            "syntax_error": null,
+            "method": "mailto",
+            "source_url": "http://skilledelectrical.co.nz/about/",
+            "title": "About us - Skilled Electrical values, story, team, and more",
+            "context": "CONTACT US Phone: 03-382-1668 Email: office@skilledelectrical.co.nz",
+            "observed_at": "2026-09-08T10:58:08.592067+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/7850cb8e38c6f27abebc3be9e27018f7b3d11f24a38c5544df4335f2824aad32.capture",
+            "capture_hash": "7850cb8e38c6f27abebc3be9e27018f7b3d11f24a38c5544df4335f2824aad32",
+            "role": "office"
+          },
+          {
+            "email": "office@skilledelectrical.co.nz",
+            "observed_email": "office@skilledelectrical.co.nz",
+            "syntax_error": null,
+            "method": "visible_text",
+            "source_url": "http://skilledelectrical.co.nz/about/",
+            "title": "About us - Skilled Electrical values, story, team, and more",
+            "context": "office@skilledelectrical.co.nz",
+            "observed_at": "2026-09-08T10:58:08.592067+00:00",
+            "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/7850cb8e38c6f27abebc3be9e27018f7b3d11f24a38c5544df4335f2824aad32.capture",
+            "capture_hash": "7850cb8e38c6f27abebc3be9e27018f7b3d11f24a38c5544df4335f2824aad32",
+            "role": "office"
+          }
+        ],
+        "candidate_method": "observed",
+        "checked_at": "2026-09-08T10:58:10.606337+00:00",
+        "verifier_version": "email-v2.0.0"
+      }
+    ],
+    "selected": {
+      "email": "admin@skilledelectrical.co.nz",
+      "syntax_valid": true,
+      "domain_resolves": true,
+      "mx_present": true,
+      "mx_hosts": [
+        "skilledelectrical-co-nz.mail.protection.outlook.com"
+      ],
+      "domain_accepts_mail": true,
+      "dns_checked_at": "2026-09-08T10:58:09.097062+00:00",
+      "smtp_result": "not_probed",
+      "catch_all_status": "unknown",
+      "mailbox_verification": "inconclusive",
+      "disposable_status": "not_in_local_blocklist",
+      "role_account": "office",
+      "first_party_observed": true,
+      "source_count": 2,
+      "independent_source_count": 1,
+      "person_match": "not_requested",
+      "person": null,
+      "person_company_evidence": null,
+      "business_match": true,
+      "domain_match": true,
+      "free_mail": false,
+      "freshness": "current",
+      "confidence_score": 98,
+      "confidence_label": "VERIFIED_HIGH",
+      "rejection_reasons": [],
+      "reasons": [
+        "Exact address observed in captured official source",
+        "Business/domain identity has multiple agreeing signals",
+        "Current routable MX records",
+        "Individual mailbox existence is not confirmed"
+      ],
+      "score_components": {
+        "first_party": 55,
+        "identity": 15,
+        "mx": 10,
+        "fresh": 5,
+        "second_official_page": 5,
+        "relevant_contact": 8
+      },
+      "evidence": [
+        {
+          "email": "admin@skilledelectrical.co.nz",
+          "observed_email": "If you want to exercise either of the above rights, email us at admin@skilledelectrical.co.nz. Your email should provide evidence of who you are and set out the details of your request (e.g. the personal information, or the correction, that you are requesting).",
+          "syntax_error": null,
+          "method": "visible_text",
+          "source_url": "https://skilledelectrical.co.nz/contact-us/",
+          "title": "Contact Skilled Electrical | Christchurch and Canterbury electricians",
+          "context": "If you want to exercise either of the above rights, email us at admin@skilledelectrical.co.nz. Your email should provide evidence of who you are and set out the details of your request (e.g. the personal information, or the correction, that you are requesting).",
+          "observed_at": "2026-09-08T10:57:28.559854+00:00",
+          "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/89799e272c0ed7cde25974bd3a8931161971cb9f1d7ad07798391bcba5cff813.capture",
+          "capture_hash": "89799e272c0ed7cde25974bd3a8931161971cb9f1d7ad07798391bcba5cff813",
+          "role": "office"
+        },
+        {
+          "email": "admin@skilledelectrical.co.nz",
+          "observed_email": "If you have any questions about this privacy policy, our privacy practices, or if you would like to request access to, or correction of, your personal information, you can contact us at admin@skilledelectrical.co.nz.",
+          "syntax_error": null,
+          "method": "visible_text",
+          "source_url": "https://skilledelectrical.co.nz/contact-us/",
+          "title": "Contact Skilled Electrical | Christchurch and Canterbury electricians",
+          "context": "CONTACTING US If you have any questions about this privacy policy, our privacy practices, or if you would like to request access to, or correction of, your personal information, you can contact us at admin@skilledelectrical.co.nz.",
+          "observed_at": "2026-09-08T10:57:28.559854+00:00",
+          "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/89799e272c0ed7cde25974bd3a8931161971cb9f1d7ad07798391bcba5cff813.capture",
+          "capture_hash": "89799e272c0ed7cde25974bd3a8931161971cb9f1d7ad07798391bcba5cff813",
+          "role": "office"
+        },
+        {
+          "email": "admin@skilledelectrical.co.nz",
+          "observed_email": "If you want to exercise either of the above rights, email us at admin@skilledelectrical.co.nz. Your email should provide evidence of who you are and set out the details of your request (e.g. the personal information, or the correction, that you are requesting).",
+          "syntax_error": null,
+          "method": "visible_text",
+          "source_url": "http://skilledelectrical.co.nz/contact-us/",
+          "title": "Contact Skilled Electrical | Christchurch and Canterbury electricians",
+          "context": "If you want to exercise either of the above rights, email us at admin@skilledelectrical.co.nz. Your email should provide evidence of who you are and set out the details of your request (e.g. the personal information, or the correction, that you are requesting).",
+          "observed_at": "2026-09-08T10:57:55.381947+00:00",
+          "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/dc06f910578d517294b2e333eafbfc502da361635604a8f70220f62a35798321.capture",
+          "capture_hash": "dc06f910578d517294b2e333eafbfc502da361635604a8f70220f62a35798321",
+          "role": "office"
+        },
+        {
+          "email": "admin@skilledelectrical.co.nz",
+          "observed_email": "If you have any questions about this privacy policy, our privacy practices, or if you would like to request access to, or correction of, your personal information, you can contact us at admin@skilledelectrical.co.nz.",
+          "syntax_error": null,
+          "method": "visible_text",
+          "source_url": "http://skilledelectrical.co.nz/contact-us/",
+          "title": "Contact Skilled Electrical | Christchurch and Canterbury electricians",
+          "context": "CONTACTING US If you have any questions about this privacy policy, our privacy practices, or if you would like to request access to, or correction of, your personal information, you can contact us at admin@skilledelectrical.co.nz.",
+          "observed_at": "2026-09-08T10:57:55.381947+00:00",
+          "capture_path": "reports/email-observation-evidence/acquisition/cache/email-v2/dc06f910578d517294b2e333eafbfc502da361635604a8f70220f62a35798321.capture",
+          "capture_hash": "dc06f910578d517294b2e333eafbfc502da361635604a8f70220f62a35798321",
+          "role": "office"
+        }
+      ],
+      "candidate_method": "observed",
+      "checked_at": "2026-09-08T10:58:10.598904+00:00",
+      "verifier_version": "email-v2.0.0"
+    },
+    "selection_status": "VERIFIED_HIGH",
+    "contact_form_urls": [
+      "http://skilledelectrical.co.nz/contact-us/",
+      "https://skilledelectrical.co.nz/contact-us/"
+    ],
+    "email_review_required": true,
+    "human_review": "Human relevance, permission and exact-item approval still required",
+    "external_sends": 0,
+    "model_calls": 0,
+    "verifier_version": "email-v2.0.0"
+  },
+  "dns": {
+    "skilledelectrical.co.nz": {
+      "domain": "skilledelectrical.co.nz",
+      "checked_at": "2026-09-08T10:58:09.097062+00:00",
+      "domain_resolves": true,
+      "mx_present": true,
+      "mx_hosts": [
+        "skilledelectrical-co-nz.mail.protection.outlook.com"
+      ],
+      "domain_accepts_mail": true,
+      "status": "mx",
+      "method": "DNS MX and public MX target address resolution",
+      "routable_mx_hosts": [
+        "skilledelectrical-co-nz.mail.protection.outlook.com"
+      ]
+    }
+  },
+  "crawl_errors": [],
+  "pages": [
+    {
+      "url": "https://skilledelectrical.co.nz/",
+      "redirects": [
+        {
+          "from": "https://www.skilledelectrical.co.nz/",
+          "to": "https://skilledelectrical.co.nz/",
+          "status": 301
+        }
+      ],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-08T10:57:22.003261+00:00",
+      "sha256": "a774deb4430a6caf269388df6ea868e4d0858e7f3451aab8f1ce295aeb0ffe3e",
+      "requested_url": "https://www.skilledelectrical.co.nz/",
+      "path": "reports/email-observation-evidence/acquisition/cache/email-v2/a774deb4430a6caf269388df6ea868e4d0858e7f3451aab8f1ce295aeb0ffe3e.capture",
+      "organization_names": [
+        "Skilled Electrical Ltd.",
+        "Skilled Electrical, Aircon & Solar"
+      ],
+      "social_links": [
+        "https://www.facebook.com/skilledelectrical/",
+        "https://www.instagram.com/skilledelectrical/",
+        "https://www.linkedin.com/company/skilledelectricalnz"
+      ],
+      "phones": [
+        "03 382 1668",
+        "03-382-1668"
+      ],
+      "headings": [
+        "Canterbury\u2019s Trusted Electrical, Aircon & Solar Specialists",
+        "Guaranteed Workmanship",
+        "Fair Pricing",
+        "Reliable",
+        "Communicative",
+        "Three Trades. One Skilled Team.",
+        "Electrical",
+        "Aircon",
+        "Solar",
+        "Core Services",
+        "Responsive Maintenance & Fault Finding",
+        "Planned Maintenance & Compliance",
+        "Heating, Ventilation & Air Conditioning",
+        "Solar & EV Chargers",
+        "Rental, Commercial & Multi-Unit Properties",
+        "Aged Care & Specialist Facilities",
+        "Appliance Installations & Replacements",
+        "Anti-Ageing of Electrical Infrastructure",
+        "Backup Power Solutions",
+        "Energy Efficiency & Cost Reduction",
+        "Wall-Mounted vs Ducted Heat Pumps",
+        "Wall-Mounted Heat Pumps",
+        "Ducted Heat Pump System",
+        "The Smarter Way to Heat Water",
+        "Lower Power Bills",
+        "Energy Efficient",
+        "Better for the Environment",
+        "Adds Long-Term Value",
+        "Built to Support Every Property",
+        "Residential",
+        "Commercial",
+        "Property Managers",
+        "Aged Care & Specialist Facilities",
+        "Multi-Unit Developments",
+        "A Team You Can Count On",
+        "Trusted Across Canterbury",
+        "Servicing Christchurch & Wider Canterbury",
+        "Common Questions",
+        "Need Reliable Electrical, Aircon or Solar Work?"
+      ],
+      "contact_forms": [],
+      "title": "Skilled Electrical, Aircon & Solar Christchurch | Skilled Electrical"
+    },
+    {
+      "url": "https://skilledelectrical.co.nz/contact-us/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-08T10:57:28.559854+00:00",
+      "sha256": "89799e272c0ed7cde25974bd3a8931161971cb9f1d7ad07798391bcba5cff813",
+      "requested_url": "https://skilledelectrical.co.nz/contact-us/",
+      "path": "reports/email-observation-evidence/acquisition/cache/email-v2/89799e272c0ed7cde25974bd3a8931161971cb9f1d7ad07798391bcba5cff813.capture",
+      "organization_names": [
+        "Skilled Electrical Ltd."
+      ],
+      "social_links": [
+        "https://www.facebook.com/skilledelectrical/",
+        "https://www.instagram.com/skilledelectrical/",
+        "https://www.linkedin.com/company/skilledelectricalnz"
+      ],
+      "phones": [
+        "0800-754-55-33",
+        "03-382-1668",
+        "03-382-1668 027-239"
+      ],
+      "headings": [
+        "BOOK AN ELECTRICIAN",
+        "FIND US HERE",
+        "FIND US HERE"
+      ],
+      "contact_forms": [
+        "https://skilledelectrical.co.nz/contact-us/"
+      ],
+      "title": "Contact Skilled Electrical | Christchurch and Canterbury electricians"
+    },
+    {
+      "url": "https://skilledelectrical.co.nz/about/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-08T10:57:35.005241+00:00",
+      "sha256": "0959ce8b242774ebad32130c9ebfee2a7e36cac61c0c4cf0c06ee7a6d0e92709",
+      "requested_url": "https://skilledelectrical.co.nz/about/",
+      "path": "reports/email-observation-evidence/acquisition/cache/email-v2/0959ce8b242774ebad32130c9ebfee2a7e36cac61c0c4cf0c06ee7a6d0e92709.capture",
+      "organization_names": [
+        "Skilled Electrical Ltd."
+      ],
+      "social_links": [
+        "https://www.facebook.com/skilledelectrical/",
+        "https://www.instagram.com/skilledelectrical/",
+        "https://www.linkedin.com/company/skilledelectricalnz"
+      ],
+      "phones": [
+        "03-382-1668"
+      ],
+      "headings": [
+        "ABOUT US - SKILLED ELECTRICAL",
+        "It's not easy finding a reliable electrician. That's why we exist, to show you they're out there.",
+        "Our genuine goal in the industry is to make the world a happier place through building an exceptional business.",
+        "Dean Wilson",
+        "OUR VALUES",
+        "OUR STORY",
+        "MEET YOUR ELECTRICAL TEAM",
+        "OUR PROJECTS",
+        "ZERO FRUSTRATIONS - GUARANTEED!",
+        "From the moment you contact us we aim to make the process as clear and easy as possible",
+        "We are also a turnkey company with a full range of services",
+        "We all know that engaging an electrician can often be a frustrating and disappointing experience.",
+        "FAQ"
+      ],
+      "contact_forms": [],
+      "title": "About us - Skilled Electrical values, story, team, and more"
+    },
+    {
+      "url": "http://skilledelectrical.co.nz/contact-us/",
+      "redirects": [
+        {
+          "from": "https://skilledelectrical.co.nz/contact-us/service",
+          "to": "http://skilledelectrical.co.nz/contact-us/",
+          "status": 301
+        }
+      ],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-08T10:57:55.381947+00:00",
+      "sha256": "dc06f910578d517294b2e333eafbfc502da361635604a8f70220f62a35798321",
+      "requested_url": "https://skilledelectrical.co.nz/contact-us/service",
+      "path": "reports/email-observation-evidence/acquisition/cache/email-v2/dc06f910578d517294b2e333eafbfc502da361635604a8f70220f62a35798321.capture",
+      "organization_names": [
+        "Skilled Electrical Ltd."
+      ],
+      "social_links": [
+        "https://www.facebook.com/skilledelectrical/",
+        "https://www.instagram.com/skilledelectrical/",
+        "https://www.linkedin.com/company/skilledelectricalnz"
+      ],
+      "phones": [
+        "0800-754-55-33",
+        "03-382-1668",
+        "03-382-1668 027-239"
+      ],
+      "headings": [
+        "BOOK AN ELECTRICIAN",
+        "FIND US HERE",
+        "FIND US HERE"
+      ],
+      "contact_forms": [
+        "http://skilledelectrical.co.nz/contact-us/"
+      ],
+      "title": "Contact Skilled Electrical | Christchurch and Canterbury electricians"
+    },
+    {
+      "url": "http://skilledelectrical.co.nz/about/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-08T10:58:08.592067+00:00",
+      "sha256": "7850cb8e38c6f27abebc3be9e27018f7b3d11f24a38c5544df4335f2824aad32",
+      "requested_url": "http://skilledelectrical.co.nz/about/",
+      "path": "reports/email-observation-evidence/acquisition/cache/email-v2/7850cb8e38c6f27abebc3be9e27018f7b3d11f24a38c5544df4335f2824aad32.capture",
+      "organization_names": [
+        "Skilled Electrical Ltd."
+      ],
+      "social_links": [
+        "https://www.facebook.com/skilledelectrical/",
+        "https://www.instagram.com/skilledelectrical/",
+        "https://www.linkedin.com/company/skilledelectricalnz"
+      ],
+      "phones": [
+        "03-382-1668"
+      ],
+      "headings": [
+        "ABOUT US - SKILLED ELECTRICAL",
+        "It's not easy finding a reliable electrician. That's why we exist, to show you they're out there.",
+        "Our genuine goal in the industry is to make the world a happier place through building an exceptional business.",
+        "Dean Wilson",
+        "OUR VALUES",
+        "OUR STORY",
+        "MEET YOUR ELECTRICAL TEAM",
+        "OUR PROJECTS",
+        "ZERO FRUSTRATIONS - GUARANTEED!",
+        "From the moment you contact us we aim to make the process as clear and easy as possible",
+        "We are also a turnkey company with a full range of services",
+        "We all know that engaging an electrician can often be a frustrating and disappointing experience.",
+        "FAQ"
+      ],
+      "contact_forms": [],
+      "title": "About us - Skilled Electrical values, story, team, and more"
+    }
+  ],
+  "human_review_state": "REQUIRED_NOT_APPROVED",
+  "outreach_eligible": false,
+  "outreach_ineligible_reasons": [
+    "POST_DEPLOYMENT_OBSERVATION forbids production persistence and outreach eligibility",
+    "No human permission or exact-item approval granted"
+  ],
+  "production_database_writes": 0,
+  "smtp_probes": 0,
+  "external_sends": 0,
+  "approvals_created": 0,
+  "model_calls": 0
+}

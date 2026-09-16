@@ -1,0 +1,64 @@
+ALPHA HEAT PUMPS — SITE AUDIT + COLD OUTREACH
+===============================================
+
+AUDIT FINDINGS
+---------------
+
+Business: Alpha Heat Pumps Christchurch
+Owners: Carl Hickman + Rod Honrada (owner-operated)
+Site: alphaheatpumps.co.nz
+Location: Rolleston / greater Christchurch
+Phone: 027 201 6694
+Email/contact: quote form at alphaheatpumps.co.nz/quote
+
+(1) Online booking?
+NO. No online booking system. The site has a "Get Your Free Quote" CTA and a quote form at /quote, but no calendar/booking tool. Everything goes to a form → manual response.
+
+(2) Instant quote estimator?
+NO. No quote calculator, no room-size-to-price tool, no instant estimate. Their "quote" flow is: fill out a form OR call. The form promises "we'll get back to you within 24 hours, usually much sooner" — that's a delay, not an instant quote. For a heat pump company, after-hours visitors (when people actually research heating) hit a dead end.
+
+(3) Actual quote/booking flow:
+- Homepage CTA: "Get Free Quote" / "Call Now 027 201 6694"
+- Quote page (/quote): form — name, email, phone, message. Also offers "Free Consultation: Complimentary in-home assessment with detailed quote"
+- Promise: response within 24 hours
+- No instant estimate, no booking calendar, no automated anything
+
+(4) What they're running right now:
+"December Offer: $250 Off Heat Pump Installations — First 20 Homes Only! Ask Us for Conditions" — this is a GROWTH PROMO. They're actively advertising to get leads. A promo like this means they're trying to move volume, and a manual quote process is a bottleneck on exactly the leads the promo is generating.
+
+(5) Strongest angle:
+Two angles combine into a strong pitch:
+- They're running a "$250 off first 20 homes" promo — they WANT volume, they're advertising for it. A manual quote process means every lead from that promo goes into a form queue and waits. That's leads cooling off.
+- They're a small owner-operated business — "lean operation, lower overheads." They can't afford a big in-house dev team to build booking/quote tools, but they can afford to outsource one. They're exactly the right size for this.
+- "Response within 24 hours" is their best case — that means after-hours leads sit overnight. Heat pump buyers often research after hours. Capture those leads instantly and you're ahead of every competitor.
+- They're Daikin specialists, featured in the MoneyHub Christchurch heat pump guide. They have a reputation to protect — a smooth quote/booking experience protects it.
+
+
+DRAFT COLD OUTREACH
+-------------------
+
+SUBJECT: your December promo — are the leads coming in faster than you can quote them?
+
+Hi Carl,
+
+I was on alphaheatpumps.co.nz — the December promo ("$250 Off — First 20 Homes Only") is a smart move, especially heading into the season.
+
+One thing I noticed: the quote flow is a form + phone. "Response within 24 hours" is solid, but it means anyone who lands on the site after hours — which is exactly when people research heating — waits until the next day before getting a price. With a promo driving traffic, that's leads going cold while they sit in the queue.
+
+A couple of things that would capture those leads instantly:
+
+1. A heat pump quote estimator — room size, insulation, how many rooms, budget range → instant indicative price or "we'll call you within the hour." Captures the price-shoppers who'd otherwise bounce.
+
+2. Online booking for the in-home assessment — a calendar so people can pick a time instead of waiting for a callback. Makes the "free consultation" actually bookable.
+
+Both of those turn your promo traffic into booked assessments instead of form entries waiting for a reply.
+
+I help NZ heat pump and HVAC businesses add this kind of tooling. Happy to do a quick audit of your current quote/booking flow and point out the specific leaks — no pitch, just practical advice.
+
+If it's worth a look, give me a call or reply to this email.
+
+Cheers,
+Dion Lammas
+CATALYX Labs
+catalyxlabs.shop
+02904556680

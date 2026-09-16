@@ -1,0 +1,180 @@
+{
+  "name": "hydro-shop-product-advisor",
+  "title": "Hydro Product Advisor",
+  "theme": {
+    "branding": {
+      "logo": "",
+      "favicon": "",
+      "lightTheme": {
+        "background": "#ffffff",
+        "chatBg": "#f0f0f0",
+        "text": "#1a1a2e",
+        "chatBubble": "#1a1a2e",
+        "chatBubbleText": "#ffffff",
+        "sendButton": "#00d4a3",
+        "sendButtonText": "#ffffff",
+        "inputBg": "#ffffff",
+        "inputBorder": "#dddddd"
+      },
+      "darkTheme": {
+        "background": "#1a1a2e",
+        "chatBg": "#2a2a4e",
+        "text": "#ffffff",
+        "chatBubble": "#00d4a3",
+        "chatBubbleText": "#1a1a2e",
+        "sendButton": "#00d4a3",
+        "sendButtonText": "#1a1a2e",
+        "inputBg": "#2a2a4e",
+        "inputBorder": "#444466"
+      }
+    },
+    "fonts": {
+      "heading": "Inter",
+      "body": "Inter"
+    }
+  },
+  "steps": [
+    {
+      "id": "start",
+      "type": "startChat",
+      "content": {
+        "type": "text",
+        "text": "\ud83d\udca1 Hydro product advisor! What's your setup?"
+      },
+      "outgoingEdgeId": "setup"
+    },
+    {
+      "id": "setup",
+      "type": "choice",
+      "content": {
+        "type": "text",
+        "text": "Setup type?",
+        "choices": [
+          {
+            "id": "dwc",
+            "label": "\ud83c\udfca DWC"
+          },
+          {
+            "id": "nft",
+            "label": "\ud83d\udcd0 NFT"
+          },
+          {
+            "id": "drip",
+            "label": "\ud83d\udca7 Drip"
+          },
+          {
+            "id": "soil_hydro",
+            "label": "\ud83c\udf31 Soil/hybrid"
+          }
+        ]
+      },
+      "outgoingEdgeId": "size"
+    },
+    {
+      "id": "size",
+      "type": "choice",
+      "content": {
+        "type": "text",
+        "text": "Setup size?",
+        "choices": [
+          {
+            "id": "small",
+            "label": "Small (1-10 plants)"
+          },
+          {
+            "id": "medium",
+            "label": "Medium (10-50 plants)"
+          },
+          {
+            "id": "large",
+            "label": "Large (50+)"
+          }
+        ]
+      },
+      "outgoingEdgeId": "budget"
+    },
+    {
+      "id": "budget",
+      "type": "choice",
+      "content": {
+        "type": "text",
+        "text": "Budget?",
+        "choices": [
+          {
+            "id": "low",
+            "label": "Under $100"
+          },
+          {
+            "id": "mid",
+            "label": "$100-500"
+          },
+          {
+            "id": "high",
+            "label": "$500+"
+          }
+        ]
+      },
+      "outgoingEdgeId": "goal"
+    },
+    {
+      "id": "goal",
+      "type": "choice",
+      "content": {
+        "type": "text",
+        "text": "Primary goal?",
+        "choices": [
+          {
+            "id": "yield",
+            "label": "Max yield"
+          },
+          {
+            "id": "quality",
+            "label": "Quality/flavor"
+          },
+          {
+            "id": "efficiency",
+            "label": "Efficiency/easy"
+          }
+        ]
+      },
+      "outgoingEdgeId": "rec"
+    },
+    {
+      "id": "rec",
+      "type": "text",
+      "content": {
+        "type": "text",
+        "text": "Based on your setup:\n\n\ud83c\udfca DWC + Medium + $100-500 + Max yield:\n\u2192 A-X PRO 2ml/L + PK-X 2ml/L\n\u2192 CATALYX Starter Bundle: $89.99\n\n\ud83d\udca1 Pro tip: Check pH weekly, keep 18-22\u00b0C\n\nShop now: catalyxlabs.shop\n\nWant a personalised plan? Drop your email!"
+      },
+      "outgoingEdgeId": "email_capture"
+    },
+    {
+      "id": "email_capture",
+      "type": "email",
+      "content": {
+        "type": "text",
+        "text": "Email for your personalised feeding plan:"
+      },
+      "outgoingEdgeId": "thank_you"
+    },
+    {
+      "id": "thank_you",
+      "type": "text",
+      "content": {
+        "type": "text",
+        "text": "\u2705 Plan sent! Check your email.\n\nHappy growing! \ud83c\udf31\nCATALYX Labs \u2014 catalyxlabs.shop"
+      },
+      "outgoingEdgeId": "end"
+    },
+    {
+      "id": "end",
+      "type": "endChat",
+      "content": {
+        "type": "text",
+        "text": "Thanks!"
+      }
+    }
+  ],
+  "variables": [],
+  "edges": []
+}

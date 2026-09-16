@@ -17,6 +17,7 @@ import smtplib
 import ssl
 import subprocess
 from email.message import EmailMessage
+from execution_gate import require_external_release
 
 SMTP_HOST = "smtp.gmail.com"
 SMTP_PORT = 587
@@ -37,6 +38,7 @@ def _keychain_app_pw() -> str | None:
 
 def send_email(to: str, subject: str, body: str, sender_name: str = SENDER_NAME,
                app_pw: str | None = None) -> dict:
+    require_external_release()
     app_pw = app_pw or os.environ.get("CATALYX_GMAIL_APP_PW") or _keychain_app_pw()
     if not app_pw:
         raise RuntimeError("CATALYX Gmail app password not found (Keychain/env)")

@@ -63,8 +63,10 @@ def check_ssl(host):
         days = (exp - datetime.datetime.utcnow()).days
         return {"valid": True, "expires": exp.date().isoformat(), "days_left": days,
                 "issuer": dict(x[0] for x in c.get("issuer", [])).get("organizationName", "?")}
+    except ssl.SSLCertVerificationError as e:
+        return {"valid": False, "error": f"{type(e).__name__}: {e}", "classification": "NEEDS_CONFIRMATION"}
     except Exception as e:
-        return {"valid": False, "error": f"{type(e).__name__}: {e}"}
+        return {"valid": None, "error": f"{type(e).__name__}: {e}", "classification": "NEEDS_CONFIRMATION"}
 
 
 def score_out(out):
@@ -96,10 +98,8 @@ def detect(url):
     # --- HTTPS / SSL ---
     s = check_ssl(host)
     out["signals"]["ssl"] = s
-    if not s["valid"]:
-        defect("NO_VALID_HTTPS", "critical",
-               "Site does not present a valid HTTPS certificate.",
-               f"TLS handshake to {host}:443 failed — {s['error']}")
+    if s["valid"] is not True:
+        out["errors"].append({"check":"tls", "error":s.get('error'), "classification":"NEEDS_CONFIRMATION"})
     elif s["days_left"] < 0:
         defect("SSL_EXPIRED", "critical", "SSL certificate has expired.",
                f"notAfter={s['expires']} ({abs(s['days_left'])} days ago)")
@@ -112,9 +112,7 @@ def detect(url):
     if not r["ok"] and url.startswith("https://"):
         r2 = fetch("http://" + host)
         if r2["ok"]:
-            defect("HTTPS_UNREACHABLE_HTTP_ONLY", "critical",
-                   "Site only loads over insecure HTTP; browsers will warn visitors.",
-                   f"https failed ({r['error']}), http returned {r2['status']}")
+            out['errors'].append({'check':'https_fetch','error':r['error'],'http_status':r2['status'],'classification':'NEEDS_CONFIRMATION'})
             r = r2
     if not r["ok"]:
         out["errors"].append({"check": "page_fetch", "error": r["error"]})
@@ -160,7 +158,7 @@ def detect(url):
         out["signals"]["copyright_year"] = newest
         if newest <= now_y - 2:
             defect("STALE_COPYRIGHT", "medium",
-                   f"Copyright notice says {newest} — site looks abandoned to visitors.",
+                   f"Copyright notice in captured HTML says {newest}; current maintenance status is unknown.",
                    f"footer copyright year {newest}, current year {now_y}")
 
     # --- contact paths ---
@@ -178,15 +176,14 @@ def detect(url):
                    "Homepage shows no phone, email or form — visitors must click through to a "
                    "contact page to reach the business.",
                    f"no <form>/tel:/mailto: on homepage; separate contact page found "
-                   f"({contact_page.group(1)[:60]}). Extra click = lost enquiries, but the business "
-                   f"IS contactable — do not claim otherwise.")
+                   f"({contact_page.group(1)[:60]}). The effect on enquiries is unmeasured.")
         else:
             defect("NO_CONTACT_METHOD", "critical",
                    "No form, phone number, email address or contact page found.",
                    "zero <form>, tel:, mailto:, NZ phone pattern, or contact-page link")
     elif not has_form and not mail:
         defect("NO_WRITTEN_CONTACT", "medium",
-               "No contact form or email address — phone only.",
+               "No form or mailto link found in homepage HTML; written contact on other pages is untested.",
                "no <form> and no mailto: on homepage")
 
     # --- page weight / speed proxy ---
@@ -211,8 +208,10 @@ def detect(url):
     broken = []
     for u in links:
         rr = fetch(u)
-        if not rr["ok"] and (rr["status"] is None or rr["status"] >= 400):
+        if not rr["ok"] and rr["status"] in (404,410):
             broken.append({"url": u, "result": rr.get("error")})
+        elif not rr['ok']:
+            out['errors'].append({'check':'internal_link','url':u,'error':rr.get('error'),'classification':'NEEDS_CONFIRMATION'})
     out["signals"]["links_sampled"] = len(links)
     out["signals"]["links_broken"] = len(broken)
     if broken:

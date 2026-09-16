@@ -1,0 +1,111 @@
+RISE RESIDENTIAL — CALCULATOR AUDIT + UPSELL EMAIL
+====================================================
+
+AUDIT FINDINGS
+---------------
+
+Business: Rise Residential Ltd
+Owner: Ben (owner-operator — "Ben and his team")
+Site: riseresidential.co.nz
+Email: ben@riseresidential.co.nz
+Phone: 027 540 0996
+Location: Christchurch / Selwyn / Waimakariri, NZ
+Credentials: Master Builders Association member, Master Build Guarantee, LBP registered
+Reviews: 26 Google reviews, strong testimonials (Minna Wilson, Carly Flowers, Samantha Samuel, etc.)
+Services: New builds, extensions, bathroom/kitchen renovations, architectural services, property maintenance
+
+(1) What does the calculator do — inputs, outputs, how does it work?
+
+From /cost-calculator/:
+
+The page is a HOUSE EXTENSION COST CALCULATOR. It's positioned as "ballpark cost for those who are just doing a bit of research" — explicitly a rough estimator, not a quote tool.
+
+The key mechanics (from the page content):
+- Costs are based on "average Christchurch renovation and extension costs on past completed projects"
+- Price range: $3,000–$5,000 per square metre for extensions, depending on complexity, materials, size, room type, how much of existing house is affected, site requirements
+- There's a note: "each house is unique... this calculator generates rough estimates and should not be used as a quote"
+- For an accurate estimate: "please contact us today"
+
+The form itself (from the page: "Where to send the results? Please fill in your details below and your results will be sent straight to your email inbox"):
+- The calculator produces a result and asks for email to send it
+- So the form DOES capture an email address (lead capture — that's good)
+- Results go to the user's email inbox
+
+So the calculator:
+- Takes inputs (extension size, type, complexity — though the exact input fields aren't all visible in the extracted content, the per-sqm pricing model implies size is the key input)
+- Outputs a ballpark estimate ($3,000–$5,000/sqm range)
+- Emails the result to the user (captures email = lead capture)
+- Explicitly says "this is not a quote — contact us for an accurate estimate"
+
+(2) Does it capture leads (email)?
+YES — the form asks for email to send results. That's lead capture. Good start.
+
+(3) Does it book consultations?
+NO. The form captures email and sends the estimate, but there's no booking calendar, no "book a consultation" step, no calendar integration. After the user gets the estimate via email, they're told to "use the enquiry form on our contact page" or "contact us today" — back to a manual enquiry form.
+
+So the flow is:
+calculator → email result → user reads it → user goes to contact page → fills enquiry form OR calls → someone responds → meeting booked manually
+
+There's a gap between "here's your ballpark" and "let's book a consultation to talk about your project."
+
+(4) What's missing — lead capture, booking, follow-up, nurture?
+
+What they HAVE:
+- A calculator that captures email (lead capture ✅)
+- A contact page with an enquiry form
+- Phone + email contact
+
+What's MISSING:
+- **Booking**: No online calendar to book a consultation. After the calculator result, the next step is manual — fill a form or call.
+- **Follow-up**: No indication of automated follow-up. If someone uses the calculator but doesn't convert, is there a nurture sequence? Doesn't look like it.
+- **Lead qualification**: The calculator captures email but doesn't qualify the lead (budget range, timeline, project scope beyond the estimate). A $50K extension vs a $200K extension are very different leads.
+- **Nurture**: No evidence of automated email sequences for people who use the calculator but don't book.
+- **Quote conversion**: The calculator says "this is not a quote" — which is honest, but the path from "rough estimate via email" to "actual quote" is a manual handoff. A smoother flow would let the user take the next step without leaving the flow.
+- **Consultation booking**: The biggest gap. After someone gets their ballpark estimate, the natural next step is "book a consultation to talk about my project." Currently that's a separate form or a phone call.
+
+(5) Contact info:
+- Email: ben@riseresidential.co.nz
+- Phone: 027 540 0996
+- Contact page: /contact-us (has a contact form)
+- Owner: Ben (owner-operator, appears in all reviews as the point of contact)
+
+The angle:
+They already built a calculator. They understand the value of giving prospects a ballpark number upfront. They've put thought into it ($3,000–$5,000/sqm, Christchurch-specific, based on past projects). The calculator captures emails. But it stops at "here's your email with a rough number — now go fill out a contact form or call us."
+
+That's a half-built lead machine. The calculator does the top-of-funnel work (attracts researchers, captures emails) but the middle and bottom of the funnel (booking a consultation, qualifying the lead, follow-up, quote conversion) are all manual.
+
+This is an UPSELL, not cold outreach. They already get it. The pitch is: "you've built the calculator — let's finish the machine. Turn it into a lead capture + booking + follow-up system that actually books jobs."
+
+
+DRAFT UPSELL EMAIL
+------------------
+
+SUBJECT: your extension calculator — one step away from booking the consultation
+
+Hi Ben,
+
+I was on riseresidential.co.nz and tried your house extension cost calculator — good move, by the way. Giving people a ballpark upfront is exactly what converts researchers into enquiries.
+
+I noticed the calculator does one thing really well (captures email and sends the estimate), and then stops. After someone gets their ballpark, they're sent back to the contact form or told to call. There's no booking step in between.
+
+A few things that would turn that calculator from a lead-capture tool into a job-booker:
+
+1. **Book the consultation from the results page.** After someone gets their estimate, the natural next step is "talk to someone about my project." A calendar on that results page — pick a time for a free consultation — would book jobs that currently go nowhere.
+
+2. **Qualify the lead at the calculator.** Right now it captures email but not much else. Adding a couple of fields (timeline, budget range, project type) would tell you which leads are serious before you ever talk to them.
+
+3. **Follow-up the non-converters.** People who use the calculator but don't book — they're warm. An automated 3-4 email sequence over the next couple of weeks ("here's a recent extension we did similar to yours," "book your consultation," etc.) would catch the ones who weren't ready yet.
+
+4. **Turn the estimate into a real quote path.** The calculator says "this is not a quote — contact us." That's honest. But a smoother path — "here's your ballpark, and here's what a proper quote looks like and how to get one" — would reduce the drop-off between estimate and enquiry.
+
+The calculator already does the hard part (gets people interested and captures their email). It's just missing the booking and follow-up layer that turns those leads into projects.
+
+Happy to have a quick look at the calculator flow and suggest specific changes — no pitch, just practical advice from how other builders are using this kind of tooling.
+
+Give me a call on 027 540 0996 or reply to this email if it's worth a look.
+
+Cheers,
+Dion Lammas
+CATALYX Labs
+catalyxlabs.shop
+02904556680

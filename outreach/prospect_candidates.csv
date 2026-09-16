@@ -1,0 +1,10 @@
+business_name,website_url,region,industry,source_url,email,defects,ratified
+www.whiteandtaylor.co.nz,https://www.whiteandtaylor.co.nz,NZ,services,www.whiteandtaylor.co.nz,,"STALE_COPYRIGHT, HEAVY_HTML",False
+www.bcplumbers.co.nz,https://www.bcplumbers.co.nz,NZ,services,www.bcplumbers.co.nz,,"STALE_COPYRIGHT, BROKEN_LINKS",False
+www.clyne-bennie.co.nz,https://www.clyne-bennie.co.nz,Nelson Tasman,services,www.clyne-bennie.co.nz,service@clyne-bennie.co.nz,"NO_WRITTEN_CONTACT, HEAVY_HTML",True
+www.jcconstruction.co.nz,https://www.jcconstruction.co.nz,Christchurch,services,www.jcconstruction.co.nz,jason@jcconstruction.co.nz,HEAVY_HTML,True
+www.tbir.co.nz,https://www.tbir.co.nz,Christchurch,services,www.tbir.co.nz,tbirgrass@gmail.com,HEAVY_HTML,True
+www.greenscapes.co.nz,https://www.greenscapes.co.nz,NZ,services,www.greenscapes.co.nz,,"STALE_COPYRIGHT, HEAVY_HTML",False
+dyerdecorating.co.nz,dyerdecorating.co.nz,NZ,services,dyerdecorating.co.nz,,"NO_WRITTEN_CONTACT, HEAVY_HTML, NO_SOCIAL_LINKS",False
+prodecorators.co.nz,prodecorators.co.nz,Christchurch,services,prodecorators.co.nz,contact@prodecorators.co.nz,"NO_WRITTEN_CONTACT, HEAVY_HTML",True
+www.davidrobertson.co.nz,https://www.davidrobertson.co.nz,Unknown,services,www.davidrobertson.co.nz,enquiries@davidrobertson.co.nz,"NO_CONTACT_ON_HOMEPAGE, BROKEN_LINKS, NO_SOCIAL_LINKS",True

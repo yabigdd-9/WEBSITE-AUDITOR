@@ -1,0 +1,61 @@
+<!-- CATALYX Exit-Intent Popup -->
+<div id="catalyx-popup" style="display:none; position:fixed; bottom:20px; right:20px; z-index:9999; 
+  background:#1a1a2e; color:#fff; border-radius:16px; padding:24px; width:380px; 
+  box-shadow:0 8px 32px rgba(0,0,0,0.3); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  animation:slideUp 0.4s ease-out;">
+  <button onclick="document.getElementById('catalyx-popup').style.display='none'" 
+    style="background:none; border:none; color:#aaa; font-size:20px; cursor:pointer; position:absolute; top:8px; right:12px;">×</button>
+  <h3 style="margin:0 0 8px; font-size:20px; color:#00d4a3;">Wait! Get 10% off your first order</h3>
+  <p style="margin:0 0 16px; font-size:14px; color:#ccc; line-height:1.4;">NZ plant nutrition experts. Free shipping over $50.</p>
+  <input type="email" id="catalyx-email" placeholder="Your email address" 
+    style="width:100%; padding:12px; border-radius:8px; border:1px solid #444; background:#2a2a4e; color:#fff; 
+    font-size:14px; margin-bottom:10px; box-sizing:border-box;">
+  <button onclick="catalyxSubmit()" 
+    style="width:100%; padding:14px; border-radius:8px; border:none; background:#00d4a3; color:#1a1a2e; 
+    font-size:16px; font-weight:bold; cursor:pointer;">Get 10% Off</button>
+  <p style="margin:10px 0 0; font-size:11px; color:#888; text-align:center;">One-time use. Min. purchase $30. Expires in 7 days.</p>
+</div>
+
+<!-- Bundle Carousel -->
+<div id="catalyx-bundles" style="display:none; position:fixed; bottom:20px; right:20px; z-index:9998;
+  background:#fff; color:#1a1a2e; border-radius:16px; padding:20px; width:360px; max-height:80vh; overflow-y:auto;
+  box-shadow:0 8px 32px rgba(0,0,0,0.2); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <h3 style="margin:0 0 12px; font-size:18px;">🔥 CATALYX Bundles</h3>
+  <div style="background:#f5f5f5; border-radius:10px; padding:12px; margin-bottom:8px;"><strong>Starter</strong> — $89.99 <span style="color:#00d4a3;">(save $10)</span><br><span style="font-size:11px; color:#666;">A-X PRO 250mL + MICRO-X 250mL + PK-X 250mL</span></div><div style="background:#f5f5f5; border-radius:10px; padding:12px; margin-bottom:8px;"><strong>Enhancement</strong> — $139.99 <span style="color:#00d4a3;">(save $20)</span><br><span style="font-size:11px; color:#666;">A-X PRO 1L + MICRO-X 250mL + PK-X 250mL + FLUSH-X 250mL</span></div><div style="background:#f5f5f5; border-radius:10px; padding:12px; margin-bottom:8px;"><strong>Performance</strong> — $179.99 <span style="color:#00d4a3;">(save $30)</span><br><span style="font-size:11px; color:#666;">A-X PRO 1L + B-X PRO 1L + MICRO-X 250mL + PK-X 250mL + TRACE-X 250mL</span></div><div style="background:#f5f5f5; border-radius:10px; padding:12px; margin-bottom:8px;"><strong>Control</strong> — $169.99 <span style="color:#00d4a3;">(save $25)</span><br><span style="font-size:11px; color:#666;">A-X PRO 1L + MICRO-X 250mL + PK-X 250mL + RIPEN-X 250mL + FLUSH-X 250mL</span></div><div style="background:#f5f5f5; border-radius:10px; padding:12px; margin-bottom:8px;"><strong>Pro</strong> — $299.99 <span style="color:#00d4a3;">(save $80)</span><br><span style="font-size:11px; color:#666;">A-X PRO 1L + B-X PRO 1L + MICRO-X 250mL + PK-X 250mL + TRACE-X 250mL + ROOT-X 250mL + VITAL-X 250mL + RIPEN-X 250mL + FLUSH-X 250mL</span></div>
+  <button onclick="document.getElementById('catalyx-bundles').style.display='none'" 
+    style="width:100%; padding:10px; border-radius:8px; border:none; background:#1a1a2e; color:#fff; 
+    cursor:pointer; font-size:14px;">Close</button>
+</div>
+
+<style>
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+</style>
+
+<script>
+// Exit-intent detection
+document.addEventListener('mouseout', function(e) {
+  if (e.clientY < 50) {
+    document.getElementById('catalyx-popup').style.display = 'block';
+  }
+});
+
+function catalyxSubmit() {
+  var email = document.getElementById('catalyx-email').value;
+  if (email && email.includes('@')) {
+    // TODO: Connect to Mailchimp/Klaviyo or CATALYX email list
+    console.log('Email captured:', email);
+    document.getElementById('catalyx-popup').style.display = 'none';
+    alert('Thanks! Check your email for the discount code.');
+  } else {
+    alert('Please enter a valid email.');
+  }
+}
+
+// Show bundles after 30 seconds
+setTimeout(function() {
+  document.getElementById('catalyx-bundles').style.display = 'block';
+}, 30000);
+</script>

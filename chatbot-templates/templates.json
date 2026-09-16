@@ -1,0 +1,74 @@
+[
+  {
+    "name": "grow-shop-nutrient-advisor",
+    "title": "Nutrient Advisor Bot — NZ Grow Shops",
+    "platform": "ManyChat / Typebot",
+    "description": "Chatbot that recommends nutrients based on crop, growth stage, and setup type. Captures email for follow-up.",
+    "flow": [
+      "Welcome: 'What are you growing?'",
+      "Crop selection → tomato, pepper, leafy, herbs, flowers",
+      "Growth stage → seedling, veg, flower, harvest",
+      "Setup type → hydro, soil, coco",
+      "Recommendation → CATALYX product + dose",
+      "CTA → 'Get your free feeding plan' (email capture)",
+      "Follow-up → 3-day email sequence with dosing tips"
+    ],
+    "monetization": "Affiliate commission on CATALYX sales + $200/mo retainer from grow shop",
+    "setup_time": "2-3 hours",
+    "revenue_potential": "$200-500/mo per bot"
+  },
+  {
+    "name": "garden-centre-plant-advisor",
+    "title": "Plant Advisor Bot — Garden Centres",
+    "platform": "ManyChat / Typebot",
+    "description": "Bot that helps customers choose plants based on location, sun exposure, and skill level.",
+    "flow": [
+      "Welcome: 'What are you planting?'",
+      "Location → NZ region",
+      "Sun exposure → full sun, partial, shade",
+      "Skill level → beginner, intermediate, advanced",
+      "Recommendation → plant type + care tips",
+      "CTA → 'Check availability at our store' (drives foot traffic)",
+      "Follow-up → care guide email sequence"
+    ],
+    "monetization": "Drive in-store sales + $150/mo retainer from garden centre",
+    "setup_time": "2 hours",
+    "revenue_potential": "$150-400/mo per bot"
+  },
+  {
+    "name": "trades-website-audit-bot",
+    "title": "Website Audit Bot — Trades Businesses",
+    "platform": "ManyChat / Typebot",
+    "description": "Bot that offers free website audit for trades businesses. Captures lead, runs audit, sends report.",
+    "flow": [
+      "Welcome: 'Want a free website audit?'",
+      "Email capture",
+      "Auto-audit: check contact page, load speed, mobile-friendliness",
+      "Send report with defects + fix recommendations",
+      "CTA → 'Book a call to fix it' (upsell)",
+      "Follow-up → 7-day email sequence with case studies"
+    ],
+    "monetization": "$300-500 per audit + $200/mo maintenance retainer",
+    "setup_time": "3-4 hours",
+    "revenue_potential": "$500-1000/mo per bot"
+  },
+  {
+    "name": "hydro-shop-product-advisor",
+    "title": "Hydro Product Advisor Bot — Hydro Shops",
+    "platform": "ManyChat / Typebot",
+    "description": "Bot that recommends hydroponic products based on setup size, budget, and goals.",
+    "flow": [
+      "Welcome: 'What's your setup?'",
+      "Setup type → DWC, NFT, drip, soil",
+      "Size → small, medium, large",
+      "Budget → under $100, $100-500, $500+",
+      "Goal → yield, quality, efficiency",
+      "Recommendation → products + pricing",
+      "CTA → 'Shop now' (affiliate link) or 'Visit store'",
+      "Follow-up → product comparison email"
+    ],
+    "monetization": "Affiliate commission + $150/mo retainer from hydro shop",
+    "setup_time": "2-3 hours",
+    "revenue_potential": "$150-400/mo per bot"
+  }
+]

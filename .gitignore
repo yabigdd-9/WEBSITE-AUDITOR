@@ -9,6 +9,9 @@ dist/
 
 # Virtual environments
 venv/
+.venv*/
+backups/
+WEBSITES/BUISNESSaudits/runs/
 
 # Secrets / credentials (NEVER track)
 .env
@@ -19,3 +22,5 @@ id_rsa.*
 service-account*.json
 *credentials*
 *secret*
+
+/.venv-email
