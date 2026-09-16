@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lead Board — CATALYX Labs</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, sans-serif; background: #0d1117; color: #c9d1d9; padding: 2em; }
+h1 { color: #58a6ff; margin-bottom: 0.2em; }
+.meta { color: #8b949e; margin-bottom: 2em; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1em; margin-bottom: 2em; }
+.stat { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1em; text-align: center; }
+.stat-val { font-size: 1.8em; font-weight: bold; }
+.stat-label { font-size: 0.75em; color: #8b949e; }
+.hot { color: #FF1A1A; }
+.warm { color: #FF8A00; }
+.nurture { color: #EFFF00; }
+.cold { color: #8b949e; }
+table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+th, td { padding: 12px; text-align: left; border-bottom: 1px solid #21262d; vertical-align: top; }
+th { background: #161b22; color: #8b949e; font-size: 0.8em; text-transform: uppercase; }
+tr:hover { background: #161b22; }
+.domain { font-weight: 600; color: #58a6ff; }
+.name { font-size: 0.8em; color: #8b949e; }
+.score-pill { display: inline-block; padding: 4px 10px; border-radius: 12px; font-weight: bold; color: #0d1117; font-size: 0.9em; }
+.tier-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.75em; font-weight: bold; }
+.tier-badge.hot { background: #FF1A1A; color: #fff; }
+.tier-badge.warm { background: #FF8A00; color: #fff; }
+.tier-badge.nurture { background: #EFFF00; color: #1a1a2e; }
+.tier-badge.cold { background: #30363d; color: #8b949e; }
+.action { font-size: 0.85em; color: #58a6ff; font-weight: 600; }
+.defect-count { font-weight: bold; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.7em; margin: 1px 0; }
+.badge.urgency { background: #FF1A1A33; color: #FF1A1A; }
+.badge.contact { background: #00D4A333; color: #00D4A3; }
+.emails { font-family: monospace; font-size: 0.85em; }
+.phone { font-size: 0.85em; color: #00D4A3; }
+</style>
+</head>
+<body>
+<h1>📊 Lead Scoring Board</h1>
+<p class="meta">Generated: 2026-09-16 17:42 | 6 leads scored</p>
+
+<div class="stats">
+    <div class="stat"><div class="stat-val hot">0</div><div class="stat-label">🔥 HOT (Call Today)</div></div>
+    <div class="stat"><div class="stat-val warm">2</div><div class="stat-label">⚡ WARM (This Week)</div></div>
+    <div class="stat"><div class="stat-val nurture">0</div><div class="stat-label">🌱 NURTURE (Email)</div></div>
+    <div class="stat"><div class="stat-val cold">4</div><div class="stat-label">❄️ COLD (Low Prio)</div></div>
+</div>
+
+<table>
+<thead>
+<tr>
+    <th>#</th>
+    <th>Prospect</th>
+    <th>Score</th>
+    <th>Tier</th>
+    <th>Action</th>
+    <th>Health</th>
+    <th>Key Signals</th>
+    <th>Contact</th>
+</tr>
+</thead>
+<tbody>
+    
+        <tr>
+            <td><strong>#1</strong></td>
+            <td>
+                <div class="domain">clyne-bennie.co.nz</div>
+                <div class="name">clyne-bennie.co.nz</div>
+            </td>
+            <td>
+                <div class="score-pill" style="background:#FF8A00">
+                    55.5
+                </div>
+            </td>
+            <td><span class="tier-badge warm">⚡ WARM</span></td>
+            <td><span class="action">CALL THIS WEEK</span></td>
+            <td>
+                <div class="defect-count">32/100</div>
+                <small>5 defects</small>
+            </td>
+            <td><span class="badge urgency">🟠 Broken links</span> <span class="badge contact">📧 service.cbnt@clyne-bennie.co.nz</span> </td>
+            <td>
+                <div class="emails">service.cbnt@clyne-bennie.co.nz<br>service@clyne-bennie.co.nz</div>
+                
+            </td>
+        </tr>
+        <tr>
+            <td><strong>#2</strong></td>
+            <td>
+                <div class="domain">prodecorators.co.nz</div>
+                <div class="name">prodecorators.co.nz</div>
+            </td>
+            <td>
+                <div class="score-pill" style="background:#FF8A00">
+                    52.3
+                </div>
+            </td>
+            <td><span class="tier-badge warm">⚡ WARM</span></td>
+            <td><span class="action">CALL THIS WEEK</span></td>
+            <td>
+                <div class="defect-count">37/100</div>
+                <small>6 defects</small>
+            </td>
+            <td><span class="badge urgency">🟠 Broken links</span> <span class="badge contact">📧 contact@prodecorators.co.nz</span> </td>
+            <td>
+                <div class="emails">contact@prodecorators.co.nz</div>
+                
+            </td>
+        </tr>
+        <tr>
+            <td><strong>#3</strong></td>
+            <td>
+                <div class="domain">www.clyne-bennie.co.nz</div>
+                <div class="name">clyne-bennie.co.nz</div>
+            </td>
+            <td>
+                <div class="score-pill" style="background:#8b949e">
+                    20.4
+                </div>
+            </td>
+            <td><span class="tier-badge cold">❄️ COLD</span></td>
+            <td><span class="action">LOW PRIORITY</span></td>
+            <td>
+                <div class="defect-count">30/100</div>
+                <small>3 defects</small>
+            </td>
+            <td><span class="badge urgency">🔴 No contact form</span> <span class="badge urgency">🟠 Broken links</span> </td>
+            <td>
+                <div class="emails"></div>
+                
+            </td>
+        </tr>
+        <tr>
+            <td><strong>#4</strong></td>
+            <td>
+                <div class="domain">www.davidrobertson.co.nz</div>
+                <div class="name">davidrobertson.co.nz</div>
+            </td>
+            <td>
+                <div class="score-pill" style="background:#8b949e">
+                    17.6
+                </div>
+            </td>
+            <td><span class="tier-badge cold">❄️ COLD</span></td>
+            <td><span class="action">LOW PRIORITY</span></td>
+            <td>
+                <div class="defect-count">35/100</div>
+                <small>3 defects</small>
+            </td>
+            <td><span class="badge urgency">🔴 No contact form</span> </td>
+            <td>
+                <div class="emails"></div>
+                
+            </td>
+        </tr>
+        <tr>
+            <td><strong>#5</strong></td>
+            <td>
+                <div class="domain">www.jcconstruction.co.nz</div>
+                <div class="name">jcconstruction.co.nz</div>
+            </td>
+            <td>
+                <div class="score-pill" style="background:#8b949e">
+                    16.2
+                </div>
+            </td>
+            <td><span class="tier-badge cold">❄️ COLD</span></td>
+            <td><span class="action">LOW PRIORITY</span></td>
+            <td>
+                <div class="defect-count">45/100</div>
+                <small>4 defects</small>
+            </td>
+            <td><span class="badge urgency">🔴 No contact form</span> </td>
+            <td>
+                <div class="emails"></div>
+                
+            </td>
+        </tr>
+        <tr>
+            <td><strong>#6</strong></td>
+            <td>
+                <div class="domain">www.tbir.co.nz</div>
+                <div class="name">tbir.co.nz</div>
+            </td>
+            <td>
+                <div class="score-pill" style="background:#8b949e">
+                    13.5
+                </div>
+            </td>
+            <td><span class="tier-badge cold">❄️ COLD</span></td>
+            <td><span class="action">LOW PRIORITY</span></td>
+            <td>
+                <div class="defect-count">45/100</div>
+                <small>4 defects</small>
+            </td>
+            <td><span class="badge urgency">🔴 No contact form</span> </td>
+            <td>
+                <div class="emails"></div>
+                
+            </td>
+        </tr>
+</tbody>
+</table>
+
+<p style="margin-top:2em; color:#8b949e; font-size:0.8em">
+    Scoring: urgency 35% + revenue 25% + accessibility 25% + awareness 15%, weighted by industry
+</p>
+</body>
+</html>
