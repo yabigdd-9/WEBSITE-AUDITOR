@@ -1,0 +1,87 @@
+{
+  "total_sites": 6,
+  "average_score": 36.7,
+  "sites": [
+    {
+      "domain": "clyne-bennie.co.nz",
+      "score": 30,
+      "defects": 3,
+      "timestamp": "2026-09-16T13:09:10.707681",
+      "url": "https://clyne-bennie.co.nz"
+    },
+    {
+      "domain": "www.clyne-bennie.co.nz",
+      "score": 30,
+      "defects": 3,
+      "timestamp": "2026-09-16T13:09:59.178592",
+      "url": "https://www.clyne-bennie.co.nz"
+    },
+    {
+      "domain": "prodecorators.co.nz",
+      "score": 35,
+      "defects": 3,
+      "timestamp": "2026-09-16T13:11:02.395964",
+      "url": "https://prodecorators.co.nz"
+    },
+    {
+      "domain": "www.davidrobertson.co.nz",
+      "score": 35,
+      "defects": 3,
+      "timestamp": "2026-09-16T13:11:26.706759",
+      "url": "https://www.davidrobertson.co.nz"
+    },
+    {
+      "domain": "www.jcconstruction.co.nz",
+      "score": 45,
+      "defects": 4,
+      "timestamp": "2026-09-16T13:10:29.330150",
+      "url": "https://www.jcconstruction.co.nz"
+    },
+    {
+      "domain": "www.tbir.co.nz",
+      "score": 45,
+      "defects": 4,
+      "timestamp": "2026-09-16T13:10:45.835912",
+      "url": "https://www.tbir.co.nz"
+    }
+  ],
+  "top_defects": [
+    {
+      "defect": "No contact form",
+      "count": 6
+    },
+    {
+      "defect": "Missing page title",
+      "count": 4
+    },
+    {
+      "defect": "1 broken link(s) detected",
+      "count": 2
+    },
+    {
+      "defect": "135 HTML markup error(s)",
+      "count": 2
+    },
+    {
+      "defect": "Missing meta description",
+      "count": 2
+    },
+    {
+      "defect": "836 HTML markup error(s)",
+      "count": 1
+    },
+    {
+      "defect": "969 HTML markup error(s)",
+      "count": 1
+    },
+    {
+      "defect": "976 HTML markup error(s)",
+      "count": 1
+    },
+    {
+      "defect": "419 HTML markup error(s)",
+      "count": 1
+    }
+  ],
+  "generated": "2026-09-16T17:14:31.144019"
+}
