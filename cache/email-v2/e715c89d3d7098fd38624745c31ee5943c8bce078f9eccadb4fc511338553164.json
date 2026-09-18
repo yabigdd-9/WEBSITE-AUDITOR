@@ -1,0 +1,50 @@
+{
+  "pages": [
+    {
+      "url": "https://www.baheatpumps.co.nz/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:02:58.872947+00:00",
+      "sha256": "7eee376414a710105c101056f7c46fc8bae27a0325419e0c89401fabfa036639",
+      "requested_url": "https://www.baheatpumps.co.nz/",
+      "path": "cache/email-v2/7eee376414a710105c101056f7c46fc8bae27a0325419e0c89401fabfa036639.capture"
+    },
+    {
+      "url": "https://www.baheatpumps.co.nz/contact-us/",
+      "redirects": [
+        {
+          "from": "https://www.baheatpumps.co.nz/contact-us",
+          "to": "https://www.baheatpumps.co.nz/contact-us/",
+          "status": 301
+        }
+      ],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:03:00.144211+00:00",
+      "sha256": "228a29f202f2cfa6798dc75310186f42c00c46a85fa8793b321a1b1440ff6b9d",
+      "requested_url": "https://www.baheatpumps.co.nz/contact-us",
+      "path": "cache/email-v2/228a29f202f2cfa6798dc75310186f42c00c46a85fa8793b321a1b1440ff6b9d.capture"
+    },
+    {
+      "url": "https://www.baheatpumps.co.nz/about/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:03:02.201247+00:00",
+      "sha256": "f5af9815781b64bd14621fe270de0ea37ac2520421dd5408d0db7485160073c8",
+      "requested_url": "https://www.baheatpumps.co.nz/about/",
+      "path": "cache/email-v2/f5af9815781b64bd14621fe270de0ea37ac2520421dd5408d0db7485160073c8.capture"
+    }
+  ],
+  "errors": [],
+  "pending": [],
+  "requests": 6,
+  "started_at": "2026-09-18T16:02:58.120650+00:00",
+  "complete": true,
+  "attempts": {
+    "https://www.baheatpumps.co.nz/": 1,
+    "https://www.baheatpumps.co.nz/contact-us": 1,
+    "https://www.baheatpumps.co.nz/contact-us/": 1,
+    "https://www.baheatpumps.co.nz/about/": 1,
+    "https://www.baheatpumps.co.nz/sitemap.xml": 1,
+    "https://www.baheatpumps.co.nz/about": 1
+  }
+}

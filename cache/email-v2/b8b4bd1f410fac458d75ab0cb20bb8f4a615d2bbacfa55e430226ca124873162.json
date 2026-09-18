@@ -1,0 +1,42 @@
+{
+  "pages": [
+    {
+      "url": "https://newzealandheatpumps.co.nz/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:03:49.274060+00:00",
+      "sha256": "9f5ddf735821a75f012f95629da2d6d781077f9d8c0fb2591085b036edafd935",
+      "requested_url": "https://newzealandheatpumps.co.nz/",
+      "path": "cache/email-v2/9f5ddf735821a75f012f95629da2d6d781077f9d8c0fb2591085b036edafd935.capture"
+    },
+    {
+      "url": "https://newzealandheatpumps.co.nz/contact/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:03:52.376792+00:00",
+      "sha256": "eddeebeb99a301c04d8e500a54f10f7c2ce72c08dc4d0623936cd744b1ad6a40",
+      "requested_url": "https://newzealandheatpumps.co.nz/contact/",
+      "path": "cache/email-v2/eddeebeb99a301c04d8e500a54f10f7c2ce72c08dc4d0623936cd744b1ad6a40.capture"
+    },
+    {
+      "url": "https://newzealandheatpumps.co.nz/about-us/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:04:14.729073+00:00",
+      "sha256": "618dc01cf636d31d4ccb0731a51f71e5d84fc32edc5bc67807b1ef1f9196b133",
+      "requested_url": "https://newzealandheatpumps.co.nz/about-us/",
+      "path": "cache/email-v2/618dc01cf636d31d4ccb0731a51f71e5d84fc32edc5bc67807b1ef1f9196b133.capture"
+    }
+  ],
+  "errors": [],
+  "pending": [],
+  "requests": 4,
+  "started_at": "2026-09-18T16:03:48.796230+00:00",
+  "complete": true,
+  "attempts": {
+    "https://newzealandheatpumps.co.nz/": 1,
+    "https://newzealandheatpumps.co.nz/contact/": 1,
+    "https://newzealandheatpumps.co.nz/about-us/": 1,
+    "https://newzealandheatpumps.co.nz/sitemap.xml": 1
+  }
+}

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This sitemap was dynamically generated on September 18, 2026 at 4:03 pm by All in One SEO v4.8.7 - the original SEO plugin for WordPress. -->
+
+<?xml-stylesheet type="text/xsl" href="https://kiwiheatpumps.co.nz/default-sitemap.xsl?sitemap=root"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+	<sitemap>
+		<loc><![CDATA[https://kiwiheatpumps.co.nz/post-sitemap.xml]]></loc>
+		<lastmod><![CDATA[2025-11-05T21:16:03+00:00]]></lastmod>
+	</sitemap>
+	<sitemap>
+		<loc><![CDATA[https://kiwiheatpumps.co.nz/page-sitemap.xml]]></loc>
+		<lastmod><![CDATA[2025-10-11T10:05:50+00:00]]></lastmod>
+	</sitemap>
+	<sitemap>
+		<loc><![CDATA[https://kiwiheatpumps.co.nz/attachment-sitemap.xml]]></loc>
+		<lastmod><![CDATA[2025-11-05T21:15:34+00:00]]></lastmod>
+	</sitemap>
+	<sitemap>
+		<loc><![CDATA[https://kiwiheatpumps.co.nz/product-sitemap.xml]]></loc>
+		<lastmod><![CDATA[2025-04-23T20:18:25+00:00]]></lastmod>
+	</sitemap>
+	<sitemap>
+		<loc><![CDATA[https://kiwiheatpumps.co.nz/modalpopupbox-sitemap.xml]]></loc>
+		<lastmod><![CDATA[2025-03-28T07:17:15+00:00]]></lastmod>
+	</sitemap>
+	<sitemap>
+		<loc><![CDATA[https://kiwiheatpumps.co.nz/post-archive-sitemap.xml]]></loc>
+		<lastmod><![CDATA[2025-03-28T07:17:15+00:00]]></lastmod>
+	</sitemap>
+	<sitemap>
+		<loc><![CDATA[https://kiwiheatpumps.co.nz/product_cat-sitemap.xml]]></loc>
+		<lastmod><![CDATA[2025-04-23T20:18:25+00:00]]></lastmod>
+	</sitemap>
+</sitemapindex>

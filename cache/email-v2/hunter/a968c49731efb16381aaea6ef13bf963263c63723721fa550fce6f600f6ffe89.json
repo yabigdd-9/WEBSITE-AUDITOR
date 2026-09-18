@@ -1,0 +1,29 @@
+{
+  "domain": "chchrenovations.nz",
+  "emails": [
+    {
+      "value": "hello@chchrenovations.nz",
+      "type": "generic",
+      "confidence": 80,
+      "sources": [
+        "https://chchrenovations.nz/contact"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": "support",
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    }
+  ],
+  "total": 0,
+  "limit": 10,
+  "offset": 0,
+  "cached_at": "2026-09-18T16:04:37.880182+00:00",
+  "from_cache": false
+}

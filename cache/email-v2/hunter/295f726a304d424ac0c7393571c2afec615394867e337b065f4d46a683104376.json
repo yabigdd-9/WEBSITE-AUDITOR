@@ -1,0 +1,81 @@
+{
+  "domain": "aes.nz",
+  "emails": [
+    {
+      "value": "sales@aes.nz",
+      "type": "generic",
+      "confidence": 84,
+      "sources": [
+        "https://aucklandenergysolutions.co.nz",
+        "https://moneyhub.co.nz/heat-pumps-auckland.html",
+        "https://uniq.specialist.se/0hs3l/47b702-mitsubishi-heat-pump-remote-nz",
+        "https://babyshow.co.nz/past-shows/auckland-2023/partners/aes-auckland-energy-solutions",
+        "https://babyshow.co.nz/past-shows/auckland-2021/partners/aes-auckland-energy-solutions",
+        "https://aucklandhomeshow.co.nz/exhibitor/auckland-energy-solutions",
+        "https://aesheatpumps.co.nz/wifi-control",
+        "https://aesheatpumps.co.nz/bedroom-heat-pumps",
+        "https://aesheatpumps.co.nz/lounge-heat-pumps",
+        "https://aesheatpumps.co.nz/panasonic-aero-vkr-heat-pump",
+        "https://aesheatpumps.co.nz/whole-house-central-heating",
+        "https://babyshow.co.nz/whats-on/auckland-2023/partners/aes-auckland-energy-solutions"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": "sales",
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    },
+    {
+      "value": "happy@aes.nz",
+      "type": "personal",
+      "confidence": 63,
+      "sources": [
+        "https://aucklandhomeshow.co.nz/show-specials",
+        "https://aesheatpumps.co.nz/09-836-0133",
+        "https://aesheatpumps.co.nz/09-575-1191",
+        "https://aesheatpumps.co.nz/fujitsu-comfort-series-hi-wall-heat-pump"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": null,
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    },
+    {
+      "value": "office@aes.nz",
+      "type": "generic",
+      "confidence": 10,
+      "sources": [
+        "https://masterelectricians.org.nz/find-a-master-electrician"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": null,
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    }
+  ],
+  "total": 0,
+  "limit": 10,
+  "offset": 0,
+  "cached_at": "2026-09-18T16:03:16.989389+00:00",
+  "from_cache": false
+}

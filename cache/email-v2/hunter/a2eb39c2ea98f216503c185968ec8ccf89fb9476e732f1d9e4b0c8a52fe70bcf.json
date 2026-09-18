@@ -1,0 +1,60 @@
+{
+  "domain": "newzealandheatpumps.co.nz",
+  "emails": [
+    {
+      "value": "info@newzealandheatpumps.co.nz",
+      "type": "generic",
+      "confidence": 78,
+      "sources": [
+        "https://newzealandheatpumps.co.nz/christchurch",
+        "https://newzealandheatpumps.co.nz/christchurch.html",
+        "https://yellow.co.nz/y/new-zealand-air-sydenham",
+        "https://newzealandheatpumps.co.nz/aircon-systems/ask-us-about-zone-control-for-your-ducted-heat-pump.html",
+        "https://newzealandheatpumps.co.nz/contact.html",
+        "https://newzealandheatpumps.co.nz/hot-water.html",
+        "https://yellow.co.nz/y/new-zealand-heat-sydenham",
+        "https://yellow.co.nz/new-zealand/heat-pumps",
+        "https://grabone.co.nz/wellington/new-zealand-heat-pumps-11",
+        "https://yellow.co.nz/dallington/installers-services",
+        "https://yellow.co.nz/west-auckland/mitsubishi",
+        "https://grabone.co.nz/waikato/new-zealand-heat-pumps-9",
+        "https://grabone.co.nz/auckland/new-zealand-heat-pumps-8"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": "support",
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    },
+    {
+      "value": "admin@newzealandheatpumps.co.nz",
+      "type": "generic",
+      "confidence": 75,
+      "sources": [
+        "https://newzealandheatpumps.co.nz/jobs"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": "it",
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    }
+  ],
+  "total": 0,
+  "limit": 10,
+  "offset": 0,
+  "cached_at": "2026-09-18T16:04:16.990609+00:00",
+  "from_cache": false
+}

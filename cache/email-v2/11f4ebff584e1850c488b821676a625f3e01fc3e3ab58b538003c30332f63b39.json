@@ -1,0 +1,33 @@
+{
+  "pages": [
+    {
+      "url": "https://www.kitchenstudio.co.nz/",
+      "redirects": [
+        {
+          "from": "https://kitchenstudio.co.nz/",
+          "to": "http://www.kitchenstudio.co.nz/",
+          "status": 301
+        },
+        {
+          "from": "http://www.kitchenstudio.co.nz/",
+          "to": "https://www.kitchenstudio.co.nz/",
+          "status": 301
+        }
+      ],
+      "content_type": "text/html; charset=utf-8",
+      "captured_at": "2026-09-18T16:05:07.314506+00:00",
+      "sha256": "3b49b20d888b6e29dbeecdaafe19ea1ae12cf2b31cbe41974700f26118c1a3a3",
+      "requested_url": "https://kitchenstudio.co.nz",
+      "path": "cache/email-v2/3b49b20d888b6e29dbeecdaafe19ea1ae12cf2b31cbe41974700f26118c1a3a3.capture"
+    }
+  ],
+  "errors": [],
+  "pending": [],
+  "requests": 2,
+  "started_at": "2026-09-18T16:05:06.026116+00:00",
+  "complete": true,
+  "attempts": {
+    "https://kitchenstudio.co.nz": 1,
+    "https://www.kitchenstudio.co.nz/sitemap.xml": 1
+  }
+}

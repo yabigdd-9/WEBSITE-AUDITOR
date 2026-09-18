@@ -1,0 +1,42 @@
+{
+  "pages": [
+    {
+      "url": "https://trident.nz/heat-pumps",
+      "redirects": [],
+      "content_type": "text/html; charset=utf-8",
+      "captured_at": "2026-09-18T16:02:23.693515+00:00",
+      "sha256": "68bf5d5994f27337b2ff15ba85e306bf482298c76740214ffde01a9615d28873",
+      "requested_url": "https://trident.nz/heat-pumps",
+      "path": "cache/email-v2/68bf5d5994f27337b2ff15ba85e306bf482298c76740214ffde01a9615d28873.capture"
+    },
+    {
+      "url": "https://trident.nz/contact",
+      "redirects": [],
+      "content_type": "text/html; charset=utf-8",
+      "captured_at": "2026-09-18T16:02:26.245770+00:00",
+      "sha256": "63099eeaad7625c5af92f68d320c5ae9d501b9add2051a8f8c88f1fa30118f47",
+      "requested_url": "https://trident.nz/contact",
+      "path": "cache/email-v2/63099eeaad7625c5af92f68d320c5ae9d501b9add2051a8f8c88f1fa30118f47.capture"
+    },
+    {
+      "url": "https://trident.nz/about",
+      "redirects": [],
+      "content_type": "text/html; charset=utf-8",
+      "captured_at": "2026-09-18T16:02:27.612245+00:00",
+      "sha256": "9e2867b22255b8f048167cba705dcc87b7ef903f80debe3798571dbd55e7437e",
+      "requested_url": "https://trident.nz/about",
+      "path": "cache/email-v2/9e2867b22255b8f048167cba705dcc87b7ef903f80debe3798571dbd55e7437e.capture"
+    }
+  ],
+  "errors": [],
+  "pending": [],
+  "requests": 4,
+  "started_at": "2026-09-18T16:02:22.830169+00:00",
+  "complete": true,
+  "attempts": {
+    "https://trident.nz/heat-pumps": 1,
+    "https://trident.nz/contact": 1,
+    "https://trident.nz/about": 1,
+    "https://trident.nz/sitemap.xml": 1
+  }
+}

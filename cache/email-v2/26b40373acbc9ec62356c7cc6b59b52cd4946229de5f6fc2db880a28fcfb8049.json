@@ -1,0 +1,43 @@
+{
+  "pages": [
+    {
+      "url": "https://bestnestbuilding.co.nz/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:05:09.884715+00:00",
+      "sha256": "3896c6bbb7cb08e4879da0892050dda22a2288531eda388acb60e63d6c4b0291",
+      "requested_url": "https://bestnestbuilding.co.nz/",
+      "path": "cache/email-v2/3896c6bbb7cb08e4879da0892050dda22a2288531eda388acb60e63d6c4b0291.capture"
+    },
+    {
+      "url": "https://bestnestbuilding.co.nz/contact-us/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:05:12.946156+00:00",
+      "sha256": "bdf80c2941b988e12ef5acedffdf371229c7826229cf71cef3f0f84d32983dd5",
+      "requested_url": "https://bestnestbuilding.co.nz/contact-us/",
+      "path": "cache/email-v2/bdf80c2941b988e12ef5acedffdf371229c7826229cf71cef3f0f84d32983dd5.capture"
+    },
+    {
+      "url": "https://bestnestbuilding.co.nz/about/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:05:17.285254+00:00",
+      "sha256": "3ce9a0cb2ee3d8fe5495135d6a0b8423278b58a146c74d1b6cc20525b1ba6f3a",
+      "requested_url": "https://bestnestbuilding.co.nz/about/",
+      "path": "cache/email-v2/3ce9a0cb2ee3d8fe5495135d6a0b8423278b58a146c74d1b6cc20525b1ba6f3a.capture"
+    }
+  ],
+  "errors": [],
+  "pending": [],
+  "requests": 5,
+  "started_at": "2026-09-18T16:05:09.000131+00:00",
+  "complete": true,
+  "attempts": {
+    "https://bestnestbuilding.co.nz/": 1,
+    "https://bestnestbuilding.co.nz/contact-us/": 1,
+    "https://bestnestbuilding.co.nz/index.php/contact-us/": 1,
+    "https://bestnestbuilding.co.nz/about/": 1,
+    "https://bestnestbuilding.co.nz/sitemap.xml": 1
+  }
+}

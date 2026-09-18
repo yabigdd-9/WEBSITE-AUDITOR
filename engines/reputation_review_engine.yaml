@@ -8,28 +8,9 @@ source_engines:
 - ME-0393
 category: reputation
 automation_tier: needs_integration
-viability_gate: RESOLVED 2026-08-18 — PARTIAL. Unanswered-review auto-detection is NOT lawfully
-  automatable (Places API returns max 5 reviews and PlaceReview has no owner-reply field, verified
-  directly on Google docs; GBP API is owner-scoped; Maps scraping barred by Terms 3.2.3(a)).
-  Engine re-scoped to a Reputation Completeness & Visible-Sentiment Scanner. See
-  outputs/VIABILITY_DECISION_ACTIVE_2.md
-reserve_engines_promoted:
-- ME-0274 Competitor Review Velocity Monitor (93/100, recurring NZ$99-999/month)
-- ME-0327 Website Content Freshness Monitor (93/100, recurring NZ$99-999/month)
-hard_constraints:
-- Never state or imply a business has not responded to reviews unless a human has viewed the
-  public profile and confirmed it.
-- Every snapshot must disclose its evidence basis and the 5-review API ceiling.
-- No Google Maps scraping under any circumstances.
-detectable_signals_lawful:
-- low review volume vs local peers (user_ratings_total)
-- low aggregate rating (rating)
-- recent visible 1-2 star review (reviews_sort=newest, within 5 returned)
-- profile completeness gaps (missing website/phone/hours/photos)
-not_detectable_at_scale:
-- owner response rate
-- unanswered review count
-- full review history
+viability_gate: 'BLOCKED pending Researcher #2 verdict on lawful review-data access at scale. If Google
+  Places/GBP access is closed, substitute ME-0274 Competitor Review Velocity Monitor (score 93) or ME-0327
+  Website Content Freshness Monitor (93).'
 pricing:
   setup:
   - 149
@@ -101,9 +82,9 @@ delivery:
   - pricing_commitment
   - publishing
   sender_identity:
-    email: team.catalyxlabs@gmail.com
+    email: yabigdd@gmail.com
     phone: 02904556680
-    signoff: CATALYX Labs
+    signoff: Dion
 daily_targets:
   candidates_researched:
   - 60

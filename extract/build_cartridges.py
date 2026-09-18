@@ -4,7 +4,7 @@ hermes-business-exception-engine 6-agent runtime schema."""
 import json, yaml
 from pathlib import Path
 
-OUT = Path("/Users/defaultaccount/HERMES_MONEY_ENGINE")
+OUT = Path("/Users/dd/WEBSITE-AUDITOR")
 ENG = OUT / "engines"
 ENG.mkdir(parents=True, exist_ok=True)
 db = {r["engine_id"]: r for r in json.load(open(OUT / "db/master_opportunity_database.json"))}

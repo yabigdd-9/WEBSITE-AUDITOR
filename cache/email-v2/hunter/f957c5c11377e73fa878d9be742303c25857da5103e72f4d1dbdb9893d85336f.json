@@ -1,0 +1,40 @@
+{
+  "domain": "riseresidential.co.nz",
+  "emails": [
+    {
+      "value": "ben@riseresidential.co.nz",
+      "type": "personal",
+      "confidence": 85,
+      "sources": [
+        "https://bizidex.com/en/rise-residential-architects-planners-391664",
+        "https://riseresidential.co.nz/about-us",
+        "https://riseresidential.co.nz/about-us/our-easy-as-building-process",
+        "https://riseresidential.co.nz/building-services-christchurch/extensions",
+        "https://riseresidential.co.nz/building-services-christchurch/renovation/laundry",
+        "https://riseresidential.co.nz/about-us/renovation-design-new-builds-our-five-point-promise-guarantee",
+        "https://instructorsnearme.com/listings/rise-residential",
+        "https://localbusinesslisting.org/listings/5207",
+        "https://localbusinesslisting.org/listings/4859",
+        "https://localbusinesslisting.org/category/builders",
+        "https://localbusinesslisting.org",
+        "https://localbusinesslisting.org/listings/8"
+      ],
+      "first_name": "Ben",
+      "last_name": "Caleb",
+      "position": null,
+      "department": null,
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    }
+  ],
+  "total": 0,
+  "limit": 10,
+  "offset": 0,
+  "cached_at": "2026-09-18T16:06:00.061268+00:00",
+  "from_cache": false
+}

@@ -1,0 +1,47 @@
+{
+  "pages": [
+    {
+      "url": "https://alphaheatpumps.co.nz/",
+      "redirects": [],
+      "content_type": "text/html; charset=utf-8",
+      "captured_at": "2026-09-18T16:05:26.785477+00:00",
+      "sha256": "0d9205c83fbb8f55b54e9210a7fc7ce0e2f9cba3f0f4b5500ccdd02483c12f1c",
+      "requested_url": "https://alphaheatpumps.co.nz",
+      "path": "cache/email-v2/0d9205c83fbb8f55b54e9210a7fc7ce0e2f9cba3f0f4b5500ccdd02483c12f1c.capture"
+    },
+    {
+      "url": "https://alphaheatpumps.co.nz/contact",
+      "redirects": [],
+      "content_type": "text/html; charset=utf-8",
+      "captured_at": "2026-09-18T16:05:27.767703+00:00",
+      "sha256": "ed09b3601b92e88016867844296ff8e998742a0f5c8a594c9068681ffe26b351",
+      "requested_url": "https://alphaheatpumps.co.nz/contact",
+      "path": "cache/email-v2/ed09b3601b92e88016867844296ff8e998742a0f5c8a594c9068681ffe26b351.capture"
+    },
+    {
+      "url": "https://alphaheatpumps.co.nz/about",
+      "redirects": [],
+      "content_type": "text/html;charset=utf-8",
+      "captured_at": "2026-09-18T16:05:29.919256+00:00",
+      "sha256": "c1d463638708784832f85d754246e47d3f04aa5244d82311ee71b865f39b5016",
+      "requested_url": "https://alphaheatpumps.co.nz/about",
+      "path": "cache/email-v2/c1d463638708784832f85d754246e47d3f04aa5244d82311ee71b865f39b5016.capture"
+    }
+  ],
+  "errors": [
+    {
+      "url": "https://alphaheatpumps.co.nz/sitemap.xml",
+      "reason": "ParseError: no element found: line 1, column 0"
+    }
+  ],
+  "pending": [],
+  "requests": 4,
+  "started_at": "2026-09-18T16:05:25.602657+00:00",
+  "complete": true,
+  "attempts": {
+    "https://alphaheatpumps.co.nz": 1,
+    "https://alphaheatpumps.co.nz/contact": 1,
+    "https://alphaheatpumps.co.nz/about": 1,
+    "https://alphaheatpumps.co.nz/sitemap.xml": 1
+  }
+}

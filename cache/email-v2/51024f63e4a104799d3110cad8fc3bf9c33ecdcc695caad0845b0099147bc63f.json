@@ -1,0 +1,75 @@
+{
+  "pages": [
+    {
+      "url": "https://www.atlelectrical.co.nz/heat-pumps",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:02:33.340711+00:00",
+      "sha256": "7f977e1aea2640a3b82ad02f9647905f8f04fb3f65593396cc2bae27f3bc1f3d",
+      "requested_url": "https://www.atlelectrical.co.nz/heat-pumps",
+      "path": "cache/email-v2/7f977e1aea2640a3b82ad02f9647905f8f04fb3f65593396cc2bae27f3bc1f3d.capture"
+    },
+    {
+      "url": "https://www.atlelectrical.co.nz/contact",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:02:35.972538+00:00",
+      "sha256": "702e42baf87472f06f7f0f6cdf43d75181bbba4639f7c3b2c8287697000eb83e",
+      "requested_url": "https://www.atlelectrical.co.nz/contact",
+      "path": "cache/email-v2/702e42baf87472f06f7f0f6cdf43d75181bbba4639f7c3b2c8287697000eb83e.capture"
+    },
+    {
+      "url": "https://www.atlelectrical.co.nz/contact-your-security-expert",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:02:40.650297+00:00",
+      "sha256": "538dbf29c366e9fc01b1a9a73c1570b043f62e6b047accfc3a22553ce8b173f1",
+      "requested_url": "https://www.atlelectrical.co.nz/contact-your-security-expert",
+      "path": "cache/email-v2/538dbf29c366e9fc01b1a9a73c1570b043f62e6b047accfc3a22553ce8b173f1.capture"
+    },
+    {
+      "url": "https://www.atlelectrical.co.nz/about",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:02:43.504321+00:00",
+      "sha256": "4ea224e305376281bbe0295bd6edef6223822d383e9fe495a85ef26e8d02b9ae",
+      "requested_url": "https://www.atlelectrical.co.nz/about",
+      "path": "cache/email-v2/4ea224e305376281bbe0295bd6edef6223822d383e9fe495a85ef26e8d02b9ae.capture"
+    },
+    {
+      "url": "https://www.atlelectrical.co.nz/locations",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:02:45.432647+00:00",
+      "sha256": "f853a62a9db9c33730803a0dc3ed4915a97ed7706646252edc4a77af340ab3ba",
+      "requested_url": "https://www.atlelectrical.co.nz/locations",
+      "path": "cache/email-v2/f853a62a9db9c33730803a0dc3ed4915a97ed7706646252edc4a77af340ab3ba.capture"
+    }
+  ],
+  "errors": [],
+  "pending": [
+    "https://www.atlelectrical.co.nz/sitemap.xml",
+    "https://www.atlelectrical.co.nz/contact-atl-beam-distributor",
+    "https://www.atlelectrical.co.nz/contact-your-security-expert",
+    "https://www.atlelectrical.co.nz/contact-your-security-expert",
+    "https://www.atlelectrical.co.nz/solar-contact",
+    "https://www.atlelectrical.co.nz/about",
+    "https://www.atlelectrical.co.nz/about",
+    "https://www.atlelectrical.co.nz/locations",
+    "https://www.atlelectrical.co.nz/locations",
+    "https://www.atlelectrical.co.nz/about",
+    "https://www.atlelectrical.co.nz/about",
+    "https://www.atlelectrical.co.nz/locations",
+    "https://www.atlelectrical.co.nz/locations"
+  ],
+  "requests": 5,
+  "started_at": "2026-09-18T16:02:30.934812+00:00",
+  "complete": true,
+  "attempts": {
+    "https://www.atlelectrical.co.nz/heat-pumps": 1,
+    "https://www.atlelectrical.co.nz/contact": 1,
+    "https://www.atlelectrical.co.nz/contact-your-security-expert": 1,
+    "https://www.atlelectrical.co.nz/about": 1,
+    "https://www.atlelectrical.co.nz/locations": 1
+  }
+}

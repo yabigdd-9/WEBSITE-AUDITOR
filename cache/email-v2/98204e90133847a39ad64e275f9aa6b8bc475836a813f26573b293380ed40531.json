@@ -1,0 +1,120 @@
+{
+  "pages": [
+    {
+      "url": "https://www.energysmart.co.nz/",
+      "redirects": [
+        {
+          "from": "https://energysmart.co.nz/",
+          "to": "https://www.energysmart.co.nz/",
+          "status": 301
+        }
+      ],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:05:34.364999+00:00",
+      "sha256": "8a7d5002f40a864615e77dbaa4c8fbeb529dc72d197b64d27970d30252bcb3e8",
+      "requested_url": "https://energysmart.co.nz",
+      "path": "cache/email-v2/8a7d5002f40a864615e77dbaa4c8fbeb529dc72d197b64d27970d30252bcb3e8.capture"
+    },
+    {
+      "url": "https://www.energysmart.co.nz/contact-us",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:05:35.017660+00:00",
+      "sha256": "cf1e38130e560c9919ed07026b4b3feb7a8403ce3e2886d13437613358781cac",
+      "requested_url": "https://www.energysmart.co.nz/contact-us",
+      "path": "cache/email-v2/cf1e38130e560c9919ed07026b4b3feb7a8403ce3e2886d13437613358781cac.capture"
+    },
+    {
+      "url": "https://www.energysmart.co.nz/contact-us/auckland",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:05:35.637782+00:00",
+      "sha256": "b1116f1aa972f457c1f0d5f3d41f8c26923364f14cebed9010a82d496507f98f",
+      "requested_url": "https://www.energysmart.co.nz/contact-us/auckland",
+      "path": "cache/email-v2/b1116f1aa972f457c1f0d5f3d41f8c26923364f14cebed9010a82d496507f98f.capture"
+    },
+    {
+      "url": "https://www.energysmart.co.nz/contact-us/christchurch-canterbury/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:05:36.757706+00:00",
+      "sha256": "ff68d1713ef2b4b650b3713dd957c469ea5370d3436256169e8c0322e6fa1a68",
+      "requested_url": "https://www.energysmart.co.nz/contact-us/christchurch-canterbury/",
+      "path": "cache/email-v2/ff68d1713ef2b4b650b3713dd957c469ea5370d3436256169e8c0322e6fa1a68.capture"
+    },
+    {
+      "url": "https://www.energysmart.co.nz/contact-us/hamilton-waikato/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:05:37.744556+00:00",
+      "sha256": "8b2320dbab52f0e0daf3686b83eb34774e550506c6a8d1755e44dd5f83632bba",
+      "requested_url": "https://www.energysmart.co.nz/contact-us/hamilton-waikato/",
+      "path": "cache/email-v2/8b2320dbab52f0e0daf3686b83eb34774e550506c6a8d1755e44dd5f83632bba.capture"
+    }
+  ],
+  "errors": [],
+  "pending": [
+    "https://www.energysmart.co.nz/contact-us/hamilton-waikato/",
+    "https://www.energysmart.co.nz/contact-us/palmerston-north-manawatu-wanganui/",
+    "https://www.energysmart.co.nz/contact-us/palmerston-north-manawatu-wanganui/",
+    "https://www.energysmart.co.nz/contact-us/tauranga-bay-of-plenty",
+    "https://www.energysmart.co.nz/contact-us/tauranga-bay-of-plenty",
+    "https://www.energysmart.co.nz/contact-us/timaru-south-canterbury-and-north-otago/",
+    "https://www.energysmart.co.nz/contact-us/timaru-south-canterbury-and-north-otago/",
+    "https://www.energysmart.co.nz/contact-us/wellington-kapiti/",
+    "https://www.energysmart.co.nz/contact-us/wellington-kapiti/",
+    "https://www.energysmart.co.nz/about-us",
+    "https://www.energysmart.co.nz/about-us/terms-conditions/",
+    "https://www.energysmart.co.nz/sitemap.xml",
+    "https://www.energysmart.co.nz/contact-us/auckland",
+    "https://www.energysmart.co.nz/contact-us/auckland",
+    "https://www.energysmart.co.nz/contact-us/christchurch-canterbury/",
+    "https://www.energysmart.co.nz/contact-us/christchurch-canterbury/",
+    "https://www.energysmart.co.nz/contact-us/hamilton-waikato/",
+    "https://www.energysmart.co.nz/contact-us/hamilton-waikato/",
+    "https://www.energysmart.co.nz/contact-us/palmerston-north-manawatu-wanganui/",
+    "https://www.energysmart.co.nz/contact-us/palmerston-north-manawatu-wanganui/",
+    "https://www.energysmart.co.nz/contact-us/tauranga-bay-of-plenty",
+    "https://www.energysmart.co.nz/contact-us/tauranga-bay-of-plenty",
+    "https://www.energysmart.co.nz/contact-us/timaru-south-canterbury-and-north-otago/",
+    "https://www.energysmart.co.nz/contact-us/timaru-south-canterbury-and-north-otago/",
+    "https://www.energysmart.co.nz/contact-us/wellington-kapiti/",
+    "https://www.energysmart.co.nz/contact-us/wellington-kapiti/",
+    "https://www.energysmart.co.nz/about-us",
+    "https://www.energysmart.co.nz/about-us/terms-conditions/",
+    "https://www.energysmart.co.nz/contact-us/christchurch-canterbury/",
+    "https://www.energysmart.co.nz/contact-us/contact-us",
+    "https://www.energysmart.co.nz/contact-us/hamilton-waikato/",
+    "https://www.energysmart.co.nz/contact-us/palmerston-north-manawatu-wanganui/",
+    "https://www.energysmart.co.nz/contact-us/tauranga-bay-of-plenty",
+    "https://www.energysmart.co.nz/contact-us/timaru-south-canterbury-and-north-otago/",
+    "https://www.energysmart.co.nz/contact-us/wellington-kapiti/",
+    "https://www.energysmart.co.nz/about-us",
+    "https://www.energysmart.co.nz/about-us/terms-conditions/",
+    "https://www.energysmart.co.nz/contact-us/christchurch-canterbury/contact-us",
+    "https://www.energysmart.co.nz/contact-us/hamilton-waikato/",
+    "https://www.energysmart.co.nz/contact-us/palmerston-north-manawatu-wanganui/",
+    "https://www.energysmart.co.nz/contact-us/tauranga-bay-of-plenty",
+    "https://www.energysmart.co.nz/contact-us/timaru-south-canterbury-and-north-otago/",
+    "https://www.energysmart.co.nz/contact-us/wellington-kapiti/",
+    "https://www.energysmart.co.nz/about-us",
+    "https://www.energysmart.co.nz/about-us/terms-conditions/",
+    "https://www.energysmart.co.nz/contact-us/hamilton-waikato/contact-us",
+    "https://www.energysmart.co.nz/contact-us/palmerston-north-manawatu-wanganui/",
+    "https://www.energysmart.co.nz/contact-us/tauranga-bay-of-plenty",
+    "https://www.energysmart.co.nz/contact-us/timaru-south-canterbury-and-north-otago/",
+    "https://www.energysmart.co.nz/contact-us/wellington-kapiti/",
+    "https://www.energysmart.co.nz/about-us",
+    "https://www.energysmart.co.nz/about-us/terms-conditions/"
+  ],
+  "requests": 5,
+  "started_at": "2026-09-18T16:05:33.392348+00:00",
+  "complete": true,
+  "attempts": {
+    "https://energysmart.co.nz": 1,
+    "https://www.energysmart.co.nz/contact-us": 1,
+    "https://www.energysmart.co.nz/contact-us/auckland": 1,
+    "https://www.energysmart.co.nz/contact-us/christchurch-canterbury/": 1,
+    "https://www.energysmart.co.nz/contact-us/hamilton-waikato/": 1
+  }
+}

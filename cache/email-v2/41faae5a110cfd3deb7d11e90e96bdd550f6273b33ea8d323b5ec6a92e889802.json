@@ -1,0 +1,71 @@
+{
+  "pages": [
+    {
+      "url": "https://imperialhvac.co.nz/",
+      "redirects": [],
+      "content_type": "text/html",
+      "captured_at": "2026-09-18T16:03:31.209295+00:00",
+      "sha256": "06a0f01709d42032a8f2279b02733e4ff3a9e0f43d49c7602d0ef7746c07203b",
+      "requested_url": "https://imperialhvac.co.nz/",
+      "path": "cache/email-v2/06a0f01709d42032a8f2279b02733e4ff3a9e0f43d49c7602d0ef7746c07203b.capture"
+    },
+    {
+      "url": "https://imperialhvac.co.nz/contact-best-heating-and-cooling-solutions/",
+      "redirects": [],
+      "content_type": "text/html",
+      "captured_at": "2026-09-18T16:03:36.029222+00:00",
+      "sha256": "4154d12746b48c1bf5803c4fb7abf58f9d32e53dd6fdee65a69588c86de14259",
+      "requested_url": "https://imperialhvac.co.nz/contact-best-heating-and-cooling-solutions/",
+      "path": "cache/email-v2/4154d12746b48c1bf5803c4fb7abf58f9d32e53dd6fdee65a69588c86de14259.capture"
+    },
+    {
+      "url": "https://imperialhvac.co.nz/contact-us-2/",
+      "redirects": [],
+      "content_type": "text/html",
+      "captured_at": "2026-09-18T16:03:39.925762+00:00",
+      "sha256": "cd3d29bbfcacd59f8e9cd8ea3c7bbc4ccd14116c406c8839a2422b875815cb11",
+      "requested_url": "https://imperialhvac.co.nz/contact-us-2/",
+      "path": "cache/email-v2/cd3d29bbfcacd59f8e9cd8ea3c7bbc4ccd14116c406c8839a2422b875815cb11.capture"
+    },
+    {
+      "url": "https://imperialhvac.co.nz/services/heat-pump-repair-in-wellington/",
+      "redirects": [],
+      "content_type": "text/html",
+      "captured_at": "2026-09-18T16:03:43.610512+00:00",
+      "sha256": "d606ac11cd24b86487d09e63823a9ec9841c233b6bc6609ef80b53f35989bb9e",
+      "requested_url": "https://imperialhvac.co.nz/services/heat-pump-repair-in-wellington/",
+      "path": "cache/email-v2/d606ac11cd24b86487d09e63823a9ec9841c233b6bc6609ef80b53f35989bb9e.capture"
+    },
+    {
+      "url": "https://imperialhvac.co.nz/services/heat-pump-service-in-wellington/",
+      "redirects": [],
+      "content_type": "text/html",
+      "captured_at": "2026-09-18T16:03:46.778262+00:00",
+      "sha256": "67b17545961a908f090d627de0c56e54b545d4f3e44be3c21b6d8a510d741f27",
+      "requested_url": "https://imperialhvac.co.nz/services/heat-pump-service-in-wellington/",
+      "path": "cache/email-v2/67b17545961a908f090d627de0c56e54b545d4f3e44be3c21b6d8a510d741f27.capture"
+    }
+  ],
+  "errors": [],
+  "pending": [
+    "https://imperialhvac.co.nz/services/ventilation-systems-in-wellington/",
+    "https://imperialhvac.co.nz/sitemap.xml",
+    "https://imperialhvac.co.nz/contact-us-2/",
+    "https://imperialhvac.co.nz/services/heat-pump-installation-in-wellington/",
+    "https://imperialhvac.co.nz/services/heat-pump-repair-in-wellington/",
+    "https://imperialhvac.co.nz/services/heat-pump-repair-in-wellington/",
+    "https://imperialhvac.co.nz/services/heat-pump-repair-in-wellington/",
+    "https://imperialhvac.co.nz/services/heat-pump-service-in-wellington/",
+    "https://imperialhvac.co.nz/services/ventilation-systems-in-wellington/"
+  ],
+  "requests": 5,
+  "started_at": "2026-09-18T16:03:28.279485+00:00",
+  "complete": true,
+  "attempts": {
+    "https://imperialhvac.co.nz/": 1,
+    "https://imperialhvac.co.nz/contact-best-heating-and-cooling-solutions/": 1,
+    "https://imperialhvac.co.nz/contact-us-2/": 1,
+    "https://imperialhvac.co.nz/services/heat-pump-repair-in-wellington/": 1,
+    "https://imperialhvac.co.nz/services/heat-pump-service-in-wellington/": 1
+  }
+}

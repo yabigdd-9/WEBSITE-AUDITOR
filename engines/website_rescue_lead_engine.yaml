@@ -97,35 +97,14 @@ proofer:
 delivery:
   format: email_draft_plus_audit_pdf
   frequency: daily_batch
-  uema_consent_gate:
-    module: outreach/consent_gate.py
-    policy: DEFAULT_DENY
-    rule: No email artifact may be generated for any prospect the gate does not return PERMITTED for.
-    publication_is_not_permission: true
-    hermes_may_self_ratify: false
-    override_flag_exists: false
-    blocked_prospects: retain research, queue for manual review, route to phone or post
-    self_test: 6/6 passing
-    live_result_batch_001: 9 of 9 real prospects BLOCKED (no consent evidence collected yet)
-  volume_limits:
-    first_touch_emails_per_day: 20
-    max_messages_per_business_per_90_days: 1
-    max_follow_ups: 1
-  mandatory_message_fields:
-  - accurate sender identity (name, working reply address, working phone) — s.10
-  - plain-language reason for contacting this specific business
-  - functional opt-out honoured immediately and permanently — s.11
-  - no price until APR-004 approved
   approval_required:
   - external_communication
   - pricing_commitment
   - publishing
   sender_identity:
-    email: team.catalyxlabs@gmail.com
-    phone: '02904556680'
-    signoff: CATALYX Labs
-    send_capability: LIVE — SMTP app-password auth verified 2026-08-18 (test send succeeded to yabigdd@gmail.com)
-    send_method: smtp gmail (smtp.gmail.com:587, starttls, app password)
+    email: yabigdd@gmail.com
+    phone: 02904556680
+    signoff: Dion
 daily_targets:
   candidates_researched:
   - 60

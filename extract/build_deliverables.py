@@ -4,7 +4,7 @@ import json, yaml, datetime, re
 from pathlib import Path
 from collections import Counter
 
-OUT = Path("/Users/defaultaccount/HERMES_MONEY_ENGINE")
+OUT = Path("/Users/dd/WEBSITE-AUDITOR")
 db = json.load(open(OUT / "db/master_opportunity_database.json"))
 NOW = datetime.datetime.now().astimezone().isoformat(timespec="seconds")
 TODAY = datetime.date.today().isoformat()

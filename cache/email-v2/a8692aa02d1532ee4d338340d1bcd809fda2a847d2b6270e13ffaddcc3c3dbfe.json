@@ -1,0 +1,32 @@
+{
+  "pages": [
+    {
+      "url": "https://www.simpsoncc.co.nz/",
+      "redirects": [],
+      "content_type": "text/html; charset=utf-8",
+      "captured_at": "2026-09-18T16:03:17.604158+00:00",
+      "sha256": "0518f362c1513a992678af2da443811f90df584ae43fed43c8e9da970195bcb4",
+      "requested_url": "https://www.simpsoncc.co.nz/",
+      "path": "cache/email-v2/0518f362c1513a992678af2da443811f90df584ae43fed43c8e9da970195bcb4.capture"
+    },
+    {
+      "url": "https://www.simpsoncc.co.nz/about",
+      "redirects": [],
+      "content_type": "text/html; charset=utf-8",
+      "captured_at": "2026-09-18T16:03:18.626667+00:00",
+      "sha256": "c5a18278e887d00fe357b32e336361712ba05ec3ff7f720853385c6f986cd86d",
+      "requested_url": "https://www.simpsoncc.co.nz/about",
+      "path": "cache/email-v2/c5a18278e887d00fe357b32e336361712ba05ec3ff7f720853385c6f986cd86d.capture"
+    }
+  ],
+  "errors": [],
+  "pending": [],
+  "requests": 3,
+  "started_at": "2026-09-18T16:03:17.028288+00:00",
+  "complete": true,
+  "attempts": {
+    "https://www.simpsoncc.co.nz/": 1,
+    "https://www.simpsoncc.co.nz/about": 1,
+    "https://www.simpsoncc.co.nz/sitemap.xml": 1
+  }
+}

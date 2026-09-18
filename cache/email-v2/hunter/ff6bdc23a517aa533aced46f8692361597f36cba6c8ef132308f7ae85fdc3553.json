@@ -1,0 +1,74 @@
+{
+  "domain": "baheatpumps.co.nz",
+  "emails": [
+    {
+      "value": "team@baheatpumps.co.nz",
+      "type": "generic",
+      "confidence": 99,
+      "sources": [
+        "https://windley.school.nz",
+        "https://windley.school.nz/news-and-events/term-dates",
+        "https://windley.school.nz/people/staff/board-of-trustees-13",
+        "https://windley.school.nz/contact-us",
+        "https://windley.school.nz/curriculum",
+        "https://homeandgardenshow.co.nz/directory/listing/ba-heatpumps-ltd"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": "support",
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    },
+    {
+      "value": "quotes@baheatpumps.co.nz",
+      "type": "generic",
+      "confidence": 10,
+      "sources": [
+        "https://baheatpumps.co.nz/contact-us",
+        "https://baheatpumps.co.nz/page/contact-us"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": null,
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    },
+    {
+      "value": "office@baheatpumps.co.nz",
+      "type": "generic",
+      "confidence": 10,
+      "sources": [
+        "https://baheatpumps.co.nz",
+        "https://dailygram.com/index.php/profile-362944"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": null,
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    }
+  ],
+  "total": 0,
+  "limit": 10,
+  "offset": 0,
+  "cached_at": "2026-09-18T15:26:18.284109+00:00",
+  "from_cache": false
+}

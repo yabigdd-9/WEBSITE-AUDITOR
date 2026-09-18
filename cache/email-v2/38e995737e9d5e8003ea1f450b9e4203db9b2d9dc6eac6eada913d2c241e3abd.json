@@ -1,0 +1,42 @@
+{
+  "pages": [
+    {
+      "url": "https://blizzard.co.nz/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:01:57.290491+00:00",
+      "sha256": "a84de6f4791f7d737edee2ac6e81b392081ac27a84bbedddf3ab2a1d024976dd",
+      "requested_url": "https://blizzard.co.nz/",
+      "path": "cache/email-v2/a84de6f4791f7d737edee2ac6e81b392081ac27a84bbedddf3ab2a1d024976dd.capture"
+    },
+    {
+      "url": "https://blizzard.co.nz/contact-us/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:02:00.900640+00:00",
+      "sha256": "773a26ee7cb78cc1acc6f83d983b24f6a33037aa56fa01f072a85e2e0c4f602d",
+      "requested_url": "https://blizzard.co.nz/contact-us/",
+      "path": "cache/email-v2/773a26ee7cb78cc1acc6f83d983b24f6a33037aa56fa01f072a85e2e0c4f602d.capture"
+    },
+    {
+      "url": "https://blizzard.co.nz/about-us/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:02:04.129600+00:00",
+      "sha256": "1a35758b8c5528dbe50239b33bae42b87e24cb8490a906195580866e3e293335",
+      "requested_url": "https://blizzard.co.nz/about-us/",
+      "path": "cache/email-v2/1a35758b8c5528dbe50239b33bae42b87e24cb8490a906195580866e3e293335.capture"
+    }
+  ],
+  "errors": [],
+  "pending": [],
+  "requests": 4,
+  "started_at": "2026-09-18T16:01:54.496590+00:00",
+  "complete": true,
+  "attempts": {
+    "https://blizzard.co.nz/": 1,
+    "https://blizzard.co.nz/contact-us/": 1,
+    "https://blizzard.co.nz/about-us/": 1,
+    "https://blizzard.co.nz/sitemap.xml": 1
+  }
+}

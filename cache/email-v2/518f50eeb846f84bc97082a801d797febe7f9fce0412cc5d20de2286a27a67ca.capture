@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html lang="en-US" class="loading-site no-js">
+<head>
+	<meta charset="UTF-8" />
+<script>
+var gform;gform||(document.addEventListener("gform_main_scripts_loaded",function(){gform.scriptsLoaded=!0}),document.addEventListener("gform/theme/scripts_loaded",function(){gform.themeScriptsLoaded=!0}),window.addEventListener("DOMContentLoaded",function(){gform.domLoaded=!0}),gform={domLoaded:!1,scriptsLoaded:!1,themeScriptsLoaded:!1,isFormEditor:()=>"function"==typeof InitializeEditor,callIfLoaded:function(o){return!(!gform.domLoaded||!gform.scriptsLoaded||!gform.themeScriptsLoaded&&!gform.isFormEditor()||(gform.isFormEditor()&&console.warn("The use of gform.initializeOnLoaded() is deprecated in the form editor context and will be removed in Gravity Forms 3.1."),o(),0))},initializeOnLoaded:function(o){gform.callIfLoaded(o)||(document.addEventListener("gform_main_scripts_loaded",()=>{gform.scriptsLoaded=!0,gform.callIfLoaded(o)}),document.addEventListener("gform/theme/scripts_loaded",()=>{gform.themeScriptsLoaded=!0,gform.callIfLoaded(o)}),window.addEventListener("DOMContentLoaded",()=>{gform.domLoaded=!0,gform.callIfLoaded(o)}))},hooks:{action:{},filter:{}},addAction:function(o,r,e,t){gform.addHook("action",o,r,e,t)},addFilter:function(o,r,e,t){gform.addHook("filter",o,r,e,t)},doAction:function(o){gform.doHook("action",o,arguments)},applyFilters:function(o){return gform.doHook("filter",o,arguments)},removeAction:function(o,r){gform.removeHook("action",o,r)},removeFilter:function(o,r,e){gform.removeHook("filter",o,r,e)},addHook:function(o,r,e,t,n){null==gform.hooks[o][r]&&(gform.hooks[o][r]=[]);var d=gform.hooks[o][r];null==n&&(n=r+"_"+d.length),gform.hooks[o][r].push({tag:n,callable:e,priority:t=null==t?10:t})},doHook:function(r,o,e){var t;if(e=Array.prototype.slice.call(e,1),null!=gform.hooks[r][o]&&((o=gform.hooks[r][o]).sort(function(o,r){return o.priority-r.priority}),o.forEach(function(o){"function"!=typeof(t=o.callable)&&(t=window[t]),"action"==r?t.apply(null,e):e[0]=t.apply(null,e)})),"filter"==r)return e[0]},removeHook:function(o,r,t,n){var e;null!=gform.hooks[o][r]&&(e=(e=gform.hooks[o][r]).filter(function(o,r,e){return!!(null!=n&&n!=o.tag||null!=t&&t!=o.priority)}),gform.hooks[o][r]=e)}});
+</script>
+
+	<link rel="profile" href="http://gmpg.org/xfn/11" />
+	<link rel="pingback" href="https://www.riseresidential.co.nz/xmlrpc.php" />
+
+	<script>(function(html){html.className = html.className.replace(/\bno-js\b/,'js')})(document.documentElement);</script>
+<meta name='robots' content='index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' />
+<meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Google tag (gtag.js) consent mode dataLayer added by Site Kit -->
+<script id="google_gtagjs-js-consent-mode-data-layer">
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}
+gtag('consent', 'default', {"ad_personalization":"denied","ad_storage":"denied","ad_user_data":"denied","analytics_storage":"denied","functionality_storage":"denied","security_storage":"denied","personalization_storage":"denied","region":["AT","BE","BG","CH","CY","CZ","DE","DK","EE","ES","FI","FR","GB","GR","HR","HU","IE","IS","IT","LI","LT","LU","LV","MT","NL","NO","PL","PT","RO","SE","SI","SK"],"wait_for_update":500});
+window._googlesitekitConsentCategoryMap = {"statistics":["analytics_storage"],"marketing":["ad_storage","ad_user_data","ad_personalization"],"functional":["functionality_storage","security_storage"],"preferences":["personalization_storage"]};
+window._googlesitekitConsents = {"ad_personalization":"denied","ad_storage":"denied","ad_user_data":"denied","analytics_storage":"denied","functionality_storage":"denied","security_storage":"denied","personalization_storage":"denied","region":["AT","BE","BG","CH","CY","CZ","DE","DK","EE","ES","FI","FR","GB","GR","HR","HU","IE","IS","IT","LI","LT","LU","LV","MT","NL","NO","PL","PT","RO","SE","SI","SK"],"wait_for_update":500};
+</script>
+<!-- End Google tag (gtag.js) consent mode dataLayer added by Site Kit -->
+
+	<!-- This site is optimized with the Yoast SEO plugin v28.5 - https://yoast.com/product/yoast-seo-wordpress/ -->
+	<title>Contact Us | Rise Residential</title>
+	<meta name="description" content="Reach out to Rise Residential for expert building services in Christchurch, Selwyn, and Waimakariri." />
+	<link rel="canonical" href="https://www.riseresidential.co.nz/contact-us/" />
+	<meta property="og:locale" content="en_US" />
+	<meta property="og:type" content="article" />
+	<meta property="og:title" content="Contact Us | Rise Residential" />
+	<meta property="og:description" content="Reach out to Rise Residential for expert building services in Christchurch, Selwyn, and Waimakariri." />
+	<meta property="og:url" content="https://www.riseresidential.co.nz/contact-us/" />
+	<meta property="og:site_name" content="Rise Residential" />
+	<meta property="article:publisher" content="https://www.facebook.com/RiseResidentialChristchurch/" />
+	<meta property="article:modified_time" content="2025-05-29T00:20:18+00:00" />
+	<meta property="og:image" content="https://www.riseresidential.co.nz/wp-content/uploads/2024/06/RiseResidential-Logo.png" />
+	<meta property="og:image:width" content="200" />
+	<meta property="og:image:height" content="168" />
+	<meta property="og:image:type" content="image/png" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:label1" content="Est. reading time" />
+	<meta name="twitter:data1" content="1 minute" />
+	<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https:\/\/schema.org","@graph":[{"@type":"WebPage","@id":"https:\/\/www.riseresidential.co.nz\/contact-us\/","url":"https:\/\/www.riseresidential.co.nz\/contact-us\/","name":"Contact Us | Rise Residential","isPartOf":{"@id":"https:\/\/www.riseresidential.co.nz\/#website"},"datePublished":"2024-06-03T23:08:24+00:00","dateModified":"2025-05-29T00:20:18+00:00","description":"Reach out to Rise Residential for expert building services in Christchurch, Selwyn, and Waimakariri.","breadcrumb":{"@id":"https:\/\/www.riseresidential.co.nz\/contact-us\/#breadcrumb"},"inLanguage":"en-US","potentialAction":[{"@type":"ReadAction","target":["https:\/\/www.riseresidential.co.nz\/contact-us\/"]}]},{"@type":"BreadcrumbList","@id":"https:\/\/www.riseresidential.co.nz\/contact-us\/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https:\/\/www.riseresidential.co.nz\/"},{"@type":"ListItem","position":2,"name":"Contact Us"}]},{"@type":"WebSite","@id":"https:\/\/www.riseresidential.co.nz\/#website","url":"https:\/\/www.riseresidential.co.nz\/","name":"Rise Residential - Home Builders in Christchurch","description":"Home Builders in Christchurch | Residential Construction Company","publisher":{"@id":"https:\/\/www.riseresidential.co.nz\/#organization"},"potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https:\/\/www.riseresidential.co.nz\/?s={search_term_string}"},"query-input":{"@type":"PropertyValueSpecification","valueRequired":true,"valueName":"search_term_string"}}],"inLanguage":"en-US"},{"@type":["Organization","Place"],"@id":"https:\/\/www.riseresidential.co.nz\/#organization","name":"Rise Residential - Home Builders in Christchurch","url":"https:\/\/www.riseresidential.co.nz\/","logo":{"@id":"https:\/\/www.riseresidential.co.nz\/contact-us\/#local-main-organization-logo"},"image":{"@id":"https:\/\/www.riseresidential.co.nz\/contact-us\/#local-main-organization-logo"},"sameAs":["https:\/\/www.facebook.com\/RiseResidentialChristchurch\/"],"telephone":["027 540 0996"],"contactPoint":{"@type":"ContactPoint","telephone":"027 540 0996"},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"09:00","closes":"17:00"}],"email":"ben@riseresidential.co.nz"},{"@type":"ImageObject","inLanguage":"en-US","@id":"https:\/\/www.riseresidential.co.nz\/contact-us\/#local-main-organization-logo","url":"https:\/\/www.riseresidential.co.nz\/wp-content\/uploads\/2021\/10\/image_2021_10_12T05_40_47_697Z.jpg","contentUrl":"https:\/\/www.riseresidential.co.nz\/wp-content\/uploads\/2021\/10\/image_2021_10_12T05_40_47_697Z.jpg","width":619,"height":480,"caption":"Rise Residential - Home Builders in Christchurch"}]}</script>
+	<meta name="geo.placename" content="Christchurch" />
+	<meta name="geo.region" content="New Zealand" />
+	<!-- / Yoast SEO plugin. -->
+
+
+<link rel='dns-prefetch' href='//challenges.cloudflare.com' />
+<link rel='dns-prefetch' href='//www.googletagmanager.com' />
+<link rel='prefetch' href='https://www.riseresidential.co.nz/wp-content/themes/flatsome/assets/js/flatsome.js?ver=e2eddd6c228105dac048' />
+<link rel='prefetch' href='https://www.riseresidential.co.nz/wp-content/themes/flatsome/assets/js/chunk.slider.js?ver=3.20.10' />
+<link rel='prefetch' href='https://www.riseresidential.co.nz/wp-content/themes/flatsome/assets/js/chunk.popups.js?ver=3.20.10' />
+<link rel='prefetch' href='https://www.riseresidential.co.nz/wp-content/themes/flatsome/assets/js/chunk.tooltips.js?ver=3.20.10' />
+<link rel="alternate" title="oEmbed (JSON)" type="application/json+oembed" href="https://www.riseresidential.co.nz/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.riseresidential.co.nz%2Fcontact-us%2F" />
+<link rel="alternate" title="oEmbed (XML)" type="text/xml+oembed" href="https://www.riseresidential.co.nz/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.riseresidential.co.nz%2Fcontact-us%2F&#038;format=xml" />
+<style id="wp-img-auto-sizes-contain-inline-css">
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+
+<style id="wp-emoji-styles-inline-css">
+
+	img.wp-smiley, img.emoji {
+		display: inline !important;
+		border: none !important;
+		box-shadow: none !important;
+		height: 1em !important;
+		width: 1em !important;
+		margin: 0 0.07em !important;
+		vertical-align: -0.1em !important;
+		background: none !important;
+		padding: 0 !important;
+	}
+/*# sourceURL=wp-emoji-styles-inline-css */
+</style>
+
+<style id="global-styles-inline-css">
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--color--primary: #00aeef;--wp--preset--color--secondary: #0274c7;--wp--preset--color--success: #627D47;--wp--preset--color--alert: #b20000;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}.wp-block-button{--wp--preset--dimension--25: 25%;--wp--preset--dimension--50: 50%;--wp--preset--dimension--75: 75%;--wp--preset--dimension--100: 100%;}:where(body) { margin: 0; }.wp-site-blocks > .alignleft { float: left; margin-right: 2em; }.wp-site-blocks > .alignright { float: right; margin-left: 2em; }.wp-site-blocks > .aligncenter { justify-content: center; margin-left: auto; margin-right: auto; }:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}.is-layout-flow > .alignleft{float: left;margin-inline-start: 0;margin-inline-end: 2em;}.is-layout-flow > .alignright{float: right;margin-inline-start: 2em;margin-inline-end: 0;}.is-layout-flow > .aligncenter{margin-left: auto !important;margin-right: auto !important;}.is-layout-constrained > .alignleft{float: left;margin-inline-start: 0;margin-inline-end: 2em;}.is-layout-constrained > .alignright{float: right;margin-inline-start: 2em;margin-inline-end: 0;}.is-layout-constrained > .aligncenter{margin-left: auto !important;margin-right: auto !important;}.is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)){margin-left: auto !important;margin-right: auto !important;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}body{padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;}a:where(:not(.wp-element-button)){text-decoration: none;}:root :where(.wp-element-button, .wp-block-button__link){background-color: #32373c;border-width: 0;color: #fff;font-family: inherit;font-size: inherit;font-style: inherit;font-weight: inherit;letter-spacing: inherit;line-height: inherit;padding-top: calc(0.667em + 2px);padding-right: calc(1.333em + 2px);padding-bottom: calc(0.667em + 2px);padding-left: calc(1.333em + 2px);text-decoration: none;text-transform: inherit;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-primary-color{color: var(--wp--preset--color--primary) !important;}.has-secondary-color{color: var(--wp--preset--color--secondary) !important;}.has-success-color{color: var(--wp--preset--color--success) !important;}.has-alert-color{color: var(--wp--preset--color--alert) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-primary-background-color{background-color: var(--wp--preset--color--primary) !important;}.has-secondary-background-color{background-color: var(--wp--preset--color--secondary) !important;}.has-success-background-color{background-color: var(--wp--preset--color--success) !important;}.has-alert-background-color{background-color: var(--wp--preset--color--alert) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-primary-border-color{border-color: var(--wp--preset--color--primary) !important;}.has-secondary-border-color{border-color: var(--wp--preset--color--secondary) !important;}.has-success-border-color{border-color: var(--wp--preset--color--success) !important;}.has-alert-border-color{border-color: var(--wp--preset--color--alert) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<link rel='stylesheet' id='bt_cc_style-css' href='https://www.riseresidential.co.nz/wp-content/plugins/bt_cost_calculator/style.min.css?ver=7.1' media='all' />
+<link rel='stylesheet' id='contact-form-7-css' href='https://www.riseresidential.co.nz/wp-content/plugins/contact-form-7/includes/css/styles.css?ver=6.1.7' media='all' />
+<link rel='stylesheet' id='popup-maker-site-css' href='//www.riseresidential.co.nz/wp-content/uploads/pum/pum-site-styles.css?generated=1787864842&#038;ver=1.25.0' media='all' />
+<link rel='stylesheet' id='gravity_forms_theme_reset-css' href='https://www.riseresidential.co.nz/wp-content/plugins/gravityforms/assets/css/dist/gravity-forms-theme-reset.min.css?ver=3.1.1.2' media='all' />
+<link rel='stylesheet' id='gravity_forms_theme_foundation-css' href='https://www.riseresidential.co.nz/wp-content/plugins/gravityforms/assets/css/dist/gravity-forms-theme-foundation.min.css?ver=3.1.1.2' media='all' />
+<link rel='stylesheet' id='gravity_forms_theme_framework-css' href='https://www.riseresidential.co.nz/wp-content/plugins/gravityforms/assets/css/dist/gravity-forms-theme-framework.min.css?ver=3.1.1.2' media='all' />
+<link rel='stylesheet' id='gravity_forms_orbital_theme-css' href='https://www.riseresidential.co.nz/wp-content/plugins/gravityforms/assets/css/dist/gravity-forms-orbital-theme.min.css?ver=3.1.1.2' media='all' />
+<link rel='stylesheet' id='flatsome-main-css' href='https://www.riseresidential.co.nz/wp-content/themes/flatsome/assets/css/flatsome.css?ver=3.20.10' media='all' />
+<style id="flatsome-main-inline-css">
+@font-face {
+				font-family: "fl-icons";
+				font-display: block;
+				src: url(https://www.riseresidential.co.nz/wp-content/themes/flatsome/assets/css/icons/fl-icons.eot?v=3.20.10);
+				src:
+					url(https://www.riseresidential.co.nz/wp-content/themes/flatsome/assets/css/icons/fl-icons.eot#iefix?v=3.20.10) format("embedded-opentype"),
+					url(https://www.riseresidential.co.nz/wp-content/themes/flatsome/assets/css/icons/fl-icons.woff2?v=3.20.10) format("woff2"),
+					url(https://www.riseresidential.co.nz/wp-content/themes/flatsome/assets/css/icons/fl-icons.ttf?v=3.20.10) format("truetype"),
+					url(https://www.riseresidential.co.nz/wp-content/themes/flatsome/assets/css/icons/fl-icons.woff?v=3.20.10) format("woff"),
+					url(https://www.riseresidential.co.nz/wp-content/themes/flatsome/assets/css/icons/fl-icons.svg?v=3.20.10#fl-icons) format("svg");
+			}
+/*# sourceURL=flatsome-main-inline-css */
+</style>
+<script id="jquery-core-js" src="https://www.riseresidential.co.nz/wp-includes/js/jquery/jquery.min.js?ver=3.7.1"></script>
+<script id="jquery-migrate-js" src="https://www.riseresidential.co.nz/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1"></script>
+<script id="btcc_dd-js" src="https://www.riseresidential.co.nz/wp-content/plugins/bt_cost_calculator/jquery.dd.js?ver=7.1"></script>
+<script id="btcc_main-js" src="https://www.riseresidential.co.nz/wp-content/plugins/bt_cost_calculator/cc.main.js?ver=7.1"></script>
+<script id="btcc_main-js-after">
+window.bt_cc_translate = [];window.bt_cc_translate['prev'] = 'Prev';window.bt_cc_translate['next'] = 'Next';window.bt_cc_translate['su'] = 'Su';window.bt_cc_translate['mo'] = 'Mo';window.bt_cc_translate['tu'] = 'Tu';window.bt_cc_translate['we'] = 'We';window.bt_cc_translate['th'] = 'Th';window.bt_cc_translate['fr'] = 'Fr';window.bt_cc_translate['sa'] = 'Sa';window.bt_cc_translate['january'] = 'January';window.bt_cc_translate['february'] = 'February';window.bt_cc_translate['march'] = 'March';window.bt_cc_translate['april'] = 'April';window.bt_cc_translate['may'] = 'May';window.bt_cc_translate['june'] = 'June';window.bt_cc_translate['july'] = 'July';window.bt_cc_translate['august'] = 'August';window.bt_cc_translate['september'] = 'September';window.bt_cc_translate['october'] = 'October';window.bt_cc_translate['november'] = 'November';window.bt_cc_translate['december'] = 'December';
+//# sourceURL=btcc_main-js-after
+</script>
+<script id="gform_json-js" defer='defer' src="https://www.riseresidential.co.nz/wp-content/plugins/gravityforms/js/jquery.json.min.js?ver=3.1.1.2"></script>
+<script id="gform_gravityforms-js-extra">
+var gf_global = {"gf_currency_config":{"name":"U.S. Dollar","symbol_left":"$","symbol_right":"","symbol_padding":"","thousand_separator":",","decimal_separator":".","decimals":2,"code":"USD"},"base_url":"https://www.riseresidential.co.nz/wp-content/plugins/gravityforms","number_formats":[],"version_hash":"c938bf7b80c07bcb75d6cd9974853217","countries":{"AF":"Afghanistan","AX":"\u00c5land Islands","AL":"Albania","DZ":"Algeria","AS":"American Samoa","AD":"Andorra","AO":"Angola","AI":"Anguilla","AQ":"Antarctica","AG":"Antigua and Barbuda","AR":"Argentina","AM":"Armenia","AW":"Aruba","AU":"Australia","AT":"Austria","AZ":"Azerbaijan","BS":"Bahamas","BH":"Bahrain","BD":"Bangladesh","BB":"Barbados","BY":"Belarus","BE":"Belgium","BZ":"Belize","BJ":"Benin","BM":"Bermuda","BT":"Bhutan","BO":"Bolivia","BQ":"Bonaire, Sint Eustatius and Saba","BA":"Bosnia and Herzegovina","BW":"Botswana","BV":"Bouvet Island","BR":"Brazil","IO":"British Indian Ocean Territory","BN":"Brunei Darussalam","BG":"Bulgaria","BF":"Burkina Faso","BI":"Burundi","CV":"Cabo Verde","KH":"Cambodia","CM":"Cameroon","CA":"Canada","KY":"Cayman Islands","CF":"Central African Republic","TD":"Chad","CL":"Chile","CN":"China","CX":"Christmas Island","CC":"Cocos Islands","CO":"Colombia","KM":"Comoros","CD":"Congo, Democratic Republic of the","CG":"Congo","CK":"Cook Islands","CR":"Costa Rica","CI":"C\u00f4te d'Ivoire","HR":"Croatia","CU":"Cuba","CW":"Cura\u00e7ao","CY":"Cyprus","CZ":"Czechia","DK":"Denmark","DJ":"Djibouti","DM":"Dominica","DO":"Dominican Republic","EC":"Ecuador","EG":"Egypt","SV":"El Salvador","GQ":"Equatorial Guinea","ER":"Eritrea","EE":"Estonia","SZ":"Eswatini","ET":"Ethiopia","FK":"Falkland Islands","FO":"Faroe Islands","FJ":"Fiji","FI":"Finland","FR":"France","GF":"French Guiana","PF":"French Polynesia","TF":"French Southern Territories","GA":"Gabon","GM":"Gambia","GE":"Georgia","DE":"Germany","GH":"Ghana","GI":"Gibraltar","GR":"Greece","GL":"Greenland","GD":"Grenada","GP":"Guadeloupe","GU":"Guam","GT":"Guatemala","GG":"Guernsey","GN":"Guinea","GW":"Guinea-Bissau","GY":"Guyana","HT":"Haiti","HM":"Heard Island and McDonald Islands","VA":"Holy See","HN":"Honduras","HK":"Hong Kong","HU":"Hungary","IS":"Iceland","IN":"India","ID":"Indonesia","IR":"Iran","IQ":"Iraq","IE":"Ireland","IM":"Isle of Man","IL":"Israel","IT":"Italy","JM":"Jamaica","JP":"Japan","JE":"Jersey","JO":"Jordan","KZ":"Kazakhstan","KE":"Kenya","KI":"Kiribati","KP":"Korea, Democratic People's Republic of","KR":"Korea, Republic of","KW":"Kuwait","KG":"Kyrgyzstan","LA":"Lao People's Democratic Republic","LV":"Latvia","LB":"Lebanon","LS":"Lesotho","LR":"Liberia","LY":"Libya","LI":"Liechtenstein","LT":"Lithuania","LU":"Luxembourg","MO":"Macao","MG":"Madagascar","MW":"Malawi","MY":"Malaysia","MV":"Maldives","ML":"Mali","MT":"Malta","MH":"Marshall Islands","MQ":"Martinique","MR":"Mauritania","MU":"Mauritius","YT":"Mayotte","MX":"Mexico","FM":"Micronesia","MD":"Moldova","MC":"Monaco","MN":"Mongolia","ME":"Montenegro","MS":"Montserrat","MA":"Morocco","MZ":"Mozambique","MM":"Myanmar","NA":"Namibia","NR":"Nauru","NP":"Nepal","NL":"Netherlands","NC":"New Caledonia","NZ":"New Zealand","NI":"Nicaragua","NE":"Niger","NG":"Nigeria","NU":"Niue","NF":"Norfolk Island","MK":"North Macedonia","MP":"Northern Mariana Islands","NO":"Norway","OM":"Oman","PK":"Pakistan","PW":"Palau","PS":"Palestine, State of","PA":"Panama","PG":"Papua New Guinea","PY":"Paraguay","PE":"Peru","PH":"Philippines","PN":"Pitcairn","PL":"Poland","PT":"Portugal","PR":"Puerto Rico","QA":"Qatar","RE":"R\u00e9union","RO":"Romania","RU":"Russian Federation","RW":"Rwanda","BL":"Saint Barth\u00e9lemy","SH":"Saint Helena, Ascension and Tristan da Cunha","KN":"Saint Kitts and Nevis","LC":"Saint Lucia","MF":"Saint Martin","PM":"Saint Pierre and Miquelon","VC":"Saint Vincent and the Grenadines","WS":"Samoa","SM":"San Marino","ST":"Sao Tome and Principe","SA":"Saudi Arabia","SN":"Senegal","RS":"Serbia","SC":"Seychelles","SL":"Sierra Leone","SG":"Singapore","SX":"Sint Maarten","SK":"Slovakia","SI":"Slovenia","SB":"Solomon Islands","SO":"Somalia","ZA":"South Africa","GS":"South Georgia and the South Sandwich Islands","SS":"South Sudan","ES":"Spain","LK":"Sri Lanka","SD":"Sudan","SR":"Suriname","SJ":"Svalbard and Jan Mayen","SE":"Sweden","CH":"Switzerland","SY":"Syria Arab Republic","TW":"Taiwan","TJ":"Tajikistan","TZ":"Tanzania, the United Republic of","TH":"Thailand","TL":"Timor-Leste","TG":"Togo","TK":"Tokelau","TO":"Tonga","TT":"Trinidad and Tobago","TN":"Tunisia","TR":"T\u00fcrkiye","TM":"Turkmenistan","TC":"Turks and Caicos Islands","TV":"Tuvalu","UG":"Uganda","UA":"Ukraine","AE":"United Arab Emirates","GB":"United Kingdom","US":"United States","UY":"Uruguay","UM":"US Minor Outlying Islands","UZ":"Uzbekistan","VU":"Vanuatu","VE":"Venezuela","VN":"Viet Nam","VG":"Virgin Islands, British","VI":"Virgin Islands, U.S.","WF":"Wallis and Futuna","EH":"Western Sahara","YE":"Yemen","ZM":"Zambia","ZW":"Zimbabwe"},"strings":{"newRowAdded":"New row added.","rowRemoved":"Row removed","formSaved":"The form has been saved.  The content contains the link to return and complete the form."}};
+var gf_global = {"gf_currency_config":{"name":"U.S. Dollar","symbol_left":"$","symbol_right":"","symbol_padding":"","thousand_separator":",","decimal_separator":".","decimals":2,"code":"USD"},"base_url":"https://www.riseresidential.co.nz/wp-content/plugins/gravityforms","number_formats":[],"version_hash":"c938bf7b80c07bcb75d6cd9974853217","countries":{"AF":"Afghanistan","AX":"\u00c5land Islands","AL":"Albania","DZ":"Algeria","AS":"American Samoa","AD":"Andorra","AO":"Angola","AI":"Anguilla","AQ":"Antarctica","AG":"Antigua and Barbuda","AR":"Argentina","AM":"Armenia","AW":"Aruba","AU":"Australia","AT":"Austria","AZ":"Azerbaijan","BS":"Bahamas","BH":"Bahrain","BD":"Bangladesh","BB":"Barbados","BY":"Belarus","BE":"Belgium","BZ":"Belize","BJ":"Benin","BM":"Bermuda","BT":"Bhutan","BO":"Bolivia","BQ":"Bonaire, Sint Eustatius and Saba","BA":"Bosnia and Herzegovina","BW":"Botswana","BV":"Bouvet Island","BR":"Brazil","IO":"British Indian Ocean Territory","BN":"Brunei Darussalam","BG":"Bulgaria","BF":"Burkina Faso","BI":"Burundi","CV":"Cabo Verde","KH":"Cambodia","CM":"Cameroon","CA":"Canada","KY":"Cayman Islands","CF":"Central African Republic","TD":"Chad","CL":"Chile","CN":"China","CX":"Christmas Island","CC":"Cocos Islands","CO":"Colombia","KM":"Comoros","CD":"Congo, Democratic Republic of the","CG":"Congo","CK":"Cook Islands","CR":"Costa Rica","CI":"C\u00f4te d'Ivoire","HR":"Croatia","CU":"Cuba","CW":"Cura\u00e7ao","CY":"Cyprus","CZ":"Czechia","DK":"Denmark","DJ":"Djibouti","DM":"Dominica","DO":"Dominican Republic","EC":"Ecuador","EG":"Egypt","SV":"El Salvador","GQ":"Equatorial Guinea","ER":"Eritrea","EE":"Estonia","SZ":"Eswatini","ET":"Ethiopia","FK":"Falkland Islands","FO":"Faroe Islands","FJ":"Fiji","FI":"Finland","FR":"France","GF":"French Guiana","PF":"French Polynesia","TF":"French Southern Territories","GA":"Gabon","GM":"Gambia","GE":"Georgia","DE":"Germany","GH":"Ghana","GI":"Gibraltar","GR":"Greece","GL":"Greenland","GD":"Grenada","GP":"Guadeloupe","GU":"Guam","GT":"Guatemala","GG":"Guernsey","GN":"Guinea","GW":"Guinea-Bissau","GY":"Guyana","HT":"Haiti","HM":"Heard Island and McDonald Islands","VA":"Holy See","HN":"Honduras","HK":"Hong Kong","HU":"Hungary","IS":"Iceland","IN":"India","ID":"Indonesia","IR":"Iran","IQ":"Iraq","IE":"Ireland","IM":"Isle of Man","IL":"Israel","IT":"Italy","JM":"Jamaica","JP":"Japan","JE":"Jersey","JO":"Jordan","KZ":"Kazakhstan","KE":"Kenya","KI":"Kiribati","KP":"Korea, Democratic People's Republic of","KR":"Korea, Republic of","KW":"Kuwait","KG":"Kyrgyzstan","LA":"Lao People's Democratic Republic","LV":"Latvia","LB":"Lebanon","LS":"Lesotho","LR":"Liberia","LY":"Libya","LI":"Liechtenstein","LT":"Lithuania","LU":"Luxembourg","MO":"Macao","MG":"Madagascar","MW":"Malawi","MY":"Malaysia","MV":"Maldives","ML":"Mali","MT":"Malta","MH":"Marshall Islands","MQ":"Martinique","MR":"Mauritania","MU":"Mauritius","YT":"Mayotte","MX":"Mexico","FM":"Micronesia","MD":"Moldova","MC":"Monaco","MN":"Mongolia","ME":"Montenegro","MS":"Montserrat","MA":"Morocco","MZ":"Mozambique","MM":"Myanmar","NA":"Namibia","NR":"Nauru","NP":"Nepal","NL":"Netherlands","NC":"New Caledonia","NZ":"New Zealand","NI":"Nicaragua","NE":"Niger","NG":"Nigeria","NU":"Niue","NF":"Norfolk Island","MK":"North Macedonia","MP":"Northern Mariana Islands","NO":"Norway","OM":"Oman","PK":"Pakistan","PW":"Palau","PS":"Palestine, State of","PA":"Panama","PG":"Papua New Guinea","PY":"Paraguay","PE":"Peru","PH":"Philippines","PN":"Pitcairn","PL":"Poland","PT":"Portugal","PR":"Puerto Rico","QA":"Qatar","RE":"R\u00e9union","RO":"Romania","RU":"Russian Federation","RW":"Rwanda","BL":"Saint Barth\u00e9lemy","SH":"Saint Helena, Ascension and Tristan da Cunha","KN":"Saint Kitts and Nevis","LC":"Saint Lucia","MF":"Saint Martin","PM":"Saint Pierre and Miquelon","VC":"Saint Vincent and the Grenadines","WS":"Samoa","SM":"San Marino","ST":"Sao Tome and Principe","SA":"Saudi Arabia","SN":"Senegal","RS":"Serbia","SC":"Seychelles","SL":"Sierra Leone","SG":"Singapore","SX":"Sint Maarten","SK":"Slovakia","SI":"Slovenia","SB":"Solomon Islands","SO":"Somalia","ZA":"South Africa","GS":"South Georgia and the South Sandwich Islands","SS":"South Sudan","ES":"Spain","LK":"Sri Lanka","SD":"Sudan","SR":"Suriname","SJ":"Svalbard and Jan Mayen","SE":"Sweden","CH":"Switzerland","SY":"Syria Arab Republic","TW":"Taiwan","TJ":"Tajikistan","TZ":"Tanzania, the United Republic of","TH":"Thailand","TL":"Timor-Leste","TG":"Togo","TK":"Tokelau","TO":"Tonga","TT":"Trinidad and Tobago","TN":"Tunisia","TR":"T\u00fcrkiye","TM":"Turkmenistan","TC":"Turks and Caicos Islands","TV":"Tuvalu","UG":"Uganda","UA":"Ukraine","AE":"United Arab Emirates","GB":"United Kingdom","US":"United States","UY":"Uruguay","UM":"US Minor Outlying Islands","UZ":"Uzbekistan","VU":"Vanuatu","VE":"Venezuela","VN":"Viet Nam","VG":"Virgin Islands, British","VI":"Virgin Islands, U.S.","WF":"Wallis and Futuna","EH":"Western Sahara","YE":"Yemen","ZM":"Zambia","ZW":"Zimbabwe"},"strings":{"newRowAdded":"New row added.","rowRemoved":"Row removed","formSaved":"The form has been saved.  The content contains the link to return and complete the form."}};
+var gform_i18n = {"datepicker":{"wdOffset":1,"helpTextShort":"Press F1 for help","helpText":"Press the arrow keys to navigate by day, PageUp and PageDown to navigate by month, Alt+PageUp and Alt+PageDown to navigate by year, or Escape to cancel.","openOnFocusHelpText":"Press Down arrow to browse the calendar, or Escape to close.","tooltipTxt":"Press Escape to cancel","disabledTxt":"Disabled","markedTxt":"Selected","prevTxt":"Previous","nextTxt":"Next","monthTxt":"Month","yearTxt":"Year","months":["January","February","March","April","May","June","July","August","September","October","November","December"],"days":[{"s":"S","l":"Sunday"},{"s":"M","l":"Monday"},{"s":"T","l":"Tuesday"},{"s":"W","l":"Wednesday"},{"s":"T","l":"Thursday"},{"s":"F","l":"Friday"},{"s":"S","l":"Saturday"}]}};
+var gf_legacy_multi = {"2":"","1":""};
+var gform_gravityforms = {"strings":{"invalid_file_extension":"This type of file is not allowed. Must be one of the following:","file_uploaded":"File uploaded","delete_file":"Delete this file","in_progress":"in progress","file_exceeds_limit":"File exceeds size limit","illegal_extension":"This type of file is not allowed.","max_reached":"Maximum number of files reached","unknown_error":"There was a problem while saving the file on the server","currently_uploading":"Please wait for the uploading to complete","cancel":"Cancel","cancel_upload":"Cancel this upload","cancelled":"Cancelled","error":"Error","message":"Message"},"vars":{"images_url":"https://www.riseresidential.co.nz/wp-content/plugins/gravityforms/images"}};
+//# sourceURL=gform_gravityforms-js-extra
+</script>
+<script id="gform_gravityforms-js" defer='defer' src="https://www.riseresidential.co.nz/wp-content/plugins/gravityforms/js/gravityforms.min.js?ver=3.1.1.2"></script>
+<script id="gform_gravityforms_utils-js" defer='defer' src="https://www.riseresidential.co.nz/wp-content/plugins/gravityforms/assets/js/dist/utils.min.js?ver=69a9db57304a9f86c3d1a0bea5fd2cf9"></script>
+
+<!-- Google tag (gtag.js) snippet added by Site Kit -->
+<!-- Google Analytics snippet added by Site Kit -->
+<!-- Google Ads snippet added by Site Kit -->
+<script id="google_gtagjs-js" src="https://www.googletagmanager.com/gtag/js?id=GT-NNSCT86" async></script>
+<script id="google_gtagjs-js-after">
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}
+gtag("set","linker",{"domains":["www.riseresidential.co.nz"]});
+gtag("js", new Date());
+gtag("set", "developer_id.dZTNiMT", true);
+gtag("config", "GT-NNSCT86");
+gtag("config", "AW-357983920");
+ window._googlesitekit = window._googlesitekit || {}; window._googlesitekit.throttledEvents = []; window._googlesitekit.gtagEvent = (name, data) => { var key = JSON.stringify( { name, data } ); if ( !! window._googlesitekit.throttledEvents[ key ] ) { return; } window._googlesitekit.throttledEvents[ key ] = true; setTimeout( () => { delete window._googlesitekit.throttledEvents[ key ]; }, 5 ); gtag( "event", name, { ...data, event_source: "site-kit" } ); }; 
+//# sourceURL=google_gtagjs-js-after
+</script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://www.riseresidential.co.nz/xmlrpc.php?rsd" />
+<meta name="generator" content="Site Kit by Google 1.187.0" /><!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-TMBT794D');</script>
+<!-- End Google Tag Manager --><style class="wpcode-css-snippet">.nav-dark .nav > li > a:hover {
+	color: #00adf0
+}</style><!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1104411627893549');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1104411627893549&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code --><link rel="icon" href="https://www.riseresidential.co.nz/wp-content/uploads/2021/10/cropped-image_2021_10_12T05_40_47_697Z-32x32.jpg" sizes="32x32" />
+<link rel="icon" href="https://www.riseresidential.co.nz/wp-content/uploads/2021/10/cropped-image_2021_10_12T05_40_47_697Z-192x192.jpg" sizes="192x192" />
+<link rel="apple-touch-icon" href="https://www.riseresidential.co.nz/wp-content/uploads/2021/10/cropped-image_2021_10_12T05_40_47_697Z-180x180.jpg" />
+<meta name="msapplication-TileImage" content="https://www.riseresidential.co.nz/wp-content/uploads/2021/10/cropped-image_2021_10_12T05_40_47_697Z-270x270.jpg" />
+<style id="custom-css" type="text/css">:root {--primary-color: #00aeef;--fs-color-primary: #00aeef;--fs-color-secondary: #0274c7;--fs-color-success: #627D47;--fs-color-alert: #b20000;--fs-color-base: #3a3a3a;--fs-experimental-link-color: #334862;--fs-experimental-link-color-hover: #111;}.tooltipster-base {--tooltip-color: #fff;--tooltip-bg-color: #000;}.off-canvas-right .mfp-content, .off-canvas-left .mfp-content {--drawer-width: 300px;}.header-main{height: 90px}#logo img{max-height: 90px}#logo{width:200px;}#logo img{padding:5px 0;}.header-top{min-height: 30px}.transparent .header-main{height: 90px}.transparent #logo img{max-height: 90px}.has-transparent + .page-title:first-of-type,.has-transparent + #main > .page-title,.has-transparent + #main > div > .page-title,.has-transparent + #main .page-header-wrapper:first-of-type .page-title{padding-top: 120px;}.header.show-on-scroll,.stuck .header-main{height:70px!important}.stuck #logo img{max-height: 70px!important}.header-bg-color {background-color: #ffffff}.header-bottom {background-color: #f1f1f1}.top-bar-nav > li > a{line-height: 16px }.header-main .nav > li > a{line-height: 16px }.stuck .header-main .nav > li > a{line-height: 50px }@media (max-width: 549px) {.header-main{height: 70px}#logo img{max-height: 70px}}.nav-dropdown{font-size:100%}h1,h2,h3,h4,h5,h6,.heading-font{color: #262626;}body{font-size: 100%;}body{font-family: Montserrat, sans-serif;}body {font-weight: 400;font-style: normal;}.nav > li > a {font-family: Lato, sans-serif;}.mobile-sidebar-levels-2 .nav > li > ul > li > a {font-family: Lato, sans-serif;}.nav > li > a,.mobile-sidebar-levels-2 .nav > li > ul > li > a {font-weight: 700;font-style: normal;}h1,h2,h3,h4,h5,h6,.heading-font, .off-canvas-center .nav-sidebar.nav-vertical > li > a{font-family: Montserrat, sans-serif;}h1,h2,h3,h4,h5,h6,.heading-font,.banner h1,.banner h2 {font-weight: 700;font-style: normal;}.alt-font{font-family: "Dancing Script", sans-serif;}.alt-font {font-weight: 400!important;font-style: normal!important;}.breadcrumbs{text-transform: none;}button,.button{text-transform: none;}.nav > li > a, .links > li > a{text-transform: none;}.section-title span{text-transform: none;}h3.widget-title,span.widget-title{text-transform: none;}.header:not(.transparent) .top-bar-nav.nav > li > a:hover,.header:not(.transparent) .top-bar-nav.nav > li.active > a,.header:not(.transparent) .top-bar-nav.nav > li.current > a,.header:not(.transparent) .top-bar-nav.nav > li > a.active,.header:not(.transparent) .top-bar-nav.nav > li > a.current{color: #0a0a0a;}.top-bar-nav.nav-line-bottom > li > a:before,.top-bar-nav.nav-line-grow > li > a:before,.top-bar-nav.nav-line > li > a:before,.top-bar-nav.nav-box > li > a:hover,.top-bar-nav.nav-box > li.active > a,.top-bar-nav.nav-pills > li > a:hover,.top-bar-nav.nav-pills > li.active > a{color:#FFF!important;background-color: #0a0a0a;}.header:not(.transparent) .header-nav-main.nav > li > a {color: #0a0a0a;}.header:not(.transparent) .header-nav-main.nav > li > a:hover,.header:not(.transparent) .header-nav-main.nav > li.active > a,.header:not(.transparent) .header-nav-main.nav > li.current > a,.header:not(.transparent) .header-nav-main.nav > li > a.active,.header:not(.transparent) .header-nav-main.nav > li > a.current{color: #00aeef;}.header-nav-main.nav-line-bottom > li > a:before,.header-nav-main.nav-line-grow > li > a:before,.header-nav-main.nav-line > li > a:before,.header-nav-main.nav-box > li > a:hover,.header-nav-main.nav-box > li.active > a,.header-nav-main.nav-pills > li > a:hover,.header-nav-main.nav-pills > li.active > a{color:#FFF!important;background-color: #00aeef;}.header-main .social-icons,.header-main .cart-icon strong,.header-main .menu-title,.header-main .header-button > .button.is-outline,.header-main .nav > li > a > i:not(.icon-angle-down){color: #00aeef!important;}.header-main .header-button > .button.is-outline,.header-main .cart-icon strong:after,.header-main .cart-icon strong{border-color: #00aeef!important;}.header-main .header-button > .button:not(.is-outline){background-color: #00aeef!important;}.header-main .current-dropdown .cart-icon strong,.header-main .header-button > .button:hover,.header-main .header-button > .button:hover i,.header-main .header-button > .button:hover span{color:#FFF!important;}.header-main .menu-title:hover,.header-main .social-icons a:hover,.header-main .header-button > .button.is-outline:hover,.header-main .nav > li > a:hover > i:not(.icon-angle-down){color: #0a0a0a!important;}.header-main .current-dropdown .cart-icon strong,.header-main .header-button > .button:hover{background-color: #0a0a0a!important;}.header-main .current-dropdown .cart-icon strong:after,.header-main .current-dropdown .cart-icon strong,.header-main .header-button > .button:hover{border-color: #0a0a0a!important;}.nav-vertical-fly-out > li + li {border-top-width: 1px; border-top-style: solid;}.label-new.menu-item > a:after{content:"New";}.label-hot.menu-item > a:after{content:"Hot";}.label-sale.menu-item > a:after{content:"Sale";}.label-popular.menu-item > a:after{content:"Popular";}</style><style id="wp-custom-css">
+/* Dropdown menu */
+.nav-dropdown > li > a:hover {
+  color: #00aeef;
+  transition: all .2s;
+	font-weight: 550 !important;
+}
+
+.nav-dropdown > li > a {
+  color: #000000;
+  transition: all .2s;
+  font-weight: 550 !important;
+}
+
+/* Top bar (nav-dark) */
+.nav-dark .nav > li > a {
+  color: #ffffff;
+}
+
+/* Footer */
+.absolute-footer {
+  display: none;
+}
+
+/* Header */
+.header-wrapper.stuck {
+  box-shadow: none;
+}
+
+/* Fonts */
+@font-face {
+  font-family: gilroy-medium;
+  src: url("/wp-content/themes/riseresidential/fonts/Gilroy-Medium.ttf");
+}
+.gilroy-medium { font-family: gilroy-medium !important; }
+
+@font-face {
+  font-family: gilroy-semibold;
+  src: url("/wp-content/themes/riseresidential/fonts/Gilroy-SemiBold.ttf");
+}
+.gilroy-semibold,
+h1, h2, h3, .post-title {
+  font-family: gilroy-semibold !important;
+  font-weight: 300 !important;
+  text-transform: none;
+}
+
+@font-face {
+  font-family: gilroy-bold;
+  src: url("/wp-content/themes/riseresidential/fonts/Gilroy-Bold.ttf");
+}
+.gilroy-bold,
+h4 {
+  font-family: gilroy-bold !important;
+  font-weight: 300 !important;
+}
+
+h5 {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600 !important;
+}
+
+@font-face {
+  font-family: gilroy-regular;
+  src: url("/wp-content/themes/riseresidential/fonts/Gilroy-Regular.ttf");
+}
+.gilroy-regular,
+p, p a, li, tr, td, .gform_fields, .button {
+  font-family: gilroy-regular !important;
+}
+
+.post-title { font-size: 1.5rem; }
+.box-blog-post .is-divider { display: none; }
+
+@font-face {
+  font-family: gilroy-light;
+  src: url("/wp-content/themes/riseresidential/fonts/Gilroy-Light.ttf");
+}
+.gilroy-light { font-family: gilroy-light !important; }
+
+/* Accordions */
+.accordion-title {
+  text-align: left;
+  font-family: gilroy-medium;
+  font-size: 1.2em;
+  padding-bottom: 1em;
+  padding-top: 1em;
+  padding-left: 0.5em;
+}
+.accordion .toggle {
+  left: 92%;
+  height: 1em;
+  padding-top: 0.5em;
+}
+.accordion-title.active { background-color: transparent; }
+.text-left .toggle { margin-left: -2em; }
+
+/* Buttons */
+.button {
+  font-family: gilroy-bold !important;
+  border-width: 2px;
+}
+
+/* Icons */
+i[class^="icon-"] { font-weight: 900 !important; }
+
+/* Forms */
+.gform_title { display: none; }
+
+.gform_fields input:not([type='submit']),
+.gform_fields input:not([type='submit']):focus,
+.gform_fields select {
+  border-width: 1px;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  background-color: transparent !important;
+  color: #000 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  box-shadow: none !important;
+  border-color: #000;
+  border-radius: 0 !important;
+}
+
+.gform_fields textarea,
+.gform_fields textarea:focus {
+  border-width: 1px;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.gform_fields input::placeholder,
+.gform_fields textarea::placeholder {
+  color: #767676 !important;
+}
+
+.gfield_select,
+.gfield_select:focus,
+.gfield_select:hover,
+.gfield_select:active {
+  box-shadow: none !important;
+}
+
+.gform_button {
+  margin: 0 !important;
+  background-color: #00aeef !important;
+  text-transform: none !important;
+  color: #FFF;
+  box-shadow: none !important;
+  font-family: gilroy-bold !important;
+  border-radius: 0 !important;
+}
+
+.gform_fields option { color: #000 !important; }  /* ← fixed */
+
+.gform_fields select {
+  padding-bottom: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Light form variant */
+.lightform .gform_fields input:not([type='submit']),
+.lightform .gform_fields input:not([type='submit']):focus,
+.lightform .gform_fields select,
+.lightform .gform_fields textarea,
+.lightform .gform_fields textarea:focus,
+.lightform .gform_fields textarea::placeholder,
+.lightform .gform_fields input::placeholder {
+  background-color: transparent !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  border-color: #fff !important;
+  font-size: 14px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+.lightform .gform_button {
+  background-color: #FFF !important;
+  color: #000 !important;
+}
+.lightform .gform_button:hover {
+  background-color: #dedede !important;
+  color: #000 !important;
+}
+.gform_footer {
+  display: flex;
+  justify-content: center;
+}
+.gform_wrapper .gfield textarea { padding-top: 10px !important; }
+
+/* Misc */
+.lightblue { color: #00AEEF; }
+.darkblue  { color: #0274C7; }
+
+.fnl select {
+  height: auto;
+  padding: 5px 10px;
+}
+.gfield-choice-input {
+  border: 1px solid #000 !important;
+}
+.wpcf7-list-item-label { font-weight: 400; }
+
+body.home .gform-field-label { color: #fff; }
+body.home .gform-theme--framework input[type=checkbox]:where(:not(.gform-theme__disable):not(.gform-theme__disable *):not(.gform-theme__disable-framework):not(.gform-theme__disable-framework *))::before {
+  color: #fff;
+}
+
+.btQuoteSlider { margin-left: 10px !important; }
+.btQuoteBooking .btQuoteSlider { width: 97%; }
+.btQuoteBooking .ddChild ul li:first-child { display: none !important; }
+
+.gform_footer { justify-content: left; }
+
+.container,
+.container-width,
+.full-width .ubermenu-nav,
+.row { max-width: 1180px !important; }
+
+.header-button-1 { color: #ffffff !important; }
+
+.container {
+  padding-left: 30px !important;
+  padding-right: 30px !important;
+}
+
+/* Tablet header layout below 1136px */
+@media only screen and (max-width: 1136px) {
+  .header-inner .flex-col.show-for-medium.flex-left { display: flex !important; }
+  .hide-for-medium { display: none !important; }
+
+  .header-main .header-inner { align-items: center; }
+  .header-main .logo {
+    order: 1;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+  .header-main .logo img { margin: 0 auto; }
+
+  .header-main .flex-left  { order: 0; flex: 1 1 0; }
+  .header-main .flex-right { order: 2; flex: 1 1 0; }
+
+  .header-main .flex-left > *:only-child,
+  .header-main .flex-right > *:only-child {
+    margin-left: 0;
+    margin-right: 0;
+  }
+} /* end media */
+
+/* Transparent header → show LIGHT (second img), hide DARK (first img) */
+#header.transparent .logo a img:first-of-type { 
+  display: none !important;
+}
+#header.transparent .logo a img:last-of-type { 
+  display: inline-block !important; 
+  opacity: 1 !important;
+}
+
+/* Solid or sticky header → show DARK (first img), hide LIGHT (second img) */
+#header:not(.transparent) .logo a img:first-of-type,
+#header.stuck .logo a img:first-of-type {
+  display: inline-block !important; 
+  opacity: 1 !important;
+}
+#header:not(.transparent) .logo a img:last-of-type,
+#header.stuck .logo a img:last-of-type {
+  display: none !important;
+}
+
+
+body.home .gform_wrapper select#input_1_10 {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("https://www.riseresidential.co.nz/wp-content/uploads/2025/10/down-arrow.png");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 24px; /* adjust size as needed (try 12–16px range) */
+  padding-right: 32px; /* ensure text doesn't overlap arrow */
+}
+
+#top-bar .nav > li > a:hover {
+  color: black;
+}
+
+#gform_2 .gform-field-label {
+	color: #000000
+}
+
+
+/* Force "Building Services" dropdown to a single column */
+#menu-item-44 > .nav-dropdown,
+#menu-item-44 > .sub-menu {
+  -webkit-column-count: 1 !important;
+  -moz-column-count: 1 !important;
+  column-count: 1 !important;
+
+  -webkit-column-gap: 0 !important;
+  -moz-column-gap: 0 !important;
+  column-gap: 0 !important;
+}
+
+/* Ensure items stack full-width (no 50% columns / floats) */
+#menu-item-44 > .nav-dropdown > li,
+#menu-item-44 > .sub-menu > li {
+  width: 100% !important;
+  float: none !important;
+  display: block !important;
+  break-inside: avoid !important;
+}
+
+
+
+
+/* Renovation label: normal case */
+#menu-item-47 > a {
+  text-transform: none !important;
+	font-size: 1em;
+	
+}
+
+
+/* Kitchen & Bathroom styling */
+#menu-item-47 .sub-menu > li > a{
+  font-weight: 550 !important;
+  font-size: 1em !important;
+  color: black;
+  opacity: 1 !important;
+	padding-left: 20px;
+}
+
+#menu-item-47 .sub-menu > li > a:hover {
+	color: var(--fs-color-primary);
+}
+
+.nav-vertical li li.menu-item-has-children>a {
+	text-transform: none !important;
+	font-size: 1em !important;
+	font-weight: 550;
+}
+
+.wpcf7 form .wpcf7-response-output {
+	margin: 0px !important;
+}
+
+.btTotalNextWrapper {
+    display: none !important;
+}
+
+a {
+    color: #00aeef; !important;
+}
+
+a:hover {
+    color: #00aeef; !important;
+}
+
+#gform_submit_button_2:hover {
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transform: translateY(-2px);
+}
+
+.pum-container input[type="text"],
+.pum-container input[type="email"],
+.pum-container input[type="tel"],
+.pum-container input[type="url"],
+.pum-container input[type="number"],
+.pum-container textarea {
+  cursor: text !important;
+}
+
+#text-2343534849 h2 {
+  margin-bottom: 50px;
+}
+</style>
+<style id="kirki-inline-styles">/* cyrillic-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://www.riseresidential.co.nz/wp-content/fonts/montserrat/JTUSjIg1_i6t8kCHKm459WRhyzbi.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://www.riseresidential.co.nz/wp-content/fonts/montserrat/JTUSjIg1_i6t8kCHKm459W1hyzbi.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://www.riseresidential.co.nz/wp-content/fonts/montserrat/JTUSjIg1_i6t8kCHKm459WZhyzbi.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://www.riseresidential.co.nz/wp-content/fonts/montserrat/JTUSjIg1_i6t8kCHKm459Wdhyzbi.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://www.riseresidential.co.nz/wp-content/fonts/montserrat/JTUSjIg1_i6t8kCHKm459Wlhyw.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(https://www.riseresidential.co.nz/wp-content/fonts/montserrat/JTUSjIg1_i6t8kCHKm459WRhyzbi.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(https://www.riseresidential.co.nz/wp-content/fonts/montserrat/JTUSjIg1_i6t8kCHKm459W1hyzbi.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(https://www.riseresidential.co.nz/wp-content/fonts/montserrat/JTUSjIg1_i6t8kCHKm459WZhyzbi.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(https://www.riseresidential.co.nz/wp-content/fonts/montserrat/JTUSjIg1_i6t8kCHKm459Wdhyzbi.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(https://www.riseresidential.co.nz/wp-content/fonts/montserrat/JTUSjIg1_i6t8kCHKm459Wlhyw.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}/* latin-ext */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(https://www.riseresidential.co.nz/wp-content/fonts/lato/S6u9w4BMUTPHh6UVSwaPGR_p.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(https://www.riseresidential.co.nz/wp-content/fonts/lato/S6u9w4BMUTPHh6UVSwiPGQ.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}/* vietnamese */
+@font-face {
+  font-family: 'Dancing Script';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://www.riseresidential.co.nz/wp-content/fonts/dancing-script/If2cXTr6YS-zF4S-kcSWSVi_sxjsohD9F50Ruu7BMSo3Rep8ltA.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Dancing Script';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://www.riseresidential.co.nz/wp-content/fonts/dancing-script/If2cXTr6YS-zF4S-kcSWSVi_sxjsohD9F50Ruu7BMSo3ROp8ltA.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Dancing Script';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://www.riseresidential.co.nz/wp-content/fonts/dancing-script/If2cXTr6YS-zF4S-kcSWSVi_sxjsohD9F50Ruu7BMSo3Sup8.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}</style></head>
+
+<body class="wp-singular page-template page-template-page-transparent-header-light page-template-page-transparent-header-light-php page page-id-36 wp-theme-flatsome wp-child-theme-riseresidential lightbox nav-dropdown-has-arrow nav-dropdown-has-shadow nav-dropdown-has-border">
+
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TMBT794D"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<a class="skip-link screen-reader-text" href="#main">Skip to content</a>
+
+<div id="wrapper">
+
+	
+	<header id="header" class="header transparent has-transparent has-sticky sticky-jump">
+		<div class="header-wrapper">
+			<div id="top-bar" class="header-top hide-for-sticky nav-dark hide-for-medium">
+    <div class="flex-row container">
+      <div class="flex-col hide-for-medium flex-left">
+          <ul class="nav nav-left medium-nav-center nav-small  nav-">
+              <li class="header-contact-wrapper">
+		<ul id="header-contact" class="nav medium-nav-center nav-divided nav-uppercase header-contact">
+		
+						<li>
+			  <a href="mailto:ben@riseresidential.co.nz" class="tooltip" title="ben@riseresidential.co.nz">
+				  <i class="icon-envelop" aria-hidden="true" style="font-size:16px;"></i>			       <span>
+			       	ben@riseresidential.co.nz			       </span>
+			  </a>
+			</li>
+			
+			
+						<li>
+			  <a href="tel:027 540 0996" class="tooltip" title="027 540 0996">
+			     <i class="icon-phone" aria-hidden="true" style="font-size:16px;"></i>			      <span>027 540 0996</span>
+			  </a>
+			</li>
+			
+				</ul>
+</li>
+          </ul>
+      </div>
+
+      <div class="flex-col hide-for-medium flex-center">
+          <ul class="nav nav-center nav-small  nav-">
+                        </ul>
+      </div>
+
+      <div class="flex-col hide-for-medium flex-right">
+         <ul class="nav top-bar-nav nav-right nav-small  nav-">
+              <li class="html header-social-icons ml-0">
+	<div class="social-icons follow-icons" ><a href="https://www.facebook.com/RiseResidentialChristchurch/" target="_blank" data-label="Facebook" class="icon plain tooltip facebook" title="Follow on Facebook" aria-label="Follow on Facebook" rel="noopener nofollow"><i class="icon-facebook" aria-hidden="true"></i></a><a href="https://www.instagram.com/rise_residential_limited" target="_blank" data-label="Instagram" class="icon plain tooltip instagram" title="Follow on Instagram" aria-label="Follow on Instagram" rel="noopener nofollow"><i class="icon-instagram" aria-hidden="true"></i></a></div></li>
+          </ul>
+      </div>
+
+      
+    </div>
+</div>
+<div id="masthead" class="header-main nav-dark">
+      <div class="header-inner flex-row container logo-left medium-logo-center" role="navigation">
+
+          <!-- Logo -->
+          <div id="logo" class="flex-col logo">
+            
+<!-- Header logo -->
+<a href="https://www.riseresidential.co.nz/" title="Rise Residential - Home Builders in Christchurch | Residential Construction Company" rel="home">
+		<img width="200" height="168" src="https://www.riseresidential.co.nz/wp-content/uploads/2024/06/RiseResidential-Logo.png" class="header_logo header-logo" alt="Rise Residential"/><img  width="313" height="261" src="https://www.riseresidential.co.nz/wp-content/uploads/2025/09/rise-residential-logo-1.png" class="header-logo-dark" alt="Rise Residential"/></a>
+          </div>
+
+          <!-- Mobile Left Elements -->
+          <div class="flex-col show-for-medium flex-left">
+            <ul class="mobile-nav nav nav-left ">
+              <li class="nav-icon has-icon">
+			<a href="#" class="is-small" data-open="#main-menu" data-pos="left" data-bg="main-menu-overlay" data-color="dark" role="button" aria-label="Menu" aria-controls="main-menu" aria-expanded="false" aria-haspopup="dialog" data-flatsome-role-button>
+			<i class="icon-menu" aria-hidden="true"></i>					</a>
+	</li>
+            </ul>
+          </div>
+
+          <!-- Left Elements -->
+          <div class="flex-col hide-for-medium flex-left
+            flex-grow">
+            <ul class="header-nav header-nav-main nav nav-left  nav-spacing-large nav-uppercase" >
+                          </ul>
+          </div>
+
+          <!-- Right Elements -->
+          <div class="flex-col hide-for-medium flex-right">
+            <ul class="header-nav header-nav-main nav nav-right  nav-spacing-large nav-uppercase">
+              <li id="menu-item-40" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-40 menu-item-design-default has-dropdown"><a href="https://www.riseresidential.co.nz/about-us/" class="nav-top-link" aria-expanded="false" aria-haspopup="menu">About Rise<i class="icon-angle-down" aria-hidden="true"></i></a>
+<ul class="sub-menu nav-dropdown nav-dropdown-default">
+	<li id="menu-item-51" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-51"><a href="https://www.riseresidential.co.nz/about-us/">Our Story</a></li>
+	<li id="menu-item-42" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-42"><a href="https://www.riseresidential.co.nz/about-us/our-easy-as-building-process/">Our Easy-As Building Process</a></li>
+	<li id="menu-item-43" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-43"><a href="https://www.riseresidential.co.nz/about-us/renovation-design-new-builds-our-five-point-promise-guarantee/">Our 5 Point Promise Guarantee</a></li>
+	<li id="menu-item-41" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-41"><a href="https://www.riseresidential.co.nz/about-us/christchurch-building-company-rise-residential/">7 Reasons to Start the Conversation with Rise</a></li>
+</ul>
+</li>
+<li id="menu-item-44" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-44 menu-item-design-default has-dropdown"><a href="https://www.riseresidential.co.nz/building-services-christchurch/" class="nav-top-link" aria-expanded="false" aria-haspopup="menu">Building Services<i class="icon-angle-down" aria-hidden="true"></i></a>
+<ul class="sub-menu nav-dropdown nav-dropdown-default">
+	<li id="menu-item-46" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-46"><a href="https://www.riseresidential.co.nz/building-services-christchurch/new-builds/">New Builds</a></li>
+	<li id="menu-item-45" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-45"><a href="https://www.riseresidential.co.nz/building-services-christchurch/extensions/">Extensions</a></li>
+	<li id="menu-item-3718" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3718"><a href="https://www.riseresidential.co.nz/building-services-christchurch/architectural-services/">Architectural Services</a></li>
+	<li id="menu-item-47" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-47 nav-dropdown-col"><a href="https://www.riseresidential.co.nz/building-services-christchurch/renovation/">Renovation</a>
+	<ul class="sub-menu nav-column nav-dropdown-default">
+		<li id="menu-item-3735" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3735"><a href="https://www.riseresidential.co.nz/building-services-christchurch/renovation/kitchen/">Kitchen</a></li>
+		<li id="menu-item-3734" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3734"><a href="https://www.riseresidential.co.nz/building-services-christchurch/renovation/bathroom/">Bathroom</a></li>
+	</ul>
+</li>
+</ul>
+</li>
+<li id="menu-item-4071" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4071 menu-item-design-default"><a href="https://www.riseresidential.co.nz/our-work/" class="nav-top-link">Projects</a></li>
+<li id="menu-item-50" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-50 menu-item-design-default"><a href="https://www.riseresidential.co.nz/cost-calculator/" class="nav-top-link">Extension Cost Calculator</a></li>
+<li id="menu-item-5283" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-5283 menu-item-design-default"><a href="https://www.riseresidential.co.nz/new-build-plans/" class="nav-top-link">New Build Plans</a></li>
+<li id="menu-item-49" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-49 menu-item-design-default"><a href="https://www.riseresidential.co.nz/blog/" class="nav-top-link">Guides</a></li>
+<li class="html header-button-1">
+	<div class="header-button">
+		<a href="https://www.riseresidential.co.nz/contact-us/" class="button plain" style="border-radius:99px;">
+		<span>Contact Us</span>
+	</a>
+	</div>
+</li>
+            </ul>
+          </div>
+
+          <!-- Mobile Right Elements -->
+          <div class="flex-col show-for-medium flex-right">
+            <ul class="mobile-nav nav nav-right ">
+                          </ul>
+          </div>
+
+      </div>
+
+      </div>
+
+<div class="header-bg-container fill"><div class="header-bg-image fill"></div><div class="header-bg-color fill"></div></div>		</div>
+	</header>
+
+	
+	<main id="main" class="">
+
+
+<div id="content" role="main">
+			
+				
+  <div class="banner has-hover has-parallax" id="banner-675211713">
+          <div class="banner-inner fill">
+        <div class="banner-bg fill" data-parallax="-3" data-parallax-container=".banner" data-parallax-background>
+            <img fetchpriority="high" decoding="async" width="1200" height="926" src="https://www.riseresidential.co.nz/wp-content/uploads/2024/06/house-renovation-company-christchurch.jpg" class="bg attachment-original size-original" alt="Image of renovated outer space of a house in christchurch" />                        <div class="overlay"></div>            
+                    </div>
+		
+        <div class="banner-layers container">
+            <div class="fill banner-link"></div>            
+   <div id="text-box-374928990" class="text-box banner-layer x5 md-x5 lg-x0 y90 md-y90 lg-y90 res-text">
+                     <div data-animate="fadeInLeft">           <div class="text-box-content text dark">
+              
+              <div class="text-inner text-center">
+                  
+	<div id="text-534595704" class="text">
+		
+<h1>Contact Us</h1>
+		
+<style>
+#text-534595704 {
+  font-size: 0.8rem;
+  text-align: left;
+}
+@media (min-width:550px) {
+  #text-534595704 {
+    font-size: 1.3rem;
+    text-align: left;
+  }
+}
+@media (min-width:850px) {
+  #text-534595704 {
+    font-size: 1.5rem;
+  }
+}
+</style>
+	</div>
+	
+              </div>
+           </div>
+       </div>                     
+<style>
+#text-box-374928990 {
+  width: 90%;
+}
+#text-box-374928990 .text-box-content {
+  font-size: 100%;
+}
+@media (min-width:550px) {
+  #text-box-374928990 {
+    width: 90%;
+  }
+}
+@media (min-width:850px) {
+  #text-box-374928990 {
+    width: 60%;
+  }
+}
+</style>
+    </div>
+ 
+        </div>
+      </div>
+
+            
+<style>
+#banner-675211713 {
+  padding-top: 60vh;
+}
+#banner-675211713 .overlay {
+  background-color: rgba(0, 0, 0, 0.285);
+}
+#banner-675211713 .banner-bg img {
+  object-position: 52% 48%;
+}
+@media (min-width:550px) {
+  #banner-675211713 {
+    padding-top: 50vh;
+  }
+}
+@media (min-width:850px) {
+  #banner-675211713 {
+    padding-top: 60vh;
+  }
+}
+</style>
+  </div>
+
+
+
+	<section class="section" id="section_241451267">
+		<div class="section-bg fill" >
+									
+			
+
+		</div>
+
+		
+
+		<div class="section-content relative">
+			
+	<div id="gap-1210996653" class="gap-element clearfix" style="display:block; height:auto;">
+		
+<style>
+#gap-1210996653 {
+  padding-top: 10vh;
+}
+</style>
+	</div>
+	
+<div class="row align-equal"  id="row-2136967528">
+
+	<div id="col-1885849475" class="col medium-12 small-12 large-6"  >
+				<div class="col-inner"  >
+			
+			
+	<div id="text-1063197822" class="text">
+		
+<h2>We are here for you in Christchurch, Selwyn &#038; Waimakariri. <span class="lightblue">Give us a call!</span></h2>
+		
+<style>
+#text-1063197822 {
+  font-size: 1.4rem;
+}
+@media (min-width:550px) {
+  #text-1063197822 {
+    font-size: 1.35rem;
+  }
+}
+@media (min-width:850px) {
+  #text-1063197822 {
+    font-size: 1.8rem;
+  }
+}
+</style>
+	</div>
+	
+<p>As a reliable builder, we deliver quality work at an affordable price, turning your ideas and plans for your next building project or dream home into reality within your budget and timeline. At Rise Residential Limited, we provide high-quality workmanship across Christchurch, Selwyn, and Waimakariri districts, earning the satisfaction of many happy clients. That’s why we believe we are the best local builder.</p>
+<p><strong>For your FREE QUOTE or advice – simply contact us today.</strong></p>
+<p><span class="text">P. </span><span data-text-color="primary"><strong><a class="phone_link contact_detail has_icon" href="tel:027 540 0996"><span class="lightblue">027 540 0996</span></a></strong></span><br /><span class="text">E. </span><span data-text-color="primary"><strong><a class="email_link contact_detail has_icon" title="Email address" href="mailto:ben@riseresidential.co.nz"><span class="lightblue">ben@riseresidential.co.nz</span></a></strong></span></p>
+		</div>
+					</div>
+
+	
+
+	<div id="col-1038650084" class="col medium-12 small-12 large-6"  data-animate="fadeInRight">
+				<div class="col-inner"  >
+			
+			
+
+                <div class='gf_browser_unknown gform_wrapper gform-theme gform-theme--foundation gform-theme--framework gform-theme--orbital' data-form-theme='orbital' data-form-index='0' id='gform_wrapper_1' ><style>#gform_wrapper_1[data-form-index="0"].gform-theme{--gf-color-primary: #204ce5;--gf-color-primary-rgb: 32, 76, 229;--gf-color-primary-contrast: #fff;--gf-color-primary-contrast-rgb: 255, 255, 255;--gf-color-primary-darker: #001AB3;--gf-color-primary-lighter: #527EFF;--gf-color-secondary: #fff;--gf-color-secondary-rgb: 255, 255, 255;--gf-color-secondary-contrast: #112337;--gf-color-secondary-contrast-rgb: 17, 35, 55;--gf-color-secondary-darker: #F5F5F5;--gf-color-secondary-lighter: #FFFFFF;--gf-color-out-ctrl-light: rgba(17, 35, 55, 0.1);--gf-color-out-ctrl-light-rgb: 17, 35, 55;--gf-color-out-ctrl-light-darker: rgba(104, 110, 119, 0.35);--gf-color-out-ctrl-light-lighter: #F5F5F5;--gf-color-out-ctrl-dark: #585e6a;--gf-color-out-ctrl-dark-rgb: 88, 94, 106;--gf-color-out-ctrl-dark-darker: #112337;--gf-color-out-ctrl-dark-lighter: rgba(17, 35, 55, 0.65);--gf-color-in-ctrl: #fff;--gf-color-in-ctrl-rgb: 255, 255, 255;--gf-color-in-ctrl-contrast: #112337;--gf-color-in-ctrl-contrast-rgb: 17, 35, 55;--gf-color-in-ctrl-darker: #F5F5F5;--gf-color-in-ctrl-lighter: #FFFFFF;--gf-color-in-ctrl-primary: #204ce5;--gf-color-in-ctrl-primary-rgb: 32, 76, 229;--gf-color-in-ctrl-primary-contrast: #fff;--gf-color-in-ctrl-primary-contrast-rgb: 255, 255, 255;--gf-color-in-ctrl-primary-darker: #001AB3;--gf-color-in-ctrl-primary-lighter: #527EFF;--gf-color-in-ctrl-light: rgba(17, 35, 55, 0.1);--gf-color-in-ctrl-light-rgb: 17, 35, 55;--gf-color-in-ctrl-light-darker: rgba(104, 110, 119, 0.35);--gf-color-in-ctrl-light-lighter: #F5F5F5;--gf-color-in-ctrl-dark: #585e6a;--gf-color-in-ctrl-dark-rgb: 88, 94, 106;--gf-color-in-ctrl-dark-darker: #112337;--gf-color-in-ctrl-dark-lighter: rgba(17, 35, 55, 0.65);--gf-radius: 3px;--gf-font-size-secondary: 14px;--gf-font-size-tertiary: 13px;--gf-icon-ctrl-number: url("data:image/svg+xml,%3Csvg width='8' height='14' viewBox='0 0 8 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M4 0C4.26522 5.96046e-08 4.51957 0.105357 4.70711 0.292893L7.70711 3.29289C8.09763 3.68342 8.09763 4.31658 7.70711 4.70711C7.31658 5.09763 6.68342 5.09763 6.29289 4.70711L4 2.41421L1.70711 4.70711C1.31658 5.09763 0.683417 5.09763 0.292893 4.70711C-0.0976311 4.31658 -0.097631 3.68342 0.292893 3.29289L3.29289 0.292893C3.48043 0.105357 3.73478 0 4 0ZM0.292893 9.29289C0.683417 8.90237 1.31658 8.90237 1.70711 9.29289L4 11.5858L6.29289 9.29289C6.68342 8.90237 7.31658 8.90237 7.70711 9.29289C8.09763 9.68342 8.09763 10.3166 7.70711 10.7071L4.70711 13.7071C4.31658 14.0976 3.68342 14.0976 3.29289 13.7071L0.292893 10.7071C-0.0976311 10.3166 -0.0976311 9.68342 0.292893 9.29289Z' fill='rgba(17, 35, 55, 0.65)'/%3E%3C/svg%3E");--gf-icon-ctrl-select: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M0.292893 0.292893C0.683417 -0.097631 1.31658 -0.097631 1.70711 0.292893L5 3.58579L8.29289 0.292893C8.68342 -0.0976311 9.31658 -0.0976311 9.70711 0.292893C10.0976 0.683417 10.0976 1.31658 9.70711 1.70711L5.70711 5.70711C5.31658 6.09763 4.68342 6.09763 4.29289 5.70711L0.292893 1.70711C-0.0976311 1.31658 -0.0976311 0.683418 0.292893 0.292893Z' fill='rgba(17, 35, 55, 0.65)'/%3E%3C/svg%3E");--gf-icon-ctrl-search: url("data:image/svg+xml,%3Csvg width='640' height='640' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M256 128c-70.692 0-128 57.308-128 128 0 70.691 57.308 128 128 128 70.691 0 128-57.309 128-128 0-70.692-57.309-128-128-128zM64 256c0-106.039 85.961-192 192-192s192 85.961 192 192c0 41.466-13.146 79.863-35.498 111.248l154.125 154.125c12.496 12.496 12.496 32.758 0 45.254s-32.758 12.496-45.254 0L367.248 412.502C335.862 434.854 297.467 448 256 448c-106.039 0-192-85.962-192-192z' fill='rgba(17, 35, 55, 0.65)'/%3E%3C/svg%3E");--gf-label-space-y-secondary: var(--gf-label-space-y-md-secondary);--gf-ctrl-border-color: #686e77;--gf-ctrl-size: var(--gf-ctrl-size-md);--gf-ctrl-label-color-primary: #112337;--gf-ctrl-label-color-secondary: #112337;--gf-ctrl-choice-size: var(--gf-ctrl-choice-size-md);--gf-ctrl-checkbox-check-size: var(--gf-ctrl-checkbox-check-size-md);--gf-ctrl-radio-check-size: var(--gf-ctrl-radio-check-size-md);--gf-ctrl-btn-font-size: var(--gf-ctrl-btn-font-size-md);--gf-ctrl-btn-padding-x: var(--gf-ctrl-btn-padding-x-md);--gf-ctrl-btn-size: var(--gf-ctrl-btn-size-md);--gf-ctrl-btn-border-color-secondary: #686e77;--gf-ctrl-btn-bg-color-hover-tertiary: #EBEBEB;--gf-field-img-choice-size: var(--gf-field-img-choice-size-md);--gf-field-img-choice-card-space: var(--gf-field-img-choice-card-space-md);--gf-field-img-choice-check-ind-size: var(--gf-field-img-choice-check-ind-size-md);--gf-field-img-choice-check-ind-icon-size: var(--gf-field-img-choice-check-ind-icon-size-md);--gf-field-pg-steps-number-color: rgba(17, 35, 55, 0.8);}</style>
+                        <div class='gform_heading'>
+                            <h2 class="gform_title">Contact Form</h2>
+                            <p class='gform_description'></p>
+                        </div><form method='post' enctype='multipart/form-data'  id='gform_1'  action='/contact-us/' data-formid='1' novalidate>
+                        <div class='gform-body gform_body'><div id='gform_fields_1' class='gform_fields top_label form_sublabel_below description_below validation_below'><div id="field_1_11" class="gfield gfield--type-honeypot gform_validation_container field_sublabel_below gfield--has-description field_description_below field_validation_below gfield_visibility_visible"  ><label class='gfield_label gform-field-label' for='input_1_11'><span class='gform-field-label__text'>URL</span></label><div class='ginput_container'><input name='input_11' id='input_1_11' type='text' value='' autocomplete='new-password'/></div><div class='gfield_description' id='gfield_description_1_11'>This field is for validation purposes and should be left unchanged.</div></div><fieldset id="field_1_1" class="gfield gfield--type-name gfield--input-type-name gfield_contains_required field_sublabel_hidden_label gfield--no-description field_description_below field_validation_below gfield_visibility_visible"  ><legend class='gfield_label gform-field-label gfield_label_before_complex' ><span class='gform-field-label__text'>Full Name</span><span class="gfield_required"><span class="gfield_required gfield_required_text">(Required)</span></span></legend><div class='ginput_complex ginput_container ginput_container--name no_prefix has_first_name no_middle_name has_last_name no_suffix gf_name_has_2 ginput_container_name gform-grid-row' id='input_1_1'>
+                            
+                            <span id='input_1_1_3_container' class='name_first gform-grid-col gform-grid-col--size-auto' >
+                                                    <input type='text' name='input_1.3' id='input_1_1_3' value=''   aria-required='true'   placeholder='Fist Name*'  />
+                                                    <label for='input_1_1_3' class='gform-field-label gform-field-label--type-sub hidden_sub_label screen-reader-text'>First Name</label>
+                                                </span>
+                            
+                            <span id='input_1_1_6_container' class='name_last gform-grid-col gform-grid-col--size-auto' >
+                                                    <input type='text' name='input_1.6' id='input_1_1_6' value=''   aria-required='true'   placeholder='Last Name*'  />
+                                                    <label for='input_1_1_6' class='gform-field-label gform-field-label--type-sub hidden_sub_label screen-reader-text'>Last Name</label>
+                                                </span>
+                            
+                        </div></fieldset><div id="field_1_4" class="gfield gfield--type-email gfield--input-type-email gfield--width-half gfield_contains_required field_sublabel_below gfield--no-description field_description_below hidden_label field_validation_below gfield_visibility_visible"  ><label class='gfield_label gform-field-label' for='input_1_4'><span class='gform-field-label__text'>Email</span><span class="gfield_required"><span class="gfield_required gfield_required_text">(Required)</span></span></label><div class='ginput_container ginput_container_email'>
+                            <input name='input_4' id='input_1_4' type='email' value='' class='large'   placeholder='Email*' aria-required="true" aria-invalid="false"  />
+                        </div></div><div id="field_1_3" class="gfield gfield--type-phone gfield--input-type-phone gfield--phone-format-international gfield--width-half field_sublabel_below gfield--no-description field_description_below hidden_label field_validation_below gfield_visibility_visible"  ><label class='gfield_label gform-field-label' for='input_1_3'><span class='gform-field-label__text'>Phone</span></label><div class='ginput_container ginput_container_phone'><input name='input_3' id='input_1_3' type='tel' value='' class='large'  placeholder='Phone'  aria-invalid="false"    /></div></div><div id="field_1_9" class="gfield gfield--type-text gfield--input-type-text gfield--width-full field_sublabel_below gfield--no-description field_description_below hidden_label field_validation_below gfield_visibility_visible"  ><label class='gfield_label gform-field-label' for='input_1_9'><span class='gform-field-label__text'>Address*</span></label><div class='ginput_container ginput_container_text'><input name='input_9' id='input_1_9' type='text' value='' class='large'    placeholder='Address*'  aria-invalid="false"   /></div></div><div id="field_1_5" class="gfield gfield--type-textarea gfield--input-type-textarea gfield--width-full field_sublabel_below gfield--no-description field_description_below field_validation_below gfield_visibility_visible"  ><label class='gfield_label gform-field-label' for='input_1_5'><span class='gform-field-label__text'>Message</span></label><div class='ginput_container ginput_container_textarea'><textarea name='input_5' id='input_1_5' class='textarea small'    placeholder='Type your message here...'  aria-invalid="false"   rows='10' cols='50'></textarea></div></div><div id="field_1_10" class="gfield gfield--type-select gfield--input-type-select gfield--width-full field_sublabel_below gfield--no-description field_description_below field_validation_below gfield_visibility_visible"  ><label class='gfield_label gform-field-label' for='input_1_10'><span class='gform-field-label__text'>How did you hear about us?</span></label><div class='ginput_container ginput_container_select'><select name='input_10' id='input_1_10' class='large gfield_select'     aria-invalid="false" ><option value='' ></option><option value='Google search' >Google search</option><option value='Facebook' >Facebook</option><option value='Instagram' >Instagram</option><option value='Referred by a friend' >Referred by a friend</option><option value='I&#039;m an existing customer' >I&#039;m an existing customer</option><option value='Other' >Other</option></select></div></div><fieldset id="field_1_7" class="gfield gfield--type-checkbox gfield--type-choice gfield--input-type-checkbox gfield--width-full field_sublabel_below gfield--no-description field_description_below field_validation_below gfield_visibility_visible gfield--choice-align-vertical"  ><legend class='gfield_label gform-field-label gfield_label_before_complex' ><span class='gform-field-label__text'>Marketing</span></legend><div class='ginput_container ginput_container_checkbox'><div class='gfield_checkbox ' id='input_1_7'><div class='gchoice gchoice_1_7_1'>
+								<input class='gfield-choice-input' name='input_7.1' type='checkbox'  value='Yes! Send me building tips, inspiration, and special offers from Rise Residential.'  id='choice_1_7_1'   />
+								<label for='choice_1_7_1' id='label_1_7_1' class='gform-field-label gform-field-label--type-inline'>Yes! Send me building tips, inspiration, and special offers from Rise Residential.</label>
+							</div></div></div></fieldset></div></div>
+        <div class='gform-footer gform_footer top_label'> <button type='submit' id='gform_submit_button_1' class='gform_button button' onclick='gform.submission.handleButtonClick(this);' data-submission-type='submit' >Submit</button> 
+            <input type='hidden' class='gform_hidden' name='gform_submission_method' data-js='gform_submission_method_1' value='postback' />
+            <input type='hidden' class='gform_hidden' name='gform_theme' data-js='gform_theme_1' id='gform_theme_1' value='orbital' />
+            <input type='hidden' class='gform_hidden' name='gform_style_settings' data-js='gform_style_settings_1' id='gform_style_settings_1' value='[]' />
+            <input type='hidden' class='gform_hidden' name='is_submit_1' value='1' />
+            <input type='hidden' class='gform_hidden' name='gform_submit' value='1' />
+            
+            <input type='hidden' class='gform_hidden' name='gform_currency' data-currency='USD' value='j9fGsVfizy29c2fyfe4ZzsHKPF9+wVRy/l1G3j3xTDtAQwg2q2ATuxJPTRgHUTlsC13MS4SdDbvCMUvJRr+/aKasER795WD+bgDF2woYZAQoqXQ=' />
+            <input type='hidden' class='gform_hidden' name='gform_unique_id' value='' />
+            <input type='hidden' class='gform_hidden' name='state_1' value='WyJ7XCIxMFwiOltcImIxZDJhZjI1OTI4ZDNmNDQ1NGRiMDU4Nzg1Nzg4YjcyXCIsXCIxMjViYTE1ZDI2MjAyYjI5NTAyZDdhY2ZlMzUzZjdmNFwiLFwiNWViOTRmYTI4NDdiODkzYTFiMjVmZjViODUzYmRhMDZcIixcIjM0NjgxZmVlN2RlNDkwNTQwYTEwZjcwMGExMTliMWYzXCIsXCIzMzAwNDRhMWVlNjVkYzg2NGMwMGQxZjUxNWI3NTFlNFwiLFwiYWQ4OTEwYTYwMmRjYzhiM2Q0MmExM2EyOGM0NzRjOWRcIixcIjUzNzM5ZjViZmQ3OGI0NDkxZGIwOWYzZDZlZDVjNjBhXCJdLFwiNy4xXCI6XCIyNTg2YjMwYWUyZTIwOWIyY2I3NGMxZDNmYWY1MjMyZlwiLFwiZ2Zvcm1fc3VibWlzc2lvbl9tZXRob2RcIjpbXCI2YTRjYjY0YmI4OGI5NWRjNTU5OWYyOWRkYzhkZDNlNlwiLFwiMzhlMWE0MjY5NTI5OGUwYzQxNmRkYTEwZDJkMzE4ZjRcIl0sXCJnZm9ybV90aGVtZVwiOlwiOGRiNjNlYjRkMWQ4NmJhMTA0YWE3Y2VlZWNlNTJjZThcIixcImdmb3JtX3N0eWxlX3NldHRpbmdzXCI6XCIwYWVkYzJmZTJiNjBiMWY0YjhlMzdjMWY4ZGZmN2YzYVwiLFwiZm9ybV9pZFwiOlwiN2NlMjkxM2Y2NTY3NWYyZmRiMDVjZTgzMWExYTQwOTJcIixcInVybFwiOlwiNDYyYzk4ZTk3ZGI5ZGZiMjgwNTZhYjE2NzE4NzkzOGFcIixcInN0YXRlX3RpbWVzdGFtcFwiOlwiMWVkYzBhNjEwYWYyZTg2MWJlODZmYTU5ZTE3YWExZWFcIn0iLCJkYmFmYTA0NTdmNGMwZTM0YWM5ODVhOTQ2MjU2Zjk2MSIsMTc4OTcyODMxMF0=' />
+            <input type='hidden' autocomplete='off' class='gform_hidden' name='gform_target_page_number_1' id='gform_target_page_number_1' value='0' />
+            <input type='hidden' autocomplete='off' class='gform_hidden' name='gform_source_page_number_1' id='gform_source_page_number_1' value='1' />
+            <input type='hidden' name='gform_field_values' value='' />
+            
+        </div>
+                        <p style="display: none !important;" class="akismet-fields-container" data-prefix="ak_"><label>&#916;<textarea name="ak_hp_textarea" cols="45" rows="8" maxlength="100"></textarea></label><input type="hidden" id="ak_js_2" name="ak_js" value="125"/><script>
+document.getElementById( "ak_js_2" ).setAttribute( "value", ( new Date() ).getTime() );
+</script>
+</p></form>
+                        </div>
+		</div>
+					</div>
+
+	
+</div>
+	<div id="gap-805233736" class="gap-element clearfix" style="display:block; height:auto;">
+		
+<style>
+#gap-805233736 {
+  padding-top: 10vh;
+}
+</style>
+	</div>
+	
+		</div>
+
+		
+<style>
+#section_241451267 {
+  padding-top: 0px;
+  padding-bottom: 0px;
+  background-color: rgb(255,255,255);
+}
+</style>
+	</section>
+	
+
+				
+			</div>
+
+
+
+</main>
+
+<footer id="footer" class="footer-wrapper">
+
+	
+	<section class="section" id="section_519508843">
+		<div class="section-bg fill" >
+									
+			
+
+		</div>
+
+		
+
+		<div class="section-content relative">
+			
+
+<div class="row"  id="row-1285116955">
+
+
+	<div id="col-342068984" class="col medium-3 small-12 large-3"  >
+				<div class="col-inner"  >
+			
+			
+
+	<div class="img has-hover x md-x lg-x y md-y lg-y" id="image_900599829">
+								<div class="img-inner dark" >
+			<img width="200" height="168" src="https://www.riseresidential.co.nz/wp-content/uploads/2024/06/footer-logo.png" class="attachment-large size-large" alt="" decoding="async" loading="lazy" />						
+					</div>
+								
+<style>
+#image_900599829 {
+  width: 30%;
+}
+@media (min-width:550px) {
+  #image_900599829 {
+    width: 50%;
+  }
+}
+</style>
+	</div>
+	
+
+	<div id="text-556559899" class="text">
+		
+
+<p>Master Builders Rise Residential, are expert building contractors that build high-quality houses on time, on budget.</p>
+<p>We are an owner-operated based company that specialises in all forms of residential construction including renovations, new builds and property maintenance.</p>
+		
+<style>
+#text-556559899 {
+  font-size: 0.9rem;
+  color: rgb(255, 249, 249);
+}
+#text-556559899 > * {
+  color: rgb(255, 249, 249);
+}
+@media (min-width:550px) {
+  #text-556559899 {
+    font-size: 0.8rem;
+  }
+}
+</style>
+	</div>
+	
+
+		</div>
+					</div>
+
+	
+
+	<div id="col-1481117191" class="col medium-3 small-12 large-3"  >
+				<div class="col-inner dark"  >
+			
+			
+
+	<div id="text-606825518" class="text">
+		
+
+<h3 class="uppercase"><strong>LOCATION</strong></h3>
+		
+<style>
+#text-606825518 {
+  font-size: 0.9rem;
+  color: #00aeef;
+}
+#text-606825518 > * {
+  color: #00aeef;
+}
+@media (min-width:550px) {
+  #text-606825518 {
+    font-size: 0.8rem;
+  }
+}
+</style>
+	</div>
+	
+	<div id="text-2515451226" class="text">
+		
+
+<p>Christchurch, New Zealand</p>
+		
+<style>
+#text-2515451226 {
+  font-size: 0.9rem;
+  line-height: 1.8;
+  color: rgb(255, 249, 249);
+}
+#text-2515451226 > * {
+  color: rgb(255, 249, 249);
+}
+@media (min-width:550px) {
+  #text-2515451226 {
+    font-size: 0.8rem;
+  }
+}
+</style>
+	</div>
+	
+
+		</div>
+					</div>
+
+	
+
+	<div id="col-1156971792" class="col medium-3 small-12 large-3"  >
+				<div class="col-inner dark"  >
+			
+			
+
+	<div id="text-2929020590" class="text">
+		
+
+<h3 class="uppercase"><strong>Navigation</strong></h3>
+		
+<style>
+#text-2929020590 {
+  font-size: 0.9rem;
+  color: #00aeef;
+}
+#text-2929020590 > * {
+  color: #00aeef;
+}
+@media (min-width:550px) {
+  #text-2929020590 {
+    font-size: 0.8rem;
+  }
+}
+</style>
+	</div>
+	
+	<div id="text-530863479" class="text">
+		
+
+<p><a href="https://www.riseresidential.co.nz/building-services-christchurch/renovation/">Home Renovations</a><br /><a href="/building-services-christchurch/">Building Services</a><br /><a href="/cost-calculator/">House Build Cost Calculator</a><br /><a href="https://www.riseresidential.co.nz/our-work/">Our Work</a><br /><a href="https://www.riseresidential.co.nz/about-us/">About Us</a><br /><a href="/contact-us/">Contact Us</a></p>
+		
+<style>
+#text-530863479 {
+  font-size: 0.9rem;
+  line-height: 1.8;
+  color: rgb(255, 249, 249);
+}
+#text-530863479 > * {
+  color: rgb(255, 249, 249);
+}
+@media (min-width:550px) {
+  #text-530863479 {
+    font-size: 0.8rem;
+  }
+}
+</style>
+	</div>
+	
+
+		</div>
+					</div>
+
+	
+
+	<div id="col-569315036" class="col medium-3 small-12 large-3"  >
+				<div class="col-inner dark"  >
+			
+			
+
+	<div id="text-2535362862" class="text">
+		
+
+<h3 class="uppercase"><strong>Contact</strong></h3>
+		
+<style>
+#text-2535362862 {
+  font-size: 0.9rem;
+  color: #00aeef;
+}
+#text-2535362862 > * {
+  color: #00aeef;
+}
+@media (min-width:550px) {
+  #text-2535362862 {
+    font-size: 0.8rem;
+  }
+}
+</style>
+	</div>
+	
+	<div id="text-3048018885" class="text">
+		
+
+<p><span class="text">P. </span><a class="phone_link contact_detail has_icon" href="tel:027 540 0996"><span class="text">027 540 0996</span></a><br /><span class="text">E. </span><a class="email_link contact_detail has_icon" title="Email address" href="mailto:ben@riseresidential.co.nz"><span class="text">ben@riseresidential.co.nz</span></a></p>
+<div class="social_icons"> </div>
+		
+<style>
+#text-3048018885 {
+  font-size: 0.9rem;
+  line-height: 1.8;
+  color: rgb(255, 249, 249);
+}
+#text-3048018885 > * {
+  color: rgb(255, 249, 249);
+}
+@media (min-width:550px) {
+  #text-3048018885 {
+    font-size: 0.8rem;
+  }
+}
+</style>
+	</div>
+	
+<div class="social-icons follow-icons" style="font-size:126%"><a href="https://www.facebook.com/RiseResidentialChristchurch" target="_blank" data-label="Facebook" class="icon plain tooltip facebook" title="Follow on Facebook" aria-label="Follow on Facebook" rel="noopener nofollow"><i class="icon-facebook" aria-hidden="true"></i></a><a href="https://www.instagram.com/rise_residential_limited" target="_blank" data-label="Instagram" class="icon plain tooltip instagram" title="Follow on Instagram" aria-label="Follow on Instagram" rel="noopener nofollow"><i class="icon-instagram" aria-hidden="true"></i></a></div>
+
+
+		</div>
+					</div>
+
+	
+
+	<div id="col-335146463" class="col small-12 large-12"  >
+				<div class="col-inner dark"  >
+			
+			
+
+	<div id="text-2447842258" class="text">
+		
+
+<p>Copyright 2026 | Rise Residential Limited | <a href="https://www.riseresidential.co.nz/privacy-policy-2/">Private Policy</a> | Website Developed by <strong><a href="https://www.verum.nz" target="_blank" rel="noopener noreferrer">Verum</a></strong></p>
+		
+<style>
+#text-2447842258 {
+  font-size: 0.9rem;
+  text-align: left;
+  color: rgb(255,255,255);
+}
+#text-2447842258 > * {
+  color: rgb(255,255,255);
+}
+@media (min-width:550px) {
+  #text-2447842258 {
+    font-size: 0.8rem;
+    text-align: center;
+  }
+}
+</style>
+	</div>
+	
+
+		</div>
+					</div>
+
+	
+
+</div>
+
+		</div>
+
+		
+<style>
+#section_519508843 {
+  padding-top: 30px;
+  padding-bottom: 30px;
+  background-color: rgb(0,0,0);
+}
+</style>
+	</section>
+	
+<div class="absolute-footer dark medium-text-center small-text-center">
+  <div class="container clearfix">
+
+    
+    <div class="footer-primary pull-left">
+            <div class="copyright-footer">
+        Copyright 2026 &copy; <strong>Flatsome Theme</strong>      </div>
+          </div>
+  </div>
+</div>
+<button type="button" id="top-link" class="back-to-top button icon invert plain fixed bottom z-1 is-outline circle hide-for-medium" aria-label="Go to top"><i class="icon-angle-up" aria-hidden="true"></i></button>
+</footer>
+
+</div>
+
+<div id="main-menu" class="mobile-sidebar no-scrollbar mfp-hide">
+
+	
+	<div class="sidebar-menu no-scrollbar ">
+
+		
+					<ul class="nav nav-sidebar nav-vertical nav-uppercase" data-tab="1">
+				<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-40"><a href="https://www.riseresidential.co.nz/about-us/">About Rise</a>
+<ul class="sub-menu nav-sidebar-ul children">
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-51"><a href="https://www.riseresidential.co.nz/about-us/">Our Story</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-42"><a href="https://www.riseresidential.co.nz/about-us/our-easy-as-building-process/">Our Easy-As Building Process</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-43"><a href="https://www.riseresidential.co.nz/about-us/renovation-design-new-builds-our-five-point-promise-guarantee/">Our 5 Point Promise Guarantee</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-41"><a href="https://www.riseresidential.co.nz/about-us/christchurch-building-company-rise-residential/">7 Reasons to Start the Conversation with Rise</a></li>
+</ul>
+</li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-44"><a href="https://www.riseresidential.co.nz/building-services-christchurch/">Building Services</a>
+<ul class="sub-menu nav-sidebar-ul children">
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-46"><a href="https://www.riseresidential.co.nz/building-services-christchurch/new-builds/">New Builds</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-45"><a href="https://www.riseresidential.co.nz/building-services-christchurch/extensions/">Extensions</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3718"><a href="https://www.riseresidential.co.nz/building-services-christchurch/architectural-services/">Architectural Services</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-47"><a href="https://www.riseresidential.co.nz/building-services-christchurch/renovation/">Renovation</a>
+	<ul class="sub-menu nav-sidebar-ul">
+		<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3735"><a href="https://www.riseresidential.co.nz/building-services-christchurch/renovation/kitchen/">Kitchen</a></li>
+		<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3734"><a href="https://www.riseresidential.co.nz/building-services-christchurch/renovation/bathroom/">Bathroom</a></li>
+	</ul>
+</li>
+</ul>
+</li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4071"><a href="https://www.riseresidential.co.nz/our-work/">Projects</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-50"><a href="https://www.riseresidential.co.nz/cost-calculator/">Extension Cost Calculator</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-5283"><a href="https://www.riseresidential.co.nz/new-build-plans/">New Build Plans</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-49"><a href="https://www.riseresidential.co.nz/blog/">Guides</a></li>
+<li class="header-contact-wrapper">
+		<ul id="header-contact" class="nav medium-nav-center nav-divided nav-uppercase header-contact">
+		
+						<li>
+			  <a href="mailto:ben@riseresidential.co.nz" class="tooltip" title="ben@riseresidential.co.nz">
+				  <i class="icon-envelop" aria-hidden="true" style="font-size:16px;"></i>			       <span>
+			       	ben@riseresidential.co.nz			       </span>
+			  </a>
+			</li>
+			
+			
+						<li>
+			  <a href="tel:027 540 0996" class="tooltip" title="027 540 0996">
+			     <i class="icon-phone" aria-hidden="true" style="font-size:16px;"></i>			      <span>027 540 0996</span>
+			  </a>
+			</li>
+			
+				</ul>
+</li>
+<li class="html header-button-1">
+	<div class="header-button">
+		<a href="https://www.riseresidential.co.nz/contact-us/" class="button plain" style="border-radius:99px;">
+		<span>Contact Us</span>
+	</a>
+	</div>
+</li>
+			</ul>
+		
+		
+	</div>
+
+	
+</div>
+<script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/riseresidential/*","/wp-content/themes/flatsome/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+<div 
+	id="pum-5144" 
+	role="dialog" 
+	aria-modal="false"
+	class="pum pum-overlay pum-theme-4991 pum-theme-lightbox popmake-overlay pum-click-to-close click_open" 
+	data-popmake="{&quot;id&quot;:5144,&quot;slug&quot;:&quot;free-plan-offering&quot;,&quot;theme_id&quot;:4991,&quot;cookies&quot;:[],&quot;triggers&quot;:[{&quot;type&quot;:&quot;click_open&quot;,&quot;settings&quot;:{&quot;extra_selectors&quot;:&quot;&quot;,&quot;cookie_name&quot;:null}}],&quot;mobile_disabled&quot;:null,&quot;tablet_disabled&quot;:null,&quot;meta&quot;:{&quot;display&quot;:{&quot;stackable&quot;:false,&quot;overlay_disabled&quot;:false,&quot;scrollable_content&quot;:false,&quot;disable_reposition&quot;:false,&quot;size&quot;:&quot;medium&quot;,&quot;responsive_min_width&quot;:&quot;0%&quot;,&quot;responsive_min_width_unit&quot;:false,&quot;responsive_max_width&quot;:&quot;100%&quot;,&quot;responsive_max_width_unit&quot;:false,&quot;custom_width&quot;:&quot;640px&quot;,&quot;custom_width_unit&quot;:false,&quot;custom_height&quot;:&quot;380px&quot;,&quot;custom_height_unit&quot;:false,&quot;custom_height_auto&quot;:false,&quot;location&quot;:&quot;center&quot;,&quot;position_from_trigger&quot;:false,&quot;position_top&quot;:&quot;100&quot;,&quot;position_left&quot;:&quot;0&quot;,&quot;position_bottom&quot;:&quot;0&quot;,&quot;position_right&quot;:&quot;0&quot;,&quot;position_fixed&quot;:false,&quot;animation_type&quot;:&quot;fade&quot;,&quot;animation_speed&quot;:&quot;350&quot;,&quot;animation_origin&quot;:&quot;center top&quot;,&quot;overlay_zindex&quot;:false,&quot;zindex&quot;:&quot;1999999999&quot;},&quot;close&quot;:{&quot;text&quot;:&quot;&quot;,&quot;button_delay&quot;:&quot;0&quot;,&quot;overlay_click&quot;:&quot;1&quot;,&quot;esc_press&quot;:false,&quot;f4_press&quot;:false},&quot;click_open&quot;:[]}}">
+
+	<div id="popmake-5144" class="pum-container popmake theme-4991 pum-responsive pum-responsive-medium responsive size-medium">
+
+				
+				
+		
+				<div class="pum-content popmake-content" tabindex="0">
+			<h2>Bring Your Dream Home to Life</h2>
+<p>Share your details below to unlock our exclusive collection of house design plans, free to download. Whether you&#8217;re shaping your future build or simply exploring ideas, these plans offer the inspiration and guidance you need</p>
+<p>&nbsp;</p>
+
+                <div class='gf_browser_unknown gform_wrapper gform-theme gform-theme--foundation gform-theme--framework gform-theme--orbital' data-form-theme='orbital' data-form-index='0' id='gform_wrapper_2' ><style>#gform_wrapper_2[data-form-index="0"].gform-theme{--gf-color-primary: #204ce5;--gf-color-primary-rgb: 32, 76, 229;--gf-color-primary-contrast: #fff;--gf-color-primary-contrast-rgb: 255, 255, 255;--gf-color-primary-darker: #001AB3;--gf-color-primary-lighter: #527EFF;--gf-color-secondary: #fff;--gf-color-secondary-rgb: 255, 255, 255;--gf-color-secondary-contrast: #112337;--gf-color-secondary-contrast-rgb: 17, 35, 55;--gf-color-secondary-darker: #F5F5F5;--gf-color-secondary-lighter: #FFFFFF;--gf-color-out-ctrl-light: rgba(17, 35, 55, 0.1);--gf-color-out-ctrl-light-rgb: 17, 35, 55;--gf-color-out-ctrl-light-darker: rgba(104, 110, 119, 0.35);--gf-color-out-ctrl-light-lighter: #F5F5F5;--gf-color-out-ctrl-dark: #585e6a;--gf-color-out-ctrl-dark-rgb: 88, 94, 106;--gf-color-out-ctrl-dark-darker: #112337;--gf-color-out-ctrl-dark-lighter: rgba(17, 35, 55, 0.65);--gf-color-in-ctrl: #fff;--gf-color-in-ctrl-rgb: 255, 255, 255;--gf-color-in-ctrl-contrast: #112337;--gf-color-in-ctrl-contrast-rgb: 17, 35, 55;--gf-color-in-ctrl-darker: #F5F5F5;--gf-color-in-ctrl-lighter: #FFFFFF;--gf-color-in-ctrl-primary: #204ce5;--gf-color-in-ctrl-primary-rgb: 32, 76, 229;--gf-color-in-ctrl-primary-contrast: #fff;--gf-color-in-ctrl-primary-contrast-rgb: 255, 255, 255;--gf-color-in-ctrl-primary-darker: #001AB3;--gf-color-in-ctrl-primary-lighter: #527EFF;--gf-color-in-ctrl-light: rgba(17, 35, 55, 0.1);--gf-color-in-ctrl-light-rgb: 17, 35, 55;--gf-color-in-ctrl-light-darker: rgba(104, 110, 119, 0.35);--gf-color-in-ctrl-light-lighter: #F5F5F5;--gf-color-in-ctrl-dark: #585e6a;--gf-color-in-ctrl-dark-rgb: 88, 94, 106;--gf-color-in-ctrl-dark-darker: #112337;--gf-color-in-ctrl-dark-lighter: rgba(17, 35, 55, 0.65);--gf-radius: 3px;--gf-font-size-secondary: 14px;--gf-font-size-tertiary: 13px;--gf-icon-ctrl-number: url("data:image/svg+xml,%3Csvg width='8' height='14' viewBox='0 0 8 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M4 0C4.26522 5.96046e-08 4.51957 0.105357 4.70711 0.292893L7.70711 3.29289C8.09763 3.68342 8.09763 4.31658 7.70711 4.70711C7.31658 5.09763 6.68342 5.09763 6.29289 4.70711L4 2.41421L1.70711 4.70711C1.31658 5.09763 0.683417 5.09763 0.292893 4.70711C-0.0976311 4.31658 -0.097631 3.68342 0.292893 3.29289L3.29289 0.292893C3.48043 0.105357 3.73478 0 4 0ZM0.292893 9.29289C0.683417 8.90237 1.31658 8.90237 1.70711 9.29289L4 11.5858L6.29289 9.29289C6.68342 8.90237 7.31658 8.90237 7.70711 9.29289C8.09763 9.68342 8.09763 10.3166 7.70711 10.7071L4.70711 13.7071C4.31658 14.0976 3.68342 14.0976 3.29289 13.7071L0.292893 10.7071C-0.0976311 10.3166 -0.0976311 9.68342 0.292893 9.29289Z' fill='rgba(17, 35, 55, 0.65)'/%3E%3C/svg%3E");--gf-icon-ctrl-select: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M0.292893 0.292893C0.683417 -0.097631 1.31658 -0.097631 1.70711 0.292893L5 3.58579L8.29289 0.292893C8.68342 -0.0976311 9.31658 -0.0976311 9.70711 0.292893C10.0976 0.683417 10.0976 1.31658 9.70711 1.70711L5.70711 5.70711C5.31658 6.09763 4.68342 6.09763 4.29289 5.70711L0.292893 1.70711C-0.0976311 1.31658 -0.0976311 0.683418 0.292893 0.292893Z' fill='rgba(17, 35, 55, 0.65)'/%3E%3C/svg%3E");--gf-icon-ctrl-search: url("data:image/svg+xml,%3Csvg width='640' height='640' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M256 128c-70.692 0-128 57.308-128 128 0 70.691 57.308 128 128 128 70.691 0 128-57.309 128-128 0-70.692-57.309-128-128-128zM64 256c0-106.039 85.961-192 192-192s192 85.961 192 192c0 41.466-13.146 79.863-35.498 111.248l154.125 154.125c12.496 12.496 12.496 32.758 0 45.254s-32.758 12.496-45.254 0L367.248 412.502C335.862 434.854 297.467 448 256 448c-106.039 0-192-85.962-192-192z' fill='rgba(17, 35, 55, 0.65)'/%3E%3C/svg%3E");--gf-label-space-y-secondary: var(--gf-label-space-y-md-secondary);--gf-ctrl-border-color: #686e77;--gf-ctrl-size: var(--gf-ctrl-size-md);--gf-ctrl-label-color-primary: #112337;--gf-ctrl-label-color-secondary: #112337;--gf-ctrl-choice-size: var(--gf-ctrl-choice-size-md);--gf-ctrl-checkbox-check-size: var(--gf-ctrl-checkbox-check-size-md);--gf-ctrl-radio-check-size: var(--gf-ctrl-radio-check-size-md);--gf-ctrl-btn-font-size: var(--gf-ctrl-btn-font-size-md);--gf-ctrl-btn-padding-x: var(--gf-ctrl-btn-padding-x-md);--gf-ctrl-btn-size: var(--gf-ctrl-btn-size-md);--gf-ctrl-btn-border-color-secondary: #686e77;--gf-ctrl-btn-bg-color-hover-tertiary: #EBEBEB;--gf-field-img-choice-size: var(--gf-field-img-choice-size-md);--gf-field-img-choice-card-space: var(--gf-field-img-choice-card-space-md);--gf-field-img-choice-check-ind-size: var(--gf-field-img-choice-check-ind-size-md);--gf-field-img-choice-check-ind-icon-size: var(--gf-field-img-choice-check-ind-icon-size-md);--gf-field-pg-steps-number-color: rgba(17, 35, 55, 0.8);}</style><div id='gf_2' class='gform_anchor' tabindex='-1'></div>
+                        <div class='gform_heading'>
+                            <h2 class="gform_title">Free plan offering download</h2>
+                            <p class='gform_description'></p>
+                        </div><form method='post' enctype='multipart/form-data' target='gform_ajax_frame_2' id='gform_2'  action='/contact-us/#gf_2' data-formid='2' novalidate>
+                        <div class='gform-body gform_body'><div id='gform_fields_2' class='gform_fields top_label form_sublabel_below description_below validation_below'><div id="field_2_14" class="gfield gfield--type-text gfield--input-type-text gfield--width-half gfield_contains_required field_sublabel_below gfield--no-description field_description_below field_validation_below gfield_visibility_visible"  ><label class='gfield_label gform-field-label' for='input_2_14'><span class='gform-field-label__text'>Full Name</span><span class="gfield_required"><span class="gfield_required gfield_required_text">(Required)</span></span></label><div class='ginput_container ginput_container_text'><input name='input_14' id='input_2_14' type='text' value='' class='large'     aria-required="true" aria-invalid="false"   /></div></div><div id="field_2_6" class="gfield gfield--type-email gfield--input-type-email gfield--width-half gfield_contains_required field_sublabel_below gfield--no-description field_description_below field_validation_below gfield_visibility_visible"  ><label class='gfield_label gform-field-label' for='input_2_6'><span class='gform-field-label__text'>Email</span><span class="gfield_required"><span class="gfield_required gfield_required_text">(Required)</span></span></label><div class='ginput_container ginput_container_email'>
+                            <input name='input_6' id='input_2_6' type='email' value='' class='large'    aria-required="true" aria-invalid="false"  />
+                        </div></div><div id="field_2_8" class="gfield gfield--type-phone gfield--input-type-phone gfield--phone-format-international gfield--width-half field_sublabel_below gfield--no-description field_description_below field_validation_below gfield_visibility_visible"  ><label class='gfield_label gform-field-label' for='input_2_8'><span class='gform-field-label__text'>Phone Number</span></label><div class='ginput_container ginput_container_phone'><input name='input_8' id='input_2_8' type='tel' value='' class='large'    aria-invalid="false"    /></div></div><div id="field_2_9" class="gfield gfield--type-text gfield--input-type-text gfield--width-half field_sublabel_below gfield--no-description field_description_below field_validation_below gfield_visibility_visible"  ><label class='gfield_label gform-field-label' for='input_2_9'><span class='gform-field-label__text'>Where are you looking to build?</span></label><div class='ginput_container ginput_container_text'><input name='input_9' id='input_2_9' type='text' value='' class='large'      aria-invalid="false"   /></div></div><fieldset id="field_2_11" class="gfield gfield--type-multi_choice gfield--type-choice gfield--input-type-radio gfield--width-half field_sublabel_below gfield--no-description field_description_below field_validation_below gfield_visibility_visible gfield--choice-align-vertical"  ><legend class='gfield_label gform-field-label gfield_label_before_complex' ><span class='gform-field-label__text'>Have you purchased land?</span></legend><div class='ginput_container ginput_container_radio'><div class='gfield_radio' id='input_2_11'>
+			<div class='gchoice gchoice_2_11_0'>
+					<input class='gfield-choice-input' name='input_11' type='radio' value='Yes'  id='choice_2_11_0' onchange='gformToggleRadioOther( this )'    />
+					<label for='choice_2_11_0' id='label_2_11_0' class='gform-field-label gform-field-label--type-inline'>Yes</label>
+			</div>
+			<div class='gchoice gchoice_2_11_1'>
+					<input class='gfield-choice-input' name='input_11' type='radio' value='No'  id='choice_2_11_1' onchange='gformToggleRadioOther( this )'    />
+					<label for='choice_2_11_1' id='label_2_11_1' class='gform-field-label gform-field-label--type-inline'>No</label>
+			</div>
+			<div class='gchoice gchoice_2_11_2'>
+					<input class='gfield-choice-input' name='input_11' type='radio' value='In the process'  id='choice_2_11_2' onchange='gformToggleRadioOther( this )'    />
+					<label for='choice_2_11_2' id='label_2_11_2' class='gform-field-label gform-field-label--type-inline'>In the process</label>
+			</div></div></div></fieldset><div id="field_2_15" class="gfield gfield--type-textarea gfield--input-type-textarea gfield--width-half field_sublabel_below gfield--no-description field_description_below field_validation_below gfield_visibility_visible"  ><label class='gfield_label gform-field-label' for='input_2_15'><span class='gform-field-label__text'>Message</span></label><div class='ginput_container ginput_container_textarea'><textarea name='input_15' id='input_2_15' class='textarea small'      aria-invalid="false"   rows='10' cols='50'></textarea></div></div></div></div>
+        <div class='gform-footer gform_footer top_label'> <button type='submit' id='gform_submit_button_2' class='gform_button button gform-button--width-full' onclick='gform.submission.handleButtonClick(this);' data-submission-type='submit' >Get Plans!</button> <input type='hidden' name='gform_ajax' value='form_id=2&amp;title=1&amp;description=1&amp;tabindex=0&amp;theme=orbital&amp;styles=[]&amp;hash=a0d60f2ac41d5b190e36c63705aad363' />
+            <input type='hidden' class='gform_hidden' name='gform_submission_method' data-js='gform_submission_method_2' value='iframe' />
+            <input type='hidden' class='gform_hidden' name='gform_theme' data-js='gform_theme_2' id='gform_theme_2' value='orbital' />
+            <input type='hidden' class='gform_hidden' name='gform_style_settings' data-js='gform_style_settings_2' id='gform_style_settings_2' value='[]' />
+            <input type='hidden' class='gform_hidden' name='is_submit_2' value='1' />
+            <input type='hidden' class='gform_hidden' name='gform_submit' value='2' />
+            
+            <input type='hidden' class='gform_hidden' name='gform_currency' data-currency='USD' value='0xSxwKpAVyJLk3WWaFvTh7LsQ7v4N70EXQnub87NmPp7JJunP4ptYemS+RiX0HpzR8cdctZogOuJ7Wz9zYRB1faZQrLyO6+thpbvdT7zfjkIFRU=' />
+            <input type='hidden' class='gform_hidden' name='gform_unique_id' value='' />
+            <input type='hidden' class='gform_hidden' name='state_2' value='WyJ7XCIxMVwiOltcIjM2MTU2ZDQ4NmExZjMyNGYwYTlhZjdkNjBlYWNiOWJiXCIsXCIzZjIxYmU3YjdhOTk1N2IyYWQ4ZjI5NTIwNzA2Nzc3M1wiLFwiOTE3MWY4MGYyYWU4MTM2N2EyNGMzMWYxY2EzMjUwNjFcIl0sXCJnZm9ybV9zdWJtaXNzaW9uX21ldGhvZFwiOltcIjZhNGNiNjRiYjg4Yjk1ZGM1NTk5ZjI5ZGRjOGRkM2U2XCIsXCIzOGUxYTQyNjk1Mjk4ZTBjNDE2ZGRhMTBkMmQzMThmNFwiLFwiNDIxMmJhYzI0MjFmM2ViOTM0ODM5MjFmNDM1MDQ4YWFcIl0sXCJnZm9ybV90aGVtZVwiOlwiOGRiNjNlYjRkMWQ4NmJhMTA0YWE3Y2VlZWNlNTJjZThcIixcImdmb3JtX3N0eWxlX3NldHRpbmdzXCI6XCIwYWVkYzJmZTJiNjBiMWY0YjhlMzdjMWY4ZGZmN2YzYVwiLFwiZm9ybV9pZFwiOlwiZTA5YTcwYzEzYjczNDMyNjdkZTdmM2FmM2JlNzI2MDBcIixcInVybFwiOlwiNDYyYzk4ZTk3ZGI5ZGZiMjgwNTZhYjE2NzE4NzkzOGFcIixcInN0YXRlX3RpbWVzdGFtcFwiOlwiMWVkYzBhNjEwYWYyZTg2MWJlODZmYTU5ZTE3YWExZWFcIn0iLCJlZTRhZjRjYzI5MGRlZmM5ZTA4ZjIyNzRmMzEwZjk0ZCIsMTc4OTcyODMxMF0=' />
+            <input type='hidden' autocomplete='off' class='gform_hidden' name='gform_target_page_number_2' id='gform_target_page_number_2' value='0' />
+            <input type='hidden' autocomplete='off' class='gform_hidden' name='gform_source_page_number_2' id='gform_source_page_number_2' value='1' />
+            <input type='hidden' name='gform_field_values' value='' />
+            
+        </div>
+                        <p style="display: none !important;" class="akismet-fields-container" data-prefix="ak_"><label>&#916;<textarea name="ak_hp_textarea" cols="45" rows="8" maxlength="100"></textarea></label><input type="hidden" id="ak_js_1" name="ak_js" value="112"/><script>
+document.getElementById( "ak_js_1" ).setAttribute( "value", ( new Date() ).getTime() );
+</script>
+</p></form>
+                        </div>
+		                <iframe style='display:none;width:0px;height:0px;' src='about:blank' name='gform_ajax_frame_2' id='gform_ajax_frame_2' title='This iframe contains the logic required to handle Ajax powered Gravity Forms.'></iframe>
+		                <script>
+gform.initializeOnLoaded( function() {jQuery('#gform_ajax_frame_2').on('load',function(){var contents = jQuery(this).contents().find('*').html();var is_postback = contents.indexOf('GF_AJAX_POSTBACK') >= 0;if(!is_postback){return;}var form_content = jQuery(this).contents().find('#gform_wrapper_2');var is_confirmation = jQuery(this).contents().find('#gform_confirmation_wrapper_2').length > 0;var is_redirect = contents.indexOf('gformRedirect(){') >= 0;var is_form = form_content.length > 0 && ! is_redirect && ! is_confirmation;var mt = parseInt(jQuery('html').css('margin-top'), 10) + parseInt(jQuery('body').css('margin-top'), 10) + 100;if(is_form){jQuery('#gform_wrapper_2').html(form_content.html());if(form_content.hasClass('gform_validation_error')){jQuery('#gform_wrapper_2').addClass('gform_validation_error');} else {jQuery('#gform_wrapper_2').removeClass('gform_validation_error');}setTimeout( function() { /* delay the scroll by 50 milliseconds to fix a bug in chrome */ jQuery(document).scrollTop(jQuery('#gform_wrapper_2').offset().top - mt); }, 50 );var current_page = jQuery('#gform_source_page_number_2').val();jQuery(document).trigger('gform_page_loaded', [2, current_page]);window['gf_submitting_2'] = false;}else if(!is_redirect){var confirmation_content = jQuery(this).contents().find('.GF_AJAX_POSTBACK').html();if(!confirmation_content){confirmation_content = contents;}jQuery('#gform_wrapper_2').replaceWith(confirmation_content);jQuery(document).scrollTop(jQuery('#gf_2').offset().top - mt);jQuery(document).trigger('gform_confirmation_loaded', [2]);window['gf_submitting_2'] = false;wp.a11y.speak(jQuery('#gform_confirmation_message_2').text());}else{jQuery('#gform_2').append(contents);if(window['gformRedirect']) {gformRedirect();}}jQuery(document).trigger("gform_pre_post_render", [{ formId: "2", currentPage: "current_page", abort: function() { this.preventDefault(); } }]);        if (event && event.defaultPrevented) {                return;        }        const gformWrapperDiv = document.getElementById( "gform_wrapper_2" );        if ( gformWrapperDiv ) {            const visibilitySpan = document.createElement( "span" );            visibilitySpan.id = "gform_visibility_test_2";            gformWrapperDiv.insertAdjacentElement( "afterend", visibilitySpan );        }        const visibilityTestDiv = document.getElementById( "gform_visibility_test_2" );        let postRenderFired = false;        function triggerPostRender() {            if ( postRenderFired ) {                return;            }            postRenderFired = true;            gform.core.triggerPostRenderEvents( 2, current_page );            if ( visibilityTestDiv ) {                visibilityTestDiv.parentNode.removeChild( visibilityTestDiv );            }        }        function debounce( func, wait, immediate ) {            var timeout;            return function() {                var context = this, args = arguments;                var later = function() {                    timeout = null;                    if ( !immediate ) func.apply( context, args );                };                var callNow = immediate && !timeout;                clearTimeout( timeout );                timeout = setTimeout( later, wait );                if ( callNow ) func.apply( context, args );            };        }        const debouncedTriggerPostRender = debounce( function() {            triggerPostRender();        }, 200 );        if ( visibilityTestDiv && visibilityTestDiv.offsetParent === null ) {            const observer = new MutationObserver( ( mutations ) => {                mutations.forEach( ( mutation ) => {                    if ( mutation.type === 'attributes' && visibilityTestDiv.offsetParent !== null ) {                        debouncedTriggerPostRender();                        observer.disconnect();                    }                });            });            observer.observe( document.body, {                attributes: true,                childList: false,                subtree: true,                attributeFilter: [ 'style', 'class' ],            });        } else {            triggerPostRender();        }    } );} );
+</script>
+
+		</div>
+
+				
+							<button type="button" class="pum-close popmake-close" aria-label="Close">
+			×			</button>
+		
+	</div>
+
+</div>
+<script>function loadScript(a){var b=document.getElementsByTagName("head")[0],c=document.createElement("script");c.type="text/javascript",c.src="https://tracker.metricool.com/resources/be.js",c.onreadystatechange=a,c.onload=a,b.appendChild(c)}loadScript(function(){beTracker.t({hash:"7fd9770987b4930227f058679fe64c50"})});</script><script>
+
+function getSelectionText() {
+  var text = '';
+  if (window.getSelection) {
+    text = window.getSelection().toString();
+  } else if (document.selection && document.selection.type != 'Control') {
+    text = document.selection.createRange().text;
+  }
+  return text;
+}
+
+document.addEventListener('copy', function(e){
+ var txt=getSelectionText();
+    if(txt.indexOf("ben@riseresidential.co.nz")!== -1)
+{
+    dataLayer.push({
+    'event': 'EmailCopied',
+    'clipboardText': getSelectionText(),
+    'clipboardLength': getSelectionText().length
+  });
+}
+});
+</script><script id="wp-hooks-js" src="https://www.riseresidential.co.nz/wp-includes/js/dist/hooks.min.js?ver=f0f188028580e8dc1255"></script>
+<script id="wp-i18n-js" src="https://www.riseresidential.co.nz/wp-includes/js/dist/i18n.min.js?ver=1dfe7db3940c23ea9216"></script>
+<script id="wp-i18n-js-after">
+wp.i18n.setLocaleData( { 'text direction\u0004ltr': [ 'ltr' ] } );
+//# sourceURL=wp-i18n-js-after
+</script>
+<script id="swv-js" src="https://www.riseresidential.co.nz/wp-content/plugins/contact-form-7/includes/swv/js/index.js?ver=6.1.7"></script>
+<script id="contact-form-7-js-before">
+var wpcf7 = {
+    "api": {
+        "root": "https:\/\/www.riseresidential.co.nz\/wp-json\/",
+        "namespace": "contact-form-7\/v1"
+    },
+    "cached": 1
+};
+//# sourceURL=contact-form-7-js-before
+</script>
+<script id="contact-form-7-js" src="https://www.riseresidential.co.nz/wp-content/plugins/contact-form-7/includes/js/index.js?ver=6.1.7"></script>
+<script data-wp-strategy="async" id="cloudflare-turnstile-js" src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>
+<script id="cloudflare-turnstile-js-after">
+document.addEventListener( 'wpcf7submit', e => turnstile.reset() );
+//# sourceURL=cloudflare-turnstile-js-after
+</script>
+<script id="flatsome-instant-page-js" src="https://www.riseresidential.co.nz/wp-content/themes/flatsome/inc/extensions/flatsome-instant-page/flatsome-instant-page.js?ver=1.2.1"></script>
+<script id="flatsome-live-search-js" src="https://www.riseresidential.co.nz/wp-content/themes/flatsome/assets/js/extensions/flatsome-live-search.js?ver=3.20.10"></script>
+<script id="googlesitekit-consent-mode-js" src="https://www.riseresidential.co.nz/wp-content/plugins/google-site-kit/dist/assets/js/googlesitekit-consent-mode-755f1678e260138d789e.js"></script>
+<script id="wp-dom-ready-js" src="https://www.riseresidential.co.nz/wp-includes/js/dist/dom-ready.min.js?ver=3fe927cab37bf38d6a23"></script>
+<script id="wp-a11y-js" src="https://www.riseresidential.co.nz/wp-includes/js/dist/a11y.min.js?ver=31c6cec5a4ff7aff483d"></script>
+<script id="gform_gravityforms_theme_vendors-js" defer='defer' src="https://www.riseresidential.co.nz/wp-content/plugins/gravityforms/assets/js/dist/vendor-theme.min.js?ver=0c901cb641ce64b99c20ea1a4d208cc9"></script>
+<script id="gform_gravityforms_theme-js-extra">
+var gform_theme_config = {"common":{"form":{"honeypot":{"version_hash":"c938bf7b80c07bcb75d6cd9974853217"},"ajax":{"ajaxurl":"https://www.riseresidential.co.nz/wp-admin/admin-ajax.php","ajax_submission_nonce":"0f21d4805a","i18n":{"step_announcement":"Step %1$s of %2$s, %3$s","unknown_error":"There was an unknown error processing your request. Please try again.","error_403":"The request was blocked (403 error) for unknown security reasons. Remove any code-like text (scripts or DB queries) and try again."}}}},"hmr_dev":"","public_path":"https://www.riseresidential.co.nz/wp-content/plugins/gravityforms/assets/js/dist/","config_nonce":"86a2a3dd0b"};
+//# sourceURL=gform_gravityforms_theme-js-extra
+</script>
+<script id="gform_gravityforms_theme-js" defer='defer' src="https://www.riseresidential.co.nz/wp-content/plugins/gravityforms/assets/js/dist/scripts-theme.min.js?ver=e27d9712159624c99129c8c208f022ad"></script>
+<script defer id="akismet-frontend-js" src="https://www.riseresidential.co.nz/wp-content/plugins/akismet/_inc/akismet-frontend.js?ver=1787368310"></script>
+<script id="jquery-ui-core-js-before">
+jQuery.uiBackCompat = true;
+//# sourceURL=jquery-ui-core-js-before
+</script>
+<script id="jquery-ui-core-js" src="https://www.riseresidential.co.nz/wp-includes/js/jquery/ui/core.min.js?ver=1.14.2"></script>
+<script id="popup-maker-site-js-extra">
+var pum_vars = {"version":"1.25.0","pm_dir_url":"https://www.riseresidential.co.nz/wp-content/plugins/popup-maker/","ajaxurl":"https://www.riseresidential.co.nz/wp-admin/admin-ajax.php","restapi":"https://www.riseresidential.co.nz/wp-json/pum/v1","rest_nonce":null,"default_theme":"4990","debug_mode":"","disable_tracking":"","disable_url_params":"","home_url":"/","message_position":"top","core_sub_forms_enabled":"1","popups":[],"cookie_domain":"","paramNames":{"popup_id":"pid","cta":"cta","notrack":"notrack"},"analytics_enabled":"1","analytics_route":"analytics","analytics_api":"https://www.riseresidential.co.nz/wp-json/pum/v1"};
+var pum_sub_vars = {"ajaxurl":"https://www.riseresidential.co.nz/wp-admin/admin-ajax.php","message_position":"top"};
+var pum_popups = {"pum-5144":{"triggers":[],"cookies":[],"disable_on_mobile":false,"disable_on_tablet":false,"explain":null,"type_section":null,"theme_id":"4991","size":"medium","responsive_min_width":"0%","responsive_max_width":"100%","custom_width":"640px","custom_height_auto":false,"custom_height":"380px","scrollable_content":false,"animation_type":"fade","animation_speed":"350","animation_origin":"center top","open_sound":"none","custom_sound":"","location":"center","position_top":"100","position_bottom":"0","position_left":"0","position_right":"0","position_from_trigger":false,"position_fixed":false,"overlay_disabled":false,"stackable":false,"disable_reposition":false,"zindex":"1999999999","close_button_delay":"0","close_on_form_submission":false,"close_on_form_submission_delay":"0","close_on_overlay_click":true,"close_on_esc_press":false,"close_on_f4_press":false,"disable_form_reopen":false,"disable_accessibility":false,"theme_slug":"lightbox","id":5144,"slug":"free-plan-offering"}};
+//# sourceURL=popup-maker-site-js-extra
+</script>
+<script id="popup-maker-site-js" src="//www.riseresidential.co.nz/wp-content/uploads/pum/pum-site-scripts.js?defer&#038;generated=1787864842&#038;ver=1.25.0"></script>
+<script id="gform_placeholder-js" defer='defer' src="https://www.riseresidential.co.nz/wp-content/plugins/gravityforms/js/placeholders.jquery.min.js?ver=3.1.1.2"></script>
+<script id="googlesitekit-events-provider-contact-form-7-js" src="https://www.riseresidential.co.nz/wp-content/plugins/google-site-kit/dist/assets/js/googlesitekit-events-provider-contact-form-7-fac2a8013ba5ba355cd0.js" defer></script>
+<script id="googlesitekit-events-provider-content-events-js-before">
+window._googlesitekit = window._googlesitekit || {};
+window._googlesitekit.contentEvents = {"postID":36,"isSinglePost":false,"hasVimeoEmbed":false};
+//# sourceURL=googlesitekit-events-provider-content-events-js-before
+</script>
+<script id="googlesitekit-events-provider-content-events-js" src="https://www.riseresidential.co.nz/wp-content/plugins/google-site-kit/dist/assets/js/googlesitekit-events-provider-content-events-bb83c1a0aedefa5d25d1.js" defer></script>
+<script id="googlesitekit-events-provider-popup-maker-js" src="https://www.riseresidential.co.nz/wp-content/plugins/google-site-kit/dist/assets/js/googlesitekit-events-provider-popup-maker-b946f1908d7c0c105eca.js" defer></script>
+<script id="hoverIntent-js" src="https://www.riseresidential.co.nz/wp-includes/js/hoverIntent.min.js?ver=1.10.2"></script>
+<script id="flatsome-js-js-extra">
+var flatsomeVars = {"theme":{"version":"3.20.10"},"ajaxurl":"https://www.riseresidential.co.nz/wp-admin/admin-ajax.php","rtl":"","sticky_height":"70","stickyHeaderHeight":"0","scrollPaddingTop":"0","assets_url":"https://www.riseresidential.co.nz/wp-content/themes/flatsome/assets/","lightbox":{"close_markup":"\u003Cbutton title=\"%title%\" type=\"button\" class=\"mfp-close\"\u003E\u003Csvg xmlns=\"http://www.w3.org/2000/svg\" width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"feather feather-x\"\u003E\u003Cline x1=\"18\" y1=\"6\" x2=\"6\" y2=\"18\"\u003E\u003C/line\u003E\u003Cline x1=\"6\" y1=\"6\" x2=\"18\" y2=\"18\"\u003E\u003C/line\u003E\u003C/svg\u003E\u003C/button\u003E","close_btn_inside":false},"user":{"can_edit_pages":false},"i18n":{"mainMenu":"Main Menu","toggleButton":"Toggle"},"options":{"cookie_notice_version":"1","swatches_layout":false,"swatches_disable_deselect":false,"swatches_box_select_event":false,"swatches_box_behavior_selected":false,"swatches_box_update_urls":"1","swatches_box_reset":false,"swatches_box_reset_limited":false,"swatches_box_reset_extent":false,"swatches_box_reset_time":300,"search_result_latency":"0","header_nav_vertical_fly_out_frontpage":1}};
+//# sourceURL=flatsome-js-js-extra
+</script>
+<script id="flatsome-js-js" src="https://www.riseresidential.co.nz/wp-content/themes/flatsome/assets/js/flatsome.js?ver=e2eddd6c228105dac048"></script>
+<script id="wp-emoji-settings" type="application/json">
+{"baseUrl":"https://s.w.org/images/core/emoji/17.0.2/72x72/","ext":".png","svgUrl":"https://s.w.org/images/core/emoji/17.0.2/svg/","svgExt":".svg","source":{"concatemoji":"https://www.riseresidential.co.nz/wp-includes/js/wp-emoji-release.min.js?ver=7.1"}}
+</script>
+<script type="module">
+/*! This file is auto-generated */
+var e="script#wp-emoji-settings",t=document.querySelector(e);if(!(t instanceof HTMLScriptElement))throw new Error("Element missing: "+e);const r=JSON.parse(t.text),s=(window._wpemojiSettings=r,"wpEmojiSettingsSupports"),o=["flag","emoji"];function i(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(s,JSON.stringify(t))}catch(e){}}function c(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0);const r=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);return t.every((e,t)=>e===r[t])}function p(e,t){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var n=e.getImageData(16,16,1,1);for(let e=0;e<n.data.length;e++)if(0!==n.data[e])return!1;return!0}function u(e,t,n,r){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\udde8\ud83c\uddf6","\ud83c\udde8\u200b\ud83c\uddf6")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!r(e,"\ud83e\u1fac8")}return!1}function f(e,t,n,r){let a;const s=(a="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):document.createElement("canvas")).getContext("2d",{willReadFrequently:!0}),o=(s.textBaseline="top",s.font="600 32px Arial",{});return e.forEach(e=>{o[e]=t(s,e,n,r)}),o}function a(e){var t=document.createElement("script");t.src=e,t.defer=!0,document.head.appendChild(t)}r.supports={everything:!0,everythingExceptFlag:!0},new Promise(t=>{let n=function(){try{var e=JSON.parse(sessionStorage.getItem(s));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(o),u.toString(),c.toString(),p.toString()].join(",")+"));",r=new Blob([e],{type:"text/javascript"});const a=new Worker(URL.createObjectURL(r),{name:"wpTestEmojiSupports"});return void(a.onmessage=e=>{i(n=e.data),a.terminate(),t(n)})}catch(e){}i(n=f(o,u,c,p))}t(n)}).then(e=>{for(const n in e)r.supports[n]=e[n],r.supports.everything=r.supports.everything&&r.supports[n],"flag"!==n&&(r.supports.everythingExceptFlag=r.supports.everythingExceptFlag&&r.supports[n]);var t;r.supports.everythingExceptFlag=r.supports.everythingExceptFlag&&!r.supports.flag,r.supports.everything||((t=r.source||{}).concatemoji?a(t.concatemoji):t.wpemoji&&t.twemoji&&(a(t.twemoji),a(t.wpemoji)))});
+//# sourceURL=https://www.riseresidential.co.nz/wp-includes/js/wp-emoji-loader.min.js
+</script>
+<script>
+gform.initializeOnLoaded( function() { jQuery(document).on('gform_post_render', function(event, formId, currentPage){if(formId == 2) {} } );jQuery(document).on('gform_post_conditional_logic', function(event, formId, fields, isInit){} ) } );
+</script>
+<script>
+gform.initializeOnLoaded( function() {jQuery(document).trigger("gform_pre_post_render", [{ formId: "2", currentPage: "1", abort: function() { this.preventDefault(); } }]);        if (event && event.defaultPrevented) {                return;        }        const gformWrapperDiv = document.getElementById( "gform_wrapper_2" );        if ( gformWrapperDiv ) {            const visibilitySpan = document.createElement( "span" );            visibilitySpan.id = "gform_visibility_test_2";            gformWrapperDiv.insertAdjacentElement( "afterend", visibilitySpan );        }        const visibilityTestDiv = document.getElementById( "gform_visibility_test_2" );        let postRenderFired = false;        function triggerPostRender() {            if ( postRenderFired ) {                return;            }            postRenderFired = true;            gform.core.triggerPostRenderEvents( 2, 1 );            if ( visibilityTestDiv ) {                visibilityTestDiv.parentNode.removeChild( visibilityTestDiv );            }        }        function debounce( func, wait, immediate ) {            var timeout;            return function() {                var context = this, args = arguments;                var later = function() {                    timeout = null;                    if ( !immediate ) func.apply( context, args );                };                var callNow = immediate && !timeout;                clearTimeout( timeout );                timeout = setTimeout( later, wait );                if ( callNow ) func.apply( context, args );            };        }        const debouncedTriggerPostRender = debounce( function() {            triggerPostRender();        }, 200 );        if ( visibilityTestDiv && visibilityTestDiv.offsetParent === null ) {            const observer = new MutationObserver( ( mutations ) => {                mutations.forEach( ( mutation ) => {                    if ( mutation.type === 'attributes' && visibilityTestDiv.offsetParent !== null ) {                        debouncedTriggerPostRender();                        observer.disconnect();                    }                });            });            observer.observe( document.body, {                attributes: true,                childList: false,                subtree: true,                attributeFilter: [ 'style', 'class' ],            });        } else {            triggerPostRender();        }    } );
+</script>
+<script>
+gform.initializeOnLoaded( function() { jQuery(document).on('gform_post_render', function(event, formId, currentPage){if(formId == 1) {if(typeof Placeholders != 'undefined'){
+                        Placeholders.enable();
+                    }} } );jQuery(document).on('gform_post_conditional_logic', function(event, formId, fields, isInit){} ) } );
+</script>
+<script>
+gform.initializeOnLoaded( function() {jQuery(document).trigger("gform_pre_post_render", [{ formId: "1", currentPage: "1", abort: function() { this.preventDefault(); } }]);        if (event && event.defaultPrevented) {                return;        }        const gformWrapperDiv = document.getElementById( "gform_wrapper_1" );        if ( gformWrapperDiv ) {            const visibilitySpan = document.createElement( "span" );            visibilitySpan.id = "gform_visibility_test_1";            gformWrapperDiv.insertAdjacentElement( "afterend", visibilitySpan );        }        const visibilityTestDiv = document.getElementById( "gform_visibility_test_1" );        let postRenderFired = false;        function triggerPostRender() {            if ( postRenderFired ) {                return;            }            postRenderFired = true;            gform.core.triggerPostRenderEvents( 1, 1 );            if ( visibilityTestDiv ) {                visibilityTestDiv.parentNode.removeChild( visibilityTestDiv );            }        }        function debounce( func, wait, immediate ) {            var timeout;            return function() {                var context = this, args = arguments;                var later = function() {                    timeout = null;                    if ( !immediate ) func.apply( context, args );                };                var callNow = immediate && !timeout;                clearTimeout( timeout );                timeout = setTimeout( later, wait );                if ( callNow ) func.apply( context, args );            };        }        const debouncedTriggerPostRender = debounce( function() {            triggerPostRender();        }, 200 );        if ( visibilityTestDiv && visibilityTestDiv.offsetParent === null ) {            const observer = new MutationObserver( ( mutations ) => {                mutations.forEach( ( mutation ) => {                    if ( mutation.type === 'attributes' && visibilityTestDiv.offsetParent !== null ) {                        debouncedTriggerPostRender();                        observer.disconnect();                    }                });            });            observer.observe( document.body, {                attributes: true,                childList: false,                subtree: true,                attributeFilter: [ 'style', 'class' ],            });        } else {            triggerPostRender();        }    } );
+</script>
+<div hidden data-wpu-integrity="9f18f54c67dab74333eb5298f0a01814"></div>
+
+</body>
+</html>
+
+
+
+
+<!-- Page cached by LiteSpeed Cache 7.9.1 on 2026-09-18 10:45:10 -->

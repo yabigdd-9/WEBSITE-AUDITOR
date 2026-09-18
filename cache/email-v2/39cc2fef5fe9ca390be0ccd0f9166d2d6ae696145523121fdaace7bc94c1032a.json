@@ -1,0 +1,49 @@
+{
+  "pages": [
+    {
+      "url": "https://www.butterfieldbathrooms.co.nz/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:04:39.215615+00:00",
+      "sha256": "3b61729ad3a043b75dc5d66f1f5d5a8ed1a323e61ea3afd8373568ebc118845c",
+      "requested_url": "https://www.butterfieldbathrooms.co.nz/",
+      "path": "cache/email-v2/3b61729ad3a043b75dc5d66f1f5d5a8ed1a323e61ea3afd8373568ebc118845c.capture"
+    },
+    {
+      "url": "https://www.butterfieldbathrooms.co.nz/contact-us/",
+      "redirects": [
+        {
+          "from": "https://www.butterfieldbathrooms.co.nz/contact-us",
+          "to": "https://www.butterfieldbathrooms.co.nz/contact-us/",
+          "status": 301
+        }
+      ],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:04:41.948543+00:00",
+      "sha256": "08493d91d16c3036162778676fb8226f331fe7062e8e20174378067efce3cc3a",
+      "requested_url": "https://www.butterfieldbathrooms.co.nz/contact-us",
+      "path": "cache/email-v2/08493d91d16c3036162778676fb8226f331fe7062e8e20174378067efce3cc3a.capture"
+    },
+    {
+      "url": "https://www.butterfieldbathrooms.co.nz/about-us/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:04:42.953529+00:00",
+      "sha256": "9561f8a8c852df210b209e84fb8940da04382f45dd78b09d03f1336c2e486910",
+      "requested_url": "https://www.butterfieldbathrooms.co.nz/about-us/",
+      "path": "cache/email-v2/9561f8a8c852df210b209e84fb8940da04382f45dd78b09d03f1336c2e486910.capture"
+    }
+  ],
+  "errors": [],
+  "pending": [],
+  "requests": 5,
+  "started_at": "2026-09-18T16:04:37.905021+00:00",
+  "complete": true,
+  "attempts": {
+    "https://www.butterfieldbathrooms.co.nz/": 1,
+    "https://www.butterfieldbathrooms.co.nz/contact-us": 1,
+    "https://www.butterfieldbathrooms.co.nz/about-us/": 1,
+    "https://www.butterfieldbathrooms.co.nz/sitemap.xml": 1,
+    "https://www.butterfieldbathrooms.co.nz/contact-us/": 1
+  }
+}

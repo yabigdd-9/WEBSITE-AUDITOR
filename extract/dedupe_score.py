@@ -8,7 +8,7 @@ import json, re, csv, sys
 from pathlib import Path
 from collections import defaultdict
 
-OUT = Path("/Users/defaultaccount/HERMES_MONEY_ENGINE")
+OUT = Path("/Users/dd/WEBSITE-AUDITOR")
 engines = json.load(open(OUT / "extract/engines_raw.json"))
 
 # ---------------- price parsing ----------------

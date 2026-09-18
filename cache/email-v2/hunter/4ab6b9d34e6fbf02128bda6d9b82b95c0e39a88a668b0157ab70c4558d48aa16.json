@@ -1,0 +1,53 @@
+{
+  "domain": "evoke-reno.co.nz",
+  "emails": [
+    {
+      "value": "aw@evoke-reno.co.nz",
+      "type": "personal",
+      "confidence": 78,
+      "sources": [
+        "https://evoke-reno.co.nz/advice/categories/kitchen",
+        "https://evoke-reno.co.nz/bathrooms-clifton",
+        "https://evoke-reno.co.nz/mount-pleasant",
+        "https://evoke-reno.co.nz/post/12-kitchen-design-mistakes-and-how-to-avoid-them",
+        "https://evoke-reno.co.nz/post/why-smart-sustainable-kitchen-renovations-are-a-big-hit-in-2025",
+        "https://moneyhub.co.nz/bathroom-renovations-christchurch.html"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": null,
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    },
+    {
+      "value": "administration@evoke-reno.co.nz",
+      "type": "generic",
+      "confidence": 75,
+      "sources": [
+        "https://evoke-reno.co.nz/privacy-policy"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": "it",
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    }
+  ],
+  "total": 0,
+  "limit": 10,
+  "offset": 0,
+  "cached_at": "2026-09-18T16:05:05.951283+00:00",
+  "from_cache": false
+}

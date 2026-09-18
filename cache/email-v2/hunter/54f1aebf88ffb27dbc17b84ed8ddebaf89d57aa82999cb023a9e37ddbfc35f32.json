@@ -1,0 +1,224 @@
+{
+  "domain": "superiorrenovations.co.nz",
+  "emails": [
+    {
+      "value": "steven@superiorrenovations.co.nz",
+      "type": "personal",
+      "confidence": 99,
+      "sources": [
+        "https://superiorrenovations.co.nz/about-us/meet-the-team",
+        "https://superiorrenovations.co.nz/online-reviews",
+        "https://superiorrenovations.co.nz/house-extension-cost-calculator",
+        "https://superiorrenovations.co.nz/house-extension-cost-calculator-nz-updated-for-2020",
+        "https://superiorrenovations.co.nz/category/kitchen-renovation",
+        "https://careers.unitec.ac.nz/category/construction"
+      ],
+      "first_name": "Steven",
+      "last_name": "Holden",
+      "position": "General Manager",
+      "department": "management",
+      "linkedin": "https://www.linkedin.com/in/steven-ngov/",
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    },
+    {
+      "value": "elaine@superiorrenovations.co.nz",
+      "type": "personal",
+      "confidence": 98,
+      "sources": [
+        "https://superiorrenovations.co.nz/about-us/meet-the-team"
+      ],
+      "first_name": "Elaine",
+      "last_name": "Liu",
+      "position": "Head Of Marketing",
+      "department": "marketing",
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    },
+    {
+      "value": "kevin@superiorrenovations.co.nz",
+      "type": "personal",
+      "confidence": 98,
+      "sources": [
+        "https://superiorrenovations.co.nz/about-us/meet-the-team",
+        "https://superiorrenovations.co.nz/project/bathroom-toilet-renovation-papatoetoe",
+        "https://superiorrenovations.co.nz/project/extensive-full-home-renovation-in-west-auckland",
+        "https://superiorrenovations.co.nz/project/kitchen-and-laundry-renovation-papatoetoe",
+        "https://superiorrenovations.co.nz/project/luxury-indoor-and-outdoor-renovation-in-mellons-bay"
+      ],
+      "first_name": "Kevin",
+      "last_name": "Yang",
+      "position": "Managing Director",
+      "department": "executive",
+      "linkedin": "https://www.linkedin.com/in/kevin-yang-a3904297",
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": "2026-08-24",
+        "status": "valid"
+      }
+    },
+    {
+      "value": "swati@superiorrenovations.co.nz",
+      "type": "personal",
+      "confidence": 97,
+      "sources": [
+        "https://superiorrenovations.co.nz/about-us/meet-the-team"
+      ],
+      "first_name": "Swati",
+      "last_name": "Tiwary",
+      "position": "Head Of Marketing",
+      "department": "marketing",
+      "linkedin": "https://www.linkedin.com/in/swati-tiwary-409b69114/",
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    },
+    {
+      "value": "neil@superiorrenovations.co.nz",
+      "type": "personal",
+      "confidence": 99,
+      "sources": [
+        "https://superiorrenovations.co.nz/about-us/meet-the-team"
+      ],
+      "first_name": "Neil",
+      "last_name": "Kai",
+      "position": "Team Members",
+      "department": "management",
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    },
+    {
+      "value": "jimmy@superiorrenovations.co.nz",
+      "type": "personal",
+      "confidence": 99,
+      "sources": [
+        "https://superiorrenovations.co.nz/project/deck-and-bathroom-renovation-in-cockle-bay-auckland",
+        "https://superiorrenovations.co.nz/project/full-renovation-new-family-home",
+        "https://superiorrenovations.co.nz/project/renovate-or-sell-full-home-renovation-in-hillsborough",
+        "https://superiorrenovations.co.nz/project/investment-property-renovation-hillsborough"
+      ],
+      "first_name": "Jimmy",
+      "last_name": "Zhou",
+      "position": "Project Manager",
+      "department": "management",
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    },
+    {
+      "value": "dorothy@superiorrenovations.co.nz",
+      "type": "personal",
+      "confidence": 98,
+      "sources": [
+        "https://superiorrenovations.co.nz/about-us/meet-the-team",
+        "https://superiorrenovations.co.nz/project/classic-contemporary-bathroom-renovation-with-gold-and-wooden-finishes-in-massey",
+        "https://superiorrenovations.co.nz/project/designer-bathroom-renovations-in-north-shore",
+        "https://superiorrenovations.co.nz/project/kitchen-and-bathroom-renovation-in-henderson-valley",
+        "https://superiorrenovations.co.nz/project/luxury-indoor-and-outdoor-renovation-in-mellons-bay"
+      ],
+      "first_name": "Dorothy",
+      "last_name": "Li",
+      "position": "Design Manager",
+      "department": "design",
+      "linkedin": "https://www.linkedin.com/in/dorothy-li-131a14129",
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": "2026-09-04",
+        "status": "valid"
+      }
+    },
+    {
+      "value": "cici@superiorrenovations.co.nz",
+      "type": "personal",
+      "confidence": 97,
+      "sources": [
+        "https://superiorrenovations.co.nz/about-us/meet-the-team",
+        "https://superiorrenovations.co.nz/project/designer-bathroom-renovations-in-north-shore-auckland",
+        "https://superiorrenovations.co.nz/project/luxurious-kitchen-and-bathroom-design",
+        "https://superiorrenovations.co.nz/project/mangere-kitchen-renovation-and-kitchen-design",
+        "https://superiorrenovations.co.nz/online-reviews"
+      ],
+      "first_name": "Cici",
+      "last_name": "Zuo",
+      "position": "Sales Designer",
+      "department": "sales",
+      "linkedin": "https://www.linkedin.com/in/cici-zuo-415356175",
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": "2026-08-31",
+        "status": "valid"
+      }
+    },
+    {
+      "value": "jin@superiorrenovations.co.nz",
+      "type": "personal",
+      "confidence": 97,
+      "sources": [
+        "https://superiorrenovations.co.nz/project/cottage-style-country-kitchen-renovation-in-mangere-bridge-auckland",
+        "https://superiorrenovations.co.nz/project/design-case-study-entertainers-dream-renovation",
+        "https://superiorrenovations.co.nz/project/kitchen-and-bathroom-renovation-in-henderson-valley",
+        "https://superiorrenovations.co.nz/project/kitchen-is-the-heart-of-our-home",
+        "https://superiorrenovations.co.nz/project/modern-luxury-urban-renovation-in-parnell"
+      ],
+      "first_name": "Jin",
+      "last_name": "Nick",
+      "position": "Project Manager",
+      "department": "management",
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": "2026-08-31",
+        "status": "valid"
+      }
+    },
+    {
+      "value": "eunice@superiorrenovations.co.nz",
+      "type": "personal",
+      "confidence": 96,
+      "sources": [
+        "https://superiorrenovations.co.nz/about-us/meet-the-team"
+      ],
+      "first_name": "Eunice",
+      "last_name": "Qin",
+      "position": "Designer",
+      "department": "design",
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    }
+  ],
+  "total": 0,
+  "limit": 10,
+  "offset": 0,
+  "cached_at": "2026-09-18T16:04:23.955116+00:00",
+  "from_cache": false
+}

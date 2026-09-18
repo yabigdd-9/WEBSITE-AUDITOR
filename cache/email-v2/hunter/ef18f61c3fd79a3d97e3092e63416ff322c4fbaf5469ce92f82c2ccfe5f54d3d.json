@@ -1,0 +1,72 @@
+{
+  "domain": "trident.nz",
+  "emails": [
+    {
+      "value": "glen@trident.nz",
+      "type": "personal",
+      "confidence": 85,
+      "sources": [
+        "https://www.google.com/search?q=site:linkedin.com%20glen%20fox%20trident"
+      ],
+      "first_name": "Glen",
+      "last_name": "Fox",
+      "position": "Owner",
+      "department": "executive",
+      "linkedin": "https://www.linkedin.com/in/glen-fox-89b908204",
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": "2026-09-08",
+        "status": "accept_all"
+      }
+    },
+    {
+      "value": "blair@trident.nz",
+      "type": "personal",
+      "confidence": 85,
+      "sources": [
+        "https://www.google.com/search?q=site:linkedin.com%20blair%20johnston%20trident"
+      ],
+      "first_name": "Blair",
+      "last_name": "Johnston",
+      "position": "Signaling Engineer",
+      "department": "it",
+      "linkedin": "https://www.linkedin.com/in/blair-johnston-aaa33b33",
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": "2026-08-27",
+        "status": "accept_all"
+      }
+    },
+    {
+      "value": "info@trident.nz",
+      "type": "generic",
+      "confidence": 81,
+      "sources": [
+        "https://trident.nz/about",
+        "https://trident.nz",
+        "https://trident.nz/projects",
+        "https://trident.nz/air-conditioning",
+        "https://trident.nz/electrical",
+        "https://greeac.co.nz/where-to-buy"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": "support",
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    }
+  ],
+  "total": 0,
+  "limit": 10,
+  "offset": 0,
+  "cached_at": "2026-09-18T15:26:15.828583+00:00",
+  "from_cache": false
+}

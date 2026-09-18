@@ -195,6 +195,10 @@ def main(argv=None):
     q=s.add_parser('experiment');q.add_argument('id',type=int);q.add_argument('--industry',required=True);q.add_argument('--problem',choices=ONTOLOGY,required=True);q.add_argument('--offer',required=True);q.add_argument('--price-band',required=True);q.add_argument('--style',required=True);q.add_argument('--demo-type',required=True)
     q=s.add_parser('run-job');q.add_argument('--key',required=True);q.add_argument('--kind',choices=['status','learn'],required=True)
     s.add_parser('exa-status')
+    q=s.add_parser('brain-review');q.add_argument('id',type=int);q.add_argument('--config')
+    q=s.add_parser('brain-approve');q.add_argument('id',type=int);q.add_argument('--config')
+    q=s.add_parser('brain-reject');q.add_argument('id',type=int);q.add_argument('--reason',required=True);q.add_argument('--config')
+    q=s.add_parser('brain-outcome');q.add_argument('id',type=int);q.add_argument('--outcome',required=True);q.add_argument('--detail')
     q=s.add_parser('exa-discover');q.add_argument('--query',required=True);q.add_argument('--num-results',type=int,default=10);q.add_argument('--type',default='auto',choices=['auto','fast','deep','deep-reasoning','deep-lite'])
     q=s.add_parser('exa-fetch');q.add_argument('--urls',nargs='+',required=True)
     q=s.add_parser('exa-structured');q.add_argument('--query',required=True);q.add_argument('--schema-file',required=True);q.add_argument('--num-results',type=int,default=10);q.add_argument('--system-prompt')
@@ -234,6 +238,12 @@ def main(argv=None):
                 d.executescript((Path(__file__).resolve().parents[1]/'migrations/003_email_finder_v2_rollback.sql').read_text())
                 result={'mode':'v1_hold','history_retained':True,'new_approvals_held':True,'external_sends':0}
         print(email_cli.human_text(result) if a.cmd in ('email-status','email-find') and not a.json else json.dumps(result,indent=2))
+        return 0
+    if a.cmd.startswith('brain-'):
+        import mm_brain
+        with contextlib.closing(connect()) as d:
+            result=mm_brain.cli(a,d)
+        print(json.dumps(result,indent=2))
         return 0
     if a.cmd=='backup':print(backup());return 0
     if a.cmd=='init':

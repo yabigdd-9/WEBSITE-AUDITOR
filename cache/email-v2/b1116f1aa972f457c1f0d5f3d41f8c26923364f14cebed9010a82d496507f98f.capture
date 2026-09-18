@@ -1,0 +1,3982 @@
+<!doctype html><html lang="en"><head>
+  <meta charset="utf-8">
+  <title>Heat Pumps &amp; Insulation Auckland | EnergySmart</title>
+  <link rel="shortcut icon" href="https://www.energysmart.co.nz/hubfs/EnergySmart%20profile%20image.jpg">
+  <meta name="description" content="Providing quality heat pump &amp; insulation installations across the Auckland region. Hassle-free, affordable service, quality brands, subsidy access.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,400&amp;display=swap" rel="stylesheet">
+  
+
+  
+  
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:description" content="Providing quality heat pump &amp; insulation installations across the Auckland region. Hassle-free, affordable service, quality brands, subsidy access.">
+    <meta property="og:title" content="Heat Pumps &amp; Insulation Auckland | EnergySmart">
+    <meta name="twitter:description" content="Providing quality heat pump &amp; insulation installations across the Auckland region. Hassle-free, affordable service, quality brands, subsidy access.">
+    <meta name="twitter:title" content="Heat Pumps &amp; Insulation Auckland | EnergySmart">
+
+    
+
+    
+    <style>
+a.cta_button{-moz-box-sizing:content-box !important;-webkit-box-sizing:content-box !important;box-sizing:content-box !important;vertical-align:middle}.hs-breadcrumb-menu{list-style-type:none;margin:0px 0px 0px 0px;padding:0px 0px 0px 0px}.hs-breadcrumb-menu-item{float:left;padding:10px 0px 10px 10px}.hs-breadcrumb-menu-divider:before{content:'›';padding-left:10px}.hs-featured-image-link{border:0}.hs-featured-image{float:right;margin:0 0 20px 20px;max-width:50%}@media (max-width: 568px){.hs-featured-image{float:none;margin:0;width:100%;max-width:100%}}.hs-screen-reader-text{clip:rect(1px, 1px, 1px, 1px);height:1px;overflow:hidden;position:absolute !important;width:1px}
+</style>
+
+<link rel="stylesheet" href="https://www.energysmart.co.nz/hubfs/hub_generated/module_assets/1/148822088824/1765404928134/module_Header_Rebrand.min.css">
+
+<style>
+
+  [data-global-resource-path="EnergySmart_2023_Rebrand/templates/partials/header.html"]{
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+  }
+
+  .header-wrapper svg{
+    width: 12px;
+    color: #A2BFAC;
+    margin-right: 10px;
+  }
+
+  .header-wrapper .menu-item:hover svg{
+    color: #053638;
+    transform: rotate(180deg);
+    transition: all .4s cubic-bezier(.645,.045,.355,1);
+  }
+
+  .header-top-cta ul{
+    margin: 0;
+    padding: 1rem 0;
+  }
+
+  li.cta-buttons {
+    padding-top: 2vh;
+  }
+
+  .cta-buttons a {
+    background-color: #D6F700;      
+    font-size: 13px;
+    color: #053638;
+    
+    font-family: 'ReplicaLLWeb-Heavy','Poppins', sans-serif;
+      
+  }
+
+  .top-header-content-left a { 
+    align-items: center;
+    display: flex;
+    outline: 0;
+    container-type: inline-size;
+  }
+
+  .menu-open .top-header-content-left {
+    margin-left: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .menu-back-button, .menu-button, .sub-menu-item {
+    display: none;
+  }
+
+  .hs-menu-wrapper{
+    height: 100%;
+  }
+
+  .main-menu-logo {
+    height: 2.4rem;
+  }
+
+  .main-menu-logo .main-menu-logo--icon-only {
+    height: 2.6rem;
+  }
+
+  .main-menu-logo--icon-only {
+    height: 2.6rem;
+    display: none;
+  }
+
+  @container (width < 161px) {
+    .main-menu-logo {
+      display: none;
+    }
+    .main-menu-logo--icon-only {
+      display: block;
+    }
+  }
+
+  img.main-menu-logo.main-menu-logo--icon-only {
+    height: 2.6rem;
+  }
+
+  .hs-menu-wrapper ul {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    margin: 0;
+    padding-left: 0;
+    height: 100%;
+    align-items: center;
+  }
+
+  .new-menu-items {
+    display: none;
+  }
+
+  .half-logo{
+    width: 10px;
+  }
+
+  .half-logo-back{
+    width: 10px;
+  }
+
+  .menu-close {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    background: none;
+    color: grey;
+    font-size: 24px;
+    cursor: pointer;
+  }    
+
+  .hs-menu-item.hs-item-has-children>a{
+    padding-left: 20px;
+    padding-right: 5px;
+  }
+
+  .hs-menu-wrapper.flyouts .hs-menu-children-wrapper li:not(:last-child){
+    border-bottom: 1px solid #a2bfac;
+  }
+
+  .hs-menu-wrapper.flyouts .hs-menu-children-wrapper {
+    opacity: 0;
+    position: absolute;
+    padding: 45px 20px 5px 20px;
+    background-color: white;
+    line-height: 20px;
+    border-radius: 3px;
+  }
+
+  .hs-menu-wrapper.active {
+    display: block;
+  }
+
+  .menu-button {
+    display: none;
+    padding: 10px 20px;
+    background-color: #D6F700;
+    border: none;
+  }
+
+  .top-header-wrap{
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+  } 
+
+  .top-header-content-right .submenu a{
+    font-size: 15px;
+    color: #053638;
+    
+    font-family: 'Aeonik-Regular','Poppins', sans-serif;
+      
+      ;  
+  }
+
+  .hs-menu-wrapper.flyouts .hs-menu-children-wrapper a{
+    display: block;
+    white-space: nowrap;
+    line-height: 55px;
+    text-transform: capitalize;
+  }
+
+  .top-header-content-right {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .book-assessment-section{
+    display: none;
+  }
+
+  .book-assessment-section{
+    background-color: #D6F700;
+    padding: 2vh 6vw;
+  }
+
+  .book-assessment-section p{
+    color: black;
+    font-size : 5vw;
+    color: #053638;
+    
+    font-family: 'Aeonik-Bold','Poppins', sans-serif;
+      
+  }
+
+  .book-assessment-section button{
+    padding: 1vh 3vw;
+    background-color: #053638;
+    border: none;
+  }  
+
+  .book-assessment-section button.cta-button-contact a{
+    color: white;
+    font-size : 4vw;
+    padding: 1vh 4vw;
+    font-size : 4vw;
+    color: #FFFFFF;
+    
+    font-family: 'Aeonik-Bold','Poppins', sans-serif;
+      
+  }    
+  .top-header-wrap .hs-menu-item a{
+    color: #053638;
+    text-transform: uppercase;
+  }
+
+  @media screen and (width < 1280px) {
+
+    .header-wrapper svg {
+      display: none;
+    }
+
+    .top-header-wrap {
+      padding: 0 .625rem;
+    }
+
+    .menu-item span {
+      padding: 0.5rem 0.625rem;
+    }
+
+    .header-top-cta ul{
+      margin: 0;
+      padding: 0.9rem 0;
+    }
+
+    li.cta-buttons:not(:last-of-type) {
+      padding-right: 1rem;
+    }
+
+    .menu-item span {
+      font-size: 0.75rem;
+    }
+
+  }    
+
+  @media screen and (width < 820px) {
+    .header-wrapper svg {
+      display: unset;
+    }
+
+    .header-wrapper .menu-item:hover svg {
+      color: inherit;
+      transform: none;
+      transition: all .4s cubic-bezier(.645,.045,.355,1);
+    }
+
+    .menu-item {
+      height: 10vw;
+    }
+
+    .top-header-content-left img {
+      
+      max-width: none;
+      height: none;
+    }
+
+    .menu-item:hover {
+      background-color: inherit;
+    }
+
+    .menu-item:hover .submenu {
+      display: none;
+    }
+
+    .submenu {
+      background-color: transparent;
+    }  
+
+    .sub-menu-items {
+      height: 7vw;
+    }
+
+    .main-menu{
+      display: none;
+    }
+
+    .menu-open .main-menu{
+      width: 100%;
+      position: fixed;
+      top: 16vw;
+    }
+
+    .menu-open .menu-item span {
+      padding: 10px 0;
+    }
+
+    .menu-open .top-header-content-left{ 
+      margin-left: 3vw;
+      margin-top: 2vw;
+    }
+
+    .menu-open .top-header-content-right svg{
+      margin: 0px;
+    }
+
+    .menu-button{
+      display: block;
+    }
+
+    .top-header-wrap{
+      padding: 2vw 3vw;
+    }      
+
+    .header-top-cta { display: none; }  
+
+    .top-header-wrap.menu-open  .book-assessment-section{
+      display: block;
+      width: 100%;
+    }
+
+    .top-header-wrap.menu-open svg{
+      width: 5vw;
+      transform: rotate(270deg); 
+    }
+
+    .submenu-open svg{
+      display: none;
+    }
+
+    .submenu-open.flex-container{
+      align-items: start;
+      height: 100%;
+    }   
+
+    .menu-open .hs-menu-wrapper.flyouts .hs-menu-item:not(.submenu-open) .hs-menu-children-wrapper {
+      display: none;
+      position: absolute;
+      padding: 45px 20px 5px 20px;
+      opacity: 0;
+    }
+
+    .menu-open .hs-menu-wrapper.flyouts .hs-menu-item.submenu-open .hs-menu-children-wrapper li {
+      opacity: 1;
+      border:none;  
+      display:flex;
+    }
+
+    .menu-open .main-menu .menu-item.submenu-open .submenu{
+      display:block;
+      position: relative;
+      padding-top: 15px;       
+    }
+
+    .menu-open .main-menu .menu-item.submenu-open .submenu li{
+      background-color: transparent;
+      border: none;
+      padding: 0px;
+      line-height: 1.333;
+    }
+
+    .half-logo{
+      width: 5vw;
+      transform: rotate(270deg);      
+    }
+    .hs-menu-wrapper ul {
+      width: 95vw;
+      margin-left: auto;
+      margin-right: auto;
+      padding-right: 5vw;
+    }
+
+    .top-header-wrap.menu-open .new-menu-items:not(.flex-container){
+      display: block;
+    }
+
+    body.noscroll {
+      overflow: hidden;
+      height: 100dvh;
+      background-color:#053638;
+    }  
+
+
+    .top-header-wrap.menu-open {
+      flex-direction: column;
+      height: 100dvh;
+      width: 100vw;
+      background-color:#053638;
+      justify-content: space-between;
+      align-items: unset;
+      padding-left: 0px;
+      padding-right: 0px;
+      padding-bottom: 0px;
+    }
+
+    .hs-menu-wrapper {
+      display: none;
+      z-index: 1000;     
+    }  
+
+    .menu-button {
+      display: block;        
+    }      
+
+    .top-header-content-right {
+      display: flex;
+      flex-direction: row;
+      align-items: end;
+      text-align: left ;
+    }
+
+    .top-header-wrap.menu-open .menu-item span, 
+    .contact-us-new-link a{
+      color: #d6f700;
+      font-size: 8vw;        
+      margin: 0px;
+      text-transform: uppercase;
+      font-family: 'ReplicaLLWeb-Heavy';
+    }
+
+    .top-header-wrap.menu-open .submenu-item, 
+    .privacy-new-link a, 
+    .terms-new-link a, 
+    .locations-new-link a {
+      color: #A2BFAC;
+      text-transform: none;
+      font-size: 4vw;
+      padding: 0px;
+      margin: 0px;
+      text-decoration: underline;
+    }
+
+    .flex-container{
+      display:flex;
+      justify-content: space-between;
+    }
+
+    .menu-open p{
+      margin:0px 0px 0.5vh 0px;
+    }
+
+    .menu-back-button {
+      padding-left: 1vw;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      margin: 3vw 0 3vw -2vw;
+    }
+
+    .menu-back-button img{
+      transform: rotate(90deg);
+    }
+
+    .menu-back-button button{
+      background-color:transparent;
+      border-radius: 0px;
+      color: white;
+      border: none;
+      width: auto;
+      text-align: left;
+      cursor: pointer;
+      font-size: 3.5vw;
+      padding: 1vw;
+    }
+
+    .menu-item a:hover, 
+    .menu-item a:focus {
+      color: #d6f700 !important;
+    }
+
+    .hs-menu-wrapper.flyouts .hs-menu-children-wrapper {
+      opacity: 1;
+      position: relative;
+      padding: 0px 0px 0px 0px;
+      background-color: #053638;
+      line-height: normal;
+      border-radius: 0px;
+    }
+
+    .hs-menu-wrapper.flyouts .hs-menu-children-wrapper li a{
+      text-decoration: underline;
+      color: #a2bfac;
+      font-size: 5vw;
+    }    
+
+    .submenu-open{
+      flex-direction: column;        
+    }
+
+    .submenu-open img{
+      display: none;        
+    }
+  }
+
+  @media screen and (min-width: 821px) and (max-width: 990px)  {
+    .main-menu{
+      padding: 0 1vw !important;
+    }
+
+    .main-menu span, .header-top-cta .cta-buttons a{
+      font-size: 1.35vw !important;
+      padding: 1.25vw !important;
+    }
+
+    .main-menu svg{
+      width: 1.4vw !important;
+    }
+
+    .top-header-wrap{
+      padding: 0 1vw !important;
+    }
+
+    .menu-item span {
+      padding: 0.5rem;
+    }
+  }
+
+  @media screen and (max-width: 820px)  {
+    .main-menu{
+      padding: 0 3vw !important;
+    }
+  }
+
+</style>
+
+<link rel="stylesheet" href="https://www.energysmart.co.nz/hubfs/hub_generated/module_assets/1/155626994802/1744250630778/module_Navigation_-_Breadcrumb_and_Search.min.css">
+
+  <style> 
+    
+    .hs-search-field__input:focus-visible::placeholder, .hs-search-field__input:focus-visible{  
+  text-align:  !important;
+      color:  !important;
+      font-size:px !important;
+      
+        font-family: 'Aeonik-Regular','', sans-serif !important;
+      
+}
+    
+    .hs-search-field .phone a {
+      text-align:  !important;
+      margin-top:px !important;
+      margin-bottom:px !important;
+      padding-bottom:px !important;
+      padding-top:px !important;
+      padding-left:px !important;
+      padding-right:px !important;
+      
+      color: #D6F700;
+      font-size:px !important;
+      
+      font-family: "ReplicaLLWeb-Heavy", sans-serif;
+      }
+    
+    .search-icon{
+      cursor: pointer;
+      padding: .75rem;
+    }
+
+    .hs-search-field__bar input {
+      font-size: unset !important;
+      height: unset !important;
+      margin-bottom: unset !important;
+    }
+
+    img.logo-only {      
+      height: 20px;
+      position: relative;
+    }
+    
+    .hs-breadcrumb-menu,
+    .hs-breadcrumb-menu a,
+    .hs-breadcrumb-menu a:visited {
+      color: #a2bfac;
+      font-size: 1rem;
+      line-height: 1.333;
+      letter-spacing: 0.01em;
+      
+         !important;
+      
+    }  
+
+    .hs-breadcrumb-menu a:hover,
+    .hs-breadcrumb-menu a:active {
+      color: #D6F700;
+    }
+
+    @media(max-width:820px) {
+      .breadcrumb-container, 
+      .search-container {
+        display: none;
+      }
+    }
+   
+</style>
+
+
+<style>
+  .module-local-branch-book {
+  
+    background-color: #6f6f6f82;
+    background-image: url('https://www.energysmart.co.nz/hubfs/EnergySmart_2023_Rebrand/Images/Web%20Optimised/auckland-city-skyline-sunrise.webp');
+    background-blend-mode: color;
+    position: relative;
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat;
+    height: 100px;
+    width: 100%;
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    justify-content: center; /* Center items vertically in the container */
+    align-items: center; /* Center items horizontally in the container */
+    min-height: 95svh; /* total viewport height minus menu */
+  }
+
+  .module-local-branch-book::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #114242;
+    mix-blend-mode: color; /* use 'background' to tint the location photo */ 
+    z-index: 1; /* Ensure overlay is behind the content */
+  }
+
+  .module-local-branch-book > * {
+      position: relative;
+      z-index: 2; /* Ensure content is in front of the overlay */
+  }
+  
+  .module-local-branch-book h1{
+    text-transform: uppercase;
+    max-width: 90%;
+    text-align: CENTER !important;
+    line-height: 0.875;
+
+    margin: 0;
+    color: #d6f700 !important;
+    font-size: clamp(5vw, 5rem, 10vw);
+    
+    font-family: 'ReplicaLLWeb-Heavy','Poppins', sans-serif !important;
+      
+    text-shadow: 0 0 2rem #000000b8;
+  }
+  
+  .module-local-branch-book p{
+    max-width: 55%;
+    text-wrap: balance;
+    text-align: CENTER !important;
+    font-size: 1.875rem;
+    line-height: 1.333;
+    margin: 1rem 0 1.5rem;
+    color: #FFFFFF !important;
+    
+      font-family: 'Aeonik-Regular','Poppins', sans-serif !important;
+      
+    text-shadow: 0 0 8px black;
+  }
+  
+  .module-local-branch-book .book{
+    background: #d6f700;
+    text-align: CENTER !important;
+    font-size: 0.875rem;
+    padding: 0.5rem 1.3rem 0.4rem;
+    color: #053638 !important;
+    font-family: 'ReplicaLLWeb-Heavy',Poppins, sans-serif !important;
+}
+  
+</style>
+
+
+  <style>
+
+    .special-padding {
+      padding: 2rem;
+    }
+
+    #a-unique-and-descriptive-name {
+      
+      background-color: #F6F9F4;
+      
+      
+      
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    #a-unique-and-descriptive-name li {
+      color: #114242;
+      font-size: 1.125rem;
+      line-height: 1.333;
+      list-style-type: none;
+      margin-bottom: 0.6rem;
+      margin-left: 1.3rem;
+      position: relative;
+    }
+
+    
+    #a-unique-and-descriptive-name li a, 
+    #a-unique-and-descriptive-name li a:visited {
+      
+      
+      font-size: 1.125rem;
+      text-decoration: none;
+      
+      font-family: 'ReplicaLLWeb-Heavy','Poppins', sans-serif !important;
+        
+      color: #053539;
+    }
+
+    #a-unique-and-descriptive-name li a:hover, 
+    #a-unique-and-descriptive-name li a:active {
+      color: #a2bfac;
+    } 
+
+    #a-unique-and-descriptive-name li .logo-only {
+      height: 0.8rem;
+      position: absolute;
+      left: -1.3rem;
+      top: 5px;
+      
+      
+    }
+
+    #a-unique-and-descriptive-name .main-heading {
+      max-width: 100% !important;
+      text-align: CENTER !important;
+      margin: 0 auto;
+      
+      
+      
+      
+      padding: 3rem;
+      /*       padding-bottom: 3rem; */
+      
+      color:  !important;
+      
+      font-size: 3rem;
+      
+      line-height: 1.125;
+      
+      font-family: 'ReplicaLLWeb-Heavy','Poppins', sans-serif !important;
+        
+    }
+
+    #a-unique-and-descriptive-name .main-heading.main-heading--banner-alternate {
+      background: #d6f700;
+      text-transform: uppercase;
+      line-height: .875;
+      text-wrap-style: balance;
+      padding: 4rem calc(4rem + 10%);
+    }
+
+    #a-unique-and-descriptive-name .subtext {
+      text-align: CENTER !important;
+      
+      margin: 0 auto 1rem;
+      
+/*       padding-inline: 2rem !important; */
+      color: #082021 !important;
+      
+      font-size: 1.125rem;
+      line-height: 1.333;
+      max-width: 60ch;
+      text-wrap: pretty;
+      
+      font-family: 'ReplicaLLWeb-Heavy','Poppins', sans-serif !important;
+        
+    }
+
+    .module-image-and-text .subtext a {
+      cursor: pointer;
+      transition: .16s;
+      color: #114242;
+      text-decoration: underline;
+    }
+
+    .module-image-and-text .subtext a:hover, 
+    .module-image-and-text .subtext a:active {
+      color: #d6f700;
+      background: #053539;
+      padding: 0.2rem;
+      margin: -0.2rem;
+    }
+
+    .box-list--banner {
+      display: flex;
+      flex-direction: column;
+      gap: .3rem;
+      margin-bottom: 1.4rem;
+
+      a {
+        transition: .08s;
+        color: var(--col-eggshell);
+        &:hover, &:active {
+          color: var(--col-hot-yellow);
+        }
+      }
+    }
+
+    #a-unique-and-descriptive-name .box-heading {
+      
+      color: #114242;
+      font-family: 'Aeonik-Bold', sans-serif;
+      max-width: 100%;
+      font-size: 2.125rem;
+      line-height: 1.17;
+      margin-bottom: 2rem;
+      
+      margin-top:px !important;
+      
+      
+      
+      
+      
+    }
+    
+    
+    
+    
+    .hsfc-Step__Content {
+      padding: 0 !important;
+    }
+    
+    .hs_cos_wrapper_type_form {
+      width: 100%;
+    }
+    .hsfc-ErrorAlert {
+      font-weight: bold;
+      color: #d6f700 !important;
+    }
+
+
+    #a-unique-and-descriptive-name .box-subtext {
+      
+      max-width: 100%;
+      color: #114242;
+      a {
+        transition: .08s;
+        background: var(--col-hot-yellow);
+        padding: .2rem;
+        margin: -.2rem;
+        &:hover, &:active {
+          color: var(--col-hot-yellow);
+          background: var(--col-dark-green); 
+        }
+      }
+      
+      margin: 1.7rem 0;
+      font-size: 1.125rem;
+      line-height: 1.333;
+      letter-spacing: 0.01em;
+      
+      
+      
+      
+      
+    }
+
+    #a-unique-and-descriptive-name .bottom-link {            
+      margin-top:px !important;
+      margin-bottom:px !important;
+      padding-bottom:px !important;
+      padding-top:px !important;
+      padding-left:px !important;
+      padding-right:px !important;
+    }
+
+    #a-unique-and-descriptive-name .bottom-link a {
+      text-align: CENTER !important;
+      line-height: 1.333;
+      color: #082021 !important;
+      font-size:15px !important;
+      
+      font-family: 'ReplicaLLWeb-Heavy','Poppins', sans-serif !important;
+        
+    }
+
+    #a-unique-and-descriptive-name .bottom-button {  
+      background-color: #D6F700;
+      margin-top:px !important;
+      margin-bottom:px !important;      
+      display:inline-block;
+    }
+
+    #a-unique-and-descriptive-name .bottom-button a {
+      text-align: CENTER !important;
+      line-height: 1.125;
+      color: #082021 !important;
+      
+      font-family: 'ReplicaLLWeb-Heavy','Poppins', sans-serif !important;
+        
+    }
+
+    #a-unique-and-descriptive-name .table-title {
+      max-width: 100% !important;
+      text-align: CENTER !important;
+      line-height: 15px !important;
+      margin-top:px !important;
+      margin-bottom:px !important;
+      padding-bottom:px !important;
+      padding-top:px !important;
+      padding-left:px !important;
+      padding-right:px !important;
+      color: #082021 !important;
+      font-size:15px !important;
+      
+      font-family: 'ReplicaLLWeb-Heavy','Poppins', sans-serif !important;
+        
+    }
+
+    #a-unique-and-descriptive-name .table-text {
+      max-width: 100% !important;
+      text-align: CENTER !important;
+      line-height: 32px !important;
+      margin-top:px !important;
+      margin-bottom:px !important;
+      padding-bottom:px !important;
+      padding-top:px !important;
+      padding-left:px !important;
+      padding-right:px !important;
+      color:  !important;
+      font-size:32px !important;
+      
+      font-family: 'ReplicaLLWeb-Heavy','Poppins', sans-serif !important;
+        
+    }
+
+    #a-unique-and-descriptive-name .bottom-button .logo-only {
+      height: 0.6rem;
+      margin-left: 0.25rem;
+    }
+
+    #a-unique-and-descriptive-name .bottom-link .logo-only {
+      width: 13px;
+      transform: translate(px, px);
+    }
+
+    #a-unique-and-descriptive-name .container {
+      width: 100%;
+      position: relative;
+       
+      padding: 2rem;
+      
+    }
+
+    #a-unique-and-descriptive-name .text-box {
+      color: white;
+      flex-basis: 50%;
+      
+
+      
+      padding: 4rem 5rem;
+      
+    }
+
+    #a-unique-and-descriptive-name .text-box p {
+      
+      color: #053638;
+      
+    }
+
+    
+
+    #a-unique-and-descriptive-name .row {
+      display: flex;
+      flex-direction: row;
+      
+    }
+
+    #a-unique-and-descriptive-name .box {
+      box-sizing: border-box;
+    }
+
+    #a-unique-and-descriptive-name .image-box {
+      flex-basis: 50%;
+      display: flex;
+      overflow: hidden;
+    }
+
+
+    #a-unique-and-descriptive-name .text-left .text-box,
+    #a-unique-and-descriptive-name .text-right .image-box {
+      order: 1;
+    }
+
+    #a-unique-and-descriptive-name .text-left .image-box,
+    #a-unique-and-descriptive-name .text-right .text-box {
+      order: 2;
+    }
+
+    /* standard styling when an image is being used  */
+    #a-unique-and-descriptive-name .image-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      /* aspect ratio is treated as a suggestion and is only applied by browser when possible. text in the corresponding row will take priority to dictate the height of the image */
+      aspect-ratio: 16/9;
+    } 
+
+    /* addition to styling: if an iframe is being used as a code embed (expecting a google map) */
+    #a-unique-and-descriptive-name .image-box iframe {
+      width: 100%;
+      height: 100%;
+      aspect-ratio: 4 / 3;
+      border: 0;
+    } 
+
+    #a-unique-and-descriptive-name .corner-cut-top-left { 
+      background: linear-gradient(deg, rgba(5,53,57,1) %, rgba(5,53,57,1) %, rgba(5,53,57,1) 100%, rgba(5,53,57,0) 100%);
+    }    
+
+    #a-unique-and-descriptive-name .text-right .corner-cut-bottom-right { 
+      background: linear-gradient(deg, rgba(5,53,57,0) %, rgba(5,53,57,1) %, rgba(5,53,57,1) 100%, rgba(5,53,57,1) 100%);
+    }
+
+    #a-unique-and-descriptive-name .box:not(.corner-cut-top-left):not(.corner-cut-bottom-right), 
+    #a-unique-and-descriptive-name .text-left .corner-cut-bottom-right {
+      
+      background: white;
+      
+    }
+
+    #a-unique-and-descriptive-name table{
+      color: white;
+      background-color: transparent;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    #a-unique-and-descriptive-name td:first-child {
+      
+    }
+
+    #a-unique-and-descriptive-name td {
+      border: none;
+      text-align: left !important;
+      background-color: transparent;  
+      color: #053638 !important; 
+    }
+
+    #a-unique-and-descriptive-name tr { 
+      border-bottom: 1px solid #a2bfac;
+      color: #053638;
+    }
+
+    #a-unique-and-descriptive-name th {
+      background-color: transparent;
+      border-bottom: 1px solid #a2bfac;
+      color: #053638;
+      border: none;
+      text-align: left !important;
+    }
+
+    #a-unique-and-descriptive-name tr td:first-child {
+      color: #053638;
+      text-align: left !important;
+    }
+
+    .table-wrapper {
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 1280px) {
+
+      #a-unique-and-descriptive-name .box-heading {
+        font-size: 5vw;
+      }
+
+      #a-unique-and-descriptive-name .box-subtext {
+        font-size: 1.8vw;
+      }
+
+      /* hang on - the 'card-wrapper' class isn't used in this module. this selector is probably having no effect. flex-direction is actually being set as 'row' in the .row selector earlier in this css spaghetti */
+      #a-unique-and-descriptive-name .card-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+
+      #a-unique-and-descriptive-name .text-box {
+        padding: 6vw 3vw;
+      }
+
+      #a-unique-and-descriptive-name li {
+        font-size: 1.8vw;
+        margin-left: 2vw;
+        margin-bottom: 0.8vw;
+      }
+
+      #a-unique-and-descriptive-name li .logo-only {
+        height: 1.4vw;
+        left: -2vw;
+        top: 0.4vw;
+      }  
+
+      #a-unique-and-descriptive-name .bottom-button {
+        font-size: 1.5vw;
+        
+      }
+    }
+
+    @media (max-width: 820px) {
+
+      #a-unique-and-descriptive-name {
+        margin-bottom: 0 !important;
+      }
+
+      #a-unique-and-descriptive-name .container {
+         
+        padding: 0 3vw 3vw;
+        
+      }
+
+      #a-unique-and-descriptive-name li {
+        font-size: 3.5vw;
+        margin-bottom: 2vw;
+        margin-left: 5vw;
+      }
+
+      #a-unique-and-descriptive-name li .logo-only {
+        height: 2.6vw;
+        left: -5vw;
+        top: 0.9vw;
+      }
+
+      #a-unique-and-descriptive-name .clipped-corner-large-bottom-right{
+        clip-path:none;
+      }
+
+      #a-unique-and-descriptive-name .last-row.text-right .image-box{
+        clip-path: polygon(0 0, 100% 0, 100% calc(100% - 43px), calc(100% - 51.24px) 100%, 0 100%);
+      }
+
+      #a-unique-and-descriptive-name .text-left .text-box,
+      #a-unique-and-descriptive-name .text-right .image-box {
+        order: unset;
+      }
+
+      #a-unique-and-descriptive-name .text-left .image-box,
+      #a-unique-and-descriptive-name .text-right .text-box {
+        order: unset;
+      }  
+
+      #a-unique-and-descriptive-name .bottom-button .logo-only {
+        height: 1.7vw;
+        margin-left: 0.4vw;
+      }
+
+      #a-unique-and-descriptive-name .row {
+        height: auto;
+      }
+
+      #a-unique-and-descriptive-name .image-box {
+        height: 50vh;        
+      }
+      
+      /* hide the image on small screen widths for compact banner style */
+      
+
+      #a-unique-and-descriptive-name .main-heading {
+        margin: 0 auto !important;
+        padding: 6vw !important;
+        font-size: 7.5vw !important;
+        max-width: unset !important;
+      }
+
+      #a-unique-and-descriptive-name .subtext {
+        line-height: 1.28 !important;
+        margin: 0 !important;
+        padding: 3vw !important;
+        font-size: 4.25vw !important;
+      }
+
+      #a-unique-and-descriptive-name .row {
+        flex-direction: column;
+        min-height: revert;
+      }
+
+      #a-unique-and-descriptive-name .text-box {
+        min-height: fit-content;
+        
+      }
+
+      #a-unique-and-descriptive-name .box-heading {
+        font-size: 10.5vw !important;
+        margin: 0 0 3vw !important;
+        padding: 0 !important;
+      }
+
+      #a-unique-and-descriptive-name .box-subtext {
+        
+        font-size: 3.5vw !important;
+        
+        padding-bottom: 2vw !important; 
+        margin: 0;
+      }
+
+      #a-unique-and-descriptive-name .bottom-button {
+        font-size: 2.6vw;
+        padding: 1.7vw 2.8vw;
+        margin: 0;
+      }
+
+      .table-wrapper {
+        margin-bottom: 6vw;
+        font-size: 3.5vw
+      }
+
+      p {
+        font-size: 3.3vw;
+        margin: 0;
+      }
+
+    }    
+
+    
+
+    #a-unique-and-descriptive-name .deal__container {
+      /*         needs own clip path for corners, as default class is overridden in this module  */
+      clip-path: polygon(0 0, 100% 0, 100% calc(100% - 43px), calc(100% - 51.24px) 100%, 0 100%);        
+      position: absolute;
+      background: #fffe;
+      bottom: 2rem;
+      padding: 1.8rem 2.6rem;
+      left: 45%;
+      min-width: 400px;
+      max-width: 50%;
+      width: fit-content;
+
+      @media (max-width: 820px) {
+        clip-path: polygon(0 0, 100% 0, 100% calc(100% - 6.2vw), calc(100% - 7.37vw) 100%, 0 100%);
+        bottom: unset;
+        left: unset;
+        top: 48%;
+        right: 3vw;
+        padding: 2vw 4vw 2vw 3vw;
+        min-width: 45%;
+        max-width: 60%;
+      }
+    }
+
+    #a-unique-and-descriptive-name .deal__container:after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      max-height: 80%;
+      left: 4%;
+      bottom: 10%;
+      background: #a2bfac55;
+      mask-image: url(https://www.energysmart.co.nz/hubfs/Resources/Logos/EnergySmart%20Icon_Green.svg);
+      mask-repeat: no-repeat;
+      z-index: -1;
+    }
+
+    #a-unique-and-descriptive-name .deal__heading {
+      font-family: 'ReplicaLLWeb-Heavy', sans-serif;
+      font-size: 1.8rem;
+      text-transform: uppercase;
+      text-wrap: balance;
+      line-height: .88;
+      color: #114242;
+      margin-bottom: 0.5rem;
+
+      @media (max-width: 820px) {
+        font-size: 3.8vw;
+        margin-bottom: .8vw;
+      }
+    }
+
+    #a-unique-and-descriptive-name .deal__text {    
+      font-size: 1.2rem;
+      line-height: 1.333;
+      text-wrap: pretty;
+
+      @media (max-width: 820px) {
+        font-size: 2.8vw;
+        line-height: 1.25;
+      }
+    }
+
+
+  </style>
+  
+
+<style>
+  #map {
+    height: 100%;
+  }
+
+  .form-contact-innter {
+    display: flex;
+  }
+
+  .content-region-left {
+    width: 30%;
+    padding: 0 2rem 0 0;
+  }
+
+  .content-region-left h2 {
+    max-width: 480px;
+  }
+
+  .content-region .content-wrapper{
+    padding: 4rem 2rem;
+  }
+
+  .content-region-left .spl-cont {
+    
+  }
+
+  .content-region-left .spl-cont ul {
+    padding-left: 20px;
+    margin: 0;
+  }
+
+  .content-region-left .spl-cont h4:first-child {
+    width:% !important;
+    text-align: LEFT !important;
+    margin-top:px !important;
+    margin-bottom: 3.75rem;
+    padding-bottom:px !important;
+    padding-top:px !important;
+    padding-left:px !important;
+    padding-right:px !important;
+    color: #082021 !important;
+    font-size: 1.875rem;
+  }
+
+  .content-region-left h4 {
+    width:% !important;
+    text-align: LEFT !important;
+    line-height: 1.333;
+    margin-top:px !important;
+    margin-bottom:px !important;
+    padding-bottom:px !important;
+    padding-top:px !important;
+    padding-left:px !important;
+    padding-right:px !important;
+    color: #082021 !important;
+    font-size: 1.125rem;
+    font-family: "Aeonik-Bold", sans-serif;
+  }
+
+  .content-region-left p {
+    width:% !important;
+    text-align: LEFT !important;
+    line-height: 1.333;
+    margin-top:px !important;
+    margin-bottom: 1.875rem;
+    padding-bottom:px !important;
+    padding-top:px !important;
+    padding-left:px !important;
+    padding-right:px !important;
+    color: #082021 !important;
+    font-size: 0.875rem;
+
+  }
+
+  .content-region-left .two-col-adjust h4 {
+    margin-bottom: 10px;
+  }
+
+  .content-region-left a {
+    color: #000;
+    display: block;
+  }
+
+  .content-region-right {
+    width: 70%;
+  }
+
+  .content-region-right h6 {
+    margin: 0;
+    font-family: "Aeonik-Regular", sans-serif;
+    font-size: 1.125rem;
+  }
+
+  /*
+  ==================================================
+  Two Col Adjust 
+  ==================================================
+  */
+
+  body .two-col-adjust > span {
+    -webkit-box-align: stretch;
+    -moz-box-align: stretch;
+    -webkit-align-items: stretch;
+    -ms-flex-align: stretch;
+    align-items: stretch;
+    flex-wrap: wrap;
+    -wevkit-flex-wrap: wrap;
+    flex-direction: row;
+    -webkit-flex-direction: row;
+    margin-right: 0;
+    column-gap: 3vw;
+  }
+
+  body .row-fluid .two-col-adjust span > .hs_cos_wrapper {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    flex-direction: column;
+    flex-basis: 46%;
+    -webkit-flex-basis: 46%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    position: relative;
+  }
+
+  body .two-col-adjust>span .hs_cos_wrapper:nth-child(2n) {
+    margin-right: 0;
+    flex-basis: 38%;
+    -webkit-flex-basis: 38%;
+  }
+
+  @media(max-width:1280px) {
+  }
+
+  @media(max-width:1100px) {
+    body .row-fluid .two-col-adjust span > .hs_cos_wrapper {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
+      float: none;
+    }
+
+    body .container-fluid .row-fluid .two-col-adjust > span {
+      display: flex;
+      margin: 0;
+    }
+
+    .content-region-left {
+      width: 100%;
+    }
+
+    .content-region-right {
+      width: 100%;
+      padding-bottom: 0;
+    }
+
+    .form-contact-region {
+      padding: 30px 0 50px;
+    }
+
+    #map {
+      aspect-ratio: 5 / 3;
+    }
+
+    .form-contact-innter {
+      display: grid;
+    }
+  }
+
+  @media(max-width: 820px) {
+    .content-region .content-wrapper {
+      padding: 6vw 3vw;
+    }
+
+    .module-local-branch-book h2 {
+      font-size: 10vw;
+    }
+
+    .module-local-branch-book .book {
+      font-size: 3vw;
+      padding: 1.2vw 3.3vw;
+    }
+
+    .module-local-branch-book p {
+      font-size: 5vw;
+      margin: 3vw 0 4.5vw;
+    }
+
+    body .container-fluid .row-fluid .two-col-adjust>span {
+      place-content: space-between;
+    }
+
+    .content-region-left .spl-cont h4:first-child {
+      font-size: 5vw;
+      margin-bottom: 6vw;
+    }
+
+    .content-region-left {
+      padding: 0 0 3vw 0;
+    }
+
+    .content-region-left h4 {
+      font-size: 3.5vw;
+    }
+
+    .content-region-left p {
+      font-size: 3vw;
+      margin-bottom: 3vw;
+      text-wrap-style: balance;
+    }
+
+  }
+
+</style>
+
+
+<style>
+  .form-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .module-send-us-a-message .form-left ul {
+    list-style-type: none;
+    padding-left: 0;
+  }
+
+  .module-send-us-a-message .actions {
+    background-color: transparent;
+  }
+
+  .module-send-us-a-message .hs-form-field {
+    margin-bottom: 0px;
+  }
+
+  .module-send-us-a-message .call-now {
+    color: white;
+  }
+
+  .module-send-us-a-message input::placeholder,
+  .module-send-us-a-message select::placeholder, 
+  .module-send-us-a-message textarea::placeholder{    
+    color: #a2bfac !important;
+    font-family: 'Aeonik-Regular', sans-serif;
+  }
+
+  .module-send-us-a-message .form-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; 
+    align-items: flex-start; 
+    height: 100%; 
+  }
+
+  .hs-richtext {
+    font-family: 'Aeonik-Regular', sans-serif;
+  }
+
+  .module-send-us-a-message option {
+    color: #114242;
+  }
+
+  .module-send-us-a-message h2 {
+    font-family: 'ReplicaLLWeb-Heavy', sans-serif;
+    font-size: 4rem;
+    line-height: 0.86;
+    text-align: center;
+    color: #d6f700;
+    margin: 1rem auto 3rem;
+    text-transform: uppercase;
+  } 
+
+  .module-send-us-a-message form {
+    display: block !important;
+  }
+
+  .module-send-us-a-message .main-text {
+    padding-bottom: 2rem;
+  }
+
+  .module-send-us-a-message .main-text p {
+    font-size: 1.5rem;
+    line-height: 1.333;
+    letter-spacing: 0.01em;
+    color: white;
+    margin-bottom: 0.6rem;
+  }
+
+  .hs_recaptcha.hs-recaptcha {
+    margin-bottom: 1rem;
+  }
+
+  .module-send-us-a-message .form-right p {
+    font-size: 12px !important;
+    color: #114242;
+    font-family: "Aeonik-Regular", sans-serif;    
+    margin: 0px;
+  }
+
+  .module-send-us-a-message .call-now .one {
+    color:white;
+    display: block;
+    line-height: 0.86;
+    font-size: 4rem;
+    font-family: 'ReplicaLLWeb-Heavy', sans-serif; 
+  }
+
+  .module-send-us-a-message .call-now .two {
+    color: #d6f700;
+    display: block;
+    line-height: 0.86;
+    margin-bottom: 10px;
+    font-size: 4rem;
+    font-family: 'ReplicaLLWeb-Heavy', sans-serif;  
+  }
+
+  .module-send-us-a-message .call-now p {
+    margin: 0;
+  }
+
+  .module-send-us-a-message .form-left li {
+    position: relative;
+    padding-left: 2rem;
+    font-size: 1.5rem;
+    letter-spacing: 0.01em;
+    color: white;
+  }
+
+  .module-send-us-a-message .form-left li::before {
+    content: url('https://www.energysmart.co.nz/hubfs/Resources/Logos/EnergySmart%20Icon_Mid%20Green.svg');
+    position: absolute;
+    left: 0;
+    width: 1.125rem;
+  }
+
+  .module-send-us-a-message .hs-fieldtype-textarea.hs-input {
+    height: 14vh;
+  }
+
+  .module-send-us-a-message input, .module-send-us-a-message select, .module-send-us-a-message textarea {
+    display: block;
+    width: 100%;
+    border: none !important;
+    color: #114242;
+  }
+
+  .module-send-us-a-message .hs-form-radio-display {
+    display: flex;
+    cursor: pointer;
+  }
+
+  .module-send-us-a-message input[type="submit"]{
+    font-size: 1.333rem !important;
+    background-color: #D6F700;   
+    margin: 0;
+    font-family: 'ReplicaLLWeb-Heavy', sans-serif;
+  } 
+
+  .module-send-us-a-message {
+    padding: 2rem;
+    background-color: #053539;
+  }
+
+  .module-send-us-a-message .rich-text {
+    text-align: LEFT !important;
+    font-size: 28px !important;
+    color: #114242 !important;
+    font-family: 'Aeonik-Regular',Poppins, sans-serif !important;
+    line-height: 1.3em;
+  }
+
+  .module-send-us-a-message .form-left .sub-heading {
+    text-align: left;
+    font-size: 3rem;
+    line-height: 1.15;
+    color: white;
+    font-family: 'Aeonik-Bold', sans-serif;
+    width:%;
+  }
+
+  .module-send-us-a-message .call-now {
+    
+  }
+
+  .module-send-us-a-message .sub-heading{
+    
+  } 
+
+  .module-send-us-a-message .hs-richtext,
+  .module-send-us-a-message .hs-richtext p {
+    text-align: LEFT!important;
+    font-size: 0.875rem !important;
+    line-height: 1.28 !important;
+    font-family: 'Aeonik-Regular', sans-serif;  
+    color: #a2bfac;
+    max-width: 95%;
+    text-wrap: pretty;
+  }
+
+  @media (max-width: 1280px) {
+    .module-send-us-a-message .form-left .sub-heading {
+      font-size: 250%;
+    }
+
+    .module-send-us-a-message .call-now .one,
+    .module-send-us-a-message .call-now .two {
+      font-size: 340%;
+    }
+  }
+
+  /* in unison with js for hiding the list, this places 'call now' after message form */
+  @media (max-width: 820px) {
+    .module-send-us-a-message {
+      padding: 0;
+    }
+
+    .module-send-us-a-message input[type="submit"]{
+      font-size: 4vw !important;
+    }
+
+    
+    .form-wrapper {
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 0;
+    }
+
+    .form-left-content {
+      display: none;
+    }
+
+    .module-send-us-a-message form {
+      padding: 3vw;
+    }
+
+    .module-send-us-a-message h2 {
+      font-size: 10.5vw;
+      line-height: 10.5vw;
+      padding-left: 3vw;
+      padding-right: 3vw;
+      padding-top: 13vw;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+
+    .module-send-us-a-message .call-now {
+      text-align: center;
+      width: 100%;
+      padding: 3vw;
+      margin: 0;
+    }
+
+    .module-send-us-a-message .call-now .one,
+    .module-send-us-a-message .call-now .two {
+      font-size: 10vw;
+      text-align: center;
+    }
+
+    .module-send-us-a-message .call-now .two {
+      margin-bottom: 2vw;
+    }
+
+    .module-send-us-a-message .call-now p {
+      font-size: 4vw;
+      line-height: 5vw;
+      margin: 0;
+    }
+
+    .module-send-us-a-message .hs-richtext,
+    .module-send-us-a-message .hs-richtext p {
+      font-size: 3.3vw !important;
+      line-height: 2vw;
+      margin: 0 0 2vw;
+    }
+
+    .module-send-us-a-message input, 
+    .module-send-us-a-message select, 
+    .module-send-us-a-message textarea {
+      margin: 0 0 3vw 0 !important;
+      font-size: 4.25vw !important;
+      padding: 1.25vw 2vw !important;
+    }
+
+    .module-send-us-a-message input.hs-button.primary.large {
+      padding: 2.3vw 3.3vw !important;
+    }
+
+    .hs-fieldtype-textarea.hs-input {
+      height: 33vw;
+    }
+  }
+
+  
+  .module-send-us-a-message.module-theme--light {
+    background: #f6f9f4;
+  }
+
+  .module-send-us-a-message.module-theme--light .form-left .sub-heading,
+  .module-send-us-a-message.module-theme--light li,
+  .module-send-us-a-message.module-theme--light form label span,
+  .module-send-us-a-message.module-theme--light .call-now, 
+  .module-send-us-a-message.module-theme--light .form-right span:first-child {
+    color: #053539;
+  }
+  
+  .module-send-us-a-message.module-theme--light .call-now .one {
+    color: #114242;
+  }
+
+  .module-send-us-a-message.module-theme--light h2,
+  .module-send-us-a-message.module-theme--light .hs-richtext,
+  .module-send-us-a-message.module-theme--light .hs-richtext p,
+  .module-send-us-a-message.module-theme--light .call-now .two {
+    color: #5c8074;
+  }
+
+
+</style>
+
+<link rel="stylesheet" href="https://www.energysmart.co.nz/hubfs/hub_generated/module_assets/1/147310199414/1740804714274/module_Footer.min.css">
+
+  <style>
+    
+        
+    .footer-top-right .hs_email {
+      width: 100% !important;
+      flex: 1 1 auto !important;
+      margin: 0 !important;
+    }
+    
+    .footer-wrap .actions input.hs-button.primary {
+      color: #053638;
+      transition: all .3s;
+      cursor: pointer;
+      font-family: 'ReplicaLLWeb-Heavy', sans-serif !important;
+    }
+
+    
+    @media (max-width: 1100px) {
+      .footer-top-left {
+        padding-bottom: 0;
+      }
+
+      .footer-top-left a {
+        padding-bottom: 0.7rem !important;
+      }
+
+      .not-phone {
+        font-size: 90% !important;
+      }
+
+      .footer-top-left img {
+        width: 22px !important;
+      }
+
+      .footer-top-content {
+        flex-direction: row;
+        gap: 2rem;
+      }
+
+      .footer-top-right h4 {
+      
+        min-width: 23rem; 
+      }
+
+      .footer-wrap .content-wrapper {
+        display: flex;
+        flex-direction: column;
+      }
+
+    }
+      
+    @media (max-width: 820px) {
+      .footer {
+        margin-top: unset !important;
+        padding-top: 6vw;
+      }
+      
+      .footer .copyright {
+        background: unset !important;
+      }
+      
+      .footer.footer {
+        background-color: #053638 !important;
+      }
+
+      .footer-top-content {
+        display: block;
+      }
+      
+      .footer-top-right {
+        padding: 0 3vw !important;
+      }
+      
+      .footer-top-right h4 {
+        font-family: 'Aeonik-Regular', sans-serif !important;
+        font-size: 4.25vw !important;
+        text-align: center !important;
+        padding: 0 !important;
+        margin-bottom: 3.5vw !important;
+        min-width: unset;
+      }
+      
+      .footer-wrap .content-wrapper {
+        
+      }
+
+      footer.footer .content-wrapper {
+        padding: 0;
+      }
+      
+      .footer-wrap .copyright .content-wrapper {
+        display: block !important;
+        text-align: unset !important;
+        padding: 0 0 3vw;
+      }
+      
+      .footer-top-left {
+        display: none !important;
+      }
+      
+      .footer-middle-content {
+        display: none !important;
+      }
+      
+      .content-foot p,
+      .content-foot p a {
+        font-size: 3.3vw !important;
+      }
+      
+      .content-foot p {
+/*         maybe in the wrong place */
+        line-height: 3.5vw !important;
+        padding: 15vw 3vw 0 !important;
+      }
+      
+      .content-foot-right {
+        display: block !important;
+      }
+      
+      .footer-top-right form input[type=email] {
+        height: 10vw !important;
+      }
+      
+      .footer-top-right form .hs_submit .actions {
+        max-width: unset !important;
+      }
+      
+      .footer-wrap form input[type=email],
+      .footer-wrap form input[type=email]:-webkit-autofill {
+        font-size: 4.25vw !important;
+        padding: 0 3.5vw !important;
+      }
+      
+      .footer-top-right .hs_email {
+        width: unset !important;
+        flex: 1 1 auto !important;
+      }
+      
+      .footer-top-right .hs_submit {
+        width: unset !important;
+      }
+      
+      .footer-top-right .actions {
+        top: unset !important;
+      }
+      
+      .footer-top-right .actions input.hs-button.primary.large {
+        padding: 0 5.5vw !important;
+        height: 10vw !important;
+        font-size: 3.2vw !important;
+        
+      }
+      
+      #privacy-terms-conditions {
+        display: none !important;
+      }
+      
+      #copyright-logo p {
+        font-size: 3.3vw !important;
+        color: #a2bfac !important;
+        padding: 4vw 3vw !important;
+      }
+    }
+    
+  </style>
+
+<link rel="stylesheet" href="https://www.energysmart.co.nz/hubfs/hub_generated/template_assets/1/147310115138/1771540821984/template_main.min.css">
+<link rel="stylesheet" href="https://www.energysmart.co.nz/hubfs/hub_generated/template_assets/1/147310199401/1771540835233/template_theme-overrides.css">
+<style>
+@font-face {
+  font-family: "Aeonik Regular";
+  src: url("https://www.energysmart.co.nz/hubfs/Aeonik-Regular.woff") format("woff");
+  font-display: swap;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Aeonik Bold";
+  src: url("https://www.energysmart.co.nz/hubfs/Aeonik-Bold.woff") format("woff");
+  font-display: swap;
+  font-weight: 700;
+}
+</style>
+
+<style>
+  @font-face {
+    font-family: "Poppins";
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+    src: url("/_hcms/googlefonts/Poppins/900.woff2") format("woff2"), url("/_hcms/googlefonts/Poppins/900.woff") format("woff");
+  }
+  @font-face {
+    font-family: "Poppins";
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+    src: url("/_hcms/googlefonts/Poppins/regular.woff2") format("woff2"), url("/_hcms/googlefonts/Poppins/regular.woff") format("woff");
+  }
+  @font-face {
+    font-family: "Poppins";
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+    src: url("/_hcms/googlefonts/Poppins/700.woff2") format("woff2"), url("/_hcms/googlefonts/Poppins/700.woff") format("woff");
+  }
+</style>
+
+    
+
+    
+<!--  Added by GoogleAnalytics4 integration -->
+<script>
+var _hsp = window._hsp = window._hsp || [];
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+
+var useGoogleConsentModeV2 = true;
+var waitForUpdateMillis = 1000;
+
+
+if (!window._hsGoogleConsentRunOnce) {
+  window._hsGoogleConsentRunOnce = true;
+
+  gtag('consent', 'default', {
+    'ad_storage': 'denied',
+    'analytics_storage': 'denied',
+    'ad_user_data': 'denied',
+    'ad_personalization': 'denied',
+    'wait_for_update': waitForUpdateMillis
+  });
+
+  if (useGoogleConsentModeV2) {
+    _hsp.push(['useGoogleConsentModeV2'])
+  } else {
+    _hsp.push(['addPrivacyConsentListener', function(consent){
+      var hasAnalyticsConsent = consent && (consent.allowed || (consent.categories && consent.categories.analytics));
+      var hasAdsConsent = consent && (consent.allowed || (consent.categories && consent.categories.advertisement));
+
+      gtag('consent', 'update', {
+        'ad_storage': hasAdsConsent ? 'granted' : 'denied',
+        'analytics_storage': hasAnalyticsConsent ? 'granted' : 'denied',
+        'ad_user_data': hasAdsConsent ? 'granted' : 'denied',
+        'ad_personalization': hasAdsConsent ? 'granted' : 'denied'
+      });
+    }]);
+  }
+}
+
+gtag('js', new Date());
+gtag('set', 'developer_id.dZTQ1Zm', true);
+gtag('config', 'G-1PR8NGY98V');
+</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1PR8NGY98V"></script>
+
+<!-- /Added by GoogleAnalytics4 integration -->
+
+<!--  Added by GoogleTagManager integration -->
+<script>
+var _hsp = window._hsp = window._hsp || [];
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+
+var useGoogleConsentModeV2 = true;
+var waitForUpdateMillis = 1000;
+
+if (useGoogleConsentModeV2) {
+
+  gtag('set','developer_id.dZTQ1Zm',true);
+
+  gtag('consent', 'default', {
+  'ad_storage': 'denied',
+  'analytics_storage': 'denied',
+  'ad_user_data': 'denied',
+  'ad_personalization': 'denied',
+  'wait_for_update': waitForUpdateMillis
+  });
+}
+
+var hsLoadGtm = function loadGtm() {
+    if(window._hsGtmLoadOnce) {
+      return;
+    }
+
+    if (useGoogleConsentModeV2) {
+      _hsp.push(['useGoogleConsentModeV2'])
+    }
+
+    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-WG7J2R');
+
+    window._hsGtmLoadOnce = true;
+};
+
+_hsp.push(['addPrivacyConsentListener', function(consent){
+  if(consent.allowed || (consent.categories && consent.categories.analytics)){
+    hsLoadGtm();
+  }
+}]);
+
+</script>
+
+<!-- /Added by GoogleTagManager integration -->
+
+    <link rel="canonical" href="https://www.energysmart.co.nz/contact-us/auckland">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+<meta property="og:url" content="https://www.energysmart.co.nz/contact-us/auckland">
+<meta name="twitter:card" content="summary">
+<meta http-equiv="content-language" content="en">
+
+
+
+
+
+<!-- Facebook Pixel Code -->
+<script nonce="GWOP8xRt">
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','https://connect.facebook.net/en_US/fbevents.js');
+
+fbq('init', '2750563055187690');
+fbq('track', "PageView");</script>
+<noscript>&lt;img  height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=2750563055187690&amp;amp;ev=PageView&amp;amp;noscript=1"&gt;</noscript>
+<!-- End Facebook Pixel Code -->
+<!-- Start Crazy Egg Code -->
+<script type="text/javascript" src="//script.crazyegg.com/pages/scripts/0116/6465.js" async></script>
+<!-- End Crazy Egg Code -->
+
+  <!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-WG7J2R');</script>
+  <!-- End Google Tag Manager -->
+
+<meta name="generator" content="HubSpot"></head>
+
+<body>
+<!--  Added by GoogleTagManager integration -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WG7J2R" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<!-- /Added by GoogleTagManager integration -->
+
+  <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WG7J2R" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div class="body-wrapper   hs-content-id-153592655924 hs-site-page page ">
+    
+    <div data-global-resource-path="EnergySmart_2023_Rebrand/templates/partials/header.html"><div class="header-wrapper">
+  <header class="header">
+   <div id="hs_cos_wrapper_module_170189811025910" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_module" style="" data-hs-cos-general-type="widget" data-hs-cos-type="module"><div class="top-header-wrap">
+  <div class="top-header-content-left">
+    <a href="/">
+      <img src="https://www.energysmart.co.nz/hubfs/Resources/Logos/EnergySmart%20Primary.svg" alt="EnergySmart logo" title="EnergySmart Logo" class="main-menu-logo">
+      <img src="https://www.energysmart.co.nz/hubfs/Resources/Logos/EnergySmart%20Icon_Lime.svg" alt="EnergySmart icon" title="EnergySmart Icon" class="main-menu-logo main-menu-logo--icon-only">
+    </a>
+  </div>
+
+  <div class="top-header-content-right">
+
+    <button class="menu-button clipped-corner-small-both" aria-expanded="false" aria-controls="hs_menu_wrapper_module_170189811025910_my_menu">Menu</button>
+    <button class="menu-close"></button>
+    
+    
+    <ul class="main-menu">
+      
+      <li class="menu-item flex-container top-level">
+        <a href="https://www.energysmart.co.nz/insulation"><span>Insulation</span></a>
+        <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 8.84 6.16">
+          <defs>
+            <style>
+              .cls-1 {
+                fill: currentColor;
+                stroke-width: 0px;
+                width: 15px;
+              }
+            </style>
+          </defs>
+          <g id="Layer_1-2" data-name="Layer 1">
+            <path id="Path_11" data-name="Path 11" class="cls-1" d="M6.63,0l-2.21,2.63L2.21,0H0v2.21l3.32,3.95h2.21l3.32-3.95V0h-2.21Z" />
+          </g>
+        </svg>
+
+        <ul class="submenu">
+          
+          <a href="https://www.energysmart.co.nz/ecoinsulation"><li class="submenu-item">Eco Insulation</li></a>
+          
+          
+          <a href="https://www.energysmart.co.nz/terralana"><li class="submenu-item">Terra Lana Insulation</li></a>
+          
+          
+          <a href="https://www.energysmart.co.nz/terralana-eco-range"><li class="submenu-item">Terra Lana ECO Range</li></a>
+          
+          
+          <a href="https://www.energysmart.co.nz/check-the-r"><li class="submenu-item">Check the R</li></a>
+          
+          
+          <a href="https://www.energysmart.co.nz/insulation/ceiling-insulation"><li class="submenu-item">Ceiling Insulation</li></a>
+          
+          
+          <a href="https://www.energysmart.co.nz/insulation/underfloor-insulation"><li class="submenu-item">Underfloor Insulation</li></a>
+          
+          
+          <a href="https://www.energysmart.co.nz/insulation/ground-moisture-barrier"><li class="submenu-item">Ground Moisture Barrier</li></a>
+          
+          
+          <a href="https://www.energysmart.co.nz/new-build"><li class="submenu-item">New Builds</li></a>
+          
+          
+        </ul>
+      </li>
+      
+      <li class="menu-item flex-container top-level">
+        <a href="https://www.energysmart.co.nz/heat-pumps"><span>Heat Pumps</span></a>
+        <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 8.84 6.16">
+          <defs>
+            <style>
+              .cls-1 {
+                fill: currentColor;
+                stroke-width: 0px;
+                width: 15px;
+              }
+            </style>
+          </defs>
+          <g id="Layer_1-2" data-name="Layer 1">
+            <path id="Path_11" data-name="Path 11" class="cls-1" d="M6.63,0l-2.21,2.63L2.21,0H0v2.21l3.32,3.95h2.21l3.32-3.95V0h-2.21Z" />
+          </g>
+        </svg>
+
+        <ul class="submenu">
+          
+          <a href="https://www.energysmart.co.nz/heat-pumps/daikin-heat-pumps/"><li class="submenu-item">Daikin Heat Pumps</li></a>
+          
+          
+          <a href="https://www.energysmart.co.nz/heat-pumps/mitsubishi-heat-pumps/"><li class="submenu-item">Mitsubishi Heat Pumps</li></a>
+          
+          
+          <a href="https://www.energysmart.co.nz/heat-pumps/benefits-of-a-heat-pump/"><li class="submenu-item">Benefits of a Heat Pump</li></a>
+          
+          
+          <a href="https://www.energysmart.co.nz/heat-pumps/heat-pump-troubleshooting/"><li class="submenu-item">Heat Pump Troubleshooting</li></a>
+          
+          
+        </ul>
+      </li>
+      
+      <li class="menu-item flex-container top-level">
+        <a href="https://www.energysmart.co.nz/ventilation"><span>Ventilation</span></a>
+        <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 8.84 6.16">
+          <defs>
+            <style>
+              .cls-1 {
+                fill: currentColor;
+                stroke-width: 0px;
+                width: 15px;
+              }
+            </style>
+          </defs>
+          <g id="Layer_1-2" data-name="Layer 1">
+            <path id="Path_11" data-name="Path 11" class="cls-1" d="M6.63,0l-2.21,2.63L2.21,0H0v2.21l3.32,3.95h2.21l3.32-3.95V0h-2.21Z" />
+          </g>
+        </svg>
+
+        <ul class="submenu">
+          
+          <a href="https://www.energysmart.co.nz/ventilation/benefits-of-ventilation"><li class="submenu-item">Benefits of Ventilation</li></a>
+          
+          
+          <a href="https://www.energysmart.co.nz/ventilation/types-of-ventilation"><li class="submenu-item">Types of Ventilation</li></a>
+          
+          
+          <a href="https://www.energysmart.co.nz/ventilation/smart-vent"><li class="submenu-item">SmartVent</li></a>
+          
+          
+        </ul>
+      </li>
+      
+      <li class="menu-item flex-container top-level">
+        <a href="https://www.energysmart.co.nz/velocity"><span>EV Chargers</span></a>
+        <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 8.84 6.16">
+          <defs>
+            <style>
+              .cls-1 {
+                fill: currentColor;
+                stroke-width: 0px;
+                width: 15px;
+              }
+            </style>
+          </defs>
+          <g id="Layer_1-2" data-name="Layer 1">
+            <path id="Path_11" data-name="Path 11" class="cls-1" d="M6.63,0l-2.21,2.63L2.21,0H0v2.21l3.32,3.95h2.21l3.32-3.95V0h-2.21Z" />
+          </g>
+        </svg>
+
+        <ul class="submenu">
+          
+          <a href="https://www.energysmart.co.nz/velocity"><li class="submenu-item">Velocity</li></a>
+          
+          
+        </ul>
+      </li>
+      
+      <li class="menu-item flex-container top-level">
+        <a href="https://www.energysmart.co.nz/subsidies-and-grants"><span>Subsidies</span></a>
+        <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 8.84 6.16">
+          <defs>
+            <style>
+              .cls-1 {
+                fill: currentColor;
+                stroke-width: 0px;
+                width: 15px;
+              }
+            </style>
+          </defs>
+          <g id="Layer_1-2" data-name="Layer 1">
+            <path id="Path_11" data-name="Path 11" class="cls-1" d="M6.63,0l-2.21,2.63L2.21,0H0v2.21l3.32,3.95h2.21l3.32-3.95V0h-2.21Z" />
+          </g>
+        </svg>
+
+        <ul class="submenu">
+          
+          <a href="https://www.energysmart.co.nz/subsidies-and-grants"><li class="submenu-item">Warmer Kiwi Homes</li></a>
+          
+          
+          <a href="https://www.energysmart.co.nz/insulation-subsidy"><li class="submenu-item">Insulation Subsidies</li></a>
+          
+          
+          <a href="https://www.energysmart.co.nz/heat-pump-subsidy"><li class="submenu-item">Heating Subsidies</li></a>
+          
+          
+        </ul>
+      </li>
+      
+      <li class="menu-item flex-container top-level">
+        <a href="https://www.energysmart.co.nz/landlords"><span>Landlords</span></a>
+        <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 8.84 6.16">
+          <defs>
+            <style>
+              .cls-1 {
+                fill: currentColor;
+                stroke-width: 0px;
+                width: 15px;
+              }
+            </style>
+          </defs>
+          <g id="Layer_1-2" data-name="Layer 1">
+            <path id="Path_11" data-name="Path 11" class="cls-1" d="M6.63,0l-2.21,2.63L2.21,0H0v2.21l3.32,3.95h2.21l3.32-3.95V0h-2.21Z" />
+          </g>
+        </svg>
+
+        <ul class="submenu">
+          
+        </ul>
+      </li>
+      
+      <li class="menu-item flex-container top-level">
+        <a href="https://www.energysmart.co.nz/about-us"><span>About Us</span></a>
+        <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 8.84 6.16">
+          <defs>
+            <style>
+              .cls-1 {
+                fill: currentColor;
+                stroke-width: 0px;
+                width: 15px;
+              }
+            </style>
+          </defs>
+          <g id="Layer_1-2" data-name="Layer 1">
+            <path id="Path_11" data-name="Path 11" class="cls-1" d="M6.63,0l-2.21,2.63L2.21,0H0v2.21l3.32,3.95h2.21l3.32-3.95V0h-2.21Z" />
+          </g>
+        </svg>
+
+        <ul class="submenu">
+          
+          <a href="https://www.energysmart.co.nz/local-branches"><li class="submenu-item">Local Branches</li></a>
+          
+          
+          <a href="https://www.energysmart.co.nz/eco-insulation-press-release"><li class="submenu-item">Eco Insulation Press Release</li></a>
+          
+          
+        </ul>
+      </li>
+      
+    </ul>
+    <div class="header-top-cta">
+      <ul>
+        <li class="cta-buttons">
+          <a class="lime clipped-corner-small-both" href="contact-us" target="_self">Contact&nbsp;Us</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+
+</div>    
+  </header>    
+</div></div>
+    
+
+    
+
+<main id="main-content" class="body-container-wrapper">
+  <div class="container-fluid body-container body-container--contact">
+<div class="row-fluid-wrapper">
+<div class="row-fluid">
+<div class="span12 widget-span widget-type-cell " style="" data-widget-type="cell" data-x="0" data-w="12">
+
+<div class="row-fluid-wrapper row-depth-1 row-number-1 dnd-section">
+<div class="row-fluid ">
+<div class="span12 widget-span widget-type-cell dnd-column" style="" data-widget-type="cell" data-x="0" data-w="12">
+
+<div class="row-fluid-wrapper row-depth-1 row-number-2 dnd-row">
+<div class="row-fluid ">
+<div class="span12 widget-span widget-type-custom_widget dnd-module" style="" data-widget-type="custom_widget" data-x="0" data-w="12">
+<div id="hs_cos_wrapper_widget_1713235118695" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_module" style="" data-hs-cos-general-type="widget" data-hs-cos-type="module">
+
+
+
+  <div class="empty-breadcrumb"></div>
+
+
+<div class="search-container">
+  <div class="hs-search-field clipped-corner-searchbar">
+    <div class="phone">
+      <a href="tel:0800777111">
+        <img class="logo-only" src="https://www.energysmart.co.nz/hubfs/Resources/Icons/reshot-icon-phone-XVG9DMYSLJ.svg" alt="Call now icon" loading="lazy">
+        0800 777 111
+      </a>
+    </div>
+    
+    <div class="hs-search-field__bar"> 
+      <form action="/search-results">
+        
+        <input type="text" class="hs-search-field__input" name="term" autocomplete="off" aria-label="Search" placeholder="Search">
+        
+        
+          <input type="hidden" name="type" value="SITE_PAGE">
+        
+        
+          <input type="hidden" name="type" value="LANDING_PAGE">
+        
+        
+          <input type="hidden" name="type" value="BLOG_POST">
+          <input type="hidden" name="type" value="LISTING_PAGE">
+        
+        
+          <input type="hidden" name="type" value="KNOWLEDGE_ARTICLE">
+        
+
+                
+      </form>
+    </div> 
+    <!-- <ul class="hs-search-field__suggestions"></ul> -->
+    <div class="search-icon"><img class="logo-only" src="https://www.energysmart.co.nz/hubfs/Resources/Icons/white_magnifying-glass-svgrepo-com.svg" alt="Magnifying glass icon" loading="lazy"></div>
+  </div>
+</div>
+
+</div>
+
+</div><!--end widget-span -->
+</div><!--end row-->
+</div><!--end row-wrapper -->
+
+</div><!--end widget-span -->
+</div><!--end row-->
+</div><!--end row-wrapper -->
+
+<div class="row-fluid-wrapper row-depth-1 row-number-3 dnd-section">
+<div class="row-fluid ">
+<div class="span12 widget-span widget-type-cell dnd-column" style="" data-widget-type="cell" data-x="0" data-w="12">
+
+<div class="row-fluid-wrapper row-depth-1 row-number-4 dnd-row">
+<div class="row-fluid ">
+<div class="span12 widget-span widget-type-custom_widget dnd-module" style="" data-widget-type="custom_widget" data-x="0" data-w="12">
+<div id="hs_cos_wrapper_widget_1705660595069" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_module" style="" data-hs-cos-general-type="widget" data-hs-cos-type="module"><div class="module-local-branch-book">
+  <h1>
+    AUCKLAND
+  </h1>
+  <p>EnergySmart are Auckland's trusted experts in Heat Pumps, Insulation and Ventilation.</p>
+  
+  <a href="https://www.energysmart.co.nz/contact-us"><div class="book clipped-corner-small-both">BOOK YOUR FREE ASSESSMENT</div></a>
+</div>
+
+</div>
+
+</div><!--end widget-span -->
+</div><!--end row-->
+</div><!--end row-wrapper -->
+
+</div><!--end widget-span -->
+</div><!--end row-->
+</div><!--end row-wrapper -->
+
+<div class="row-fluid-wrapper row-depth-1 row-number-5 dnd-section">
+<div class="row-fluid ">
+<div class="span12 widget-span widget-type-cell dnd-column" style="" data-widget-type="cell" data-x="0" data-w="12">
+
+<div class="row-fluid-wrapper row-depth-1 row-number-6 dnd-row">
+<div class="row-fluid ">
+<div class="span12 widget-span widget-type-custom_widget dnd-module" style="" data-widget-type="custom_widget" data-x="0" data-w="12">
+<div id="hs_cos_wrapper_widget_1749004554533" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_module" style="" data-hs-cos-general-type="widget" data-hs-cos-type="module">  
+<div id="a-unique-and-descriptive-name" class="module-image-and-text">
+
+  
+  <h2 class="main-heading ">EnergySmart Auckland</h2>
+  
+
+  
+  <p class="subtext">At EnergySmart, we provide professional heat pump, insulation, and ventilation services throughout Auckland city and the wider region. Whether you’re upgrading your home for comfort, energy-efficiency or family health, our experienced team is here to help.</p><p>
+  
+
+  
+
+  </p><div class="container">
+
+
+    <!-- special deal floating overlay -->
+    
+
+
+    <!-- loop over rows to create the main "image and text" block with alternating/checkerboard-style positioning -->
+    
+    <div class="row  text-left">
+      <div class="box text-box  ">
+        
+        
+        <h2 class="box-heading">Auckland Heat Pump Installation</h2>
+        
+        
+        
+        <div class="box-subtext">EnergySmart specialise in Daikin heat pumps and offer expert heat pump installation services tailored to your requirements. With options for a range of budgets, EnergySmart are renowned for their affordable heat pump solutions and quality installation services.<br> <br>As one of the regions leading Warmer Kiwi Homes heat pump subsidy providers, we help hundreds of eligible Aucklanders access funding for heat pump grants every year.<br> <br>We proudly support everyday homeowners and landlords in creating warmer, drier and healthier homes. Contact us today for more information on our heat pump services or to book a free home assessment with our friendly team. </div>
+        
+        
+        
+
+        
+        
+        
+
+        
+
+         
+        
+        <a href="https://www.energysmart.co.nz/contact-us" class="bottom-button clipped-corner-small-both white-logo-after-text">
+          Book A Heat Pump Assessment
+        </a>
+                  
+      </div>
+
+      <!-- image-box is ordinarily filled with an image but might take an iframe embed -->
+      <div class="box image-box">
+                
+        <img src="https://www.energysmart.co.nz/hubfs/Heat%20Pumps/hitachi_high_wall_heat_pump.jpg" alt="Woman relaxing infront of EnergySmart heat pump installed in Auckland home.">
+        
+      </div>
+
+    </div>
+    <!-- end looping over the main image and content rows -->
+    
+    <div class="row  last-row  text-right">
+      <div class="box text-box  ">
+        
+        
+        <h2 class="box-heading">Auckland Insulation Installation</h2>
+        
+        
+        
+        <div class="box-subtext">Looking for a reliable insulation installer in Auckland? We supply and install quality insulation for ceilings, walls and underfloors to regulate your homes climate year round and reduce heat loss in the winter.<br> <br>Our insulation subsidy assessment service supports kiwi home owners in accessing government grants for insulation, with eligible homeowners able to access 80% - 100% off their insulation with appropriate funding.<br> <br>Our <a href="https://www.terralana.co.nz/">Terra Lana</a> insulation is sustainable and hardy, created using local New Zealand wool for superior performance, ensuring your home will be dry and warm for years to come. Find out more about our insulation services or book a free home assessment.</div>
+        
+        
+        
+
+        
+        
+        
+
+        
+
+         
+        
+        <a href="https://www.energysmart.co.nz/contact-us" class="bottom-button clipped-corner-small-both white-logo-after-text">
+          Book An Insulation Assessment
+        </a>
+                  
+      </div>
+
+      <!-- image-box is ordinarily filled with an image but might take an iframe embed -->
+      <div class="box image-box">
+                
+        <img src="https://www.energysmart.co.nz/hubfs/Insulation/Terra%20Lana%20insulation%20install.jpg" alt="Quality insulation installation by EnergySmart Auckland">
+        
+      </div>
+
+    </div>
+    <!-- end looping over the main image and content rows -->
+    
+
+  </div>
+
+  
+
+   
+
+  </div>
+
+</div><!--end widget-span -->
+</div><!--end row-->
+</div><!--end row-wrapper -->
+
+</div><!--end widget-span -->
+</div><!--end row-->
+</div><!--end row-wrapper -->
+
+<div class="row-fluid-wrapper row-depth-1 row-number-7 dnd-section">
+<div class="row-fluid ">
+<div class="span12 widget-span widget-type-cell dnd-column" style="" data-widget-type="cell" data-x="0" data-w="12">
+
+<div class="row-fluid-wrapper row-depth-1 row-number-8 dnd-row">
+<div class="row-fluid ">
+<div class="span12 widget-span widget-type-custom_widget dnd-module" style="" data-widget-type="custom_widget" data-x="0" data-w="12">
+<div id="hs_cos_wrapper_widget_1705660860006" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_module" style="" data-hs-cos-general-type="widget" data-hs-cos-type="module"><div class="content-region">
+  <div class="content-wrapper">
+    <div class="form-contact-innter">
+
+      <div class="content-region-left">
+        <div class="spl-cont">
+          <h4>Our Auckland branch services the wider Auckland region from Orewa through to Pukekohe</h4>
+        </div>
+        <div class="two-col-adjust">
+          <span>
+            <div class="hs_cos_wrapper">
+              <h4>Physical Address</h4>
+              <p>
+                <span>60 Westney Road,</span>
+                <br>
+                <span>Mangere, </span>
+                <span>Auckland </span>
+                <span>2022</span>
+              </p>
+            </div>
+
+            <div id="opening_hours" class="hs_cos_wrapper">
+              <h4>Opening Hours</h4>
+              <script>
+
+                function getFullDayName(code) {
+                  switch (code.toLowerCase()) {
+                    case 'mo': return 'Monday'
+                    case 'tu': return 'Tuesday'
+                    case 'we': return 'Wednesday'
+                    case 'th': return 'Thursday'
+                    case 'fr': return 'Friday'
+                    case 'sa': return 'Saturday'
+                    case 'su': return 'Sunday'
+                    default: return 'not a day'
+                  }
+                }
+
+                const days = `Mo,Tu,We,Th,Fr`.split(',')
+                const openHour = `7`
+                const closeHour = `16`
+
+                const hours = `<p>
+                ${getFullDayName(days[0])} &ndash; ${getFullDayName(days[days.length - 1])}
+                <br>
+                ${openHour}am &ndash; ${closeHour - 12}pm
+                </p>`
+
+                $('#opening_hours').append(hours)
+              </script>
+            </div>
+
+            <div class="hs_cos_wrapper">
+              <h4>Contact Details</h4>
+              <p>Phone: 0800 777 111</p>
+            </div>
+
+            <div class="hs_cos_wrapper">
+              
+              <h4>Postal Address</h4>
+              <p>
+                PO Box Montgomerie Road
+                
+                <br>
+                Mangere, Auckland 2022
+                
+              </p>
+              
+            </div>
+          </span>
+        </div>
+      </div>
+
+      <div class="content-region-right">
+        <div id="map">
+        </div>
+      </div>
+
+    </div>
+
+<!--     <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAw35gB1q94NHGHtwlSPcK19HlaKmkm72U&callback=initMap&libraries=&v=weekly"> -->
+      
+<!--     </script> -->
+    
+    <script async defer type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBfDdpqdNgQmDCcM1PphnOLtUHCpONZ58E&amp;callback=initMap&amp;libraries=places&amp;v=weekly"></script>
+
+
+    <script defer>
+      async function initMap() {
+        const position = { lat: -36.98027445380566 , lng: 174.7803036816255 }
+
+        const map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 15,
+          center: position
+        })
+
+        const marker = new google.maps.Marker({
+          position: position,
+          map,
+          title: `<h6>EnergySmart Auckland</h6>`
+        })
+
+        const infowindow = new google.maps.InfoWindow({
+          content: `<h6>EnergySmart Auckland</h6>`
+        })
+
+        const openInfoWindow = () => infowindow.open(map, marker)
+
+        marker.addListener("click", () => openInfoWIndow() )
+
+        // open infoWindow by default
+        openInfoWindow()
+      }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "EnergySmart Auckland",
+      "openingHours": "Mo,Tu,We,Th,Fr 7:00-16:00",
+      "telephone": "0800 777 111",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "60 Westney Road,",
+        "addressLocality": "Auckland",
+        "addressRegion": "Auckland",
+        "postalCode": "2022",
+        "addressCountry": "NZ"
+      },
+      "parentOrganization": {
+        "@type": "Organization",
+        "name": "EnergySmart",
+        "url": "https://www.energysmart.co.nz"
+      }
+    }
+    </script>
+
+  </div>
+</div>
+
+</div>
+
+</div><!--end widget-span -->
+</div><!--end row-->
+</div><!--end row-wrapper -->
+
+</div><!--end widget-span -->
+</div><!--end row-->
+</div><!--end row-wrapper -->
+
+<div class="row-fluid-wrapper row-depth-1 row-number-9 dnd-section">
+<div class="row-fluid ">
+<div class="span12 widget-span widget-type-cell dnd-column" style="" data-widget-type="cell" data-x="0" data-w="12">
+
+<div class="row-fluid-wrapper row-depth-1 row-number-10 dnd-row">
+<div class="row-fluid ">
+<div class="span12 widget-span widget-type-custom_widget dnd-module" style="" data-widget-type="custom_widget" data-x="0" data-w="12">
+<div id="hs_cos_wrapper_widget_1714610764254" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_module" style="" data-hs-cos-general-type="widget" data-hs-cos-type="module">
+
+<div class="module-send-us-a-message module-theme--default">
+  <h2>Contact Us</h2>
+  <div class="form-wrapper"> 
+    <div class="form-left">
+      <div class="form-left-content">
+        <p class="sub-heading">Your Home Comfort Experts</p>
+        
+        <div>
+          <ul>
+<li><span style="color: #ffffff;"><a href="/heat-pumps" rel="noopener" style="color: #ffffff;">Heat Pumps</a></span></li>
+<li><span style="color: #ffffff;"><a href="/ventilation" rel="noopener" style="color: #ffffff;">Ventilation</a></span></li>
+<li><span style="color: #ffffff;"><a href="/insulation" rel="noopener" style="color: #ffffff;">Insulation</a></span></li>
+<li><span style="color: #ffffff;"><a href="/insulation/ground-moisture-barrier" rel="noopener" style="color: #ffffff;">Ground Moisture Barriers</a></span></li>
+<li><span style="color: #ffffff;"><a href="/subsidies-and-grants" rel="noopener" style="color: #ffffff;">Insulation &amp; Heating Subsidies</a></span></li>
+<li><span style="color: #ffffff;"><a href="/velocity" rel="noopener" style="color: #ffffff;">EV Chargers</a></span></li>
+</ul>
+        </div>
+        
+      </div>
+      <div class="call-now">
+        <span class="one">CALL NOW</span>
+        <a href="tel:0800%20777%20111"><span class="two">0800 777 111</span></a>
+        <p>Mon - Fri: 8:00am - 5:30pm<br>Closed Saturday, Sunday and Public Holidays</p>
+      </div>
+    </div>
+
+    <div id="form_container" class="form-right">
+      <span id="hs_cos_wrapper_widget_1714610764254_" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_form" style="" data-hs-cos-general-type="widget" data-hs-cos-type="form"><h3 id="hs_cos_wrapper_form_233645290_title" class="hs_cos_wrapper form-title" data-hs-cos-general-type="widget_field" data-hs-cos-type="text"></h3>
+
+<div id="hs_form_target_form_233645290"></div>
+
+
+
+
+
+
+
+
+
+</span>
+    </div>
+  </div>
+</div>
+
+ 
+
+</div>
+
+</div><!--end widget-span -->
+</div><!--end row-->
+</div><!--end row-wrapper -->
+
+</div><!--end widget-span -->
+</div><!--end row-->
+</div><!--end row-wrapper -->
+
+</div><!--end widget-span -->
+</div>
+</div>
+</div>
+
+
+    
+    <div data-global-resource-path="EnergySmart_2023_Rebrand/templates/partials/footer.html"><div id="hs_cos_wrapper_module_170225885973930" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_module" style="" data-hs-cos-general-type="widget" data-hs-cos-type="module"><div class="footer-wrap">
+  <footer class="footer">
+    <div class="content-wrapper bg-logo">
+      <div class="footer-top-content">        
+          <div class="footer-top-left span6 all-text-white">
+
+            <a href="tel:0800777111">
+
+              
+              
+              
+              
+              
+              
+              <img src="https://www.energysmart.co.nz/hubfs/EnergySmart_2021/Images/Footer/call-answer.svg" alt="call-answer" loading="lazy" style="max-width: 100%; height: auto;">
+              
+
+              <span class="phone">0800 777 111</span>
+            </a>
+            
+            
+            
+            
+            
+            <a href="https://www.energysmart.co.nz/contact-us">
+
+              
+              
+              
+              
+              
+              
+              <img src="https://www.energysmart.co.nz/hubfs/EnergySmart_2021/Images/Footer/calculator.svg" alt="calculator" loading="lazy" style="max-width: 100%; height: auto;">
+              
+
+              <span class="not-phone">Book your free in-home assessment</span>
+            </a>
+            
+            
+            
+            
+            
+            
+            
+            <a href="https://www.facebook.com/energysmartnz/" target="_blank" rel="noopener">
+
+              
+              
+              
+              
+              
+              
+              <img src="https://www.energysmart.co.nz/hubfs/EnergySmart_2021/Images/Footer/facebook.svg" alt="facebook" loading="lazy" style="max-width: 100%; height: auto;">
+              
+
+              <span class="not-phone">Follow EnergySmart for Tips &amp; Exclusive Deals</span>
+            </a>
+          </div>
+
+        
+      </div>
+
+      <div class="footer-middle-content all-text-white">
+        
+        
+          <div>
+            <h4><a href="https://www.energysmart.co.nz/insulation">Insulation</a></h4>
+            <ul>
+              
+              <li><a href="https://www.energysmart.co.nz/insulation/ceiling-insulation">Celling Insulation</a></li> 
+              
+              <li><a href="https://www.energysmart.co.nz/insulation/underfloor-insulation">Underfloor Insulation</a></li> 
+              
+              <li><a href="https://www.energysmart.co.nz/insulation/ground-moisture-barrier">Ground Moisture Barrier</a></li> 
+              
+              <li><a href="https://www.energysmart.co.nz/new-build">New Builds</a></li> 
+              
+              <li><a href="https://www.energysmart.co.nz/landlords">Landlords</a></li> 
+              
+            </ul>
+          </div>
+        
+          <div>
+            <h4><a href="https://www.energysmart.co.nz/heat-pumps">Heat Pumps</a></h4>
+            <ul>
+              
+              <li><a href="https://www.energysmart.co.nz/heat-pumps/mitsubishi-heat-pumps/">Mitsubishi Heat Pumps</a></li> 
+              
+              <li><a href="https://www.energysmart.co.nz/heat-pumps/daikin-heat-pumps/">Daikin Heat Pumps</a></li> 
+              
+              <li><a href="https://www.energysmart.co.nz/heat-pumps/benefits-of-a-heat-pump/">Benefits of a Heat Pump</a></li> 
+              
+              <li><a href="https://www.energysmart.co.nz/heat-pumps/heat-pump-troubleshooting/">Heat Pump Troubleshooting</a></li> 
+              
+            </ul>
+          </div>
+        
+          <div>
+            <h4><a href="https://www.energysmart.co.nz/ventilation">Ventilation</a></h4>
+            <ul>
+              
+              <li><a href="https://www.energysmart.co.nz/ventilation/benefits-of-ventilation">Benefits of Ventilation</a></li> 
+              
+              <li><a href="https://www.energysmart.co.nz/ventilation/types-of-ventilation">Types of Ventilation</a></li> 
+              
+              <li><a href="https://www.energysmart.co.nz/ventilation/smart-vent">SmartVent</a></li> 
+              
+            </ul>
+          </div>
+        
+          <div>
+            <h4><a href="https://www.energysmart.co.nz/local-branches">Locations</a></h4>
+            <ul>
+              
+              <li><a href="https://www.energysmart.co.nz/contact-us/auckland">Auckland</a></li> 
+              
+              <li><a href="https://www.energysmart.co.nz/contact-us/tauranga-bay-of-plenty">Bay Of Plenty</a></li> 
+              
+              <li><a href="https://www.energysmart.co.nz/contact-us/hamilton-waikato/">Waikato</a></li> 
+              
+              <li><a href="https://www.energysmart.co.nz/contact-us/palmerston-north-manawatu-wanganui/">Manawatu &amp; Wanganui</a></li> 
+              
+              <li><a href="https://www.energysmart.co.nz/contact-us/wellington-kapiti/">Wellington, Kapiti and Wairarapa</a></li> 
+              
+              <li><a href="https://www.energysmart.co.nz/contact-us/christchurch-canterbury/">Canterbury</a></li> 
+              
+              <li><a href="https://www.energysmart.co.nz/contact-us/timaru-south-canterbury-and-north-otago/">South Canterbury and North Otago</a></li> 
+              
+            </ul>
+          </div>
+        
+      </div>
+
+    </div>
+    <div class="copyright">
+      <div class="content-wrapper">
+        <div class="content-foot" style="display:none;">
+          <div id="hs_cos_wrapper_module_170225885973930_" class="hs_cos_wrapper hs_cos_wrapper_widget hs_cos_wrapper_type_inline_rich_text" style="" data-hs-cos-general-type="widget" data-hs-cos-type="inline_rich_text" data-hs-cos-field="footer_copyright_group.content"><p>All finance is subject to Q Mastercard terms &amp; conditions, credit criteria and rates and fees. Visit <a href="https://www.qmastercard.co.nz/" rel="noopener" target="_blank">qmastercard.co.nz</a> for full terms &amp; conditions and rates and fees.</p></div>
+        </div>
+        <div class="content-foot-right">
+          <div id="copyright-logo">
+            <p>
+              © EnergySmart  2026
+            </p>
+          </div>
+          <div id="privacy-terms-conditions">
+          <p>
+            
+            
+            
+            
+            
+            <a href="https://www.energysmart.co.nz/installation-warranties">
+              Warranties
+            </a>
+
+            
+            
+            
+            
+            
+            <a href="https://www.energysmart.co.nz/about-us/terms-conditions/">
+              Terms &amp; Conditions
+            </a>
+          </p>          
+        </div>
+       </div>
+      </div>
+    </div>
+  </footer>
+</div>
+
+
+
+</div>
+
+
+
+<style>
+/*   .carousal-banner-inner{  padding: 0px 81px;  position: relative;}
+button.home-slide-arrow {cursor:pointer; background: 0; border: 0; position: absolute; top: 50%; transform: translateY(-50%); }
+button.home-slide-arrow:hover{opacity:0.7;}
+button.home-slide-arrow img { width: 25px; }
+button.home-slide-next.home-slide-arrow { right:0px; }
+button.home-slide-prev.home-slide-arrow{ left:0px; }
+.carousal-banner-leftinner h1,.carousal-banner-leftinner .heading1 { margin-bottom: 17px; }
+
+@media (max-width: 1366px){
+.carousal-banner-inner { padding: 0px 50px; }
+button.home-slide-arrow img { width: 20px; } 
+}
+
+  @media (max-width: 700px){
+    .carousal-banner-inner {
+      padding:0px;
+    }
+    button.home-slide-arrow {
+      display:none;
+    }
+  }
+
+  @media (max-width: 700px){
+    .carousal-banner-wrap {
+      background:rgba(#null, %);
+    }
+  } */
+  .hs-search-field {
+  position: relative;
+}
+.hs-search-field__input {
+  box-sizing: border-box;
+  width: 100%;
+}
+.hs-search-field__bar button svg {
+  height: 10px;
+}
+  
+  
+.hs-search-field__suggestions {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.hs-search-field--open .hs-search-field__suggestions {
+  border: 1px solid #000;
+}
+.hs-search-field__suggestions li {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+.hs-search-field__suggestions #results-for {
+  font-weight: bold;
+}
+.hs-search-field__suggestions a,
+.hs-search-field__suggestions #results-for {
+  display: block;
+}
+.hs-search-field__suggestions a:hover,
+.hs-search-field__suggestions a:focus {
+  background-color: rgba(0, 0, 0, 0.1);
+  outline: none;
+}
+
+  
+  .footer:after {
+    display: none !important;
+  }
+
+  .footer-topimage,
+  .footer-bottomimage {
+    width: 101%;
+    height: 263px;
+  }
+  
+  .footer-top-right form .actions {
+    margin-top: 0px;
+  }
+
+  .footer-top-right form .actions:after {
+    top: 21px;
+  }
+  
+  .footer .phone{
+    font-family: "ReplicaLLWeb-Heavy", sans-serif;
+    line-height: 0.875;
+  }
+
+  .footer-top-right input.hs-button {
+    font-weight: 600;
+    font-size: 18px;
+  }
+
+  .footer-topimage {
+    margin-bottom: -221px;
+  }
+
+  .footer-image {
+    position: relative;
+    top: -4px;
+    overflow: hidden;
+    padding-top: 50px;
+  }
+  
+  .footer-top-right .hs-main-font-element {
+  
+    
+    
+    height: 66px;
+    @media (max-width:820px){
+      height: 12vw;
+    }
+  }
+
+  .footer-top-right form {
+    display: flex;
+  }
+
+  .footer-top-right .form-title {
+    display: none;
+  }
+
+  .footer-top-right form input[type=email] {
+    height: 50px;
+    font-size: 18px;
+  }
+
+  .footer-top-right form input::placeholder {
+    color: #818181;
+  }
+
+  .footer-top-right .hs_email {
+    width: 64.6%;
+  }
+
+  .footer-top-right .hs_submit {
+    width: 32%;
+    
+  }
+
+  .footer-top-right .actions input.hs-button.primary.large {
+    padding: 0 30px;
+    height: 50px;
+    text-transform: uppercase;
+  }
+
+  .footer-top-right .actions input.hs-button.primary.large:hover {
+/*     padding-left: 14px; */
+  }
+
+  .footer-top-right label.hs-error-msg {
+    color: #fff !important;
+    line-height: 22px;
+  }
+
+  .footer-top-right form .hs_submit .actions {
+    max-width: 164px;
+  }
+
+  .footer-top-left img {
+    width: 26px;
+    height: auto;
+  }
+
+  .footer-top-left a {
+    display: flex;
+    padding-bottom: 1.333rem;
+    align-items: center;
+  }
+
+  .footer-top-left a span {
+    font-size: 1.125rem;
+    line-height: 1.333;
+    padding-left: 1rem;
+  }
+ 
+  .footer-middle-content {
+    padding: 0px 0;
+  }
+
+  .footer-middle-content ul {
+    padding: 0;
+    margin: 0;
+  } 
+
+  .footer-middle-content li a:hover {
+    color: #fff;
+  }
+
+  .footer-middle-content li:last-child a {
+    padding-right: 0;
+  }
+
+  .footer-bottom-content {
+    padding-bottom: 76px;
+    max-width: 935px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer-bottom-content h4 {
+    font-size: 18px;
+    line-height: 40px;
+    max-width: 225px;
+    font-family: 'Aeonik-Bold' !important;
+  }
+
+  .footer-bottom-content .hs-menu-wrapper.flyouts .hs-menu-children-wrapper {
+    left: unset;
+    opacity: 1;
+    position: unset;
+  }
+
+  .footer-bottom-content ul li.hs-item-has-children {
+    display: inline-block;
+    padding-right: 114px;
+  }
+
+  .footer-bottom-content ul li.hs-item-has-children>a {
+    cursor: pointer !important;
+    font-size: 21px;
+    line-height: 40px;
+    font-weight: bold;
+    display: block;
+    max-width: 200px;
+  }
+
+  .footer-bottom-content ul li.hs-item-has-children>a:hover {
+    color: #fff;
+    cursor: auto;
+    text-decoration: none;
+  }
+
+  .footer-bottom-content ul li.hs-item-has-children:last-child {
+    padding-right: 0;
+  }
+
+  .footer-bottom-content ul li.hs-item-has-children:last-child>a {
+    display: block;
+    max-width: 200px;
+  }
+
+  .footer-bottom-content ul li.hs-item-has-children>ul {
+    padding-top: 12px;
+  }
+
+  .footer-bottom-content a {
+    font-size: 16px;
+    line-height: 32px;
+    font-weight: 400;
+  }
+
+  .footer-bottom-content a:hover {
+    color: #fff;
+    text-decoration: none;
+  }
+
+  .footer .copyright {
+    background: #114242;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer .copyright p,
+  .footer .copyright p a {
+    line-height: 1.28;
+    font-size: 0.875rem;
+    color: #a2bfac;
+    text-decoration: none;
+  }
+
+  .footer .copyright p a,
+  .footer .copyright p a:visited {
+    text-decoration: none;
+    padding: 0 10px;
+  }
+
+  .footer .copyright p a:hover {
+    color: #d6f700;
+  } 
+  
+  .footer .copyright p a:hover:after {
+    color: #a2bfac;
+  }
+
+  .footer .copyright p a:first-child {
+    position: relative;
+  }  
+
+  .footer .copyright p a:not(:last-child):after {
+    position: absolute;
+    content: '|';
+    right: 0;
+  }  
+
+  .footer .copyright p:last-child {
+    margin-bottom: 0;
+  }
+
+  .footer .content-foot p a {
+    padding: 0;
+  }
+
+  .footer .content-foot p a:after {
+    display: none;
+  }
+
+  a.mobiletop-scroll {
+    display: none;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    background: #38974c;
+    border-radius: 50%;
+    position: absolute;
+    top: 33px;
+    right: 20px;
+    z-index: 1;
+  }
+
+  a.mobiletop-scroll img {
+    width: 20px;
+    height: 20px;
+  }
+
+  @media(min-width:2000px) {
+    .footer-image {
+      position: relative;
+      top: 0px;
+    }
+
+    .footer-topimage,
+    .footer-bottomimage {
+      width: 100%;
+      height: 370px;
+    }
+
+    .footer-topimage {
+      margin-bottom: -310px;
+    }
+
+    .footer:after {
+      
+    }
+  }
+
+  @media(max-width:1366px) {
+    .footer-top-right .actions input.hs-button.primary.large {
+/*       padding: 17px 7px;
+      font-size: 14px; */
+    }
+
+    .footer-top-right form .actions:after {
+      display: none;
+    }
+  }
+
+  @media(max-width:1024px) {
+    .footer-top-right form .hs-button {
+      font-size: 16px;
+    }
+
+    .footer-topimage,
+    .footer-bottomimage {
+      width: 100%;
+      height: 147px;
+    }
+
+    .footer-topimage {
+      margin-bottom: -121px;
+    }
+
+    .footer-top-left a:first-child span, .footer-top-right h4{
+      
+    }
+
+    .footer-top-left a span {
+      
+    }
+
+    .footer-top-left img {
+      width: 26px;
+    }
+
+    .footer:after {
+      
+    }
+
+    .footer:before {
+      right: 2%;
+      width: 280px;
+      height: 400px;
+      z-index: -1;
+    }
+
+    .footer {
+      
+    }
+
+    .footer-bottom-content ul li.hs-item-has-children {
+      display: inline-block;
+      padding-right: 70px;
+    }
+
+    .footer-bottom-content {
+      padding-bottom: 76px;
+      max-width: 855px;
+    }
+
+    .footer-image {
+      position: relative;
+      top: px;
+    }
+    
+  }
+
+  @media(max-width:900px) {
+    .footer-bottom-content ul li.hs-item-has-children {
+      display: inline-block;
+      padding-right: 40px;
+    }
+
+    .footer-bottom-content {
+      max-width: 735px;
+      margin: 0 auto;
+    }
+
+    .footer-bottom-content a {
+      font-size: 16px;
+    }
+  }
+
+  @media(max-width:767px) {
+/*      some props commented out as conflicting with responsive design changes Feb 2024 - PG */
+
+    .footer-bottom-content,
+    .footer-top-right {
+/*       display: none !important; */
+    }
+
+    .footer-topimage {
+      margin-bottom: -83px;
+    }
+
+    .footer-topimage,
+    .footer-bottomimage {
+      width: 100%;
+      height: 103px;
+    }
+
+    .footer-top-content {
+/*       max-width: 310px; */
+      margin: 0 auto;
+      position: relative;
+    }
+    
+    .footer-top-content .footer-top-right{
+        
+        width: 100%; 
+     }
+
+    .footer-top-left img {
+      width: 30px;
+      height: 30px;
+    }
+
+    .footer-top-left a {
+      display: flex;
+      padding-bottom: 30px;
+      align-items: center;
+    }
+
+    .footer-top-left a span {
+      
+    }
+
+    .footer-middle-content {
+      padding: 30px 0;
+    }
+
+    .footer-middle-content li {
+      list-style: none;
+      display: block;
+      padding-right: 0;
+      padding-bottom: 13px;
+    }
+
+    .footer .copyright {
+      
+      padding: 0px 0;
+      text-align: center;
+    }
+
+    .footer .copyright p,
+    .footer .copyright p a {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 400;
+    }
+
+    .footer:after {
+      display: none;
+    }
+
+    .footer:before {
+      right: -20%;
+      width: 430px;
+      height: 630px;
+      z-index: -1;
+      bottom: 7%;
+    }
+
+    .footer-middle-content h3 {
+      font-size: 28px;
+    }
+
+    .footer-image {
+      position: relative;
+      top: -4px;
+    }
+
+    .footer {
+      margin-top: -25px;
+    }
+  }
+
+  @media(max-width:640px) {
+    a.mobiletop-scroll {
+      display: flex;
+    }
+  }
+
+  @media(max-width:480px) {
+    .footer-top-content {
+/*       max-width: 310px; */
+      margin: 0 auto;
+    }
+  }
+</style></div>
+    
+
+  </div>
+
+  
+  
+  
+  
+<!-- HubSpot performance collection script -->
+<script defer src="/hs/hsstatic/content-cwv-embed/static-1.1293/embed.js"></script>
+<script defer src="https://www.energysmart.co.nz/hubfs/hub_generated/template_assets/1/147311100550/1771540830275/template_main.min.js"></script>
+<script>
+var hsVars = hsVars || {}; hsVars['language'] = 'en';
+</script>
+
+<script src="/hs/hsstatic/cos-i18n/static-1.53/bundles/project.js"></script>
+
+
+<script>
+
+  let menuButton = $('.menu-button');
+  let menu = $('.main-menu');
+  let menuUL = $('.main-menu');
+  let topHeaderWrap = $('.top-header-wrap')
+  let body = $('body');
+  let closeMenuButton = $('.menu-close')
+  let newMenuItems = $('.new-menu-items')
+  let menuItemsLevel1 = $('.hs-menu-depth-1')
+
+  let privacyPolicyPage = "https://www.energysmart.co.nz/about-us/privacy-policy/"    
+  let termsAndConditionsPage = "https://www.energysmart.co.nz/about-us/terms-conditions/"   
+
+  function resetMobileMenuStatus(){
+    if ($('.top-header-wrap').hasClass("menu-open")){
+      $('.open-menu-list').removeClass("open-menu-list")
+      $('.menu-button').hide();
+      $('.new-menu-items').show();
+      $('.submenu-open ul').hide();
+      $('.submenu-open').removeClass("submenu-open")
+      $('.menu-back-button').hide();
+      $('.locations-new-link').show();
+      $('.book-assessment-section').show();
+      $('.menu-close').show();
+    } else {
+      $('.menu-button').show();
+      $('.new-menu-items').hide();
+      $('.menu-back-button').hide();
+      $('.book-assessment-section').hide();
+      $('.menu-close').hide();      
+    }
+
+  }
+
+
+  function toggleMenu(){
+    console.log("Toggle menu on/off")
+    $('.new-menu-items').toggle(); 
+    console.log("Currently this section is visible: "+$('.book-assessment-section').is(":visible"))
+    $('.book-assessment-section').toggle();
+    console.log("After toggle this section is visible: "+$('.book-assessment-section').is(":visible"))
+    $('.menu-button').toggle();
+    $('.menu-close').toggle();
+    $('.main-menu').toggle();
+    $(menu).toggleClass('active')
+    $(topHeaderWrap).toggleClass('menu-open');
+    $(body).toggleClass('noscroll')       
+  }
+
+  function navigateMenu(event, clickedElement) {
+    if (window.innerWidth <= 820 && clickedElement.hasClass("top-level") && !clickedElement.hasClass("submenu-open")) {
+      // just open sub-menu 
+      event.preventDefault();
+    }
+
+    event.stopPropagation();
+
+    if (clickedElement.hasClass("submenu-open")){
+      console.log("Clicking same menu item so do nothing");
+      return;
+    }
+
+    if (clickedElement.hasClass("menu-back-button")){
+      console.log("Going back and hiding back button")
+      $('.menu-back-button').toggle();
+      $('.submenu').hide();
+      $('.submenu-item').hide();
+      $('.menu-item').show();
+      $(".submenu-open").removeClass("submenu-open")
+      return;
+    }
+
+    console.log("Back shouldn't reach here")
+    let thisMenuItem =  clickedElement;      
+    $('.menu-back-button').show()
+    let allMenuSiblings = thisMenuItem.siblings('.menu-item');
+    let newContactUsLink = $('.contact-us-new-link');
+    //allMenuSiblings.add(newContactUsLink);
+    console.log("Found siblings x " + allMenuSiblings.length);
+    //allMenuSiblings.css("background-color", "red")
+    allMenuSiblings.hide();
+    //$('.privacy-new-link').hide();
+    //$('.terms-new-link').hide();
+    //newContactUsLink.hide();
+    thisMenuItem.addClass("submenu-open")
+    thisMenuItem.find('ul li').show()
+    thisMenuItem.find('ul').show()
+  }
+
+  $(document).ready(function() {    
+    //     console.log("Document is ready!");
+
+    $(menuUL).prepend('<div style="display:none;" class="menu-back-button"><img class = "half-logo-back" src="https://kiwi.energysmart.co.nz/hubfs/Resources/Logos/dropdown_arrow.svg" alt="Half logo"><button>Back</button></div>')
+    $(menuUL).append('<li style="display:flex; display:;" class="contact-us-new-link menu-item hs-item-has-children new-menu-items flex-container" role="none"><a href="contact-us" aria-expanded="false" role="menuitem">Contact us</a><img class = "half-logo" src="https://kiwi.energysmart.co.nz/hubfs/Resources/Logos/dropdown_arrow.svg" alt="Half logo"></li>')
+    
+    $(menuUL).append(`<li style="display:none;" class="privacy-new-link menu-item new-menu-items sub-menu-items"><a href="${privacyPolicyPage}"  aria-expanded="false" role="menuitem">Privacy Policy</a></li>`)
+    $(menuUL).append(`<li style="display:none;" class="terms-new-link menu-item new-menu-items sub-menu-items"><a href="${termsAndConditionsPage}"  aria-expanded="false" role="menuitem">Terms & Conditions</a></li>`)
+    $(topHeaderWrap).append('<div style="display:none;" class="book-assessment-section clipped-corner-medium-top-left"><p>BOOK A FREE ASSESSMENT</p><button class="clipped-corner-small-both cta-button-contact"><a href="contact-us">CONTACT US NOW</a></button></div>')
+
+
+    $('body').on('click', '.menu-button', function() {
+      winWidth = window.innerWidth;
+      if ( winWidth > 820 ) return;
+      toggleMenu();
+    });
+
+    $('body').on('click', '.menu-close', function() {
+      winWidth = window.innerWidth;
+      if ( winWidth > 820 ) return;
+      toggleMenu();
+    });  
+
+    $('body').on('click', '.menu-back-button', function() {
+      winWidth = window.innerWidth;
+      if ( winWidth > 820 ) return;
+      navigateMenu(event, $(this));
+    });
+
+    $('body').on('click', '.menu-item:has(.submenu)', function() {
+      winWidth = window.innerWidth;
+      if ( winWidth > 820 ) return;
+      navigateMenu(event, $(this))
+    });    
+
+    initJavascript()
+
+
+
+  });
+
+
+  addEventListener("resize", (event) => initJavascript());
+
+  addEventListener("navigate", (event) => resetMobileMenuStatus());
+
+  function initJavascript(){ 
+
+    $('.menu-button').show();
+    //     console.log("$(width) is "+ $(window).width())
+    //     console.log("width is "+ window.innerWidth)
+    //     console.log("document width is "+ $(document).width())
+    if (window.innerWidth > 820) {
+      //       console.log("Showing menu")
+      $('.hs-menu-item').show()
+      $('.new-menu-items').hide();
+      $('.menu-back-button').hide();
+      $('.book-assessment-section').hide();
+      $('.menu-button').hide();
+      $('.menu-close').hide();
+      return;
+    } else {
+      //       console.log("Showing menu button")
+      resetMobileMenuStatus();
+    }
+  }
+
+</script> 
+
+<script src="https://www.energysmart.co.nz/hubfs/hub_generated/module_assets/1/155626994802/1744250630778/module_Navigation_-_Breadcrumb_and_Search.min.js"></script>
+
+  <script>
+    try {
+      const images = document.getElementsByClassName('container')[1].getElementsByClassName('image-box')
+
+      const toggleImages = (event) => {
+        for (let image of images) {
+          window.innerWidth <= 820
+            ? image.hidden = true
+          : image.hidden = false
+        }
+        //           console.log(`setting ${image} to ${image.hidden}`)
+      }
+
+      toggleImages()
+
+      addEventListener("resize", (event) => toggleImages(event))
+
+    } catch (error) {
+      console.error(error)
+    }
+
+  </script>
+  
+
+    <!--[if lte IE 8]>
+    <script charset="utf-8" src="https://js-ap1.hsforms.net/forms/v2-legacy.js"></script>
+    <![endif]-->
+
+<script data-hs-allowed="true" src="/_hcms/forms/v2.js"></script>
+
+    <script data-hs-allowed="true">
+        var options = {
+            portalId: '7882545',
+            formId: '21eeb462-9317-4db2-82ab-88df731bdd2a',
+            formInstanceId: '2758',
+            
+            pageId: '153592655924',
+            
+            region: 'ap1',
+            
+            
+            
+            
+            pageName: "Heat Pumps & Insulation Auckland | EnergySmart",
+            
+            
+            redirectUrl: "https:\/\/www.energysmart.co.nz\/thankyou",
+            
+            
+            
+            
+            
+            css: '',
+            target: '#hs_form_target_form_233645290',
+            
+            
+            
+            
+            
+            
+            
+            contentType: "standard-page",
+            
+            
+            
+            formsBaseUrl: '/_hcms/forms/',
+            
+            
+            
+            formData: {
+                cssClass: 'hs-form stacked hs-custom-form'
+            }
+        };
+
+        options.getExtraMetaDataBeforeSubmit = function() {
+            var metadata = {};
+            
+
+            if (hbspt.targetedContentMetadata) {
+                var count = hbspt.targetedContentMetadata.length;
+                var targetedContentData = [];
+                for (var i = 0; i < count; i++) {
+                    var tc = hbspt.targetedContentMetadata[i];
+                     if ( tc.length !== 3) {
+                        continue;
+                     }
+                     targetedContentData.push({
+                        definitionId: tc[0],
+                        criterionId: tc[1],
+                        smartTypeId: tc[2]
+                     });
+                }
+                metadata["targetedContentMetadata"] = JSON.stringify(targetedContentData);
+            }
+
+            return metadata;
+        };
+
+        hbspt.forms.create(options);
+    </script>
+
+
+<script>
+  $("a[href='#top']").click(function () {
+    $("html, body").animate({
+      scrollTop: 0
+    }, "slow");
+    return false;
+  });
+
+  (function () {
+    // Global variables
+    var parentMenuItems = document.querySelectorAll(
+      '.navigation-primary li.has-submenu'
+    );
+
+    // Adds focus event listener on parent menu items so keyboard users can tab through menu
+    Array.prototype.forEach.call(parentMenuItems, function (el) {
+      el.addEventListener('focusin', function () {
+        el.classList.add('focus');
+      });
+
+      el.addEventListener('focusout', function () {
+        el.classList.remove('focus');
+      });
+    });
+  })();
+</script>
+
+
+<!-- Start of HubSpot Analytics Code -->
+<script type="text/javascript">
+var _hsq = _hsq || [];
+_hsq.push(["setContentType", "standard-page"]);
+_hsq.push(["setCanonicalUrl", "https:\/\/www.energysmart.co.nz\/contact-us\/auckland"]);
+_hsq.push(["setPageId", "153592655924"]);
+_hsq.push(["setContentMetadata", {
+    "contentPageId": 153592655924,
+    "legacyPageId": "153592655924",
+    "contentFolderId": null,
+    "contentGroupId": null,
+    "abTestId": null,
+    "languageVariantId": 153592655924,
+    "languageCode": "en",
+    
+    
+}]);
+</script>
+
+<script type="text/javascript" id="hs-script-loader" async defer src="/hs/scriptloader/7882545.js"></script>
+<!-- End of HubSpot Analytics Code -->
+
+
+<script type="text/javascript">
+var hsVars = {
+    render_id: "b083af79-45e2-4509-a804-0f185f24a6f1",
+    ticks: 1788752733833,
+    page_id: 153592655924,
+    
+    content_group_id: 0,
+    portal_id: 7882545,
+    app_hs_base_url: "https://app-ap1.hubspot.com",
+    cp_hs_base_url: "https://cp-ap1.hubspot.com",
+    language: "en",
+    analytics_page_type: "standard-page",
+    scp_content_type: "",
+    
+    analytics_page_id: "153592655924",
+    category_id: 1,
+    folder_id: 0,
+    is_hubspot_user: false
+}
+</script>
+
+
+<script defer src="/hs/hsstatic/HubspotToolsMenu/static-1.640/js/index.js"></script>
+
+
+
+
+
+
+</main></div></body></html>

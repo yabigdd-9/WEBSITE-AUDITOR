@@ -1,4 +1,4 @@
-generated_at: '2026-08-18T09:38:29+12:00'
+generated_at: '2026-09-19T08:31:15+12:00'
 policy: Nothing in this queue has been sent, published, purchased or committed.
 requires_dion_approval:
 - id: APR-001
@@ -28,59 +28,8 @@ requires_dion_approval:
   description: Any quote containing final pricing to a real prospect.
   blocked_until: Dion sets approved price bands per engine
   status: AWAITING_DION
-  ask: Confirm sellable price bands for the three active engines (source suggests NZ$149–799 one-off,
-    NZ$99–599/month recurring).
-- id: APR-005
-  type: legal_compliance_gate
-  engine: ALL THREE
-  priority: BLOCKS_ALL_OUTREACH
-  description: NZ Unsolicited Electronic Messages Act 2007 consent basis for B2B cold email.
-  verified_findings:
-  - UEMA covers email and applies to any message with a NZ link — verified on dia.govt.nz.
-  - 'Penalty for non-compliance: fine up to NZ$500,000 — verified on dia.govt.nz.'
-  - There is NO blanket B2B exemption in NZ law (unlike US CAN-SPAM).
-  - A business email published in a directory is NOT automatic consent.
-  - Onus of proof of consent sits on the SENDER (s.9(3)).
-  - Sender identification (s.10) and working unsubscribe (s.11) always apply.
-  - Address-harvesting software / harvested lists are separately restricted (s.13).
-  status: RESOLVED_BY_DION
-  ask: 'Choose the consent basis before ANY cold email is sent. Options: (a) get NZ legal sign-off on
-    an inferred-consent rationale; (b) switch to non-email first touch (phone/post/in-person, not covered
-    by UEMA email rules); (c) run an opt-in route (content/lead magnet) and only email consenting businesses.'
-  orchestrator_recommendation: Option (b) then (c). Dion already has a phone number for outreach (02904556680)
-    and telemarketing is explicitly NOT covered by UEMA. Build the proof assets now, deliver the first
-    touch by phone, and reserve email for businesses that respond or opt in. This removes the $500k exposure
-    without slowing the pipeline.
-  source_urls:
-  - https://www.dia.govt.nz/Spam-NZ-Spam-Law-for-Businesses
-  - https://www.legislation.govt.nz/act/public/2007/0007/latest/DLM405134.html
-  decision: Proceed with email. No solicitor sign-off. Rely on INFERRED consent, per-prospect, human-ratified.
-  decided_at: '2026-08-18T09:38:29+12:00'
-  risk_accepted_by: Dion
-  mitigation: Default-deny UEMA gate implemented in outreach/consent_gate.py — publication alone is NOT
-    treated as permission; Hermes cannot self-ratify; no override flag; 20/day cap; 1 message per business
-    per 90 days; 1 follow-up max.
-  residual_risk: Inferred consent is untested and onus of proof sits with sender (s.9(3)). Max penalty
-    NZ$500,000.
-- id: APR-006
-  type: scope_change_ratification
-  engine: Reputation / Review Engine
-  description: Ratify descoping of slot 2 after verified evidence that unanswered-review detection is
-    not lawfully automatable.
-  status: AWAITING_DION
-  ask: Approve the re-scope to a Reputation Completeness & Visible-Sentiment Scanner, with ME-0274 / ME-0327
-    monitoring engines promoted as the recurring-revenue path.
-  detail_ref: outputs/VIABILITY_DECISION_ACTIVE_2.md
-- id: APR-007
-  type: per_prospect_consent_ratification
-  engine: ALL
-  description: Human ratification of the inferred-consent rationale for each prospect before its email
-    is drafted.
-  status: AWAITING_DION
-  recurring: true
-  ask: For each prospect the gate flags as ratifiable, confirm the rationale. Gate blocks all 9 current
-    prospects until consent evidence is collected and ratified.
-  current_state: 0 of 9 prospects ratified
+  ask: "Confirm sellable price bands for the three active engines (source suggests NZ$149\u2013799 one-off,\
+    \ NZ$99\u2013599/month recurring)."
 autonomous_no_approval_needed:
 - prospect research from public sources
 - opportunity scoring
@@ -89,6 +38,3 @@ autonomous_no_approval_needed:
 - file organisation
 - database maintenance
 - checkpointing
-blocking_summary: APR-005 RESOLVED (email approved, inferred consent, no lawyer). Outreach now gated per-prospect
-  by APR-007 + consent_gate.py. Currently 9/9 blocked pending consent evidence. Gmail send capability
-  is absent (no app password), so no send is physically possible.

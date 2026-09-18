@@ -1,0 +1,33 @@
+{
+  "domain": "kiwiheatpumps.co.nz",
+  "emails": [
+    {
+      "value": "jason@kiwiheatpumps.co.nz",
+      "type": "personal",
+      "confidence": 88,
+      "sources": [
+        "https://kiwiheatpumps.co.nz/gv_faq",
+        "https://kiwiheatpumps.co.nz/blog",
+        "https://kiwiheatpumps.co.nz/air-conditioning-installation",
+        "https://kiwiheatpumps.co.nz/auckland-specials-c-282",
+        "https://kiwiheatpumps.co.nz/about-us-ezp-22"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": null,
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    }
+  ],
+  "total": 0,
+  "limit": 10,
+  "offset": 0,
+  "cached_at": "2026-09-18T16:03:28.250883+00:00",
+  "from_cache": false
+}

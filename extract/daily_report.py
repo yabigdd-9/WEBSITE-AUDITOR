@@ -3,7 +3,7 @@
 import json, yaml, datetime, collections, os, glob
 from pathlib import Path
 
-OUT = Path("/Users/defaultaccount/HERMES_MONEY_ENGINE")
+OUT = Path("/Users/dd/WEBSITE-AUDITOR")
 db = json.load(open(OUT / "db/master_opportunity_database.json"))
 state = yaml.safe_load(open(OUT / "state/HERMES_EXECUTION_STATE.yaml"))
 appr = yaml.safe_load(open(OUT / "approval/APPROVAL_QUEUE.yaml"))

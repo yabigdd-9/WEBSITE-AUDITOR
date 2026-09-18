@@ -1,0 +1,48 @@
+{
+  "pages": [
+    {
+      "url": "https://aes.nz/heat-pumps/",
+      "redirects": [
+        {
+          "from": "https://www.aes.nz/heat-pumps/",
+          "to": "https://aes.nz/heat-pumps/",
+          "status": 301
+        }
+      ],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:03:08.007324+00:00",
+      "sha256": "b7f6801ee606bd1787d2b0bc59f0dbe8822ffe194688a5d564ec279534356f78",
+      "requested_url": "https://www.aes.nz/heat-pumps/",
+      "path": "cache/email-v2/b7f6801ee606bd1787d2b0bc59f0dbe8822ffe194688a5d564ec279534356f78.capture"
+    },
+    {
+      "url": "https://aes.nz/contact-us/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:03:09.624949+00:00",
+      "sha256": "00815e5937eee96d9914e2fb2e4c7d11bb67ff1ab89b0356487ddf3a173a1243",
+      "requested_url": "https://aes.nz/contact-us/",
+      "path": "cache/email-v2/00815e5937eee96d9914e2fb2e4c7d11bb67ff1ab89b0356487ddf3a173a1243.capture"
+    },
+    {
+      "url": "https://aes.nz/about-us/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:03:11.132626+00:00",
+      "sha256": "3b217d7e659eb5d8da2c55d3c4cb6495e63470ddbea8f39663dc39cad0c8046c",
+      "requested_url": "https://aes.nz/about-us/",
+      "path": "cache/email-v2/3b217d7e659eb5d8da2c55d3c4cb6495e63470ddbea8f39663dc39cad0c8046c.capture"
+    }
+  ],
+  "errors": [],
+  "pending": [],
+  "requests": 4,
+  "started_at": "2026-09-18T16:03:05.558675+00:00",
+  "complete": true,
+  "attempts": {
+    "https://www.aes.nz/heat-pumps/": 1,
+    "https://aes.nz/contact-us/": 1,
+    "https://aes.nz/about-us/": 1,
+    "https://aes.nz/sitemap.xml": 1
+  }
+}

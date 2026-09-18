@@ -1,6 +1,6 @@
 # TOP 20 MONEY ENGINES
 
-_Generated 2026-08-18T07:20:49+12:00 · ranked by weighted opportunity score (max 100)_
+_Generated 2026-09-19T08:31:15+12:00 · ranked by weighted opportunity score (max 100)_
 
 | # | ID | Engine | Score | Band | Price (NZD) | Recurring | Auto | Source |
 |---|----|--------|-------|------|-------------|-----------|------|--------|

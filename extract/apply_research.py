@@ -3,7 +3,7 @@
 import yaml, datetime
 from pathlib import Path
 
-ROOT = Path("/Users/defaultaccount/HERMES_MONEY_ENGINE")
+ROOT = Path("/Users/dd/WEBSITE-AUDITOR")
 NOW = datetime.datetime.now().astimezone().isoformat(timespec="seconds")
 
 # ---- approval queue: add the UEMA legal gate (blocks all outreach) ----

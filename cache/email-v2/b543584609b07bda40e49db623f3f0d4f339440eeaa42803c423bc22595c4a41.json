@@ -1,0 +1,42 @@
+{
+  "pages": [
+    {
+      "url": "https://kiwiheatpumps.co.nz/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:03:22.616508+00:00",
+      "sha256": "e0a6241105dac77e012c3dfa83badfce1a0f5321825ddf792574d90726c0358f",
+      "requested_url": "https://kiwiheatpumps.co.nz/",
+      "path": "cache/email-v2/e0a6241105dac77e012c3dfa83badfce1a0f5321825ddf792574d90726c0358f.capture"
+    },
+    {
+      "url": "https://kiwiheatpumps.co.nz/contact_us/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:03:24.055802+00:00",
+      "sha256": "09d3ed57cae6775e94708d402ead648236a67797058b349cc36ee05ae9590769",
+      "requested_url": "https://kiwiheatpumps.co.nz/contact_us/",
+      "path": "cache/email-v2/09d3ed57cae6775e94708d402ead648236a67797058b349cc36ee05ae9590769.capture"
+    },
+    {
+      "url": "https://kiwiheatpumps.co.nz/about-us-ezp-22/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:03:25.909594+00:00",
+      "sha256": "ca47595077145848a7347ea9062385a4418e546801e2a0066185dddd8b648062",
+      "requested_url": "https://kiwiheatpumps.co.nz/about-us-ezp-22/",
+      "path": "cache/email-v2/ca47595077145848a7347ea9062385a4418e546801e2a0066185dddd8b648062.capture"
+    }
+  ],
+  "errors": [],
+  "pending": [],
+  "requests": 4,
+  "started_at": "2026-09-18T16:03:21.222071+00:00",
+  "complete": true,
+  "attempts": {
+    "https://kiwiheatpumps.co.nz/": 1,
+    "https://kiwiheatpumps.co.nz/contact_us/": 1,
+    "https://kiwiheatpumps.co.nz/about-us-ezp-22/": 1,
+    "https://kiwiheatpumps.co.nz/sitemap.xml": 1
+  }
+}

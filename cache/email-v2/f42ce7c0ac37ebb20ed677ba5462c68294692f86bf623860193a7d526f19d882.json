@@ -1,0 +1,32 @@
+{
+  "pages": [
+    {
+      "url": "https://www.fendaltonconstruction.co.nz/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:05:22.574493+00:00",
+      "sha256": "307e35932ba4df21d399cac9d6941cb56158df23b4e3135a1f2a3853a6e1af54",
+      "requested_url": "https://www.fendaltonconstruction.co.nz/",
+      "path": "cache/email-v2/307e35932ba4df21d399cac9d6941cb56158df23b4e3135a1f2a3853a6e1af54.capture"
+    },
+    {
+      "url": "https://www.fendaltonconstruction.co.nz/house-building-companies",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:05:24.085494+00:00",
+      "sha256": "f4a90add11f0e4afd26cbe9bbf199612c8963eaa4278797e184d6f3959ca9f8e",
+      "requested_url": "https://www.fendaltonconstruction.co.nz/house-building-companies",
+      "path": "cache/email-v2/f4a90add11f0e4afd26cbe9bbf199612c8963eaa4278797e184d6f3959ca9f8e.capture"
+    }
+  ],
+  "errors": [],
+  "pending": [],
+  "requests": 3,
+  "started_at": "2026-09-18T16:05:21.263526+00:00",
+  "complete": true,
+  "attempts": {
+    "https://www.fendaltonconstruction.co.nz/": 1,
+    "https://www.fendaltonconstruction.co.nz/house-building-companies": 1,
+    "https://www.fendaltonconstruction.co.nz/sitemap.xml": 1
+  }
+}

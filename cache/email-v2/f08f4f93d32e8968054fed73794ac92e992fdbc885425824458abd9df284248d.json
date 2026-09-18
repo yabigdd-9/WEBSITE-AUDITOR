@@ -1,0 +1,42 @@
+{
+  "pages": [
+    {
+      "url": "https://www.heatforce.co.nz/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:02:49.724403+00:00",
+      "sha256": "4f11e3f1cba28652c43eb21cef1b7894a902ffb0aec82064993e8068ca648cab",
+      "requested_url": "https://www.heatforce.co.nz/",
+      "path": "cache/email-v2/4f11e3f1cba28652c43eb21cef1b7894a902ffb0aec82064993e8068ca648cab.capture"
+    },
+    {
+      "url": "https://www.heatforce.co.nz/contact-us",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:02:52.631588+00:00",
+      "sha256": "f2ead2a051540b0d2b8f1954e5b65628c8114aa742acdd85e0828ad48ec72609",
+      "requested_url": "https://www.heatforce.co.nz/contact-us",
+      "path": "cache/email-v2/f2ead2a051540b0d2b8f1954e5b65628c8114aa742acdd85e0828ad48ec72609.capture"
+    },
+    {
+      "url": "https://www.heatforce.co.nz/about-us",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:02:55.098817+00:00",
+      "sha256": "a480c36e0f7f54e0a276b5e2ed9ddaad389489ef0f49bf6d05ca0491c57918e7",
+      "requested_url": "https://www.heatforce.co.nz/about-us",
+      "path": "cache/email-v2/a480c36e0f7f54e0a276b5e2ed9ddaad389489ef0f49bf6d05ca0491c57918e7.capture"
+    }
+  ],
+  "errors": [],
+  "pending": [],
+  "requests": 4,
+  "started_at": "2026-09-18T16:02:48.440214+00:00",
+  "complete": true,
+  "attempts": {
+    "https://www.heatforce.co.nz/": 1,
+    "https://www.heatforce.co.nz/contact-us": 1,
+    "https://www.heatforce.co.nz/about-us": 1,
+    "https://www.heatforce.co.nz/sitemap.xml": 1
+  }
+}

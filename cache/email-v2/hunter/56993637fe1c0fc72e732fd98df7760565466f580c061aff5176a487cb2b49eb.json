@@ -1,0 +1,99 @@
+{
+  "domain": "heatforce.co.nz",
+  "emails": [
+    {
+      "value": "hamish@heatforce.co.nz",
+      "type": "personal",
+      "confidence": 99,
+      "sources": [
+        "https://www.google.com/search?q=site:linkedin.com%20hamish%20martin%20heatforce",
+        "https://heatforce.co.nz/about-heatforce/heat-force-testimonials"
+      ],
+      "first_name": "Hamish",
+      "last_name": "Martin",
+      "position": "Marketing Manager",
+      "department": "marketing",
+      "linkedin": "https://www.linkedin.com/in/hamish-martin-41ab1061",
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": "2026-08-24",
+        "status": "valid"
+      }
+    },
+    {
+      "value": "ian@heatforce.co.nz",
+      "type": "personal",
+      "confidence": 98,
+      "sources": [
+        "https://www.google.com/search?q=site:linkedin.com%20ian%20wickins%20heatforce"
+      ],
+      "first_name": "Ian",
+      "last_name": "Wickins",
+      "position": "Service Director",
+      "department": "management",
+      "linkedin": "https://www.linkedin.com/in/ian-wickins-920b3061",
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": "2026-08-31",
+        "status": "valid"
+      }
+    },
+    {
+      "value": "frikkie@heatforce.co.nz",
+      "type": "personal",
+      "confidence": 97,
+      "sources": [
+        "https://www.google.com/search?q=site:linkedin.com%20frikkie%20heerden%20heatforce"
+      ],
+      "first_name": "Frikkie",
+      "last_name": "Heerden",
+      "position": "HVAC Technician",
+      "department": "operations",
+      "linkedin": "https://www.linkedin.com/in/frikkie-van-heerden-075493ba",
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    },
+    {
+      "value": "info@heatforce.co.nz",
+      "type": "generic",
+      "confidence": 81,
+      "sources": [
+        "https://heatforce.co.nz",
+        "https://heatforce.co.nz/faqs",
+        "https://heatforce.co.nz/hitachi-heat-pumps",
+        "https://heatforce.co.nz/pool-heat-pump-servicing",
+        "https://heatforce.co.nz/specials-price-comparisons",
+        "https://heat-force.co.nz/products",
+        "https://heat-force.co.nz",
+        "https://heat-force.co.nz/products/daikin",
+        "https://heat-force.co.nz/products/ducted-heat-pump-solutions",
+        "https://heat-force.co.nz/products/ducted-heat-pump-solutions/ducted-zone-control",
+        "https://nailhouse-berlin.de/heat-pump-service-port-orford-or",
+        "https://waterheating.co.nz/service-agents",
+        "https://yellow.co.nz/y/heat-force-christchurch-2"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": "support",
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    }
+  ],
+  "total": 0,
+  "limit": 10,
+  "offset": 0,
+  "cached_at": "2026-09-18T15:26:17.466613+00:00",
+  "from_cache": false
+}

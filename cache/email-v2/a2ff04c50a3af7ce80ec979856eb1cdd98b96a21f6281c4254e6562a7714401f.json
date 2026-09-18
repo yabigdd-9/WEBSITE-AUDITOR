@@ -1,0 +1,47 @@
+{
+  "pages": [
+    {
+      "url": "https://www.chchrenovations.nz/",
+      "redirects": [],
+      "content_type": "text/html;charset=utf-8",
+      "captured_at": "2026-09-18T16:04:28.255164+00:00",
+      "sha256": "cdb19fffc10cf5dd77d944bccd6c843710577c848659889d8ae0657cf7f536c5",
+      "requested_url": "https://www.chchrenovations.nz/",
+      "path": "cache/email-v2/cdb19fffc10cf5dd77d944bccd6c843710577c848659889d8ae0657cf7f536c5.capture"
+    },
+    {
+      "url": "https://www.chchrenovations.nz/contact",
+      "redirects": [],
+      "content_type": "text/html;charset=utf-8",
+      "captured_at": "2026-09-18T16:04:31.335092+00:00",
+      "sha256": "356092111f1f21791f1d36baa6719829372c97aff6b5bfebbcd3655dd9581ce2",
+      "requested_url": "https://www.chchrenovations.nz/contact",
+      "path": "cache/email-v2/356092111f1f21791f1d36baa6719829372c97aff6b5bfebbcd3655dd9581ce2.capture"
+    },
+    {
+      "url": "https://www.chchrenovations.nz/about",
+      "redirects": [],
+      "content_type": "text/html;charset=utf-8",
+      "captured_at": "2026-09-18T16:04:34.632839+00:00",
+      "sha256": "8e433f29dbddf075c6f0d735adb85ba17f6015c20fb343dfd1cfb37261a136ed",
+      "requested_url": "https://www.chchrenovations.nz/about",
+      "path": "cache/email-v2/8e433f29dbddf075c6f0d735adb85ba17f6015c20fb343dfd1cfb37261a136ed.capture"
+    }
+  ],
+  "errors": [
+    {
+      "url": "https://www.chchrenovations.nz/sitemap.xml",
+      "reason": "ValueError: HTTP_406"
+    }
+  ],
+  "pending": [],
+  "requests": 4,
+  "started_at": "2026-09-18T16:04:24.077478+00:00",
+  "complete": true,
+  "attempts": {
+    "https://www.chchrenovations.nz/": 1,
+    "https://www.chchrenovations.nz/contact": 1,
+    "https://www.chchrenovations.nz/about": 1,
+    "https://www.chchrenovations.nz/sitemap.xml": 1
+  }
+}

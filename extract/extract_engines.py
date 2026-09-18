@@ -7,8 +7,8 @@ extracts fields verbatim, and enforces count guards (no silent loss).
 import re, os, sys, json, hashlib
 from pathlib import Path
 
-SRC = Path("/Users/defaultaccount/Downloads/HERMES_MEGA_MONEY_ENGINE_SPLIT_5_FILES")
-OUT = Path("/Users/defaultaccount/HERMES_MONEY_ENGINE")
+SRC = Path("/Volumes/LLM-USB/HERMES_MEGA_MONEY_ENGINE_SPLIT_5_FILES")
+OUT = Path("/Users/dd/WEBSITE-AUDITOR")
 FILES = [f"HERMES_MEGA_MONEY_ENGINE_PART_{i}_OF_5.md" for i in range(1, 6)]
 
 H1 = re.compile(r'^#\s+(.*\S)\s*$')
@@ -110,6 +110,60 @@ def norm_name(t):
 
 
 def main():
+    required_sources = [
+        SRC / f"HERMES_MEGA_MONEY_ENGINE_PART_{i}_OF_5.md"
+        for i in range(1, 6)
+    ]
+
+    missing_sources = [p for p in required_sources if not p.exists()]
+
+    existing_db_candidates = [
+        OUT / "db" / "master_opportunity_database.json",
+        OUT / "db" / "engine_database.json",
+        OUT / "db" / "engines.json",
+    ]
+
+    existing_db = next(
+        (p for p in existing_db_candidates if p.exists() and p.stat().st_size > 0),
+        None,
+    )
+
+    if missing_sources:
+        print("LEGACY SOURCE BUNDLE NOT PRESENT")
+        print("Missing:")
+        for source in missing_sources:
+            print(" -", source)
+
+        if existing_db:
+            print()
+            print("Existing extracted database found:")
+            print(" ", existing_db)
+            print("Skipping legacy extraction and preserving current database.")
+            print("This is not a fatal rebuild error.")
+            return
+
+        raise FileNotFoundError(
+            "Legacy Hermes source bundle is missing and no existing "
+            "engine database was found. Rebuild cannot safely continue."
+        )
+
+    required = [
+        SRC / f"HERMES_MEGA_MONEY_ENGINE_PART_{i}_OF_5.md"
+        for i in range(1, 6)
+    ]
+    missing = [p for p in required if not p.exists()]
+
+    if missing:
+        print("REBUILD BLOCKED: original Hermes source bundle is missing.")
+        print("Expected source directory:", SRC)
+        print("Missing files:")
+        for p in missing:
+            print(" -", p.name)
+        print()
+        print("Existing extracted database remains untouched.")
+        print("Use the current ./mm workflow unless the original source bundle is recovered.")
+        return
+
     engines, metas, per_file = [], [], {}
     for fn in FILES:
         text = (SRC / fn).read_text(encoding="utf-8", errors="replace")

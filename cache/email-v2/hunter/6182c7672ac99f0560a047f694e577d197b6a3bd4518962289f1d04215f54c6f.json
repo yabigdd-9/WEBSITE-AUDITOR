@@ -1,0 +1,35 @@
+{
+  "domain": "blizzard.co.nz",
+  "emails": [
+    {
+      "value": "info@blizzard.co.nz",
+      "type": "generic",
+      "confidence": 99,
+      "sources": [
+        "https://blizzard.co.nz/book-online",
+        "https://blizzard.co.nz/daikin-co2-hot-water-system-wellington",
+        "https://blizzard.co.nz/ventilation/ventilation-installation-wellington",
+        "https://blizzard.co.nz/ducted-heat-pumps-wellington",
+        "https://blizzard.co.nz/whats-your-ideal-thermostat-setting-during-the-summer",
+        "https://wellyconnect.com/business/blizzard-hvac-and-electrical",
+        "https://yellow.co.nz/eastbourne/heat-pumps"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": "support",
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": "2026-08-25",
+        "status": "valid"
+      }
+    }
+  ],
+  "total": 0,
+  "limit": 10,
+  "offset": 0,
+  "cached_at": "2026-09-18T15:26:15.019617+00:00",
+  "from_cache": false
+}

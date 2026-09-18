@@ -1,0 +1,187 @@
+#!/usr/bin/env python3
+"""
+Hermes Money Engine extractor.
+Splits the 5 master files into blocks, classifies each block as ENGINE or META,
+extracts fields verbatim, and enforces count guards (no silent loss).
+"""
+import re, os, sys, json, hashlib
+from pathlib import Path
+
+SRC = Path("/Users/dd/Downloads/HERMES_MEGA_MONEY_ENGINE_SPLIT_5_FILES")
+OUT = Path("/Users/dd/WEBSITE-AUDITOR")
+FILES = [f"HERMES_MEGA_MONEY_ENGINE_PART_{i}_OF_5.md" for i in range(1, 6)]
+
+H1 = re.compile(r'^#\s+(.*\S)\s*$')
+H2 = re.compile(r'^##\s+(.*\S)\s*$')
+LABEL = re.compile(r'^\*\*([A-Za-z][A-Za-z0-9 /&()-]{2,40}):\*\*\s*(.*?)\s*$')
+
+# a block is an ENGINE if it exposes any of these commercial markers
+ENGINE_H2 = {"exact offer", "core offer", "offer", "ideal customer", "ideal customers",
+             "ideal client", "customer problem", "objective"}
+ENGINE_LABELS = {"category", "automation potential", "indicative price", "ideal customer",
+                 "starting price test", "indicative pricing"}
+MONEY_ENGINE_TITLE = re.compile(r'MONEY ENGINE\s+\d+', re.I)
+
+# meta/structural titles that are NOT sellable engines
+META_TITLE_PAT = re.compile(
+    r'^(executive priority order|master portfolio architecture|master revenue rules|'
+    r'master opportunity score|master agent roles|master same-day execution system|'
+    r'master lead record|master client record|master experiment record|validation gates|'
+    r'kill ?/ ?hold ?/ ?scale framework|\d+-day portfolio plan|\d+-day expansion plan|'
+    r'recommended core products|master pricing logic|data & privacy rules|outreach rules|'
+    r'daily operator report|weekly judge report|master command for hermes|'
+    r'combined source plans|core agent structure|global opportunity scoring|'
+    r'global validation rules|purpose of this mega plan|mission|table of contents|'
+    r'index|appendix|how to use|scope|overview|master .*rules?)$', re.I)
+
+
+def split_blocks(text, fname):
+    lines = text.split("\n")
+    blocks, cur = [], None
+    for i, ln in enumerate(lines, 1):
+        m = H1.match(ln)
+        if m:
+            if cur:
+                blocks.append(cur)
+            cur = {"file": fname, "lineno": i, "raw_title": m.group(1), "lines": []}
+        else:
+            if cur is None:
+                cur = {"file": fname, "lineno": 1, "raw_title": "(preamble)", "lines": []}
+            cur["lines"].append(ln)
+    if cur:
+        blocks.append(cur)
+    return blocks
+
+
+def parse_block(b):
+    body = "\n".join(b["lines"])
+    labels, sections, order = {}, {}, []
+    cur_sec = None
+    for ln in b["lines"]:
+        lm = LABEL.match(ln)
+        if lm:
+            labels[lm.group(1).strip().lower()] = lm.group(2).strip().strip("`")
+            continue
+        hm = H2.match(ln)
+        if hm:
+            cur_sec = hm.group(1).strip()
+            sections.setdefault(cur_sec, [])
+            order.append(cur_sec)
+            continue
+        if cur_sec:
+            sections[cur_sec].append(ln)
+    sections = {k: "\n".join(v).strip() for k, v in sections.items()}
+    b["labels"], b["sections"], b["body"] = labels, sections, body
+    return b
+
+
+def sec(b, *names):
+    low = {k.lower(): v for k, v in b["sections"].items()}
+    for n in names:
+        v = low.get(n.lower())
+        if v:
+            return " ".join(v.split())
+    return ""
+
+
+def classify(b):
+    title = re.sub(r'^\d+\.\s*', '', b["raw_title"]).strip()
+    if MONEY_ENGINE_TITLE.search(b["raw_title"]):
+        return "ENGINE", title
+    sec_keys = {k.lower() for k in b["sections"]}
+    has_sec = bool(sec_keys & ENGINE_H2)
+    has_lbl = bool(set(b["labels"]) & ENGINE_LABELS)
+    if META_TITLE_PAT.match(title) and not has_lbl:
+        return "META", title
+    if b["raw_title"] == "(preamble)":
+        return "META", title
+    if has_lbl or (has_sec and len(b["body"]) > 400):
+        return "ENGINE", title
+    return "META", title
+
+
+def norm_name(t):
+    t = re.sub(r'MONEY ENGINE\s+\d+\s*[—\-–:]\s*', '', t, flags=re.I)
+    t = re.sub(r'[^a-z0-9 ]', ' ', t.lower())
+    stop = {"the", "a", "an", "for", "and", "of", "service", "engine", "system",
+            "pack", "assistant", "package", "hermes", "to"}
+    words = [w for w in t.split() if w not in stop]
+    return " ".join(sorted(set(words)))
+
+
+def main():
+    engines, metas, per_file = [], [], {}
+    for fn in FILES:
+        text = (SRC / fn).read_text(encoding="utf-8", errors="replace")
+        blocks = [parse_block(b) for b in split_blocks(text, fn)]
+        e = m = 0
+        for b in blocks:
+            kind, title = classify(b)
+            rec = {
+                "source_file": fn,
+                "source_section": f"{fn}:L{b['lineno']}",
+                "lineno": b["lineno"],
+                "raw_title": b["raw_title"],
+                "engine_name": title,
+                "category": b["labels"].get("category", ""),
+                "automation_potential": b["labels"].get("automation potential", ""),
+                "price_label": (b["labels"].get("indicative price")
+                                or b["labels"].get("indicative pricing")
+                                or b["labels"].get("starting price test") or ""),
+                "target_customer": (b["labels"].get("ideal customer")
+                                    or sec(b, "Ideal Customer", "Ideal Customers",
+                                           "Ideal client", "Ideal customer")),
+                "problem": sec(b, "Customer Problem", "Problem", "The Problem"),
+                "offer": sec(b, "Exact Offer", "Core Offer", "Offer", "Objective"),
+                "required_inputs": sec(b, "Required Inputs", "Inputs"),
+                "deliverables": sec(b, "Standard Deliverables", "Deliverables", "Output"),
+                "acquisition": sec(b, "Recommended Acquisition", "Lead Source",
+                                   "Acquisition", "Where to find customers"),
+                "kpis": sec(b, "KPIs", "Metrics"),
+                "approval_points": sec(b, "Human Approval Points", "Approval"),
+                "risks": sec(b, "Risk Controls", "Risks", "Stop / Pivot Criteria"),
+                "body_chars": len(b["body"]),
+                "norm_key": norm_name(title),
+            }
+            if kind == "ENGINE":
+                engines.append(rec); e += 1
+            else:
+                metas.append(rec); m += 1
+        per_file[fn] = {"blocks": len(blocks), "engines": e, "meta": m}
+
+    for i, r in enumerate(engines, 1):
+        r["engine_id"] = f"ENG-{i:04d}"
+
+    (OUT / "extract").mkdir(parents=True, exist_ok=True)
+    json.dump(engines, open(OUT / "extract/engines_raw.json", "w"), indent=1)
+    json.dump(metas, open(OUT / "extract/meta_blocks.json", "w"), indent=1)
+    json.dump(per_file, open(OUT / "extract/per_file_counts.json", "w"), indent=1)
+
+    # ---- GUARDS ----
+    fails = []
+    tot_blocks = sum(v["blocks"] for v in per_file.values())
+    if tot_blocks != len(engines) + len(metas):
+        fails.append(f"block accounting mismatch {tot_blocks} != {len(engines)}+{len(metas)}")
+    if len(engines) < 200:
+        fails.append(f"suspiciously few engines: {len(engines)}")
+    no_offer = [r["engine_id"] for r in engines if not r["offer"]]
+    if len(no_offer) > len(engines) * 0.15:
+        fails.append(f"too many engines with empty offer: {len(no_offer)}/{len(engines)}")
+    filled_cat = sum(1 for r in engines if r["category"])
+    filled_auto = sum(1 for r in engines if r["automation_potential"])
+    filled_cust = sum(1 for r in engines if r["target_customer"])
+
+    print("=== PER FILE ===")
+    for k, v in per_file.items():
+        print(f"  {k}: blocks={v['blocks']} engines={v['engines']} meta={v['meta']}")
+    print(f"TOTAL blocks={tot_blocks} ENGINES={len(engines)} META={len(metas)}")
+    print(f"field fill: category={filled_cat} automation={filled_auto} "
+          f"customer={filled_cust} offer={len(engines)-len(no_offer)}")
+    if fails:
+        print("GUARD FAILURES:"); [print("  !", f) for f in fails]
+        sys.exit(1)
+    print("GUARDS PASSED")
+
+
+if __name__ == "__main__":
+    main()

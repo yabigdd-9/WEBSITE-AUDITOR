@@ -1,0 +1,118 @@
+{
+  "domain": "freshworks.com",
+  "emails": [
+    {
+      "value": "kady.srinivasan@freshworks.com",
+      "type": "personal",
+      "confidence": 85,
+      "sources": [
+        "https://marcamoney.com/business/industry/information-technology"
+      ],
+      "first_name": "Kady",
+      "last_name": "Srinivasan",
+      "position": "CMO",
+      "department": "marketing",
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": "2026-09-18",
+        "status": "valid"
+      }
+    },
+    {
+      "value": "tyler.sloat@freshworks.com",
+      "type": "personal",
+      "confidence": 84,
+      "sources": [
+        "https://superwork.co/blog/hubspot-freshdesk"
+      ],
+      "first_name": "Tyler",
+      "last_name": "Sloat",
+      "position": "CFO",
+      "department": "finance & accounting",
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": "2026-09-18",
+        "status": "valid"
+      }
+    },
+    {
+      "value": "dennis.woodside@freshworks.com",
+      "type": "personal",
+      "confidence": 83,
+      "sources": [
+        "https://981powerfm.com.au/trending/sport-trending/new-multi-year-partnership-for-mclaren-racing-ahead-of-belgian-grand-prix",
+        "https://drh.ma/freshworks-supprime-500-emplois-lia-signe-desormais-plus-de-la-moitie-de-son-code",
+        "https://basisreport.com/news/frsh-freshworks-frsh-q2-2026-earnings-preview",
+        "https://basisreport.com/news/frsh-freshworks-ceo-insider-purchase-analysis",
+        "https://bhpmania.com/2025/07/23/mclaren-racing-announces-freshworks-as-official-partner-to-drive-it-excellence-in-formula-1"
+      ],
+      "first_name": "Dennis",
+      "last_name": "Woodside",
+      "position": "CEO",
+      "department": "executive",
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": "2026-09-17",
+        "status": "valid"
+      }
+    },
+    {
+      "value": "saurabh.deshpande@freshworks.com",
+      "type": "personal",
+      "confidence": 85,
+      "sources": [
+        "https://community.freshworks.com/how-do-i-11343/40-hours-free-freshchat-implementations-37207"
+      ],
+      "first_name": "Saurabh",
+      "last_name": "Deshpande",
+      "position": null,
+      "department": null,
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": "2026-09-17",
+        "status": "valid"
+      }
+    },
+    {
+      "value": "theworks@freshworks.com",
+      "type": "generic",
+      "confidence": 85,
+      "sources": [
+        "https://acent.com/blog/6542",
+        "https://freshworks.com/theworks/employee-experience/soft-skills-ai-age",
+        "https://freshworks.com/theworks/company-news/customer-complaints-direct-ceo-dm",
+        "https://freshworks.com/theworks/employee-experience/prasad-ramakrishnan-2024-predictions",
+        "https://freshworks.com/theworks/company-news/cx-mindset-shift",
+        "https://freshworks.com/theworks/employee-experience/value-tech-stack-software",
+        "https://saastack.org/ai-%25ea%25b0%259c%25ec%259d%25b8-%25eb%25a7%259e%25ec%25b6%25a4%25ed%2599%2594%25ec%2597%2590-%25eb%2582%2598%25ec%2584%259c%25eb%258b%25a4",
+        "https://saastack.org/ai-%25ea%25b8%25b0%25eb%25b0%2598-%25ed%258c%2590%25eb%25a7%25a4%25ec%259d%2598-%25eb%25af%25b8%25eb%259e%2598%25eb%25a5%25bc-%25ec%2597%25bf%25eb%25b3%25b4%25eb%258b%25a4",
+        "https://saastack.org/%25ec%2583%259d%25ec%2584%25b1%25ed%2598%2595-ai-%25ea%25b3%25a0%25ea%25b0%259d-%25ec%25a7%2580%25ec%259b%2590%25ec%259d%2598-%25ec%2583%2588%25eb%25a1%259c%25ec%259a%25b4-%25eb%25af%25b8%25eb%259e%2598",
+        "https://saastack.org/ai%25ea%25b0%2580-%25ea%25b8%25b0%25ec%2597%2585%25ec%259d%2598-%25eb%25b0%259c%25ec%25a0%2584%25ec%259d%2584-%25ec%258b%259c%25ea%25b0%2581%25ed%2599%2594%25ed%2595%2598%25eb%258a%2594-%25eb%25b0%25a9%25eb%25b2%2595"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": null,
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    }
+  ],
+  "total": 0,
+  "limit": 5,
+  "offset": 0,
+  "cached_at": "2026-09-18T15:22:01.619578+00:00",
+  "from_cache": false
+}

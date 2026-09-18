@@ -1,0 +1,42 @@
+{
+  "pages": [
+    {
+      "url": "https://www.evoke-reno.co.nz/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:04:54.266873+00:00",
+      "sha256": "2b3df0709b04c7f9a42e585802276511a2e58f37bee8eb569d435d1b61d7fd50",
+      "requested_url": "https://www.evoke-reno.co.nz/",
+      "path": "cache/email-v2/2b3df0709b04c7f9a42e585802276511a2e58f37bee8eb569d435d1b61d7fd50.capture"
+    },
+    {
+      "url": "https://www.evoke-reno.co.nz/contact",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:04:56.796802+00:00",
+      "sha256": "aa9f367358b0465be288be015d4410c135ad31ca6851685d3111ca746d264cd2",
+      "requested_url": "https://www.evoke-reno.co.nz/contact",
+      "path": "cache/email-v2/aa9f367358b0465be288be015d4410c135ad31ca6851685d3111ca746d264cd2.capture"
+    },
+    {
+      "url": "https://www.evoke-reno.co.nz/about",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:04:59.020357+00:00",
+      "sha256": "5b7ed4d26072af3d792538836713b04d297aef8200290217b2c921030a653496",
+      "requested_url": "https://www.evoke-reno.co.nz/about",
+      "path": "cache/email-v2/5b7ed4d26072af3d792538836713b04d297aef8200290217b2c921030a653496.capture"
+    }
+  ],
+  "errors": [],
+  "pending": [],
+  "requests": 4,
+  "started_at": "2026-09-18T16:04:48.656539+00:00",
+  "complete": true,
+  "attempts": {
+    "https://www.evoke-reno.co.nz/": 1,
+    "https://www.evoke-reno.co.nz/contact": 1,
+    "https://www.evoke-reno.co.nz/about": 1,
+    "https://www.evoke-reno.co.nz/sitemap.xml": 1
+  }
+}

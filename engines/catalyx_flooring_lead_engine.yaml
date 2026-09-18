@@ -82,9 +82,9 @@ delivery:
   - publishing
   - quote_with_final_pricing
   sender_identity:
-    email: team.catalyxlabs@gmail.com
+    email: yabigdd@gmail.com
     phone: 02904556680
-    signoff: CATALYX Labs
+    signoff: Dion
 daily_targets:
   candidates_researched:
   - 60

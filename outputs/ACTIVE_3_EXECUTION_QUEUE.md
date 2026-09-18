@@ -1,6 +1,6 @@
 # ACTIVE 3 EXECUTION QUEUE
 
-_Generated 2026-08-18T07:20:49+12:00_
+_Generated 2026-09-19T08:31:15+12:00_
 
 Execution limit: **3 unproven engines running simultaneously** (plan rule). These three are mandated by the plan's `initial_three_engines`, which overrides raw score rank.
 

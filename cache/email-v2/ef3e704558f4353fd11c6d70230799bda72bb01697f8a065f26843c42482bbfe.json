@@ -1,0 +1,141 @@
+{
+  "pages": [
+    {
+      "url": "https://www.riseresidential.co.nz/",
+      "redirects": [
+        {
+          "from": "https://riseresidential.co.nz/",
+          "to": "https://www.riseresidential.co.nz/",
+          "status": 301
+        }
+      ],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:05:49.051816+00:00",
+      "sha256": "f9bc14f715770634b64d272829fc98055a5f8961f4ad481a737214629e4f77f3",
+      "requested_url": "https://riseresidential.co.nz",
+      "path": "cache/email-v2/f9bc14f715770634b64d272829fc98055a5f8961f4ad481a737214629e4f77f3.capture"
+    },
+    {
+      "url": "https://www.riseresidential.co.nz/contact-us/",
+      "redirects": [
+        {
+          "from": "https://www.riseresidential.co.nz/contact-us",
+          "to": "https://www.riseresidential.co.nz/contact-us/",
+          "status": 301
+        }
+      ],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:05:51.045293+00:00",
+      "sha256": "518f50eeb846f84bc97082a801d797febe7f9fce0412cc5d20de2286a27a67ca",
+      "requested_url": "https://www.riseresidential.co.nz/contact-us",
+      "path": "cache/email-v2/518f50eeb846f84bc97082a801d797febe7f9fce0412cc5d20de2286a27a67ca.capture"
+    },
+    {
+      "url": "https://www.riseresidential.co.nz/about-us/",
+      "redirects": [
+        {
+          "from": "https://www.riseresidential.co.nz/about-us",
+          "to": "https://www.riseresidential.co.nz/about-us/",
+          "status": 301
+        }
+      ],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:05:54.142954+00:00",
+      "sha256": "3cbb9e0b8cf99da1fbb72237f2122340c3551fc07c19910baafeab17f580cfef",
+      "requested_url": "https://www.riseresidential.co.nz/about-us",
+      "path": "cache/email-v2/3cbb9e0b8cf99da1fbb72237f2122340c3551fc07c19910baafeab17f580cfef.capture"
+    },
+    {
+      "url": "https://www.riseresidential.co.nz/about-us/christchurch-building-company-rise-residential/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:05:56.340942+00:00",
+      "sha256": "96df416dcd236236dff8fb05e1afe000c820fff4e8eb9209b8b0a0db906386e9",
+      "requested_url": "https://www.riseresidential.co.nz/about-us/christchurch-building-company-rise-residential/",
+      "path": "cache/email-v2/96df416dcd236236dff8fb05e1afe000c820fff4e8eb9209b8b0a0db906386e9.capture"
+    },
+    {
+      "url": "https://www.riseresidential.co.nz/about-us/our-easy-as-building-process/",
+      "redirects": [],
+      "content_type": "text/html; charset=UTF-8",
+      "captured_at": "2026-09-18T16:05:57.755658+00:00",
+      "sha256": "4407683851ce45190584dc9237cd4d7eee8e14c811f69df9742fe3a6713d4080",
+      "requested_url": "https://www.riseresidential.co.nz/about-us/our-easy-as-building-process/",
+      "path": "cache/email-v2/4407683851ce45190584dc9237cd4d7eee8e14c811f69df9742fe3a6713d4080.capture"
+    }
+  ],
+  "errors": [],
+  "pending": [
+    "https://www.riseresidential.co.nz/about-us/our-easy-as-building-process/",
+    "https://www.riseresidential.co.nz/about-us/our-easy-as-building-process/",
+    "https://www.riseresidential.co.nz/about-us/renovation-design-new-builds-our-five-point-promise-guarantee/",
+    "https://www.riseresidential.co.nz/about-us/renovation-design-new-builds-our-five-point-promise-guarantee/",
+    "https://www.riseresidential.co.nz/about-us/renovation-design-new-builds-our-five-point-promise-guarantee/",
+    "https://www.riseresidential.co.nz/sitemap.xml",
+    "https://www.riseresidential.co.nz/contact-us/",
+    "https://www.riseresidential.co.nz/contact-us/",
+    "https://www.riseresidential.co.nz/contact-us/",
+    "https://www.riseresidential.co.nz/contact-us/",
+    "https://www.riseresidential.co.nz/contact-us/",
+    "https://www.riseresidential.co.nz/about-us/",
+    "https://www.riseresidential.co.nz/about-us/",
+    "https://www.riseresidential.co.nz/about-us/",
+    "https://www.riseresidential.co.nz/about-us/",
+    "https://www.riseresidential.co.nz/about-us/",
+    "https://www.riseresidential.co.nz/about-us/christchurch-building-company-rise-residential/",
+    "https://www.riseresidential.co.nz/about-us/christchurch-building-company-rise-residential/",
+    "https://www.riseresidential.co.nz/about-us/our-easy-as-building-process/",
+    "https://www.riseresidential.co.nz/about-us/our-easy-as-building-process/",
+    "https://www.riseresidential.co.nz/about-us/renovation-design-new-builds-our-five-point-promise-guarantee/",
+    "https://www.riseresidential.co.nz/about-us/renovation-design-new-builds-our-five-point-promise-guarantee/",
+    "https://www.riseresidential.co.nz/about-us/",
+    "https://www.riseresidential.co.nz/about-us/",
+    "https://www.riseresidential.co.nz/about-us/",
+    "https://www.riseresidential.co.nz/about-us/",
+    "https://www.riseresidential.co.nz/about-us/",
+    "https://www.riseresidential.co.nz/about-us/christchurch-building-company-rise-residential/",
+    "https://www.riseresidential.co.nz/about-us/christchurch-building-company-rise-residential/",
+    "https://www.riseresidential.co.nz/about-us/our-easy-as-building-process/",
+    "https://www.riseresidential.co.nz/about-us/our-easy-as-building-process/",
+    "https://www.riseresidential.co.nz/about-us/renovation-design-new-builds-our-five-point-promise-guarantee/",
+    "https://www.riseresidential.co.nz/about-us/renovation-design-new-builds-our-five-point-promise-guarantee/",
+    "https://www.riseresidential.co.nz/about-us/",
+    "https://www.riseresidential.co.nz/about-us/",
+    "https://www.riseresidential.co.nz/about-us/",
+    "https://www.riseresidential.co.nz/about-us/",
+    "https://www.riseresidential.co.nz/about-us/",
+    "https://www.riseresidential.co.nz/about-us/",
+    "https://www.riseresidential.co.nz/about-us/",
+    "https://www.riseresidential.co.nz/about-us/christchurch-building-company-rise-residential/",
+    "https://www.riseresidential.co.nz/about-us/christchurch-building-company-rise-residential/",
+    "https://www.riseresidential.co.nz/about-us/our-easy-as-building-process/",
+    "https://www.riseresidential.co.nz/about-us/our-easy-as-building-process/",
+    "https://www.riseresidential.co.nz/about-us/renovation-design-new-builds-our-five-point-promise-guarantee/",
+    "https://www.riseresidential.co.nz/about-us/renovation-design-new-builds-our-five-point-promise-guarantee/",
+    "https://www.riseresidential.co.nz/about-us/christchurch-building-company-rise-residential/",
+    "https://www.riseresidential.co.nz/about-us/christchurch-building-company-rise-residential/",
+    "https://www.riseresidential.co.nz/about-us/our-easy-as-building-process/",
+    "https://www.riseresidential.co.nz/about-us/our-easy-as-building-process/",
+    "https://www.riseresidential.co.nz/about-us/renovation-design-new-builds-our-five-point-promise-guarantee/",
+    "https://www.riseresidential.co.nz/about-us/renovation-design-new-builds-our-five-point-promise-guarantee/",
+    "https://www.riseresidential.co.nz/about-rises-professional-experienced-christchurch-builder/renovation-design-new-builds-our-five-point-promise-guarantee/",
+    "https://www.riseresidential.co.nz/about-us/our-easy-as-building-process/",
+    "https://www.riseresidential.co.nz/about-us/our-easy-as-building-process/",
+    "https://www.riseresidential.co.nz/about-us/renovation-design-new-builds-our-five-point-promise-guarantee/",
+    "https://www.riseresidential.co.nz/about-us/renovation-design-new-builds-our-five-point-promise-guarantee/",
+    "https://www.riseresidential.co.nz/about-us/renovation-design-new-builds-our-five-point-promise-guarantee/",
+    "https://www.riseresidential.co.nz/about-us/renovation-design-new-builds-our-five-point-promise-guarantee/"
+  ],
+  "requests": 7,
+  "started_at": "2026-09-18T16:05:39.501634+00:00",
+  "complete": true,
+  "attempts": {
+    "https://riseresidential.co.nz": 1,
+    "https://www.riseresidential.co.nz/contact-us": 1,
+    "https://www.riseresidential.co.nz/contact-us/": 1,
+    "https://www.riseresidential.co.nz/about-us": 1,
+    "https://www.riseresidential.co.nz/about-us/": 1,
+    "https://www.riseresidential.co.nz/about-us/christchurch-building-company-rise-residential/": 1,
+    "https://www.riseresidential.co.nz/about-us/our-easy-as-building-process/": 1
+  }
+}

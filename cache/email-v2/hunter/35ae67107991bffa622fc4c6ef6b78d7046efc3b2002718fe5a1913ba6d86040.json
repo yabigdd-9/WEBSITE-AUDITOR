@@ -1,0 +1,168 @@
+{
+  "domain": "atlelectrical.co.nz",
+  "emails": [
+    {
+      "value": "daniel@atlelectrical.co.nz",
+      "type": "personal",
+      "confidence": 85,
+      "sources": [
+        "https://www.google.com/search?q=site:linkedin.com%20daniel%20osi%20atlelectrical"
+      ],
+      "first_name": "Daniel",
+      "last_name": "Osi",
+      "position": "Electrician",
+      "department": "operations",
+      "linkedin": "https://www.linkedin.com/in/daniel-s-talo-osi-426623331",
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    },
+    {
+      "value": "jeremy@atlelectrical.co.nz",
+      "type": "personal",
+      "confidence": 85,
+      "sources": [
+        "https://www.google.com/search?q=site:linkedin.com%20jeremy%20bateup%20atlelectrical"
+      ],
+      "first_name": "Jeremy",
+      "last_name": "Bateup",
+      "position": "Automation Manager",
+      "department": "management",
+      "linkedin": "https://www.linkedin.com/in/jeremy-bateup-4975a5238",
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    },
+    {
+      "value": "ryan@atlelectrical.co.nz",
+      "type": "personal",
+      "confidence": 85,
+      "sources": [
+        "https://www.google.com/search?q=site:linkedin.com%20ryan%20mcpeake%20atlelectrical"
+      ],
+      "first_name": "Ryan",
+      "last_name": "McPeake",
+      "position": "HVAC Manager",
+      "department": "management",
+      "linkedin": "https://www.linkedin.com/in/ryan-mcpeake-00249a196",
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": "2026-08-20",
+        "status": "valid"
+      }
+    },
+    {
+      "value": "kimberly@atlelectrical.co.nz",
+      "type": "personal",
+      "confidence": 85,
+      "sources": [
+        "https://shsreefton.school.nz/learning",
+        "https://shsreefton.school.nz/information/enrolment",
+        "https://shsreefton.school.nz/information/term-dates",
+        "https://shsreefton.school.nz/our-people/board-of-trustees-54-2/annual-reports",
+        "https://shsreefton.school.nz/our-school-2",
+        "https://atlelectrical.co.nz/contact"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": null,
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": "2026-08-25",
+        "status": "valid"
+      }
+    },
+    {
+      "value": "brett@atlelectrical.co.nz",
+      "type": "personal",
+      "confidence": 85,
+      "sources": [
+        "https://www.google.com/search?q=site:linkedin.com%20brett%20herman%20atlelectrical",
+        "https://masterelectricians.org.nz/find-a-master-electrician"
+      ],
+      "first_name": "Brett",
+      "last_name": "Herman",
+      "position": "Automation Engineer",
+      "department": "it",
+      "linkedin": "https://www.linkedin.com/in/brett-herman-412b8049",
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": "2026-08-25",
+        "status": "valid"
+      }
+    },
+    {
+      "value": "info@atlelectrical.co.nz",
+      "type": "generic",
+      "confidence": 85,
+      "sources": [
+        "https://atllighting.co.nz/blog/categories/product-highlights",
+        "https://atllighting.co.nz/product-page/cutlro-450",
+        "https://atllighting.co.nz/contact",
+        "https://atlelectrical.co.nz",
+        "https://atlelectrical.co.nz/heat-pumps",
+        "https://atlelectrical.co.nz/blog/categories/central-vacuum-systems",
+        "https://atlelectrical.co.nz/post/upgrading-your-switchboard",
+        "https://atlelectrical.co.nz/project/bell-lamb-and-trotter",
+        "https://atllighting.co.nz/product-page/siv-pendant-marble-black",
+        "https://atllighting.co.nz/product-page/siv-pendant-marble-white",
+        "https://provenexpert.com:443/en-us/atl-electrical",
+        "https://localstar.org",
+        "https://localstar.org/listings/1",
+        "https://localstar.org/listings/2",
+        "https://myhomeservices.co.nz/listing/atl-electrical",
+        "https://shopless.co.nz/simple-ad/display/experiences-electrician-alt-electrical/227772"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": "support",
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": "2026-08-25",
+        "status": "valid"
+      }
+    },
+    {
+      "value": "service@atlelectrical.co.nz",
+      "type": "generic",
+      "confidence": 78,
+      "sources": [
+        "https://beam.co.nz/dealers",
+        "https://beam.co.nz/dealers/beam-vacuum-dealers-auckland",
+        "https://beam.co.nz/dealers/bay-of-plenty-whakatane",
+        "https://beam.co.nz/dealers/hokitikawest-coast-sth-island",
+        "https://beam.co.nz/dealers/invercargill-queenstown"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": "support",
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    }
+  ],
+  "total": 0,
+  "limit": 10,
+  "offset": 0,
+  "cached_at": "2026-09-18T15:26:16.681008+00:00",
+  "from_cache": false
+}

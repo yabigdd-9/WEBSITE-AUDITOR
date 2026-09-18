@@ -1,0 +1,168 @@
+{
+  "domain": "energysmart.co.nz",
+  "emails": [
+    {
+      "value": "james@energysmart.co.nz",
+      "type": "personal",
+      "confidence": 99,
+      "sources": [
+        "https://www.google.com/search?q=site:linkedin.com%20james%20ferrari%20energysmart"
+      ],
+      "first_name": "James",
+      "last_name": "Ferrari",
+      "position": "Sales Analyst",
+      "department": "sales",
+      "linkedin": "https://www.linkedin.com/in/james-ferrari-b2929126a",
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": "2026-08-29",
+        "status": "valid"
+      }
+    },
+    {
+      "value": "richard@energysmart.co.nz",
+      "type": "personal",
+      "confidence": 95,
+      "sources": [
+        "https://yellow.co.nz/belfast/insulation",
+        "https://yellow.co.nz/y/magroc-main",
+        "https://yellow.co.nz/dallington/installers-services",
+        "https://yellow.co.nz/tawa/insulation",
+        "https://yellow.co.nz/y/envirowool-envirowool"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": null,
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    },
+    {
+      "value": "support@energysmart.co.nz",
+      "type": "generic",
+      "confidence": 85,
+      "sources": [
+        "https://energysmart.co.nz/about-us/privacy-policy",
+        "https://localbiz.nz/building-and-tools-in-tauranga",
+        "https://localbiz.nz/home-and-garden-in-auckland",
+        "https://localbiz.nz/building-and-tools",
+        "https://localbiz.nz/building-and-tools-in-rotorua",
+        "https://localbiz.nz/online-advertising-in-christchurch",
+        "https://yumpu.com/en/document/view/62243848/selwyn-times-november-28-2018",
+        "https://yumpu.com/en/document/view/62397811/norwest-news-february-12-2019",
+        "https://yumpu.com/en/document/view/62406277/the-star-february-14-2019",
+        "https://yumpu.com/en/document/view/62397805/pegasus-post-february-12-2019",
+        "https://yumpu.com/en/document/view/62397830/western-news-february-12-2019",
+        "https://energysmart.co.nz/contact-us/wellington",
+        "https://energysmart.co.nz/contact-us/palmerston-north",
+        "https://energysmart.co.nz/contact-us/palmerston-north-manawatu-wanganui",
+        "https://energysmart.co.nz/contact-us/auckland",
+        "https://energywise.govt.nz/funding-and-support/funding-for-heaters-and-insulation/insulation-service-providers",
+        "https://energywise.govt.nz/funding-and-support/funding-for-insulation/insulation-service-providers"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": "support",
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    },
+    {
+      "value": "genevieve.h@energysmart.co.nz",
+      "type": "personal",
+      "confidence": 81,
+      "sources": [
+        "https://energysmart.co.nz/_hcms/mem/reset/request",
+        "https://energysmart.co.nz/_hcms/mem/login"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": null,
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    },
+    {
+      "value": "auckland@energysmart.co.nz",
+      "type": "generic",
+      "confidence": 79,
+      "sources": [
+        "https://yellow.co.nz/new-zealand/insulation",
+        "https://yellow.co.nz/newmarket/home-garden",
+        "https://yellow.co.nz/y/energysmart-mangere",
+        "https://yellow.co.nz/y/alsynite-nz"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": null,
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    },
+    {
+      "value": "customerservices@energysmart.co.nz",
+      "type": "generic",
+      "confidence": 78,
+      "sources": [
+        "https://energysmart.co.nz/installation-warranties"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": "support",
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    },
+    {
+      "value": "info@energysmart.co.nz",
+      "type": "generic",
+      "confidence": 77,
+      "sources": [
+        "https://beaconpathway.co.nz/wp-content/uploads/2021/12/Final-Report-HR242010-HomeSmart-Renovations-Phase-2.pdf",
+        "https://wellyconnect.com/business/energy-smart"
+      ],
+      "first_name": null,
+      "last_name": null,
+      "position": null,
+      "department": "support",
+      "linkedin": null,
+      "twitter": null,
+      "phone_number": null,
+      "verification": {
+        "date": null,
+        "status": null
+      }
+    }
+  ],
+  "total": 0,
+  "limit": 10,
+  "offset": 0,
+  "cached_at": "2026-09-18T16:05:39.415052+00:00",
+  "from_cache": false
+}
