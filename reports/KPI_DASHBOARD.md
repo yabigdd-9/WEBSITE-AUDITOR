@@ -1,10 +1,10 @@
 # Evidence-based KPI snapshot
 
 {
-  "real_prospects": 21,
-  "fresh_legacy_observation_prospects": 14,
+  "real_prospects": 29,
+  "fresh_legacy_observation_prospects": 5,
   "independently_verified_current_claims": 0,
-  "prospects_without_any_evidence": 7,
+  "prospects_without_any_evidence": 13,
   "verified_sends": 0,
   "verified_replies": 0,
   "legacy_claimed_sends_unverified": 3,
@@ -19,7 +19,11 @@
   "model_calls_this_workflow": 0,
   "model_cost_this_workflow_usd": 0,
   "models_enabled": false,
-  "historical_billing_status": "Not reconciled against provider statements; zero ledger values are not proof of historical zero spend"
+  "historical_billing_status": "Not reconciled against provider statements; zero ledger values are not proof of historical zero spend",
+  "exa_discovered": 8,
+  "exa_agent_discovered": 0,
+  "exa_pipe_discovered": 5,
+  "manually_discovered": 21
 }
 
-Stages: {"AUDITED": 3, "DISCOVERED": 12, "SUPPRESSED": 3}
+Stages: {"AUDITED": 4, "DISCOVERED": 19, "SUPPRESSED": 3}

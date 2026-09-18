@@ -326,8 +326,13 @@ def main(argv=None):
                             result['auto_intake_count']=intake_count
                 elif a.cmd=='exa-agent-status':
                     result=agent.get_run(a.run_id)
-                elif a.cmd=='exa-agent-list':
-                    result={'runs':agent.list_runs()}
+                if a.cmd=='exa-agent-list':
+                    result={'runs':[]}
+                    try:
+                        runs = agent.list_runs()
+                        result={'runs':runs}
+                    except Exception as ex:
+                        result={'runs':[],'error':str(ex)}
                 elif a.cmd=='exa-agent-cancel':
                     result=agent.cancel_run(a.run_id)
         elif a.cmd in ('exa-intake','exa-pipe'):

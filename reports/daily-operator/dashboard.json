@@ -1,10 +1,12 @@
 {
-  "generated_at": "2026-09-11T11:03:54.740430+00:00",
+  "project": "WEBSITES/BUISNESSaudits",
+  "workspace": "/app",
+  "generated_at": "2026-09-18T20:28:44.789797+00:00",
   "metrics": {
-    "real_prospects": 21,
-    "fresh_legacy_observation_prospects": 14,
+    "real_prospects": 29,
+    "fresh_legacy_observation_prospects": 5,
     "independently_verified_current_claims": 0,
-    "prospects_without_any_evidence": 7,
+    "prospects_without_any_evidence": 13,
     "verified_sends": 0,
     "verified_replies": 0,
     "legacy_claimed_sends_unverified": 3,
@@ -19,7 +21,11 @@
     "model_calls_this_workflow": 0,
     "model_cost_this_workflow_usd": 0,
     "models_enabled": false,
-    "historical_billing_status": "Not reconciled against provider statements; zero ledger values are not proof of historical zero spend"
+    "historical_billing_status": "Not reconciled against provider statements; zero ledger values are not proof of historical zero spend",
+    "exa_discovered": 8,
+    "exa_agent_discovered": 0,
+    "exa_pipe_discovered": 5,
+    "manually_discovered": 21
   },
   "email_contacts": [
     {
@@ -344,11 +350,131 @@
       "last_checked": null,
       "human_review": "REQUIRED",
       "outreach_eligible": false
+    },
+    {
+      "business_id": 23,
+      "business": "Emergency Plumber Auckland 24/7 | Response Plumbing",
+      "website": "https://responseplumbing.co.nz/emergency-plumber-auckland.php",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 24,
+      "business": "Emergency Plumber Auckland | 24/7 Same-Day Response | Mr Plumber",
+      "website": "https://www.mrplumber.nz/services/emergency-plumbing/",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 25,
+      "business": "Emergency Plumber Auckland | 24/7 Emergency Plumbing",
+      "website": "https://www.callaplumber.co.nz/services/emergency-callouts",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 26,
+      "business": "Heat Pump Installation Auckland | Qualified Local Installers \u2013 HappyAir",
+      "website": "https://happyairheatpumps.co.nz/installation/",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 27,
+      "business": "Wellington Roofing Company | Complete Roofing Services | Home",
+      "website": "https://www.completeroofing.co.nz/",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 28,
+      "business": "Wellington Roofing | Reroofing, Repairs & New Roofs | Roofing Dept",
+      "website": "https://www.roofingdept.co.nz/wellington-roofing/",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 29,
+      "business": "Kitchen renovations Hamilton - Bespoke kitchen cabinets Waikato",
+      "website": "https://www.dstone.co.nz/kitchen-renovations-hamilton",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 30,
+      "business": "Best Kitchen Renovation Services in Hamilton, NZ | The Reno Guys",
+      "website": "https://renoguys.co.nz/kitchens/",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
     }
   ],
   "pipeline_stages": {
-    "AUDITED": 3,
-    "DISCOVERED": 12,
+    "AUDITED": 4,
+    "DISCOVERED": 19,
     "SUPPRESSED": 3
   },
   "human_queue": [
@@ -370,7 +496,7 @@
       "priority": 6,
       "id": 3,
       "name": "Trident Electrical & Air Conditioning",
-      "action": "Verify website and contact permission",
+      "action": "Build packet, demo, and outreach plan",
       "ev_hour_low": 0
     },
     {
@@ -437,6 +563,20 @@
       "ev_hour_low": 0
     },
     {
+      "priority": 6,
+      "id": 29,
+      "name": "Kitchen renovations Hamilton - Bespoke kitchen cabinets Waikato",
+      "action": "Verify website and contact permission",
+      "ev_hour_low": 0
+    },
+    {
+      "priority": 6,
+      "id": 30,
+      "name": "Best Kitchen Renovation Services in Hamilton, NZ | The Reno Guys",
+      "action": "Verify website and contact permission",
+      "ev_hour_low": 0
+    },
+    {
       "priority": 7,
       "id": 16,
       "name": "Modern Age Kitchens",
@@ -454,6 +594,48 @@
       "priority": 7,
       "id": 19,
       "name": "Fendalton Construction",
+      "action": "Capture current website evidence; verify a commercial problem before offering work",
+      "ev_hour_low": 0
+    },
+    {
+      "priority": 7,
+      "id": 23,
+      "name": "Emergency Plumber Auckland 24/7 | Response Plumbing",
+      "action": "Capture current website evidence; verify a commercial problem before offering work",
+      "ev_hour_low": 0
+    },
+    {
+      "priority": 7,
+      "id": 24,
+      "name": "Emergency Plumber Auckland | 24/7 Same-Day Response | Mr Plumber",
+      "action": "Capture current website evidence; verify a commercial problem before offering work",
+      "ev_hour_low": 0
+    },
+    {
+      "priority": 7,
+      "id": 25,
+      "name": "Emergency Plumber Auckland | 24/7 Emergency Plumbing",
+      "action": "Capture current website evidence; verify a commercial problem before offering work",
+      "ev_hour_low": 0
+    },
+    {
+      "priority": 7,
+      "id": 26,
+      "name": "Heat Pump Installation Auckland | Qualified Local Installers \u2013 HappyAir",
+      "action": "Capture current website evidence; verify a commercial problem before offering work",
+      "ev_hour_low": 0
+    },
+    {
+      "priority": 7,
+      "id": 27,
+      "name": "Wellington Roofing Company | Complete Roofing Services | Home",
+      "action": "Capture current website evidence; verify a commercial problem before offering work",
+      "ev_hour_low": 0
+    },
+    {
+      "priority": 7,
+      "id": 28,
+      "name": "Wellington Roofing | Reroofing, Repairs & New Roofs | Roofing Dept",
       "action": "Capture current website evidence; verify a commercial problem before offering work",
       "ev_hour_low": 0
     }
@@ -477,6 +659,46 @@
   ],
   "missing_or_stale": [
     {
+      "id": 6,
+      "name": "BA Heat Pumps",
+      "reason": "Expired"
+    },
+    {
+      "id": 7,
+      "name": "AES",
+      "reason": "Expired"
+    },
+    {
+      "id": 8,
+      "name": "Simpson Climate Control",
+      "reason": "Expired"
+    },
+    {
+      "id": 9,
+      "name": "Kiwi Heat Pumps",
+      "reason": "Expired"
+    },
+    {
+      "id": 10,
+      "name": "Imperial HVAC",
+      "reason": "Expired"
+    },
+    {
+      "id": 11,
+      "name": "New Zealand Heat Pumps",
+      "reason": "Expired"
+    },
+    {
+      "id": 12,
+      "name": "Superior Renovations",
+      "reason": "Expired"
+    },
+    {
+      "id": 15,
+      "name": "Evoke Renovations",
+      "reason": "Expired"
+    },
+    {
       "id": 16,
       "name": "Modern Age Kitchens",
       "reason": "Missing"
@@ -487,8 +709,43 @@
       "reason": "Missing"
     },
     {
+      "id": 18,
+      "name": "Best Nest Building Co",
+      "reason": "Expired"
+    },
+    {
       "id": 19,
       "name": "Fendalton Construction",
+      "reason": "Missing"
+    },
+    {
+      "id": 23,
+      "name": "Emergency Plumber Auckland 24/7 | Response Plumbing",
+      "reason": "Missing"
+    },
+    {
+      "id": 24,
+      "name": "Emergency Plumber Auckland | 24/7 Same-Day Response | Mr Plumber",
+      "reason": "Missing"
+    },
+    {
+      "id": 25,
+      "name": "Emergency Plumber Auckland | 24/7 Emergency Plumbing",
+      "reason": "Missing"
+    },
+    {
+      "id": 26,
+      "name": "Heat Pump Installation Auckland | Qualified Local Installers \u2013 HappyAir",
+      "reason": "Missing"
+    },
+    {
+      "id": 27,
+      "name": "Wellington Roofing Company | Complete Roofing Services | Home",
+      "reason": "Missing"
+    },
+    {
+      "id": 28,
+      "name": "Wellington Roofing | Reroofing, Repairs & New Roofs | Roofing Dept",
       "reason": "Missing"
     }
   ],
@@ -499,12 +756,13 @@
     "action": "Requalify Heat Force against its existing Tradify form; verify a specific unmet need before creating another offer",
     "ev_hour_low": 0
   },
-  "elapsed_ms": 5014.56,
+  "elapsed_ms": 667.78,
   "model_calls": 0,
   "external_sends": 0,
+  "exa_suggestions": [],
   "outreach_self_audit": {
     "version": "outreach-v1.0.0",
-    "checked_at": "2026-09-11T11:03:54.820127+00:00",
+    "checked_at": "2026-09-18T20:28:44.855350+00:00",
     "messages_checked": 1,
     "copy_issues": [
       {
