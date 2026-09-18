@@ -181,6 +181,10 @@ def main(argv=None):
     q=s.add_parser('model-request');q.add_argument('--model',required=True);q.add_argument('--provider',required=True);q.add_argument('--purpose',required=True)
     q=s.add_parser('experiment');q.add_argument('id',type=int);q.add_argument('--industry',required=True);q.add_argument('--problem',choices=ONTOLOGY,required=True);q.add_argument('--offer',required=True);q.add_argument('--price-band',required=True);q.add_argument('--style',required=True);q.add_argument('--demo-type',required=True)
     q=s.add_parser('run-job');q.add_argument('--key',required=True);q.add_argument('--kind',choices=['status','learn'],required=True)
+    s.add_parser('exa-status')
+    q=s.add_parser('exa-discover');q.add_argument('--query',required=True);q.add_argument('--num-results',type=int,default=10);q.add_argument('--type',default='auto',choices=['auto','fast','deep','deep-reasoning','deep-lite'])
+    q=s.add_parser('exa-fetch');q.add_argument('--urls',nargs='+',required=True)
+    q=s.add_parser('exa-structured');q.add_argument('--query',required=True);q.add_argument('--schema-file',required=True);q.add_argument('--num-results',type=int,default=10);q.add_argument('--system-prompt')
     a=p.parse_args(argv)
     if a.cmd=='polish-status':
         report=json.loads((root()/'reports/polish-status.json').read_text())
@@ -218,6 +222,22 @@ def main(argv=None):
     if a.cmd=='price':
         if (a.hours_low is None)!=(a.hours_high is None):raise ValueError('Both hour bounds required')
         result=pricing(a.problem,[a.hours_low,a.hours_high] if a.hours_low is not None else None)
+    elif a.cmd in ('exa-status','exa-discover','exa-fetch','exa-structured'):
+        import mm_exa
+        if a.cmd=='exa-status':
+            result=mm_exa.check_exa_available()
+        elif a.cmd=='exa-discover':
+            client=mm_exa.ExaSearch()
+            result={'query':a.query,'results':client.search(a.query,num_results=a.num_results,type_=a.type),'search_type':a.type,'limitation':'External retrieval corroborates only; first-party verification required before pipeline use.'}
+        elif a.cmd=='exa-fetch':
+            client=mm_exa.ExaSearch()
+            result={'urls':a.urls,'contents':client.get_contents(a.urls),'limitation':'Content extraction for known URLs; does not verify permission or accuracy.'}
+        elif a.cmd=='exa-structured':
+            import json as _json
+            schema=_json.loads(Path(a.schema_file).read_text())
+            client=mm_exa.ExaSearch()
+            result=client.search_with_output_schema(a.query,schema,num_results=a.num_results,system_prompt=a.system_prompt)
+            result['limitation']='Exa synthesized output requires independent verification. Use output.grounding for citations.'
     else:
         with contextlib.closing(connect()) as d,d:
             if a.cmd in ('daily','run-day','status'):result=run_day(d,write=a.cmd!='status')
