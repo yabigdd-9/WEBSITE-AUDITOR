@@ -121,7 +121,8 @@ PLACEHOLDER = {'example.com', 'example.org', 'example.net', 'domain.com', 'yourd
 BAD_ROLES = {'privacy/legal', 'careers', 'accounts', 'webmaster/developer', 'third-party vendor'}
 ROLE_ORDER = {'owner': 0, 'director': 0, 'sales': 1, 'company general': 2, 'office': 2, 'staff': 3, 'support': 4, 'unknown': 5}
 WEIGHTS = {'first_party': 55, 'identity': 15, 'mx': 10, 'fresh': 5, 'relevant_contact': 8,
-           'independent_source': 20, 'person': 10, 'smtp_non_catchall': 5, 'second_official_page': 5}
+           'independent_source': 20, 'person': 10, 'smtp_non_catchall': 5, 'second_official_page': 5,
+           'hunter_corroboration': 10}
 
 
 def utcnow(): return dt.datetime.now(UTC).isoformat()
@@ -452,6 +453,10 @@ def verification(candidate, identity, dns=None, smtp=None, suppressed=False, per
     if recent and role in ROLE_ORDER and role not in ('unknown', 'support'): points['relevant_contact'] = WEIGHTS['relevant_contact']
     if person_ok: points['person'] = WEIGHTS['person']
     if smtp_status == 'accepted' and catch_all == 'no': points['smtp_non_catchall'] = WEIGHTS['smtp_non_catchall']
+    # Hunter.io corroboration: external source confirms first-party observation
+    if direct and candidate.get('hunter_confidence', 0) >= 70:
+        points['hunter_corroboration'] = WEIGHTS['hunter_corroboration']
+        reasons.append('External source (Hunter.io) corroborates with confidence ' + str(candidate.get('hunter_confidence')) + '%')
     # Copies on the same domain are not independent evidence; external listings
     # remain supporting observations and never override direct contradictions.
     if catch_all == 'yes': reasons.append('Catch-all: mailbox existence inconclusive')
@@ -481,7 +486,7 @@ def verification(candidate, identity, dns=None, smtp=None, suppressed=False, per
             'evidence': obs, 'candidate_method':candidate.get('method','observed'), 'checked_at': utcnow() if at is None else at.isoformat(), 'verifier_version': VERSION}
 
 
-def evaluate(business, pages, dns_results=None, smtp_results=None, legacy=None, suppressed_addresses=(), suppressed_business=False, person=None, at=None):
+def evaluate(business, pages, dns_results=None, smtp_results=None, legacy=None, suppressed_addresses=(), suppressed_business=False, person=None, at=None, hunter_data=None):
     identity = identify(business, pages); groups = defaultdict(list)
     for p in pages:
         for observation in p['observations']: groups[observation['email']].append(observation)
@@ -489,7 +494,12 @@ def evaluate(business, pages, dns_results=None, smtp_results=None, legacy=None, 
     results = []
     for addr, obs in sorted(groups.items()):
         suppressed = suppressed_business or addr.casefold() in {a.strip().casefold() for a in suppressed_addresses}
-        results.append(verification({'email': addr, 'observations': obs, 'method': 'observed' if obs else 'legacy'}, identity,
+        candidate = {'email': addr, 'observations': obs, 'method': 'observed' if obs else 'legacy'}
+        # Attach Hunter confidence if available
+        if hunter_data and addr in hunter_data:
+            candidate['hunter_confidence'] = hunter_data[addr]
+            candidate['hunter_sources'] = hunter_data.get(addr + '_sources', [])
+        results.append(verification(candidate, identity,
                        (dns_results or {}).get(domain_name(addr.split('@')[-1])), (smtp_results or {}).get(addr), suppressed, person, at))
     high = [x for x in results if x['confidence_label'] == 'VERIFIED_HIGH']
     high.sort(key=lambda x: (ROLE_ORDER.get(x['role_account'], 99), -x['confidence_score'], x['email']))

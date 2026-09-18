@@ -6,6 +6,7 @@ from pathlib import Path
 import mm_core as c
 import mm_email as e
 import mm_email_store as store
+import json
 from mm_email_network import Crawler, DNSChecks
 
 
@@ -42,7 +43,19 @@ def find_one(d, bid):
 
     # Merge Hunter candidates into legacy for evaluation
     all_legacy = list(legacy) + hunter_candidates
-    result = e.evaluate(business, pages, dns_results, legacy=all_legacy, suppressed_addresses=suppressed, suppressed_business=store.is_suppressed(d, bid))
+
+    # Build hunter_data map for scoring
+    hunter_data = {}
+    for row in d.execute("""
+        SELECT email, hunter_confidence, hunter_sources
+        FROM hunter_enrichment
+        WHERE business_id = ?
+    """, (bid,)).fetchall():
+        normalized = row['email'].lower().strip()
+        hunter_data[normalized] = row['hunter_confidence']
+        hunter_data[normalized + '_sources'] = json.loads(row['hunter_sources'] or '[]')
+
+    result = e.evaluate(business, pages, dns_results, legacy=all_legacy, suppressed_addresses=suppressed, suppressed_business=store.is_suppressed(d, bid), hunter_data=hunter_data)
     result['crawl_errors'] = errors
     result['hunter_enriched'] = len(hunter_candidates)
 
