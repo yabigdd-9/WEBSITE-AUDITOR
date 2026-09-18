@@ -108,13 +108,24 @@ def run_day(d,write=True):
         priority=5 if bid==5 else 6 if e else 7
         queue.append({'priority':priority,'id':bid,'name':name,'action':b['next_action'] if e else 'Capture current website evidence; verify a commercial problem before offering work','ev_hour_low':ev})
     queue.sort(key=lambda x:(x['priority'],-x['ev_hour_low'],x['id']))
+    # Exa auto-discovery suggestion when pipeline is short on fresh leads
+    exa_suggestions=[]
+    if len(queue)<5:
+        try:
+            import mm_exa
+            if mm_exa.check_exa_available()['available']:
+                regions=[r[0] for r in d.execute("SELECT DISTINCT region FROM businesses WHERE is_dummy=0 AND region IS NOT NULL LIMIT 3")]
+                for region in regions:
+                    exa_suggestions.append({'region':region,'command':f'mm exa-pipe --query "small business services {region} New Zealand" --num-results 5 --region "{region}"','rationale':'Pipeline has fewer than 5 active queue items; external discovery can add candidates. First-party verification still required.'})
+        except Exception:
+            pass
     email_contacts=[]
     if d.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='email_policy'").fetchone():
         from mm_email_store import status as email_status
         for row in d.execute('SELECT id FROM businesses WHERE is_dummy=0 ORDER BY id').fetchall():
             contact=email_status(d,row[0]);selected=contact.get('selected') or {};identity=contact.get('identity') or {}
             email_contacts.append({'business_id':row[0],'business':contact['business'],'website':contact.get('website'),'canonical_domain':identity.get('canonical_root_domain'),'email':contact['email'],'confidence':contact.get('confidence'),'why':selected.get('reasons') or identity.get('reasons'),'evidence_count':selected.get('source_count',0),'verification':selected.get('confidence_label','NO_VERIFIED_EMAIL'),'catch_all':selected.get('catch_all_status','unknown'),'last_checked':contact.get('last_checked'),'human_review':'REQUIRED','outreach_eligible':contact.get('outreach_eligible',False)})
-    data={'project':'WEBSITES/BUISNESSaudits','workspace':str(root()),'generated_at':now(),'metrics':metrics(d),'email_contacts':email_contacts,'pipeline_stages':dict(d.execute('SELECT stage,count(*) FROM mm_deals GROUP BY stage')),'human_queue':queue,'blocked':blocked,'missing_or_stale':stale,'next_revenue_action':queue[0] if queue else None,'elapsed_ms':round((time.perf_counter()-start)*1000,2),'model_calls':0,'external_sends':0}
+    data={'project':'WEBSITES/BUISNESSaudits','workspace':str(root()),'generated_at':now(),'metrics':metrics(d),'email_contacts':email_contacts,'pipeline_stages':dict(d.execute('SELECT stage,count(*) FROM mm_deals GROUP BY stage')),'human_queue':queue,'blocked':blocked,'missing_or_stale':stale,'next_revenue_action':queue[0] if queue else None,'elapsed_ms':round((time.perf_counter()-start)*1000,2),'model_calls':0,'external_sends':0,'exa_suggestions':exa_suggestions}
     from mm_outreach import health as outreach_health
     data['outreach_self_audit']=outreach_health(d)
     if write:
@@ -187,6 +198,12 @@ def main(argv=None):
     q=s.add_parser('exa-structured');q.add_argument('--query',required=True);q.add_argument('--schema-file',required=True);q.add_argument('--num-results',type=int,default=10);q.add_argument('--system-prompt')
     q=s.add_parser('exa-intake');q.add_argument('--query',required=True);q.add_argument('--num-results',type=int,default=5);q.add_argument('--region',required=True);q.add_argument('--source',default='exa-search');q.add_argument('--type',default='auto',choices=['auto','fast','deep','deep-reasoning','deep-lite'])
     q=s.add_parser('exa-pipe');q.add_argument('--query',required=True);q.add_argument('--num-results',type=int,default=5);q.add_argument('--region',required=True);q.add_argument('--source',default='exa-pipe');q.add_argument('--type',default='auto',choices=['auto','fast','deep','deep-reasoning','deep-lite'])
+    q=s.add_parser('exa-agent-create');q.add_argument('--query',required=True);q.add_argument('--schema-file',required=True);q.add_argument('--effort',default='auto',choices=['minimal','low','medium','high','xhigh','auto']);q.add_argument('--max-cost',type=float,default=5.0);q.add_argument('--previous-run-id')
+    q=s.add_parser('exa-agent-poll');q.add_argument('--run-id',required=True);q.add_argument('--max-wait',type=int,default=120)
+    q=s.add_parser('exa-agent-status');q.add_argument('--run-id',required=True)
+    q=s.add_parser('exa-agent-list')
+    q=s.add_parser('exa-agent-cancel');q.add_argument('--run-id',required=True)
+    q=s.add_parser('exa-cron');q.add_argument('--query',required=True);q.add_argument('--num-results',type=int,default=5);q.add_argument('--region',required=True);q.add_argument('--source',default='exa-pipe')
     a=p.parse_args(argv)
     if a.cmd=='polish-status':
         report=json.loads((root()/'reports/polish-status.json').read_text())
@@ -240,6 +257,32 @@ def main(argv=None):
             client=mm_exa.ExaSearch()
             result=client.search_with_output_schema(a.query,schema,num_results=a.num_results,system_prompt=a.system_prompt)
             result['limitation']='Exa synthesized output requires independent verification. Use output.grounding for citations.'
+        elif a.cmd in ('exa-agent-create','exa-agent-poll','exa-agent-status','exa-agent-list','exa-agent-cancel','exa-cron'):
+            import mm_exa
+            if a.cmd=='exa-cron':
+                # Schedule daily exa-pipe via cronjob
+                import json as _json
+                cron_prompt = f"Run daily lead discovery: python3 {Path(__file__).resolve().parent}/mm_operator.py exa-pipe --query \"{a.query}\" --num-results {a.num_results} --region \"{a.region}\" --source \"{a.source}\""
+                result = {
+                    'status': 'ready',
+                    'message': 'Create the scheduled job with:',
+                    'command': f'hermes cronjob create --schedule "0 8 * * *" --prompt "{cron_prompt}" --label "exa-lead-gen-{a.region}"',
+                    'limitation': 'External search auto-intake. First-party verification still required before commercial claims.'
+                }
+            else:
+                agent=mm_exa.ExaAgent()
+                if a.cmd=='exa-agent-create':
+                    import json as _json
+                    schema=_json.loads(Path(a.schema_file).read_text())
+                    result=agent.create_run(a.query,schema,effort=a.effort,max_cost_dollars=a.max_cost,previous_run_id=a.previous_run_id)
+                elif a.cmd=='exa-agent-poll':
+                    result=agent.poll_run(a.run_id,max_wait_seconds=a.max_wait)
+                elif a.cmd=='exa-agent-status':
+                    result=agent.get_run(a.run_id)
+                elif a.cmd=='exa-agent-list':
+                    result={'runs':agent.list_runs()}
+                elif a.cmd=='exa-agent-cancel':
+                    result=agent.cancel_run(a.run_id)
         elif a.cmd in ('exa-intake','exa-pipe'):
             import mm_exa
             from mm_core import connect as mm_connect, now as mm_now

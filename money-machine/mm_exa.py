@@ -176,6 +176,98 @@ def search_exa(
     return ExaSearch(api_key=api_key).search(query, num_results=num_results)
 
 
+class ExaAgent:
+    """Exa Agent API wrapper for multi-step research workflows.
+
+    Unlike ExaSearch (single-shot), Agent runs are async: create returns a
+    run ID immediately. The caller must poll until terminal status.
+
+    Use this for: list-building, enrichment, multi-hop research.
+    """
+
+    def __init__(self, api_key: Optional[str] = None):
+        self._api_key = api_key or get_api_key()
+        if not self._api_key:
+            raise RuntimeError("EXA_API_KEY not configured.")
+        try:
+            from exa_py import Exa
+            self._client = Exa(api_key=self._api_key)
+        except ImportError:
+            raise RuntimeError("exa-py not installed. Run: pip install exa-py")
+
+    def create_run(self, query: str, output_schema: dict[str, Any],
+                   effort: str = "auto", max_cost_dollars: Optional[float] = None,
+                   input_data: Optional[list] = None,
+                   previous_run_id: Optional[str] = None) -> dict[str, Any]:
+        """Create an agent run. Returns immediately with run ID."""
+        kwargs: dict[str, Any] = {
+            "query": query, "effort": effort, "output_schema": output_schema,
+        }
+        if max_cost_dollars is not None:
+            kwargs["budget"] = {"max_cost_dollars": max_cost_dollars}
+        if input_data:
+            kwargs["input"] = {"data": input_data}
+        if previous_run_id:
+            kwargs["previous_run_id"] = previous_run_id
+        run = self._client.agent.runs.create(**kwargs)
+        return {"run_id": run.id, "status": run.status}
+
+    def poll_run(self, run_id: str, max_wait_seconds: int = 120,
+                 poll_interval: int = 4) -> dict[str, Any]:
+        """Poll a run until terminal status. Blocks caller."""
+        import time
+        start = time.time()
+        while time.time() - start < max_wait_seconds:
+            run = self._client.agent.runs.get(run_id)
+            if run.status in ("completed", "failed", "cancelled"):
+                return self._run_to_dict(run)
+            time.sleep(poll_interval)
+        # Timeout — return current state
+        run = self._client.agent.runs.get(run_id)
+        d = self._run_to_dict(run)
+        d["timed_out"] = True
+        return d
+
+    def get_run(self, run_id: str) -> dict[str, Any]:
+        """Get current run state."""
+        run = self._client.agent.runs.get(run_id)
+        return self._run_to_dict(run)
+
+    def list_runs(self, limit: int = 10) -> list[dict[str, Any]]:
+        """List recent agent runs."""
+        resp = self._client.agent.runs.list(limit=limit)
+        return [self._run_to_dict(r) for r in resp.results]
+
+    def cancel_run(self, run_id: str) -> dict[str, Any]:
+        """Cancel a running agent."""
+        run = self._client.agent.runs.cancel(run_id)
+        return self._run_to_dict(run)
+
+    @staticmethod
+    def _run_to_dict(run) -> dict[str, Any]:
+        """Convert an agent run object to a dict."""
+        d: dict[str, Any] = {
+            "run_id": run.id,
+            "status": run.status,
+            "query": getattr(run, "query", None),
+            "effort": getattr(run, "effort", None),
+            "created_at": getattr(run, "created_at", None),
+            "finished_at": getattr(run, "finished_at", None),
+            "cost_dollars": getattr(run, "cost_dollars", None),
+            "stop_reason": getattr(run, "stop_reason", None),
+        }
+        if hasattr(run, "output") and run.output:
+            output = run.output
+            d["output"] = {
+                "text": getattr(output, "text", None),
+                "structured": getattr(output, "structured", None),
+                "grounding": getattr(output, "grounding", None),
+            }
+        if hasattr(run, "error") and run.error:
+            d["error"] = run.error
+        return d
+
+
 def check_exa_available() -> dict[str, Any]:
     """Health check — used by CLI and tests. Never raises."""
     result = {
