@@ -1,0 +1,117 @@
+{
+  "version": "outreach-v1.0.0",
+  "created_at": "2026-09-18T14:14:16.122646+00:00",
+  "company": "Heat Force",
+  "recipient": "info@heatforce.co.nz",
+  "mode": "initial",
+  "brief": {
+    "company": "Heat Force",
+    "sender_name": "Dion",
+    "sender_brand": "WEBSITES Business Audits",
+    "recipient": "info@heatforce.co.nz",
+    "mode": "initial",
+    "signals": [
+      {
+        "service": "reviews",
+        "kind": "verified_need",
+        "company": "Heat Force",
+        "source_kind": "public_capture",
+        "captured_at": "2026-09-18T03:00:00.000000+00:00",
+        "source_path": "evidence/heatforce-2.html",
+        "source_sha256": "7198a1fc5c92e5e472d95f2cceed200a3fb45b7e2787406c648d07064591f1e6",
+        "quote": "Christchurch's 30+ Year Heat Pump Specialists",
+        "reviewed_by": "operator"
+      },
+      {
+        "service": "website",
+        "kind": "verified_need",
+        "company": "Heat Force",
+        "source_kind": "public_capture",
+        "captured_at": "2026-09-18T03:00:00.000000+00:00",
+        "source_path": "evidence/heatforce-0.html",
+        "source_sha256": "3f5c04aa7babe091030b1e330b75108f66120a815da8103dbbbfe5dc76ccf231",
+        "quote": "Your Christchurch Heat Pump Specialists for Sales",
+        "reviewed_by": "operator"
+      }
+    ]
+  },
+  "opportunities": [
+    {
+      "service": "reviews",
+      "priority": 80,
+      "basis": "verified_need",
+      "source_kind": "public_capture",
+      "signal_index": 0,
+      "conditional": true,
+      "label": "Customer proof and review presentation",
+      "needs": [
+        "Authentic reviews or work examples with permission",
+        "No invented reviews or selective review gating"
+      ],
+      "feasibility": "discovery_required"
+    },
+    {
+      "service": "website",
+      "priority": 80,
+      "basis": "verified_need",
+      "source_kind": "public_capture",
+      "signal_index": 1,
+      "conditional": true,
+      "label": "Website and mobile enquiry improvements",
+      "needs": [
+        "A fresh review of the actual pages and forms",
+        "Website access and a bounded change list"
+      ],
+      "feasibility": "discovery_required"
+    },
+    {
+      "service": "intake",
+      "priority": 40,
+      "basis": "adjacent_option",
+      "source_kind": "public_capture",
+      "signal_index": 1,
+      "conditional": true,
+      "related_to": "website",
+      "label": "Enquiry forms and file collection",
+      "needs": [
+        "Required fields and supported file types",
+        "File size limits, malware checks, storage and retention plan"
+      ],
+      "feasibility": "discovery_required"
+    },
+    {
+      "service": "reporting",
+      "priority": 40,
+      "basis": "adjacent_option",
+      "source_kind": "public_capture",
+      "signal_index": 1,
+      "conditional": true,
+      "related_to": "website",
+      "label": "Enquiry and quote reporting",
+      "needs": [
+        "Reliable event definitions and source records",
+        "Privacy and access boundaries; no invented conversion data"
+      ],
+      "feasibility": "discovery_required"
+    }
+  ],
+  "excluded_services": [],
+  "rejected_signals": [],
+  "featured_services": [
+    "reviews",
+    "website",
+    "intake"
+  ],
+  "body": "Subject: Heat Force — a few practical improvements\n\nHi Heat Force team,\n\nI’m Dion from WEBSITES Business Audits. I’d like to explore a few practical improvements for Heat Force, starting with customer proof and review presentation.\n\nDepending on your current setup, we could build:\n- Clearer presentation of genuine customer reviews and completed work.\n- Clearer service pages and a smoother mobile enquiry journey on your existing website.\n- A guided enquiry form that collects job details and files before your team prepares a quote.\n\nWe could start with one small example, confirm the scope and cost, and build around the tools you already use.\n\nWhich completed projects or customer feedback best show your work?\n\nCheers,\nDion | WEBSITES Business Audits\n\nIf this isn’t relevant, reply “no thanks” and I’ll leave it there.",
+  "digest": "408aac92de685486a2be0d54237d4d8c61c5f9b1ea1d9b3a3ed50659273fb4d3",
+  "copy_audit": {
+    "passed": true,
+    "errors": [],
+    "warnings": [],
+    "word_count": 133,
+    "scope": "Pattern checks only; human claim, relevance and sender review still required."
+  },
+  "planning_holds": [],
+  "external_send_allowed": false,
+  "review_note": "Local preview only. Verify all source interpretations, feasibility, identity, contact permission and exact copy. No authority to send."
+}

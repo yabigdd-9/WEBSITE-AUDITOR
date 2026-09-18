@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<title>Heat Force — enquiry concept</title>
+<style>
+body{font:17px/1.6 system-ui;margin:0;background:#f1f4f2;color:#18342a}
+main{max-width:960px;margin:48px auto;padding:24px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+section{background:white;padding:28px;border-radius:16px}
+h1{font-size:clamp(28px,5vw,44px);line-height:1.15}
+label{display:block;font-weight:650;margin:16px 0 4px}
+input,textarea{box-sizing:border-box;width:100%;padding:12px;font:inherit;border:1px solid #7b8c83;border-radius:6px}
+button{margin-top:20px;padding:12px 18px;border:0;background:#174f3d;color:white;font:inherit;border-radius:6px;cursor:pointer}
+:focus-visible{outline:3px solid #be6b25;outline-offset:4px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.5 monospace}
+@media(max-width:650px){.grid{grid-template-columns:1fr}main{margin:12px auto;padding:16px}section{padding:20px}}
+</style>
+</head>
+<body>
+<main>
+<p>INDEPENDENT CONCEPT · OWNER REVIEW ONLY</p>
+<h1>A clearer enquiry flow for Heat Force</h1>
+<p>Local demonstration. Nothing is sent. This concept was not commissioned or approved by the business.</p>
+<div class="grid">
+<section>
+<h2>Captured observation</h2>
+<p>Contact page promotes an online enquiry form.</p>
+<pre>Feel free to contact us for a free sales quote, or book a service job online simply by using our online form</pre>
+<p>Confirm rendered behavior before making changes.</p>
+</section>
+<section>
+<h2>Proposed enquiry details</h2>
+<p>Persistent labels, visible focus, and a clear review step.</p>
+<form>
+<label for="field-0">Name</label>
+<input id="field-0" type="text">
+<label for="field-1">Email</label>
+<input id="field-1" type="text">
+<label for="field-2">Phone</label>
+<input id="field-2" type="text">
+<label for="field-3">Message</label>
+<textarea id="field-3" rows="4"></textarea>
+<button type="button" id="preview">Preview enquiry</button>
+<p role="status" id="status"></p>
+</form>
+</section>
+</div>
+</main>
+<script>
+document.getElementById('preview').addEventListener('click', function() {
+  document.getElementById('status').textContent = 'Local preview only — nothing is sent.';
+});
+</script>
+</body>
+</html>

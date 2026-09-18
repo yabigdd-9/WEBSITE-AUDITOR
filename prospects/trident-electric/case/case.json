@@ -1,0 +1,393 @@
+{
+  "business": {
+    "id": 3,
+    "name": "Trident Electrical & Air Conditioning",
+    "region": "Auckland",
+    "public_website": "https://trident.nz/heat-pumps"
+  },
+  "evaluated_at": "2026-09-08T03:00:00+00:00",
+  "pages": [
+    {
+      "url": "https://trident.nz/heat-pumps",
+      "path": "case/3-0.html",
+      "sha256": "e8c894eda737475849f34f3bcdba61546ae5f7560b00345bc91e5d803e25ec0e",
+      "captured_at": "2026-09-08T02:47:20+00:00",
+      "content_type": "text/html; charset=utf-8",
+      "title": "Heat Pumps Auckland | Trident Electrical & Air Conditioning"
+    },
+    {
+      "url": "https://trident.nz/contact",
+      "path": "case/3-1.html",
+      "sha256": "2f3dae4839ace222078594093f8e4d6e1f5aad1f085fa267117e88b2d8aac856",
+      "captured_at": "2026-09-08T02:47:20+00:00",
+      "content_type": "text/html; charset=utf-8",
+      "title": "Contact Trident Electrical & Air Conditioning | Auckland"
+    },
+    {
+      "url": "https://trident.nz/about",
+      "path": "case/3-2.html",
+      "sha256": "c0cb1de19e049595da56e918eceaaa49b413c182a59c49603bbe92ade71cbc3e",
+      "captured_at": "2026-09-08T02:47:20+00:00",
+      "content_type": "text/html; charset=utf-8",
+      "title": "About Us | Trident Electrical & Air Conditioning"
+    }
+  ],
+  "dns": {
+    "trident.nz": {
+      "domain_resolves": true,
+      "mx_present": true,
+      "domain_accepts_mail": true,
+      "mx_hosts": [
+        "mail.trident.nz"
+      ],
+      "status": "valid",
+      "checked_at": "2026-09-08T03:00:00+00:00"
+    }
+  },
+  "result": {
+    "business_id": 3,
+    "business": "Trident Electrical & Air Conditioning",
+    "website": "https://trident.nz/heat-pumps",
+    "identity": {
+      "canonical_business_name": "Trident Electrical & Air Conditioning",
+      "trading_name": null,
+      "legal_name": null,
+      "website_url_discovered": "https://trident.nz/heat-pumps",
+      "canonical_root_domain": "trident.nz",
+      "proposed_root_domain": "trident.nz",
+      "redirected_destination": "https://trident.nz/heat-pumps",
+      "page_titles": [
+        "Heat Pumps Auckland | Trident Electrical & Air Conditioning",
+        "Contact Trident Electrical & Air Conditioning | Auckland",
+        "About Us | Trident Electrical & Air Conditioning"
+      ],
+      "organization_names": [],
+      "physical_location": "Auckland",
+      "phone": null,
+      "observed_phones": [
+        "09 309 0070"
+      ],
+      "social_links": [
+        "https://instagram.com/trident_nz",
+        "https://nz.linkedin.com/company/trident-electrical-air-conditioning-ltd",
+        "https://www.facebook.com/tridentelectricalandairconditioning/",
+        "https://www.instagram.com/trident_nz/"
+      ],
+      "evidence_urls": [
+        "https://trident.nz/about",
+        "https://trident.nz/contact",
+        "https://trident.nz/heat-pumps"
+      ],
+      "checked_at": "2026-09-08T02:47:20+00:00",
+      "page_evidence": [
+        {
+          "url": "https://trident.nz/heat-pumps",
+          "capture_path": "/Users/dd/WEBSITE-AUDITOR/prospects/trident-electric/case/3-0.html",
+          "capture_hash": "e8c894eda737475849f34f3bcdba61546ae5f7560b00345bc91e5d803e25ec0e",
+          "captured_at": "2026-09-08T02:47:20+00:00"
+        },
+        {
+          "url": "https://trident.nz/contact",
+          "capture_path": "/Users/dd/WEBSITE-AUDITOR/prospects/trident-electric/case/3-1.html",
+          "capture_hash": "2f3dae4839ace222078594093f8e4d6e1f5aad1f085fa267117e88b2d8aac856",
+          "captured_at": "2026-09-08T02:47:20+00:00"
+        },
+        {
+          "url": "https://trident.nz/about",
+          "capture_path": "/Users/dd/WEBSITE-AUDITOR/prospects/trident-electric/case/3-2.html",
+          "capture_hash": "c0cb1de19e049595da56e918eceaaa49b413c182a59c49603bbe92ade71cbc3e",
+          "captured_at": "2026-09-08T02:47:20+00:00"
+        }
+      ],
+      "status": "HIGH",
+      "signals": {
+        "prominent_name": true,
+        "body_name": true,
+        "region": true,
+        "phone": false,
+        "address": false,
+        "structured_name": false
+      },
+      "reasons": [],
+      "accepted_roots": [
+        "trident.nz"
+      ],
+      "branch_sensitive": false,
+      "observed_branches": [],
+      "matched_branches": [],
+      "unit_targets": [
+        "Auckland"
+      ],
+      "entity_key": "d5a0796ecca5af748768df6f85e5132ca7f50773a5d5b4fe5c6440420aeca759"
+    },
+    "results": [
+      {
+        "email": "info@trident.nz",
+        "syntax_valid": true,
+        "domain_resolves": true,
+        "mx_present": true,
+        "mx_hosts": [
+          "mail.trident.nz"
+        ],
+        "domain_accepts_mail": true,
+        "dns_checked_at": "2026-09-08T03:00:00+00:00",
+        "smtp_result": "not_probed",
+        "catch_all_status": "unknown",
+        "mailbox_verification": "inconclusive",
+        "disposable_status": "not_in_local_blocklist",
+        "role_account": "company general",
+        "first_party_observed": true,
+        "source_count": 3,
+        "raw_source_url_count": 3,
+        "unit_evidence_urls": [
+          "https://trident.nz/about",
+          "https://trident.nz/contact",
+          "https://trident.nz/heat-pumps"
+        ],
+        "independent_source_count": 1,
+        "person_match": "not_requested",
+        "person": null,
+        "person_company_evidence": null,
+        "business_match": true,
+        "domain_match": true,
+        "free_mail": false,
+        "freshness": "current",
+        "confidence_score": 98,
+        "confidence_label": "VERIFIED_HIGH",
+        "rejection_reasons": [],
+        "reasons": [
+          "Exact address observed in captured official source",
+          "Business/domain identity has multiple agreeing signals",
+          "Current routable MX records",
+          "Individual mailbox existence is not confirmed"
+        ],
+        "score_components": {
+          "first_party": 55,
+          "identity": 15,
+          "mx": 10,
+          "fresh": 5,
+          "second_official_page": 5,
+          "relevant_contact": 8
+        },
+        "evidence": [
+          {
+            "email": "info@trident.nz",
+            "observed_email": "b7ded9d1d8f7c3c5ded3d2d9c399d9cd",
+            "syntax_error": null,
+            "method": "cloudflare_obfuscation",
+            "source_url": "https://trident.nz/heat-pumps",
+            "title": "Heat Pumps Auckland | Trident Electrical & Air Conditioning",
+            "context": "09 309 0070 [email\u00a0protected]",
+            "person_context": "09 309 0070 [email\u00a0protected]",
+            "observed_at": "2026-09-08T02:47:20+00:00",
+            "capture_path": "/Users/dd/WEBSITE-AUDITOR/prospects/trident-electric/case/3-0.html",
+            "capture_hash": "e8c894eda737475849f34f3bcdba61546ae5f7560b00345bc91e5d803e25ec0e",
+            "role": "company general",
+            "unit_scope": {
+              "kind": "unscoped",
+              "branch": "",
+              "text": ""
+            }
+          },
+          {
+            "email": "info@trident.nz",
+            "observed_email": "10797e767f5064627974757e643e7e6a",
+            "syntax_error": null,
+            "method": "cloudflare_obfuscation",
+            "source_url": "https://trident.nz/heat-pumps",
+            "title": "Heat Pumps Auckland | Trident Electrical & Air Conditioning",
+            "context": "09 309 0070 [email\u00a0protected] WhatsApp Us",
+            "person_context": "09 309 0070 [email\u00a0protected] WhatsApp Us",
+            "observed_at": "2026-09-08T02:47:20+00:00",
+            "capture_path": "/Users/dd/WEBSITE-AUDITOR/prospects/trident-electric/case/3-0.html",
+            "capture_hash": "e8c894eda737475849f34f3bcdba61546ae5f7560b00345bc91e5d803e25ec0e",
+            "role": "company general",
+            "unit_scope": {
+              "kind": "unscoped",
+              "branch": "",
+              "text": ""
+            }
+          },
+          {
+            "email": "info@trident.nz",
+            "observed_email": "234a4d454c6357514a47464d570d4d59",
+            "syntax_error": null,
+            "method": "cloudflare_obfuscation",
+            "source_url": "https://trident.nz/contact",
+            "title": "Contact Trident Electrical & Air Conditioning | Auckland",
+            "context": "09 309 0070 [email\u00a0protected] WhatsApp Us",
+            "person_context": "09 309 0070 [email\u00a0protected] WhatsApp Us",
+            "observed_at": "2026-09-08T02:47:20+00:00",
+            "capture_path": "/Users/dd/WEBSITE-AUDITOR/prospects/trident-electric/case/3-1.html",
+            "capture_hash": "2f3dae4839ace222078594093f8e4d6e1f5aad1f085fa267117e88b2d8aac856",
+            "role": "company general",
+            "unit_scope": {
+              "kind": "unscoped",
+              "branch": "",
+              "text": ""
+            }
+          },
+          {
+            "email": "info@trident.nz",
+            "observed_email": "137a7d757c5367617a77767d673d7d69",
+            "syntax_error": null,
+            "method": "cloudflare_obfuscation",
+            "source_url": "https://trident.nz/about",
+            "title": "About Us | Trident Electrical & Air Conditioning",
+            "context": "09 309 0070 [email\u00a0protected] WhatsApp Us",
+            "person_context": "09 309 0070 [email\u00a0protected] WhatsApp Us",
+            "observed_at": "2026-09-08T02:47:20+00:00",
+            "capture_path": "/Users/dd/WEBSITE-AUDITOR/prospects/trident-electric/case/3-2.html",
+            "capture_hash": "c0cb1de19e049595da56e918eceaaa49b413c182a59c49603bbe92ade71cbc3e",
+            "role": "company general",
+            "unit_scope": {
+              "kind": "unscoped",
+              "branch": "",
+              "text": ""
+            }
+          }
+        ],
+        "candidate_method": "observed",
+        "checked_at": "2026-09-08T03:00:00+00:00",
+        "verifier_version": "email-v2.0.1"
+      }
+    ],
+    "selected": {
+      "email": "info@trident.nz",
+      "syntax_valid": true,
+      "domain_resolves": true,
+      "mx_present": true,
+      "mx_hosts": [
+        "mail.trident.nz"
+      ],
+      "domain_accepts_mail": true,
+      "dns_checked_at": "2026-09-08T03:00:00+00:00",
+      "smtp_result": "not_probed",
+      "catch_all_status": "unknown",
+      "mailbox_verification": "inconclusive",
+      "disposable_status": "not_in_local_blocklist",
+      "role_account": "company general",
+      "first_party_observed": true,
+      "source_count": 3,
+      "raw_source_url_count": 3,
+      "unit_evidence_urls": [
+        "https://trident.nz/about",
+        "https://trident.nz/contact",
+        "https://trident.nz/heat-pumps"
+      ],
+      "independent_source_count": 1,
+      "person_match": "not_requested",
+      "person": null,
+      "person_company_evidence": null,
+      "business_match": true,
+      "domain_match": true,
+      "free_mail": false,
+      "freshness": "current",
+      "confidence_score": 98,
+      "confidence_label": "VERIFIED_HIGH",
+      "rejection_reasons": [],
+      "reasons": [
+        "Exact address observed in captured official source",
+        "Business/domain identity has multiple agreeing signals",
+        "Current routable MX records",
+        "Individual mailbox existence is not confirmed"
+      ],
+      "score_components": {
+        "first_party": 55,
+        "identity": 15,
+        "mx": 10,
+        "fresh": 5,
+        "second_official_page": 5,
+        "relevant_contact": 8
+      },
+      "evidence": [
+        {
+          "email": "info@trident.nz",
+          "observed_email": "b7ded9d1d8f7c3c5ded3d2d9c399d9cd",
+          "syntax_error": null,
+          "method": "cloudflare_obfuscation",
+          "source_url": "https://trident.nz/heat-pumps",
+          "title": "Heat Pumps Auckland | Trident Electrical & Air Conditioning",
+          "context": "09 309 0070 [email\u00a0protected]",
+          "person_context": "09 309 0070 [email\u00a0protected]",
+          "observed_at": "2026-09-08T02:47:20+00:00",
+          "capture_path": "/Users/dd/WEBSITE-AUDITOR/prospects/trident-electric/case/3-0.html",
+          "capture_hash": "e8c894eda737475849f34f3bcdba61546ae5f7560b00345bc91e5d803e25ec0e",
+          "role": "company general",
+          "unit_scope": {
+            "kind": "unscoped",
+            "branch": "",
+            "text": ""
+          }
+        },
+        {
+          "email": "info@trident.nz",
+          "observed_email": "10797e767f5064627974757e643e7e6a",
+          "syntax_error": null,
+          "method": "cloudflare_obfuscation",
+          "source_url": "https://trident.nz/heat-pumps",
+          "title": "Heat Pumps Auckland | Trident Electrical & Air Conditioning",
+          "context": "09 309 0070 [email\u00a0protected] WhatsApp Us",
+          "person_context": "09 309 0070 [email\u00a0protected] WhatsApp Us",
+          "observed_at": "2026-09-08T02:47:20+00:00",
+          "capture_path": "/Users/dd/WEBSITE-AUDITOR/prospects/trident-electric/case/3-0.html",
+          "capture_hash": "e8c894eda737475849f34f3bcdba61546ae5f7560b00345bc91e5d803e25ec0e",
+          "role": "company general",
+          "unit_scope": {
+            "kind": "unscoped",
+            "branch": "",
+            "text": ""
+          }
+        },
+        {
+          "email": "info@trident.nz",
+          "observed_email": "234a4d454c6357514a47464d570d4d59",
+          "syntax_error": null,
+          "method": "cloudflare_obfuscation",
+          "source_url": "https://trident.nz/contact",
+          "title": "Contact Trident Electrical & Air Conditioning | Auckland",
+          "context": "09 309 0070 [email\u00a0protected] WhatsApp Us",
+          "person_context": "09 309 0070 [email\u00a0protected] WhatsApp Us",
+          "observed_at": "2026-09-08T02:47:20+00:00",
+          "capture_path": "/Users/dd/WEBSITE-AUDITOR/prospects/trident-electric/case/3-1.html",
+          "capture_hash": "2f3dae4839ace222078594093f8e4d6e1f5aad1f085fa267117e88b2d8aac856",
+          "role": "company general",
+          "unit_scope": {
+            "kind": "unscoped",
+            "branch": "",
+            "text": ""
+          }
+        },
+        {
+          "email": "info@trident.nz",
+          "observed_email": "137a7d757c5367617a77767d673d7d69",
+          "syntax_error": null,
+          "method": "cloudflare_obfuscation",
+          "source_url": "https://trident.nz/about",
+          "title": "About Us | Trident Electrical & Air Conditioning",
+          "context": "09 309 0070 [email\u00a0protected] WhatsApp Us",
+          "person_context": "09 309 0070 [email\u00a0protected] WhatsApp Us",
+          "observed_at": "2026-09-08T02:47:20+00:00",
+          "capture_path": "/Users/dd/WEBSITE-AUDITOR/prospects/trident-electric/case/3-2.html",
+          "capture_hash": "c0cb1de19e049595da56e918eceaaa49b413c182a59c49603bbe92ade71cbc3e",
+          "role": "company general",
+          "unit_scope": {
+            "kind": "unscoped",
+            "branch": "",
+            "text": ""
+          }
+        }
+      ],
+      "candidate_method": "observed",
+      "checked_at": "2026-09-08T03:00:00+00:00",
+      "verifier_version": "email-v2.0.1"
+    },
+    "selection_status": "VERIFIED_HIGH",
+    "contact_form_urls": [],
+    "email_review_required": true,
+    "human_review": "Human relevance, permission and exact-item approval still required",
+    "external_sends": 0,
+    "model_calls": 0,
+    "verifier_version": "email-v2.0.1"
+  }
+}

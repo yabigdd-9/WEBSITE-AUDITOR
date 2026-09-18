@@ -1,0 +1,31 @@
+{
+  "company": "Heat Force",
+  "sender_name": "Dion",
+  "sender_brand": "WEBSITES Business Audits",
+  "recipient": "info@heatforce.co.nz",
+  "mode": "initial",
+  "signals": [
+    {
+      "service": "reviews",
+      "kind": "verified_need",
+      "company": "Heat Force",
+      "source_kind": "public_capture",
+      "captured_at": "2026-09-18T03:00:00.000000+00:00",
+      "source_path": "evidence/heatforce-2.html",
+      "source_sha256": "7198a1fc5c92e5e472d95f2cceed200a3fb45b7e2787406c648d07064591f1e6",
+      "quote": "Christchurch's 30+ Year Heat Pump Specialists",
+      "reviewed_by": "operator"
+    },
+    {
+      "service": "website",
+      "kind": "verified_need",
+      "company": "Heat Force",
+      "source_kind": "public_capture",
+      "captured_at": "2026-09-18T03:00:00.000000+00:00",
+      "source_path": "evidence/heatforce-0.html",
+      "source_sha256": "3f5c04aa7babe091030b1e330b75108f66120a815da8103dbbbfe5dc76ccf231",
+      "quote": "Your Christchurch Heat Pump Specialists for Sales",
+      "reviewed_by": "operator"
+    }
+  ]
+}
