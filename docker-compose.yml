@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  website-auditor:
+    build: .
+    container_name: website-auditor-mm
+    volumes:
+      - ./database:/app/database
+      - ./evidence:/app/evidence
+      - ./reports:/app/reports
+      - ./money-machine/config:/app/money-machine/config
+    environment:
+      - EXA_API_KEY=${EXA_API_KEY}
+      - MM_ROOT=/app
+    working_dir: /app/money-machine
+    entrypoint: ["python3", "mm_operator.py"]
+    command: ["--help"]
