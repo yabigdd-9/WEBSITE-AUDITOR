@@ -135,18 +135,17 @@ class ExaSearch:
         self,
         urls: list[str],
         highlights: bool = True,
+        text: Any = None,
     ) -> list[dict[str, Any]]:
-        """Fetch content for already-known URLs.
-
-        Use this when you have a URL from another source (DB, prior search,
-        user input) and need clean page content or query-relevant highlights.
-        """
+        """Fetch content for already-known URLs."""
         if not urls:
             return []
         if not all(u.startswith(("http://", "https://")) for u in urls):
             raise ValueError("All URLs must be http:// or https://")
 
         kwargs: dict[str, Any] = {"highlights": highlights}
+        if text is not None:
+            kwargs["text"] = text
         response = self._client.get_contents(urls, **kwargs)
         return [self._to_dict(r) for r in response.results]
 

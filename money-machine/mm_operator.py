@@ -185,6 +185,7 @@ def main(argv=None):
     q=s.add_parser('exa-discover');q.add_argument('--query',required=True);q.add_argument('--num-results',type=int,default=10);q.add_argument('--type',default='auto',choices=['auto','fast','deep','deep-reasoning','deep-lite'])
     q=s.add_parser('exa-fetch');q.add_argument('--urls',nargs='+',required=True)
     q=s.add_parser('exa-structured');q.add_argument('--query',required=True);q.add_argument('--schema-file',required=True);q.add_argument('--num-results',type=int,default=10);q.add_argument('--system-prompt')
+    q=s.add_parser('exa-intake');q.add_argument('--query',required=True);q.add_argument('--num-results',type=int,default=5);q.add_argument('--region',required=True);q.add_argument('--source',default='exa-search');q.add_argument('--type',default='auto',choices=['auto','fast','deep','deep-reasoning','deep-lite'])
     a=p.parse_args(argv)
     if a.cmd=='polish-status':
         report=json.loads((root()/'reports/polish-status.json').read_text())
@@ -222,7 +223,7 @@ def main(argv=None):
     if a.cmd=='price':
         if (a.hours_low is None)!=(a.hours_high is None):raise ValueError('Both hour bounds required')
         result=pricing(a.problem,[a.hours_low,a.hours_high] if a.hours_low is not None else None)
-    elif a.cmd in ('exa-status','exa-discover','exa-fetch','exa-structured'):
+    elif a.cmd in ('exa-status','exa-discover','exa-fetch','exa-structured','exa-intake','exa-pipe'):
         import mm_exa
         if a.cmd=='exa-status':
             result=mm_exa.check_exa_available()
@@ -238,6 +239,57 @@ def main(argv=None):
             client=mm_exa.ExaSearch()
             result=client.search_with_output_schema(a.query,schema,num_results=a.num_results,system_prompt=a.system_prompt)
             result['limitation']='Exa synthesized output requires independent verification. Use output.grounding for citations.'
+        elif a.cmd in ('exa-intake','exa-pipe'):
+            import mm_exa
+            from mm_core import connect as mm_connect, now as mm_now
+            client=mm_exa.ExaSearch()
+            search_results=client.search(a.query,num_results=a.num_results,type_=a.type)
+            with contextlib.closing(mm_connect()) as d,d:
+                intake_results=[]
+                for r in search_results:
+                    url=r.get('url','')
+                    title=r.get('title','')
+                    if not url or not title:
+                        continue
+                    try:
+                        host=public_url(url)
+                    except ValueError:
+                        continue
+                    dup=False
+                    for b in d.execute('SELECT id,name,public_website FROM businesses WHERE is_dummy=0'):
+                        if b['name'].strip().casefold()==title.strip().casefold() or (b['public_website'] and public_url(b['public_website'])==host):
+                            dup=True
+                            break
+                    if dup:
+                        continue
+                    c=d.execute("INSERT INTO businesses(name,region,public_website,source,discovered_at,current_status,is_dummy) VALUES(?,?,?,?,?,'discovered',0)",(title.strip(),a.region,url,a.source,mm_now()))
+                    bid=c.lastrowid
+                    d.execute("INSERT INTO mm_deals(business_id,stage,updated_at) VALUES(?,'DISCOVERED',?)",(bid,mm_now()))
+                    from mm_core import event as mm_event
+                    mm_event(d,'intake',bid,a.query)
+                    intake_results.append({'business_id':bid,'name':title,'url':url})
+                if a.cmd=='exa-pipe':
+                    evidence_errors=[]
+                    for ir in intake_results:
+                        try:
+                            content=client.get_contents([ir['url']], text={"max_characters": 5000})
+                            if content and content[0].get('text'):
+                                capture_path=root()/'evidence'/'exa'/(str(ir['business_id'])+'.txt')
+                                capture_path.parent.mkdir(parents=True,exist_ok=True)
+                                capture_path.write_text(content[0]['text'])
+                                from mm_core import sha as mm_sha
+                                d.execute('INSERT INTO mm_evidence(business_id,url,observation,limitation,checked_at) VALUES(?,?,?,?,?)',(ir['business_id'],ir['url'],'Exa page content: '+content[0].get('title',''),'External retrieval corroborates only; first-party verification required.',mm_now()))
+                                eid=d.execute('SELECT last_insert_rowid()').fetchone()[0]
+                                d.execute('INSERT INTO mm_evidence_meta VALUES(?,?,?,?,?,?,?,?,?,?,?)',(eid,'verified','exa-retrieval',0.5,'conversion','External search corroboration',(dt.datetime.now(dt.timezone.utc)+dt.timedelta(days=7)).isoformat(),str(capture_path),mm_sha(capture_path.read_bytes()),'exa-integration',1))
+                                from mm_core import change_stage as cs
+                                cs(d,ir['business_id'],'VERIFIED','External search corroboration; first-party verification required for commercial claims')
+                            else:
+                                evidence_errors.append({'business_id':ir['business_id'],'error':'No text content returned'})
+                        except Exception as ex:
+                            evidence_errors.append({'business_id':ir['business_id'],'error':str(ex)})
+                result={'query':a.query,'intake_count':len(intake_results),'intake':intake_results,'search_type':a.type,'limitation':'Auto-intake from external search. First-party verification required before any commercial claims or outreach.'}
+                if a.cmd=='exa-pipe':
+                    result['evidence_errors']=evidence_errors
     else:
         with contextlib.closing(connect()) as d,d:
             if a.cmd in ('daily','run-day','status'):result=run_day(d,write=a.cmd!='status')

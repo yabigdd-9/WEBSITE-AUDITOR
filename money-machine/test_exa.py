@@ -114,7 +114,7 @@ class TestStructuredOutput(unittest.TestCase):
 
 
 class TestGetContents(unittest.TestCase):
-    def test_get_contents_for_urls(self):
+    def test_get_contents_highlights_only(self):
         mock_result = MagicMock()
         mock_result.title = "Page"
         mock_result.url = "https://example.co.nz/page"
@@ -130,6 +130,27 @@ class TestGetContents(unittest.TestCase):
             client = mm_exa.ExaSearch(api_key="fake-key")
             results = client.get_contents(["https://example.co.nz/page"])
         self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["url"], "https://example.co.nz/page")
+        mock_exa.get_contents.assert_called_once_with(["https://example.co.nz/page"], highlights=True)
+
+    def test_get_contents_with_text(self):
+        mock_result = MagicMock()
+        mock_result.title = "Page"
+        mock_result.url = "https://example.co.nz/page"
+        mock_result.id = None
+        mock_result.published_date = None
+        mock_result.author = None
+        mock_result.score = None
+        mock_result.text = "Full page text"
+        mock_response = MagicMock()
+        mock_response.results = [mock_result]
+        mock_exa = MagicMock()
+        mock_exa.get_contents = MagicMock(return_value=mock_response)
+        with patch("exa_py.Exa", return_value=mock_exa):
+            client = mm_exa.ExaSearch(api_key="fake-key")
+            results = client.get_contents(["https://example.co.nz/page"], text={"max_characters": 5000})
+        self.assertEqual(results[0].get("text"), "Full page text")
+        mock_exa.get_contents.assert_called_once_with(["https://example.co.nz/page"], highlights=True, text={"max_characters": 5000})
 
     def test_get_contents_validates_urls(self):
         with patch("exa_py.Exa"):
