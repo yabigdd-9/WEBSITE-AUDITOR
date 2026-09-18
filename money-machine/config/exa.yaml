@@ -1,0 +1,68 @@
+# Exa search configuration for WEBSITE-AUDITOR money-machine pipeline
+# Config-driven queries per region — used by exa-cron and exa-discover
+#
+# Evidence-first: external search results can only corroborate, never replace
+# first-party observation. Queries here are retrieval hints, not commercial claims.
+
+# Default search parameters
+defaults:
+  effort: auto
+  max_cost_dollars: 5.0
+  num_results: 10
+  type: auto  # auto, fast, deep, deep-reasoning, deep-lite
+  cron_schedule: "0 8 * * *"  # 8am daily
+  source: exa-search
+
+# Per-region search queries
+# Each region can have multiple queries. The pipeline will run all of them.
+regions:
+  Auckland:
+    queries:
+      - "plumbing services Auckland New Zealand"
+      - "electrical contractors Auckland NZ"
+      - "roofing services Auckland New Zealand"
+      - "heat pump installers Auckland"
+    num_results: 5
+    max_cost_dollars: 3.0
+
+  Wellington:
+    queries:
+      - "plumbing services Wellington New Zealand"
+      - "builders Wellington NZ"
+      - "bathroom renovations Wellington"
+    num_results: 5
+    max_cost_dollars: 3.0
+
+  Christchurch:
+    queries:
+      - "plumbing services Christchurch New Zealand"
+      - "construction companies Christchurch NZ"
+      - "kitchen renovations Christchurch"
+    num_results: 5
+    max_cost_dollars: 3.0
+
+  Hamilton:
+    queries:
+      - "home renovation Hamilton New Zealand"
+      - "building services Hamilton Waikato"
+    num_results: 3
+    max_cost_dollars: 2.0
+
+  Tauranga:
+    queries:
+      - "trades services Tauranga Bay of Plenty"
+    num_results: 3
+    max_cost_dollars: 2.0
+
+  "Bay of Plenty":
+    queries:
+      - "construction services Bay of Plenty New Zealand"
+    num_results: 3
+    max_cost_dollars: 2.0
+
+# Agent API specific settings
+agent:
+  default_effort: auto
+  max_cost_dollars: 5.0
+  poll_interval: 4  # seconds between polls
+  max_wait_seconds: 120

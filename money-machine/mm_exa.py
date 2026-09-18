@@ -5,6 +5,7 @@ never replace first-party observation. No model inference, no fabricated data.
 """
 import json
 import os
+import re
 from pathlib import Path
 from typing import Any, Optional
 
@@ -290,3 +291,113 @@ def check_exa_available() -> dict[str, Any]:
 
     result["available"] = True
     return result
+
+
+def _parse_yaml_simple(text: str) -> dict:
+    """Parse simple YAML (our config format). No dependency on PyYAML."""
+    result: dict = {}
+    stack: list = [(result, -1)]  # (current_dict, indent_level)
+    
+    for line in text.splitlines():
+        stripped = line.rstrip()
+        if not stripped or stripped.startswith('#'):
+            continue
+        indent = len(line) - len(stripped)
+        # Pop stack to find parent
+        while len(stack) > 1 and stack[-1][1] >= indent:
+            stack.pop()
+        parent_dict = stack[-1][0]
+        # Parse key: value
+        if ':' in stripped:
+            key, _, val = stripped.partition(':')
+            key = key.strip().strip('"').strip("'")
+            val = val.strip().strip('"').strip("'")
+            if val == '':
+                # Sub-dict
+                new_dict: dict = {}
+                parent_dict[key] = new_dict
+                stack.append((new_dict, indent))
+            else:
+                # Value — try int/float/bool
+                if val.lower() == 'true':
+                    parent_dict[key] = True
+                elif val.lower() == 'false':
+                    parent_dict[key] = False
+                else:
+                    try:
+                        if '.' in val:
+                            parent_dict[key] = float(val)
+                        else:
+                            parent_dict[key] = int(val)
+                    except ValueError:
+                        parent_dict[key] = val
+        elif stripped.startswith('- '):
+            # List item
+            val = stripped[2:].strip().strip('"').strip("'")
+            # Find or create list at current parent
+            if '_list' not in parent_dict:
+                parent_dict['_list'] = []
+            parent_dict['_list'].append(val)
+    return result
+
+
+def load_exa_config() -> dict[str, Any]:
+    """Load exa.yaml config. Returns empty dict if not present."""
+    config_path = Path(__file__).resolve().parent / "config" / "exa.yaml"
+    if not config_path.exists():
+        return {}
+    try:
+        text = config_path.read_text()
+        return _parse_yaml_simple(text)
+    except Exception:
+        return {}
+
+
+def _extract_regions_from_text(text: str) -> dict[str, list[str]]:
+    """Extract regions and their queries from raw YAML text (fallback)."""
+    regions: dict[str, list[str]] = {}
+    current_region = None
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith('#'):
+            continue
+        # Top-level key (no indent)
+        if not line.startswith(' ') and ':' in stripped:
+            key = stripped.split(':')[0].strip()
+            if key not in ('defaults',):
+                current_region = key
+                regions[current_region] = []
+        elif current_region and stripped.startswith('- '):
+            query = stripped[2:].strip().strip('"').strip("'")
+            regions[current_region].append(query)
+    return regions
+
+
+def get_regions_from_config() -> list[str]:
+    """Get list of regions from exa.yaml config."""
+    config = load_exa_config()
+    regions = config.get('regions', {})
+    if regions:
+        return list(regions.keys())
+    # Fallback: parse raw text
+    config_path = Path(__file__).resolve().parent / "config" / "exa.yaml"
+    if config_path.exists():
+        return list(_extract_regions_from_text(config_path.read_text()).keys())
+    return []
+
+
+def get_queries_for_region(region: str) -> list[dict[str, Any]]:
+    """Get search queries and params for a region from config."""
+    config = load_exa_config()
+    defaults = config.get('defaults', {})
+    regions = config.get('regions', {})
+    region_config = regions.get(region, {})
+    queries = region_config.get('queries', [])
+    params = {
+        'effort': region_config.get('effort', defaults.get('effort', 'auto')),
+        'max_cost_dollars': region_config.get('max_cost_dollars', defaults.get('max_cost_dollars', 5.0)),
+        'num_results': region_config.get('num_results', defaults.get('num_results', 10)),
+        'type': region_config.get('type', defaults.get('type', 'auto')),
+        'source': region_config.get('source', defaults.get('source', 'exa-search')),
+    }
+    return [{'query': q, **params} for q in queries]

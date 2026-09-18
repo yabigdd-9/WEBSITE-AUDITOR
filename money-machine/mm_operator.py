@@ -199,7 +199,7 @@ def main(argv=None):
     q=s.add_parser('exa-intake');q.add_argument('--query',required=True);q.add_argument('--num-results',type=int,default=5);q.add_argument('--region',required=True);q.add_argument('--source',default='exa-search');q.add_argument('--type',default='auto',choices=['auto','fast','deep','deep-reasoning','deep-lite'])
     q=s.add_parser('exa-pipe');q.add_argument('--query',required=True);q.add_argument('--num-results',type=int,default=5);q.add_argument('--region',required=True);q.add_argument('--source',default='exa-pipe');q.add_argument('--type',default='auto',choices=['auto','fast','deep','deep-reasoning','deep-lite'])
     q=s.add_parser('exa-agent-create');q.add_argument('--query',required=True);q.add_argument('--schema-file',required=True);q.add_argument('--effort',default='auto',choices=['minimal','low','medium','high','xhigh','auto']);q.add_argument('--max-cost',type=float,default=5.0);q.add_argument('--previous-run-id')
-    q=s.add_parser('exa-agent-poll');q.add_argument('--run-id',required=True);q.add_argument('--max-wait',type=int,default=120)
+    q=s.add_parser('exa-agent-poll');q.add_argument('--run-id',required=True);q.add_argument('--max-wait',type=int,default=120);q.add_argument('--auto-intake',action='store_true',help='Auto-insert completed agent results as DISCOVERED businesses')
     q=s.add_parser('exa-agent-status');q.add_argument('--run-id',required=True)
     q=s.add_parser('exa-agent-list')
     q=s.add_parser('exa-agent-cancel');q.add_argument('--run-id',required=True)
@@ -260,15 +260,36 @@ def main(argv=None):
         elif a.cmd in ('exa-agent-create','exa-agent-poll','exa-agent-status','exa-agent-list','exa-agent-cancel','exa-cron'):
             import mm_exa
             if a.cmd=='exa-cron':
-                # Schedule daily exa-pipe via cronjob
-                import json as _json
-                cron_prompt = f"Run daily lead discovery: python3 {Path(__file__).resolve().parent}/mm_operator.py exa-pipe --query \"{a.query}\" --num-results {a.num_results} --region \"{a.region}\" --source \"{a.source}\""
-                result = {
-                    'status': 'ready',
-                    'message': 'Create the scheduled job with:',
-                    'command': f'hermes cronjob create --schedule "0 8 * * *" --prompt "{cron_prompt}" --label "exa-lead-gen-{a.region}"',
-                    'limitation': 'External search auto-intake. First-party verification still required before commercial claims.'
-                }
+                config = mm_exa.load_exa_config()
+                if config:
+                    # Config-driven: schedule for all regions
+                    regions = mm_exa.get_regions_from_config()
+                    cron_jobs = []
+                    for region in regions:
+                        queries = mm_exa.get_queries_for_region(region)
+                        for q in queries:
+                            cmd = f"mm exa-pipe --query \"{q['query']}\" --num-results {q['num_results']} --region \"{region}\""
+                            cron_jobs.append({
+                                'region': region,
+                                'query': q['query'],
+                                'command': f'hermes cronjob create --schedule "{config.get("defaults",{}).get("cron_schedule","0 8 * * *")}" --prompt "{cmd}" --label "exa-{region.lower()}-{q["query"][:20].replace(" ","-")}"',
+                                'limitation': 'External search auto-intake. First-party verification still required.'
+                            })
+                    result = {
+                        'status': 'ready',
+                        'message': f'Create {len(cron_jobs)} scheduled jobs (one per query per region):',
+                        'cron_jobs': cron_jobs,
+                        'limitation': 'External search auto-intake. First-party verification still required.'
+                    }
+                else:
+                    # Fallback to CLI args if no config
+                    cron_prompt = f"Run daily lead discovery: python3 {Path(__file__).resolve().parent}/mm_operator.py exa-pipe --query \"{a.query}\" --num-results {a.num_results} --region \"{a.region}\" --source \"{a.source}\""
+                    result = {
+                        'status': 'ready',
+                        'message': 'Create the scheduled job with:',
+                        'command': f'hermes cronjob create --schedule "0 8 * * *" --prompt "{cron_prompt}" --label "exa-lead-gen-{a.region}"',
+                        'limitation': 'External search auto-intake. First-party verification still required before commercial claims.'
+                    }
             else:
                 agent=mm_exa.ExaAgent()
                 if a.cmd=='exa-agent-create':
@@ -277,6 +298,30 @@ def main(argv=None):
                     result=agent.create_run(a.query,schema,effort=a.effort,max_cost_dollars=a.max_cost,previous_run_id=a.previous_run_id)
                 elif a.cmd=='exa-agent-poll':
                     result=agent.poll_run(a.run_id,max_wait_seconds=a.max_wait)
+                    if a.auto_intake and result.get('status')=='completed' and result.get('output',{}).get('structured'):
+                        # Auto-insert agent results as DISCOVERED businesses
+                        from mm_core import connect as mm_connect, now as mm_now, public_url as mm_pub
+                        with contextlib.closing(mm_connect()) as d2,d2:
+                            structured=result['output']['structured']
+                            # Handle both list of companies and dict with 'companies' key
+                            companies=structured if isinstance(structured,list) else [structured]
+                            intake_count=0
+                            for company in companies:
+                                if not isinstance(company,dict): continue
+                                url=company.get('url','')
+                                name=company.get('name','')
+                                if not url or not name: continue
+                                try: mm_pub(url)
+                                except: continue
+                                dup=False
+                                for b in d2.execute('SELECT id,name,public_website FROM businesses WHERE is_dummy=0'):
+                                    if b['name'].strip().casefold()==name.strip().casefold(): dup=True; break
+                                if dup: continue
+                                c=d2.execute("INSERT INTO businesses(name,region,public_website,source,discovered_at,current_status,is_dummy) VALUES(?,?,?,?,?,'discovered',0)",(name.strip(),'agent-auto',url,'exa-agent',mm_now()))
+                                bid=c.lastrowid
+                                d2.execute("INSERT INTO mm_deals(business_id,stage,updated_at) VALUES(?,'DISCOVERED',?)",(bid,mm_now()))
+                                intake_count+=1
+                            result['auto_intake_count']=intake_count
                 elif a.cmd=='exa-agent-status':
                     result=agent.get_run(a.run_id)
                 elif a.cmd=='exa-agent-list':
