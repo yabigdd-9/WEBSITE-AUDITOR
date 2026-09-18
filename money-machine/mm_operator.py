@@ -336,7 +336,7 @@ def main(argv=None):
                             result['auto_intake_count']=intake_count
                 elif a.cmd=='exa-agent-status':
                     result=agent.get_run(a.run_id)
-                if a.cmd=='exa-agent-list':
+                elif a.cmd=='exa-agent-list':
                     result={'runs':[]}
                     try:
                         runs = agent.list_runs()
