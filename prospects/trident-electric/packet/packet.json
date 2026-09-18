@@ -1,0 +1,144 @@
+{
+  "project": "WEBSITES/BUISNESSaudits",
+  "created_at": "2026-09-18T14:19:38.290149+00:00",
+  "status": "HUMAN_APPROVAL_REQUIRED",
+  "business_name": "Trident Electrical & Air Conditioning",
+  "website": "https://trident.nz/heat-pumps",
+  "region": "Auckland",
+  "identity": {
+    "canonical_domain": "trident.nz",
+    "canonical_business_name": "Trident Electrical & Air Conditioning",
+    "status": "HIGH",
+    "observed_phones": [
+      "09 274 3596"
+    ],
+    "evidence_urls": [
+      "https://trident.nz/heat-pumps",
+      "https://trident.nz/contact",
+      "https://trident.nz/about"
+    ],
+    "entity_key": "trident-electrical|trident.nz|auckland"
+  },
+  "evidence": {
+    "finding_id": "F001",
+    "category": "conversion",
+    "observation": "Static HTML capture shows no viewport meta element and Cloudflare-obfuscated email address",
+    "source_url": "https://trident.nz/heat-pumps",
+    "capture_path": "evidence/trident-0.html",
+    "capture_hash": "e8c894eda737475849f34f3bcdba61546ae5f7560b00345bc91e5d803e25ec0e",
+    "captured_at": "2026-09-08T02:47:20.011204+00:00",
+    "status": "verified",
+    "confidence": 0.9
+  },
+  "score": {
+    "value": 62.0,
+    "eligible_for_commercial_work": true,
+    "dimensions": {
+      "pain": 50,
+      "evidence_confidence": 90,
+      "freshness": 100,
+      "fit": 60,
+      "ability_to_pay": 30,
+      "urgency": 40,
+      "decision_access": 30,
+      "demoability": 70,
+      "ease": 60,
+      "upsell": 50,
+      "recurring": 40
+    }
+  },
+  "contact": {
+    "email": "info@trident.nz",
+    "attribution": "PUBLIC",
+    "deliverability": "UNKNOWN",
+    "permission": "UNKNOWN",
+    "state": "NO_VERIFIED_EMAIL",
+    "source": "Cloudflare-obfuscated email on official pages, MX verified, mailbox existence unconfirmed",
+    "freshness": "stale (11+ days)"
+  },
+  "offer": {
+    "service": "website",
+    "label": "Website and mobile enquiry improvements",
+    "problem": "No viewport meta element in captured HTML; Cloudflare-obfuscated email complicates contact",
+    "proposed_solution": "Clearer service pages and a smoother mobile enquiry journey",
+    "deliverables": [
+      "Viewport meta element added for proper mobile rendering",
+      "Visible, labeled enquiry form fields",
+      "Persistent labels, visible focus, and mobile-responsive layout",
+      "One revision round and documented browser/keyboard acceptance checks"
+    ],
+    "exclusions": [
+      "Full website rebuild",
+      "CRM or payment integration",
+      "Ongoing hosting",
+      "Guaranteed traffic, leads or revenue",
+      "Production publication without separate approval"
+    ],
+    "price_nzd": null,
+    "price_status": "Owner approval and scope confirmation required",
+    "price_note": "Internal cost scenario: NZ$650 floor / NZ$900 recommended (4-12 hours)"
+  },
+  "demo": {
+    "path": "prospects/trident-electric/demo/index.html",
+    "qa_score": 100,
+    "qa_passed": true,
+    "template": "enquiry-flow-improvement-v1"
+  },
+  "draft_message": {
+    "subject": "Trident Electrical & Air Conditioning \u2014 quoting and enquiry ideas",
+    "body": "Hi Trident Electrical & Air Conditioning team,\n\nI'm Dion from WEBSITES/BUISNESSaudits. I'd like to explore a few practical improvements for Trident Electrical & Air Conditioning, starting with website and mobile enquiry improvements.\n\nDepending on your current setup, we could build:\n- Clearer service pages and a smoother mobile enquiry journey on your existing website\n- A guided enquiry form that collects job details before your team prepares a quote\n- Prepared quotes and branded PDFs for your team to review\n\nWe could start with one small example, confirm the scope and cost, and build around the tools you already use.\n\nWhich enquiry or customer journey would you most like to improve?\n\nCheers,\nDion | WEBSITES/BUISNESSaudits\n\nIf this isn't relevant, reply \"no thanks\" and I'll leave it there.",
+    "word_count": 148,
+    "copy_audit_passed": true
+  },
+  "skeptic_review": {
+    "objections": [
+      "Email is UNVERIFIED (stale, mailbox existence unconfirmed) \u2014 NO_VERIFIED_EMAIL state",
+      "No direct evidence of buying budget or decision-maker access",
+      "Static HTML observation \u2014 rendered behavior may differ",
+      "No proof that missing viewport meta causes lost revenue",
+      "Business may already have adequate offline enquiry process"
+    ],
+    "recommendation": "REVIEW \u2014 proceed with caution, verify contact permission before outreach"
+  },
+  "factual_claims_coverage": {
+    "total_claims": 5,
+    "supported_claims": 5,
+    "coverage_percent": 100,
+    "claims": [
+      {
+        "claim": "No viewport meta element in captured HTML",
+        "evidence": "evidence/trident-0.html",
+        "hash": "e8c894eda737475849f34f3bcdba61546ae5f7560b00345bc91e5d803e25ec0e"
+      },
+      {
+        "claim": "info@trident.nz decodes from Cloudflare obfuscation",
+        "evidence": "evidence/trident-1.html",
+        "hash": "2f3dae4839ace222078594093f8e4d6e1f5aad1f085fa267117e88b2d8aac856"
+      },
+      {
+        "claim": "trident.nz has MX records",
+        "evidence": "DNS check",
+        "hash": "N/A"
+      },
+      {
+        "claim": "Business identity is HIGH confidence",
+        "evidence": "3 pages analyzed",
+        "hash": "N/A"
+      },
+      {
+        "claim": "Demo passes static QA (100/100)",
+        "evidence": "prospects/trident-electric/demo/index.html",
+        "hash": "ccf4561b66714236613c297c34339b0ee6cc474ddf65f21981f90d56af96f0eb"
+      }
+    ]
+  },
+  "safety": {
+    "outbound_sent": 0,
+    "model_calls": 0,
+    "paid_ai_cost": 0,
+    "external_spend_nzd": 0,
+    "human_approved": false,
+    "human_review_required": true,
+    "send_enabled": false
+  }
+}
