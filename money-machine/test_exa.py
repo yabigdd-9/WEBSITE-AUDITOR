@@ -316,5 +316,44 @@ class TestExaAgent(unittest.TestCase):
         self.assertEqual(result["status"], "cancelled")
 
 
+class TestExaConfig(unittest.TestCase):
+    """Tests for config loading functions."""
+
+    def test_load_exa_config(self):
+        config = mm_exa.load_exa_config()
+        self.assertIsInstance(config, dict)
+        self.assertIn("regions", config)
+        self.assertIn("defaults", config)
+
+    def test_get_regions_from_config(self):
+        regions = mm_exa.get_regions_from_config()
+        self.assertIsInstance(regions, list)
+        self.assertIn("Auckland", regions)
+
+    def test_get_queries_for_region(self):
+        queries = mm_exa.get_queries_for_region("Auckland")
+        self.assertIsInstance(queries, list)
+        self.assertTrue(len(queries) > 0)
+        self.assertIn("query", queries[0])
+        self.assertIn("effort", queries[0])
+
+    def test_load_exa_config_missing_file(self):
+        import tempfile, os
+        # Temporarily rename config
+        config_path = Path(__file__).resolve().parent / "config" / "exa.yaml"
+        if config_path.exists():
+            backup = config_path.with_suffix(".bak")
+            config_path.rename(backup)
+            try:
+                config = mm_exa.load_exa_config()
+                self.assertEqual(config, {})
+            finally:
+                backup.rename(config_path)
+
+    def test_get_queries_for_nonexistent_region(self):
+        queries = mm_exa.get_queries_for_region("Nowhere")
+        self.assertEqual(queries, [])
+
+
 if __name__ == "__main__":
     unittest.main()

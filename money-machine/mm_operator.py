@@ -80,7 +80,8 @@ def metrics(d):
         'active_drafts':get('SELECT count(*) FROM mm_messages WHERE sent_at IS NULL AND invalidated_reason IS NULL'),'invalidated_drafts':get('SELECT count(*) FROM mm_messages WHERE invalidated_reason IS NOT NULL'),
         'proposal_drafts':get('SELECT count(*) FROM mm_proposals WHERE sent_at IS NULL AND invalidated_reason IS NULL'),'gross_received_nzd':round(revenue/100,2),'refunded_nzd':round(refunds/100,2),'net_received_nzd':round(max(0,revenue-refunds)/100,2),
         'model_calls_this_workflow':0,'model_cost_this_workflow_usd':0,'models_enabled':False,
-        'historical_billing_status':'Not reconciled against provider statements; zero ledger values are not proof of historical zero spend'}
+        'historical_billing_status':'Not reconciled against provider statements; zero ledger values are not proof of historical zero spend',
+        'exa_discovered':get("SELECT count(*) FROM businesses WHERE source LIKE '%exa%'"),'exa_agent_discovered':get("SELECT count(*) FROM businesses WHERE source='exa-agent'"),'exa_pipe_discovered':get("SELECT count(*) FROM businesses WHERE source='exa-pipe'"),'manually_discovered':get("SELECT count(*) FROM businesses WHERE source NOT LIKE '%exa%' AND is_dummy=0")}
 
 def run_day(d,write=True):
     start=time.perf_counter();queue=[];blocked=[];stale=[]
@@ -137,7 +138,8 @@ def run_day(d,write=True):
         html_doc=html_doc.replace('</html>','<h2>Verified contact evidence</h2><p>Public attribution with mail routing; mailbox existence and permission are separate. Use <code>mm email-status ID</code> for source evidence.</p><table><thead><tr><th>Business</th><th>Domain</th><th>Email</th><th>Confidence</th><th>Sources</th><th>Human review</th></tr></thead><tbody>'+email_rows+'</tbody></table></html>')
         html_doc=html_doc.replace('</html>','<h2>Outreach self-audit</h2><p>Copy issues: '+str(len(data['outreach_self_audit']['copy_issues']))+'. Delivery and bounce rates: unknown. No transport is connected.</p><p>Use <code>mm outreach-health</code> for details and <code>mm outreach-plan --brief PATH</code> for a relevant service portfolio.</p></html>')
         atomic_write(out/'index.html',html_doc)
-        atomic_write(root()/'reports/DAILY_OPERATOR.md','# Current daily operator\n\nGenerated '+data['generated_at']+' by `mm run-day`.\n\n'+'\n'.join(f"{i+1}. **{q['name']}** — {q['action']}" for i,q in enumerate(queue))+'\n\nModel calls: 0. External sends: 0. Net received NZ$'+str(data['metrics']['net_received_nzd'])+'\n')
+        disc='**Discovery:** Exa: '+str(data['metrics'].get('exa_discovered',0))+' | Manual: '+str(data['metrics'].get('manually_discovered',0))
+        atomic_write(root()/'reports/DAILY_OPERATOR.md','# Current daily operator\n\nGenerated '+data['generated_at']+' by `mm run-day`.\n\n'+'\n'.join(f"{i+1}. **{q['name']}** \u2014 {q['action']}" for i,q in enumerate(queue))+'\n\nModel calls: 0. External sends: 0. Net received NZ$'+str(data['metrics']['net_received_nzd'])+'\n\n'+disc+'\n')
         atomic_write(root()/'reports/KPI_DASHBOARD.md','# Evidence-based KPI snapshot\n\n'+json.dumps(data['metrics'],indent=2)+'\n\nStages: '+json.dumps(data['pipeline_stages'])+'\n')
     return data
 
