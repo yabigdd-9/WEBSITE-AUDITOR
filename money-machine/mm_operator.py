@@ -186,6 +186,7 @@ def main(argv=None):
     q=s.add_parser('exa-fetch');q.add_argument('--urls',nargs='+',required=True)
     q=s.add_parser('exa-structured');q.add_argument('--query',required=True);q.add_argument('--schema-file',required=True);q.add_argument('--num-results',type=int,default=10);q.add_argument('--system-prompt')
     q=s.add_parser('exa-intake');q.add_argument('--query',required=True);q.add_argument('--num-results',type=int,default=5);q.add_argument('--region',required=True);q.add_argument('--source',default='exa-search');q.add_argument('--type',default='auto',choices=['auto','fast','deep','deep-reasoning','deep-lite'])
+    q=s.add_parser('exa-pipe');q.add_argument('--query',required=True);q.add_argument('--num-results',type=int,default=5);q.add_argument('--region',required=True);q.add_argument('--source',default='exa-pipe');q.add_argument('--type',default='auto',choices=['auto','fast','deep','deep-reasoning','deep-lite'])
     a=p.parse_args(argv)
     if a.cmd=='polish-status':
         report=json.loads((root()/'reports/polish-status.json').read_text())
@@ -272,19 +273,19 @@ def main(argv=None):
                     evidence_errors=[]
                     for ir in intake_results:
                         try:
-                            content=client.get_contents([ir['url']], text={"max_characters": 5000})
-                            if content and content[0].get('text'):
+                            content=client.get_contents([ir['url']])
+                            if content and content[0].get('highlights'):
                                 capture_path=root()/'evidence'/'exa'/(str(ir['business_id'])+'.txt')
                                 capture_path.parent.mkdir(parents=True,exist_ok=True)
-                                capture_path.write_text(content[0]['text'])
+                                capture_path.write_text('\n'.join(content[0]['highlights']))
                                 from mm_core import sha as mm_sha
-                                d.execute('INSERT INTO mm_evidence(business_id,url,observation,limitation,checked_at) VALUES(?,?,?,?,?)',(ir['business_id'],ir['url'],'Exa page content: '+content[0].get('title',''),'External retrieval corroborates only; first-party verification required.',mm_now()))
+                                d.execute('INSERT INTO mm_evidence(business_id,url,observation,limitation,checked_at) VALUES(?,?,?,?,?)',(ir['business_id'],ir['url'],'Exa highlights: '+content[0].get('title',''),'External retrieval corroborates only; first-party verification required.',mm_now()))
                                 eid=d.execute('SELECT last_insert_rowid()').fetchone()[0]
                                 d.execute('INSERT INTO mm_evidence_meta VALUES(?,?,?,?,?,?,?,?,?,?,?)',(eid,'verified','exa-retrieval',0.5,'conversion','External search corroboration',(dt.datetime.now(dt.timezone.utc)+dt.timedelta(days=7)).isoformat(),str(capture_path),mm_sha(capture_path.read_bytes()),'exa-integration',1))
                                 from mm_core import change_stage as cs
                                 cs(d,ir['business_id'],'VERIFIED','External search corroboration; first-party verification required for commercial claims')
                             else:
-                                evidence_errors.append({'business_id':ir['business_id'],'error':'No text content returned'})
+                                evidence_errors.append({'business_id':ir['business_id'],'error':'No highlights returned'})
                         except Exception as ex:
                             evidence_errors.append({'business_id':ir['business_id'],'error':str(ex)})
                 result={'query':a.query,'intake_count':len(intake_results),'intake':intake_results,'search_type':a.type,'limitation':'Auto-intake from external search. First-party verification required before any commercial claims or outreach.'}
