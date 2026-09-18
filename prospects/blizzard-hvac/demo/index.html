@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<title>Blizzard HVAC & Electrical — quoting concept</title>
+<style>
+body{font:17px/1.6 system-ui;margin:0;background:#f5f7fa;color:#1a2332}
+main{max-width:960px;margin:48px auto;padding:24px}
+small{display:block;color:#b33;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+h1{font-size:clamp(28px,5vw,44px);line-height:1.15}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+section{background:white;padding:28px;border-radius:16px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+label{display:block;font-weight:650;margin:16px 0 4px}
+input,textarea,select{box-sizing:border-box;width:100%;padding:12px;font:inherit;border:1px solid #c1ccd6;border-radius:6px}
+button{margin-top:20px;padding:12px 18px;border:0;background:#0f4c3d;color:white;font:inherit;border-radius:6px;cursor:pointer}
+:focus-visible{outline:3px solid #be6b25;outline-offset:4px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.5 monospace;background:#f1f4f2;padding:12px;border-radius:8px}
+@media(max-width:650px){.grid{grid-template-columns:1fr}main{margin:12px auto;padding:16px}section{padding:20px}}
+</style>
+</head>
+<body>
+<main>
+<small>Independent concept demo — not the live business website</small>
+<h1>A clearer quoting journey for Blizzard HVAC & Electrical</h1>
+<p>Local demonstration. Nothing is sent. This concept was not commissioned or approved by the business.</p>
+<div class="grid">
+<section>
+<h2>Observed friction</h2>
+<p>Homepage captures show no online quote or booking tool. Customer must call or use contact form to enquire.</p>
+<p>This is a structural observation from captured HTML — the fully rendered page may behave differently.</p>
+</section>
+<section>
+<h2>Proposed quoting details</h2>
+<p>Persistent labels, visible focus, and a clear review step.</p>
+<form>
+<label for="field-0">Service type</label>
+<select id="field-0"><option>Heat pump installation</option><option>Heat pump servicing</option><option>Electrical work</option></select>
+<label for="field-1">Property address</label>
+<input id="field-1" type="text">
+<label for="field-2">Brief description</label>
+<textarea id="field-2" rows="4"></textarea>
+<button type="button" id="preview">Preview enquiry</button>
+<p role="status" id="status"></p>
+</form>
+</section>
+</div>
+</main>
+<script>
+document.getElementById('preview').addEventListener('click',()=>{
+  document.getElementById('status').textContent='Preview ready. Nothing has been sent or saved.';
+});
+document.querySelector('form').addEventListener('submit',e=>e.preventDefault());
+</script>
+</body>
+</html>

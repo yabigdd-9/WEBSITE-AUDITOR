@@ -1,0 +1,25 @@
+{
+  "blizzard.co.nz": {
+    "domain": "blizzard.co.nz",
+    "checked_at": "2026-09-18T13:28:32.597430+00:00",
+    "domain_resolves": true,
+    "mx_present": true,
+    "mx_hosts": [
+      "ASPMX.L.GOOGLE.COM",
+      "ALT1.ASPMX.L.GOOGLE.COM",
+      "ALT2.ASPMX.L.GOOGLE.COM",
+      "ALT3.ASPMX.L.GOOGLE.COM",
+      "ALT4.ASPMX.L.GOOGLE.COM"
+    ],
+    "domain_accepts_mail": true,
+    "status": "mx",
+    "method": "DNS MX and public MX target address resolution",
+    "routable_mx_hosts": [
+      "ASPMX.L.GOOGLE.COM",
+      "ALT1.ASPMX.L.GOOGLE.COM",
+      "ALT2.ASPMX.L.GOOGLE.COM",
+      "ALT3.ASPMX.L.GOOGLE.COM",
+      "ALT4.ASPMX.L.GOOGLE.COM"
+    ]
+  }
+}

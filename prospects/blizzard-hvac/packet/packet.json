@@ -1,0 +1,143 @@
+{
+  "project": "WEBSITES/BUISNESSaudits",
+  "created_at": "2026-09-18T13:45:36.964419+00:00",
+  "status": "HUMAN_APPROVAL_REQUIRED",
+  "business_name": "Blizzard HVAC & Electrical",
+  "website": "https://blizzard.co.nz/",
+  "region": "Wellington",
+  "identity": {
+    "canonical_domain": "blizzard.co.nz",
+    "canonical_business_name": "Blizzard HVAC & Electrical",
+    "status": "HIGH",
+    "observed_phones": [
+      "04 4999 649"
+    ],
+    "evidence_urls": [
+      "https://blizzard.co.nz/",
+      "https://blizzard.co.nz/contact-us/",
+      "https://blizzard.co.nz/about-us/"
+    ],
+    "entity_key": "7a5d7e52a9916f2bc29a8df5ab2e4bb0839c5ab52f995a7ea0b40aa1e0f033c1"
+  },
+  "evidence": {
+    "finding_id": "F001",
+    "category": "quoting_process",
+    "observation": "Homepage captures show no online quote or booking tool. Customer must call or use contact form to enquire.",
+    "source_url": "https://blizzard.co.nz/",
+    "capture_path": "evidence/blizzard-homepage.html",
+    "capture_hash": "5f6947a41c4834bd625c3dc8a8415d2fa6b349cbcc0d16685b5cb41fda77f721",
+    "captured_at": "2026-09-08T02:47:16.210785+00:00",
+    "status": "verified",
+    "confidence": 0.9
+  },
+  "score": {
+    "value": 66.5,
+    "eligible_for_commercial_work": true,
+    "dimensions": {
+      "pain": 60,
+      "evidence_confidence": 90,
+      "freshness": 100,
+      "fit": 70,
+      "ability_to_pay": 30,
+      "urgency": 40,
+      "decision_access": 30,
+      "demoability": 70,
+      "ease": 60,
+      "upsell": 50,
+      "recurring": 40
+    }
+  },
+  "contact": {
+    "email": "info@blizzard.co.nz",
+    "attribution": "PUBLIC",
+    "deliverability": "UNKNOWN",
+    "permission": "UNKNOWN",
+    "state": "NO_VERIFIED_EMAIL",
+    "source": "mailto on homepage, MX verified, mailbox existence unconfirmed",
+    "freshness": "stale (11 days)"
+  },
+  "offer": {
+    "service": "quoting",
+    "label": "Smart Quote System",
+    "problem": "No online quote or booking tool on homepage",
+    "proposed_solution": "A guided quote calculator for heat pump services",
+    "deliverables": [
+      "One quoting workflow with explicit estimate limits",
+      "Mobile-friendly enquiry form with persistent labels",
+      "One revision round and documented browser/keyboard acceptance checks"
+    ],
+    "exclusions": [
+      "Full website rebuild",
+      "CRM or payment integration",
+      "Ongoing hosting",
+      "Guaranteed traffic, leads or revenue",
+      "Production publication without separate approval"
+    ],
+    "price_nzd": null,
+    "price_status": "Owner approval and scope confirmation required",
+    "price_note": "Internal cost scenario: NZ,375 floor / NZ,700 recommended (8-20 hours)"
+  },
+  "demo": {
+    "path": "prospects/blizzard-hvac/demo/index.html",
+    "qa_score": 100,
+    "qa_passed": true,
+    "template": "enquiry-flow-improvement-v1"
+  },
+  "draft_message": {
+    "subject": "Blizzard HVAC & Electrical \u2014 quoting and enquiry ideas",
+    "body": "Hi Blizzard HVAC team,\n\nI'm Dion from WEBSITES/BUISNESSaudits. I'd like to explore a few practical improvements for Blizzard HVAC & Electrical, starting with quote calculators and estimator tools.\n\nDepending on your current setup, we could build:\n- An estimate calculator for repeatable jobs, using your pricing rules, with unusual work routed to your team.\n- A guided enquiry form that collects job details and files before your team prepares a quote.\n- Prepared quotes and branded PDFs for your team to review.\n\nWe could start with one small example, confirm the scope and cost, and build around the tools you already use.\n\nCould you share one typical enquiry and how you price it, with customer details removed?\n\nCheers,\nDion | WEBSITES/BUISNESSaudits\n\nIf this isn't relevant, reply \"no thanks\" and I'll leave it there.",
+    "word_count": 143,
+    "copy_audit_passed": true
+  },
+  "skeptic_review": {
+    "objections": [
+      "Email is UNVERIFIED (stale, mailbox existence unconfirmed) \u2014 NO_VERIFIED_EMAIL state",
+      "No direct evidence of buying budget or decision-maker access",
+      "Static HTML observation \u2014 rendered behavior may differ",
+      "No proof that lack of online quote causes lost revenue",
+      "Business may already have adequate offline quoting process"
+    ],
+    "recommendation": "REVIEW \u2014 proceed with caution, verify contact permission before outreach"
+  },
+  "factual_claims_coverage": {
+    "total_claims": 5,
+    "supported_claims": 5,
+    "coverage_percent": 100,
+    "claims": [
+      {
+        "claim": "No online quote tool on homepage",
+        "evidence": "blizzard-homepage.html",
+        "hash": "5f6947a41c4834bd625c3dc8a8415d2fa6b349cbcc0d16685b5cb41fda77f721"
+      },
+      {
+        "claim": "info@blizzard.co.nz is published mailto",
+        "evidence": "blizzard-homepage.html",
+        "hash": "5f6947a41c4834bd625c3dc8a8415d2fa6b349cbcc0d16685b5cb41fda77f721"
+      },
+      {
+        "claim": "blizzard.co.nz has MX records",
+        "evidence": "DNS check",
+        "hash": "N/A"
+      },
+      {
+        "claim": "Business identity is HIGH confidence",
+        "evidence": "3 pages analyzed",
+        "hash": "N/A"
+      },
+      {
+        "claim": "Demo passes static QA (100/100)",
+        "evidence": "prospects/blizzard-hvac/demo/index.html",
+        "hash": "c64a2c3064aa3742f513977f01181c7cbcc21066c1b13535ed8fad1838be5dd5"
+      }
+    ]
+  },
+  "safety": {
+    "outbound_sent": 0,
+    "model_calls": 0,
+    "paid_ai_cost": 0,
+    "external_spend_nzd": 0,
+    "human_approved": false,
+    "human_review_required": true,
+    "send_enabled": false
+  }
+}

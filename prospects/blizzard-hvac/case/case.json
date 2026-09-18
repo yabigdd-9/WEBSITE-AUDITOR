@@ -1,0 +1,448 @@
+{
+  "business": {
+    "id": 2,
+    "name": "Blizzard HVAC & Electrical",
+    "region": "Wellington",
+    "public_website": "https://blizzard.co.nz/"
+  },
+  "evaluated_at": "2026-09-18T13:35:00.000000+00:00",
+  "pages": [
+    {
+      "url": "https://blizzard.co.nz/",
+      "path": "prospects/blizzard-hvac/case/2-0.html",
+      "sha256": "5f6947a41c4834bd625c3dc8a8415d2fa6b349cbcc0d16685b5cb41fda77f721",
+      "captured_at": "2026-09-08T02:47:16.210785+00:00",
+      "content_type": "text/html; charset=UTF-8",
+      "title": "Wellington Highest Quality Heat Pump Company"
+    },
+    {
+      "url": "https://blizzard.co.nz/contact-us/",
+      "path": "prospects/blizzard-hvac/case/2-1.html",
+      "sha256": "dfed0cb62704904a3c978bf2acbd20fe646da84e001fe0cbe810c9d4d68a3796",
+      "captured_at": "2026-09-08T02:47:16.210785+00:00",
+      "content_type": "text/html; charset=UTF-8",
+      "title": "Contact Blizzard HVAC"
+    },
+    {
+      "url": "https://blizzard.co.nz/about-us/",
+      "path": "prospects/blizzard-hvac/case/2-2.html",
+      "sha256": "c01471f7cc0bfeaddf659c81df00a8b4960f6fe165abe2122c64a80cc341040f",
+      "captured_at": "2026-09-08T02:47:16.210785+00:00",
+      "content_type": "text/html; charset=UTF-8",
+      "title": "About Us"
+    }
+  ],
+  "dns": {
+    "blizzard.co.nz": {
+      "domain_resolves": true,
+      "mx_present": true,
+      "domain_accepts_mail": true
+    }
+  },
+  "result": {
+    "business_id": 2,
+    "business": "Blizzard HVAC & Electrical",
+    "website": "https://blizzard.co.nz/",
+    "identity": {
+      "canonical_business_name": "Blizzard HVAC & Electrical",
+      "trading_name": null,
+      "legal_name": null,
+      "website_url_discovered": "https://blizzard.co.nz/",
+      "canonical_root_domain": "blizzard.co.nz",
+      "proposed_root_domain": "blizzard.co.nz",
+      "redirected_destination": "https://blizzard.co.nz/",
+      "page_titles": [
+        "Wellington's Highest Quality 5-Star Reviewed Heat Pump Company",
+        "Contact Blizzard HVAC & Electrical Wellington",
+        "About Us | Blizzard HVAC and Electrical Wellington"
+      ],
+      "organization_names": [
+        "Blizzard",
+        "Blizzard HVAC and Electrical",
+        "Blizzard Refrigeration & Air Conditioning"
+      ],
+      "physical_location": "Wellington",
+      "phone": null,
+      "observed_phones": [
+        "04 4999 649"
+      ],
+      "social_links": [
+        "https://www.facebook.com/Airblizzard",
+        "https://www.instagram.com/blizzard_ltd/"
+      ],
+      "evidence_urls": [
+        "https://blizzard.co.nz/",
+        "https://blizzard.co.nz/about-us/",
+        "https://blizzard.co.nz/contact-us/"
+      ],
+      "checked_at": "2026-09-08T02:47:16.210785+00:00",
+      "page_evidence": [
+        {
+          "url": "https://blizzard.co.nz/",
+          "capture_path": "prospects/blizzard-hvac/case/2-0.html",
+          "capture_hash": "5f6947a41c4834bd625c3dc8a8415d2fa6b349cbcc0d16685b5cb41fda77f721",
+          "captured_at": "2026-09-08T02:47:16.210785+00:00"
+        },
+        {
+          "url": "https://blizzard.co.nz/contact-us/",
+          "capture_path": "prospects/blizzard-hvac/case/2-1.html",
+          "capture_hash": "dfed0cb62704904a3c978bf2acbd20fe646da84e001fe0cbe810c9d4d68a3796",
+          "captured_at": "2026-09-08T02:47:16.210785+00:00"
+        },
+        {
+          "url": "https://blizzard.co.nz/about-us/",
+          "capture_path": "prospects/blizzard-hvac/case/2-2.html",
+          "capture_hash": "c01471f7cc0bfeaddf659c81df00a8b4960f6fe165abe2122c64a80cc341040f",
+          "captured_at": "2026-09-08T02:47:16.210785+00:00"
+        }
+      ],
+      "status": "HIGH",
+      "signals": {
+        "prominent_name": true,
+        "body_name": true,
+        "region": true,
+        "phone": false,
+        "address": false,
+        "structured_name": true
+      },
+      "reasons": [],
+      "accepted_roots": [
+        "blizzard.co.nz"
+      ],
+      "branch_sensitive": false,
+      "observed_branches": [],
+      "matched_branches": [],
+      "unit_targets": [
+        "Wellington"
+      ],
+      "entity_key": "7a5d7e52a9916f2bc29a8df5ab2e4bb0839c5ab52f995a7ea0b40aa1e0f033c1"
+    },
+    "results": [
+      {
+        "email": "info@blizzard.co.n",
+        "syntax_valid": false,
+        "domain_resolves": null,
+        "mx_present": false,
+        "mx_hosts": [],
+        "domain_accepts_mail": null,
+        "dns_checked_at": null,
+        "smtp_result": "not_probed",
+        "catch_all_status": "unknown",
+        "mailbox_verification": "inconclusive",
+        "disposable_status": "not_in_local_blocklist",
+        "role_account": "company general",
+        "first_party_observed": false,
+        "source_count": 3,
+        "raw_source_url_count": 3,
+        "unit_evidence_urls": [],
+        "independent_source_count": 0,
+        "person_match": "not_requested",
+        "person": null,
+        "person_company_evidence": null,
+        "business_match": false,
+        "domain_match": false,
+        "free_mail": false,
+        "freshness": "missing_or_future",
+        "confidence_score": 0,
+        "confidence_label": "REJECTED",
+        "rejection_reasons": [
+          "Invalid syntax/domain: Unknown public suffix",
+          "Canonical business-domain mismatch"
+        ],
+        "reasons": [
+          "Business/domain identity has multiple agreeing signals",
+          "Individual mailbox existence is not confirmed"
+        ],
+        "score_components": {
+          "identity": 15
+        },
+        "evidence": [
+          {
+            "email": "info@blizzard.co.n",
+            "observed_email": "info@blizzard.co.n",
+            "syntax_error": "Invalid syntax/domain: Unknown public suffix",
+            "method": "visible_text",
+            "source_url": "https://blizzard.co.nz/",
+            "title": "Wellington's Highest Quality 5-Star Reviewed Heat Pump Company",
+            "context": "Email: info@blizzard.co.n z",
+            "person_context": "Email: info@blizzard.co.n z",
+            "observed_at": "2026-09-08T02:47:16.210785+00:00",
+            "capture_path": "prospects/blizzard-hvac/case/2-0.html",
+            "capture_hash": "5f6947a41c4834bd625c3dc8a8415d2fa6b349cbcc0d16685b5cb41fda77f721",
+            "role": "company general",
+            "unit_scope": {
+              "kind": "unscoped",
+              "branch": "",
+              "text": ""
+            }
+          },
+          {
+            "email": "info@blizzard.co.n",
+            "observed_email": "info@blizzard.co.n",
+            "syntax_error": "Invalid syntax/domain: Unknown public suffix",
+            "method": "visible_text",
+            "source_url": "https://blizzard.co.nz/contact-us/",
+            "title": "Contact Blizzard HVAC & Electrical Wellington",
+            "context": "Email: info@blizzard.co.n z",
+            "person_context": "Email: info@blizzard.co.n z",
+            "observed_at": "2026-09-08T02:47:16.210785+00:00",
+            "capture_path": "prospects/blizzard-hvac/case/2-1.html",
+            "capture_hash": "dfed0cb62704904a3c978bf2acbd20fe646da84e001fe0cbe810c9d4d68a3796",
+            "role": "company general",
+            "unit_scope": {
+              "kind": "unscoped",
+              "branch": "",
+              "text": ""
+            }
+          },
+          {
+            "email": "info@blizzard.co.n",
+            "observed_email": "info@blizzard.co.n",
+            "syntax_error": "Invalid syntax/domain: Unknown public suffix",
+            "method": "visible_text",
+            "source_url": "https://blizzard.co.nz/contact-us/",
+            "title": "Contact Blizzard HVAC & Electrical Wellington",
+            "context": "Email: info@blizzard.co.n z",
+            "person_context": "Email: info@blizzard.co.n z",
+            "observed_at": "2026-09-08T02:47:16.210785+00:00",
+            "capture_path": "prospects/blizzard-hvac/case/2-1.html",
+            "capture_hash": "dfed0cb62704904a3c978bf2acbd20fe646da84e001fe0cbe810c9d4d68a3796",
+            "role": "company general",
+            "unit_scope": {
+              "kind": "unscoped",
+              "branch": "",
+              "text": ""
+            }
+          },
+          {
+            "email": "info@blizzard.co.n",
+            "observed_email": "info@blizzard.co.n",
+            "syntax_error": "Invalid syntax/domain: Unknown public suffix",
+            "method": "visible_text",
+            "source_url": "https://blizzard.co.nz/about-us/",
+            "title": "About Us | Blizzard HVAC and Electrical Wellington",
+            "context": "Email: info@blizzard.co.n z",
+            "person_context": "Email: info@blizzard.co.n z",
+            "observed_at": "2026-09-08T02:47:16.210785+00:00",
+            "capture_path": "prospects/blizzard-hvac/case/2-2.html",
+            "capture_hash": "c01471f7cc0bfeaddf659c81df00a8b4960f6fe165abe2122c64a80cc341040f",
+            "role": "company general",
+            "unit_scope": {
+              "kind": "unscoped",
+              "branch": "",
+              "text": ""
+            }
+          }
+        ],
+        "candidate_method": "observed",
+        "checked_at": "2026-09-18T13:44:30.982669+00:00",
+        "verifier_version": "email-v2.0.1"
+      },
+      {
+        "email": "info@blizzard.co.nz",
+        "syntax_valid": true,
+        "domain_resolves": null,
+        "mx_present": false,
+        "mx_hosts": [],
+        "domain_accepts_mail": null,
+        "dns_checked_at": null,
+        "smtp_result": "not_probed",
+        "catch_all_status": "unknown",
+        "mailbox_verification": "inconclusive",
+        "disposable_status": "not_in_local_blocklist",
+        "role_account": "company general",
+        "first_party_observed": true,
+        "source_count": 3,
+        "raw_source_url_count": 3,
+        "unit_evidence_urls": [],
+        "independent_source_count": 1,
+        "person_match": "not_requested",
+        "person": null,
+        "person_company_evidence": null,
+        "business_match": false,
+        "domain_match": true,
+        "free_mail": false,
+        "freshness": "stale",
+        "confidence_score": 70,
+        "confidence_label": "UNVERIFIED",
+        "rejection_reasons": [],
+        "reasons": [
+          "Exact address observed in captured official source",
+          "Business/domain identity has multiple agreeing signals",
+          "Individual mailbox existence is not confirmed"
+        ],
+        "score_components": {
+          "first_party": 55,
+          "identity": 15
+        },
+        "evidence": [
+          {
+            "email": "info@blizzard.co.nz",
+            "observed_email": "mailto:info@blizzard.co.nz",
+            "syntax_error": null,
+            "method": "mailto",
+            "source_url": "https://blizzard.co.nz/",
+            "title": "Wellington's Highest Quality 5-Star Reviewed Heat Pump Company",
+            "context": "Email: info@blizzard.co.n z",
+            "person_context": "Email: info@blizzard.co.n z",
+            "observed_at": "2026-09-08T02:47:16.210785+00:00",
+            "capture_path": "prospects/blizzard-hvac/case/2-0.html",
+            "capture_hash": "5f6947a41c4834bd625c3dc8a8415d2fa6b349cbcc0d16685b5cb41fda77f721",
+            "role": "company general",
+            "unit_scope": {
+              "kind": "unscoped",
+              "branch": "",
+              "text": ""
+            }
+          },
+          {
+            "email": "info@blizzard.co.nz",
+            "observed_email": "mailto:info@blizzard.co.nz",
+            "syntax_error": null,
+            "method": "mailto",
+            "source_url": "https://blizzard.co.nz/",
+            "title": "Wellington's Highest Quality 5-Star Reviewed Heat Pump Company",
+            "context": "Email: info@blizzard.co.n z",
+            "person_context": "Email: info@blizzard.co.n z",
+            "observed_at": "2026-09-08T02:47:16.210785+00:00",
+            "capture_path": "prospects/blizzard-hvac/case/2-0.html",
+            "capture_hash": "5f6947a41c4834bd625c3dc8a8415d2fa6b349cbcc0d16685b5cb41fda77f721",
+            "role": "company general",
+            "unit_scope": {
+              "kind": "unscoped",
+              "branch": "",
+              "text": ""
+            }
+          },
+          {
+            "email": "info@blizzard.co.nz",
+            "observed_email": "mailto:info@blizzard.co.nz",
+            "syntax_error": null,
+            "method": "mailto",
+            "source_url": "https://blizzard.co.nz/contact-us/",
+            "title": "Contact Blizzard HVAC & Electrical Wellington",
+            "context": "Email: info@blizzard.co.n z",
+            "person_context": "Email: info@blizzard.co.n z",
+            "observed_at": "2026-09-08T02:47:16.210785+00:00",
+            "capture_path": "prospects/blizzard-hvac/case/2-1.html",
+            "capture_hash": "dfed0cb62704904a3c978bf2acbd20fe646da84e001fe0cbe810c9d4d68a3796",
+            "role": "company general",
+            "unit_scope": {
+              "kind": "unscoped",
+              "branch": "",
+              "text": ""
+            }
+          },
+          {
+            "email": "info@blizzard.co.nz",
+            "observed_email": "mailto:info@blizzard.co.nz",
+            "syntax_error": null,
+            "method": "mailto",
+            "source_url": "https://blizzard.co.nz/contact-us/",
+            "title": "Contact Blizzard HVAC & Electrical Wellington",
+            "context": "Email: info@blizzard.co.n z",
+            "person_context": "Email: info@blizzard.co.n z",
+            "observed_at": "2026-09-08T02:47:16.210785+00:00",
+            "capture_path": "prospects/blizzard-hvac/case/2-1.html",
+            "capture_hash": "dfed0cb62704904a3c978bf2acbd20fe646da84e001fe0cbe810c9d4d68a3796",
+            "role": "company general",
+            "unit_scope": {
+              "kind": "unscoped",
+              "branch": "",
+              "text": ""
+            }
+          },
+          {
+            "email": "info@blizzard.co.nz",
+            "observed_email": "mailto:info@blizzard.co.nz",
+            "syntax_error": null,
+            "method": "mailto",
+            "source_url": "https://blizzard.co.nz/contact-us/",
+            "title": "Contact Blizzard HVAC & Electrical Wellington",
+            "context": "Email: info@blizzard.co.n z",
+            "person_context": "Email: info@blizzard.co.n z",
+            "observed_at": "2026-09-08T02:47:16.210785+00:00",
+            "capture_path": "prospects/blizzard-hvac/case/2-1.html",
+            "capture_hash": "dfed0cb62704904a3c978bf2acbd20fe646da84e001fe0cbe810c9d4d68a3796",
+            "role": "company general",
+            "unit_scope": {
+              "kind": "unscoped",
+              "branch": "",
+              "text": ""
+            }
+          },
+          {
+            "email": "info@blizzard.co.nz",
+            "observed_email": "mailto:info@blizzard.co.nz",
+            "syntax_error": null,
+            "method": "mailto",
+            "source_url": "https://blizzard.co.nz/contact-us/",
+            "title": "Contact Blizzard HVAC & Electrical Wellington",
+            "context": "Email: info@blizzard.co.n z",
+            "person_context": "Email: info@blizzard.co.n z",
+            "observed_at": "2026-09-08T02:47:16.210785+00:00",
+            "capture_path": "prospects/blizzard-hvac/case/2-1.html",
+            "capture_hash": "dfed0cb62704904a3c978bf2acbd20fe646da84e001fe0cbe810c9d4d68a3796",
+            "role": "company general",
+            "unit_scope": {
+              "kind": "unscoped",
+              "branch": "",
+              "text": ""
+            }
+          },
+          {
+            "email": "info@blizzard.co.nz",
+            "observed_email": "mailto:info@blizzard.co.nz",
+            "syntax_error": null,
+            "method": "mailto",
+            "source_url": "https://blizzard.co.nz/about-us/",
+            "title": "About Us | Blizzard HVAC and Electrical Wellington",
+            "context": "Email: info@blizzard.co.n z",
+            "person_context": "Email: info@blizzard.co.n z",
+            "observed_at": "2026-09-08T02:47:16.210785+00:00",
+            "capture_path": "prospects/blizzard-hvac/case/2-2.html",
+            "capture_hash": "c01471f7cc0bfeaddf659c81df00a8b4960f6fe165abe2122c64a80cc341040f",
+            "role": "company general",
+            "unit_scope": {
+              "kind": "unscoped",
+              "branch": "",
+              "text": ""
+            }
+          },
+          {
+            "email": "info@blizzard.co.nz",
+            "observed_email": "mailto:info@blizzard.co.nz",
+            "syntax_error": null,
+            "method": "mailto",
+            "source_url": "https://blizzard.co.nz/about-us/",
+            "title": "About Us | Blizzard HVAC and Electrical Wellington",
+            "context": "Email: info@blizzard.co.n z",
+            "person_context": "Email: info@blizzard.co.n z",
+            "observed_at": "2026-09-08T02:47:16.210785+00:00",
+            "capture_path": "prospects/blizzard-hvac/case/2-2.html",
+            "capture_hash": "c01471f7cc0bfeaddf659c81df00a8b4960f6fe165abe2122c64a80cc341040f",
+            "role": "company general",
+            "unit_scope": {
+              "kind": "unscoped",
+              "branch": "",
+              "text": ""
+            }
+          }
+        ],
+        "candidate_method": "observed",
+        "checked_at": "2026-09-18T13:44:31.021108+00:00",
+        "verifier_version": "email-v2.0.1"
+      }
+    ],
+    "selected": null,
+    "selection_status": "NO_VERIFIED_EMAIL",
+    "contact_form_urls": [
+      "https://blizzard.co.nz/contact-us/"
+    ],
+    "email_review_required": true,
+    "human_review": "Human relevance, permission and exact-item approval still required",
+    "external_sends": 0,
+    "model_calls": 0,
+    "verifier_version": "email-v2.0.1"
+  }
+}
