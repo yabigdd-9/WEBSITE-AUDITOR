@@ -25,8 +25,42 @@ def find_one(d, bid):
                 if domain not in dns_results: dns_results[domain] = checker.check(domain)
     legacy = [row[0] for row in d.execute('SELECT normalized_email FROM email_candidates WHERE prospect_id=?', (bid,))]
     suppressed = [row[0] for row in d.execute('SELECT address FROM mm_suppression')]
-    result = e.evaluate(business, pages, dns_results, legacy=legacy, suppressed_addresses=suppressed, suppressed_business=store.is_suppressed(d, bid))
+
+    # --- Hunter.io enrichment (external corroboration) ---
+    hunter_candidates = []
+    if identity.get('canonical_root_domain'):
+        try:
+            import hunter_enrichment as hunter
+            cache_dir = c.root() / 'cache' / 'email-v2'
+            h_result = hunter.enrich_business(d, bid, identity['canonical_root_domain'], cache_dir=cache_dir)
+            if h_result.get('candidates'):
+                hunter.store_enrichment(d, bid, h_result)
+                hunter_candidates = [c['email'] for c in h_result['candidates']]
+                d.commit()
+        except Exception:
+            pass  # Hunter is optional — never block first-party flow
+
+    # Merge Hunter candidates into legacy for evaluation
+    all_legacy = list(legacy) + hunter_candidates
+    result = e.evaluate(business, pages, dns_results, legacy=all_legacy, suppressed_addresses=suppressed, suppressed_business=store.is_suppressed(d, bid))
     result['crawl_errors'] = errors
+    result['hunter_enriched'] = len(hunter_candidates)
+
+    # --- Hunter corroboration metadata ---
+    if hunter_candidates:
+        corroborated = []
+        hunter_high = []
+        for row in d.execute("""
+            SELECT email, hunter_confidence, status
+            FROM hunter_enrichment
+            WHERE business_id = ?
+        """, (bid,)).fetchall():
+            corroborated.append(row['email'])
+            if row['status'] == 'OBSERVED' and row['hunter_confidence'] >= 80:
+                hunter_high.append(row['email'])
+        result['hunter_corroborated'] = corroborated
+        result['hunter_high_confidence'] = hunter_high
+
     with d: store.persist(d, result)
     return store.status(d, bid)
 
@@ -47,6 +81,10 @@ def human_text(status):
              'Why: ' + '; '.join(selected.get('reasons') or identity.get('reasons') or ['No current VERIFIED_HIGH candidate'])]
     for url in sorted({o['source_url'] for o in selected.get('evidence', [])}): lines.append('  Evidence: ' + url)
     for url in status.get('contact_form_urls', []): lines.append('  Contact form: ' + url)
+    if status.get('hunter_corroborated'):
+        lines.append('  Hunter corroborated: ' + ', '.join(status['hunter_corroborated']))
+    if status.get('hunter_high_confidence'):
+        lines.append('  Hunter high confidence: ' + ', '.join(status['hunter_high_confidence']))
     for item in status.get('candidates', []):
         if item['email'] != status['email']:
             lines.append('  Review candidate: ' + item['email'] + ' / ' + item['confidence_label'] + ' — ' + '; '.join(item.get('rejection_reasons') or item.get('reasons', [])))
