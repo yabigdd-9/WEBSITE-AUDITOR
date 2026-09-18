@@ -6,6 +6,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     gcc \
     libsqlite3-dev \
+    bash \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for caching
