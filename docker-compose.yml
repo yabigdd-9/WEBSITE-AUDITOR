@@ -9,6 +9,7 @@ services:
       - ./evidence:/app/evidence
       - ./reports:/app/reports
       - ./money-machine/config:/app/money-machine/config
+      - ./money-machine:/app/money-machine
     environment:
       - EXA_API_KEY=${EXA_API_KEY}
       - MM_ROOT=/app

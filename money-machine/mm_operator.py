@@ -250,6 +250,7 @@ def main(argv=None):
         b=backup()
         with contextlib.closing(connect()) as d,d:migrate(d,b)
         print('Migration checked; backup '+str(b));return 0
+    result=None
     if a.cmd=='price':
         if (a.hours_low is None)!=(a.hours_high is None):raise ValueError('Both hour bounds required')
         result=pricing(a.problem,[a.hours_low,a.hours_high] if a.hours_low is not None else None)
@@ -311,11 +312,9 @@ def main(argv=None):
                 elif a.cmd=='exa-agent-poll':
                     result=agent.poll_run(a.run_id,max_wait_seconds=a.max_wait)
                     if a.auto_intake and result.get('status')=='completed' and result.get('output',{}).get('structured'):
-                        # Auto-insert agent results as DISCOVERED businesses
                         from mm_core import connect as mm_connect, now as mm_now, public_url as mm_pub
                         with contextlib.closing(mm_connect()) as d2,d2:
                             structured=result['output']['structured']
-                            # Handle both list of companies and dict with 'companies' key
                             companies=structured if isinstance(structured,list) else [structured]
                             intake_count=0
                             for company in companies:
