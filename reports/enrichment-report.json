@@ -1,0 +1,531 @@
+{
+  "generated_at": "2026-09-18T16:06:00.102550+00:00",
+  "stats": {
+    "total_businesses": 21,
+    "first_party_only": {
+      "verified_high": 9,
+      "no_email": 12,
+      "other": 0
+    },
+    "with_hunter": {
+      "verified_high": 9,
+      "no_email": 12,
+      "other": 0
+    },
+    "hunter_corroborated": 0,
+    "hunter_new_candidates": 35,
+    "score_changes": [
+      {
+        "business": "Blizzard HVAC & Electrical",
+        "email": "info@blizzard.co.nz",
+        "fp_score": 98,
+        "h_score": 100,
+        "diff": 2
+      },
+      {
+        "business": "Heat Force",
+        "email": "info@heatforce.co.nz",
+        "fp_score": 98,
+        "h_score": 100,
+        "diff": 2
+      },
+      {
+        "business": "Kiwi Heat Pumps",
+        "email": "jason@kiwiheatpumps.co.nz",
+        "fp_score": 98,
+        "h_score": 100,
+        "diff": 2
+      },
+      {
+        "business": "Evoke Renovations",
+        "email": "aw@evoke-reno.co.nz",
+        "fp_score": 98,
+        "h_score": 100,
+        "diff": 2
+      },
+      {
+        "business": "Best Nest Building Co",
+        "email": "luke@bestnestbuilding.co.nz",
+        "fp_score": 98,
+        "h_score": 100,
+        "diff": 2
+      },
+      {
+        "business": "Rise Residential",
+        "email": "ben@riseresidential.co.nz",
+        "fp_score": 98,
+        "h_score": 100,
+        "diff": 2
+      }
+    ]
+  },
+  "results": [
+    {
+      "business": "Blizzard HVAC & Electrical",
+      "id": 2,
+      "website": "https://blizzard.co.nz/",
+      "domain": "blizzard.co.nz",
+      "first_party": {
+        "email": "info@blizzard.co.nz",
+        "score": 98,
+        "label": "VERIFIED_HIGH"
+      },
+      "with_hunter": {
+        "email": "info@blizzard.co.nz",
+        "score": 100,
+        "label": "VERIFIED_HIGH"
+      },
+      "hunter_candidates": [
+        "info@blizzard.co.nz"
+      ],
+      "hunter_corroborated": [],
+      "hunter_high_confidence": [],
+      "score_diff": 2
+    },
+    {
+      "business": "Trident Electrical & Air Conditioning",
+      "id": 3,
+      "website": "https://trident.nz/heat-pumps",
+      "domain": null,
+      "first_party": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "with_hunter": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "hunter_candidates": [],
+      "hunter_corroborated": [],
+      "hunter_high_confidence": [],
+      "score_diff": 0
+    },
+    {
+      "business": "ATL Heat Pumps",
+      "id": 4,
+      "website": "https://www.atlelectrical.co.nz/heat-pumps",
+      "domain": null,
+      "first_party": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "with_hunter": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "hunter_candidates": [],
+      "hunter_corroborated": [],
+      "hunter_high_confidence": [],
+      "score_diff": 0
+    },
+    {
+      "business": "Heat Force",
+      "id": 5,
+      "website": "https://www.heatforce.co.nz/",
+      "domain": "heatforce.co.nz",
+      "first_party": {
+        "email": "info@heatforce.co.nz",
+        "score": 98,
+        "label": "VERIFIED_HIGH"
+      },
+      "with_hunter": {
+        "email": "info@heatforce.co.nz",
+        "score": 100,
+        "label": "VERIFIED_HIGH"
+      },
+      "hunter_candidates": [
+        "hamish@heatforce.co.nz",
+        "ian@heatforce.co.nz",
+        "frikkie@heatforce.co.nz",
+        "info@heatforce.co.nz"
+      ],
+      "hunter_corroborated": [],
+      "hunter_high_confidence": [],
+      "score_diff": 2
+    },
+    {
+      "business": "BA Heat Pumps",
+      "id": 6,
+      "website": "https://www.baheatpumps.co.nz/",
+      "domain": null,
+      "first_party": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "with_hunter": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "hunter_candidates": [],
+      "hunter_corroborated": [],
+      "hunter_high_confidence": [],
+      "score_diff": 0
+    },
+    {
+      "business": "AES",
+      "id": 7,
+      "website": "https://www.aes.nz/heat-pumps/",
+      "domain": "aes.nz",
+      "first_party": {
+        "email": "yes@aes.nz",
+        "score": 98,
+        "label": "VERIFIED_HIGH"
+      },
+      "with_hunter": {
+        "email": "yes@aes.nz",
+        "score": 98,
+        "label": "VERIFIED_HIGH"
+      },
+      "hunter_candidates": [
+        "sales@aes.nz",
+        "happy@aes.nz",
+        "office@aes.nz"
+      ],
+      "hunter_corroborated": [],
+      "hunter_high_confidence": [],
+      "score_diff": 0
+    },
+    {
+      "business": "Simpson Climate Control",
+      "id": 8,
+      "website": "https://www.simpsoncc.co.nz/",
+      "domain": "simpsoncc.co.nz",
+      "first_party": {
+        "email": "ben@simpsoncc.co.nz",
+        "score": 98,
+        "label": "VERIFIED_HIGH"
+      },
+      "with_hunter": {
+        "email": "ben@simpsoncc.co.nz",
+        "score": 98,
+        "label": "VERIFIED_HIGH"
+      },
+      "hunter_candidates": [
+        "webmaster@simpsoncc.co.nz"
+      ],
+      "hunter_corroborated": [],
+      "hunter_high_confidence": [],
+      "score_diff": 0
+    },
+    {
+      "business": "Kiwi Heat Pumps",
+      "id": 9,
+      "website": "https://kiwiheatpumps.co.nz/",
+      "domain": "kiwiheatpumps.co.nz",
+      "first_party": {
+        "email": "jason@kiwiheatpumps.co.nz",
+        "score": 98,
+        "label": "VERIFIED_HIGH"
+      },
+      "with_hunter": {
+        "email": "jason@kiwiheatpumps.co.nz",
+        "score": 100,
+        "label": "VERIFIED_HIGH"
+      },
+      "hunter_candidates": [
+        "jason@kiwiheatpumps.co.nz"
+      ],
+      "hunter_corroborated": [],
+      "hunter_high_confidence": [],
+      "score_diff": 2
+    },
+    {
+      "business": "Imperial HVAC",
+      "id": 10,
+      "website": "https://imperialhvac.co.nz/",
+      "domain": null,
+      "first_party": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "with_hunter": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "hunter_candidates": [],
+      "hunter_corroborated": [],
+      "hunter_high_confidence": [],
+      "score_diff": 0
+    },
+    {
+      "business": "New Zealand Heat Pumps",
+      "id": 11,
+      "website": "https://newzealandheatpumps.co.nz/",
+      "domain": "newzealandheatpumps.co.nz",
+      "first_party": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "with_hunter": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "hunter_candidates": [
+        "info@newzealandheatpumps.co.nz",
+        "admin@newzealandheatpumps.co.nz"
+      ],
+      "hunter_corroborated": [],
+      "hunter_high_confidence": [],
+      "score_diff": 0
+    },
+    {
+      "business": "Superior Renovations",
+      "id": 12,
+      "website": "https://superiorrenovations.co.nz/",
+      "domain": "superiorrenovations.co.nz",
+      "first_party": {
+        "email": "admin@superiorrenovations.co.nz",
+        "score": 98,
+        "label": "VERIFIED_HIGH"
+      },
+      "with_hunter": {
+        "email": "admin@superiorrenovations.co.nz",
+        "score": 98,
+        "label": "VERIFIED_HIGH"
+      },
+      "hunter_candidates": [
+        "steven@superiorrenovations.co.nz",
+        "elaine@superiorrenovations.co.nz",
+        "kevin@superiorrenovations.co.nz",
+        "swati@superiorrenovations.co.nz",
+        "neil@superiorrenovations.co.nz",
+        "jimmy@superiorrenovations.co.nz",
+        "dorothy@superiorrenovations.co.nz",
+        "cici@superiorrenovations.co.nz",
+        "jin@superiorrenovations.co.nz",
+        "eunice@superiorrenovations.co.nz"
+      ],
+      "hunter_corroborated": [],
+      "hunter_high_confidence": [],
+      "score_diff": 0
+    },
+    {
+      "business": "Christchurch Renovations",
+      "id": 13,
+      "website": "https://www.chchrenovations.nz/",
+      "domain": "chchrenovations.nz",
+      "first_party": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "with_hunter": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "hunter_candidates": [
+        "hello@chchrenovations.nz"
+      ],
+      "hunter_corroborated": [],
+      "hunter_high_confidence": [],
+      "score_diff": 0
+    },
+    {
+      "business": "Butterfield Bathrooms",
+      "id": 14,
+      "website": "https://www.butterfieldbathrooms.co.nz/",
+      "domain": "butterfieldbathrooms.co.nz",
+      "first_party": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "with_hunter": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "hunter_candidates": [],
+      "hunter_corroborated": [],
+      "hunter_high_confidence": [],
+      "score_diff": 0
+    },
+    {
+      "business": "Evoke Renovations",
+      "id": 15,
+      "website": "https://www.evoke-reno.co.nz/",
+      "domain": "evoke-reno.co.nz",
+      "first_party": {
+        "email": "aw@evoke-reno.co.nz",
+        "score": 98,
+        "label": "VERIFIED_HIGH"
+      },
+      "with_hunter": {
+        "email": "aw@evoke-reno.co.nz",
+        "score": 100,
+        "label": "VERIFIED_HIGH"
+      },
+      "hunter_candidates": [
+        "aw@evoke-reno.co.nz",
+        "administration@evoke-reno.co.nz"
+      ],
+      "hunter_corroborated": [],
+      "hunter_high_confidence": [],
+      "score_diff": 2
+    },
+    {
+      "business": "Modern Age Kitchens",
+      "id": 16,
+      "website": null,
+      "domain": null,
+      "first_party": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "with_hunter": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "hunter_candidates": [],
+      "hunter_corroborated": [],
+      "hunter_high_confidence": [],
+      "score_diff": 0
+    },
+    {
+      "business": "Kitchen Studio Christchurch",
+      "id": 17,
+      "website": "https://kitchenstudio.co.nz",
+      "domain": null,
+      "first_party": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "with_hunter": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "hunter_candidates": [],
+      "hunter_corroborated": [],
+      "hunter_high_confidence": [],
+      "score_diff": 0
+    },
+    {
+      "business": "Best Nest Building Co",
+      "id": 18,
+      "website": "https://bestnestbuilding.co.nz/",
+      "domain": "bestnestbuilding.co.nz",
+      "first_party": {
+        "email": "luke@bestnestbuilding.co.nz",
+        "score": 98,
+        "label": "VERIFIED_HIGH"
+      },
+      "with_hunter": {
+        "email": "luke@bestnestbuilding.co.nz",
+        "score": 100,
+        "label": "VERIFIED_HIGH"
+      },
+      "hunter_candidates": [
+        "luke@bestnestbuilding.co.nz",
+        "info@bestnestbuilding.co.nz"
+      ],
+      "hunter_corroborated": [],
+      "hunter_high_confidence": [],
+      "score_diff": 2
+    },
+    {
+      "business": "Fendalton Construction",
+      "id": 19,
+      "website": "https://www.fendaltonconstruction.co.nz/",
+      "domain": "fendaltonconstruction.co.nz",
+      "first_party": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "with_hunter": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "hunter_candidates": [],
+      "hunter_corroborated": [],
+      "hunter_high_confidence": [],
+      "score_diff": 0
+    },
+    {
+      "business": "Alpha Heat Pumps",
+      "id": 20,
+      "website": "https://alphaheatpumps.co.nz",
+      "domain": null,
+      "first_party": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "with_hunter": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "hunter_candidates": [],
+      "hunter_corroborated": [],
+      "hunter_high_confidence": [],
+      "score_diff": 0
+    },
+    {
+      "business": "EnergySmart",
+      "id": 21,
+      "website": "https://energysmart.co.nz",
+      "domain": "energysmart.co.nz",
+      "first_party": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "with_hunter": {
+        "email": null,
+        "score": 0,
+        "label": "NO_VERIFIED_EMAIL"
+      },
+      "hunter_candidates": [
+        "james@energysmart.co.nz",
+        "richard@energysmart.co.nz",
+        "support@energysmart.co.nz",
+        "genevieve.h@energysmart.co.nz",
+        "auckland@energysmart.co.nz",
+        "customerservices@energysmart.co.nz",
+        "info@energysmart.co.nz"
+      ],
+      "hunter_corroborated": [],
+      "hunter_high_confidence": [],
+      "score_diff": 0
+    },
+    {
+      "business": "Rise Residential",
+      "id": 22,
+      "website": "https://riseresidential.co.nz",
+      "domain": "riseresidential.co.nz",
+      "first_party": {
+        "email": "ben@riseresidential.co.nz",
+        "score": 98,
+        "label": "VERIFIED_HIGH"
+      },
+      "with_hunter": {
+        "email": "ben@riseresidential.co.nz",
+        "score": 100,
+        "label": "VERIFIED_HIGH"
+      },
+      "hunter_candidates": [
+        "ben@riseresidential.co.nz"
+      ],
+      "hunter_corroborated": [],
+      "hunter_high_confidence": [],
+      "score_diff": 2
+    }
+  ]
+}
