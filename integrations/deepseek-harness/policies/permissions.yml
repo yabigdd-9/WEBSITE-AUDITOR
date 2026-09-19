@@ -1,0 +1,36 @@
+version: 1
+mode: shadow-first
+principle: fail_closed
+
+allowed:
+  read_only:
+    - website_auditor_status
+    - website_auditor_email_status
+    - website_auditor_outreach_plan
+  bounded_network:
+    - website_auditor_audit_site
+
+supervised_only:
+  environment_gate: DSH_MM_ALLOW_BOUNDED_WRITES=1
+  tools:
+    - website_auditor_email_find
+    - website_auditor_demo_qa
+
+forbidden:
+  - send_email
+  - approve_outreach
+  - record_sent
+  - import_send_receipt
+  - cash
+  - refund
+  - production_deploy
+  - secret_read
+  - arbitrary_shell_through_bridge
+  - automatic_paid_model_fallback
+
+requirements:
+  inference_cost_nzd: 0
+  human_review_before_external_action: true
+  preserve_email_finder_v2: true
+  preserve_consent_gate: true
+  secrets_in_model_context: false
