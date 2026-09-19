@@ -1,0 +1,25 @@
+# Docker build context exclusions
+# Keep the image small and avoid leaking local state into the container.
+
+.git
+.gitignore
+*.db
+*.db-shm
+*.db-wal
+.cache/
+.CFUserTextEncoding
+.DS_Store
+.vscode/
+.idea/
+node_modules/
+.frontmatter/
+__pycache__/
+*.pyc
+
+# Local tooling artefact trees that are not part of the shipped integration.
+docs/
+outputs/
+backups/
+state/
+venv/
+.venv-email/

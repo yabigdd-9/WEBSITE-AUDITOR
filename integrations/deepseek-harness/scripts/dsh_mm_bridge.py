@@ -41,6 +41,7 @@ READ_ONLY_MM = {
     "status": ["status"],
 }
 
+_READ_ONLY_ACTION_NAMES = frozenset(READ_ONLY_MM.keys())
 
 def _repo_path(value: str) -> Path:
     p = Path(value).expanduser()
@@ -59,7 +60,9 @@ def _public_http_url(value: str) -> str:
     if parsed.scheme not in {"http", "https"} or not parsed.hostname:
         raise ValueError("url must be an absolute http(s) URL")
     host = parsed.hostname.lower().rstrip(".")
-    if host in {"localhost", "::1"} or host.endswith((".local", ".internal", ".localhost")):
+    if host in {"localhost", "0.0.0.0", "127.0.0.1", "::1"} or host.endswith(
+        (".local", ".internal", ".localhost", ".test")
+    ):
         raise ValueError("local/private targets are not allowed by the Harness bridge")
     try:
         ip = ipaddress.ip_address(host)
@@ -79,7 +82,7 @@ def build_command(args: argparse.Namespace) -> tuple[list[str], dict[str, str]]:
     env.pop("PYTHONSTARTUP", None)
     env.pop("BASH_ENV", None)
 
-    if args.action in READ_ONLY_MM:
+    if args.action in _READ_ONLY_ACTION_NAMES:
         return [str(MM), *READ_ONLY_MM[args.action]], env
 
     if args.action == "email-status":

@@ -1,4 +1,4 @@
-version: 1
+version: "1.0.0"
 mode: shadow-first
 principle: fail_closed
 

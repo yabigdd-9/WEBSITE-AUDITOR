@@ -1,0 +1,12 @@
+# v1.0.0 — DeepSeek Harness integration for WEBSITE-AUDITOR
+#
+# Secondary agent lane. Hermes remains scheduler and master control plane.
+# Existing deterministic Python and money-machine/mm stay authoritative.
+#
+# This file lists the canonical integration version. The pinned package
+# versions live in README.md and the Dockerfile ARG for reproducible builds.
+
+version = "1.0.0"
+harness_cli = "0.1.6-alpha.2"
+plugin = "dsh-website-auditor-tools@0.1.0"
+profile = "website-auditor"
