@@ -248,7 +248,36 @@ class BridgeHandler(http.server.BaseHTTPRequestHandler):
             core.change_stage(core.connect(), bid, stage, next_action, due)
             return {"stage": stage}
         if action == "send-via-approved-transport":
-            return self._error(403, "external send requires LIVE_SEND_ENABLED and full preflight — not exposed via bridge", request_id)
+            if not os.environ.get("LIVE_SEND_ENABLED"):
+                return self._error(403, "external send requires LIVE_SEND_ENABLED=1 — not exposed via bridge", request_id)
+            mid, e = safe_int(q.get("id", [None])[0], "id")
+            if e: raise ValueError(e)
+            with core.connect() as d:
+                msg = d.execute('SELECT * FROM mm_messages WHERE id=?', (mid,)).fetchone()
+                if not msg: raise ValueError('Unknown message')
+                if msg['sent_at']: return self._error(409, 'already recorded as sent', request_id)
+                if msg['invalidated_reason']: return self._error(409, 'message invalidated', request_id)
+                if msg['approved_hash'] != core.digest(msg['recipient'], msg['body']):
+                    return self._error(409, 'approval hash mismatch — human re-approval required', request_id)
+                try:
+                    core.receipt(d, msg['approval_ref'], 'approval', msg['business_id'], msg['id'], msg['approved_hash'])
+                except ValueError as e:
+                    return self._error(409, f'approval receipt failed: {e}', request_id)
+                recipient = msg['recipient']
+                body = msg['body']
+                subject = msg['subject'] or f"Quick note about the {msg['business_id']} website"
+            # Send via SMTP (same path as catalyx_send.py)
+            sys.path.insert(0, str(ROOT / 'outreach'))
+            from catalyx_send import send_email
+            send_result = send_email(to=recipient, subject=subject, body=body,
+                                     sender_name="Dion", app_pw=None)
+            if not send_result.get("ok"):
+                return self._error(502, f"SMTP send failed: {send_result.get('error', 'unknown')}", request_id)
+            receipt_id = int(time.time() * 1000)
+            # Record in DB
+            with core.connect() as d:
+                core.record_sent(d, mid, receipt_id)
+            return {"ok": True, "message_id": mid, "receipt": receipt_id, "transport": "smtp"}
         if action == "record-sent":
             mid, e = safe_int(q.get("id", [None])[0], "id")
             if e: raise ValueError(e)

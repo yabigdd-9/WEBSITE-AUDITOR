@@ -1,0 +1,85 @@
+{
+  "generated_at": "2026-09-19T13:00:00+12:00",
+  "description": "Approved prospect queue for round-the-clock sending. Each entry has passed the UEMA consent gate (consent_gate.py check()) and been human ratified. Sent status tracked in sent_at field.",
+  "daily_cap": 20,
+  "prospects": [
+    {
+      "id": 1,
+      "business_name": "Canvas Builders Ltd",
+      "address": "office@canvasbuilders.co.nz",
+      "address_source_url": "https://canvasbuilders.co.nz/contact",
+      "address_found_where": "contact page enquiry form destination",
+      "address_provenance": "own_website",
+      "surrounding_wording": "Get a quote — fill in our enquiry form or email our office and we'll come back to you within 24 hours.",
+      "invites_contact": true,
+      "refusal_statement_present": false,
+      "role_or_personal": "role",
+      "relevance_to_role": "office address handles inbound work enquiries; message concerns their own site's enquiry path",
+      "prior_relationship": "none",
+      "consent_type_claimed": "INFERRED",
+      "why_consent_believed": "Address is published in a block expressly inviting emailed enquiries about work, and the message concerns a defect in that same enquiry path which is directly relevant to the address's business function.",
+      "human_ratified_by": "Dion",
+      "ratified_at": "2026-09-19",
+      "verified_defects": [
+        "BROKEN_LINKS",
+        "NO_CONTACT_ON_HOMEPAGE"
+      ],
+      "evidence_detail": "Homepage links to /projects/legacy and /contact/old return 404. No phone or email visible on homepage above the fold.",
+      "subject": "Quick note about the Canvas Builders website",
+      "body": "Hi,\n\nI was looking at Canvas Builders Ltd and noticed at least one link on your site returns a 404 error page, and your homepage doesn't show a phone number or email, so visitors have to hunt for a way to contact you.\n\nI fix this kind of thing for local businesses. I'm not after a meeting — if it's useful I'll send you the specifics so you (or whoever looks after your site) can just get it sorted.\n\nWorth me sending that over?\n\nDion\n02904556680\n\n---\nIf you'd rather not hear from me, reply with \"no thanks\" and I won't contact you again.\nDion · 02904556680",
+      "sent_at": "2026-09-19T14:27:11+12:00"
+    },
+    {
+      "id": 2,
+      "business_name": "Harbourside Catering",
+      "address": "enquiries@harbourside.co.nz",
+      "address_source_url": "https://harbourside.co.nz/contact-us",
+      "address_found_where": "contact page 'Email us' link",
+      "address_provenance": "own_website",
+      "surrounding_wording": "Ready to book? Email our team or call us. We reply within one business day.",
+      "invites_contact": true,
+      "refusal_statement_present": false,
+      "role_or_personal": "role",
+      "relevance_to_role": "enquiries address handles booking requests; message concerns their site's mobile enquiry flow",
+      "prior_relationship": "none",
+      "consent_type_claimed": "INFERRED",
+      "why_consent_believed": "Address is published alongside an explicit invitation to email for bookings, and the message concerns the enquiry journey on their own site.",
+      "human_ratified_by": "Dion",
+      "ratified_at": "2026-09-19",
+      "verified_defects": [
+        "NO_MOBILE_VIEWPORT",
+        "SLOW_RESPONSE"
+      ],
+      "evidence_detail": "Homepage does not set a viewport meta tag, so it does not scale on phones. Load time was over 4 seconds when checked.",
+      "subject": "Quick note about the Harbourside Catering website",
+      "body": "Hi,\n\nI was looking at Harbourside Catering and noticed the site isn't set up to scale on phones, and the homepage was slow to load when I checked it.\n\nI fix this kind of thing for local businesses. I'm not after a meeting — if it's useful I'll send you the specifics so you (or whoever looks after your site) can just get it sorted.\n\nWorth me sending that over?\n\nDion\n02904556680\n\n---\nIf you'd rather not hear from me, reply with \"no thanks\" and I won't contact you again.\nDion · 02904556680",
+      "sent_at": "2026-09-19T14:27:17+12:00"
+    },
+    {
+      "id": 3,
+      "business_name": "Summit Property Maintenance",
+      "address": "office@summitpm.co.nz",
+      "address_source_url": "https://summitpm.co.nz/contact",
+      "address_found_where": "contact page contact form action endpoint",
+      "address_provenance": "own_website",
+      "surrounding_wording": "Contact us for a free inspection quote. Email or call.",
+      "invites_contact": true,
+      "refusal_statement_present": false,
+      "role_or_personal": "role",
+      "relevance_to_role": "office address handles inbound quote requests; message concerns site's contact visibility",
+      "prior_relationship": "none",
+      "consent_type_claimed": "INFERRED",
+      "why_consent_believed": "Address is published in a block inviting contact for quotes, and the message concerns a defect in their own site's contact path.",
+      "human_ratified_by": "Dion",
+      "ratified_at": "2026-09-19",
+      "verified_defects": [
+        "NO_CONTACT_ON_HOMEPAGE",
+        "STALE_COPYRIGHT"
+      ],
+      "evidence_detail": "Homepage footer shows copyright 2023. No phone or email visible on homepage.",
+      "subject": "Quick note about the Summit Property Maintenance website",
+      "body": "Hi,\n\nI was looking at Summit Property Maintenance and noticed your homepage doesn't show a phone number or email, so visitors have to hunt for a way to contact you, and the footer still shows an old copyright year, which makes the site look unattended.\n\nI fix this kind of thing for local businesses. I'm not after a meeting — if it's useful I'll send you the specifics so you (or whoever looks after your site) can just get it sorted.\n\nWorth me sending that over?\n\nDion\n02904556680\n\n---\nIf you'd rather not hear from me, reply with \"no thanks\" and I won't contact you again.\nDion · 02904556680",
+      "sent_at": "2026-09-19T14:27:21+12:00"
+    }
+  ]
+}

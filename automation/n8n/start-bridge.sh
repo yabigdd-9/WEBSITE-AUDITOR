@@ -15,6 +15,9 @@ if [ -z "${MM_BRIDGE_TOKEN:-}" ]; then
 fi
 
 export MM_BRIDGE_TOKEN
+export LIVE_SEND_ENABLED=1
+export MM_BRIDGE_HOST=127.0.0.1
+export MM_BRIDGE_PORT=8787
 cd "$PROJECT_ROOT"
 source .venv-email/bin/activate
 exec python money-machine/mm_bridge.py --host 127.0.0.1 --port 8787

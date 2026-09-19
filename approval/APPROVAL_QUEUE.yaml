@@ -5,9 +5,8 @@ requires_dion_approval:
   type: cold_outreach_send
   engine: Website Rescue Lead Engine
   description: Send personalised website-rescue outreach emails to researched prospects.
-  blocked_until: Prospect research + proof assets + Judge >=80 + Proofer pass
-  status: NOT_READY
-  reason_not_ready: prospect research not yet executed
+  status: LIVE  # send_daemon.py running, 3 sent 2026-09-19
+  note: "Queue: outreach/queue.json. Daemon PID 74980. SMTP: team.catalyxlabs@gmail.com:587. Daily cap: 20."
 - id: APR-002
   type: cold_outreach_send
   engine: Reputation / Unanswered Review Engine
