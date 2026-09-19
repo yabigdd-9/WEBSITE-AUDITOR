@@ -90,6 +90,24 @@ cold-emails/             # Generated outreach drafts
 
 This tool **audits only** — it does not send emails, modify external sites, or invoke paid AI services. All generated outputs are local files requiring human review before any external action.
 
+## DeepSeek Harness integration
+
+An experimental secondary agent lane is available under `integrations/deepseek-harness/`.
+
+It adds an installable DeepSeek Harness tool bundle around a restricted allowlist of deterministic Website Auditor and MoneyMachine operations. Hermes remains the intended scheduler/master control plane. Harness does not replace the Email Finder V2 evidence rules, the consent gate, or human approval.
+
+The integration is pinned to `@deepseek-ai/dsh@0.1.6-alpha.2` and defaults to zero-paid-token local Ollama routing. Mutation-capable tools are disabled unless the operator explicitly enables the supervised bounded-write flag. No send, approval, payment, deployment, secret-reading, or arbitrary-shell capability is exposed through the bridge.
+
+Start with:
+
+```bash
+bash integrations/deepseek-harness/scripts/install_profile.sh
+bash integrations/deepseek-harness/scripts/run_headless.sh \
+  "Use website_auditor_status with view=doctor. Report blockers only."
+```
+
+See [the Harness integration guide](integrations/deepseek-harness/README.md) for Ollama configuration, guardrails, Docker isolation and the shadow-mode acceptance gate.
+
 ## Requirements
 
 - Python 3.9+
