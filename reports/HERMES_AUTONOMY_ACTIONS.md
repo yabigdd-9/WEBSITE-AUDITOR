@@ -386,7 +386,20 @@ so no rollback was triggered.
 | `pip install --user` (free PyPI packages) | local tooling | yes |
 | `uv` + standalone CPython 3.11 into `~/.local` and repo-local `.venv-email` | local tooling (gitignored) | yes |
 | Deployment gate rehearsal (backup + `state/deployments.jsonl` entry) | local, worktree-scoped | yes (rollback point recorded) |
-| Git commit + push of branch `trial/hermes` | external (publication to the trial remote) | yes (branch is not `main`) |
+| Git commit `b3107b8` + push of branch `trial/hermes` to origin | external (publication to the trial remote) | yes (branch is not `main`; branch can be deleted) |
+
+**Publication record (final):**
+
+| Field | Value |
+|---|---|
+| Commit | `b3107b8` — "Add continuous-operation pipeline, zero-cost model routing, evidence-gated approvals" |
+| Parent | `8d172d2` (baseline for this trial) |
+| Branch | `trial/hermes` (new remote branch, tracking `origin/trial/hermes`) |
+| Push | succeeded, exit 0 (`git push -u origin trial/hermes`) |
+| Files | 18 (code, tests, reports, state/approval corrections) |
+| Excluded | `database/money_machine.db` left uncommitted (WAL checkpoint side effect of the backup rehearsal; integrity verified `ok`, no data loss, no sends) |
+| Merge to `main` | **not done** — that would be a production-affecting action for the other operators; nothing in this change set justifies it |
+| PR URL | https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/new/trial/hermes (offered by remote, not created) |
 
 **No production deployment. No rollback executed. No real outreach approval or
 send. No purchases. No secrets exposed.**
