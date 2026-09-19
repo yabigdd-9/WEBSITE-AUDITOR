@@ -503,6 +503,7 @@ class Worker:
                  rate_window=86400):
         self.worker_id = worker_id
         self.states = tuple(states)
+        self.kind = ','.join(self.states)
         self.handler = handler
         self.services = tuple(services)
         self.lease_seconds = lease_seconds
@@ -640,3 +641,13 @@ def driftfirst_apply(d):
     Safe to call at startup on any node; preserves append-only event history.
     """
     return migrate(d)
+
+
+class RunPipeline:
+    """Marker protocol so a long-running loop can be modeled as a command."""
+
+    @staticmethod
+    def run_pipelineloop(d, workers, sleep_seconds=60, max_cycles=None,
+                         report_every=10):
+        return run_pipelineloop(d, workers, sleep_seconds=sleep_seconds,
+                                max_cycles=max_cycles, report_every=report_every)

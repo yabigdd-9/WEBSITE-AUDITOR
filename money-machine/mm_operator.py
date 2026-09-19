@@ -239,14 +239,14 @@ def main(argv=None):
                     tests=['test_acceptance','test_email_finder','test_email_hardening','test_email_integration','test_lead_qualifier','test_outreach','test_pipeline','test_polish']
                     result=mm_deploy.deploy(d,sys.executable,tests,a.candidate)
             elif a.cmd=='pipeline-run':
-                names=a.worker or list(mm_workers.WORKERS)
-                out={}
-                for name in names:
-                    if name not in mm_workers.WORKERS:raise ValueError('Unknown worker '+name)
-                    states,handler=mm_workers.WORKERS[name]
-                    w=mm_pipeline.Worker('worker-'+name,states,handler,services=('http',) if name=='audit' else ())
-                    out[name]=w.run_once(d,a.limit)
-                result={'processed':out}
+                names=getattr(a,'worker',None) or list(mm_workers.WORKERS)
+                workers=[mm_pipeline.Worker('worker-'+name,*mm_workers.WORKERS[name],
+                    lease_seconds=int(getattr(a,'lease',300))) for name in sorted(names) if name in mm_workers.WORKERS]
+                cycles=mm_pipeline.run_pipelineloop(d,workers,
+                    sleep_seconds=float(getattr(a,'sleep',60)),
+                    max_cycles=int(getattr(a,'cycles',0) or 0),
+                    report_every=int(getattr(a,'report_every',10)))
+                result={'cycles':cycles,'workers':sorted(names)}
         print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd=='init':
         b=backup()
