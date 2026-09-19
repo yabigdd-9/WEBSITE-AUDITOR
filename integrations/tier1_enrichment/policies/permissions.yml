@@ -1,0 +1,33 @@
+version: "1.0"
+policy_name: tier1_enrichment_v1
+principle: fail_closed
+
+# What the enrichment layer may do. It never sends email, never writes to
+# production, never touches secrets — keys are read from the process
+# environment by the wrapper and never enter model context.
+allowed:
+  read_only:
+    - tier1_enrich_local_grade      # pure function of already-fetched headers
+    - tier1_enrich_cache_read       # outputs/.cache/enrichment only
+  bounded_network:
+    - tier1_enrich_w3c              # https://validator.w3.org (keyless)
+    - tier1_enrich_ssllabs_read     # https://api.ssllabs.com cached reads only
+    - tier1_enrich_urlscan_search   # https://urlscan.io search reads only
+  keyed_bounded_network:            # skipped cleanly when keys are absent
+    - tier1_enrich_pagespeed        # googleapis.com, PAGESPEED_API_KEY optional
+    - tier1_enrich_ranknibbler      # ranknibbler.com, RANKNIBBLER_API_KEY required
+
+forbidden:
+  - send_email
+  - approve_outreach
+  - production_deploy
+  - secret_read
+  - arbitrary_shell_through_bridge
+  - automatic_paid_model_fallback
+  - ssllabs_new_assessment        # startNew=on is banned (ToS: cached reads only)
+  - urlscan_submit                # submissions can publish prospect URLs; search only
+
+requirements:
+  inference_cost_nzd: 0
+  human_review_before_external_action: true
+  secrets_in_model_context: false

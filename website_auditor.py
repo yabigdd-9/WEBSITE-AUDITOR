@@ -343,6 +343,10 @@ def main():
     p.add_argument("--emails", action="store_true", help="Email discovery only")
     p.add_argument("--scout", metavar="FILE", help="Cross-reference prospects vs audits")
     p.add_argument("--cache-ttl", type=int, default=CACHE_TTL)
+    p.add_argument("--enrich", action="store_true",
+                   help="Add Tier 1 external enrichment (W3C/SSL Labs/urlscan/local "
+                        "header grade keyless; PageSpeed/RankNibbler when keys set). "
+                        "Additive only — existing checks untouched.")
     args = p.parse_args()
 
     async def _run():
@@ -365,6 +369,10 @@ def main():
                 global client
                 client = session
                 result = await audit_one(session, args.url)
+                if args.enrich:
+                    from integrations.tier1_enrichment import enrich_audit
+
+                    enrich_audit(result, await fetch_head(session, args.url))
             if args.format == "html":
                 output = generate_html_report(result)
             elif args.format == "json":
