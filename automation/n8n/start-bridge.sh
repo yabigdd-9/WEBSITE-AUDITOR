@@ -3,12 +3,9 @@
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-ENV_FILE="$SCRIPT_DIR/.env"
+ENV_FILE="$PROJECT_ROOT/.env"
 
-if [ ! -f "$ENV_FILE" ]; then
-    echo "ERROR: $ENV_FILE not found — copy .env.example and set MM_BRIDGE_TOKEN" >&2
-    exit 1
-fi
+if [ -f "$ENV_FILE" ]; then
 # shellcheck source=/dev/null
 source "$ENV_FILE"
 
