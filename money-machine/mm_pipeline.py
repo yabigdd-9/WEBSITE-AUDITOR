@@ -111,9 +111,39 @@ CREATE INDEX IF NOT EXISTS idx_pipeline_events_business ON pipeline_events(busin
 """
 
 
+EVENTS_DDL = """CREATE TABLE IF NOT EXISTS pipeline_events(
+  id INTEGER PRIMARY KEY,
+  business_id INTEGER NOT NULL,
+  from_state TEXT,
+  to_state TEXT NOT NULL,
+  actor TEXT NOT NULL,
+  reason TEXT NOT NULL,
+  evidence TEXT,
+  event_at TEXT NOT NULL);
+"""
+
+
 def migrate(d):
-    """Idempotent DDL apply; safe to call on every worker start."""
+    """Idempotent DDL apply; safe to call on every worker start.
+
+    Also repairs schema drift: a legacy pipeline_events shape (business_id,
+    stage, event_at, detail) is rebuilt into the current shape with every row
+    preserved, because the event trail is append-only history.
+    """
     d.executescript(DDL)
+    cols = {r[1] for r in d.execute('PRAGMA table_info(pipeline_events)')}
+    if cols and 'to_state' not in cols:  # legacy shape from an earlier build
+        d.execute('ALTER TABLE pipeline_events RENAME TO pipeline_events_legacy')
+        d.executescript(EVENTS_DDL)
+        d.execute("INSERT INTO pipeline_events(business_id,from_state,to_state,"
+                  "actor,reason,evidence,event_at) SELECT business_id,NULL,"
+                  "stage,'legacy',coalesce(detail,'legacy row'),NULL,event_at "
+                  "FROM pipeline_events_legacy")
+        kept = d.execute('SELECT changes()').fetchone()[0]
+        d.execute('DROP TABLE pipeline_events_legacy')
+        d.commit()
+        log({'kind': 'schema_drift_repaired', 'table': 'pipeline_events',
+             'rows_preserved': kept})
 
 
 class RetryableError(Exception):

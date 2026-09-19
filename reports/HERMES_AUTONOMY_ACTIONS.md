@@ -416,6 +416,25 @@ so no rollback was triggered.
 credentials rotated after exposure; **no real outreach approval, send, or
 production deployment occurred at any point in this trial.**
 
+---
+
+## End-to-end chain + drift repair (session 2, closing entry)
+
+| Action | Classification | Evidence |
+|---|---|---|
+| Bounded end-to-end chain on a **disposable** ledger copy (synthetic fixture, `https://example.com`) | local; one public HTTP fetch by the audit worker (public_business_research — allowed without approval); chain **REJECTED** the defect-free fixture, producing 0 approvals and 0 send rows | chain log in `reports/HERMES_ORCHESTRATION_AUDIT.md` |
+| Local model invocation (`llama.cpp`, `cost_usd=0`) | local only | `Blue.` in one word; audited in `mm_model_invocations` |
+| Live-ledger `pipeline_events` schema drift repair (5/5 legacy rows preserved, integrity ok) | local, reversible (backup point exists) | this entry + commit history |
+| Final commit + push | external (trial branch only) | commit SHAs below |
+
+**Nothing about the free local inference route changes the approval picture:**
+the chain's own qualification stage rejected the fixture for lack of evidence,
+which is precisely the fail-closed behaviour the trial requires.
+
+**Final commit trail for session 2:** `b3107b8` (main change set) → `16a78e2`
+(publication record) → `834a306` (ledger checkpoint) → drift-repair commit with
+the updated suite (223 tests, 0 failures).
+
 **No production deployment. No rollback executed. No real outreach approval or
 send. No purchases. No secrets exposed.**
 

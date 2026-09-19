@@ -229,9 +229,51 @@ Full suite, this machine, after repairs:
 | test_lead_qualifier | 19 OK |
 | test_outreach | 36 OK |
 | test_polish | 10 OK |
-| test_pipeline (new) | 49 OK |
+| test_pipeline (new) | 50 OK |
 
-**Total: 222 tests, 0 failures.**
+**Total: 223 tests, 0 failures.** (Suite re-run twice consecutively with 0
+failures after the backup-retry hardening.)
+
+### End-to-end model-backed chain executed (phase-2 blocker cleared)
+
+The phase-2 blocker "end-to-end model-backed chain not executed" is now
+**cleared with evidence**. A bounded chain was run against a **synthetic,
+disposable prospect** (`Chain Demo Fixture`, website `https://example.com` —
+the IANA documentation domain, no real business) inside a **disposable copy**
+of the ledger. The live operator ledger was not used as the pipeline store.
+
+| Stage | Result |
+|---|---|
+| identity | walked DISCOVERED → IDENTITY_PENDING → IDENTITY_RESOLVED → AUDIT_PENDING (each edge audited) |
+| audit | ran the real `engines/detect.py` detector over the public page → AUDITED |
+| qualification | **REJECTED** — a defect-free page with weak signals must not advance toward outreach (fail-closed commercial logic) |
+| contact / demo / qa / outreach_gate | processed 0 (terminal state respected) |
+| model step | `local:llamacpp` `Qwen3-4B-GGUF:Q4_K_M`, one-word answer `Blue.`, **cost_usd = 0** |
+| approval records | 0 |
+| send-ledger rows | 0 |
+
+**Verdict:** the chain executes end to end, advances only on evidence, stops
+correctly on weak evidence, and produces no outreach artifacts. Full event
+chain recorded in `pipeline_events`.
+
+### Database consistency: schema drift repaired (additive, history kept)
+
+The live ledger contained a **legacy-shaped `pipeline_events`** table
+(`business_id, stage, event_at, detail` — NOT NULL columns) from an earlier
+build. Two defects surfaced and were fixed:
+
+1. `mm_pipeline.migrate()` now detects the legacy shape, **rebuilds the table
+   into the current shape and preserves every row** (`stage` → `to_state`,
+   `detail` → `reason`, actor marked `legacy`). Applied to the live ledger:
+   5/5 rows preserved, integrity `ok`. Regression-tested.
+2. First attempt used `ALTER TABLE ADD COLUMN`, which cannot drop the legacy
+   `NOT NULL` constraint on `stage` — caught by the new `enqueue` test
+   (`IntegrityError`), replaced by the rebuild, re-tested.
+
+A subtle flake in the full suite was also traced to transient SQLite
+`OperationalError` under concurrent access; `backup()` now retries read-only
+opens with bounded backoff before falling back to rw, and the suite passed
+twice consecutively after that change.
 
 ### Local free inference (llama.cpp) — routing corrected by evidence
 

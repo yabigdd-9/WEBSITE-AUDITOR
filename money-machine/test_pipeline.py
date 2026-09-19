@@ -327,6 +327,29 @@ class AdvanceSemantics(unittest.TestCase):
         p.advance(self.d, self.bid, 'NEEDS_REVIEW', 'w', 'needs a human')
         self.assertEqual(p.item(self.d, self.bid)['state'], 'NEEDS_REVIEW')
 
+    def test_legacy_events_table_is_widened_and_rows_preserved(self):
+        """Database consistency: schema drift is repaired, history is kept."""
+        self.d.execute("DROP TABLE pipeline_events")
+        self.d.execute("CREATE TABLE pipeline_events(id INTEGER PRIMARY KEY,"
+                       "business_id INTEGER NOT NULL,stage TEXT,event_at TEXT,"
+                       "detail TEXT)")
+        self.d.execute("INSERT INTO pipeline_events(business_id,stage,event_at,"
+                       "detail) VALUES(?,?,?,?)",
+                       (self.bid, 'DISCOVERED', c.now(), 'legacy intake row'))
+        p.migrate(self.d)
+        cols = {r[1] for r in self.d.execute('PRAGMA table_info(pipeline_events)')}
+        self.assertTrue({'from_state', 'to_state', 'actor', 'reason'} <= cols)
+        row = self.d.execute("SELECT * FROM pipeline_events WHERE business_id=?",
+                             (self.bid,)).fetchone()
+        self.assertEqual(row['to_state'], 'DISCOVERED')
+        self.assertEqual(row['reason'], 'legacy intake row')  # history intact
+        self.assertEqual(row['actor'], 'legacy')
+        # And the repaired table accepts new-style events.
+        p.enqueue(self.d, self.bid)
+        n = self.d.execute("SELECT count(*) FROM pipeline_events WHERE "
+                           "business_id=?", (self.bid,)).fetchone()[0]
+        self.assertEqual(n, 2)
+
 
 class WorkerHandlers(unittest.TestCase):
     """Every declared stage handler must reach a legal target from its inputs."""
