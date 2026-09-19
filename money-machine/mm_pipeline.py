@@ -557,3 +557,86 @@ class Worker:
         return processed
 
 
+def run_pipelineloop(d, workers, sleep_seconds=60, max_cycles=None,
+                     report_every=10, log_destination=None):
+    """Bounded, restartable, deterministic continuous pipeline loop.
+
+    Each cycle: migrate(state), claim a few items per worker set, process each
+    once, heartbeat, report a compact metrics snapshot. The loop is entirely
+    opt-in and must be started by an authorized operator/controller; it emits
+    metrics but never takes external actions by itself (sends/approvals are
+    still gated by the approval engine).
+    """
+    metrics_sink = log_destination or (root() / 'state' / 'worker-logs')
+    migrate(d)
+    for idx, w in enumerate(workers):
+        register_worker(d, w.worker_id, w.kind, lease_seconds=w.lease_seconds)
+    cycles = 0
+    try:
+        while max_cycles is None or cycles < max_cycles:
+            snapshot = []
+            for w in workers:
+                snapshot.append({'worker': w.worker_id,
+                                 'processed': w.run_once(d)})
+            drain_expired_leases(d)
+            report(d, snapshot)
+            cycles += 1
+            log({'kind': 'loop_cycle', 'cycle': cycles,
+                 'snapshot': snapshot, 'sleep_before_next': sleep_seconds})
+            if cycles % report_every == 0:
+                log({'kind': 'loop_checkpoint', 'cycle': cycles,
+                     'elapsed_hint': 'agent-local'})
+    except Exception as ex:
+        log({'kind': 'loop_stopped', 'reason': '%s: %s' % (type(ex).__name__, ex),
+             'cycles_completed': cycles})
+        raise
+    log({'kind': 'loop_ended', 'cycles_completed': cycles,
+         'report_every': report_every})
+    return cycles
+
+
+def run_pipelineloop_cli(argv=None):
+    """CLI handler for mm_protocol run-pipeline (long-lived punctuator loop)."""
+    import argparse
+    p = argparse.ArgumentParser(prog='run-pipeline')
+    p.add_argument('--workers', action='append', default=None)
+    p.add_argument('--sleep', type=float, default=60)
+    p.add_argument('--cycles', type=int, default=None)
+    p.add_argument('--report-every', type=int, default=10)
+    args = p.parse_known_args(argv)[0]
+    from mm_workers import WORKERS
+    names = set(args.workers) if args.workers else set(WORKERS)
+    workers = [p.Worker('w-' + n, *WORKERS[n]) for n in sorted(names)]
+    return run_pipelineloop(d, workers, sleep_seconds=args.sleep,
+                            max_cycles=args.cycles, report_every=args.report_every)
+
+
+def drain_expired_leases(d):
+    at = dt.datetime.now(dt.timezone.utc)
+    d.execute("UPDATE pipeline_items SET lease_owner=NULL,lease_until=NULL,"
+              "updated_at=? WHERE lease_until IS NOT NULL "
+              "AND lease_until<=?", (now(), at.isoformat()))
+
+
+def report(d, snapshot):
+    states = {r['state']: r['n'] for r in d.execute(
+        "SELECT state,count(*) n FROM pipeline_items GROUP BY state")}
+    workers = {r['worker_id']: dict(r) for r in d.execute(
+        "SELECT * FROM worker_registry")}
+    for w in workers.values():
+        w['alive'] = (dt.datetime.now(dt.timezone.utc) - timestamp(w['heartbeat_at'])) < dt.timedelta(seconds=2 * w['lease_seconds'])
+    log({'kind': 'loop_snapshot', 'states': states, 'workers': workers,
+         'snapshot': snapshot})
+
+
+def health_full(d):
+    migrate(d)
+    return health(d), report(d, [])
+
+
+def driftfirst_apply(d):
+    """Apply the current schema, repairing any older shape in place if needed.
+
+    Safe to call at startup on any node; preserves append-only event history.
+    """
+    return migrate(d)

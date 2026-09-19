@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Website Rescue Auditor v2 — NZ small business website defect detection.
 
+from __future__ import annotations
+
 Async, cached, 25+ checks, batch-capable, HTML reports.
 
 Usage:
