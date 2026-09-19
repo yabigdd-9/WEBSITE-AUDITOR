@@ -373,8 +373,13 @@ def main():
                 result = await audit_one(session, args.url)
                 if args.enrich:
                     from integrations.tier1_enrichment import enrich_audit
-
-                    enrich_audit(result, await fetch_head(session, args.url))
+                    import os
+                    include = ("headers", "w3c", "ssllabs", "urlscan")
+                    if os.environ.get("PAGESPEED_API_KEY", "").strip():
+                        include += ("pagespeed",)
+                    if os.environ.get("RANKNIBBLER_API_KEY", "").strip():
+                        include += ("ranknibbler",)
+                    enrich_audit(result, await fetch_head(session, args.url), include=include)
             if args.format == "html":
                 output = generate_html_report(result)
             elif args.format == "json":
