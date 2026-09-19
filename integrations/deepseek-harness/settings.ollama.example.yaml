@@ -1,0 +1,21 @@
+# Merge these rows into $DSH_HOME/settings.yaml.
+# Local Mac/host mode. The API key is a non-secret placeholder for Ollama.
+llm-pi-ai:
+  providers:
+    ollama:
+      displayName: Ollama Local
+      apiKeyEnv: OLLAMA_API_KEY
+      api: openai-completions
+      baseURL: http://127.0.0.1:11434/v1
+      compat:
+        supportsDeveloperRole: false
+        maxTokensField: max_tokens
+      models:
+        - id: qwen3:4b-instruct-2507-q4_K_M
+          name: Qwen3 4B Instruct Local
+          contextWindow: 32768
+          maxTokens: 8192
+
+agent-default-model:
+  provider: ollama
+  model: qwen3:4b-instruct-2507-q4_K_M
