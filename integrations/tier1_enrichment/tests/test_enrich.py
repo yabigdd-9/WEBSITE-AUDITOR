@@ -62,6 +62,17 @@ class TestEnrichAuditMerge(EnrichCase):
                             or "strict-transport" in d.get("defect", "")
                             for d in out["defects"]))
 
+    def test_enrich_audit_inside_running_loop(self):
+        """Regression: --enrich calls enrich_audit from a running loop."""
+        async def _run():
+            return enrich_mod.enrich_audit(
+                {"url": "https://example.com", "defects": []},
+                {}, include=("headers",))  # no network
+
+        out = self.run_async(_run())
+        self.assertIn("enrichment", out)
+        self.assertEqual(out["enrichment"]["security_headers"]["grade"], "F")
+
     def test_unreachable_everything_still_returns_audit(self):
         def handler(request):
             raise httpx.ConnectError("nope")

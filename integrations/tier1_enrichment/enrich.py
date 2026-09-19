@@ -15,6 +15,7 @@ never break an audit.
 from __future__ import annotations
 
 import asyncio
+import concurrent.futures
 from typing import Any
 
 from integrations.tier1_enrichment.cache import EnrichmentCache
@@ -26,6 +27,20 @@ from integrations.tier1_enrichment.sources import (
     check_urlscan_search,
     check_w3c,
 )
+
+
+def _run_coro(coro):
+    """Run a coroutine from sync OR async callers.
+
+    ``asyncio.run()`` raises inside a running loop (the auditor calls us from
+    one), so: reuse the running loop when there is one, else ``asyncio.run``.
+    """
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        return asyncio.run(coro)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+        return pool.submit(asyncio.run, coro).result()
 
 
 def _client(headers: dict | None = None):
@@ -68,9 +83,15 @@ async def enrich_async(url: str, headers: dict | None = None,
 
 
 def enrich_audit(audit: dict, headers: dict | None = None,
-                 include: tuple[str, ...] = ("headers", "w3c", "ssllabs", "urlscan")) -> dict:
-    """Enrich an audit dict in place (sync wrapper for pipeline use)."""
-    enrichment = asyncio.run(enrich_async(audit.get("url", ""), headers, include=include))
+                 include: tuple[str, ...] = ("headers", "w3c", "ssllabs", "urlscan"),
+                 cache: EnrichmentCache | None = None) -> dict:
+    """Enrich an audit dict in place (sync wrapper for pipeline use).
+
+    Loop-safe: works from plain sync code AND from inside a running event
+    loop (e.g. ``website_auditor --enrich``). Prefer ``await enrich_async()``
+    when you already have a loop.
+    """
+    enrichment = _run_coro(enrich_async(audit.get("url", ""), headers, cache, include))
     audit["enrichment"] = enrichment
     grading = (enrichment.get("security_headers") or {}).get("defects", [])
     if grading:
