@@ -24,3 +24,4 @@ service-account*.json
 *secret*
 
 /.venv-email
+state/worker-logs/

@@ -46,9 +46,12 @@ active_tasks:
   engine: Website Rescue Lead Engine
   task: Collect per-prospect consent evidence (address, source URL, surrounding wording, invitation, relevance)
     for the 9 qualified prospects
-  status: QUEUED
+  status: COMPLETE
   agent: Researcher
-  note: gate blocks all drafting until this exists
+  note: 5 of 9 PERMITTED (clyne-bennie, jcconstruction, tbir, prodecorators, davidrobertson);
+    4 of 9 have no published email (NO_EMAIL_PUBLISHED) and route to phone/post. See prospect_dossier.json
+    and approval/APPROVAL_QUEUE.yaml for current state. Human ratification complete for 5; 4 cannot be
+    emailed by design.
 completed_tasks:
 - id: C-001
   task: Create workspace + state file
@@ -167,9 +170,12 @@ model_routing:
   - stepfun/step-3.7-flash:free
   note: delegation.model / delegation.provider intentionally UNSET in config.yaml so subagents inherit
     working parent credentials; pinning a non-nous model misroutes to 401.
-next_action: 'Send path is LIVE and proven. Only missing piece is per-prospect consent evidence (T-005):
-  address + source URL + surrounding wording + whether it invites contact + relevance. Collect that, ratify
-  (APR-007), then one command sends. 9/9 currently blocked by design.'
+next_action: 'T-005 COMPLETE: 5 of 9 prospects PERMITTED by consent gate (clyne-bennie, jcconstruction, tbir,
+  prodecorators, davidrobertson); 4 of 9 NO_EMAIL_PUBLISHED (whiteandtaylor, bcplumbers, greenscapes,
+  dyerdecorating — phone/post only). Gate check confirms 5 PERMITTED, 4 BLOCKED (no address).
+  APR-007 ratification is recorded in prospect_dossier.json (human_ratified_by: Dion). Next step: Dion runs
+  ./outreach/send.py --draft prospect_dossier.json to preview drafts, then --send drafts.json --i-approve
+  to transmit. No send has been executed.'
 artifacts:
   master_db_json: db/master_opportunity_database.json
   master_db_csv: db/MASTER_OPPORTUNITY_DATABASE.csv
@@ -200,6 +206,7 @@ blockers:
   blocks: all cold email
   issue: Cold email proceeds on inferred consent without legal sign-off; residual risk accepted by Dion.
   unblock: Per-prospect consent evidence + human ratification via consent_gate.py (APR-007).
+  status: 5 of 9 PERMITTED; 4 of 9 NO_EMAIL_PUBLISHED (phone/post only). Gate check confirms 5 PERMITTED.
 - id: B-002
   severity: MEDIUM
   blocks: any quote
@@ -231,11 +238,13 @@ verified_artifacts:
     warm_plus: 2
     contacted: 0
 send_capability:
-  status: WORKING
+  status: NOT_AVAILABLE_ON_THIS_MACHINE
   method: Gmail API OAuth
   account: yabigdd@gmail.com
   token: ~/.config/catalyx/gmail_token.json
-  proof: message id 1a011ac98dcf5b8d (self-test to own inbox)
+  proof: message id 1a011ac98dcf5b8d (self-test to own inbox, recorded on the original operator machine)
+  this_machine_check: token file ABSENT (verified 2026-09-20); presence checked only, contents never read
+  consequence: no send is physically possible here; capability is claimed on the original machine, not this one
   guards:
   - consent_gate PERMITTED required
   - --i-approve flag required

@@ -17,6 +17,7 @@ import smtplib
 import ssl
 import subprocess
 from email.message import EmailMessage
+from typing import Optional
 from execution_gate import require_external_release
 
 SMTP_HOST = "smtp.gmail.com"
@@ -25,7 +26,7 @@ SENDER = "team.catalyxlabs@gmail.com"
 SENDER_NAME = "CATALYX Labs"
 
 
-def _keychain_app_pw() -> str | None:
+def _keychain_app_pw() -> Optional[str]:
     try:
         out = subprocess.run(
             ["security", "find-generic-password", "-a", SENDER,
@@ -37,7 +38,7 @@ def _keychain_app_pw() -> str | None:
 
 
 def send_email(to: str, subject: str, body: str, sender_name: str = SENDER_NAME,
-               app_pw: str | None = None) -> dict:
+               app_pw: Optional[str] = None) -> dict:
     require_external_release()
     app_pw = app_pw or os.environ.get("CATALYX_GMAIL_APP_PW") or _keychain_app_pw()
     if not app_pw:

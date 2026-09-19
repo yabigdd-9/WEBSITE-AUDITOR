@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 import sqlite3
 import tarfile
+import time
 import uuid
 from urllib.parse import urlsplit
 
@@ -63,9 +64,20 @@ def backup(r=None):
         with tarfile.open(p,'w:gz') as t:t.add(r/name,arcname=name)
         items.append({'source':str(r/name),'path':str(p),'sha256':sha(p.read_bytes())})
     src=r/'database/money_machine.db';dest=folder/'money_machine.db'
-    with contextlib.closing(connect(src,readonly=True)) as s, contextlib.closing(sqlite3.connect(dest)) as target, target:
-        s.backup(target)
-        if target.execute('PRAGMA integrity_check').fetchone()[0]!='ok':raise ValueError('Backup failed integrity check')
+    # A read-only open of a WAL-mode database can fail transiently under
+    # concurrent access ("unable to open database file"). Retry with bounded
+    # backoff, and fall back to an rw open purely so WAL recovery can run; the
+    # backup API itself never writes to the source.
+    last=None
+    for attempt, readonly in ((1,True),(2,True),(3,False),(4,False)):
+        try:
+            s=connect(src,readonly=readonly);t=sqlite3.connect(dest);s.backup(t)
+            if t.execute('PRAGMA integrity_check').fetchone()[0]!='ok':raise ValueError('Backup failed integrity check')
+            t.close();s.close();break
+        except (sqlite3.OperationalError,ValueError) as ex:
+            last=ex;time.sleep(0.25*attempt)
+    else:
+        raise ValueError('Backup could not read the source database: %s' % last)
     items.append({'source':str(src),'path':str(dest),'sha256':sha(dest.read_bytes())})
     (folder/'manifest.json').write_text(json.dumps({'created_at':now(),'items':items},indent=2))
     return folder

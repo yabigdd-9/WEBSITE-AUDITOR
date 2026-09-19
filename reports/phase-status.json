@@ -27,19 +27,19 @@
   },
   {
     "phase": 2,
-    "status": "BLOCKED",
-    "summary": "Hermes capability probe repaired; inference smoke and model-backed chain blocked on a certified zero-cost isolated route.",
-    "findings": "Hermes capability probe repaired; inference smoke and model-backed chain blocked on a certified zero-cost isolated route.",
-    "evidence": "hermes-probe.json, hermes-smoke.json",
+    "status": "PARTIAL",
+    "summary": "Local zero-cost inference route verified end to end (llama-server + Qwen3-4B on 127.0.0.1:8080, one bounded completion, cost_usd=0) and wired into mm_model_router as the preferred route. The full model-backed chain has not been executed and no paid route exists as a fallback.",
+    "findings": "Local zero-cost inference route verified end to end (llama-server + Qwen3-4B on 127.0.0.1:8080, one bounded completion, cost_usd=0) and wired into mm_model_router as the preferred route. The full model-backed chain has not been executed and no paid route exists as a fallback.",
+    "evidence": "phase2-unblock-evidence.json, llama-server curl test",
     "files_changed": "Exact per-file change-manifest.json (shared repairs; see scope summary)",
-    "tests_run": "Missing/nonzero/malformed interface tested. Deterministic stages pass separately.",
-    "test_results": "Missing/nonzero/malformed interface tested. Deterministic stages pass separately.",
+    "tests_run": "Missing/nonzero/malformed interface tested. Deterministic stages pass separately. test_pipeline covers local-route preference and BLOCKED_COST deferral.",
+    "test_results": "Missing/nonzero/malformed interface tested. Deterministic stages pass separately. test_pipeline covers local-route preference and BLOCKED_COST deferral.",
     "blockers": [
-      "BLOCKED_COST",
-      "Model runner and independent model chain not executed"
+      "End-to-end model-backed chain not executed",
+      "No :free external route configured (OPENROUTER_API_KEY unset) - deferral, not payment, is the fallback"
     ],
     "rollback": "Preflight backup plus guarded rollback-local.py and reverse binary Git patch; live DB never restored",
-    "next_action": "Resolve listed gate before any external action"
+    "next_action": "Run a bounded model-backed chain against the local route; external actions still require APR-004 (price bands) and per-prospect consent ratification (APR-007)"
   },
   {
     "phase": 3,

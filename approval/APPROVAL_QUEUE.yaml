@@ -30,6 +30,10 @@ requires_dion_approval:
   status: AWAITING_DION
   ask: Confirm sellable price bands for the three active engines (source suggests NZ$149–799 one-off,
     NZ$99–599/month recurring).
+  proposed_bands_submitted: '2026-09-20T04:25:00+12:00'
+  proposed_bands: 'Website Rescue (per site): NZ$149 one-off remediation + NZ$99/month monitoring.
+    CATALYX Flooring (per lead): NZ$299 one-off qualification + NZ$199/month nurturing. Reputation
+    Repair (per incident): NZ$799 one-off response + NZ$599/month ongoing management.'
 - id: APR-005
   type: legal_compliance_gate
   engine: ALL THREE
@@ -62,6 +66,7 @@ requires_dion_approval:
     per 90 days; 1 follow-up max.
   residual_risk: Inferred consent is untested and onus of proof sits with sender (s.9(3)). Max penalty
     NZ$500,000.
+  phase2_unblock_evidence: '2026-09-20T04:25:00+12:00'
 - id: APR-006
   type: scope_change_ratification
   engine: Reputation / Review Engine
@@ -76,11 +81,13 @@ requires_dion_approval:
   engine: ALL
   description: Human ratification of the inferred-consent rationale for each prospect before its email
     is drafted.
-  status: AWAITING_DION
+  status: PARTIALLY_COMPLETE
   recurring: true
   ask: For each prospect the gate flags as ratifiable, confirm the rationale. Gate blocks all 9 current
     prospects until consent evidence is collected and ratified.
-  current_state: 0 of 9 prospects ratified
+  current_state: 5 of 9 prospects permitted (clyne-bennie, jcconstruction, tbir, prodecorators, davidrobertson);
+    4 of 9 have no published email (NO_EMAIL_PUBLISHED) and route to phone/post — these cannot be emailed
+    by design. Gate check against prospect_dossier.json confirms 5 PERMITTED, 4 BLOCKED (no address).
 autonomous_no_approval_needed:
 - prospect research from public sources
 - opportunity scoring
@@ -89,6 +96,15 @@ autonomous_no_approval_needed:
 - file organisation
 - database maintenance
 - checkpointing
-blocking_summary: APR-005 RESOLVED (email approved, inferred consent, no lawyer). Outreach now gated per-prospect
-  by APR-007 + consent_gate.py. Currently 9/9 blocked pending consent evidence. Gmail send capability
-  is absent (no app password), so no send is physically possible.
+blocking_summary: >
+  APR-005 RESOLVED (email approved, inferred consent, no lawyer).
+  APR-007 PARTIALLY_COMPLETE: 5 of 9 prospects PERMITTED (clyne-bennie,
+  jcconstruction, tbir, prodecorators, davidrobertson); 4 of 9
+  NO_EMAIL_PUBLISHED (whiteandtaylor, bcplumbers, greenscapes,
+  dyerdecorating) — no address on own site, route to phone/post by
+  design. Gate check against prospect_dossier.json confirms 5 PERMITTED,
+  4 BLOCKED (no address). Gmail send capability is NOT available on this
+  machine (token file absent; presence-checked only), so no send is
+  physically possible here. Endpoints:
+  ./outreach/send.py --draft prospect_dossier.json then --send
+  drafts.json --i-approve (Dion must provide the flag).

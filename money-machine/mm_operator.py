@@ -181,6 +181,15 @@ def main(argv=None):
     q=s.add_parser('model-request');q.add_argument('--model',required=True);q.add_argument('--provider',required=True);q.add_argument('--purpose',required=True)
     q=s.add_parser('experiment');q.add_argument('id',type=int);q.add_argument('--industry',required=True);q.add_argument('--problem',choices=ONTOLOGY,required=True);q.add_argument('--offer',required=True);q.add_argument('--price-band',required=True);q.add_argument('--style',required=True);q.add_argument('--demo-type',required=True)
     q=s.add_parser('run-job');q.add_argument('--key',required=True);q.add_argument('--kind',choices=['status','learn'],required=True)
+    q=s.add_parser('pipeline-run');q.add_argument('--worker',action='append');q.add_argument('--limit',type=int,default=1)
+    s.add_parser('pipeline-status')
+    q=s.add_parser('pipeline-enqueue');q.add_argument('id',type=int);q.add_argument('--state',default='DISCOVERED')
+    q=s.add_parser('pipeline-transition');q.add_argument('id',type=int);q.add_argument('--to',required=True);q.add_argument('--actor',required=True);q.add_argument('--reason',required=True)
+    s.add_parser('pipeline-health')
+    q=s.add_parser('approval-check');q.add_argument('id',type=int)
+    q=s.add_parser('approval-decide');q.add_argument('approval_id',type=int);q.add_argument('--actor',required=True);q.add_argument('--reason',required=True)
+    q=s.add_parser('model-plan');q.add_argument('--purpose',required=True)
+    q=s.add_parser('deploy-check');q.add_argument('--candidate');q.add_argument('--execute',action='store_true')
     a=p.parse_args(argv)
     if a.cmd=='polish-status':
         report=json.loads((root()/'reports/polish-status.json').read_text())
@@ -211,6 +220,34 @@ def main(argv=None):
         print(email_cli.human_text(result) if a.cmd in ('email-status','email-find') and not a.json else json.dumps(result,indent=2))
         return 0
     if a.cmd=='backup':print(backup());return 0
+    if a.cmd in ('pipeline-run','pipeline-status','pipeline-enqueue','pipeline-transition','pipeline-health','approval-check','approval-decide','model-plan','deploy-check'):
+        import mm_pipeline, mm_approval, mm_model_router, mm_workers
+        readonly=a.cmd in ('approval-check',)
+        with contextlib.closing(connect(readonly=readonly)) as d, d:
+            mm_pipeline.migrate(d);mm_approval.migrate(d)
+            if a.cmd=='pipeline-status':result=mm_pipeline.health(d)
+            elif a.cmd=='pipeline-health':result=mm_pipeline.health(d)
+            elif a.cmd=='pipeline-enqueue':result=dict(mm_pipeline.enqueue(d,a.id,a.state))
+            elif a.cmd=='pipeline-transition':result=dict(mm_pipeline.transition(d,a.id,a.to,a.actor,a.reason))
+            elif a.cmd=='approval-check':result=mm_approval.evaluate(d,a.id)
+            elif a.cmd=='approval-decide':result=mm_approval.decide(d,a.approval_id,a.actor,a.reason)
+            elif a.cmd=='model-plan':result=mm_model_router.plan(d,a.purpose)
+            elif a.cmd=='deploy-check':
+                if not a.execute:result={'status':'DRY_RUN','required_gates':list(__import__('mm_deploy').REQUIRED_GATES),'note':'Pass --execute to run gates. Deployment is local-workstation only.'}
+                else:
+                    import mm_deploy
+                    tests=['test_acceptance','test_email_finder','test_email_hardening','test_email_integration','test_lead_qualifier','test_outreach','test_pipeline','test_polish']
+                    result=mm_deploy.deploy(d,sys.executable,tests,a.candidate)
+            elif a.cmd=='pipeline-run':
+                names=a.worker or list(mm_workers.WORKERS)
+                out={}
+                for name in names:
+                    if name not in mm_workers.WORKERS:raise ValueError('Unknown worker '+name)
+                    states,handler=mm_workers.WORKERS[name]
+                    w=mm_pipeline.Worker('worker-'+name,states,handler,services=('http',) if name=='audit' else ())
+                    out[name]=w.run_once(d,a.limit)
+                result={'processed':out}
+        print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd=='init':
         b=backup()
         with contextlib.closing(connect()) as d,d:migrate(d,b)
