@@ -1,0 +1,10 @@
+forbidden_tools:
+  - send_email
+  - approve_outreach
+  - production_deploy
+  - git_push_main
+allowed_network_domains:
+  - "*.target-site.com" # Dynamic whitelist based on prospect
+  - "api.deepseek.com" # Only if using remote inference (currently disabled per NZD_0 rule)
+local_llm_endpoints:
+  - "http://localhost:11434/api/generate" # Ollama

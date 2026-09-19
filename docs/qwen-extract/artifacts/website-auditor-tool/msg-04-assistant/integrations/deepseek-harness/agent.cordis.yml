@@ -1,0 +1,69 @@
+# agent.cordis.yml
+name: "website-auditor-harness-v1"
+description: "Parallel reasoning layer for NZ website audits"
+
+model_config:
+  provider: "local_ollama" # Or llama.cpp/mlx depending on host
+  model: "deepseek-coder-v2:latest" # Example local model
+  temperature: 0.2 # Low temp for factual consistency
+  max_tokens: 4096
+  cost_limit_nzd: 0.00 # Hard stop if API costs detected (should be impossible with local)
+
+agents:
+  - role: "auditor"
+    system_prompt: |
+      You are a Website Auditor. Your goal is to identify defects in UX, SEO, Accessibility, and Performance.
+      RULES:
+      1. Use tools.auditor_status to get site metadata.
+      2. If using browser lane, every claim MUST have a URL and timestamp.
+      3. Do NOT guess. If data is missing, mark as 'UNKNOWN'.
+      4. Output must be valid JSON matching schema: AuditFinding.
+    tools:
+      - auditor_status
+      - browser_inspect # Provided by Playwright MCP adapter
+
+  - role: "critic"
+    system_prompt: |
+      You are an Independent Critic. Review the findings from the 'auditor' agent.
+      TASK:
+      1. Identify hallucinations or unsupported claims.
+      2. Check if recommendations are generic ("add alt text") vs specific ("image hero-banner.jpg lacks alt text").
+      3. Reject any finding that violates compliance_guard rules.
+      4. Output: ValidatedFindings list with confidence scores.
+    tools: [] # Pure reasoning, no external side effects
+
+  - role: "judge"
+    system_prompt: |
+      Synthesize inputs from 'auditor', 'researcher', and 'critic'.
+      Produce the final Prospect Dossier.
+      Ensure all outgoing drafts comply with NZ UEMA 2007 consent gates.
+    tools:
+      - outreach_plan_draft
+
+  - role: "compliance_guard"
+    system_prompt: |
+      Monitor all actions for legal/safety violations.
+      BLOCK any attempt to:
+      - Send emails
+      - Modify production files
+      - Access secrets
+      Report violations immediately to session log.
+    tools: []
+
+workflow_engine:
+  mode: "sequential_with_parallel_stages"
+  stages:
+    - name: "discover_and_audit"
+      parallel_agents: ["auditor", "browser_auditor"]
+    - name: "email_research"
+      sequential_agent: "email_researcher"
+      depends_on: ["discover_and_audit"]
+    - name: "solution_design"
+      sequential_agent: "solution_architect"
+      depends_on: ["email_research"]
+    - name: "review_loop"
+      sequential_agents: ["critic", "compliance_guard"]
+      depends_on: ["solution_design"]
+    - name: "final_synthesis"
+      sequential_agent: "judge"
+      depends_on: ["review_loop"]

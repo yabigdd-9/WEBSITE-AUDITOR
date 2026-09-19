@@ -1,0 +1,35 @@
+tool_policies:
+  allowed_read_only:
+    - auditor_status
+    - prospect_read
+    - email_status
+    - email_shadow
+    - git_diff
+  
+  allowed_bounded_action:
+    - email_find:
+        max_requests_per_minute: 5
+        timeout_seconds: 30
+    - outreach_plan:
+        write_scope: "/workspace/drafts/*"
+        requires_validation: true
+        
+  allowed_compute:
+    - tests:
+        scope: "unit_and_integration"
+        max_runtime_minutes: 10
+        
+  forbidden:
+    - send_email
+    - approve_outreach
+    - production_deploy
+    - delete_database
+    - modify_python_source
+    
+model_constraints:
+  providers_allowed:
+    - ollama-local
+    - llama-cpp-local
+  fallback_strategy: "queue_wait" # Do NOT switch to cloud if local fails
+  max_context_tokens: 8192
+  temperature_cap: 0.3 # Enforce determinism where possible

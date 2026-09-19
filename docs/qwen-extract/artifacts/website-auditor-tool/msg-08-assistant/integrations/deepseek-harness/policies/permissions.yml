@@ -1,0 +1,51 @@
+version: "1.0"
+policy_name: "safe_mm_bridge_v1"
+
+allowed_operations:
+  - id: auditor_status
+    type: subprocess
+    command_template: "./mm --runtime"
+    timeout_seconds: 30
+    output_format: json
+    
+  - id: polish_status
+    type: subprocess
+    command_template: "./mm polish-status"
+    timeout_seconds: 30
+    output_format: text
+
+  - id: prospect_read
+    type: sqlite_query
+    database_path: "db/master_opportunity_database.db"
+    allowed_tables: ["prospects", "audit_history"]
+    write_access: false
+    note: "Agents may query but never modify the master DB directly."
+
+  - id: email_find
+    type: subprocess
+    command_template: "./mm email-find {prospect_id}"
+    parameters:
+      prospect_id: 
+        type: string
+        regex: "^PROS-[A-Z0-9]+$"
+    timeout_seconds: 60
+    network_scope: "allowlist_only"
+
+  - id: outreach_plan_draft
+    type: file_write
+    base_directory: "outputs/drafts/"
+    allowed_extensions: [".md", ".json"]
+    max_file_size_kb: 512
+    note: "Only draft generation. No sending."
+
+forbidden_operations:
+  - pattern: "*send*"
+    reason: "External communication blocked in Phase A/B/C"
+  - pattern: "*deploy*"
+    reason: "Production writes prohibited"
+  - pattern: "*.env*"
+    reason: "Secret exposure prohibited"
+  - pattern: "rm *"
+    reason: "Destructive filesystem operations prohibited"
+  - pattern: "curl * | sh"
+    reason: "Remote code execution prohibited"

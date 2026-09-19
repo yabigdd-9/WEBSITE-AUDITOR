@@ -1,0 +1,34 @@
+version: "1.0"
+name: "website-auditor-harness"
+description: "Parallel agentic layer for WEBSITE-AUDITOR. Strictly isolated."
+
+resources:
+  cpu_limit: "2 cores"
+  memory_limit: "4GB"
+  disk_quota: "1GB" # For logs/screenshots only
+
+network:
+  egress_whitelist:
+    - "localhost:*" # For local Ollama/LLM endpoints
+    - "*.target-domain.com" # Dynamically injected per prospect
+  ingress_blocked: true
+
+filesystem:
+  mount_points:
+    - source: "./data/prospects"
+      target: "/workspace/data"
+      mode: "read-write"
+    - source: "./scripts/mm_wrappers"
+      target: "/usr/local/bin/mm-wrappers"
+      mode: "execute-only" # Prevent reading source code of wrappers
+  prohibited_paths:
+    - "~/.ssh"
+    - "~/.aws"
+    - ".env"
+    - "secrets/"
+
+security:
+  sandbox_type: "docker"
+  user_namespace: "non-root"
+  seccomp_profile: "default-restricted"
+  apparmor_profile: "harness-isolation"

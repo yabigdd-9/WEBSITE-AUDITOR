@@ -1,0 +1,44 @@
+project: WEBSITE-AUDITOR-HARNESS
+mode: shadow # Start in shadow, verify against deterministic output
+
+security:
+  sandbox: docker
+  network_egress_whitelist: 
+    - "localhost"
+    - "*.co.nz" # Target domains
+    - "*.com.au"
+  forbidden_paths:
+    - ".env"
+    - "~/.ssh"
+    - "secrets/"
+
+cost_policy:
+  max_inference_cost_nzd: 0.00
+  providers:
+    - name: ollama_local
+      endpoint: http://localhost:11434
+      model: qwen2.5-coder:7b # Local free model
+      fallback: queue_task # Do not switch to paid
+
+agents:
+  auditor:
+    role: Technical Audit Interpreter
+    tools: [audit_site, get_latest_audit_json]
+    prompt_system: |
+      You are a Web Auditor. Use the provided tools to inspect websites.
+      DO NOT hallucinate findings. Only report issues present in the JSON output from `get_latest_audit_json`.
+      Format output as strict JSON: { "findings": [...], "confidence": 0.0-1.0 }
+      
+  critic:
+    role: Quality Assurance
+    tools: []
+    prompt_system: |
+      Review the auditor's findings. Reject any claim that lacks direct evidence from the audit JSON.
+      Output: { "verdict": "APPROVE" | "REJECT", "reason": "..." }
+
+  solution_architect:
+    role: Remediation Planner
+    tools: [run_remediation]
+    prompt_system: |
+      Based on approved findings, trigger the remediation engine.
+      Summarize the top 3 high-value fixes for the client.

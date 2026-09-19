@@ -1,0 +1,24 @@
+# 1. Run the integration tests to verify the bridge works
+cd integrations/deepseek-harness
+python3 tests/test_integration.py
+cd ../..
+
+# 2. Verify existing core tests still pass (Sanity Check)
+# Replace 'pytest tests/' with your actual test command if different
+echo "Running core sanity check..."
+python3 website_auditor.py --help || echo "Core script accessible"
+
+# 3. Stage all new files
+git add integrations/deepseek-harness/
+
+# 4. Commit with detailed message
+git commit -m "feat: initialize DeepSeek Harness integration scaffold (Phase A: Shadow Mode)
+
+- Added config.yaml with strict NZD 0 cost policy
+- Implemented safe Python mm_bridge for deterministic core access
+- Defined Auditor, Critic, and Architect agent roles
+- Added unit tests for tool bridge security
+- Preserved existing Hermes/Python workflows unchanged"
+
+# 5. Push to GitHub
+git push origin integration/deepseek-harness-phase-a

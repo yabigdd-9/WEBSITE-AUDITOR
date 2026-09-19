@@ -1,0 +1,38 @@
+workflow: audit_business_full_cycle
+steps:
+  - id: discover
+    agent: researcher
+    inputs: { business_name: "{{input.name}}" }
+    outputs: { canonical_url: string }
+
+  - id: parallel_audit
+    type: fan_out_fan_in
+    branches:
+      - agent: auditor
+        tools: [auditor_status, browser_screenshot]
+      - agent: browser_auditor
+        tools: [playwright_mcp]
+      - agent: technical_checker
+        tools: [curl_headers, ssl_check]
+    join_condition: all_completed
+
+  - id: critique_loop
+    max_iterations: 3
+    steps:
+      - agent: judge
+        inputs: { audits: "{{parallel_audit.results}}" }
+        outputs: { ranked_findings: list }
+      
+      - agent: critic
+        inputs: { findings: "{{ranked_findings}}" }
+        outputs: { approved_findings: list, rejected_reasons: list }
+        
+      - condition: len(approved_findings) == 0 AND iteration < 3
+        action: retry_with_stricter_prompts
+
+  - id: final_output
+    format: json_dossier
+    includes:
+      - verified_contacts
+      - improvement_plan
+      - demo_assets_path

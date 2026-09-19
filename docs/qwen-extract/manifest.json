@@ -1,0 +1,1104 @@
+[
+  {
+    "title": "Website Auditor Tool",
+    "chat_id": "b54c6164-6c84-4a28-92e4-728199706f2a",
+    "share_id": "07529435-1210-4720-b491-014c98045046",
+    "messages": 12,
+    "markdown": "website-auditor-tool.md",
+    "markdown_bytes": 126576,
+    "artifacts": 25,
+    "artifact_detail": [
+      {
+        "chat": "Website Auditor Tool",
+        "message": 4,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/website-auditor-tool/msg-04-assistant/block-001.bash",
+        "lines": 5,
+        "bytes": 265
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 4,
+        "role": "assistant",
+        "lang": "yaml",
+        "path": "artifacts/website-auditor-tool/msg-04-assistant/integrations/deepseek-harness/policies/permissions.yml",
+        "lines": 70,
+        "bytes": 2016
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 4,
+        "role": "assistant",
+        "lang": "yaml",
+        "path": "artifacts/website-auditor-tool/msg-04-assistant/integrations/deepseek-harness/agent.cordis.yml",
+        "lines": 69,
+        "bytes": 2574
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 4,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/website-auditor-tool/msg-04-assistant/block-004.bash",
+        "lines": 6,
+        "bytes": 213
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 4,
+        "role": "assistant",
+        "lang": "python",
+        "path": "artifacts/website-auditor-tool/msg-04-assistant/tools/mm_wrapper.py",
+        "lines": 30,
+        "bytes": 890
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 6,
+        "role": "assistant",
+        "lang": "markdown",
+        "path": "artifacts/website-auditor-tool/msg-06-assistant/INTEGRATION_PLAN_DEEPSEEK_HARNESS.md",
+        "lines": 51,
+        "bytes": 2096
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 6,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/website-auditor-tool/msg-06-assistant/mm_wrapper.py",
+        "lines": 3,
+        "bytes": 165
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 6,
+        "role": "assistant",
+        "lang": "yaml",
+        "path": "artifacts/website-auditor-tool/msg-06-assistant/policies/permissions.yml",
+        "lines": 30,
+        "bytes": 844
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 6,
+        "role": "assistant",
+        "lang": "python",
+        "path": "artifacts/website-auditor-tool/msg-06-assistant/tools/mm_wrapper.py",
+        "lines": 92,
+        "bytes": 2806
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 6,
+        "role": "assistant",
+        "lang": "python",
+        "path": "artifacts/website-auditor-tool/msg-06-assistant/tests/test_security_bypass.py",
+        "lines": 48,
+        "bytes": 2053
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 6,
+        "role": "assistant",
+        "lang": "",
+        "path": "artifacts/website-auditor-tool/msg-06-assistant/block-011.txt",
+        "lines": 59,
+        "bytes": 1663
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 6,
+        "role": "assistant",
+        "lang": "python",
+        "path": "artifacts/website-auditor-tool/msg-06-assistant/integrations/deepseek-harness/tools/mm_wrapper.py",
+        "lines": 107,
+        "bytes": 3550
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 6,
+        "role": "assistant",
+        "lang": "python",
+        "path": "artifacts/website-auditor-tool/msg-06-assistant/integrations/deepseek-harness/tests/test_security_bypass.py",
+        "lines": 52,
+        "bytes": 2323
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 8,
+        "role": "assistant",
+        "lang": "markdown",
+        "path": "artifacts/website-auditor-tool/msg-08-assistant/INTEGRATION_PLAN_DEEPSEEK_HARNESS.md",
+        "lines": 52,
+        "bytes": 2097
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 8,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/website-auditor-tool/msg-08-assistant/mm_wrapper.py",
+        "lines": 3,
+        "bytes": 165
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 8,
+        "role": "assistant",
+        "lang": "yaml",
+        "path": "artifacts/website-auditor-tool/msg-08-assistant/policies/permissions.yml",
+        "lines": 30,
+        "bytes": 844
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 8,
+        "role": "assistant",
+        "lang": "python",
+        "path": "artifacts/website-auditor-tool/msg-08-assistant/tools/mm_wrapper.py",
+        "lines": 92,
+        "bytes": 2806
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 8,
+        "role": "assistant",
+        "lang": "python",
+        "path": "artifacts/website-auditor-tool/msg-08-assistant/tests/test_security_bypass.py",
+        "lines": 48,
+        "bytes": 2053
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 8,
+        "role": "assistant",
+        "lang": "yaml",
+        "path": "artifacts/website-auditor-tool/msg-08-assistant/integrations/deepseek-harness/policies/permissions.yml",
+        "lines": 51,
+        "bytes": 1420
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 8,
+        "role": "assistant",
+        "lang": "python",
+        "path": "artifacts/website-auditor-tool/msg-08-assistant/integrations/deepseek-harness/tools/mm_wrapper.py",
+        "lines": 107,
+        "bytes": 3550
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 8,
+        "role": "assistant",
+        "lang": "python",
+        "path": "artifacts/website-auditor-tool/msg-08-assistant/integrations/deepseek-harness/tests/test_security_bypass.py",
+        "lines": 46,
+        "bytes": 2087
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 10,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/website-auditor-tool/msg-10-assistant/setup_harness.sh",
+        "lines": 256,
+        "bytes": 8472
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 10,
+        "role": "assistant",
+        "lang": "",
+        "path": "artifacts/website-auditor-tool/msg-10-assistant/INTEGRATION_PLAN_DEEPSEEK_HARNESS.md",
+        "lines": 1,
+        "bytes": 0
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 12,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/website-auditor-tool/msg-12-assistant/setup_harness.sh",
+        "lines": 256,
+        "bytes": 8438
+      },
+      {
+        "chat": "Website Auditor Tool",
+        "message": 12,
+        "role": "assistant",
+        "lang": "",
+        "path": "artifacts/website-auditor-tool/msg-12-assistant/INTEGRATION_PLAN_DEEPSEEK_HARNESS.md",
+        "lines": 24,
+        "bytes": 582
+      }
+    ]
+  },
+  {
+    "title": "DeepSeek Harness Integration",
+    "chat_id": "0bb120d4-4620-46b8-b00b-35157b42d042",
+    "share_id": null,
+    "messages": 22,
+    "markdown": "deepseek-harness-integration.md",
+    "markdown_bytes": 324055,
+    "artifacts": 95,
+    "artifact_detail": [
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 2,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-02-assistant/robots.txt",
+        "lines": 4,
+        "bytes": 239
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 2,
+        "role": "assistant",
+        "lang": "typescript",
+        "path": "artifacts/deepseek-harness-integration/msg-02-assistant/tools/auditor-tools.ts",
+        "lines": 26,
+        "bytes": 805
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 2,
+        "role": "assistant",
+        "lang": "yaml",
+        "path": "artifacts/deepseek-harness-integration/msg-02-assistant/policies/permissions.yml",
+        "lines": 10,
+        "bytes": 343
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 2,
+        "role": "assistant",
+        "lang": "yaml",
+        "path": "artifacts/deepseek-harness-integration/msg-02-assistant/agents/critic.agent.yml",
+        "lines": 25,
+        "bytes": 782
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 2,
+        "role": "assistant",
+        "lang": "yaml",
+        "path": "artifacts/deepseek-harness-integration/msg-02-assistant/workflows/audit-business.yml",
+        "lines": 38,
+        "bytes": 1059
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 4,
+        "role": "assistant",
+        "lang": "yaml",
+        "path": "artifacts/deepseek-harness-integration/msg-04-assistant/block-006.yaml",
+        "lines": 207,
+        "bytes": 9534
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 4,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-04-assistant/block-007.bash",
+        "lines": 6,
+        "bytes": 259
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 4,
+        "role": "assistant",
+        "lang": "yaml",
+        "path": "artifacts/deepseek-harness-integration/msg-04-assistant/integrations/deepseek-harness/cordis.yml",
+        "lines": 34,
+        "bytes": 894
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 4,
+        "role": "assistant",
+        "lang": "yaml",
+        "path": "artifacts/deepseek-harness-integration/msg-04-assistant/integrations/deepseek-harness/policies/permissions.yml",
+        "lines": 35,
+        "bytes": 830
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 4,
+        "role": "assistant",
+        "lang": "typescript",
+        "path": "artifacts/deepseek-harness-integration/msg-04-assistant/integrations/deepseek-harness/tools/auditor-tools.ts",
+        "lines": 74,
+        "bytes": 2154
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 4,
+        "role": "assistant",
+        "lang": "yaml",
+        "path": "artifacts/deepseek-harness-integration/msg-04-assistant/integrations/deepseek-harness/workflows/agent-personas.yml",
+        "lines": 30,
+        "bytes": 1364
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 4,
+        "role": "assistant",
+        "lang": "python",
+        "path": "artifacts/deepseek-harness-integration/msg-04-assistant/integrations/deepseek-harness/tests/test_baseline.py",
+        "lines": 65,
+        "bytes": 2259
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 6,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-06-assistant/full-pipeline.py",
+        "lines": 4,
+        "bytes": 218
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 6,
+        "role": "assistant",
+        "lang": "yaml",
+        "path": "artifacts/deepseek-harness-integration/msg-06-assistant/integrations/deepseek-harness/config.yaml",
+        "lines": 41,
+        "bytes": 1354
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 6,
+        "role": "assistant",
+        "lang": "yaml",
+        "path": "artifacts/deepseek-harness-integration/msg-06-assistant/integrations/deepseek-harness/policies/permissions.yml",
+        "lines": 22,
+        "bytes": 596
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 6,
+        "role": "assistant",
+        "lang": "python",
+        "path": "artifacts/deepseek-harness-integration/msg-06-assistant/integrations/deepseek-harness/tools/mm_bridge.py",
+        "lines": 114,
+        "bytes": 3982
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 6,
+        "role": "assistant",
+        "lang": "yaml",
+        "path": "artifacts/deepseek-harness-integration/msg-06-assistant/integrations/deepseek-harness/workflows/agents.yml",
+        "lines": 44,
+        "bytes": 2090
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 6,
+        "role": "assistant",
+        "lang": "python",
+        "path": "artifacts/deepseek-harness-integration/msg-06-assistant/integrations/deepseek-harness/tests/test_integration.py",
+        "lines": 28,
+        "bytes": 1025
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 8,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-08-assistant/block-019.bash",
+        "lines": 18,
+        "bytes": 745
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 8,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-08-assistant/config.yaml",
+        "lines": 43,
+        "bytes": 1415
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 8,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-08-assistant/policies/permissions.yml",
+        "lines": 24,
+        "bytes": 670
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 8,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-08-assistant/workflows/agents.yml",
+        "lines": 46,
+        "bytes": 2160
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 8,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-08-assistant/remediation-engine.py",
+        "lines": 116,
+        "bytes": 4050
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 8,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-08-assistant/block-024.bash",
+        "lines": 30,
+        "bytes": 1100
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 8,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-08-assistant/block-025.bash",
+        "lines": 38,
+        "bytes": 1666
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 8,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-08-assistant/permissions.yml",
+        "lines": 24,
+        "bytes": 901
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 10,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-10-assistant/block-027.bash",
+        "lines": 8,
+        "bytes": 230
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 10,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-10-assistant/block-028.bash",
+        "lines": 3,
+        "bytes": 181
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 10,
+        "role": "assistant",
+        "lang": "python",
+        "path": "artifacts/deepseek-harness-integration/msg-10-assistant/integrations/deepseek-harness/state_machine/engine.py",
+        "lines": 157,
+        "bytes": 6576
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 10,
+        "role": "assistant",
+        "lang": "python",
+        "path": "artifacts/deepseek-harness-integration/msg-10-assistant/integrations/deepseek-harness/tools/mm_bridge.py",
+        "lines": 97,
+        "bytes": 3314
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 10,
+        "role": "assistant",
+        "lang": "yaml",
+        "path": "artifacts/deepseek-harness-integration/msg-10-assistant/integrations/deepseek-harness/config.yaml",
+        "lines": 44,
+        "bytes": 1380
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 10,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-10-assistant/block-032.bash",
+        "lines": 40,
+        "bytes": 1525
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 10,
+        "role": "assistant",
+        "lang": "python",
+        "path": "artifacts/deepseek-harness-integration/msg-10-assistant/integrations/deepseek-harness/policies/approval_gate.py",
+        "lines": 48,
+        "bytes": 2194
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 10,
+        "role": "assistant",
+        "lang": "markdown",
+        "path": "artifacts/deepseek-harness-integration/msg-10-assistant/reports/HERMES_DELEGATION_LOG.md",
+        "lines": 9,
+        "bytes": 909
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 10,
+        "role": "assistant",
+        "lang": "markdown",
+        "path": "artifacts/deepseek-harness-integration/msg-10-assistant/reports/HERMES_ORCHESTRATION_AUDIT.md",
+        "lines": 21,
+        "bytes": 1411
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 10,
+        "role": "assistant",
+        "lang": "markdown",
+        "path": "artifacts/deepseek-harness-integration/msg-10-assistant/reports/HERMES_AUTONOMY_ACTIONS.md",
+        "lines": 33,
+        "bytes": 1201
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 10,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-10-assistant/mm_bridge.py",
+        "lines": 14,
+        "bytes": 599
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 12,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-12-assistant/block-038.bash",
+        "lines": 1,
+        "bytes": 32
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 12,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-12-assistant/hermes_bootstrap.sh",
+        "lines": 1579,
+        "bytes": 55677
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 12,
+        "role": "assistant",
+        "lang": "text",
+        "path": "artifacts/deepseek-harness-integration/msg-12-assistant/block-040.text",
+        "lines": 1,
+        "bytes": 61
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 12,
+        "role": "assistant",
+        "lang": "text",
+        "path": "artifacts/deepseek-harness-integration/msg-12-assistant/block-041.text",
+        "lines": 1,
+        "bytes": 25
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 12,
+        "role": "assistant",
+        "lang": "",
+        "path": "artifacts/deepseek-harness-integration/msg-12-assistant/block-042.txt",
+        "lines": 6,
+        "bytes": 70
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 12,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-12-assistant/hermes_bootstrap-2.sh",
+        "lines": 2,
+        "bytes": 98
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "text",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/block-044.text",
+        "lines": 4,
+        "bytes": 73
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/block-045.bash",
+        "lines": 1,
+        "bytes": 8
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/block-046.bash",
+        "lines": 1,
+        "bytes": 23
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/block-047.bash",
+        "lines": 1,
+        "bytes": 9
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/block-048.bash",
+        "lines": 1,
+        "bytes": 1
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/block-049.bash",
+        "lines": 1,
+        "bytes": 3
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "text",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/block-050.text",
+        "lines": 12,
+        "bytes": 304
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/reports/HERMES_ORCHESTRATION_AUDIT.md",
+        "lines": 1,
+        "bytes": 32
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/HERMES_ORCHESTRATION_AUDIT-2.md",
+        "lines": 2,
+        "bytes": 11
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/HERMES_ORCHESTRATION_AUDIT-3.md",
+        "lines": 5,
+        "bytes": 81
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/block-054.bash",
+        "lines": 1,
+        "bytes": 29
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/hermes_bootstrap.sh",
+        "lines": 2,
+        "bytes": 61
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/hermes_bootstrap-2.sh",
+        "lines": 1,
+        "bytes": 27
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/hermes_bootstrap-3.sh",
+        "lines": 2,
+        "bytes": 50
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/hermes_bootstrap-4.sh",
+        "lines": 1,
+        "bytes": 24
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/hermes_bootstrap-5.sh",
+        "lines": 3,
+        "bytes": 78
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/hermes_bootstrap-6.sh",
+        "lines": 1,
+        "bytes": 34
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/hermes_bootstrap-7.sh",
+        "lines": 1,
+        "bytes": 41
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/hermes_bootstrap-8.sh",
+        "lines": 1,
+        "bytes": 30
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/hermes_bootstrap-9.sh",
+        "lines": 1,
+        "bytes": 8
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/block-064.bash",
+        "lines": 3,
+        "bytes": 66
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/block-065.bash",
+        "lines": 3,
+        "bytes": 153
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/reports/HERMES_AUTONOMY_ACTIONS.md",
+        "lines": 1,
+        "bytes": 49
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/HERMES_AUTONOMY_ACTIONS-2.md",
+        "lines": 2,
+        "bytes": 98
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/HERMES_AUTONOMY_ACTIONS-3.md",
+        "lines": 3,
+        "bytes": 83
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 14,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-14-assistant/hermes_bootstrap-10.sh",
+        "lines": 3,
+        "bytes": 78
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 16,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-16-assistant/block-070.bash",
+        "lines": 1,
+        "bytes": 19
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 16,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-16-assistant/block-071.bash",
+        "lines": 1,
+        "bytes": 184
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 16,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-16-assistant/hermes_bootstrap.sh",
+        "lines": 1,
+        "bytes": 8
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 18,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-18-assistant/block-073.bash",
+        "lines": 1,
+        "bytes": 49
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 18,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-18-assistant/block-074.bash",
+        "lines": 1,
+        "bytes": 61
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 18,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-18-assistant/block-075.bash",
+        "lines": 1,
+        "bytes": 101
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 20,
+        "role": "assistant",
+        "lang": "text",
+        "path": "artifacts/deepseek-harness-integration/msg-20-assistant/block-076.text",
+        "lines": 1,
+        "bytes": 48
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 20,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-20-assistant/block-077.bash",
+        "lines": 1,
+        "bytes": 19
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 20,
+        "role": "assistant",
+        "lang": "text",
+        "path": "artifacts/deepseek-harness-integration/msg-20-assistant/block-078.text",
+        "lines": 1,
+        "bytes": 38
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 20,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-20-assistant/block-079.bash",
+        "lines": 1,
+        "bytes": 8
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 20,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-20-assistant/block-080.bash",
+        "lines": 1,
+        "bytes": 8
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 20,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-20-assistant/block-081.bash",
+        "lines": 2,
+        "bytes": 58
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 20,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-20-assistant/hermes_bootstrap.sh",
+        "lines": 1,
+        "bytes": 19
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 20,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-20-assistant/hermes_bootstrap-2.sh",
+        "lines": 1,
+        "bytes": 35
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 20,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-20-assistant/_bootstrap.sh",
+        "lines": 1,
+        "bytes": 360
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 20,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-20-assistant/hermes_bootstrap-3.sh",
+        "lines": 1,
+        "bytes": 19
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 20,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-20-assistant/hermes_bootstrap-4.sh",
+        "lines": 5,
+        "bytes": 124
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 20,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-20-assistant/block-087.bash",
+        "lines": 1,
+        "bytes": 66
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 22,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-22-assistant/hermes_bootstrap.sh",
+        "lines": 1,
+        "bytes": 8
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 22,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-22-assistant/hermes_bootstrap-2.sh",
+        "lines": 1,
+        "bytes": 8
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 22,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-22-assistant/hermes_bootstrap-3.sh",
+        "lines": 2,
+        "bytes": 36
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 22,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-22-assistant/block-091.bash",
+        "lines": 1,
+        "bytes": 704
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 22,
+        "role": "assistant",
+        "lang": "text",
+        "path": "artifacts/deepseek-harness-integration/msg-22-assistant/hermes_bootstrap-4.sh",
+        "lines": 1,
+        "bytes": 28
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 22,
+        "role": "assistant",
+        "lang": "text",
+        "path": "artifacts/deepseek-harness-integration/msg-22-assistant/hermes_bootstrap-5.sh",
+        "lines": 1,
+        "bytes": 24
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 22,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-22-assistant/hermes_bootstrap-6.sh",
+        "lines": 1,
+        "bytes": 89
+      },
+      {
+        "chat": "DeepSeek Harness Integration",
+        "message": 22,
+        "role": "assistant",
+        "lang": "bash",
+        "path": "artifacts/deepseek-harness-integration/msg-22-assistant/hermes_bootstrap-7.sh",
+        "lines": 1,
+        "bytes": 120
+      }
+    ]
+  }
+]

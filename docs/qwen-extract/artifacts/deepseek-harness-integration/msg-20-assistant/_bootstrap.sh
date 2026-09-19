@@ -1,0 +1,1 @@
+cd /Users/dd/agent-trials/hermes && rm -f hermes_bootstrap.sh && pbpaste > hermes_bootstrap.sh && if head -n 1 hermes_bootstrap.sh | grep -qx '#!/usr/bin/env bash'; then bash -n hermes_bootstrap.sh && chmod +x hermes_bootstrap.sh && ./hermes_bootstrap.sh; else echo 'WRONG CLIPBOARD: first line is not #!/usr/bin/env bash. Copy the full bash script again.'; fi

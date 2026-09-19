@@ -1,0 +1,30 @@
+# integrations/deepseek-harness/policies/permissions.yml
+version: "1.0"
+policy_name: "safe_mm_bridge_v1"
+
+allowed_operations:
+  - id: auditor_status
+    type: subprocess
+    command_template: "./mm --runtime"
+    timeout_seconds: 30
+    
+  - id: polish_status
+    type: subprocess
+    command_template: "./mm polish-status"
+    timeout_seconds: 30
+
+  - id: prospect_read
+    type: sqlite_query
+    database_path: "db/master_opportunity_database.db"
+    allowed_tables: ["prospects", "audit_history"]
+    write_access: false
+
+forbidden_patterns:
+  - regex: ".*send.*"
+    reason: "External communication blocked in Phase A"
+  - regex: ".*deploy.*"
+    reason: "Production writes prohibited"
+  - regex: ".*rm\\s+.*"
+    reason: "Destructive filesystem operations prohibited"
+  - regex: ".*cat\\s+\\.env.*"
+    reason: "Secret exposure prohibited"

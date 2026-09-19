@@ -1,0 +1,207 @@
+# FILE: integrations/deepseek-harness/architecture.yaml
+project:
+  name: WEBSITE-AUDITOR + DeepSeek Harness
+  repository: yabigdd-9/WEBSITE-AUDITOR
+  objective: >
+    Add DeepSeek Harness as a parallel agentic execution and review layer
+    while preserving the existing deterministic Website Auditor, Hermes,
+    Email Finder V2, compliance gates, databases and human approval controls.
+
+core_rules:
+  - DO_NOT replace Hermes initially
+  - DO_NOT rewrite working Python pipelines
+  - DO_NOT give Harness unrestricted host access
+  - DO_NOT allow Harness to bypass consent or approval gates
+  - DO_NOT expose Gmail/API credentials directly to model context
+  - DO_NOT allow paid inference
+  - DO_NOT auto-send outreach during integration
+  - DO preserve current mm CLI as source of truth
+
+architecture:
+  control_plane:
+    primary:
+      system: Hermes
+      purpose: [continuous_orchestration, scheduling, model_routing, recovery]
+    secondary:
+      system: DeepSeek Harness
+      purpose: [parallel_reasoning, website_analysis, coding, browser_research, subagent_delegation, independent_review, QA, improvement_proposals]
+    deterministic_core:
+      system: WEBSITE-AUDITOR
+      interface: ./mm
+      rule: "Agents call existing commands and structured adapters. Agents do not duplicate core business logic."
+
+integration_layers:
+  - id: 1
+    name: Repository Baseline
+    actions:
+      - clone/update WEBSITE-AUDITOR
+      - create branch integration/deepseek-harness
+      - run existing tests
+      - run Email Finder acceptance suite
+      - capture current mm --help
+      - capture mm --runtime
+      - capture mm polish-status
+      - back up SQLite databases
+      - record baseline SHA
+    gate:
+      require_existing_tests_pass: true
+
+  - id: 2
+    name: Isolated Harness Runtime
+    actions:
+      - install DeepSeek Harness separately
+      - pin tested Harness version
+      - keep Harness configuration outside production secrets
+      - prefer Docker/isolated environment
+      - mount WEBSITE-AUDITOR workspace with least privilege
+      - begin read-only wherever possible
+    reason: "DeepSeek explicitly describes Harness as developer-preview software and not production-ready."
+
+  - id: 3
+    name: Website Auditor Harness Plugin
+    new_path: integrations/deepseek-harness/
+    files:
+      - cordis.yml
+      - agent.cordis.yml
+      - README.md
+      - SECURITY.md
+      - tools/auditor-tools.ts
+      - tools/email-tools.ts
+      - tools/prospect-tools.ts
+      - tools/report-tools.ts
+      - tools/review-tools.ts
+      - policies/permissions.yml
+      - workflows/audit-business.yml
+      - workflows/email-discovery.yml
+      - workflows/build-demo.yml
+      - workflows/review-prospect.yml
+      - workflows/improve-system.yml
+      - tests/
+
+  - id: 4
+    name: Safe mm Tool Bridge
+    principle: "DeepSeek Harness should call narrowly defined wrappers around mm rather than receiving arbitrary shell access."
+    tools:
+      auditor_status: { access: read_only, calls: ["./mm --runtime", "./mm polish-status"] }
+      prospect_read: { access: read_only }
+      email_status: { access: read_only, calls: ["./mm email-status ID --json"] }
+      email_find: { access: bounded_network, calls: ["./mm email-find ID"] }
+      email_shadow: { access: read_only, calls: ["./mm email-shadow"] }
+      outreach_plan: { access: local_write, calls: ["./mm outreach-plan --brief PATH"] }
+      tests: { access: local_execution }
+      git_diff: { access: read_only }
+      send_email: { access: FORBIDDEN }
+      approve_outreach: { access: FORBIDDEN }
+      production_deploy: { access: FORBIDDEN }
+
+  - id: 5
+    name: Agent Team
+    agents:
+      auditor:
+        job: [inspect_business_website, collect_evidence, identify_ux_problems, seo_review, accessibility_review, mobile_review, conversion_review, identify_missing_features]
+      researcher:
+        job: [verify_business_identity, canonical_domain, public_business_information, competitor_comparison, identify_commercially_useful_improvements]
+      email_researcher:
+        job: [invoke_Email_Finder_V2, inspect_provenance, reject_weak_addresses, preserve_NO_VERIFIED_EMAIL_outcome]
+      solution_architect:
+        job: [turn_audit_findings_into_specific_improvements, identify_quote_calculator_opportunities, booking_systems, enquiry_automation, customer_portals, ai_features, conversion_improvements]
+      demo_builder:
+        job: [create_local_before_after_demonstrations, generate_screenshot_ready_improvements, never_modify_target_website]
+      critic:
+        job: [independently_challenge_findings, reject_hallucinated_defects, verify_evidence, detect_generic_recommendations]
+      compliance_guard:
+        job: [enforce_existing_consent_gate_py, verify_human_approval_requirement, block_unsupported_outreach]
+      judge:
+        job: [compare_auditor_critic_results, rank_findings_by_evidence, reject_unsupported_claims]
+
+  - id: 6
+    name: Parallel Prospect Pipeline
+    pipeline:
+      stage_1_discover: { worker: researcher }
+      stage_2_identity: { worker: researcher, requirement: canonical_domain_confirmed }
+      stage_3_audit: { parallel: [auditor, browser_auditor, technical_checker] }
+      stage_4_email: { worker: email_researcher, requirement: Email_Finder_V2 }
+      stage_5_solution: { worker: solution_architect }
+      stage_6_demo: { worker: demo_builder }
+      stage_7_critique: { parallel: [critic, compliance_guard] }
+      stage_8_judge: { worker: judge }
+      stage_9_output: 
+        produce: [prospect_dossier, audit_json, evidence_bundle, verified_contact_status, recommended_improvements, demo, screenshots, draft_outreach, confidence_score]
+      stage_10_human_gate: { required: true }
+      stage_11_send: { enabled: false }
+
+  - id: 7
+    name: Harness Browser Lane
+    use: [Playwright_MCP, browser_screenshots, responsive_inspection, forms, broken_links, navigation, CTA_inspection, quote_flow_analysis, booking_flow_analysis]
+    output_rule:
+      every_claim_requires: [URL, captured_evidence, timestamp, finding_category]
+
+  - id: 8
+    name: Self-Improvement Loop
+    loop:
+      observe: [failed_audits, false_positives, rejected_email_candidates, weak_demos, test_failures, agent_disagreements]
+      diagnose: [root_cause, affected_module, proposed_improvement]
+      implement: { location: temporary_branch }
+      test: [regression_suite, Email_Finder_golden_set, deterministic_fixtures, lint, security_checks]
+      independent_review: { agent: critic }
+      promote: { automatic: false, require: [tests_pass, no_regression, human_approval] }
+
+cost_policy:
+  target: NZD_0
+  allowed: [local_Ollama, local_llama_cpp, local_MLX_where_compatible, confirmed_free_provider_routes, existing_subscription_allowances_where_explicitly_desired]
+  forbidden: [automatic_paid_fallback, credit_based_fallback_without_explicit_approval, silently_switching_to_paid_model]
+  failure_policy: "If free inference is unavailable, queue the task. Never silently purchase inference."
+
+security:
+  deepseek_harness: { trust_level: experimental }
+  restrictions:
+    - no_unrestricted_ssh
+    - no_unrestricted_config
+    - no_master_env_exposure
+    - no_Gmail_credentials_in_prompts
+    - no_Docker_socket_initially
+    - no_production_deployment_credentials
+    - no_unrestricted_shell
+    - no_outbound_email_permission
+  secrets:
+    architecture: "Agent requests an approved capability. Wrapper performs operation. Secret itself never enters model context."
+
+observability:
+  capture: [session_id, prospect_id, agent, model, provider, tool_calls, runtime, failures, retries, evidence, validation_result, estimated_cost]
+  requirement: { estimated_cost: 0 }
+
+acceptance_tests:
+  required:
+    - existing_WEBSITE_AUDITOR_tests_remain_green
+    - Email_Finder_V2_regression_remains_green
+    - golden_email_benchmark_does_not_regress
+    - Harness_can_invoke_read_only_mm_tool
+    - Harness_can_complete_one_audit
+    - Harness_can_run_parallel_subagents
+    - Harness_produces_structured_JSON
+    - session_can_resume_after_restart
+    - invalid_tool_request_is_denied
+    - secret_reading_attempt_is_denied
+    - email_send_attempt_is_denied
+    - production_write_attempt_is_denied
+    - agent_hallucination_is_caught_by_critic
+    - failed_free_provider_falls_back_to_another_FREE_route
+    - total_inference_charge_remains_exactly_zero
+
+rollout:
+  phase_A: { mode: shadow, prospects: 5, external_actions: none }
+  phase_B: { mode: comparison, prospects: 20, compare: [Hermes_only, Harness_only, Hermes_plus_Harness] }
+  phase_C: { mode: supervised, allow: [research, auditing, email_discovery, demo_generation, draft_generation], prohibit: [sending] }
+  phase_D: { mode: continuous, condition: [Harness_improves_measurable_quality, no_security_regression, zero_paid_token_usage, stable_recovery, human_gates_proven] }
+
+success_metrics:
+  quality: [verified_finding_precision, email_attribution_precision, false_positive_rate, demo_quality, critic_rejection_rate]
+  performance: [prospects_processed_per_hour, average_audit_duration, agent_failure_rate, recovery_rate]
+  economics: [inference_cost_eq_0, useful_prospects_per_day_increases]
+
+final_goal: >
+  Turn WEBSITE-AUDITOR into a continuously operating multi-agent
+  prospect intelligence and website-improvement system where Hermes
+  controls scheduling, DeepSeek Harness supplies a second modular
+  reasoning/execution layer, deterministic Python remains authoritative,
+  and external commercial actions remain behind explicit gates.

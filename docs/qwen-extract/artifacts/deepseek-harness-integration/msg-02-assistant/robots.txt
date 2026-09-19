@@ -1,0 +1,4 @@
+# Step-by-step setup script concept
+git checkout -b integration/deepseek-harness
+mkdir -p integrations/deepseek-harness/{tools,policies,workflows,tests}
+docker pull deepseek/harness:latest # Pin specific version tag after testing stability

@@ -1,0 +1,12 @@
+Hermes / operator
+   |
+   +--> deterministic Python core
+   |
+   +--> DeepSeek Harness scaffold
+          |
+          +--> SQLite state machine
+          +--> safe mm bridge
+          +--> approval gate
+          +--> local inference hook
+          +--> dry-run outreach dispatcher
+          +--> reports
