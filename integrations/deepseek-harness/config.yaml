@@ -1,0 +1,41 @@
+# DeepSeek Harness Integration Config
+# Version: 0.1.0-alpha (Shadow Mode)
+project_name: WEBSITE-AUDITOR-HARNESS
+mode: shadow # Options: shadow, comparison, supervised, continuous
+
+core_rules:
+  - "DO_NOT replace Hermes"
+  - "DO_NOT rewrite Python pipelines"
+  - "NO_PAID_INFERENCE"
+  - "NO_AUTO_SEND"
+  - "HUMAN_APPROVAL_REQUIRED_FOR_OUTREACH"
+
+deterministic_core:
+  interface: python3
+  entry_points:
+    audit_single: "website_auditor.py"
+    full_pipeline: "full-pipeline.py"
+    remediation: "remediation-engine.py"
+    dashboard: "audit-dashboard.py"
+  rule: "Harness agents MUST invoke these scripts via subprocess wrappers. No direct DB manipulation."
+
+security:
+  isolation_level: docker_container
+  network_egress: 
+    allowed_hosts: ["localhost", "127.0.0.1"] # Local LLMs only
+    blocked_hosts: ["*"] # Block all external web traffic except target sites (handled by wrapper)
+  secrets_management:
+    strategy: env_var_injection_wrapper
+    forbidden_in_context: [".env", "GMAIL_CREDENTIALS", "API_KEYS"]
+
+cost_policy:
+  target_currency: NZD
+  max_cost: 0.00
+  providers_allowed:
+    - ollama_local
+    - llama_cpp_local
+  fallback_strategy: queue_task # If local model busy/fails, wait. Do NOT switch to paid API.
+
+observability:
+  log_level: INFO
+  capture_fields: [session_id, prospect_id, agent_role, tool_called, duration_ms, cost_nzd]
