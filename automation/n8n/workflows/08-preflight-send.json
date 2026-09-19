@@ -1,0 +1,39 @@
+{
+  "name": "08 - Final Preflight + Send",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://host.docker.internal:8787/outreach-preflight",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {"Authorization": "Bearer {{$credentials.mmBridgeToken}}"},
+        "sendQuery": true,
+        "queryParameters": {"id": "={{$json.message_id}}"}
+      },
+      "name": "Outreach Preflight",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [350, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = $input.first().json;\nconst passed = result.passed !== false;\nreturn [{ json: { message_id: result.message_id, preflight_passed: passed, stage: passed ? 'READY_TO_SEND' : 'HOLD', hold_reason: passed ? null : 'preflight_failed' } }];"
+      },
+      "name": "Check Preflight",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [600, 300]
+    }
+  ],
+  "connections": {"Manual Trigger": {"main": [[{"node": "Outreach Preflight", "type": "main", "index": 0}]]}, "Outreach Preflight": {"main": [[{"node": "Check Preflight", "type": "main", "index": 0}]]}},
+  "settings": {"timezone": "Pacific/Auckland", "executionTimeout": 300}
+}

@@ -1,0 +1,39 @@
+{
+  "name": "07 - Brain Approval",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8787/brain-approve",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {"Authorization": "Bearer {{$credentials.mmBridgeToken}}"},
+        "sendQuery": true,
+        "queryParameters": {"id": "={{$json.message_id}}"}
+      },
+      "name": "Brain Approve",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [350, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = $input.first().json;\nreturn [{ json: { message_id: result.message_id, approved: result.approved, stage: 'APPROVED_TO_SEND' } }];"
+      },
+      "name": "Set Stage",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [600, 300]
+    }
+  ],
+  "connections": {"Manual Trigger": {"main": [[{"node": "Brain Approve", "type": "main", "index": 0}]]}, "Brain Approve": {"main": [[{"node": "Set Stage", "type": "main", "index": 0}]]}},
+  "settings": {"timezone": "Pacific/Auckland", "executionTimeout": 300}
+}

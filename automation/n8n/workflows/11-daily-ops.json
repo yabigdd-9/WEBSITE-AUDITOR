@@ -1,0 +1,51 @@
+{
+  "name": "11 - Daily Ops + Backup",
+  "nodes": [
+    {
+      "parameters": {"triggerTimes": [{"mode": "everyX", "value": 1, "unit": "days"}]},
+      "name": "Daily Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://host.docker.internal:8787/status",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {"Authorization": "Bearer {{$credentials.mmBridgeToken}}"}
+      },
+      "name": "MM Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [350, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://host.docker.internal:8787/doctor",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {"Authorization": "Bearer {{$credentials.mmBridgeToken}}"}
+      },
+      "name": "MM Doctor",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [350, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "const status = $('MM Status').first().json.result;\nconst doctor = $('MM Doctor').first().json.result;\nconst summary = {\n  generated_at: status.generated_at,\n  real_prospects: status.metrics.real_prospects,\n  verified_sends: status.metrics.verified_sends,\n  verified_replies: status.metrics.verified_replies,\n  net_received_nzd: status.metrics.net_received_nzd,\n  db_integrity: doctor.db_integrity,\n  foreign_key_errors: doctor.foreign_key_errors,\n  models_enabled: doctor.models_enabled,\n  blocked: status.blocked || [],\n  missing_or_stale: status.missing_or_stale || []\n};\nreturn [{ json: summary }];"
+      },
+      "name": "Aggregate Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [600, 400]
+    }
+  ],
+  "connections": {"Daily Schedule": {"main": [[{"node": "MM Status", "type": "main", "index": 0}, {"node": "MM Doctor", "type": "main", "index": 0}]]}, "MM Status": {"main": [[{"node": "Aggregate Report", "type": "main", "index": 0}]]}, "MM Doctor": {"main": [[{"node": "Aggregate Report", "type": "main", "index": 0}]]}},
+  "settings": {"timezone": "Pacific/Auckland", "executionTimeout": 300}
+}

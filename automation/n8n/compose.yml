@@ -1,0 +1,38 @@
+# n8n orchestration for WEBSITE-AUDITOR / Money Machine
+# n8n orchestrates schedules, branching, retries, dashboards and transport integrations.
+# It does NOT replace MoneyMachine's database, verification rules, suppression tables,
+# brain approval logic or send receipts. MoneyMachine remains the source of truth.
+#
+# Local-first: n8n binds to 127.0.0.1:5678 only.
+# USB fail-closed: container refuses to start if /Volumes/LLM-USB is not mounted.
+# Docker socket NOT exposed to n8n (no socket mount).
+
+services:
+  n8n:
+    image: docker.io/n8nio/n8n:${N8N_VERSION}
+    container_name: website-auditor-n8n
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5678:5678"
+    environment:
+      GENERIC_TIMEZONE: Pacific/Auckland
+      TZ: Pacific/Auckland
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      N8N_RESTRICT_FILE_ACCESS_TO: /files
+    volumes:
+      - ${N8N_DATA_DIR}:/home/node/.n8n
+      - ${N8N_FILES_DIR}:/files
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:5678/healthz >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - auditor_net
+
+networks:
+  auditor_net:
+    name: website-auditor-net

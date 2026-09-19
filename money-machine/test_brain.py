@@ -19,6 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 import mm_core as c
 import mm_brain as brain
 import mm_email as email_engine
+import mm_email as engine
 import mm_email_store as email_store
 import mm_outreach as outreach
 import mm_operator as operator
@@ -68,10 +69,12 @@ class BrainReview(unittest.TestCase):
         self.demo.write_text(demo_html)
         meta = {'url': 'https://fixture.example.co.nz', 'captured_at': c.now(),
                 'sha256': c.sha(self.capture.read_bytes()), 'path': str(self.capture)}
-        page = email_engine.parse_page(meta, self.capture.read_bytes())
-        dns = {'fixture.example.co.nz': {'domain_resolves': True, 'mx_present': True,
+        self._meta = meta
+        self._dns = {'fixture.example.co.nz': {'domain_resolves': True, 'mx_present': True,
                                          'mx_hosts': ['mx.fixture.example.co.nz'], 'domain_accepts_mail': True,
                                          'status': 'mx', 'checked_at': c.now()}}
+        page = email_engine.parse_page(meta, self.capture.read_bytes())
+        dns = self._dns
         result = email_engine.evaluate(dict(c.business(self.d, self.bid)), [page], dns)
         email_store.persist(self.d, result, self.r)
         self.eid = c.record_evidence(self.d, self.bid, 'https://fixture.example.co.nz',
@@ -142,7 +145,13 @@ class BrainReview(unittest.TestCase):
         self.assertEqual(ev['approved'], 0)
 
     def test_04_brain_blocks_when_identity_missing(self):
-        self.d.execute('DELETE FROM email_identity_checks WHERE prospect_id=?', (self.bid,))
+        # Insert a newer REJECTED identity check (append-only table)
+        self.d.execute(
+            "INSERT INTO email_identity_checks(prospect_id,checked_at,entity_key,result_json,evidence_hash) "
+            "VALUES(?,?,?,?,?)",
+            (self.bid, c.now(), 'rejected-entity',
+             json.dumps({'status': 'REJECTED', 'canonical_root_domain': None, 'proposed_root_domain': 'other.example.co.nz'}),
+             'sha-latest'))
         self.d.commit()
         result = brain.review(self.d, self.mid)
         self.assertIn(result['decision'], ('REJECTED', 'NEEDS_RESEARCH'))
@@ -179,42 +188,68 @@ class BrainReview(unittest.TestCase):
         self.assertIn('unfilled_placeholder', result['rejections'])
 
     def test_09_brain_blocks_when_email_policy_shadow(self):
-        self.d.execute("UPDATE email_policy SET mode='shadow' WHERE id=1")
+        # email_policy has a trigger that prevents shadow->v2 rollback.
+        # Use v1_hold which is the actual blocked state.
+        self.d.execute("UPDATE email_policy SET mode='v1_hold' WHERE id=1")
         self.d.commit()
         result = brain.review(self.d, self.mid)
         self.assertIn(result['decision'], ('REJECTED', 'NEEDS_RESEARCH'))
         self.assertIn('email_policy_hold', result['rejections'])
 
     def test_10_brain_blocks_when_catch_all(self):
+        # email_verifications is append-only; insert newer row with catch_all='yes'
+        sel = self.d.execute(
+            "SELECT best_email_id FROM prospect_email_state WHERE prospect_id=?", (self.bid,)
+        ).fetchone()
+        cand_id = sel['best_email_id']
         self.d.execute(
-            "UPDATE email_verifications SET catch_all_status='yes', smtp_result='accepted' "
-            "WHERE candidate_id=(SELECT best_email_id FROM prospect_email_state WHERE prospect_id=?)",
-            (self.bid,))
+            "INSERT INTO email_verifications(candidate_id,identity_id,checked_at,syntax_valid,mx_valid,"
+            "smtp_status,catch_all_status,disposable,business_match,person_match,first_party_observed,"
+            "confidence_score,confidence_label,rejection_reason,verifier_version,result_json) "
+            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (cand_id, 1, c.now(), 1, 1, 'accepted', 'yes', 0, 1, 'not_requested', 1,
+             90, 'VERIFIED_HIGH', '[]', engine.VERSION, '{}'))
         self.d.commit()
         result = brain.review(self.d, self.mid)
         self.assertIn(result['decision'], ('REJECTED', 'NEEDS_RESEARCH'))
         self.assertIn('catch_all_only', result['rejections'])
 
     def test_11_brain_blocks_when_duplicate_contact(self):
-        # Create another business with same address
+        # Create another business with the same verified email address
+        dup_addr = self.address  # same email as original fixture
         sql_biz = ("INSERT INTO businesses(name,region,public_website,source,discovered_at,"
                    "current_status,is_dummy) VALUES(?,?,?,?,?,?,0)")
         bid2 = self.d.execute(sql_biz,
-            ('Duplicate Contact','Fixturetown','https://dup.example.co.nz','fixture',c.now())
+            ('Brain Fixture','Fixturetown','https://fixture.example.co.nz','fixture',c.now(),'discovered')
         ).lastrowid
         self.d.execute("INSERT INTO mm_deals(business_id,stage,updated_at) VALUES(?,'DISCOVERED',?)", (bid2, c.now()))
-        dup_body = 'Subject: Previous\n\nExisting contact. Dion. Reply no thanks to opt out.'
-        sql_msg = ("INSERT INTO mm_messages(business_id,evidence_id,recipient,body,digest,kind,"
-                   "parent_id,created_at) VALUES(?,?,?,?,?,'initial',NULL,?)")
-        self.d.execute(sql_msg,
-            (bid2, self.eid, self.address, dup_body, c.digest(self.address, dup_body), c.now()))
+        # Verify email for the duplicate business using the same fixture capture
+        page = email_engine.parse_page(self._meta, self.capture.read_bytes())
+        result2 = email_engine.evaluate(dict(c.business(self.d, bid2)), [page], self._dns)
+        email_store.persist(self.d, result2, self.r)
+        self.d.commit()
+        c.record_contact(self.d, bid2, dup_addr, 'https://fixture.example.co.nz',
+                          self.capture, 'Fixture relevance', 'Fixture permission approval', 'Human Fixture')
+        # Record evidence for bid2 so create_draft works
+        eid2 = c.record_evidence(self.d, bid2, 'https://fixture.example.co.nz',
+                                  'Duplicate fixture evidence', 'Synthetic test only',
+                                  self.capture, 'verified', 'rendered_fixture', .9)
+        # Create a draft message for bid2 to the same address so brain detects duplicate outreach
+        dup_mid = c.create_draft(self.d, bid2, dup_addr,
+                                  'Subject: Previous\n\nExisting contact. Dion. Reply no thanks to opt out.\n\nThis is a longer body to satisfy the minimum length requirement for draft creation in the test scenario.')
         self.d.commit()
         result = brain.review(self.d, self.mid)
         self.assertIn(result['decision'], ('REJECTED', 'NEEDS_RESEARCH'))
         self.assertIn('duplicate_contact', result['rejections'])
 
     def test_12_brain_approve_fails_when_criteria_not_met(self):
-        self.d.execute('DELETE FROM email_identity_checks WHERE prospect_id=?', (self.bid,))
+        # Insert a newer REJECTED identity check (append-only table)
+        self.d.execute(
+            "INSERT INTO email_identity_checks(prospect_id,checked_at,entity_key,result_json,evidence_hash) "
+            "VALUES(?,?,?,?,?)",
+            (self.bid, c.now(), 'rejected-entity',
+             json.dumps({'status': 'REJECTED', 'canonical_root_domain': None, 'proposed_root_domain': 'other.example.co.nz'}),
+             'sha-latest'))
         self.d.commit()
         with self.assertRaises(ValueError):
             brain.approve(self.d, self.mid)
@@ -226,7 +261,15 @@ class BrainReview(unittest.TestCase):
             brain.record_outcome(self.d, self.mid, 'positive_reply')
 
     def test_14_brain_outcome_records_learning(self):
+        # Brain approve, then human sends (record_sent), then outcome
         brain.approve(self.d, self.mid)
+        self.d.commit()
+        # Record a send (human action after brain approval)
+        m = self.d.execute('SELECT * FROM mm_messages WHERE id=?', (self.mid,)).fetchone()
+        h = c.digest(m['recipient'], m['body'])
+        rid = self.proof('send', self.mid, h)
+        c.record_sent(self.d, self.mid, rid)
+        self.d.commit()
         result = brain.record_outcome(self.d, self.mid, 'positive_reply')
         self.assertTrue(result['learning_recorded'])
         # Verify learning entry exists

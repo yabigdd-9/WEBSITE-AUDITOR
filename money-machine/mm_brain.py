@@ -102,7 +102,7 @@ def _latest_evidence_details(d, bid):
     return dict(ev)
 
 
-def _has_outreach_to_address(d, address, exclude_bid=None):
+def _has_outreach_to_address(d, address, exclude_bid=None, exclude_mid=None):
     """Check for duplicate outreach to same address across other businesses."""
     query = (
         "SELECT DISTINCT business_id FROM mm_messages "
@@ -112,6 +112,9 @@ def _has_outreach_to_address(d, address, exclude_bid=None):
     if exclude_bid is not None:
         query += " AND business_id<>?"
         params.append(exclude_bid)
+    if exclude_mid is not None:
+        query += " AND id<>?"
+        params.append(exclude_mid)
     rows = d.execute(query, params).fetchall()
     return [r[0] for r in rows]
 
@@ -252,7 +255,7 @@ def _evaluate_criteria(d, message, cfg):
         rejections.append('suppressed')
 
     # --- 8. duplicate_clear ---
-    others = _has_outreach_to_address(d, address, exclude_bid=bid)
+    others = _has_outreach_to_address(d, address, exclude_bid=bid, exclude_mid=message['id'])
     criteria['duplicate_clear'] = {
         'pass': len(others) == 0,
         'detail': 'no duplicates' if not others else f'also sent to business ids: {others}',
@@ -276,10 +279,13 @@ def _evaluate_criteria(d, message, cfg):
     preflight = outreach.preflight(d, message['id'])
     # preflight always returns held=True because no mail transport is connected.
     # Brain considers preflight "passed" if the only reasons are transport-related.
+    # These are expected pre-approval. Brain approval sets approved_hash,
+    # reruns preflight, then the sender confirms before any external send.
     transport_only_reasons = {
         'no_mail_transport_connected',
         'current_sender_authentication_and_route_check_required',
         'provider_send_history_and_idempotency_reconciliation_required',
+        'exact_human_approval_required',
     }
     blocking_reasons = [r for r in preflight['reasons'] if r not in transport_only_reasons]
     preflight_ok = len(blocking_reasons) == 0
@@ -294,9 +300,9 @@ def _evaluate_criteria(d, message, cfg):
     # --- 11. evidence_fresh ---
     fresh_days = cfg['evidence_fresh_days']
     if evidence:
-        age_days = core.age_days(evidence['checked_at'])
-        evidence_fresh_ok = 0 <= age_days <= fresh_days
-        context['evidence_age_days'] = round(age_days, 1)
+        ev_age = engine.age_days(evidence['checked_at'])
+        evidence_fresh_ok = 0 <= ev_age <= fresh_days
+        context['evidence_age_days'] = round(ev_age, 1)
     else:
         evidence_fresh_ok = False
         context['evidence_age_days'] = None
@@ -339,9 +345,10 @@ def _evaluate_criteria(d, message, cfg):
 
     # --- Additional hard rejections based on email verification state ---
     if selection and selection.get('best_email_id'):
-        cand = d.execute(
+        cand_row = d.execute(
             "SELECT * FROM email_candidates WHERE id=?", (selection['best_email_id'],)
         ).fetchone()
+        cand = dict(cand_row) if cand_row else None
         if cand and cand.get('candidate_method') == 'CANDIDATE_PATTERN_DERIVED':
             rejections.append('guessed_email_only')
         if cand and cand.get('candidate_method') == 'legacy_import':
@@ -354,16 +361,16 @@ def _evaluate_criteria(d, message, cfg):
         ).fetchone()
         if cand_row:
             vrow = d.execute(
-                "SELECT catch_all_status, smtp_result FROM email_verifications WHERE candidate_id=? "
+                "SELECT catch_all_status, smtp_status FROM email_verifications WHERE candidate_id=? "
                 "ORDER BY checked_at DESC LIMIT 1",
                 (selection['best_email_id'],),
             ).fetchone()
             if vrow:
                 context['smtp_catch_all'] = vrow['catch_all_status']
-                context['smtp_result'] = vrow['smtp_result']
+                context['smtp_result'] = vrow['smtp_status']
                 if vrow['catch_all_status'] == 'yes':
                     rejections.append('catch_all_only')
-                if vrow['smtp_result'] == 'rejected':
+                if vrow['smtp_status'] == 'rejected':
                     rejections.append('NO_VERIFIED_EMAIL')
 
     # --- competitor / agency check via identity context ---
@@ -423,10 +430,12 @@ def review(d, message_id, config_override=None):
     else:
         decision = 'NEEDS_RESEARCH'
     
-    # --- fail-closed: if any required criterion detail produced no test result, downgrade ---
+    # --- fail-closed: if any required criterion has pass=False but isn't already a rejection, downgrade ---
     if cfg['fail_closed'] and decision == 'APPROVED_FOR_SEND':
         for name, c in criteria.items():
-            if c['required'] and ('no ' in c['detail'].lower() or c['detail'] == 'none'):
+            if c['required'] and not c['pass']:
+                # This shouldn't happen — each check maps failures to specific rejections.
+                # But if it does, fail closed.
                 decision = 'NEEDS_RESEARCH'
                 rejections.append(f'uncertain_{name}')
                 break

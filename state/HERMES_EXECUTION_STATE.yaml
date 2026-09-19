@@ -1,7 +1,7 @@
 version: '1.0'
 owner: Dion
-updated_at: '2026-09-19T08:31:15+12:00'
-current_phase: PHASE_5_COMPLETE_ALL_FILES_EXTRACTED
+updated_at: '2026-09-19T09:15:00+12:00'
+current_phase: PHASE_5_COMPLETE_DETECTION_STACK_RUNNING
 phases:
   phase_1_part1:
     status: COMPLETE
@@ -30,17 +30,7 @@ portfolio:
     HOLD: 50
     KILL: 5
 active_engine: Website Rescue Lead Engine
-active_tasks:
-- id: T-001
-  engine: Website Rescue Lead Engine
-  task: 'Prospect research: detection methodology + candidate criteria'
-  status: QUEUED
-  agent: Researcher
-- id: T-002
-  engine: CATALYX Flooring Lead Engine
-  task: Christchurch/Canterbury flooring prospect research
-  status: QUEUED
-  agent: Researcher
+active_tasks: []
 completed_tasks:
 - id: C-001
   task: Create workspace + state file
@@ -60,6 +50,12 @@ completed_tasks:
 - id: C-006
   task: Generate TOP_20 / ACTIVE_3 / APPROVAL_QUEUE
   at: '2026-09-19T08:31:15+12:00'
+- id: C-007
+  task: 'T-001: Website Rescue detection methodology + candidate criteria'
+  at: '2026-09-19T09:15:00+12:00'
+- id: C-008
+  task: 'T-002: CATALYX Flooring Christchurch/Canterbury prospect research'
+  at: '2026-09-19T09:15:00+12:00'
 failed_tasks: []
 retry_queue: []
 approval_queue_ref: approval/APPROVAL_QUEUE.yaml
@@ -95,8 +91,14 @@ model_routing:
   - stepfun/step-3.7-flash:free
   note: delegation.model / delegation.provider intentionally UNSET in config.yaml so subagents inherit
     working parent credentials; pinning a non-nous model misroutes to 401.
-next_action: Run Researcher on T-001 (Website Rescue detection methodology + candidate criteria), then
-  T-002 (CATALYX flooring prospects). Concurrency 2.
+next_action: |
+  T-003 BLOCKED: NZBN bulk data requires Companies Office approval (Dion must apply).
+  Meanwhile: ran detection stack on existing 9 prospects → 1 HOT (prodecorators.co.nz, 88), 8 WARM.
+  T-004 scored list ready. Next:
+  1. (BLOCKED) Dion apply for NZBN bulk data access → run consume_nzbn_bulk.py
+  2. (BLOCKED) APR-004 pricing approval from Dion before any outreach planning
+  3. (READY) Verify emails for 13 CATALYX flooring businesses (T-002)
+  4. (READY) Run curl detection on prodecorators.co.nz (HOT) to capture defect screenshots
 artifacts:
   master_db_json: db/master_opportunity_database.json
   master_db_csv: db/MASTER_OPPORTUNITY_DATABASE.csv
@@ -106,6 +108,8 @@ artifacts:
   daily_report: outputs/DAILY_OPERATOR_REPORT_2026-09-19.md
   extractor: extract/extract_engines.py
   scorer: extract/dedupe_score.py
+  t001_detection: outputs/T001_WEBSITE_RESCUE_DETECTION.md
+  t002_flooring: outputs/T002_CATALYX_FLOORING_PROSPECTS.md
 resume_protocol:
 - Read this file.
 - Read latest DAILY_OPERATOR_REPORT.

@@ -1,0 +1,55 @@
+{
+  "name": "08b - Dry Run Send (Phase 6)",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://host.docker.internal:8787/outreach-preflight",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {"Authorization": "Bearer {{$credentials.mmBridgeToken}}"},
+        "sendQuery": true,
+        "queryParameters": {"id": "={{$json.message_id}}"}
+      },
+      "name": "Outreach Preflight",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [350, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const preflight = $input.first().json;\nconst passed = preflight.passed !== false;\nconst simulatedReceipt = {\n  message_id: preflight.message_id || $json.message_id,\n  provider_message_id: 'SIMULATED-' + Date.now(),\n  timestamp: new Date().toISOString(),\n  simulated: true,\n  transport: 'dry-run',\n  status: passed ? 'SIMULATED_SEND_OK' : 'SIMULATED_SEND_BLOCKED',\n  hold_reason: passed ? null : 'preflight_failed'\n};\nreturn [{ json: simulatedReceipt }];"
+      },
+      "name": "Simulate Send",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8787/record-sent",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {"Authorization": "Bearer {{$credentials.mmBridgeToken}}"},
+        "sendBody": true,
+        "bodyParameters": {"id": "={{$json.message_id}}", "receipt": "={{$json.provider_message_id}}"}
+      },
+      "name": "Record Simulated Sent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [850, 300]
+    }
+  ],
+  "connections": {"Manual Trigger": {"main": [[{"node": "Outreach Preflight", "type": "main", "index": 0}]]}, "Outreach Preflight": {"main": [[{"node": "Simulate Send", "type": "main", "index": 0}]]}, "Simulate Send": {"main": [[{"node": "Record Simulated Sent", "type": "main", "index": 0}]]}},
+  "settings": {"timezone": "Pacific/Auckland", "executionTimeout": 300}
+}

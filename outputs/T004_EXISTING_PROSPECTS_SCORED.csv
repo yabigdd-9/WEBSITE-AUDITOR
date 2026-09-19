@@ -1,0 +1,10 @@
+business_name,website_url,region,industry,email,defects,defect_count,defect_score,region_bonus,industry_bonus,total_score,tier,ratified,source_url
+prodecorators.co.nz,prodecorators.co.nz,Christchurch,services,contact@prodecorators.co.nz,"NO_WRITTEN_CONTACT, HEAVY_HTML",2,30,15,15,88,HOT,True,prodecorators.co.nz
+www.clyne-bennie.co.nz,https://www.clyne-bennie.co.nz,Nelson Tasman,services,service@clyne-bennie.co.nz,"NO_WRITTEN_CONTACT, HEAVY_HTML",2,30,5,15,78,WARM,True,www.clyne-bennie.co.nz
+www.whiteandtaylor.co.nz,https://www.whiteandtaylor.co.nz,NZ,services,,"STALE_COPYRIGHT, HEAVY_HTML",2,30,0,15,73,WARM,False,www.whiteandtaylor.co.nz
+www.bcplumbers.co.nz,https://www.bcplumbers.co.nz,NZ,services,,"STALE_COPYRIGHT, BROKEN_LINKS",2,30,0,15,73,WARM,False,www.bcplumbers.co.nz
+www.jcconstruction.co.nz,https://www.jcconstruction.co.nz,Christchurch,services,jason@jcconstruction.co.nz,HEAVY_HTML,1,15,15,15,73,WARM,True,www.jcconstruction.co.nz
+www.tbir.co.nz,https://www.tbir.co.nz,Christchurch,services,tbirgrass@gmail.com,HEAVY_HTML,1,15,15,15,73,WARM,True,www.tbir.co.nz
+www.greenscapes.co.nz,https://www.greenscapes.co.nz,NZ,services,,"STALE_COPYRIGHT, HEAVY_HTML",2,30,0,15,73,WARM,False,www.greenscapes.co.nz
+dyerdecorating.co.nz,dyerdecorating.co.nz,NZ,services,,"NO_WRITTEN_CONTACT, HEAVY_HTML, NO_SOCIAL_LINKS",3,25,0,15,68,WARM,False,dyerdecorating.co.nz
+www.davidrobertson.co.nz,https://www.davidrobertson.co.nz,Unknown,services,enquiries@davidrobertson.co.nz,"NO_CONTACT_ON_HOMEPAGE, BROKEN_LINKS, NO_SOCIAL_LINKS",3,25,0,15,68,WARM,True,www.davidrobertson.co.nz

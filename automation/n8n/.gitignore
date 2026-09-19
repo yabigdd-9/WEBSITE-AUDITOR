@@ -1,0 +1,8 @@
+# Secrets, runtime, and n8n data are never committed to Git.
+.env
+*.secret
+credentials/
+runtime/
+backups/
+n8n/data/
+n8n/files/

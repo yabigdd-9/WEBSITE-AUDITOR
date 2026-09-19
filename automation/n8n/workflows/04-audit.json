@@ -1,0 +1,30 @@
+{
+  "name": "04 - Website Audit",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8787/audit",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {"Authorization": "Bearer {{$credentials.mmBridgeToken}}"},
+        "sendBody": true,
+        "bodyParameters": {"id": "={{$json.business_id}}", "url": "={{$json.website}}", "observation": "={{$json.observation}}", "limitation": "={{$json.limitation}}", "capture": "={{$json.capture}}", "status": "={{$json.status}}", "method": "={{$json.method}}", "confidence": "={{$json.confidence}}", "claim-type": "={{$json.claim_type}}"}
+      },
+      "name": "Run Audit",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [350, 300]
+    }
+  ],
+  "connections": {"Manual Trigger": {"main": [[{"node": "Run Audit", "type": "main", "index": 0}]]}},
+  "settings": {"timezone": "Pacific/Auckland", "executionTimeout": 300}
+}

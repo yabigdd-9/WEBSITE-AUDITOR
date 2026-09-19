@@ -1,0 +1,30 @@
+{
+  "name": "05b - Intake Pipeline",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8787/intake",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {"Authorization": "Bearer {{$credentials.mmBridgeToken}}"},
+        "sendBody": true,
+        "bodyParameters": {"name": "={{$json.name}}", "url": "={{$json.url}}", "region": "={{$json.region}}", "source": "={{$json.source || 'exa-pipe'}}"}
+      },
+      "name": "Intake Business",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [350, 300]
+    }
+  ],
+  "connections": {"Manual Trigger": {"main": [[{"node": "Intake Business", "type": "main", "index": 0}]]}},
+  "settings": {"timezone": "Pacific/Auckland", "executionTimeout": 300}
+}
