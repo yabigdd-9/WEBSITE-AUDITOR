@@ -1,0 +1,42 @@
+name: DeepSeek Harness integration guardrails
+
+on:
+  push:
+    branches:
+      - integration/deepseek-harness
+    paths:
+      - "integrations/deepseek-harness/**"
+      - "money-machine/test_dsh_harness_bridge.py"
+      - ".github/workflows/deepseek-harness-integration.yml"
+  pull_request:
+    paths:
+      - "integrations/deepseek-harness/**"
+      - "money-machine/test_dsh_harness_bridge.py"
+      - ".github/workflows/deepseek-harness-integration.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  guardrails:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Syntax-check bridge and plugin
+        run: |
+          python -m py_compile integrations/deepseek-harness/scripts/dsh_mm_bridge.py
+          node --check integrations/deepseek-harness/plugin/index.js
+          bash -n integrations/deepseek-harness/scripts/install_profile.sh
+          bash -n integrations/deepseek-harness/scripts/run_headless.sh
+
+      - name: Run bridge guardrail tests
+        run: python -m unittest money-machine/test_dsh_harness_bridge.py
