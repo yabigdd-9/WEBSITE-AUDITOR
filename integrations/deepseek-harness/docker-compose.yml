@@ -1,0 +1,28 @@
+services:
+  harness:
+    build:
+      context: .
+      args:
+        DSH_VERSION: 0.1.6-alpha.2
+    working_dir: /workspace
+    environment:
+      DSH_HOME: /dsh-home
+      DSH_TELEMETRY_MODE: DISABLED
+      OLLAMA_API_KEY: ollama
+      WEBSITE_AUDITOR_ROOT: /workspace
+      DSH_MM_ALLOW_BOUNDED_WRITES: "0"
+    volumes:
+      - ../..:/workspace
+      - dsh-home:/dsh-home
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    stdin_open: true
+    tty: true
+    command: ["bash", "-lc", "sleep infinity"]
+
+volumes:
+  dsh-home:
