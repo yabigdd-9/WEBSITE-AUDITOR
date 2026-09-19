@@ -401,6 +401,21 @@ so no rollback was triggered.
 | Merge to `main` | **not done** — that would be a production-affecting action for the other operators; nothing in this change set justifies it |
 | PR URL | https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/new/trial/hermes (offered by remote, not created) |
 
+---
+
+## Post-publication follow-ups (session 2, final)
+
+| Item | Status | Evidence |
+|---|---|---|
+| Gmail app password rotation | **DONE by Dion** (both rotated). Confirmed 2026-09-20; nothing in repo/commits ever contained them (worktree scan clean, `git log --all -S'SMTP_PASSWORD'` empty) | This session's scan; operator confirmation |
+| `hermes_bootstrap.sh` | **Removed** — was never run, never committed, not tracked. Clipboard-execute pattern is the leak vector; do not recreate it | `git ls-files \| grep -i bootstrap` → empty |
+| Ledger checkpoint committed | **DONE** — commit `834a306`: WAL checkpoint recorded, integrity `ok`, journal_mode `wal`, 22 businesses, 1 message, **0 sends**; byte-level secret scan of the ledger **CLEAN** before commit | Commit + scan in this log |
+| Publication state | `origin/trial/hermes` = `834a306`; working tree clean | `git log origin/trial/hermes -1` |
+
+**Final standing:** ANALYZED, IMPLEMENTED, TESTED, VERIFIED (local evidence);
+credentials rotated after exposure; **no real outreach approval, send, or
+production deployment occurred at any point in this trial.**
+
 **No production deployment. No rollback executed. No real outreach approval or
 send. No purchases. No secrets exposed.**
 
