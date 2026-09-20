@@ -17,6 +17,8 @@ import argparse, json, os, re, sys
 from pathlib import Path
 from datetime import datetime
 
+from auditor_core.remediation import initial_remediation
+
 ROOT = Path(__file__).resolve().parent
 AUDITS = ROOT / "audits"
 
@@ -204,6 +206,31 @@ FIX_LIBRARY = {
     },
 }
 
+# Stable taxonomy check ID -> existing remediation recipe.
+CHECK_ID_TO_FIX_KEY = {
+    "security.tls_expired": "ssl_expired",
+    "security.tls_expiring": "ssl_expiring_soon",
+    "security.tls_verification_failed": "ssl_expired",
+    "security.hsts_missing": "no_security_headers",
+    "security.csp_missing": "no_security_headers",
+    "security.x_frame_options_missing": "no_security_headers",
+    "security.x_content_type_options_missing": "no_security_headers",
+    "security.referrer_policy_missing": "no_security_headers",
+    "security.permissions_policy_missing": "no_security_headers",
+    "seo.h1_missing": "no_h1",
+    "seo.multiple_h1": "multiple_h1",
+    "seo.title_missing": "missing_title",
+    "seo.meta_description_missing": "missing_meta_description",
+    "seo.noindex": "no_robots_txt",
+    "seo.canonical_missing": "no_canonical",
+    "seo.open_graph_missing": "no_og_tags",
+    "seo.schema_missing": "no_structured_data",
+    "accessibility.image_alt_missing": "missing_alt_text",
+    "technical.html_errors": "html_errors",
+    "technical.broken_links": "broken_links",
+    "technical.site_unreachable": "http_error",
+}
+
 # Map from defect description keywords → defect_key for backward compat
 DEFECT_TEXT_TO_KEY = {
     "expired ssl": "ssl_expired",
@@ -277,39 +304,68 @@ def get_priority(defect_key):
     return PRIORITY_WEIGHTS.get(defect_key, 99)
 
 def generate_remediation(audit_data):
-    """Generate prioritized remediation plan for a single audit."""
+    """Generate a prioritized remediation plan using stable finding IDs when available."""
     domain = audit_data.get("domain", "unknown")
     score = audit_data.get("score", 0)
-    defects = audit_data.get("defects", [])
+    findings = audit_data.get("findings")
+    legacy_defects = audit_data.get("defects", [])
 
+    source = findings if isinstance(findings, list) and findings else legacy_defects
     actions = []
-    for d in defects:
-        key = d.get("defect_key", "") or infer_defect_key(d.get("defect", ""))
+    for item in source:
+        if not isinstance(item, dict):
+            continue
+        check_id = item.get("check_id")
+        message = item.get("message") or item.get("defect", "")
+        key = CHECK_ID_TO_FIX_KEY.get(check_id or "")
+        if not key:
+            key = item.get("defect_key", "") or infer_defect_key(message)
         fix = FIX_LIBRARY.get(key, {
-            "title": d.get("defect", "Unknown issue"),
-            "effort": "TBD", "cost": "TBD", "code": None, "docs": None, "steps": ["Investigate manually"]
+            "title": message or "Unknown issue",
+            "effort": "TBD",
+            "cost": "TBD",
+            "code": None,
+            "docs": None,
+            "steps": ["Investigate manually"],
         })
+        state = item.get("remediation")
+        if not isinstance(state, dict):
+            state = initial_remediation(
+                verification_command=f"python website_auditor.py https://{domain} --format json"
+            )
         actions.append({
-            "defect": d.get("defect", ""),
-            "impact": d.get("impact", ""),
+            "check_id": check_id or "legacy.unclassified",
+            "defect_key": key,
+            "defect": message,
+            "impact": item.get("business_impact") or item.get("impact", ""),
+            "category": item.get("category", "technical_health"),
+            "severity": item.get("severity", "low"),
+            "confidence": item.get("confidence"),
+            "human_review": bool(item.get("human_review", False)),
+            "priority_label": item.get("priority"),
             "priority": get_priority(key),
+            "remediation": state,
             "fix": fix,
         })
 
-    # Sort by priority (lower = more urgent)
-    actions.sort(key=lambda a: a["priority"])
+    actions.sort(key=lambda action: (action["priority"], action["check_id"]))
 
     return {
+        "schema_version": 2,
         "domain": domain,
         "score": score,
-        "total_defects": len(defects),
+        "score_semantics": audit_data.get("score_semantics", {}),
+        "category_scores": audit_data.get("category_scores", {}),
+        "taxonomy": audit_data.get("taxonomy", {}),
+        "total_defects": len(actions),
         "generated": datetime.now().isoformat(),
         "actions": actions,
         "summary": {
-            "high": sum(1 for a in actions if a["priority"] <= 3),
-            "medium": sum(1 for a in actions if 4 <= a["priority"] <= 7),
-            "low": sum(1 for a in actions if a["priority"] >= 8),
-        }
+            "high": sum(1 for action in actions if action["priority"] <= 3),
+            "medium": sum(1 for action in actions if 4 <= action["priority"] <= 7),
+            "low": sum(1 for action in actions if action["priority"] >= 8),
+            "needs_human_review": sum(1 for action in actions if action["human_review"]),
+        },
     }
 
 def generate_html_patch(audit_data, remediation):
