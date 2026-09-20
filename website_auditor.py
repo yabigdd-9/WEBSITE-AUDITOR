@@ -14,12 +14,21 @@ Usage:
 
 All checks use public data only. No login, no API keys required.
 """
-import argparse, asyncio, json, re, sys, time, urllib.parse
+import argparse, asyncio, json, re, subprocess, sys, time, urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 import httpx, bs4, trafilatura, pyphen
+
+from auditor_core import (
+    build_page_evidence,
+    category_scores,
+    detect_site_type,
+    normalize_defects,
+    resolve_profile,
+)
+from auditor_core.registry import get_registry
 
 # ── config ──────────────────────────────────────────────────────────
 CACHE_DIR = Path("outputs/.cache")
@@ -74,6 +83,55 @@ async def fetch_head(session: httpx.AsyncClient, url: str) -> dict:
         return result
     except Exception:
         return {}
+
+def _rendered_evidence_sync(url: str) -> dict:
+    """Run the existing Playwright/Lighthouse/axe evidence engine when installed."""
+    script = Path("audit/evidence-audit.mjs")
+    node_modules = Path("audit/node_modules")
+    if not script.exists():
+        return {"status": "skipped", "reason": "audit/evidence-audit.mjs is missing"}
+    if not node_modules.exists():
+        return {
+            "status": "skipped",
+            "reason": "browser tooling not installed; run 'cd audit && npm install && npx playwright install chromium'",
+        }
+
+    safe = re.sub(r"[^a-zA-Z0-9_.-]", "_", urllib.parse.urlparse(url).netloc or "site")
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    output_dir = Path("outputs/evidence") / safe / stamp
+    output_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        proc = subprocess.run(
+            ["node", str(script), url, str(output_dir)],
+            capture_output=True,
+            text=True,
+            timeout=180,
+            check=False,
+        )
+    except FileNotFoundError:
+        return {"status": "skipped", "reason": "node executable not found"}
+    except subprocess.TimeoutExpired:
+        return {"status": "error", "reason": "rendered evidence timed out after 180 seconds"}
+
+    if proc.returncode != 0:
+        return {
+            "status": "error",
+            "reason": (proc.stderr or proc.stdout or "rendered evidence failed")[-2000:],
+            "output_dir": str(output_dir),
+        }
+    try:
+        payload = json.loads(proc.stdout)
+    except json.JSONDecodeError:
+        payload = {"ok": True, "output_dir": str(output_dir)}
+    return {
+        "status": "ok",
+        "output_dir": payload.get("output_dir", str(output_dir)),
+        "audit": payload.get("audit", {}),
+    }
+
+
+async def collect_rendered_evidence(url: str) -> dict:
+    return await asyncio.to_thread(_rendered_evidence_sync, url)
 
 # ── readability ─────────────────────────────────────────────────────
 _HYPHENATOR = pyphen.Pyphen(lang="en_US")
@@ -206,8 +264,52 @@ def score_defects(defects: list) -> int:
             score += 5
     return min(score, 100)
 
+def finalize_audit_result(
+    result: dict,
+    *,
+    html: str,
+    headers: dict,
+    profile: str,
+    mode: str,
+    schema_types: list[str] | None = None,
+) -> dict:
+    """Attach stable IDs, evidence, transparent scores and profile metadata."""
+    detection = detect_site_type(html, schema_types or [])
+    profile_name, profile_config = resolve_profile(profile, detection["site_type"])
+    findings = normalize_defects(result.get("defects", []), url=result["url"])
+
+    evidence = result.setdefault("evidence", {})
+    evidence["raw_page"] = build_page_evidence(result["url"], html, headers, source="static")
+    result["findings"] = findings
+    result["category_scores"] = category_scores(findings)
+    result["taxonomy"] = {
+        "version": get_registry().taxonomy_version,
+        "stable_check_ids": True,
+    }
+    result["site_type"] = detection
+    result["audit_profile"] = {
+        "name": profile_name,
+        "config": profile_config,
+    }
+    result["audit_mode"] = {
+        "requested": mode,
+        "static_completed": True,
+        "rendered_status": "not_requested",
+    }
+    result["score_semantics"] = {
+        "score": "legacy opportunity/defect score; 100 means more defects/opportunity",
+        "category_scores": "health scores; 100 means healthier",
+    }
+    return result
+
 # ── main audit ──────────────────────────────────────────────────────
-async def audit_one(session: httpx.AsyncClient, url: str) -> dict:
+async def audit_one(
+    session: httpx.AsyncClient,
+    url: str,
+    *,
+    profile: str = "auto",
+    mode: str = "static",
+) -> dict:
     url = url.strip().rstrip("/")
     if not url.startswith("http"):
         url = "https://" + url
@@ -220,8 +322,25 @@ async def audit_one(session: httpx.AsyncClient, url: str) -> dict:
         fetch_head(session, url),
     )
     if not html:
-        return {"url": url, "domain": domain, "defects": [{"defect": "Site unreachable", "impact": "Cannot audit"}],
-                "defect_count": 1, "score": 100, "evidence": {}, "meta": {}, "social": [], "timestamp": datetime.now().isoformat()}
+        result = {
+            "url": url,
+            "domain": domain,
+            "defects": [{"defect": "Site unreachable", "impact": "Cannot audit"}],
+            "defect_count": 1,
+            "score": 100,
+            "evidence": {},
+            "meta": {},
+            "social": [],
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+        return finalize_audit_result(
+            result,
+            html="",
+            headers=headers,
+            profile=profile,
+            mode=mode,
+            schema_types=[],
+        )
 
     soup = bs4.BeautifulSoup(html, "lxml")
     body_text = trafilatura.extract(html, include_links=False, include_images=False) or ""
@@ -329,20 +448,39 @@ async def audit_one(session: httpx.AsyncClient, url: str) -> dict:
             m = re.search(r'content=["\']([^"\']*)["\']', str(desc_tag))
             desc_content = m.group(1) if m else ""
 
-    return {
+    result = {
         "url": url, "domain": domain, "defects": defects, "defect_count": len(defects),
         "score": score, "evidence": evidence,
         "meta": {"title": soup.title.string.strip() if soup.title and soup.title.string else None,
                  "meta_description": desc_content if desc_content else None},
         "social": list(social.keys()), "emails": emails,
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
+    result = finalize_audit_result(
+        result,
+        html=html,
+        headers=headers,
+        profile=profile,
+        mode=mode,
+        schema_types=schema.get("types", []),
+    )
+    if mode == "rendered":
+        rendered = await collect_rendered_evidence(url)
+        result["rendered_evidence"] = rendered
+        result["audit_mode"]["rendered_status"] = rendered.get("status", "error")
+    return result
 
-async def audit_batch(urls: list, concurrency: int = CONCURRENCY) -> list:
+async def audit_batch(
+    urls: list,
+    concurrency: int = CONCURRENCY,
+    *,
+    profile: str = "auto",
+    mode: str = "static",
+) -> list:
     sem = asyncio.Semaphore(concurrency)
     async def limited(url):
         async with sem:
-            return await audit_one(client, url)
+            return await audit_one(client, url, profile=profile, mode=mode)
     async with httpx.AsyncClient(headers=HEADERS) as session:
         global client
         client = session
@@ -374,6 +512,11 @@ def main():
     p.add_argument("--emails", action="store_true", help="Email discovery only")
     p.add_argument("--scout", metavar="FILE", help="Cross-reference prospects vs audits")
     p.add_argument("--cache-ttl", type=int, default=CACHE_TTL)
+    p.add_argument("--mode", choices=["static", "rendered"], default="static",
+                   help="Static HTTP/HTML audit or deep rendered Playwright/Lighthouse/axe audit")
+    p.add_argument("--profile",
+                   choices=["auto", "quick", "standard", "deep", "ecommerce", "leadgen", "nz_small_business"],
+                   default="auto", help="Audit profile; auto uses deterministic site-type detection")
     p.add_argument("--enrich", action="store_true",
                    help="Add Tier 1 external enrichment (W3C/SSL Labs/urlscan/local "
                         "header grade keyless; PageSpeed/RankNibbler when keys set). "
@@ -388,7 +531,9 @@ def main():
             urls = Path(args.batch).read_text().splitlines()
             urls = [u.strip() for u in urls if u.strip()]
             print(f"🚀 Auditing {len(urls)} sites (concurrency={args.concurrency})...")
-            results = await audit_batch(urls, args.concurrency)
+            results = await audit_batch(
+                urls, args.concurrency, profile=args.profile, mode=args.mode
+            )
             for r in results:
                 print(f"  {r['domain']}: {r['score']}/100 ({r['defect_count']} defects)")
                 safe = re.sub(r'[^\w.-]', '_', r['domain'])
@@ -399,7 +544,9 @@ def main():
             async with httpx.AsyncClient(headers=HEADERS) as session:
                 global client
                 client = session
-                result = await audit_one(session, args.url)
+                result = await audit_one(
+                    session, args.url, profile=args.profile, mode=args.mode
+                )
                 if args.enrich:
                     from integrations.tier1_enrichment import enrich_audit
                     import os
