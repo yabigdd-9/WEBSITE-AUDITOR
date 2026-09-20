@@ -275,7 +275,7 @@ function exportCSV() {{
   const headers = [...table.tHead.rows[0].cells].map(c => csvCell(c.textContent.trim()));
   const lines = [headers.join(",")];
   visibleRows().forEach(row => lines.push([...row.cells].map(c => csvCell(c.textContent.trim())).join(",")));
-  const blob = new Blob([lines.join("\n")], {{type:"text/csv;charset=utf-8"}});
+  const blob = new Blob([lines.join("\\\n")], {{type:"text/csv;charset=utf-8"}});
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url; anchor.download = "audit-export.csv"; anchor.click();
