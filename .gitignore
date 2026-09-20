@@ -10,18 +10,28 @@ dist/
 # Virtual environments
 venv/
 .venv*/
+.venv-auditor/
+.venv-email/
 backups/
 WEBSITES/BUISNESSaudits/runs/
 
 # Secrets / credentials (NEVER track)
 .env
 .env.*
+!.env.example
 *.pem
 id_rsa
 id_rsa.*
 service-account*.json
 *credentials*
 *secret*
+
+# Local state / outputs
+outputs/
+audits/
+*.db
+*.db-shm
+*.db-wal
 
 /.venv-email
 state/worker-logs/
