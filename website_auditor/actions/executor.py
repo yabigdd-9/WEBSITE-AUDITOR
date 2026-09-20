@@ -7,6 +7,7 @@ from typing import Any
 
 from ..connectors.local import LocalConnector, UnavailableConnector
 from ..models import Action, ActionStatus
+from ..outreach.suppression import SuppressionStore
 from .audit_log import AuditLog
 from .policy import PolicyEngine
 from .registry import action_from_finding, build_action
@@ -36,6 +37,7 @@ class ActionExecutor:
         self.rate_limit = RateLimitStore(self.output_dir / "rate_limit.json")
         self.kill_switch = KillSwitch(self.output_dir / "KILL_SWITCH")
         self.audit_log = AuditLog(self.output_dir / "audit.ndjson")
+        self.suppression = SuppressionStore(self.output_dir.parent / "outreach" / "suppression.json")
         self.policy = PolicyEngine(config_path, kill_switch=self.kill_switch)
 
     def _connector(self, name: str):
@@ -105,11 +107,20 @@ class ActionExecutor:
                 not action.requires_authorization
                 or self.authorizations.is_authorized(action.domain, action.category)
             )
+            suppression = (
+                self.suppression.check(
+                    email=str(action.payload.get("recipient") or ""),
+                    domain=action.domain,
+                )
+                if action.category == "outreach_send"
+                else {"suppressed": False}
+            )
+            compliance_ok = bool(action.payload.get("compliance_ok")) and not suppression.get("suppressed")
             decision = self.policy.evaluate(
                 action,
                 approved=approved,
                 authorized=authorized,
-                compliance_ok=bool(action.payload.get("compliance_ok")),
+                compliance_ok=compliance_ok,
             )
             connector = self._connector(action.connector)
             connector_result = connector.dry_run(action) if decision.allowed else None
@@ -119,6 +130,7 @@ class ActionExecutor:
                 "action_id": action.action_id,
                 "action_type": action.action_type,
                 "decision": decision.to_dict(),
+                "suppression": suppression,
                 "connector_result": connector_result.to_dict() if connector_result else None,
             }
             report.append(record)
@@ -165,6 +177,36 @@ class ActionExecutor:
             not action.requires_authorization
             or self.authorizations.is_authorized(action.domain, action.category)
         )
+
+        suppression = (
+            self.suppression.check(
+                email=str(action.payload.get("recipient") or ""),
+                domain=action.domain,
+            )
+            if action.category == "outreach_send"
+            else {"suppressed": False}
+        )
+        if suppression.get("suppressed"):
+            action.status = ActionStatus.BLOCKED
+            self.actions.put(action)
+            decision = {
+                "allowed": False,
+                "effect": "blocked",
+                "reason": f"Suppression list blocked outreach at {suppression.get('scope')} scope.",
+            }
+            self.audit_log.append(
+                "action_suppressed",
+                action_id=action_id,
+                domain=action.domain,
+                suppression=suppression,
+            )
+            return {
+                "action": action.to_dict(),
+                "decision": decision,
+                "suppression": suppression,
+                "executed": False,
+            }
+
         decision = self.policy.evaluate(
             action,
             approved=approved,
