@@ -1,4 +1,4 @@
-.PHONY: install test audit crawl remediate dashboard export actions-init actions-demo actions-dry-run actions-status suppressions execute-all-safe
+.PHONY: install test audit crawl remediate dashboard export history regressions actions-init actions-demo actions-dry-run actions-status suppressions execute-all-safe
 
 install:
 	python3 -m pip install -e ".[dev]"
@@ -20,6 +20,12 @@ dashboard:
 
 export:
 	python3 portfolio-export.py --audits-dir audits --output-dir outputs/portfolio --format all
+
+history:
+	python3 audit-history.py ingest-dir audits
+
+regressions:
+	python3 audit-history.py regressions
 
 actions-init:
 	python3 -m website_auditor.cli actions init
