@@ -1,0 +1,20 @@
+name: website-auditor-codeql
+
+queries:
+  - uses: security-extended
+
+paths-ignore:
+  - outputs
+  - audits
+  - reports
+  - cache
+  - evidence
+  - prospects
+  - history
+  - skills
+  - database
+  - "**/*.db"
+  - "**/*.db-shm"
+  - "**/*.db-wal"
+  - "**/*.capture"
+  - "**/*.bak"
