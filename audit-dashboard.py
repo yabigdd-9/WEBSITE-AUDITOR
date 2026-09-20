@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import html
 import json
+import re
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -43,8 +44,14 @@ def safe_external_url(audit: dict) -> str:
 
 
 def health_score(audit: dict) -> int | None:
-    value = (audit.get("category_scores") or {}).get("overall_health_score")
+    scores = audit.get("site_category_scores") or audit.get("category_scores") or {}
+    value = scores.get("overall_health_score") if isinstance(scores, dict) else None
     return int(value) if isinstance(value, (int, float)) else None
+
+
+def safe_accent(value: str | None) -> str:
+    candidate = str(value or "").strip()
+    return candidate if re.fullmatch(r"#[0-9A-Fa-f]{6}", candidate) else "#7dd3fc"
 
 
 def load_audits(audits_dir: str | Path | None = None) -> list[dict]:
@@ -72,7 +79,7 @@ def load_emails(email_path: str | Path | None = None) -> dict:
 
 
 def _finding_labels(audit: dict) -> list[str]:
-    findings = audit.get("findings")
+    findings = audit.get("site_findings") or audit.get("findings")
     if isinstance(findings, list) and findings:
         return [
             str(item.get("check_id") or item.get("message") or "unknown")
@@ -87,7 +94,7 @@ def _finding_labels(audit: dict) -> list[str]:
 
 
 def _top_issues(audit: dict, limit: int = 3) -> list[str]:
-    findings = audit.get("findings")
+    findings = audit.get("site_findings") or audit.get("findings")
     if isinstance(findings, list) and findings:
         return [
             str(item.get("message") or item.get("check_id") or "")
@@ -101,7 +108,15 @@ def _top_issues(audit: dict, limit: int = 3) -> list[str]:
     ]
 
 
-def generate_dashboard(audits: list[dict], emails: dict, title: str = "Website Audit Dashboard") -> str:
+def generate_dashboard(
+    audits: list[dict],
+    emails: dict,
+    title: str = "Website Audit Dashboard",
+    *,
+    tagline: str = "Evidence-first website portfolio",
+    accent: str = "#7dd3fc",
+) -> str:
+    accent = safe_accent(accent)
     total = len(audits)
     opportunity_scores = [float(a.get("score", 0) or 0) for a in audits]
     health_scores = [health_score(a) for a in audits]
@@ -121,7 +136,10 @@ def generate_dashboard(audits: list[dict], emails: dict, title: str = "Website A
         health = health_score(audit)
         tier = tier_for_opportunity(opportunity)
         color = SCORE_COLORS[tier]
-        defect_count = int(audit.get("defect_count", len(audit.get("defects", []))) or 0)
+        defect_count = int(
+            audit.get("site_defect_count", audit.get("defect_count", len(audit.get("defects", []))))
+            or 0
+        )
         issues = "; ".join(_top_issues(audit))
         email_info = emails.get(domain, {}) if isinstance(emails, dict) else {}
         best_email = email_info.get("best", "N/A") if isinstance(email_info, dict) else "N/A"
@@ -178,7 +196,7 @@ def generate_dashboard(audits: list[dict], emails: dict, title: str = "Website A
 :root {{ color-scheme: dark; }}
 * {{ box-sizing: border-box; }}
 body {{ font-family: system-ui,-apple-system,sans-serif; background:#0f0f1a; color:#e8e8ed; margin:0; padding:20px; }}
-a {{ color:#7dd3fc; }}
+a {{ color:{accent}; }}
 a:focus,button:focus,input:focus,select:focus {{ outline:3px solid currentColor; outline-offset:2px; }}
 h1,h2 {{ color:#fff; }}
 .subtitle {{ color:#a1a1aa; }}
@@ -209,7 +227,7 @@ code {{ white-space:nowrap; }}
 <body>
 <main>
 <h1>{esc(title)}</h1>
-<p class="subtitle">Generated {esc(generated)} · {total} sites. Opportunity score remains backward-compatible (100 = more defects/opportunity); health score uses the new transparent category model (100 = healthier).</p>
+<p class="subtitle">{esc(tagline)} · Generated {esc(generated)} · {total} sites. Opportunity score remains backward-compatible (100 = more defects/opportunity); health score uses the transparent category model (100 = healthier).</p>
 
 <div class="stats">
 <div class="card"><div class="value">{avg_opportunity:.0f}</div><div class="label">Avg opportunity score</div></div>
@@ -239,7 +257,7 @@ code {{ white-space:nowrap; }}
 </table>
 </div>
 </section>
-<p class="footer">Evidence-first Website Auditor · self-contained dashboard · no external scripts or CDN dependencies.</p>
+<p class="footer">{esc(title)} · evidence-first · self-contained dashboard · no external scripts or CDN dependencies.</p>
 </main>
 <script>
 "use strict";
@@ -290,12 +308,28 @@ document.getElementById("csvButton").addEventListener("click", exportCSV);
 </html>"""
 
 
-def run_dashboard(audits_dir=None, output=None, email_file=None) -> Path:
+def run_dashboard(
+    audits_dir=None,
+    output=None,
+    email_file=None,
+    *,
+    brand_name: str = "Website Audit Dashboard",
+    brand_tagline: str = "Evidence-first website portfolio",
+    accent: str = "#7dd3fc",
+) -> Path:
     audits = load_audits(audits_dir)
     emails = load_emails(email_file)
     destination = Path(output) if output else ROOT / "outputs" / "dashboard.html"
     destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_text(generate_dashboard(audits, emails))
+    destination.write_text(
+        generate_dashboard(
+            audits,
+            emails,
+            title=brand_name,
+            tagline=brand_tagline,
+            accent=accent,
+        )
+    )
     print(f"Dashboard saved: {destination} ({len(audits)} sites)")
     return destination
 
@@ -305,8 +339,18 @@ def main() -> None:
     parser.add_argument("--output", "-o", default="outputs/dashboard.html")
     parser.add_argument("--audits-dir", default="audits")
     parser.add_argument("--email-file")
+    parser.add_argument("--brand-name", default="Website Audit Dashboard")
+    parser.add_argument("--brand-tagline", default="Evidence-first website portfolio")
+    parser.add_argument("--accent", default="#7dd3fc", help="Six-digit hex accent colour")
     args = parser.parse_args()
-    run_dashboard(args.audits_dir, args.output, args.email_file)
+    run_dashboard(
+        args.audits_dir,
+        args.output,
+        args.email_file,
+        brand_name=args.brand_name,
+        brand_tagline=args.brand_tagline,
+        accent=args.accent,
+    )
 
 
 if __name__ == "__main__":
