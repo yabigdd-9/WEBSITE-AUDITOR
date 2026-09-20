@@ -1,0 +1,71 @@
+name: Evidence Engine
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser-evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          package-manager-cache: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned evidence dependencies
+        working-directory: audit
+        run: npm install --ignore-scripts --no-audit --no-fund
+
+      - name: Install Chromium
+        working-directory: audit
+        run: npx playwright install --with-deps chromium
+
+      - name: Syntax checks
+        run: |
+          node --check audit/evidence-audit.mjs
+          python -m py_compile audit/merge_audit.py
+
+      - name: Start local fixture
+        run: |
+          python -m http.server 8089 --bind 127.0.0.1 --directory audit/fixtures >/tmp/evidence-fixture.log 2>&1 &
+          echo $! >/tmp/evidence-fixture.pid
+          for i in {1..20}; do
+            curl -fsS http://127.0.0.1:8089/ >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/evidence-fixture.log
+          exit 1
+
+      - name: Capture browser evidence
+        working-directory: audit
+        run: node evidence-audit.mjs http://127.0.0.1:8089 /tmp/evidence
+
+      - name: Validate evidence artifacts
+        run: |
+          test -s /tmp/evidence/desktop-full.webp
+          test -s /tmp/evidence/mobile-full.webp
+          test -s /tmp/evidence/accessibility.json
+          test -s /tmp/evidence/lighthouse.json
+          test -s /tmp/evidence/provenance.json
+          test -s /tmp/evidence/audit.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path("/tmp/evidence/provenance.json").read_text())
+          a = json.loads(Path("/tmp/evidence/audit.json").read_text())
+          assert p["artifacts"]["desktop_full"]["sha256"]
+          assert p["artifacts"]["mobile_full"]["sha256"]
+          assert a["lighthouse"]["accessibility"] is not None
+          assert a["target"]["final_url"].startswith("http://127.0.0.1:8089")
+          PY
