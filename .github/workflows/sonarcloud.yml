@@ -54,6 +54,12 @@ jobs:
       - name: Pipeline readiness coverage tests
         run: coverage run --append --source=. -m pytest money-machine/test_full_pipeline_readiness.py -q
 
+      - name: Launchd coverage tests
+        run: coverage run --append --source=. -m pytest money-machine/test_launchd.py -q
+
+      - name: Discovery coverage tests
+        run: coverage run --append --source=. -m pytest money-machine/test_discovery.py -q
+
       - name: Build coverage report
         run: |
           coverage xml -o coverage.xml
