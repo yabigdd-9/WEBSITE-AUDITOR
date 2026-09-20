@@ -233,6 +233,17 @@ checks:
     confidence: 0.95
     patterns: ["^[0-9]+ HTML errors$"]
 
+  - id: technical.broken_images
+    name: Broken images
+    category: technical_health
+    severity: medium
+    standards: []
+    auto_fixable: true
+    evidence_required: [image_checks]
+    default_priority: P2
+    confidence: 0.95
+    patterns: ["^[0-9]+ broken image"]
+
   - id: technical.broken_links
     name: Broken links
     category: technical_health
