@@ -164,9 +164,12 @@ def email_dns_security(domain: str, *, email_signal: bool) -> tuple[list[dict], 
     ]
 
     common_dkim_selectors: dict[str, bool] = {}
-    for selector in ("google", "default", "selector1", "selector2"):
-        records = _txt_records(f"{selector}._domainkey.{domain}", timeout=2.0)
-        common_dkim_selectors[selector] = any("v=dkim1" in item.lower() or "p=" in item.lower() for item in records)
+    if email_signal:
+        for selector in ("google", "default", "selector1", "selector2"):
+            records = _txt_records(f"{selector}._domainkey.{domain}", timeout=1.5)
+            common_dkim_selectors[selector] = any(
+                "v=dkim1" in item.lower() or "p=" in item.lower() for item in records
+            )
 
     defects: list[dict] = []
     if email_signal and not spf_records:
