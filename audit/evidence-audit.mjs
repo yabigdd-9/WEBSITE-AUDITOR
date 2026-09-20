@@ -59,7 +59,10 @@ async function safeTarget(raw) {
     throw new Error("credential-bearing URLs are not allowed");
   }
 
-  const host = parsed.hostname.toLowerCase().replace(/\.$/, "");
+  const host = parsed.hostname
+    .toLowerCase()
+    .replace(/\.$/, "")
+    .replace(/^\[(.*)\]$/, "$1");
   if (
     host === "localhost" ||
     [".localhost", ".local", ".internal", ".lan", ".home", ".test"].some((suffix) =>
