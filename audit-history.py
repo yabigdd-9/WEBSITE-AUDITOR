@@ -24,8 +24,8 @@ def safe_name(value: str) -> str:
 
 def ingest(store: AuditHistoryStore, audit: dict, alerts_dir: Path) -> dict:
     domain = str(audit.get("domain") or "").lower()
-    previous = store.latest(domain) if domain else None
     after_id = store.save_audit(audit)
+    previous = store.latest(domain, exclude_audit_id=after_id) if domain else None
 
     result = {
         "domain": domain,
