@@ -17,7 +17,9 @@ import argparse, json, os, re, shlex, sys
 from pathlib import Path
 from datetime import datetime
 
+from auditor_core.quick_wins import quick_wins_markdown, rank_quick_wins
 from auditor_core.remediation import initial_remediation
+from auditor_core.verification import compare_audits
 
 ROOT = Path(__file__).resolve().parent
 AUDITS = ROOT / "audits"
@@ -346,6 +348,7 @@ def generate_remediation(audit_data):
             "severity": item.get("severity", "low"),
             "confidence": item.get("confidence"),
             "human_review": bool(item.get("human_review", False)),
+            "auto_fixable": bool(item.get("auto_fixable", False)),
             "priority_label": item.get("priority"),
             "priority": get_priority(key),
             "remediation": state,
@@ -419,7 +422,15 @@ def run_single(audit_path, output_dir=None):
         safe = re.sub(r'[^\w.-]', '_', data['domain'])
         out_file = out_dir / f"{safe}-remediation.json"
         out_file.write_text(json.dumps(remediation, indent=2, default=str))
+
+        quick_wins = rank_quick_wins(remediation)
+        quick_json = out_dir / f"{safe}-quick-wins.json"
+        quick_md = out_dir / f"{safe}-quick-wins.md"
+        quick_json.write_text(json.dumps(quick_wins, indent=2, default=str))
+        quick_md.write_text(quick_wins_markdown(quick_wins))
+
         print(f"     💾 Saved: {out_file}")
+        print(f"     ⚡ Quick wins: {quick_md}")
 
     return remediation
 
@@ -452,10 +463,33 @@ def main():
     parser.add_argument("--all", action="store_true", help="Process all audits")
     parser.add_argument("--output-dir", "-o", default="outputs/remediations", help="Output directory")
     parser.add_argument("--html-patches", action="store_true", help="Generate HTML patch files")
+    parser.add_argument("--verify-before", help="Before-audit JSON for remediation verification")
+    parser.add_argument("--verify-after", help="After-audit JSON for remediation verification")
+    parser.add_argument(
+        "--verification-output",
+        default="outputs/remediations/verification.json",
+        help="Where to save the before/after verification JSON",
+    )
     args = parser.parse_args()
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    if bool(args.verify_before) != bool(args.verify_after):
+        parser.error("--verify-before and --verify-after must be supplied together")
+
+    if args.verify_before and args.verify_after:
+        before = load_audit(args.verify_before)
+        after = load_audit(args.verify_after)
+        if not before or not after:
+            parser.error("verification inputs must both be readable JSON audit files")
+        verification = compare_audits(before, after)
+        verification_path = Path(args.verification_output)
+        verification_path.parent.mkdir(parents=True, exist_ok=True)
+        verification_path.write_text(json.dumps(verification, indent=2, default=str))
+        print(json.dumps(verification, indent=2, default=str))
+        print(f"Verification saved: {verification_path}")
+        return
 
     if args.audit:
         run_single(args.audit, output_dir)
