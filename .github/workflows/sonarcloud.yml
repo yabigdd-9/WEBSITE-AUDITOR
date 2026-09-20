@@ -17,12 +17,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
@@ -37,22 +37,28 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest pytest-cov
+          pip install pytest coverage
 
-      - name: Run focused tests with coverage
+      - name: Reset coverage
+        run: coverage erase
+
+      - name: Tier-1 coverage tests
+        run: coverage run --source=. -m pytest integrations/tier1_enrichment/tests -q
+
+      - name: Bridge coverage tests
+        run: coverage run --append --source=. -m pytest money-machine/test_mm_bridge.py -q
+
+      - name: Supervisor coverage tests
+        run: coverage run --append --source=. -m pytest money-machine/test_supervisor_daemon.py -q
+
+      - name: Pipeline readiness coverage tests
+        run: coverage run --append --source=. -m pytest money-machine/test_full_pipeline_readiness.py -q
+
+      - name: Build coverage report
         run: |
-          python -m pytest \
-            integrations/tier1_enrichment/tests \
-            money-machine/test_mm_bridge.py \
-            money-machine/test_supervisor_daemon.py \
-            money-machine/test_full_pipeline_readiness.py \
-            -q \
-            --cov=. \
-            --cov-report=xml:coverage.xml \
-            --cov-report=term-missing
-
-      - name: Require coverage artifact
-        run: test -s coverage.xml
+          coverage xml -o coverage.xml
+          coverage report -m
+          test -s coverage.xml
 
       - name: Run SonarCloud scan
         uses: SonarSource/sonarcloud-github-action@v3
