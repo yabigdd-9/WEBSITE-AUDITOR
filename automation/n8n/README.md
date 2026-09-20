@@ -46,3 +46,7 @@ Authorization: Bearer <the MM_BRIDGE_TOKEN from automation/n8n/.env>
 The imported workflows are restricted to status, qualification, email-status,
 internal intake/audit, outcomes and daily operations. Brain auto-approval and all
 send-related workflows are deliberately excluded until separately reviewed.
+
+## Version pin
+
+The tested default is `n8n 2.39.8`. Upgrade deliberately after CI and security checks; do not switch back to `latest` for the continuous runtime.
