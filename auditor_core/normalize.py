@@ -1,6 +1,8 @@
 """Convert legacy defect dictionaries into stable evidence-first findings."""
 from __future__ import annotations
 
+import shlex
+
 from .models import Finding, Severity
 from .registry import get_registry
 from .remediation import initial_remediation
@@ -29,7 +31,7 @@ def normalize_defects(defects: list[dict], *, url: str) -> list[dict]:
                 human_review=True,
                 priority="P7",
                 remediation=initial_remediation(
-                    verification_command=f"python website_auditor.py {url} --format json"
+                    verification_command=f"python website_auditor.py {shlex.quote(url)} --format json"
                 ),
                 legacy_defect=defect,
             )
@@ -50,7 +52,7 @@ def normalize_defects(defects: list[dict], *, url: str) -> list[dict]:
                 priority=definition.default_priority,
                 remediation=initial_remediation(
                     verification_command=(
-                        f"python website_auditor.py {url} --format json "
+                        f"python website_auditor.py {shlex.quote(url)} --format json "
                         f"# verify {definition.id}"
                     )
                 ),
