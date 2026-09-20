@@ -29,6 +29,13 @@ from auditor_core import (
     resolve_profile,
 )
 from auditor_core.network import NetworkSafetyError, SafeFetcher, ensure_public_url, robots_policy
+from auditor_core.passive import (
+    accessibility_basics,
+    cookie_security,
+    email_dns_security,
+    nz_business_signals,
+    passive_stack_and_images,
+)
 from auditor_core.registry import get_registry
 
 # ── config ──────────────────────────────────────────────────────────
@@ -495,6 +502,24 @@ async def audit_one(
     # HTML structure
     defects.extend(check_html_structure(soup, body_text))
 
+    # Accessibility basics
+    accessibility_defects, accessibility_evidence = accessibility_basics(soup)
+    defects.extend(accessibility_defects)
+    evidence["accessibility_basics"] = accessibility_evidence
+
+    # Cookie security (only when cookies are actually observed)
+    cookie_defects, cookie_evidence = cookie_security(
+        headers, is_https=urllib.parse.urlsplit(str(page.get("final_url") or url)).scheme == "https"
+    )
+    defects.extend(cookie_defects)
+    evidence["cookie_security"] = cookie_evidence
+
+    # Passive technology/CMS and image-performance evidence
+    evidence.update(passive_stack_and_images(html, headers))
+
+    # NZ business/contact signals are evidence, not automatic defects.
+    evidence["nz_business_signals"] = nz_business_signals(body_text, html)
+
     # Schema.org
     schema = check_schema_org(soup)
     evidence["schema_org"] = schema
@@ -513,6 +538,16 @@ async def audit_one(
     # Emails
     emails = extract_emails(html)
     evidence["emails"] = emails
+
+    # SPF/DMARC are checked only as findings when the page exposes an email signal.
+    # DNS work is offloaded from the asyncio loop because dnspython is synchronous.
+    dns_defects, dns_evidence = await asyncio.to_thread(
+        email_dns_security,
+        domain,
+        email_signal=bool(emails),
+    )
+    defects.extend(dns_defects)
+    evidence["email_dns_security"] = dns_evidence
 
     # Readability
     try:
