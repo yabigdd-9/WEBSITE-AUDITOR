@@ -80,6 +80,17 @@ def main() -> None:
     )
 
     run_step(
+        "Record audit history and regression state",
+        [
+            sys.executable,
+            "audit-history.py",
+            "ingest",
+            str(audit_output),
+        ],
+        required=True,
+    )
+
+    run_step(
         "Generate remediation plan",
         [
             sys.executable,
@@ -151,6 +162,8 @@ def main() -> None:
     summary = {
         "target": target,
         "audit": str(audit_output),
+        "history": str(ROOT / "outputs" / "history" / "audits.sqlite3"),
+        "regressions": str(ROOT / "outputs" / "regressions"),
         "remediations": str(remediations),
         "dashboard": str(report_output),
         "portfolio_exports": str(ROOT / "outputs" / "portfolio"),
