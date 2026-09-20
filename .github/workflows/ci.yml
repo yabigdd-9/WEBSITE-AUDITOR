@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [master, trial/**]
+    branches: [master, trial/**, upgrade/**, integration/**]
   pull_request:
-    branches: [master]
+    branches: [master, integration/consolidated-2026-09-21]
 
 jobs:
   test:
@@ -18,6 +18,8 @@ jobs:
         run: |
           python -m pip install --upgrade pip uv
           uv pip install --system -r requirements.txt
+      - name: Run auditor core tests
+        run: python -m pytest auditor_core/test_core.py -q
       - name: Run tier1 tests
         run: python -m unittest discover -s integrations/tier1_enrichment/tests -t . -v
       - name: Run MoneyMachine readiness tests
