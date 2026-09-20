@@ -105,6 +105,21 @@ def main() -> None:
     )
 
     run_step(
+        "Generate portfolio exports",
+        [
+            sys.executable,
+            "portfolio-export.py",
+            "--audits-dir",
+            str(audits),
+            "--output-dir",
+            str(ROOT / "outputs" / "portfolio"),
+            "--format",
+            "all",
+        ],
+        required=True,
+    )
+
+    run_step(
         "Initialize policy-controlled action engine",
         [sys.executable, "-m", "website_auditor.cli", "actions", "init"],
         required=True,
@@ -138,6 +153,7 @@ def main() -> None:
         "audit": str(audit_output),
         "remediations": str(remediations),
         "dashboard": str(report_output),
+        "portfolio_exports": str(ROOT / "outputs" / "portfolio"),
         "actions": str(ROOT / "outputs" / "actions"),
         "external_effects": False,
         "policy": "action-policy.json (dry_run; execution_enabled=false)",
