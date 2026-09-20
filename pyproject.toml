@@ -27,6 +27,9 @@ dependencies = [
   "pydantic>=2.9,<3",
 ]
 
+[project.scripts]
+wa = "website_auditor.cli:main"
+
 [project.optional-dependencies]
 dev = [
   "pytest>=8.3",
@@ -39,6 +42,9 @@ dev = [
 requires = ["setuptools>=83", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.packages.find]
+include = ["website_auditor*", "auditor_core*"]
+
 # Tool config
 [tool.ruff]
 line-length = 100
@@ -49,6 +55,7 @@ known-first-party = ["integrations", "money-machine"]
 
 [tool.pytest.ini_options]
 testpaths = [
+  "website_auditor",
   "auditor_core",
   "integrations",
   "money-machine",
