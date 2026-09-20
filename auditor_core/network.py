@@ -19,9 +19,9 @@ import httpx
 
 REDIRECT_STATUSES = {301, 302, 303, 307, 308}
 BLOCKED_HOST_SUFFIXES = (".localhost", ".local", ".internal", ".lan", ".home", ".test")
-_DOMAIN_SEMAPHORES: dict[str, asyncio.Semaphore] = {}
-_DOMAIN_START_LOCKS: dict[str, asyncio.Lock] = {}
-_DOMAIN_LAST_START: dict[str, float] = {}
+_DOMAIN_SEMAPHORES: dict[tuple[int, str], asyncio.Semaphore] = {}
+_DOMAIN_START_LOCKS: dict[tuple[int, str], asyncio.Lock] = {}
+_DOMAIN_LAST_START: dict[tuple[int, str], float] = {}
 
 
 class NetworkSafetyError(RuntimeError):
@@ -102,18 +102,22 @@ async def ensure_public_url(url: str) -> str:
 class _DomainGate:
     def __init__(self, host: str, concurrency: int, delay_seconds: float):
         self.host = host
-        self.sem = _DOMAIN_SEMAPHORES.setdefault(host, asyncio.Semaphore(max(1, concurrency)))
-        self.lock = _DOMAIN_START_LOCKS.setdefault(host, asyncio.Lock())
+        loop_id = id(asyncio.get_running_loop())
+        self.key = (loop_id, host)
+        self.sem = _DOMAIN_SEMAPHORES.setdefault(
+            self.key, asyncio.Semaphore(max(1, concurrency))
+        )
+        self.lock = _DOMAIN_START_LOCKS.setdefault(self.key, asyncio.Lock())
         self.delay_seconds = max(0.0, delay_seconds)
 
     async def __aenter__(self):
         await self.sem.acquire()
         async with self.lock:
-            last = _DOMAIN_LAST_START.get(self.host, 0.0)
+            last = _DOMAIN_LAST_START.get(self.key, 0.0)
             remaining = self.delay_seconds - (time.monotonic() - last)
             if remaining > 0:
                 await asyncio.sleep(remaining)
-            _DOMAIN_LAST_START[self.host] = time.monotonic()
+            _DOMAIN_LAST_START[self.key] = time.monotonic()
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
