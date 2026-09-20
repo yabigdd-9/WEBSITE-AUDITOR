@@ -24,6 +24,7 @@ ROOT = MM_DIR.parent
 sys.path.insert(0, str(MM_DIR))
 
 import mm_core as core
+import mm_discovery
 import mm_email_store as email_store
 import mm_operator as operator
 import mm_outreach as outreach
@@ -35,7 +36,7 @@ MAX_BODY = 1024 * 1024
 MAX_ID = 2**63 - 1
 
 READ_ACTIONS = {"status", "doctor", "email-status", "outreach-preflight"}
-WRITE_ACTIONS = {"intake", "audit"}
+WRITE_ACTIONS = {"intake", "audit", "discovery-search"}
 ALLOWED_ACTIONS = READ_ACTIONS | WRITE_ACTIONS
 FORBIDDEN_ACTIONS = {
     "send",
@@ -158,31 +159,49 @@ class BridgeHandler(http.server.BaseHTTPRequestHandler):
             source = str(params.get("source") or "n8n").strip()
             if not name or not url or not region:
                 raise ValueError("intake requires name, url and region")
-            host = core.public_url(url)
             with core.connect() as d, d:
-                for business in d.execute(
-                    "SELECT id,name,public_website FROM businesses WHERE is_dummy=0"
-                ):
-                    same_name = business["name"].strip().casefold() == name.casefold()
-                    same_host = (
-                        business["public_website"]
-                        and core.public_url(business["public_website"]) == host
-                    )
-                    if same_name or same_host:
-                        raise ValueError(f"duplicate prospect: {business['id']}")
-                cursor = d.execute(
-                    "INSERT INTO businesses(name,region,public_website,source,discovered_at,"
-                    "current_status,is_dummy) VALUES(?,?,?,?,?,'discovered',0)",
-                    (name, region, url, source, core.now()),
+                result = mm_discovery.ingest(
+                    d,
+                    [{"name": name, "url": url, "region": region, "source": source}],
+                    actor="n8n-bridge-intake",
                 )
-                business_id = cursor.lastrowid
-                d.execute(
-                    "INSERT INTO mm_deals(business_id,stage,updated_at) "
-                    "VALUES(?,'DISCOVERED',?)",
-                    (business_id, core.now()),
+            if result["duplicates"]:
+                duplicate = result["duplicates"][0]
+                raise ValueError(f"duplicate prospect: {duplicate['business_id']}")
+            if not result["inserted"]:
+                raise ValueError("intake produced no discoverable prospect")
+            return {
+                "business_id": result["inserted"][0]["business_id"],
+                "state": "DISCOVERED",
+                "outreach_eligible": False,
+            }
+
+        if action == "discovery-search":
+            query = str(params.get("query") or "").strip()
+            region = str(params.get("region") or "").strip()
+            try:
+                limit = int(params.get("limit") or 10)
+            except (TypeError, ValueError):
+                raise ValueError("limit must be an integer")
+            if not query or not region:
+                raise ValueError("discovery-search requires query and region")
+            limit = max(1, min(limit, 20))
+            endpoint = os.environ.get("MM_SEARXNG_ENDPOINT", "http://127.0.0.1:8888")
+            candidates = mm_discovery.searxng_candidates(
+                query,
+                region,
+                endpoint=endpoint,
+                limit=limit,
+            )
+            with core.connect() as d, d:
+                result = mm_discovery.ingest(
+                    d,
+                    candidates,
+                    actor="n8n-discovery-search",
                 )
-                core.event(d, "intake", business_id, source)
-            return {"business_id": business_id}
+            result["query"] = query
+            result["region"] = region
+            return result
 
         if action == "audit":
             business_id = _safe_int(params.get("id"), "id")
