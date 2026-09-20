@@ -20,10 +20,18 @@ jobs:
           uv pip install --system -r requirements.txt
       - name: Compile evidence-first P0 surfaces
         run: |
-          python -m py_compile website_auditor.py remediation-engine.py audit-dashboard.py audit/merge_audit.py
-          python -m compileall -q auditor_core
+          python -m py_compile website_auditor.py remediation-engine.py audit-dashboard.py audit/merge_audit.py run_all.py
+          python -m compileall -q auditor_core website_auditor
       - name: Run auditor core tests
         run: python -m pytest auditor_core/test_core.py -q
+      - name: Run action-engine tests
+        run: python -m pytest website_auditor/test_actions.py -q
+      - name: Smoke safe action CLI
+        run: |
+          python -m website_auditor.cli --output-dir /tmp/wa-actions actions init
+          python -m website_auditor.cli --output-dir /tmp/wa-actions actions demo --domain example.co.nz
+          python -m website_auditor.cli --output-dir /tmp/wa-actions actions dry-run
+          python -m website_auditor.cli --output-dir /tmp/wa-actions actions status
       - name: Run tier1 tests
         run: python -m unittest discover -s integrations/tier1_enrichment/tests -t . -v
       - name: Run MoneyMachine readiness tests
