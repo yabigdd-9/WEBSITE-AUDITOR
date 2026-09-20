@@ -577,10 +577,17 @@ async def audit_one(
     wc = len(body_text.split()) if body_text else 0
     evidence["word_count"] = wc
 
-    # W3C markup (sampled)
+    # W3C markup validation. Submit the HTML we already fetched rather than asking
+    # the validator service to fetch an attacker-controlled URL.
     try:
-        nu_url = f"https://validator.w3.org/nu/?doc={url}&out=json"
-        r = await session.get(nu_url, timeout=20)
+        nu_url = "https://validator.w3.org/nu/?out=json"
+        r = await session.post(
+            nu_url,
+            content=html.encode("utf-8", errors="replace"),
+            headers={"Content-Type": "text/html; charset=utf-8", "User-Agent": USER_AGENT},
+            timeout=20,
+            follow_redirects=False,
+        )
         if r.status_code == 200:
             data = r.json()
             errs = [m for m in data.get("messages", []) if m.get("type") == "error"]
