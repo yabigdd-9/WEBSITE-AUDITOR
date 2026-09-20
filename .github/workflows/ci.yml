@@ -22,8 +22,12 @@ jobs:
         run: |
           python -m py_compile website_auditor.py remediation-engine.py audit-dashboard.py audit/merge_audit.py run_all.py
           python -m compileall -q auditor_core website_auditor
+      - name: Check rendered evidence JS syntax
+        run: node --check audit/evidence-audit.mjs
       - name: Run auditor core tests
         run: python -m pytest auditor_core/test_core.py -q
+      - name: Run network safety tests
+        run: python -m pytest auditor_core/test_network.py -q
       - name: Run action-engine tests
         run: python -m pytest website_auditor/test_actions.py -q
       - name: Smoke safe action CLI
