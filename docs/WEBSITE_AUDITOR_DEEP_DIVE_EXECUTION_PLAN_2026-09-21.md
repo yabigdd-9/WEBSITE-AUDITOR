@@ -107,3 +107,27 @@ External transport remains isolated and disabled until all previous gates are sa
 - [ ] P3 unified technical audit.
 - [ ] P4-P14.
 - [ ] P15 transport.
+
+
+## Roadmap execution branch — 2026-09-21
+
+Branch: `upgrade/roadmap-p0-evidence-20260921`
+
+Implemented in this pass:
+- [x] Typed evidence/finding/check/remediation models.
+- [x] Versioned stable check registry and initial defect taxonomy.
+- [x] Raw static page evidence with hashing and secret-bearing header redaction.
+- [x] Static vs rendered audit mode wiring to the existing browser evidence engine.
+- [x] Transparent category health scoring without removing the legacy opportunity score.
+- [x] Deterministic site-type detection and audit profiles.
+- [x] Remediation lifecycle/state tracking and stable-check remediation mapping.
+- [x] Safer accessible dashboard with escaped untrusted content and CSP.
+- [x] Unified audit merge preserves typed findings, taxonomy and category scores.
+- [x] Core regression tests added to CI.
+
+Still staged for later roadmap phases:
+- broaden the registry until every legacy check has a first-class check ID;
+- multi-page crawling/robots/rate-limit policy integration at the core auditor layer;
+- richer DNS/TLS/cookie/NZ-specific coverage;
+- portfolio remediation history and before/after verification UI;
+- full P4-P14 rollout and P15 transport only after explicit approval gates.
