@@ -20,6 +20,15 @@ jobs:
           uv pip install --system -r requirements.txt
       - name: Run tier1 tests
         run: python -m unittest discover -s integrations/tier1_enrichment/tests -t . -v
+      - name: Run MoneyMachine readiness tests
+        run: |
+          python -m pytest \
+            money-machine/test_mm_bridge.py \
+            money-machine/test_supervisor_daemon.py \
+            money-machine/test_launchd.py \
+            money-machine/test_full_pipeline_readiness.py \
+            money-machine/test_discovery.py \
+            -q
 
   smoke-test:
     runs-on: ubuntu-latest
