@@ -1,0 +1,74 @@
+{
+  "name": "03 - Opportunity Qualifier",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://host.docker.internal:8787/status",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "Authorization": "Bearer {{$credentials.mmBridgeToken}}"
+        }
+      },
+      "name": "MM Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        350,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const envelope = $input.first().json;\\nconst status = envelope.result || envelope;\\nconst candidates = (status.email_contacts || []).filter(c => c.verification === 'VERIFIED_HIGH');\\nreturn candidates.map(c => {\\n  const why = (c.why || '').toLowerCase();\\n  let opportunity_type = 'manual-review';\\n  if (why.includes('calculator') || why.includes('quote')) opportunity_type = 'quote-or-calculator';\\n  else if (why.includes('booking')) opportunity_type = 'booking-automation';\\n  else if (why.includes('form')) opportunity_type = 'lead-flow-improvement';\\n  return { json: { ...c, opportunity_type, next_action: 'HUMAN_REVIEW' } };\\n});"
+      },
+      "name": "Classify Opportunities",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "MM Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MM Status": {
+      "main": [
+        [
+          {
+            "node": "Classify Opportunities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "timezone": "Pacific/Auckland",
+    "executionTimeout": 300
+  }
+}
