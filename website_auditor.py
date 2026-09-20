@@ -19,7 +19,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-import httpx, bs4, trafilatura, textstat
+import httpx, bs4, trafilatura, pyphen
 
 # ── config ──────────────────────────────────────────────────────────
 CACHE_DIR = Path("outputs/.cache")
@@ -74,6 +74,27 @@ async def fetch_head(session: httpx.AsyncClient, url: str) -> dict:
         return result
     except Exception:
         return {}
+
+# ── readability ─────────────────────────────────────────────────────
+_HYPHENATOR = pyphen.Pyphen(lang="en_US")
+
+def readability_scores(text: str) -> tuple[float | None, float | None]:
+    """Return Flesch reading ease and Flesch-Kincaid grade without NLTK."""
+    words = re.findall(r"[A-Za-z]+(?:'[A-Za-z]+)?", text or "")
+    if not words:
+        return None, None
+    sentences = [s for s in re.split(r"[.!?]+", text) if s.strip()]
+    sentence_count = max(1, len(sentences))
+    syllables = 0
+    for word in words:
+        parts = _HYPHENATOR.inserted(word.lower()).split("-")
+        syllables += max(1, len([p for p in parts if p]))
+    word_count = len(words)
+    words_per_sentence = word_count / sentence_count
+    syllables_per_word = syllables / word_count
+    flesch = 206.835 - (1.015 * words_per_sentence) - (84.6 * syllables_per_word)
+    grade = (0.39 * words_per_sentence) + (11.8 * syllables_per_word) - 15.59
+    return flesch, grade
 
 # ── defect checks ───────────────────────────────────────────────────
 def check_ssl(domain: str) -> dict:
@@ -245,9 +266,11 @@ async def audit_one(session: httpx.AsyncClient, url: str) -> dict:
 
     # Readability
     try:
-        flesch = textstat.flesch_reading_ease(body_text) if body_text else None
-        fk = textstat.flesch_kincaid_grade(body_text) if body_text else None
-        evidence["readability"] = {"flesch": round(flesch, 1) if flesch else None, "grade": round(fk, 1) if fk else None}
+        flesch, fk = readability_scores(body_text)
+        evidence["readability"] = {
+            "flesch": round(flesch, 1) if flesch is not None else None,
+            "grade": round(fk, 1) if fk is not None else None,
+        }
         if flesch is not None and flesch < 40:
             defects.append({"defect": f"Low readability (Flesch {flesch:.0f})", "impact": "Content too complex for general audience"})
     except Exception:
