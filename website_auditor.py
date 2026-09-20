@@ -404,7 +404,7 @@ async def audit_one(
         nu_url = f"https://validator.w3.org/nu/?doc={url}&out=json"
         r = await session.get(nu_url, timeout=20)
         if r.status_code == 200:
-            data = await r.json()
+            data = r.json()
             errs = [m for m in data.get("messages", []) if m.get("type") == "error"]
             if errs:
                 err_count = len(errs)
