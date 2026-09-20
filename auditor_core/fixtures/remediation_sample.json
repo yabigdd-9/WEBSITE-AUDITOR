@@ -1,0 +1,35 @@
+{
+  "domain": "example.co.nz",
+  "actions": [
+    {
+      "check_id": "seo.h1_missing",
+      "defect": "Missing H1 tag",
+      "category": "seo",
+      "severity": "medium",
+      "confidence": 0.98,
+      "priority": 2,
+      "human_review": false,
+      "auto_fixable": true,
+      "fix": {
+        "title": "Add H1 Tag",
+        "effort": "2 min/page",
+        "cost": "Free"
+      }
+    },
+    {
+      "check_id": "content.readability_low",
+      "defect": "Low readability",
+      "category": "content",
+      "severity": "low",
+      "confidence": 0.7,
+      "priority": 12,
+      "human_review": true,
+      "auto_fixable": false,
+      "fix": {
+        "title": "Rewrite content",
+        "effort": "1-4 hours",
+        "cost": "TBD"
+      }
+    }
+  ]
+}
