@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from .actions.executor import ActionExecutor
+from .outreach.suppression import SuppressionStore
 
 
 def emit(value) -> None:
@@ -76,6 +77,38 @@ def cmd_resume(args) -> None:
     emit(ex.status_summary())
 
 
+
+def suppression_store(args) -> SuppressionStore:
+    return SuppressionStore(Path(args.output_dir).parent / "outreach" / "suppression.json")
+
+
+def cmd_outreach_suppress(args) -> None:
+    store = suppression_store(args)
+    if args.email:
+        emit(store.suppress_email(args.email, reason=args.reason, source=args.actor))
+    elif args.domain:
+        emit(store.suppress_domain(args.domain, reason=args.reason, source=args.actor))
+    else:
+        raise SystemExit("--email or --domain is required")
+
+
+def cmd_outreach_unsuppress(args) -> None:
+    store = suppression_store(args)
+    if args.email:
+        emit({"removed": store.unsuppress_email(args.email), "scope": "email"})
+    elif args.domain:
+        emit({"removed": store.unsuppress_domain(args.domain), "scope": "domain"})
+    else:
+        raise SystemExit("--email or --domain is required")
+
+
+def cmd_outreach_check(args) -> None:
+    emit(suppression_store(args).check(email=args.email, domain=args.domain))
+
+
+def cmd_outreach_list(args) -> None:
+    emit(suppression_store(args).snapshot())
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="wa", description="Website Auditor action engine")
     parser.add_argument("--config", default="action-policy.json")
@@ -98,6 +131,29 @@ def build_parser() -> argparse.ArgumentParser:
     p = action_sub.add_parser("list"); p.set_defaults(func=cmd_list)
     p = action_sub.add_parser("pause"); p.add_argument("--actor", default="local_user"); p.set_defaults(func=cmd_pause)
     p = action_sub.add_parser("resume"); p.add_argument("--actor", default="local_user"); p.set_defaults(func=cmd_resume)
+
+    outreach = sub.add_parser("outreach")
+    outreach_sub = outreach.add_subparsers(dest="outreach_command", required=True)
+
+    p = outreach_sub.add_parser("suppress")
+    p.add_argument("--email")
+    p.add_argument("--domain")
+    p.add_argument("--reason", default="manual")
+    p.add_argument("--actor", default="local_user")
+    p.set_defaults(func=cmd_outreach_suppress)
+
+    p = outreach_sub.add_parser("unsuppress")
+    p.add_argument("--email")
+    p.add_argument("--domain")
+    p.set_defaults(func=cmd_outreach_unsuppress)
+
+    p = outreach_sub.add_parser("check")
+    p.add_argument("--email")
+    p.add_argument("--domain")
+    p.set_defaults(func=cmd_outreach_check)
+
+    p = outreach_sub.add_parser("list")
+    p.set_defaults(func=cmd_outreach_list)
 
     return parser
 
