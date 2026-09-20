@@ -46,17 +46,26 @@ def category_scores(findings: Iterable[dict]) -> dict:
         count = counts.get(category, 0)
         avg_confidence = round(confidence_sum.get(category, 0.0) / count, 3) if count else None
         categories[category] = {
-            "score": max(0, round(100 - deductions.get(category, 0.0))),
+            "score": max(0, round(100 - deductions.get(category, 0.0))) if count else None,
+            "tested": bool(count),
             "finding_count": count,
             "average_confidence": avg_confidence,
             "deduction": round(deductions.get(category, 0.0), 2),
         }
 
-    tested = [item["score"] for item in categories.values() if item["finding_count"] > 0]
-    overall = round(sum(tested) / len(tested)) if tested else 100
+    tested = [
+        item["score"]
+        for item in categories.values()
+        if item["tested"] and item["score"] is not None
+    ]
+    overall = round(sum(tested) / len(tested)) if tested else None
     return {
         "schema_version": 1,
         "meaning": "health_score_100_is_best",
         "overall_health_score": overall,
         "categories": categories,
+        "coverage_note": (
+            "Categories without observed findings are null/untested until pass-result "
+            "coverage is recorded; they are not assumed to be perfect."
+        ),
     }
