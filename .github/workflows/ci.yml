@@ -35,3 +35,33 @@ jobs:
           uv pip install --system -r requirements.txt
       - name: Smoke audit
         run: python website_auditor.py https://example.com --format json -o /tmp/smoke.json
+      - name: Full pipeline and supervisor readiness smoke
+        run: |
+          python -m py_compile full-pipeline.py money-machine/supervisor/daemon.py
+          python - <<'PY'
+          import importlib.util
+          import os
+          import tempfile
+          from pathlib import Path
+
+          spec = importlib.util.spec_from_file_location("full_pipeline", "full-pipeline.py")
+          mod = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(mod)
+
+          with tempfile.TemporaryDirectory() as td:
+              td = Path(td)
+              mod.AUDITS = td / "audits"
+              mod.AUDITS.mkdir()
+              mod.CFG = {"quiet": True, "delay": 0, "output_dir": str(td), "max_workers": 1}
+              results, errors = mod.run_email_discovery(max_workers=1, state=None)
+              assert results == {}
+              assert errors == {}
+
+          spec2 = importlib.util.spec_from_file_location(
+              "supervisor_daemon", "money-machine/supervisor/daemon.py"
+          )
+          daemon = importlib.util.module_from_spec(spec2)
+          spec2.loader.exec_module(daemon)
+          assert daemon._pid_is_alive(os.getpid())
+          assert not daemon._pid_is_alive(-1)
+          PY

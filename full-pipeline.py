@@ -328,6 +328,8 @@ def discover_emails(domain, url):
             "verified": verified, "best": best, "phones": phones, "social": social}
 
 def run_email_discovery(max_workers=8, state=None):
+    if state is None:
+        state = {}
     if not CFG["quiet"]: print(clr("=== Email Discovery (parallel, {} workers) ===".format(max_workers), C.BOLD))
     tasks = []
     for aj in sorted(AUDITS.glob("*.json")):
@@ -706,13 +708,16 @@ def run_summary():
 def run_watch(interval=3600):
     """Continuous monitoring loop."""
     if not CFG["quiet"]: print(clr("=== Watch Mode (interval: {}s) ===".format(interval), C.CYAN))
+    state = load_state() if CFG.get("resume", True) else {}
     try:
         while True:
             if not CFG["quiet"]: print("\n" + "=" * 60)
             print("  Run at {}".format(datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
             run_scouting(recheck_days=CFG["recheck_days"])
-            run_email_discovery(max_workers=CFG["max_workers"])
+            run_email_discovery(max_workers=CFG["max_workers"], state=state)
             run_summary()
+            if CFG.get("resume", True):
+                save_state(state)
             if not CFG["quiet"]: print("  Next check in {}s...".format(interval))
             time.sleep(interval)
     except KeyboardInterrupt:

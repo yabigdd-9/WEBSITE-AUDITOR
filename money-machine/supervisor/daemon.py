@@ -10,6 +10,20 @@ PIDFILE = ROOT / "state" / "supervisor.pid"
 HEARTBEAT = ROOT / "state" / "supervisor.heartbeat"
 LOG_DIR = ROOT / "state" / "worker-logs"
 
+def _pid_is_alive(pid: int) -> bool:
+    """Portable process existence check for macOS/Linux without relying on /proc."""
+    if pid <= 0:
+        return False
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    except OSError:
+        return False
+    return True
+
 class SupervisorDaemon:
     def __init__(self, pidfile: Path = PIDFILE, heartbeat: Path = HEARTBEAT):
         self.pidfile = pidfile
@@ -27,10 +41,12 @@ class SupervisorDaemon:
         if self.pidfile.exists():
             try:
                 other_pid = int(self.pidfile.read_text().strip())
-                if Path(f"/proc/{other_pid}").exists():
+                if _pid_is_alive(other_pid):
                     return False  # dual-start blocked
             except Exception:
                 pass
+        self.pidfile.parent.mkdir(parents=True, exist_ok=True)
+        self.heartbeat.parent.mkdir(parents=True, exist_ok=True)
         self.pidfile.write_text(str(os.getpid()))
         self.heartbeat.write_text(json.dumps({"pid": os.getpid(), "started": datetime.now(timezone.utc).isoformat()}))
         return True
