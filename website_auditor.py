@@ -32,6 +32,7 @@ import auditor_core.builtin_plugins  # noqa: F401
 from auditor_core.assets import audit_image_urls, discover_image_urls
 from auditor_core.check_plugins import AuditCheckContext, run_plugins
 from auditor_core.crawl import discover_internal_links, merge_site_findings
+from auditor_core.ecommerce import ecommerce_checks
 from auditor_core.network import NetworkSafetyError, SafeFetcher, ensure_public_url, robots_policy
 from auditor_core.passive import email_dns_security
 from auditor_core.registry import get_registry
@@ -531,6 +532,14 @@ async def audit_one(
     evidence["schema_org"] = schema
     if schema["count"] == 0:
         defects.append({"defect": "No structured data (Schema.org)", "impact": "Rich results unavailable in search"})
+
+    # Ecommerce-specific passive checks activate only when commerce signals are present.
+    ecommerce_defects, ecommerce_evidence = ecommerce_checks(
+        html,
+        base_url=str(page.get("final_url") or url),
+    )
+    defects.extend(ecommerce_defects)
+    evidence["ecommerce"] = ecommerce_evidence
 
     # Social links
     social = {}
