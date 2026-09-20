@@ -14,7 +14,7 @@ Usage:
 
 All checks use public data only. No login, no API keys required.
 """
-import argparse, asyncio, json, re, subprocess, sys, time, urllib.parse
+import argparse, asyncio, html as html_lib, json, re, subprocess, sys, time, urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -491,14 +491,25 @@ def generate_html_report(audit: dict) -> str:
     score = audit["score"]
     tier = "HOT" if score >= 80 else "WARM" if score >= 60 else "NURTURE" if score >= 40 else "COLD"
     color = "#FF1A1A" if score < 40 else "#FF8A00" if score < 60 else "#EFFF00" if score < 80 else "#00D4A3"
-    rows = "".join(f"<tr><td>{d['defect']}</td><td>{d.get('impact','')}</td></tr>" for d in audit.get("defects", []))
-    return f"""<html><head><style>body{{font-family:sans-serif;margin:2em;background:#1a1a2e;color:#eee}}
+    rows = "".join(
+        "<tr><td>"
+        + html_lib.escape(str(d.get("defect", "")))
+        + "</td><td>"
+        + html_lib.escape(str(d.get("impact", "")))
+        + "</td></tr>"
+        for d in audit.get("defects", [])
+    )
+    domain = html_lib.escape(str(audit.get("domain", "")))
+    timestamp = html_lib.escape(str(audit.get("timestamp", "")))
+    return f"""<html><head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; object-src 'none'">
+    <style>body{{font-family:sans-serif;margin:2em;background:#1a1a2e;color:#eee}}
     .score{{font-size:3em;color:{color};text-align:center}}
     table{{width:100%;border-collapse:collapse}} th,td{{padding:8px;text-align:left;border-bottom:1px solid #333}}
-    </style></head><body><h1>{audit['domain']}</h1>
+    </style></head><body><h1>{domain}</h1>
     <div class="score">{score}/100 — {tier}</div>
     <table><tr><th>Defect</th><th>Impact</th></tr>{rows}</table>
-    <p><em>Generated {audit['timestamp']}</em></p></body></html>"""
+    <p><em>Generated {timestamp}</em></p></body></html>"""
 
 # ── CLI ─────────────────────────────────────────────────────────────
 def main():
