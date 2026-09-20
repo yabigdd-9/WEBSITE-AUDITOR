@@ -65,3 +65,41 @@ jobs:
           assert daemon._pid_is_alive(os.getpid())
           assert not daemon._pid_is_alive(-1)
           PY
+
+      - name: n8n bridge and workflow smoke
+        run: |
+          python -m py_compile money-machine/mm_bridge.py
+          bash -n automation/n8n/start-n8n.sh
+          bash -n automation/n8n/stop-n8n.sh
+          bash -n automation/n8n/healthcheck.sh
+          bash -n automation/n8n/backup-n8n.sh
+          bash -n automation/n8n/start-bridge.sh
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          workflow_dir = Path("automation/n8n/workflows")
+          files = sorted(workflow_dir.glob("*.json"))
+          assert files, "no n8n workflows found"
+
+          forbidden = {
+              "send-via-approved-transport",
+              "record-sent",
+              "/send",
+              "LIVE_SEND_ENABLED",
+          }
+
+          for path in files:
+              data = json.loads(path.read_text())
+              assert isinstance(data, dict)
+              assert data.get("name")
+              raw = path.read_text()
+              for marker in forbidden:
+                  assert marker not in raw, f"{path}: forbidden send marker {marker}"
+
+          bridge = Path("money-machine/mm_bridge.py").read_text()
+          assert '"send-via-approved-transport"' in bridge
+          assert '"record-sent"' in bridge
+          assert 'FORBIDDEN_ACTIONS' in bridge
+          assert 'MM_EXTERNAL_SEND_DISABLED' in bridge
+          PY
