@@ -15,18 +15,26 @@ def load_json(path: Path) -> dict:
 
 
 def merge(base: dict, browser: dict) -> dict:
+    """Merge deterministic/static and rendered evidence while preserving provenance."""
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "target": browser.get("target") or {
             "requested_url": base.get("url"),
             "final_url": base.get("url"),
-            "status": None,
+            "status": (base.get("evidence") or {}).get("raw_page", {}).get("http_status"),
         },
         "website_auditor": {
-            "score": base.get("score"),
+            "legacy_opportunity_score": base.get("score"),
+            "score_semantics": base.get("score_semantics", {}),
+            "category_scores": base.get("category_scores", {}),
             "defect_count": base.get("defect_count"),
             "defects": base.get("defects", []),
+            "findings": base.get("findings", []),
             "evidence": base.get("evidence", {}),
+            "taxonomy": base.get("taxonomy", {}),
+            "site_type": base.get("site_type", {}),
+            "audit_profile": base.get("audit_profile", {}),
+            "audit_mode": base.get("audit_mode", {}),
             "meta": base.get("meta", {}),
             "timestamp": base.get("timestamp"),
         },
@@ -35,7 +43,7 @@ def merge(base: dict, browser: dict) -> dict:
         "generated_at": browser.get("generated_at"),
         "claim_policy": {
             "evidence_only": True,
-            "note": "No finding is promoted beyond the evidence present in the input artifacts.",
+            "note": "No finding is promoted beyond evidence present in the input artifacts.",
         },
     }
 
