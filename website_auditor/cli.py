@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from .actions.executor import ActionExecutor
+from .outreach.campaign import read_prospects, simulate_campaign, write_simulation
 from .outreach.suppression import SuppressionStore
 
 
@@ -109,6 +110,31 @@ def cmd_outreach_check(args) -> None:
 def cmd_outreach_list(args) -> None:
     emit(suppression_store(args).snapshot())
 
+def cmd_campaign_simulate(args) -> None:
+    template = Path(args.template).read_text(encoding="utf-8")
+    prospects = read_prospects(args.list)
+    defaults = {
+        "sender_name": args.sender_name or "",
+        "agency_name": args.agency_name or "",
+        "physical_address": args.physical_address or "",
+        "country": args.country or "",
+    }
+    report = simulate_campaign(
+        prospects,
+        template,
+        suppression_store=suppression_store(args),
+        defaults=defaults,
+    )
+    destination = write_simulation(report, args.output)
+    emit({
+        "output": str(destination),
+        "mode": report["mode"],
+        "prospect_count": report["prospect_count"],
+        "eligible_for_human_send_review_count": report["eligible_for_human_send_review_count"],
+        "transport_available": report["transport_available"],
+    })
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="wa", description="Website Auditor action engine")
     parser.add_argument("--config", default="action-policy.json")
@@ -154,6 +180,19 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = outreach_sub.add_parser("list")
     p.set_defaults(func=cmd_outreach_list)
+
+    campaign = sub.add_parser("campaign")
+    campaign_sub = campaign.add_subparsers(dest="campaign_command", required=True)
+
+    p = campaign_sub.add_parser("simulate")
+    p.add_argument("--list", required=True, help="Prospect CSV")
+    p.add_argument("--template", required=True, help="Plain-text draft template")
+    p.add_argument("--output", default="outputs/outreach/campaign-simulation.json")
+    p.add_argument("--sender-name")
+    p.add_argument("--agency-name")
+    p.add_argument("--physical-address")
+    p.add_argument("--country")
+    p.set_defaults(func=cmd_campaign_simulate)
 
     return parser
 
