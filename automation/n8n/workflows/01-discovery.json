@@ -1,0 +1,82 @@
+{
+  "name": "01 - NZ Prospect Discovery Queue",
+  "nodes": [
+    {
+      "parameters": {
+        "triggerTimes": [
+          {
+            "mode": "everyX",
+            "value": 2,
+            "unit": "hours"
+          }
+        ]
+      },
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://host.docker.internal:8787/status",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "Authorization": "Bearer {{$credentials.mmBridgeToken}}"
+        }
+      },
+      "name": "MM Status Check",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        350,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const envelope = $input.first().json;\\nconst status = envelope.result || envelope;\\nconst candidates = (status.email_contacts || []).filter(c => c.verification === 'NO_VERIFIED_EMAIL' && c.outreach_eligible !== true);\\nreturn candidates.map(c => ({ json: { business_id: c.business_id, business: c.business, website: c.website, canonical_domain: c.canonical_domain, email: c.email, why: c.why, next_action: 'FIRST_PARTY_RESEARCH' } }));"
+      },
+      "name": "Queue Unverified",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "MM Status Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MM Status Check": {
+      "main": [
+        [
+          {
+            "node": "Queue Unverified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "timezone": "Pacific/Auckland",
+    "executionTimeout": 300
+  }
+}
