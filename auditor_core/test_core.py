@@ -81,3 +81,10 @@ def test_invalid_remediation_transition_fails(tmp_path: Path):
     store = RemediationStateStore(tmp_path / "state.json")
     with pytest.raises(ValueError):
         store.transition("example|seo.h1_missing", "verified")
+
+
+def test_unobserved_categories_are_not_assumed_perfect():
+    scores = category_scores([])
+    assert scores["overall_health_score"] is None
+    assert scores["categories"]["performance"]["score"] is None
+    assert scores["categories"]["performance"]["tested"] is False
