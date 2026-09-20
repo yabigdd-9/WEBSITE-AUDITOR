@@ -1,0 +1,117 @@
+{
+  "name": "11 - Daily Ops Health",
+  "nodes": [
+    {
+      "parameters": {
+        "triggerTimes": [
+          {
+            "mode": "everyX",
+            "value": 1,
+            "unit": "days"
+          }
+        ]
+      },
+      "name": "Daily Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://host.docker.internal:8787/status",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "Authorization": "Bearer {{$credentials.mmBridgeToken}}"
+        }
+      },
+      "name": "MM Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        350,
+        250
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://host.docker.internal:8787/doctor",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "Authorization": "Bearer {{$credentials.mmBridgeToken}}"
+        }
+      },
+      "name": "MM Doctor",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        350,
+        450
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const statusEnvelope = $('MM Status').first().json;\\nconst doctorEnvelope = $('MM Doctor').first().json;\\nconst status = statusEnvelope.result || statusEnvelope;\\nconst doctor = doctorEnvelope.result || doctorEnvelope;\\nconst metrics = status.metrics || {};\\nreturn [{ json: { generated_at: status.generated_at, real_prospects: metrics.real_prospects || 0, verified_sends: metrics.verified_sends || 0, verified_replies: metrics.verified_replies || 0, net_received_nzd: metrics.net_received_nzd || 0, db_integrity: doctor.db_integrity, foreign_key_errors: doctor.foreign_key_errors, models_enabled: doctor.models_enabled, blocked: status.blocked || [], missing_or_stale: status.missing_or_stale || [] } }];"
+      },
+      "name": "Aggregate Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        650,
+        350
+      ]
+    }
+  ],
+  "connections": {
+    "Daily Schedule": {
+      "main": [
+        [
+          {
+            "node": "MM Status",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "MM Doctor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MM Status": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MM Doctor": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "timezone": "Pacific/Auckland",
+    "executionTimeout": 300
+  }
+}
