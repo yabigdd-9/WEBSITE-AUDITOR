@@ -1,10 +1,7 @@
 name: website-auditor-codeql
 
 paths:
-  - website_auditor.py
-  - full-pipeline.py
-  - money-machine
-  - integrations/tier1_enrichment
+  - .
 
 paths-ignore:
   - "**/__pycache__/**"
@@ -17,3 +14,4 @@ paths-ignore:
   - "evidence/**"
   - "prospects/**"
   - "database/**"
+  - "history/**"
