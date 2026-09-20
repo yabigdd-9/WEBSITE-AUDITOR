@@ -162,6 +162,8 @@ def main(argv=None):
     s.add_parser('email-duplicates')
     q=s.add_parser('email-v1');q.add_argument('id',type=int)
     s.add_parser('email-rollback')
+    q=s.add_parser('discovery-import');q.add_argument('--file',required=True);q.add_argument('--source',default='local-import');q.add_argument('--region',default='');q.add_argument('--dry-run',action='store_true')
+    q=s.add_parser('discovery-searxng');q.add_argument('--query',required=True);q.add_argument('--region',required=True);q.add_argument('--endpoint',default='http://127.0.0.1:8888');q.add_argument('--limit',type=int,default=20);q.add_argument('--dry-run',action='store_true')
     q=s.add_parser('intake');q.add_argument('--name',required=True);q.add_argument('--url',required=True);q.add_argument('--region',required=True);q.add_argument('--source',required=True)
     q=s.add_parser('audit');q.add_argument('id',type=int);q.add_argument('--url',required=True);q.add_argument('--observation',required=True);q.add_argument('--limitation',required=True);q.add_argument('--capture',required=True);q.add_argument('--status',choices=['verified','partial','refuted','unverified'],required=True);q.add_argument('--method',required=True);q.add_argument('--confidence',type=float,required=True);q.add_argument('--claim-type',choices=ONTOLOGY,default='conversion')
     q=s.add_parser('contact');q.add_argument('id',type=int);q.add_argument('--recipient',required=True);q.add_argument('--url',required=True);q.add_argument('--capture',required=True);q.add_argument('--relevance',required=True)
@@ -222,6 +224,18 @@ def main(argv=None):
     q=s.add_parser('supervisor-uninstall')
     q.add_argument('--keep-plist',action='store_true')
     a=p.parse_args(argv)
+    if a.cmd.startswith('discovery-'):
+        import mm_discovery
+        with contextlib.closing(connect()) as d, d:
+            if a.cmd=='discovery-import':
+                candidates,rejected_input=mm_discovery.read_candidates(a.file,a.region,a.source)
+                result=mm_discovery.ingest(d,candidates,actor='discovery-import',dry_run=a.dry_run)
+                result['input_rejected']=rejected_input
+            else:
+                candidates=mm_discovery.searxng_candidates(a.query,a.region,a.endpoint,a.limit)
+                result=mm_discovery.ingest(d,candidates,actor='discovery-searxng',dry_run=a.dry_run)
+        print(json.dumps(result,indent=2,default=str))
+        return 0
     if a.cmd=='polish-status':
         report=json.loads((root()/'reports/polish-status.json').read_text())
         report.update(workspace=str(root()),python=sys.executable,snapshot_only=True)
