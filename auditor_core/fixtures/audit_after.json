@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "url": "https://example.co.nz",
+  "domain": "example.co.nz",
+  "timestamp": "2026-09-21T01:00:00+00:00",
+  "findings": [
+    {
+      "check_id": "security.hsts_missing",
+      "message": "Missing HSTS",
+      "severity": "medium",
+      "category": "security",
+      "confidence": 0.99
+    }
+  ],
+  "category_scores": {
+    "overall_health_score": 94,
+    "categories": {
+      "seo": {"score": 100},
+      "security": {"score": 88}
+    }
+  }
+}
