@@ -1,0 +1,2 @@
+# Copy to monitor-targets.txt and add only sites you intend to audit.
+https://example.co.nz
