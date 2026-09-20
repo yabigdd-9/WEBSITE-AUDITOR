@@ -1,0 +1,25 @@
+services:
+  searxng:
+    image: ghcr.io/searxng/searxng:${SEARXNG_VERSION:-2026.9.17-274b63b67}
+    container_name: website-auditor-searxng
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${SEARXNG_PORT:-8888}:8080"
+    environment:
+      SEARXNG_SECRET: ${SEARXNG_SECRET:?SEARXNG_SECRET is required}
+      SEARXNG_LIMITER: "false"
+      SEARXNG_PUBLIC_INSTANCE: "false"
+      SEARXNG_IMAGE_PROXY: "false"
+    volumes:
+      - ./settings.yml:/etc/searxng/settings.yml:ro
+      - ${SEARXNG_DATA_DIR}:/var/cache/searxng
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >
+          wget -qO- 'http://127.0.0.1:8080/search?q=health&format=json'
+          >/dev/null 2>&1 || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
