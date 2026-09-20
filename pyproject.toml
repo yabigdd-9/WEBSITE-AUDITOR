@@ -24,6 +24,7 @@ dependencies = [
   "tldextract>=5.3.1,<6",
   "idna>=3.15,<4",
   "anyio>=4.15.1,<5",
+  "pydantic>=2.9,<3",
 ]
 
 [project.optional-dependencies]
@@ -48,6 +49,7 @@ known-first-party = ["integrations", "money-machine"]
 
 [tool.pytest.ini_options]
 testpaths = [
+  "auditor_core",
   "integrations",
   "money-machine",
 ]
