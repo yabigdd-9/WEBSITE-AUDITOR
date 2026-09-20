@@ -1,4 +1,4 @@
-.PHONY: install test audit crawl remediate dashboard export history regressions actions-init actions-demo actions-dry-run actions-status suppressions execute-all-safe
+.PHONY: install test audit crawl remediate dashboard export history regressions monitor actions-init actions-demo actions-dry-run actions-status suppressions execute-all-safe
 
 install:
 	python3 -m pip install -e ".[dev]"
@@ -26,6 +26,9 @@ history:
 
 regressions:
 	python3 audit-history.py regressions
+
+monitor:
+	python3 monitor-audits.py --targets-file monitor-targets.txt --profile standard --crawl --watch --interval 3600
 
 actions-init:
 	python3 -m website_auditor.cli actions init
