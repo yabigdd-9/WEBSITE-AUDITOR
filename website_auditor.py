@@ -77,26 +77,32 @@ async def fetch_head(session: httpx.AsyncClient, url: str) -> dict:
 
 # ── defect checks ───────────────────────────────────────────────────
 def check_ssl(domain: str) -> dict:
-    import subprocess
-    cmd = f"echo | openssl s_client -servername {domain} -connect {domain}:443 2>/dev/null | openssl x509 -noout -dates 2>/dev/null"
+    """Inspect a site's TLS certificate without invoking a shell."""
+    import socket
+    import ssl
+
+    issues = {}
     try:
-        r = subprocess.run(["bash","-c",cmd], capture_output=True, text=True, timeout=10)
-        out = r.stdout
-        issues = {}
-        m = re.search(r"notAfter=(\w+ \d+ \d+:\d+:\d+ \d+ \w+)", out)
-        if m:
-            from datetime import datetime as dt
-            expiry = dt.strptime(m.group(1), "%b %d %H:%M:%S %Y %Z")
+        context = ssl.create_default_context()
+        with socket.create_connection((domain, 443), timeout=10) as raw:
+            with context.wrap_socket(raw, server_hostname=domain) as tls:
+                cert = tls.getpeercert()
+        not_after = cert.get("notAfter")
+        if not_after:
+            expiry_ts = ssl.cert_time_to_seconds(not_after)
+            expiry = datetime.fromtimestamp(expiry_ts, timezone.utc)
             days = (expiry - datetime.now(timezone.utc)).days
             issues["expiry_date"] = expiry.isoformat()
             issues["days_remaining"] = days
-            if days < 0: issues["expired"] = True
-            elif days < 30: issues["expiring_soon"] = True
-        if "Verify return code: 0" not in out and r.returncode != 0:
-            issues["ssl_error"] = True
+            if days < 0:
+                issues["expired"] = True
+            elif days < 30:
+                issues["expiring_soon"] = True
         return issues
-    except Exception as e:
-        return {"error": str(e)}
+    except ssl.SSLCertVerificationError:
+        return {"ssl_error": True, "error": "certificate verification failed"}
+    except (socket.timeout, socket.gaierror, ConnectionError, OSError):
+        return {"ssl_error": True, "error": "TLS connection failed"}
 
 def check_security_headers(headers: dict) -> list:
     defects = []
