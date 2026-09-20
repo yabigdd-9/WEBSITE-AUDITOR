@@ -37,10 +37,29 @@ import aiohttp
 import asyncio
 from tenacity import retry, stop_after_attempt, wait_exponential
 import trafilatura
-import textstat
+import pyphen
 from jinja2 import Template
 
 ROOT = Path(__file__).resolve().parent
+
+_HYPHENATOR = pyphen.Pyphen(lang="en_US")
+
+def _readability_scores(text):
+    words = re.findall(r"[A-Za-z]+(?:'[A-Za-z]+)?", text or "")
+    if not words:
+        return None, None
+    sentences = [s for s in re.split(r"[.!?]+", text) if s.strip()]
+    sentence_count = max(1, len(sentences))
+    syllables = 0
+    for word in words:
+        parts = _HYPHENATOR.inserted(word.lower()).split("-")
+        syllables += max(1, len([part for part in parts if part]))
+    word_count = len(words)
+    words_per_sentence = word_count / sentence_count
+    syllables_per_word = syllables / word_count
+    ease = 206.835 - 1.015 * words_per_sentence - 84.6 * syllables_per_word
+    grade = 0.39 * words_per_sentence + 11.8 * syllables_per_word - 15.59
+    return ease, grade
 AUDITS = ROOT / "audits"
 MOCKUPS = ROOT / "outputs" / "mockups"
 PROSPECTS_CSV = ROOT / "prospects.csv"
@@ -451,8 +470,9 @@ def run_proofreading(target=None):
         text = "\n".join(parts)
         result = proofread_text(text)
         try:
-            readability = textstat.flesch_reading_ease(text)
-            grade = textstat.flesch_kincaid_grade(text)
+            readability, grade = _readability_scores(text)
+            if readability is None or grade is None:
+                raise ValueError("no readable text")
             rs = " (readability: {:.0f}/100, grade: {:.1f})".format(readability, grade)
         except: rs = " (readability: N/A)"
         if not CFG["quiet"]: print("  {}: clean ✓{}".format(domain, rs))
@@ -506,8 +526,11 @@ def run_outreach_report():
         parts = ["Website: {}".format(s["domain"]), "Score: {}/100".format(s["score"])]
         for d in s.get("defects", []): parts.append("- {}: {}".format(d.get("defect", ""), d.get("impact", "")))
         text = "\n".join(parts)
-        try: s["readability"] = textstat.flesch_reading_ease(text)
-        except: s["readability"] = 0
+        try:
+            readability, _ = _readability_scores(text)
+            s["readability"] = readability if readability is not None else 0
+        except Exception:
+            s["readability"] = 0
         s["score_class"] = "low" if s["score"] < 30 else ("mid" if s["score"] < 50 else "ok")
         s["defect_count"] = len(s["defects"])
         s["severity"] = {"critical": 0, "high": 0, "medium": 0, "low": 0}
@@ -602,8 +625,11 @@ def run_csv_export():
         parts = ["Website: {}".format(domain), "Score: {}/100".format(data.get("score", 0))]
         for d in data.get("defects", []): parts.append("- {}: {}".format(d.get("defect", ""), d.get("impact", "")))
         text = "\n".join(parts)
-        try: readability = textstat.flesch_reading_ease(text)
-        except: readability = 0
+        try:
+            readability, _ = _readability_scores(text)
+            readability = readability if readability is not None else 0
+        except Exception:
+            readability = 0
         sites.append({"domain": domain, "score": data.get("score", 0), "defects": data.get("defects", []),
                       "email": ei.get("best", "N/A"), "alt_emails": "; ".join(ei.get("html_emails", [])[:3]),
                       "readability": readability, "tech": data.get("tech", {}),
