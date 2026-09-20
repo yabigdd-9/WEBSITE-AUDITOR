@@ -4,16 +4,16 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
-    open-pull-requests-limit: 5
-
-  - package-ecosystem: npm
-    directory: "/audit"
-    schedule:
-      interval: weekly
+      day: monday
+      time: "02:00"
+      timezone: Pacific/Auckland
     open-pull-requests-limit: 5
 
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
       interval: weekly
+      day: monday
+      time: "02:30"
+      timezone: Pacific/Auckland
     open-pull-requests-limit: 5
