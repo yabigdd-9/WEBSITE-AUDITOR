@@ -244,6 +244,87 @@ checks:
     confidence: 0.95
     patterns: ["^[0-9]+ broken link"]
 
+  - id: accessibility.lang_missing
+    name: Missing document language
+    category: accessibility
+    severity: low
+    standards: [WCAG 2.2 3.1.1]
+    auto_fixable: true
+    evidence_required: [html]
+    default_priority: P5
+    confidence: 0.99
+    patterns: ["^Missing HTML lang attribute$"]
+
+  - id: accessibility.form_label_missing
+    name: Form controls missing accessible labels
+    category: accessibility
+    severity: medium
+    standards: [WCAG 2.2 1.3.1, WCAG 2.2 3.3.2]
+    auto_fixable: true
+    evidence_required: [html]
+    default_priority: P3
+    confidence: 0.95
+    patterns: ["^[0-9]+ form control\\(s\\) missing accessible labels$"]
+
+  - id: accessibility.button_name_missing
+    name: Buttons missing accessible names
+    category: accessibility
+    severity: medium
+    standards: [WCAG 2.2 4.1.2]
+    auto_fixable: true
+    evidence_required: [html]
+    default_priority: P3
+    confidence: 0.95
+    patterns: ["^[0-9]+ button\\(s\\) missing accessible names$"]
+
+  - id: security.cookie_secure_missing
+    name: Cookie missing Secure attribute
+    category: security
+    severity: medium
+    standards: [OWASP Session Management]
+    auto_fixable: true
+    evidence_required: [response_headers]
+    default_priority: P3
+    confidence: 0.90
+    human_review: true
+    patterns: ["^Observed cookie without Secure attribute$"]
+
+  - id: security.cookie_samesite_missing
+    name: Cookie missing SameSite attribute
+    category: security
+    severity: low
+    standards: [OWASP Session Management]
+    auto_fixable: true
+    evidence_required: [response_headers]
+    default_priority: P5
+    confidence: 0.90
+    human_review: true
+    patterns: ["^Observed cookie without SameSite attribute$"]
+
+  - id: email.spf_missing
+    name: SPF record not detected
+    category: security
+    severity: medium
+    standards: [SPF]
+    auto_fixable: false
+    evidence_required: [dns_txt]
+    default_priority: P3
+    confidence: 0.90
+    human_review: true
+    patterns: ["^No SPF record detected$"]
+
+  - id: email.dmarc_missing
+    name: DMARC record not detected
+    category: security
+    severity: medium
+    standards: [DMARC]
+    auto_fixable: false
+    evidence_required: [dns_txt]
+    default_priority: P3
+    confidence: 0.90
+    human_review: true
+    patterns: ["^No DMARC record detected$"]
+
   - id: technical.site_unreachable
     name: Site unreachable
     category: technical_health
