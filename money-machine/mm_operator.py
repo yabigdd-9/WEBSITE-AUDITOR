@@ -181,7 +181,17 @@ def main(argv=None):
     q=s.add_parser('model-request');q.add_argument('--model',required=True);q.add_argument('--provider',required=True);q.add_argument('--purpose',required=True)
     q=s.add_parser('experiment');q.add_argument('id',type=int);q.add_argument('--industry',required=True);q.add_argument('--problem',choices=ONTOLOGY,required=True);q.add_argument('--offer',required=True);q.add_argument('--price-band',required=True);q.add_argument('--style',required=True);q.add_argument('--demo-type',required=True)
     q=s.add_parser('run-job');q.add_argument('--key',required=True);q.add_argument('--kind',choices=['status','learn'],required=True)
-    q=s.add_parser('pipeline-run');q.add_argument('--worker',action='append');q.add_argument('--limit',type=int,default=1)
+    for cmd in ('pipeline-run','run-pipeline'):
+        q=s.add_parser(cmd)
+        q.add_argument('--worker',action='append')
+        q.add_argument('--sleep',type=float,default=60)
+        q.add_argument('--cycles',type=int)
+        q.add_argument('--report-every',type=int,default=10)
+        q.add_argument('--lease',type=int,default=300)
+        if cmd=='run-pipeline':
+            mode=q.add_mutually_exclusive_group(required=True)
+            mode.add_argument('--once',action='store_true')
+            mode.add_argument('--daemon',action='store_true')
     s.add_parser('pipeline-status')
     q=s.add_parser('pipeline-enqueue');q.add_argument('id',type=int);q.add_argument('--state',default='DISCOVERED')
     q=s.add_parser('pipeline-transition');q.add_argument('id',type=int);q.add_argument('--to',required=True);q.add_argument('--actor',required=True);q.add_argument('--reason',required=True)
@@ -190,6 +200,17 @@ def main(argv=None):
     q=s.add_parser('approval-decide');q.add_argument('approval_id',type=int);q.add_argument('--actor',required=True);q.add_argument('--reason',required=True)
     q=s.add_parser('model-plan');q.add_argument('--purpose',required=True)
     q=s.add_parser('deploy-check');q.add_argument('--candidate');q.add_argument('--execute',action='store_true')
+    for cmd in ('supervisor-start','supervisor-status','supervisor-stop','supervisor-restart','supervisor-logs'):
+        q=s.add_parser(cmd)
+        if cmd in ('supervisor-start','supervisor-restart'):
+            q.add_argument('--worker',action='append')
+            q.add_argument('--sleep',type=float,default=60)
+            q.add_argument('--report-every',type=int,default=10)
+            q.add_argument('--lease',type=int,default=300)
+            q.add_argument('--heartbeat',type=float,default=5)
+            q.add_argument('--max-backoff',type=float,default=60)
+        if cmd=='supervisor-logs':
+            q.add_argument('--lines',type=int,default=80)
     a=p.parse_args(argv)
     if a.cmd=='polish-status':
         report=json.loads((root()/'reports/polish-status.json').read_text())
@@ -219,8 +240,25 @@ def main(argv=None):
                 result={'mode':'v1_hold','history_retained':True,'new_approvals_held':True,'external_sends':0}
         print(email_cli.human_text(result) if a.cmd in ('email-status','email-find') and not a.json else json.dumps(result,indent=2))
         return 0
+    if a.cmd.startswith('supervisor-'):
+        import supervisor.service as supervisor_service
+        if a.cmd=='supervisor-status':
+            result=supervisor_service.status()
+        elif a.cmd=='supervisor-stop':
+            result=supervisor_service.stop()
+        elif a.cmd=='supervisor-logs':
+            result=supervisor_service.tail_logs(a.lines)
+        else:
+            if a.cmd=='supervisor-restart':
+                stopped=supervisor_service.stop()
+                time.sleep(0.25)
+            result=supervisor_service.start_background(a)
+            if a.cmd=='supervisor-restart':
+                result={'restart':True,'previous':stopped,'current':result}
+        print(json.dumps(result,indent=2,default=str))
+        return 0 if result.get('started',result.get('running',result.get('stopped',True))) else 2
     if a.cmd=='backup':print(backup());return 0
-    if a.cmd in ('pipeline-run','pipeline-status','pipeline-enqueue','pipeline-transition','pipeline-health','approval-check','approval-decide','model-plan','deploy-check'):
+    if a.cmd in ('pipeline-run','run-pipeline','pipeline-status','pipeline-enqueue','pipeline-transition','pipeline-health','approval-check','approval-decide','model-plan','deploy-check'):
         import mm_pipeline, mm_approval, mm_model_router, mm_workers
         readonly=a.cmd in ('approval-check',)
         with contextlib.closing(connect(readonly=readonly)) as d, d:
@@ -238,15 +276,23 @@ def main(argv=None):
                     import mm_deploy
                     tests=['test_acceptance','test_email_finder','test_email_hardening','test_email_integration','test_lead_qualifier','test_outreach','test_pipeline','test_polish']
                     result=mm_deploy.deploy(d,sys.executable,tests,a.candidate)
-            elif a.cmd=='pipeline-run':
+            elif a.cmd in ('pipeline-run','run-pipeline'):
                 names=getattr(a,'worker',None) or list(mm_workers.WORKERS)
+                unknown=sorted(set(names)-set(mm_workers.WORKERS))
+                if unknown:raise ValueError('Unknown workers: '+', '.join(unknown))
                 workers=[mm_pipeline.Worker('worker-'+name,*mm_workers.WORKERS[name],
-                    lease_seconds=int(getattr(a,'lease',300))) for name in sorted(names) if name in mm_workers.WORKERS]
+                    lease_seconds=int(a.lease)) for name in sorted(set(names))]
+                if a.cmd=='run-pipeline':
+                    max_cycles=1 if a.once else None
+                else:
+                    max_cycles=a.cycles
                 cycles=mm_pipeline.run_pipelineloop(d,workers,
-                    sleep_seconds=float(getattr(a,'sleep',60)),
-                    max_cycles=int(getattr(a,'cycles',0) or 0),
-                    report_every=int(getattr(a,'report_every',10)))
-                result={'cycles':cycles,'workers':sorted(names)}
+                    sleep_seconds=float(a.sleep),
+                    max_cycles=max_cycles,
+                    report_every=int(a.report_every))
+                result={'cycles':cycles,'workers':sorted(set(names)),
+                    'mode':'once' if max_cycles==1 else 'daemon' if max_cycles is None else 'bounded',
+                    'external_sends':0}
         print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd=='init':
         b=backup()
