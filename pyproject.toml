@@ -35,6 +35,7 @@ auditor_toolkit = ["assets/*.js", "assets/*.txt"]
 browser = ["playwright>=1.51,<2"]
 portal = ["fastapi>=0.115,<1", "uvicorn>=0.30,<1", "argon2-cffi>=23,<26", "python-multipart>=0.0.18"]
 ai = ["llama-cpp-python>=0.3,<1"]
+smtp = ["aiosmtplib>=3,<4"]
 dev = [
   "pytest>=8.3",
   "pytest-asyncio>=0.24",
@@ -49,9 +50,11 @@ build-backend = "setuptools.build_meta"
 # Tool config
 [tool.ruff]
 line-length = 100
-select = ["E", "F", "W", "I", "N"]
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "W", "I", "N"]
+# Ruff formatter owns line wrapping; embedded HTML/JS and URLs may exceed the target width.
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["integrations", "money-machine"]
 
 [tool.pytest.ini_options]

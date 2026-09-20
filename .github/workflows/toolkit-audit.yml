@@ -1,0 +1,29 @@
+name: Explicit website audit
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'Public URL explicitly selected for audit'
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install .
+      - name: Audit selected URL
+        env:
+          AUDIT_URL: ${{ inputs.url }}
+        run: wa audit "$AUDIT_URL" --deep --max-pages 10
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: website-audit
+          path: outputs/toolkit

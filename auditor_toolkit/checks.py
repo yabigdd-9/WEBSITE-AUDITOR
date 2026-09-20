@@ -54,28 +54,90 @@ def analyse_html(html: str, url: str) -> tuple[list[Finding], dict[str, Any]]:
     viewport = soup.find("meta", attrs={"name": re.compile("^viewport$", re.I)})
     schema = soup.find_all("script", attrs={"type": re.compile("ld\\+json", re.I)})
     if not title:
-        findings.append(Finding("missing_title", "Missing page title", "Search snippet risk", "high", url))
+        findings.append(
+            Finding("missing_title", "Missing page title", "Search snippet risk", "high", url)
+        )
     if not meta_description or not (meta_description.get("content") or "").strip():
-        findings.append(Finding("missing_meta_description", "Missing meta description", "Lower CTR", "medium", url))
+        findings.append(
+            Finding(
+                "missing_meta_description", "Missing meta description", "Lower CTR", "medium", url
+            )
+        )
     if not canonical or not canonical.get("href"):
-        findings.append(Finding("missing_canonical_url", "Missing canonical URL", "Duplicate content risk", "medium", url))
+        findings.append(
+            Finding(
+                "missing_canonical_url",
+                "Missing canonical URL",
+                "Duplicate content risk",
+                "medium",
+                url,
+            )
+        )
     if not og_tags:
-        findings.append(Finding("missing_open_graph_tags", "Missing Open Graph tags", "Poor social preview", "medium", url))
+        findings.append(
+            Finding(
+                "missing_open_graph_tags",
+                "Missing Open Graph tags",
+                "Poor social preview",
+                "medium",
+                url,
+            )
+        )
     if len(words) < 200:
-        findings.append(Finding("thin_content_200_words", "Thin content (<200 words)", "Review page purpose", "medium", url))
+        findings.append(
+            Finding(
+                "thin_content_200_words",
+                "Thin content (<200 words)",
+                "Review page purpose",
+                "medium",
+                url,
+            )
+        )
     if not viewport:
-        findings.append(Finding("viewport", "Missing viewport metadata", "Mobile layout review", "medium", url))
+        findings.append(
+            Finding("viewport", "Missing viewport metadata", "Mobile layout review", "medium", url)
+        )
     if not schema:
-        findings.append(Finding("schema_missing", "No structured data found", "Eligibility not guaranteed", "low", url, check="schema"))
+        findings.append(
+            Finding(
+                "schema_missing",
+                "No structured data found",
+                "Eligibility not guaranteed",
+                "low",
+                url,
+                check="schema",
+            )
+        )
     for index, image in enumerate(soup.find_all("img"), 1):
         if image.get("alt") is None:
-            findings.append(Finding("image-alt", "Image missing alt attribute", image.get("src") or "image", "high", url, check="accessibility_static", selector=f"img:nth-of-type({index})"))
+            findings.append(
+                Finding(
+                    "image-alt",
+                    "Image missing alt attribute",
+                    image.get("src") or "image",
+                    "high",
+                    url,
+                    check="accessibility_static",
+                    selector=f"img:nth-of-type({index})",
+                )
+            )
     for input_el in soup.find_all("input"):
         input_type = (input_el.get("type") or "").lower()
-        name = " ".join(filter(None, [input_el.get("name"), input_el.get("id"), input_el.get("value")])).lower()
+        name = " ".join(
+            filter(None, [input_el.get("name"), input_el.get("id"), input_el.get("value")])
+        ).lower()
         marketing = re.search(r"marketing|subscribe|newsletter|promo", name)
         if input_type in {"checkbox", "radio"} and input_el.has_attr("checked") and marketing:
-            findings.append(Finding("consent_prechecked", "Preselected marketing choice", name, "medium", url, check="ux"))
+            findings.append(
+                Finding(
+                    "consent_prechecked",
+                    "Preselected marketing choice",
+                    name,
+                    "medium",
+                    url,
+                    check="ux",
+                )
+            )
     links = [
         urljoin(url, a["href"].strip())
         for a in soup.find_all("a", href=True)
@@ -96,10 +158,32 @@ def classify_response(status_code: int, body: str) -> tuple[str, list[Finding]]:
     text = body.lower()
     findings: list[Finding] = []
     if status_code >= 500:
-        findings.append(Finding("server_error", "Server error response", f"HTTP {status_code}", "critical", check="fetch"))
+        findings.append(
+            Finding(
+                "server_error",
+                "Server error response",
+                f"HTTP {status_code}",
+                "critical",
+                check="fetch",
+            )
+        )
     elif status_code >= 400:
-        findings.append(Finding("client_error", "Client error response", f"HTTP {status_code}", "high", check="fetch"))
-    elif status_code == 200 and re.search(r"<(?:title|h1)[^>]*>\s*(?:404(?: error)?|page not found|not found|page does not exist)\s*(?:[|–—-][^<]*)?</(?:title|h1)>", text):
-        findings.append(Finding("soft_404", "Possible soft 404", "200 page says not found", "high", check="fetch"))
+        findings.append(
+            Finding(
+                "client_error",
+                "Client error response",
+                f"HTTP {status_code}",
+                "high",
+                check="fetch",
+            )
+        )
+    elif status_code == 200 and re.search(
+        r"<(?:title|h1)[^>]*>\s*(?:404(?: error)?|page not found|not found|page does not exist)\s*(?:[|–—-][^<]*)?</(?:title|h1)>",
+        text,
+    ):
+        findings.append(
+            Finding(
+                "soft_404", "Possible soft 404", "200 page says not found", "high", check="fetch"
+            )
+        )
     return "ok" if not findings else "error", findings
-

@@ -110,7 +110,7 @@ See [the Harness integration guide](integrations/deepseek-harness/README.md) for
 
 ## Requirements
 
-- Python 3.9+
+- Python 3.11
 - No API keys needed (free stack only)
 - Optional: `aiohttp` for async batch mode (`pip install aiohttp`)
 

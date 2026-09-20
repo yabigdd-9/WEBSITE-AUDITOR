@@ -1,0 +1,6 @@
+P0: [rotate-keys-gitleaks, axe-wiring, tldextract, lychee, local-email-consensus, docker-redis-gotenberg-mailpit-kuma, supervisor-daemon, deprecate-dupe-auditors]
+P1: [crawl4ai-lightpanda-chain, dramatiq-queues-dlq, overpass-nz-packs, gotenberg-diffs, sqlite-vec-fts5, promptfoo-golden, keychain-secrets, quote-guardrails]
+P2: [splink-nightly, reacher, langfuse-minio-litestream, nuclei-light-sslyze, vision-hot-only, twenty-crm, n8n-approval]
+P3: [mautic, multi-host, auto-challenger, inspect-ai, postgres-if-1M]
+models: {plan: qwen3:8b, code: qwen2.5-coder:7b, extract: qwen3:4b, judge: qwen3:4b, proofread: hermes3:8b, vision: qwen2-vl:7b, embeddings: nomic-embed-text}
+install_now: [crawl4ai, lightpanda, gotenberg, dramatiq-redis, lychee, sslyze, tldextract, reacher, mailpit, kuma-beszel]

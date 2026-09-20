@@ -25,11 +25,26 @@ def verify_model(path: Path = MODEL_PATH) -> dict[str, Any]:
 
 def fallback_drafts() -> dict[str, Any]:
     return {
-        "metadata": {"text": "Title: Example services\nDescription: [review required]", "source": "template"},
-        "platform_fix": {"text": "Prepare an evidence-backed fix draft for review.", "source": "template"},
-        "outreach": {"text": "Prepare factual outreach from verified findings.", "source": "template"},
-        "content_expansion": {"text": "Outline services, proof, FAQs, and contact details.", "source": "template"},
-        "bilingual": {"text": "EN: [English draft]\nMI: [te reo Māori review required]", "source": "template"},
+        "metadata": {
+            "text": "Title: Example services\nDescription: [review required]",
+            "source": "template",
+        },
+        "platform_fix": {
+            "text": "Prepare an evidence-backed fix draft for review.",
+            "source": "template",
+        },
+        "outreach": {
+            "text": "Prepare factual outreach from verified findings.",
+            "source": "template",
+        },
+        "content_expansion": {
+            "text": "Outline services, proof, FAQs, and contact details.",
+            "source": "template",
+        },
+        "bilingual": {
+            "text": "EN: [English draft]\nMI: [te reo Māori review required]",
+            "source": "template",
+        },
     }
 
 
@@ -37,28 +52,41 @@ def generate_drafts(context, enabled=False, timeout=120):
     import json
     import subprocess
     import sys
-    fallback = {'status': 'fallback', 'review_required': True, 'drafts': fallback_drafts(),
-                'reason': 'Local generation not requested'}
-    for draft in fallback['drafts'].values():
-        draft['review_required'] = True
+
+    fallback = {
+        "status": "fallback",
+        "review_required": True,
+        "drafts": fallback_drafts(),
+        "reason": "Local generation not requested",
+    }
+    for draft in fallback["drafts"].values():
+        draft["review_required"] = True
     if not enabled:
         return fallback
     integrity = verify_model()
-    fallback['integrity'] = integrity
-    if not integrity['ready']:
-        fallback['reason'] = integrity.get('reason', 'Model integrity mismatch')
+    fallback["integrity"] = integrity
+    if not integrity["ready"]:
+        fallback["reason"] = integrity.get("reason", "Model integrity mismatch")
         return fallback
     try:
-        result = subprocess.run([sys.executable, '-m', 'auditor_toolkit.ai_worker'],
-            input=json.dumps(context), capture_output=True, text=True, timeout=timeout, check=True)
+        result = subprocess.run(
+            [sys.executable, "-m", "auditor_toolkit.ai_worker"],
+            input=json.dumps(context),
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            check=True,
+        )
         data = json.loads(result.stdout)
-        if data.get('status') != 'ok' or set(data['drafts']) != set(fallback['drafts']):
-            raise ValueError('Worker did not generate every requested draft type')
-        if not all(isinstance(d.get('text'), str) and d['text'].strip() and
-                   d.get('source') == 'llama.cpp' for d in data['drafts'].values()):
-            raise ValueError('Malformed or empty generated draft')
-        data['integrity'] = integrity
+        if data.get("status") != "ok" or set(data["drafts"]) != set(fallback["drafts"]):
+            raise ValueError("Worker did not generate every requested draft type")
+        if not all(
+            isinstance(d.get("text"), str) and d["text"].strip() and d.get("source") == "llama.cpp"
+            for d in data["drafts"].values()
+        ):
+            raise ValueError("Malformed or empty generated draft")
+        data["integrity"] = integrity
         return data
     except (subprocess.SubprocessError, ValueError, KeyError, TypeError) as exc:
-        fallback['reason'] = f'Generation failed: {type(exc).__name__}: {str(exc)[:500]}'
+        fallback["reason"] = f"Generation failed: {type(exc).__name__}: {str(exc)[:500]}"
         return fallback

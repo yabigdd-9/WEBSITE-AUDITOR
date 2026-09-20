@@ -1,0 +1,9 @@
+{
+  "enabled": false,
+  "cadence": "monthly",
+  "targets": [],
+  "profile": "static",
+  "max_pages": 10,
+  "external_notifications": false,
+  "note": "Template only. No scheduler is installed or activated by the toolkit."
+}
