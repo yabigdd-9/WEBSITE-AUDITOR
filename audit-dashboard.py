@@ -1,341 +1,313 @@
 #!/usr/bin/env python3
-"""Audit Dashboard — interactive HTML dashboard from audit data.
+"""Accessible, injection-safe client dashboard for Website Auditor results."""
+from __future__ import annotations
 
-Usage:
-    python3 audit-dashboard.py                  # dashboard from audits/
-    python3 audit-dashboard.py --output report.html
-    python3 audit-dashboard.py --email email-discovery.json
-
-Generates a self-contained HTML file with:
-  - Score distribution chart (color-coded)
-  - Sortable/filterable defect table
-  - Trend comparison (if multiple audits per domain)
-  - Email contact list with verification status
-  - Export buttons (CSV, JSON)
-"""
-
-import argparse, json, os, re, sys
-from pathlib import Path
-from datetime import datetime
+import argparse
+import html
+import json
 from collections import defaultdict
+from datetime import datetime, timezone
+from pathlib import Path
+from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parent
 AUDITS = ROOT / "audits"
 
-# Color mapping
 SCORE_COLORS = {
-    "HOT": "#00D4A3", "WARM": "#FF8A00", "NURTURE": "#FFC107", "COLD": "#FF1A1A"
+    "HOT": "#00D4A3",
+    "WARM": "#FF8A00",
+    "NURTURE": "#FFC107",
+    "COLD": "#FF1A1A",
 }
 
-TIER_MAP = lambda s: "HOT" if s >= 80 else "WARM" if s >= 60 else "NURTURE" if s >= 40 else "COLD"
 
-def load_audits(audits_dir=None):
-    """Load all audit JSON files."""
+def tier_for_opportunity(score: int | float) -> str:
+    score = float(score or 0)
+    return "HOT" if score >= 80 else "WARM" if score >= 60 else "NURTURE" if score >= 40 else "COLD"
+
+
+def esc(value: object) -> str:
+    return html.escape(str(value if value is not None else ""), quote=True)
+
+
+def safe_external_url(audit: dict) -> str:
+    candidate = str(audit.get("url") or "")
+    try:
+        parsed = urlparse(candidate)
+        if parsed.scheme in {"http", "https"} and parsed.netloc:
+            return candidate
+    except Exception:
+        pass
+    domain = str(audit.get("domain") or "")
+    return "https://" + domain if domain else "#"
+
+
+def health_score(audit: dict) -> int | None:
+    value = (audit.get("category_scores") or {}).get("overall_health_score")
+    return int(value) if isinstance(value, (int, float)) else None
+
+
+def load_audits(audits_dir: str | Path | None = None) -> list[dict]:
     audits_path = Path(audits_dir) if audits_dir else AUDITS
-    results = []
-    for aj in sorted(audits_path.glob("*.json")):
+    results: list[dict] = []
+    for path in sorted(audits_path.glob("*.json")):
         try:
-            data = json.loads(aj.read_text())
-            if "domain" in data:  # skip non-audit JSON files
+            data = json.loads(path.read_text())
+            if isinstance(data, dict) and "domain" in data:
                 results.append(data)
-        except Exception:
+        except (OSError, json.JSONDecodeError):
             continue
     return results
 
-def load_emails(email_path=None):
-    """Load email discovery results."""
-    if email_path:
-        p = Path(email_path)
-        if p.exists():
-            return json.loads(p.read_text())
-    email_path = ROOT / "email-discovery.json"
-    if email_path.exists():
-        return json.loads(email_path.read_text())
-    return {}
 
-def generate_dashboard(audits, emails, title="Website Audit Dashboard"):
-    """Generate self-contained HTML dashboard."""
+def load_emails(email_path: str | Path | None = None) -> dict:
+    path = Path(email_path) if email_path else ROOT / "email-discovery.json"
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text())
+        return payload if isinstance(payload, dict) else {}
+    except (OSError, json.JSONDecodeError):
+        return {}
 
-    # Stats
+
+def _finding_labels(audit: dict) -> list[str]:
+    findings = audit.get("findings")
+    if isinstance(findings, list) and findings:
+        return [
+            str(item.get("check_id") or item.get("message") or "unknown")
+            for item in findings
+            if isinstance(item, dict)
+        ]
+    return [
+        str(item.get("defect_key") or item.get("defect") or "unknown")
+        for item in audit.get("defects", [])
+        if isinstance(item, dict)
+    ]
+
+
+def _top_issues(audit: dict, limit: int = 3) -> list[str]:
+    findings = audit.get("findings")
+    if isinstance(findings, list) and findings:
+        return [
+            str(item.get("message") or item.get("check_id") or "")
+            for item in findings[:limit]
+            if isinstance(item, dict)
+        ]
+    return [
+        str(item.get("defect") or "")
+        for item in audit.get("defects", [])[:limit]
+        if isinstance(item, dict)
+    ]
+
+
+def generate_dashboard(audits: list[dict], emails: dict, title: str = "Website Audit Dashboard") -> str:
     total = len(audits)
-    avg_score = sum(a.get("score", 0) for a in audits) / total if total > 0 else 0
-    total_defects = sum(a.get("defect_count", 0) for a in audits)
-    tiers = defaultdict(int)
-    for a in audits:
-        tiers[TIER_MAP(a.get("score", 0))] += 1
+    opportunity_scores = [float(a.get("score", 0) or 0) for a in audits]
+    health_scores = [health_score(a) for a in audits]
+    health_values = [value for value in health_scores if value is not None]
+    avg_opportunity = sum(opportunity_scores) / total if total else 0
+    avg_health = sum(health_values) / len(health_values) if health_values else None
+    total_defects = sum(int(a.get("defect_count", len(a.get("defects", []))) or 0) for a in audits)
 
-    # Build rows
-    rows = ""
-    for i, a in enumerate(sorted(audits, key=lambda x: x.get("score", 0)), 1):
-        domain = a.get("domain", "unknown")
-        score = a.get("score", 0)
-        tier = TIER_MAP(score)
-        color = SCORE_COLORS.get(tier, "#888")
-        defects = a.get("defects", [])
-        defect_list = "; ".join(d.get("defect", "")[:60] for d in defects[:3])
-        email_info = emails.get(domain, {})
-        best_email = email_info.get("best", "N/A")
-        timestamp = a.get("timestamp", "")[:10]
+    tiers: dict[str, int] = defaultdict(int)
+    for audit in audits:
+        tiers[tier_for_opportunity(audit.get("score", 0))] += 1
 
-        rows += f'''<tr class="tier-{tier.lower()}">
-            <td>{i}</td>
-            <td><a href="https://{domain}" target="_blank">{domain}</a></td>
-            <td style="color:{color};font-weight:bold">{score}</td>
-            <td><span class="badge tier-{tier.lower()}">{tier}</span></td>
-            <td>{len(defects)}</td>
-            <td class="defects">{defect_list}</td>
-            <td><code>{best_email}</code></td>
-            <td>{timestamp}</td>
-        </tr>'''
+    rows: list[str] = []
+    for index, audit in enumerate(sorted(audits, key=lambda item: item.get("score", 0), reverse=True), 1):
+        domain = str(audit.get("domain") or "unknown")
+        opportunity = int(audit.get("score", 0) or 0)
+        health = health_score(audit)
+        tier = tier_for_opportunity(opportunity)
+        color = SCORE_COLORS[tier]
+        defect_count = int(audit.get("defect_count", len(audit.get("defects", []))) or 0)
+        issues = "; ".join(_top_issues(audit))
+        email_info = emails.get(domain, {}) if isinstance(emails, dict) else {}
+        best_email = email_info.get("best", "N/A") if isinstance(email_info, dict) else "N/A"
+        timestamp = str(audit.get("timestamp") or "")[:10]
+        profile = (audit.get("audit_profile") or {}).get("name", "legacy")
+        site_type = (audit.get("site_type") or {}).get("site_type", "unknown")
+        url = safe_external_url(audit)
+        health_text = str(health) if health is not None else "—"
 
-    # Defect distribution
-    defect_counts = defaultdict(int)
-    for a in audits:
-        for d in a.get("defects", []):
-            key = d.get("defect_key", d.get("defect", "unknown"))
-            defect_counts[key] += 1
+        rows.append(
+            f"""<tr class="tier-{tier.lower()}">
+<td>{index}</td>
+<td><a href="{esc(url)}" target="_blank" rel="noopener noreferrer">{esc(domain)}</a></td>
+<td class="num" style="color:{color}">{opportunity}</td>
+<td class="num">{health_text}</td>
+<td><span class="badge">{esc(tier)}</span></td>
+<td class="num">{defect_count}</td>
+<td>{esc(profile)}</td>
+<td>{esc(site_type)}</td>
+<td class="issues">{esc(issues)}</td>
+<td><code>{esc(best_email)}</code></td>
+<td>{esc(timestamp)}</td>
+</tr>"""
+        )
 
-    defect_bars = ""
-    for defect, count in sorted(defect_counts.items(), key=lambda x: -x[1]):
-        pct = count / total * 100 if total > 0 else 0
-        defect_bars += f'''<div class="defect-bar">
-            <span class="defect-name">{defect}</span>
-            <div class="bar-bg"><div class="bar-fill" style="width:{pct:.0f}%"></div></div>
-            <span class="defect-count">{count} ({pct:.0f}%)</span>
-        </div>'''
+    defect_counts: dict[str, int] = defaultdict(int)
+    for audit in audits:
+        for label in _finding_labels(audit):
+            defect_counts[label] += 1
 
-    html = f'''<!DOCTYPE html>
+    defect_bars: list[str] = []
+    for defect, count in sorted(defect_counts.items(), key=lambda item: (-item[1], item[0])):
+        pct = (count / total * 100) if total else 0
+        defect_bars.append(
+            f"""<div class="defect-bar">
+<span class="defect-name">{esc(defect)}</span>
+<div class="bar-bg" role="img" aria-label="{esc(defect)} affects {count} sites">
+<div class="bar-fill" style="width:{pct:.0f}%"></div></div>
+<span class="defect-count">{count} ({pct:.0f}%)</span>
+</div>"""
+        )
+
+    health_card = f"{avg_health:.0f}" if avg_health is not None else "—"
+    generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+    return f"""<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{title}</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'">
+<title>{esc(title)}</title>
 <style>
-* {{ box-sizing: border-box; margin: 0; padding: 0; }}
-body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f1a; color: #e0e0e0; padding: 20px; }}
-h1 {{ color: #fff; margin-bottom: 5px; }}
-.subtitle {{ color: #888; margin-bottom: 20px; font-size: 0.9em; }}
-.stats {{ display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 25px; }}
-.stat-card {{ background: #1a1a2e; border-radius: 10px; padding: 15px 20px; min-width: 140px; text-align: center; border: 1px solid #333; }}
-.stat-card .value {{ font-size: 2em; font-weight: bold; color: #fff; }}
-.stat-card .label {{ color: #888; font-size: 0.8em; margin-top: 5px; }}
-.stat-card.hot .value {{ color: #00D4A3; }}
-.stat-card.warm .value {{ color: #FF8A00; }}
-.stat-card.nurture .value {{ color: #FFC107; }}
-.stat-card.cold .value {{ color: #FF1A1A; }}
-
-.filters {{ display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; }}
-.filters input, .filters select {{ background: #1a1a2e; border: 1px solid #333; color: #e0e0e0; padding: 8px 12px; border-radius: 6px; font-size: 0.9em; }}
-.filters input {{ width: 250px; }}
-
-table {{ width: 100%; border-collapse: collapse; background: #1a1a2e; border-radius: 10px; overflow: hidden; }}
-th {{ background: #2a2a3e; color: #fff; padding: 10px 12px; text-align: left; cursor: pointer; user-select: none; }}
-th:hover {{ background: #3a3a4e; }}
-td {{ padding: 8px 12px; border-bottom: 1px solid #222; font-size: 0.9em; }}
-tr:hover {{ background: #222; }}
-.defects {{ max-width: 300px; font-size: 0.85em; color: #aaa; }}
-.badge {{ padding: 3px 8px; border-radius: 4px; font-size: 0.75em; font-weight: bold; }}
-.badge.hot {{ background: #00D4A320; color: #00D4A3; }}
-.badge.warm {{ background: #FF8A0020; color: #FF8A00; }}
-.badge.nurture {{ background: #FFC10720; color: #FFC107; }}
-.badge.cold {{ background: #FF1A1A20; color: #FF1A1A; }}
-code {{ background: #222; padding: 2px 6px; border-radius: 3px; font-size: 0.85em; }}
-a {{ color: #4fc3f7; text-decoration: none; }}
-a:hover {{ text-decoration: underline; }}
-
-.defect-bar {{ display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }}
-.defect-name {{ width: 220px; font-size: 0.85em; text-align: right; }}
-.bar-bg {{ flex: 1; background: #222; border-radius: 4px; height: 18px; overflow: hidden; }}
-.bar-fill {{ height: 100%; background: linear-gradient(90deg, #FF1A1A, #FF8A00, #00D4A3); border-radius: 4px; transition: width 0.5s; }}
-.defect-count {{ width: 60px; font-size: 0.85em; color: #888; }}
-
-.section {{ margin-bottom: 30px; }}
-.section h2 {{ color: #fff; margin-bottom: 10px; font-size: 1.2em; }}
-
-.export-btns {{ margin-top: 15px; display: flex; gap: 10px; }}
-.export-btns button {{ background: #2a2a3e; color: #e0e0e0; border: 1px solid #333; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9em; }}
-.export-btns button:hover {{ background: #3a3a4e; }}
-
-.footer {{ margin-top: 30px; padding-top: 15px; border-top: 1px solid #333; color: #666; font-size: 0.8em; text-align: center; }}
+:root {{ color-scheme: dark; }}
+* {{ box-sizing: border-box; }}
+body {{ font-family: system-ui,-apple-system,sans-serif; background:#0f0f1a; color:#e8e8ed; margin:0; padding:20px; }}
+a {{ color:#7dd3fc; }}
+a:focus,button:focus,input:focus,select:focus {{ outline:3px solid currentColor; outline-offset:2px; }}
+h1,h2 {{ color:#fff; }}
+.subtitle {{ color:#a1a1aa; }}
+.stats {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:12px; margin:20px 0; }}
+.card {{ background:#191928; border:1px solid #35354a; border-radius:10px; padding:14px; }}
+.card .value {{ font-size:2rem; font-weight:750; }}
+.card .label {{ color:#b4b4c1; font-size:.85rem; }}
+.section {{ margin:28px 0; }}
+.controls {{ display:flex; gap:10px; flex-wrap:wrap; margin:12px 0; }}
+input,select,button {{ background:#191928; color:#fff; border:1px solid #45455c; border-radius:6px; padding:9px 11px; }}
+.table-wrap {{ overflow:auto; border:1px solid #35354a; border-radius:10px; }}
+table {{ width:100%; border-collapse:collapse; min-width:1100px; background:#171725; }}
+caption {{ text-align:left; padding:10px; color:#c4c4cf; }}
+th,td {{ padding:9px 11px; border-bottom:1px solid #2d2d3f; text-align:left; vertical-align:top; }}
+th {{ position:sticky; top:0; background:#242438; }}
+.num {{ text-align:right; font-variant-numeric:tabular-nums; }}
+.issues {{ max-width:360px; color:#c4c4cf; }}
+.badge {{ font-size:.78rem; font-weight:700; }}
+code {{ white-space:nowrap; }}
+.defect-bar {{ display:grid; grid-template-columns:minmax(180px,280px) 1fr 90px; gap:10px; align-items:center; margin:7px 0; }}
+.defect-name {{ overflow-wrap:anywhere; }}
+.bar-bg {{ background:#252536; height:18px; border-radius:4px; overflow:hidden; }}
+.bar-fill {{ background:linear-gradient(90deg,#f87171,#fbbf24,#34d399); height:100%; }}
+.footer {{ color:#8f8f9e; border-top:1px solid #35354a; padding-top:14px; margin-top:28px; }}
+@media (max-width:700px) {{ .defect-bar {{ grid-template-columns:1fr; }} }}
 </style>
 </head>
 <body>
-<h1>🔍 {title}</h1>
-<p class="subtitle">Generated: {datetime.now().strftime("%Y-%m-%d %H:%M")} | {total} sites audited</p>
+<main>
+<h1>{esc(title)}</h1>
+<p class="subtitle">Generated {esc(generated)} · {total} sites. Opportunity score remains backward-compatible (100 = more defects/opportunity); health score uses the new transparent category model (100 = healthier).</p>
 
 <div class="stats">
-    <div class="stat-card">
-        <div class="value">{avg_score:.0f}</div>
-        <div class="label">Average Score</div>
-    </div>
-    <div class="stat-card hot">
-        <div class="value">{tiers.get("HOT", 0)}</div>
-        <div class="label">🔥 Hot</div>
-    </div>
-    <div class="stat-card warm">
-        <div class="value">{tiers.get("WARM", 0)}</div>
-        <div class="label">🌡️ Warm</div>
-    </div>
-    <div class="stat-card nurture">
-        <div class="value">{tiers.get("NURTURE", 0)}</div>
-        <div class="label">📊 Nurture</div>
-    </div>
-    <div class="stat-card cold">
-        <div class="value">{tiers.get("COLD", 0)}</div>
-        <div class="label">❄️ Cold</div>
-    </div>
-    <div class="stat-card">
-        <div class="value">{total_defects}</div>
-        <div class="label">Total Defects</div>
-    </div>
+<div class="card"><div class="value">{avg_opportunity:.0f}</div><div class="label">Avg opportunity score</div></div>
+<div class="card"><div class="value">{health_card}</div><div class="label">Avg health score</div></div>
+<div class="card"><div class="value">{total_defects}</div><div class="label">Total findings</div></div>
+<div class="card"><div class="value">{tiers.get("HOT",0)}</div><div class="label">HOT opportunities</div></div>
 </div>
 
-<div class="section">
-    <h2>📊 Defect Distribution</h2>
-    {defect_bars}
-</div>
+<section class="section" aria-labelledby="distribution-title">
+<h2 id="distribution-title">Stable finding distribution</h2>
+{"".join(defect_bars) or "<p>No findings loaded.</p>"}
+</section>
 
-<div class="section">
-    <h2>📋 Site Audit Table</h2>
-    <div class="filters">
-        <input type="text" id="search" placeholder="🔍 Filter domains..." onkeyup="filterTable()">
-        <select id="tierFilter" onchange="filterTable()">
-            <option value="">All Tiers</option>
-            <option value="hot">🔥 Hot</option>
-            <option value="warm">🌡️ Warm</option>
-            <option value="nurture">📊 Nurture</option>
-            <option value="cold">❄️ Cold</option>
-        </select>
-        <select id="sortScore" onchange="sortTable(this.value)">
-            <option value="score-asc">Score ↑</option>
-            <option value="score-desc">Score ↓</option>
-            <option value="defects-asc">Fewest Defects</option>
-            <option value="defects-desc">Most Defects</option>
-        </select>
-    </div>
-    <table id="auditTable">
-        <thead><tr>
-            <th>#</th><th>Domain</th><th>Score</th><th>Tier</th><th>Defects</th><th>Top Issues</th><th>Email</th><th>Date</th>
-        </tr></thead>
-        <tbody>{rows}</tbody>
-    </table>
-    <div class="export-btns">
-        <button onclick="exportCSV()">📥 Export CSV</button>
-        <button onclick="exportJSON()">📥 Export JSON</button>
-    </div>
+<section class="section" aria-labelledby="sites-title">
+<h2 id="sites-title">Sites</h2>
+<div class="controls">
+<label>Search <input id="search" type="search" autocomplete="off"></label>
+<label>Tier <select id="tierFilter"><option value="">All</option><option>HOT</option><option>WARM</option><option>NURTURE</option><option>COLD</option></select></label>
+<label>Sort <select id="sortBy"><option value="opp-desc">Opportunity ↓</option><option value="opp-asc">Opportunity ↑</option><option value="health-desc">Health ↓</option><option value="defects-desc">Findings ↓</option></select></label>
+<button id="csvButton" type="button">Export visible CSV</button>
 </div>
-
-<div class="footer">
-    Generated by CATALYX Audit Dashboard | All data from public audits | <a href="https://github.com/yabigdd-9/WEBSITE-AUDITOR" target="_blank">GitHub Repo</a>
+<div class="table-wrap">
+<table id="auditTable">
+<caption>Website audit portfolio. All audited strings are HTML-escaped before rendering.</caption>
+<thead><tr><th>#</th><th>Domain</th><th>Opportunity</th><th>Health</th><th>Tier</th><th>Findings</th><th>Profile</th><th>Site type</th><th>Top issues</th><th>Email</th><th>Date</th></tr></thead>
+<tbody>{"".join(rows)}</tbody>
+</table>
 </div>
-
+</section>
+<p class="footer">Evidence-first Website Auditor · self-contained dashboard · no external scripts or CDN dependencies.</p>
+</main>
 <script>
-function filterTable() {{
-    const search = document.getElementById('search').value.toLowerCase();
-    const tier = document.getElementById('tierFilter').value;
-    const rows = document.querySelectorAll('#auditTable tbody tr');
-    rows.forEach(row => {{
-        const domain = row.cells[1].textContent.toLowerCase();
-        const rowTier = row.classList.contains('tier-' + tier);
-        const matchSearch = domain.includes(search);
-        const matchTier = !tier || rowTier;
-        row.style.display = (matchSearch && matchTier) ? '' : 'none';
-    }});
+"use strict";
+const table = document.getElementById("auditTable");
+const tbody = table.tBodies[0];
+function visibleRows() {{ return [...tbody.rows].filter(r => !r.hidden); }}
+function filterRows() {{
+  const q = document.getElementById("search").value.toLowerCase();
+  const tier = document.getElementById("tierFilter").value;
+  [...tbody.rows].forEach(row => {{
+    const matchesText = row.cells[1].textContent.toLowerCase().includes(q);
+    const matchesTier = !tier || row.cells[4].textContent.trim() === tier;
+    row.hidden = !(matchesText && matchesTier);
+  }});
 }}
-function sortTable(method) {{
-    const tbody = document.querySelector('#auditTable tbody');
-    const rows = Array.from(tbody.querySelectorAll('tr'));
-    rows.sort((a, b) => {{
-        const scoreA = parseInt(a.cells[2].textContent) || 0;
-        const scoreB = parseInt(b.cells[2].textContent) || 0;
-        const defA = parseInt(a.cells[4].textContent) || 0;
-        const defB = parseInt(b.cells[4].textContent) || 0;
-        if (method === 'score-asc') return scoreA - scoreB;
-        if (method === 'score-desc') return scoreB - scoreA;
-        if (method === 'defects-asc') return defA - defB;
-        if (method === 'defects-desc') return defB - defA;
-        return 0;
-    }});
-    rows.forEach(r => tbody.appendChild(r));
+function num(row, index) {{
+  const v = Number(row.cells[index].textContent.trim());
+  return Number.isFinite(v) ? v : -1;
 }}
+function sortRows() {{
+  const method = document.getElementById("sortBy").value;
+  const rows = [...tbody.rows];
+  rows.sort((a,b) => {{
+    if (method === "opp-asc") return num(a,2)-num(b,2);
+    if (method === "health-desc") return num(b,3)-num(a,3);
+    if (method === "defects-desc") return num(b,5)-num(a,5);
+    return num(b,2)-num(a,2);
+  }});
+  rows.forEach(row => tbody.appendChild(row));
+}}
+function csvCell(value) {{ return '"' + String(value).replaceAll('"','""') + '"'; }}
 function exportCSV() {{
-    const rows = document.querySelectorAll('#auditTable tbody tr');
-    let csv = 'Rank,Domain,Score,Tier,Defects,Email\\n';
-    rows.forEach(r => {{
-        if (r.style.display !== 'none') {{
-            csv += `${{r.cells[0].textContent}},${{r.cells[1].textContent}},${{r.cells[2].textContent}},${{r.cells[3].textContent.textContent}},${{r.cells[4].textContent}},${{r.cells[6].textContent}}\\n`;
-        }}
-    }});
-    downloadFile(csv, 'audit-export.csv', 'text/csv');
+  const headers = [...table.tHead.rows[0].cells].map(c => csvCell(c.textContent.trim()));
+  const lines = [headers.join(",")];
+  visibleRows().forEach(row => lines.push([...row.cells].map(c => csvCell(c.textContent.trim())).join(",")));
+  const blob = new Blob([lines.join("\n")], {{type:"text/csv;charset=utf-8"}});
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url; anchor.download = "audit-export.csv"; anchor.click();
+  URL.revokeObjectURL(url);
 }}
-function exportJSON() {{
-    const rows = document.querySelectorAll('#auditTable tbody tr');
-    const data = [];
-    rows.forEach(r => {{
-        if (r.style.display !== 'none') {{
-            data.push({{
-                domain: r.cells[1].textContent,
-                score: r.cells[2].textContent,
-                tier: r.cells[3].querySelector('.badge').textContent,
-                defects: r.cells[4].textContent,
-                email: r.cells[6].textContent
-            }});
-        }}
-    }});
-    downloadFile(JSON.stringify(data, null, 2), 'audit-export.json', 'application/json');
-}}
-function downloadFile(content, filename, type) {{
-    const blob = new Blob([content], {{type}});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = filename; a.click();
-    URL.revokeObjectURL(url);
-}}
+document.getElementById("search").addEventListener("input", filterRows);
+document.getElementById("tierFilter").addEventListener("change", filterRows);
+document.getElementById("sortBy").addEventListener("change", sortRows);
+document.getElementById("csvButton").addEventListener("click", exportCSV);
 </script>
 </body>
-</html>'''
+</html>"""
 
-    return html
 
-def run_dashboard(audits_dir=None, output=None, email_file=None):
-    """Generate and save dashboard."""
+def run_dashboard(audits_dir=None, output=None, email_file=None) -> Path:
     audits = load_audits(audits_dir)
     emails = load_emails(email_file)
+    destination = Path(output) if output else ROOT / "outputs" / "dashboard.html"
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(generate_dashboard(audits, emails))
+    print(f"Dashboard saved: {destination} ({len(audits)} sites)")
+    return destination
 
-    print(f"📊 Dashboard: {len(audits)} sites, {len(emails)} email contacts loaded")
 
-    html = generate_dashboard(audits, emails)
-
-    if output:
-        out_path = Path(output)
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-        out_path.write_text(html)
-        print(f"✅ Dashboard saved: {out_path}")
-    else:
-        out_path = ROOT / "outputs" / "dashboard.html"
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-        out_path.write_text(html)
-        print(f"✅ Dashboard saved: {out_path}")
-
-    # Print summary
-    if audits:
-        scores = [a.get("score", 0) for a in audits]
-        print(f"   Avg score: {sum(scores)/len(scores):.0f}/100")
-        print(f"   Range: {min(scores)}-{max(scores)}")
-        tiers = defaultdict(int)
-        for a in audits:
-            tiers[TIER_MAP(a.get("score", 0))] += 1
-        for t in ["HOT", "WARM", "NURTURE", "COLD"]:
-            print(f"   {t}: {tiers.get(t, 0)} sites")
-
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Audit Dashboard Generator")
-    parser.add_argument("--output", "-o", default="outputs/dashboard.html", help="Output HTML file")
-    parser.add_argument("--audits-dir", default="audits", help="Audit JSON directory")
-    parser.add_argument("--email-file", help="Email discovery JSON file")
+    parser.add_argument("--output", "-o", default="outputs/dashboard.html")
+    parser.add_argument("--audits-dir", default="audits")
+    parser.add_argument("--email-file")
     args = parser.parse_args()
-
     run_dashboard(args.audits_dir, args.output, args.email_file)
+
 
 if __name__ == "__main__":
     main()
