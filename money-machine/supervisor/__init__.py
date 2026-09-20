@@ -1,1 +1,1 @@
-"""Supervisor daemon — continuous operation, self-healing, zero-babysitting."""
+"""Supervisor package for WEBSITE-AUDITOR."""
