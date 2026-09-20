@@ -14,8 +14,12 @@ Evidence-first website auditing for NZ businesses — auto-detect defects, gener
 ## Quick Start
 
 ```bash
-# Audit a single site
-python3 website_auditor.py https://example.co.nz
+# Fast static audit (default)
+python3 website_auditor.py https://example.co.nz --profile auto --mode static
+
+# Deep rendered audit: Playwright + axe + Lighthouse evidence
+cd audit && npm install && npx playwright install chromium && cd ..
+python3 website_auditor.py https://example.co.nz --profile deep --mode rendered
 
 # Run the full pipeline (all free, no API keys)
 python3 full-pipeline.py --all
@@ -29,6 +33,17 @@ open report.html
 ```
 
 ## Features
+
+### Evidence-first P0 core
+- Versioned check registry with stable IDs in `auditor_core/checks.yaml`
+- Typed Pydantic models for findings, evidence, checks and remediation state
+- Raw page evidence with HTTP status/headers, SHA-256, size and bounded HTML snippet
+- Sensitive response headers such as `Set-Cookie` are redacted from stored evidence
+- Transparent category health scores with per-category confidence and deductions
+- Deterministic site-type detection plus quick/standard/deep/ecommerce/leadgen/NZ profiles
+- Static audit mode and optional rendered mode using the existing Playwright/Lighthouse/axe engine
+- Remediation lifecycle: detected → acknowledged → scheduled → in progress → patched → verified/regressed
+- Legacy `score` is retained for compatibility and explicitly labeled as an opportunity/defect score; category scores use 100 = healthier
 
 ### Auditor Checks (25+)
 - SSL certificate validity & expiry
@@ -110,7 +125,7 @@ See [the Harness integration guide](integrations/deepseek-harness/README.md) for
 
 ## Requirements
 
-- Python 3.9+
+- Python 3.11+
 - No API keys needed (free stack only)
 - Optional: `aiohttp` for async batch mode (`pip install aiohttp`)
 
