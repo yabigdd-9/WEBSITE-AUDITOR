@@ -28,6 +28,7 @@ from auditor_core import (
     normalize_defects,
     resolve_profile,
 )
+from auditor_core.crawl import discover_internal_links, merge_site_findings
 from auditor_core.network import NetworkSafetyError, SafeFetcher, ensure_public_url, robots_policy
 from auditor_core.passive import (
     accessibility_basics,
@@ -392,6 +393,7 @@ async def audit_one(
     *,
     profile: str = "auto",
     mode: str = "static",
+    site_wide_checks: bool = True,
 ) -> dict:
     url = url.strip().rstrip("/")
     if not url.startswith("http"):
@@ -486,15 +488,19 @@ async def audit_one(
         },
     }
 
-    # SSL
-    ssl_info = check_ssl(domain)
-    if ssl_info.get("expired"):
-        days = ssl_info.get("days_remaining", 0)
-        defects.append({"defect": f"Expired SSL ({days}d ago)", "impact": "Browser warnings; trust destroyed"})
-    elif ssl_info.get("expiring_soon"):
-        defects.append({"defect": f"SSL expiring in {ssl_info.get('days_remaining')}d", "impact": "Imminent outage"})
-    elif ssl_info.get("ssl_error"):
-        defects.append({"defect": "SSL verification failed", "impact": "Insecure connection"})
+    # SSL is a site-wide check; avoid repeating it for every crawled page.
+    if site_wide_checks:
+        ssl_info = check_ssl(domain)
+        evidence["tls"] = ssl_info
+        if ssl_info.get("expired"):
+            days = ssl_info.get("days_remaining", 0)
+            defects.append({"defect": f"Expired SSL ({days}d ago)", "impact": "Browser warnings; trust destroyed"})
+        elif ssl_info.get("expiring_soon"):
+            defects.append({"defect": f"SSL expiring in {ssl_info.get('days_remaining')}d", "impact": "Imminent outage"})
+        elif ssl_info.get("ssl_error"):
+            defects.append({"defect": "SSL verification failed", "impact": "Insecure connection"})
+    else:
+        evidence["tls"] = {"skipped": True, "reason": "site-wide check runs on root page only"}
 
     # Security headers
     defects.extend(check_security_headers(headers))
@@ -539,15 +545,21 @@ async def audit_one(
     emails = extract_emails(html)
     evidence["emails"] = emails
 
-    # SPF/DMARC are checked only as findings when the page exposes an email signal.
-    # DNS work is offloaded from the asyncio loop because dnspython is synchronous.
-    dns_defects, dns_evidence = await asyncio.to_thread(
-        email_dns_security,
-        domain,
-        email_signal=bool(emails),
-    )
-    defects.extend(dns_defects)
-    evidence["email_dns_security"] = dns_evidence
+    # SPF/DMARC are site-wide checks and only become findings when the root page
+    # exposes an email signal. DNS work is offloaded because dnspython is synchronous.
+    if site_wide_checks:
+        dns_defects, dns_evidence = await asyncio.to_thread(
+            email_dns_security,
+            domain,
+            email_signal=bool(emails),
+        )
+        defects.extend(dns_defects)
+        evidence["email_dns_security"] = dns_evidence
+    else:
+        evidence["email_dns_security"] = {
+            "skipped": True,
+            "reason": "site-wide check runs on root page only",
+        }
 
     # Readability
     try:
@@ -579,12 +591,11 @@ async def audit_one(
     except Exception:
         pass
 
-    # Broken links (internal, sampled) — safe fetcher re-validates redirects.
-    hrefs = re.findall(r'href=["\'](/[^"\']*|https?://[^"\']*)["\']', html, re.IGNORECASE)
+    # Discover same-origin links for optional multi-page crawl and sample broken links.
     final_base = str(page.get("final_url") or url)
-    parsed_base = urllib.parse.urlsplit(final_base)
-    base_domain = urllib.parse.urlunsplit((parsed_base.scheme, parsed_base.netloc, "", "", ""))
-    internal = [h for h in hrefs if h.startswith("/") and len(h) > 1][:10]
+    internal_links = discover_internal_links(html, final_base, limit=100)
+    evidence["internal_links"] = internal_links
+    internal = internal_links[:10]
     broken = []
     link_fetcher = SafeFetcher(
         session,
@@ -595,8 +606,7 @@ async def audit_one(
         delay_seconds=max(0.25, float(robots.get("crawl_delay") or 0)),
     )
 
-    async def check_link(href):
-        full = urllib.parse.urljoin(base_domain + "/", href)
+    async def check_link(full):
         try:
             link_robots = await robots_policy(session, full, user_agent=USER_AGENT, timeout=8)
             if not link_robots.get("allowed", True):
@@ -645,17 +655,119 @@ async def audit_one(
         result["audit_mode"]["rendered_status"] = rendered.get("status", "error")
     return result
 
+async def audit_site(
+    session: httpx.AsyncClient,
+    url: str,
+    *,
+    profile: str = "auto",
+    mode: str = "static",
+    crawl: bool = False,
+    max_pages: int | None = None,
+) -> dict:
+    """Audit the root page and, when requested, crawl a bounded same-origin page set."""
+    root = await audit_one(
+        session,
+        url,
+        profile=profile,
+        mode=mode,
+        site_wide_checks=True,
+    )
+
+    profile_config = (root.get("audit_profile") or {}).get("config") or {}
+    resolved_profile = (root.get("audit_profile") or {}).get("name") or profile
+    configured_budget = int(profile_config.get("max_pages") or 1)
+    budget = int(max_pages) if max_pages is not None else configured_budget
+    budget = max(1, min(budget, 50))
+
+    page_results = [root]
+    root["site_audit"] = {
+        "enabled": bool(crawl),
+        "page_budget": budget,
+        "pages_audited": 1,
+        "rendered_root_only": mode == "rendered",
+        "pages": [],
+    }
+
+    if not crawl or budget <= 1 or root.get("audit_state") == "skipped":
+        root["site_audit"]["pages"] = [
+            {
+                "url": root.get("url"),
+                "audit_state": root.get("audit_state", "completed"),
+                "finding_count": len(root.get("findings", [])),
+                "finding_ids": [item.get("check_id") for item in root.get("findings", [])],
+            }
+        ]
+        root["site_findings"] = merge_site_findings(page_results)
+        root["site_category_scores"] = category_scores(root["site_findings"])
+        return root
+
+    visited: set[str] = set()
+    for candidate in (
+        root.get("url"),
+        ((root.get("evidence") or {}).get("network") or {}).get("final_url"),
+    ):
+        if candidate:
+            visited.add(str(candidate))
+
+    queue = list((root.get("evidence") or {}).get("internal_links") or [])
+    while queue and len(page_results) < budget:
+        candidate = queue.pop(0)
+        if candidate in visited:
+            continue
+        visited.add(candidate)
+
+        page_result = await audit_one(
+            session,
+            candidate,
+            profile=resolved_profile,
+            mode="static",
+            site_wide_checks=False,
+        )
+        page_results.append(page_result)
+
+        for discovered in (page_result.get("evidence") or {}).get("internal_links") or []:
+            if discovered not in visited and discovered not in queue:
+                queue.append(discovered)
+
+    root["site_audit"]["pages_audited"] = len(page_results)
+    root["site_audit"]["pages"] = [
+        {
+            "url": page_result.get("url"),
+            "final_url": ((page_result.get("evidence") or {}).get("network") or {}).get("final_url"),
+            "audit_state": page_result.get("audit_state", "completed"),
+            "finding_count": len(page_result.get("findings", [])),
+            "finding_ids": [
+                item.get("check_id") for item in page_result.get("findings", [])
+            ],
+        }
+        for page_result in page_results
+    ]
+    root["site_findings"] = merge_site_findings(page_results)
+    root["site_category_scores"] = category_scores(root["site_findings"])
+    root["site_defect_count"] = len(root["site_findings"])
+    return root
+
+
 async def audit_batch(
     urls: list,
     concurrency: int = CONCURRENCY,
     *,
     profile: str = "auto",
     mode: str = "static",
+    crawl: bool = False,
+    max_pages: int | None = None,
 ) -> list:
     sem = asyncio.Semaphore(concurrency)
     async def limited(url):
         async with sem:
-            return await audit_one(client, url, profile=profile, mode=mode)
+            return await audit_site(
+                client,
+                url,
+                profile=profile,
+                mode=mode,
+                crawl=crawl,
+                max_pages=max_pages,
+            )
     async with httpx.AsyncClient(headers=HEADERS) as session:
         global client
         client = session
@@ -703,6 +815,10 @@ def main():
     p.add_argument("--profile",
                    choices=["auto", "quick", "standard", "deep", "ecommerce", "leadgen", "nz_small_business"],
                    default="auto", help="Audit profile; auto uses deterministic site-type detection")
+    p.add_argument("--crawl", action="store_true",
+                   help="Audit same-origin internal pages using the resolved profile page budget")
+    p.add_argument("--max-pages", type=int,
+                   help="Override crawl page budget (1-50; requires --crawl)")
     p.add_argument("--enrich", action="store_true",
                    help="Add Tier 1 external enrichment (W3C/SSL Labs/urlscan/local "
                         "header grade keyless; PageSpeed/RankNibbler when keys set). "
@@ -717,8 +833,17 @@ def main():
             urls = Path(args.batch).read_text().splitlines()
             urls = [u.strip() for u in urls if u.strip()]
             print(f"🚀 Auditing {len(urls)} sites (concurrency={args.concurrency})...")
+            if args.max_pages is not None and not args.crawl:
+                p.error("--max-pages requires --crawl")
+            if args.max_pages is not None and not 1 <= args.max_pages <= 50:
+                p.error("--max-pages must be between 1 and 50")
             results = await audit_batch(
-                urls, args.concurrency, profile=args.profile, mode=args.mode
+                urls,
+                args.concurrency,
+                profile=args.profile,
+                mode=args.mode,
+                crawl=args.crawl,
+                max_pages=args.max_pages,
             )
             for r in results:
                 print(f"  {r['domain']}: {r['score']}/100 ({r['defect_count']} defects)")
@@ -730,8 +855,17 @@ def main():
             async with httpx.AsyncClient(headers=HEADERS) as session:
                 global client
                 client = session
-                result = await audit_one(
-                    session, args.url, profile=args.profile, mode=args.mode
+                if args.max_pages is not None and not args.crawl:
+                    p.error("--max-pages requires --crawl")
+                if args.max_pages is not None and not 1 <= args.max_pages <= 50:
+                    p.error("--max-pages must be between 1 and 50")
+                result = await audit_site(
+                    session,
+                    args.url,
+                    profile=args.profile,
+                    mode=args.mode,
+                    crawl=args.crawl,
+                    max_pages=args.max_pages,
                 )
                 if args.enrich:
                     from integrations.tier1_enrichment import enrich_audit
