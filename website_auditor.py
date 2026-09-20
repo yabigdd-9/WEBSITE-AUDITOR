@@ -28,7 +28,7 @@ from auditor_core import (
     normalize_defects,
     resolve_profile,
 )
-from auditor_core.network import NetworkSafetyError, SafeFetcher, robots_policy
+from auditor_core.network import NetworkSafetyError, SafeFetcher, ensure_public_url, robots_policy
 from auditor_core.registry import get_registry
 
 # ── config ──────────────────────────────────────────────────────────
@@ -62,7 +62,11 @@ def cache_set(key: str, data: Any, ttl: int = CACHE_TTL) -> None:
 # ── async HTTP ──────────────────────────────────────────────────────
 async def fetch_page(session: httpx.AsyncClient, url: str) -> dict:
     """Fetch a bounded public HTTP(S) page with redirect re-validation."""
-    key = f"safe-page:{url}"
+    try:
+        validated_url = await ensure_public_url(url)
+    except NetworkSafetyError as exc:
+        return {"error": str(exc), "text": "", "headers": {}, "status": None}
+    key = f"safe-page-v2:{validated_url}"
     cached = cache_get(key)
     if isinstance(cached, dict) and "text" in cached:
         return cached
@@ -76,7 +80,7 @@ async def fetch_page(session: httpx.AsyncClient, url: str) -> dict:
         delay_seconds=0.25,
     )
     try:
-        result = await fetcher.get_text(url)
+        result = await fetcher.get_text(validated_url)
     except (httpx.HTTPError, NetworkSafetyError) as exc:
         return {"error": str(exc), "text": "", "headers": {}, "status": None}
 
@@ -92,7 +96,11 @@ async def fetch_html(session: httpx.AsyncClient, url: str) -> str:
 
 async def fetch_head(session: httpx.AsyncClient, url: str) -> dict:
     """Backward-compatible header helper using the safe fetcher."""
-    key = f"safe-head:{url}"
+    try:
+        validated_url = await ensure_public_url(url)
+    except NetworkSafetyError:
+        return {}
+    key = f"safe-head-v2:{validated_url}"
     cached = cache_get(key, ttl=1800)
     if isinstance(cached, dict):
         return cached
@@ -106,7 +114,7 @@ async def fetch_head(session: httpx.AsyncClient, url: str) -> dict:
         delay_seconds=0.25,
     )
     try:
-        result = await fetcher.head_status(url)
+        result = await fetcher.head_status(validated_url)
     except (httpx.HTTPError, NetworkSafetyError):
         return {}
     headers = dict(result.headers)
@@ -188,16 +196,49 @@ def readability_scores(text: str) -> tuple[float | None, float | None]:
 
 # ── defect checks ───────────────────────────────────────────────────
 def check_ssl(domain: str) -> dict:
-    """Inspect a site's TLS certificate without invoking a shell."""
+    """Inspect TLS while pinning the connection to a resolved public IP."""
+    import ipaddress
     import socket
     import ssl
 
     issues = {}
     try:
+        records = socket.getaddrinfo(domain, 443, type=socket.SOCK_STREAM)
+        public_addresses = []
+        for record in records:
+            address = record[4][0].split("%", 1)[0]
+            try:
+                if ipaddress.ip_address(address).is_global and address not in public_addresses:
+                    public_addresses.append(address)
+            except ValueError:
+                continue
+        if not public_addresses:
+            return {"ssl_error": True, "error": "no public TLS address"}
+
         context = ssl.create_default_context()
-        with socket.create_connection((domain, 443), timeout=10) as raw:
-            with context.wrap_socket(raw, server_hostname=domain) as tls:
-                cert = tls.getpeercert()
+        last_error = None
+        cert = None
+        for address in public_addresses:
+            family = socket.AF_INET6 if ":" in address else socket.AF_INET
+            sock = socket.socket(family, socket.SOCK_STREAM)
+            sock.settimeout(10)
+            try:
+                target = (address, 443, 0, 0) if family == socket.AF_INET6 else (address, 443)
+                sock.connect(target)
+                with context.wrap_socket(sock, server_hostname=domain) as tls:
+                    cert = tls.getpeercert()
+                break
+            except (ssl.SSLError, socket.timeout, ConnectionError, OSError) as exc:
+                last_error = exc
+                try:
+                    sock.close()
+                except OSError:
+                    pass
+        if cert is None:
+            if isinstance(last_error, ssl.SSLCertVerificationError):
+                return {"ssl_error": True, "error": "certificate verification failed"}
+            return {"ssl_error": True, "error": "TLS connection failed"}
+
         not_after = cert.get("notAfter")
         if not_after:
             expiry_ts = ssl.cert_time_to_seconds(not_after)
@@ -210,10 +251,8 @@ def check_ssl(domain: str) -> dict:
             elif days < 30:
                 issues["expiring_soon"] = True
         return issues
-    except ssl.SSLCertVerificationError:
-        return {"ssl_error": True, "error": "certificate verification failed"}
-    except (socket.timeout, socket.gaierror, ConnectionError, OSError):
-        return {"ssl_error": True, "error": "TLS connection failed"}
+    except (socket.gaierror, OSError):
+        return {"ssl_error": True, "error": "TLS resolution failed"}
 
 def check_security_headers(headers: dict) -> list:
     defects = []
@@ -381,6 +420,10 @@ async def audit_one(
             mode=mode,
             schema_types=[],
         )
+
+    crawl_delay = robots.get("crawl_delay")
+    if isinstance(crawl_delay, (int, float)) and crawl_delay > 0:
+        await asyncio.sleep(min(float(crawl_delay), 30.0))
 
     page = await fetch_page(session, url)
     html = str(page.get("text") or "")
