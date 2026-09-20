@@ -1,20 +1,19 @@
 name: website-auditor-codeql
 
-queries:
-  - uses: security-extended
+paths:
+  - website_auditor.py
+  - full-pipeline.py
+  - money-machine
+  - integrations/tier1_enrichment
 
 paths-ignore:
-  - outputs
-  - audits
-  - reports
-  - cache
-  - evidence
-  - prospects
-  - history
-  - skills
-  - database
-  - "**/*.db"
-  - "**/*.db-shm"
-  - "**/*.db-wal"
-  - "**/*.capture"
-  - "**/*.bak"
+  - "**/__pycache__/**"
+  - "**/.venv*/**"
+  - "**/node_modules/**"
+  - "outputs/**"
+  - "audits/**"
+  - "reports/**"
+  - "cache/**"
+  - "evidence/**"
+  - "prospects/**"
+  - "database/**"
