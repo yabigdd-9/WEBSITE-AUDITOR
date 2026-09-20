@@ -1,6 +1,6 @@
 # WEBSITE AUDITOR
 
-Evidence-first website auditing for NZ businesses — auto-detect defects, generate fix suggestions, and track remediation progress. All tools are **free** and run locally.
+Evidence-first website auditing for NZ businesses — detect defects, generate fix suggestions, track remediation progress, and optionally plan policy-controlled automatic actions. The core remains **free** and local-first.
 
 ## What It Does
 
@@ -9,7 +9,8 @@ Evidence-first website auditing for NZ businesses — auto-detect defects, gener
 | `website_auditor.py` | Single-site audit — 25+ checks (SSL, mobile, SEO, security, performance) |
 | `full-pipeline.py` | 9-step pipeline — scout, audit, discover emails, generate mockups, rank, export |
 | `remediation-engine.py` | Auto-generate fix suggestions with code snippets and effort/cost estimates |
-| `audit-dashboard.py` | Interactive HTML dashboard with score distribution, defect heatmap, tier filtering |
+| `audit-dashboard.py` | Safe self-contained HTML dashboard with opportunity + health scoring and stable finding IDs |
+| `python -m website_auditor.cli actions …` | Policy-controlled action registry, approvals, dry-run, audit log, verification and rollback |
 
 ## Quick Start
 
@@ -30,6 +31,14 @@ python3 remediation-engine.py --all --output-dir outputs/remediations
 # View interactive dashboard
 python3 audit-dashboard.py --output report.html
 open report.html
+
+# One-command safe execution: audit -> remediation -> dashboard -> action dry-run
+python3 run_all.py https://example.co.nz
+# or
+bash execute_all_safe.sh https://example.co.nz
+
+# Action-engine status (installed editable: pip install -e ".[dev]")
+wa actions status
 ```
 
 ## Features
@@ -44,6 +53,35 @@ open report.html
 - Static audit mode and optional rendered mode using the existing Playwright/Lighthouse/axe engine
 - Remediation lifecycle: detected → acknowledged → scheduled → in progress → patched → verified/regressed
 - Legacy `score` is retained for compatibility and explicitly labeled as an opportunity/defect score; category scores use 100 = healthier
+
+### Policy-controlled automatic actions
+- Stable action registry with risk classes and idempotency keys
+- Default policy: `mode=dry_run`, `execution_enabled=false`
+- Approval queue and domain/scope authorization records
+- Append-only NDJSON audit log
+- Emergency kill switch: `wa actions pause` / `wa actions resume`
+- Per-hour execution rate limit
+- Environment-only secret resolver; secrets are not stored in repo policy JSON
+- Connector interface with a safe local connector and blocked/unavailable external connectors
+- Local verification and rollback for generated artifacts
+- External email, DNS/TLS, external connectors, and production changes remain blocked by default
+- Policy lives at `action-policy.json` because this repo already uses the top-level `config` path for another object
+
+Useful commands:
+
+```bash
+wa actions init
+wa actions propose --from-remediations outputs/remediations
+wa actions dry-run
+wa actions list
+wa actions approve --id act_xxx --approver Dion
+wa actions authorize --domain example.co.nz --scope remediation --actor Dion
+wa actions execute --id act_xxx
+wa actions rollback --id act_xxx
+wa actions pause
+```
+
+`execute` still obeys the policy file. With the shipped defaults it becomes a dry-run and cannot create an external effect.
 
 ### Auditor Checks (25+)
 - SSL certificate validity & expiry
@@ -103,7 +141,9 @@ cold-emails/             # Generated outreach drafts
 
 ## Execution Boundary
 
-This tool **audits only** — it does not send emails, modify external sites, or invoke paid AI services. All generated outputs are local files requiring human review before any external action.
+Automatic-action architecture is available, but **live execution is disabled by default**. The shipped policy can plan, dry-run, log, approve, authorize, verify, and roll back safe local artifacts. It does **not** send external email, change DNS/TLS, modify live websites, deploy production code, or invoke paid AI services unless a future connector is explicitly configured and its policy gates are deliberately changed.
+
+High-risk actions remain approval- and authorization-gated. The emergency kill switch overrides action execution.
 
 ## DeepSeek Harness integration
 
