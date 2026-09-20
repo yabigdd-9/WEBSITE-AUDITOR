@@ -121,7 +121,8 @@ def _existing(d):
 
 def ingest(d, candidates, actor="discovery-v2", dry_run=False):
     """Dedupe and enqueue candidates. Returns a deterministic intake summary."""
-    mm_pipeline.migrate(d)
+    if not dry_run:
+        mm_pipeline.migrate(d)
     by_host, by_name = _existing(d)
     inserted = []
     duplicates = []
