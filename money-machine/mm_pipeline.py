@@ -18,6 +18,7 @@ import json
 import os
 import random
 import socket
+import time
 from pathlib import Path
 
 from mm_core import now, root, sha, timestamp
@@ -569,6 +570,12 @@ def run_pipelineloop(d, workers, sleep_seconds=60, max_cycles=None,
     still gated by the approval engine).
     """
     metrics_sink = log_destination or (root() / 'state' / 'worker-logs')
+    if sleep_seconds < 0:
+        raise ValueError('sleep_seconds must be >= 0')
+    if max_cycles is not None and max_cycles < 1:
+        raise ValueError('max_cycles must be >= 1 or None')
+    if report_every < 1:
+        raise ValueError('report_every must be >= 1')
     migrate(d)
     for idx, w in enumerate(workers):
         register_worker(d, w.worker_id, w.kind, lease_seconds=w.lease_seconds)
@@ -587,6 +594,8 @@ def run_pipelineloop(d, workers, sleep_seconds=60, max_cycles=None,
             if cycles % report_every == 0:
                 log({'kind': 'loop_checkpoint', 'cycle': cycles,
                      'elapsed_hint': 'agent-local'})
+            if max_cycles is None or cycles < max_cycles:
+                time.sleep(sleep_seconds)
     except Exception as ex:
         log({'kind': 'loop_stopped', 'reason': '%s: %s' % (type(ex).__name__, ex),
              'cycles_completed': cycles})
@@ -596,20 +605,32 @@ def run_pipelineloop(d, workers, sleep_seconds=60, max_cycles=None,
     return cycles
 
 
-def run_pipelineloop_cli(argv=None):
-    """CLI handler for mm_protocol run-pipeline (long-lived punctuator loop)."""
+def run_pipelineloop_cli(d, argv=None):
+    """CLI-compatible pipeline loop helper using an explicit DB connection."""
     import argparse
-    p = argparse.ArgumentParser(prog='run-pipeline')
-    p.add_argument('--workers', action='append', default=None)
-    p.add_argument('--sleep', type=float, default=60)
-    p.add_argument('--cycles', type=int, default=None)
-    p.add_argument('--report-every', type=int, default=10)
-    args = p.parse_known_args(argv)[0]
+    parser = argparse.ArgumentParser(prog='run-pipeline')
+    parser.add_argument('--worker', action='append', default=None)
+    parser.add_argument('--sleep', type=float, default=60)
+    parser.add_argument('--cycles', type=int, default=None)
+    parser.add_argument('--report-every', type=int, default=10)
+    parser.add_argument('--lease', type=int, default=300)
+    args = parser.parse_args(argv)
     from mm_workers import WORKERS
-    names = set(args.workers) if args.workers else set(WORKERS)
-    workers = [p.Worker('w-' + n, *WORKERS[n]) for n in sorted(names)]
-    return run_pipelineloop(d, workers, sleep_seconds=args.sleep,
-                            max_cycles=args.cycles, report_every=args.report_every)
+    names = set(args.worker) if args.worker else set(WORKERS)
+    unknown = sorted(names - set(WORKERS))
+    if unknown:
+        raise ValueError('Unknown workers: ' + ', '.join(unknown))
+    workers = [
+        Worker('worker-' + name, *WORKERS[name], lease_seconds=args.lease)
+        for name in sorted(names)
+    ]
+    return run_pipelineloop(
+        d,
+        workers,
+        sleep_seconds=args.sleep,
+        max_cycles=args.cycles,
+        report_every=args.report_every,
+    )
 
 
 def drain_expired_leases(d):
