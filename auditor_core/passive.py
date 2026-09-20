@@ -127,8 +127,10 @@ def nz_business_signals(text: str, html: str) -> dict[str, Any]:
 
 
 def passive_stack_and_images(html: str, headers: dict[str, Any]) -> dict[str, Any]:
+    normalized_headers = dict(headers or {})
+    normalized_headers.update({str(key).title(): value for key, value in (headers or {}).items()})
     return {
-        "tech_stack": sorted(detect_tech_stack(html, headers)),
+        "tech_stack": sorted(detect_tech_stack(html, normalized_headers)),
         "image_performance": audit_image_performance(html),
     }
 
