@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "execution_enabled": false,
+  "mode": "dry_run",
+  "allow_production_changes": false,
+  "allow_external_emails": false,
+  "allow_external_connectors": false,
+  "auto_approve_risks": ["low"],
+  "require_approval_risks": ["medium", "high", "critical"],
+  "max_actions_per_hour": 20,
+  "environments_allowed_for_auto": ["local", "staging"],
+  "blocked_categories": ["dns_write", "tls_install", "production_deploy", "outreach_send"],
+  "secret_env_allowlist": []
+}
