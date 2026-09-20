@@ -28,15 +28,11 @@ from auditor_core import (
     normalize_defects,
     resolve_profile,
 )
+import auditor_core.builtin_plugins  # noqa: F401
+from auditor_core.check_plugins import AuditCheckContext, run_plugins
 from auditor_core.crawl import discover_internal_links, merge_site_findings
 from auditor_core.network import NetworkSafetyError, SafeFetcher, ensure_public_url, robots_policy
-from auditor_core.passive import (
-    accessibility_basics,
-    cookie_security,
-    email_dns_security,
-    nz_business_signals,
-    passive_stack_and_images,
-)
+from auditor_core.passive import email_dns_security
 from auditor_core.registry import get_registry
 
 # ── config ──────────────────────────────────────────────────────────
@@ -508,23 +504,26 @@ async def audit_one(
     # HTML structure
     defects.extend(check_html_structure(soup, body_text))
 
-    # Accessibility basics
-    accessibility_defects, accessibility_evidence = accessibility_basics(soup)
-    defects.extend(accessibility_defects)
-    evidence["accessibility_basics"] = accessibility_evidence
-
-    # Cookie security (only when cookies are actually observed)
-    cookie_defects, cookie_evidence = cookie_security(
-        headers, is_https=urllib.parse.urlsplit(str(page.get("final_url") or url)).scheme == "https"
+    # Executable check-plugin registry. Built-ins are namespaced in evidence while
+    # compatibility aliases retain the earlier top-level evidence keys.
+    plugin_defects, plugin_evidence = run_plugins(
+        AuditCheckContext(
+            url=url,
+            final_url=str(page.get("final_url") or url),
+            html=html,
+            soup=soup,
+            body_text=body_text,
+            headers=headers,
+        )
     )
-    defects.extend(cookie_defects)
-    evidence["cookie_security"] = cookie_evidence
-
-    # Passive technology/CMS and image-performance evidence
-    evidence.update(passive_stack_and_images(html, headers))
-
-    # NZ business/contact signals are evidence, not automatic defects.
-    evidence["nz_business_signals"] = nz_business_signals(body_text, html)
+    defects.extend(plugin_defects)
+    evidence["check_plugins"] = plugin_evidence
+    evidence["accessibility_basics"] = plugin_evidence.get("accessibility.basics", {})
+    evidence["cookie_security"] = plugin_evidence.get("security.cookies", {})
+    technology_evidence = plugin_evidence.get("technology.stack_images", {})
+    evidence["tech_stack"] = technology_evidence.get("tech_stack", [])
+    evidence["image_performance"] = technology_evidence.get("image_performance", {})
+    evidence["nz_business_signals"] = plugin_evidence.get("nz.business_signals", {})
 
     # Schema.org
     schema = check_schema_org(soup)
