@@ -36,7 +36,9 @@ CACHE_DIR = Path("outputs/.cache")
 CACHE_TTL = 3600
 CONCURRENCY = 8
 TIMEOUT = 15
-USER_AGENT = "Mozilla/5.0 (NZ) WebsiteRescueAuditor/2.0"
+USER_AGENT = "Mozilla/5.0 (NZ) WebsiteRescueAuditor/4.1"
+AUDIT_SCHEMA_VERSION = 2
+AUDITOR_VERSION = "4.1.0"
 
 CACHE_DIR.mkdir(parents=True, exist_ok=True)
 HEADERS = {"User-Agent": USER_AGENT}
@@ -348,6 +350,9 @@ def finalize_audit_result(
     detection = detect_site_type(html, schema_types or [])
     profile_name, profile_config = resolve_profile(profile, detection["site_type"])
     findings = normalize_defects(result.get("defects", []), url=result["url"])
+    result["schema_version"] = AUDIT_SCHEMA_VERSION
+    result["auditor_version"] = AUDITOR_VERSION
+    result["output_contract"] = "website-auditor.audit.v2"
 
     evidence = result.setdefault("evidence", {})
     evidence["raw_page"] = build_page_evidence(result["url"], html, headers, source="static")
