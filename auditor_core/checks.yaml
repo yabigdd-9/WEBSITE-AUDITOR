@@ -1,0 +1,246 @@
+schema_version: 1
+taxonomy_version: "2026.09.21"
+checks:
+  - id: security.tls_expired
+    name: Expired TLS certificate
+    category: security
+    severity: critical
+    standards: [OWASP Transport Layer Security]
+    auto_fixable: false
+    evidence_required: [tls_certificate]
+    default_priority: P0
+    confidence: 0.99
+    patterns: ["^Expired SSL"]
+
+  - id: security.tls_expiring
+    name: TLS certificate expiring soon
+    category: security
+    severity: high
+    standards: [OWASP Transport Layer Security]
+    evidence_required: [tls_certificate]
+    default_priority: P1
+    confidence: 0.99
+    patterns: ["^SSL expiring"]
+
+  - id: security.tls_verification_failed
+    name: TLS certificate verification failed
+    category: security
+    severity: critical
+    standards: [OWASP Transport Layer Security]
+    evidence_required: [tls_certificate]
+    default_priority: P0
+    confidence: 0.98
+    patterns: ["^SSL verification failed"]
+
+  - id: security.hsts_missing
+    name: Missing HSTS header
+    category: security
+    severity: medium
+    standards: [OWASP Secure Headers, Mozilla Observatory]
+    auto_fixable: true
+    evidence_required: [response_headers]
+    default_priority: P3
+    confidence: 0.99
+    patterns: ["^Missing HSTS$"]
+
+  - id: security.csp_missing
+    name: Missing Content-Security-Policy
+    category: security
+    severity: medium
+    standards: [OWASP Secure Headers, Mozilla Observatory]
+    auto_fixable: false
+    evidence_required: [response_headers]
+    default_priority: P3
+    confidence: 0.99
+    patterns: ["^Missing CSP$"]
+
+  - id: security.x_frame_options_missing
+    name: Missing X-Frame-Options
+    category: security
+    severity: medium
+    standards: [OWASP Secure Headers]
+    auto_fixable: true
+    evidence_required: [response_headers]
+    default_priority: P4
+    confidence: 0.99
+    patterns: ["^Missing X-Frame-Options$"]
+
+  - id: security.x_content_type_options_missing
+    name: Missing X-Content-Type-Options
+    category: security
+    severity: low
+    standards: [OWASP Secure Headers]
+    auto_fixable: true
+    evidence_required: [response_headers]
+    default_priority: P5
+    confidence: 0.99
+    patterns: ["^Missing X-Content-Type$"]
+
+  - id: security.referrer_policy_missing
+    name: Missing Referrer-Policy
+    category: security
+    severity: low
+    standards: [OWASP Secure Headers]
+    auto_fixable: true
+    evidence_required: [response_headers]
+    default_priority: P5
+    confidence: 0.99
+    patterns: ["^Missing Referrer-Policy$"]
+
+  - id: security.permissions_policy_missing
+    name: Missing Permissions-Policy
+    category: security
+    severity: low
+    standards: [OWASP Secure Headers]
+    auto_fixable: true
+    evidence_required: [response_headers]
+    default_priority: P6
+    confidence: 0.99
+    patterns: ["^Missing Permissions-Policy$"]
+
+  - id: seo.h1_missing
+    name: Missing H1
+    category: seo
+    severity: medium
+    standards: [HTML semantics]
+    auto_fixable: true
+    evidence_required: [html]
+    default_priority: P2
+    confidence: 0.98
+    patterns: ["^Missing H1 tag$"]
+
+  - id: seo.multiple_h1
+    name: Multiple H1 elements
+    category: seo
+    severity: low
+    standards: [HTML semantics]
+    auto_fixable: true
+    evidence_required: [html]
+    default_priority: P5
+    confidence: 0.95
+    patterns: ["^Multiple H1 tags"]
+
+  - id: seo.title_missing
+    name: Missing page title
+    category: seo
+    severity: high
+    standards: [HTML metadata]
+    auto_fixable: true
+    evidence_required: [html]
+    default_priority: P1
+    confidence: 0.99
+    patterns: ["^Missing <title> tag$"]
+
+  - id: seo.meta_description_missing
+    name: Missing meta description
+    category: seo
+    severity: medium
+    standards: [Search metadata]
+    auto_fixable: true
+    evidence_required: [html]
+    default_priority: P3
+    confidence: 0.99
+    patterns: ["^Missing meta description$"]
+
+  - id: seo.noindex
+    name: Page marked noindex
+    category: seo
+    severity: high
+    standards: [Robots meta]
+    auto_fixable: true
+    evidence_required: [html]
+    default_priority: P1
+    confidence: 0.99
+    human_review: true
+    patterns: ["^Meta robots noindex$"]
+
+  - id: seo.canonical_missing
+    name: Missing canonical URL
+    category: seo
+    severity: medium
+    standards: [Canonical link relation]
+    auto_fixable: true
+    evidence_required: [html]
+    default_priority: P3
+    confidence: 0.98
+    patterns: ["^Missing canonical URL$"]
+
+  - id: seo.open_graph_missing
+    name: Missing Open Graph metadata
+    category: content
+    severity: low
+    standards: [Open Graph Protocol]
+    auto_fixable: true
+    evidence_required: [html]
+    default_priority: P6
+    confidence: 0.98
+    patterns: ["^Missing Open Graph tags$"]
+
+  - id: content.thin
+    name: Thin page content
+    category: content
+    severity: medium
+    standards: []
+    auto_fixable: false
+    evidence_required: [extracted_text]
+    default_priority: P4
+    confidence: 0.75
+    human_review: true
+    patterns: ["^Thin content"]
+
+  - id: seo.schema_missing
+    name: No Schema.org structured data
+    category: seo
+    severity: low
+    standards: [Schema.org]
+    auto_fixable: true
+    evidence_required: [html]
+    default_priority: P5
+    confidence: 0.98
+    patterns: ["^No structured data"]
+
+  - id: content.readability_low
+    name: Low readability
+    category: content
+    severity: low
+    standards: []
+    auto_fixable: false
+    evidence_required: [extracted_text]
+    default_priority: P7
+    confidence: 0.70
+    human_review: true
+    patterns: ["^Low readability"]
+
+  - id: technical.html_errors
+    name: HTML validation errors
+    category: technical_health
+    severity: low
+    standards: [W3C HTML]
+    auto_fixable: false
+    evidence_required: [w3c_validator]
+    default_priority: P6
+    confidence: 0.95
+    patterns: ["^[0-9]+ HTML errors$"]
+
+  - id: technical.broken_links
+    name: Broken links
+    category: technical_health
+    severity: medium
+    standards: []
+    auto_fixable: true
+    evidence_required: [link_checks]
+    default_priority: P2
+    confidence: 0.95
+    patterns: ["^[0-9]+ broken link"]
+
+  - id: technical.site_unreachable
+    name: Site unreachable
+    category: technical_health
+    severity: critical
+    standards: []
+    auto_fixable: false
+    evidence_required: [network]
+    default_priority: P0
+    confidence: 0.95
+    human_review: true
+    patterns: ["^Site unreachable$"]
