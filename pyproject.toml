@@ -1,0 +1,49 @@
+[project]
+name = "website-auditor"
+version = "4.0.0"
+description = "Evidence-first website auditing for NZ businesses — free, local, zero-paid-inference"
+requires-python = ">=3.11"
+readme = "README.md"
+license = {text = "MIT"}
+
+# Main dependencies (same as requirements.txt + requests added earlier)
+dependencies = [
+  "httpx>=0.28,<1",
+  "aiohttp>=3.10",
+  "beautifulsoup4>=4.15",
+  "lxml>=6",
+  "trafilatura>=2",
+  "textstat>=0.7",
+  "nltk>=3.10",
+  "yarl>=1.25",
+  "requests>=2.32",
+  "pyyaml>=6",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3",
+  "pytest-asyncio>=0.24",
+  "ruff>=0.6",
+]
+
+# Build system
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# Tool config
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "W", "I", "N"]
+
+[tool.ruff.isort]
+known-first-party = ["integrations", "money-machine"]
+
+[tool.pytest.ini_options]
+testpaths = [
+  "integrations",
+  "money-machine",
+]
+python_files = ["test_*.py"]
+addopts = "-ra --strict-markers"

@@ -59,6 +59,117 @@ Description: Add probe_local_with_retry(kind, max_attempts=3, base_delay=2.0, ma
 Files: money-machine/mm_model_router.py
 Description: Add in-process cache for last successful local model: Key local:{kind} -> model_id, updated on successful probe, used as fallback when probe fails but cache hit, TTL 10 minutes, does NOT persist to disk.
 
-### P0.7 - Circuit Breaker for Local Inference
-Files: money-machine/mm_model_router.py, money-machine/mm_pipeline.py
-Description: Wrap local probe with existing circuit breaker: service name local:llamacpp/local:ollama, failure threshold 5, cooldown 5 minutes, half-open probe after cooldown.
+---
+
+## 3. UPGRADE PLAN - PHASE P1
+
+### P1.1 - Passive Health Endpoint
+Files: money-machine/mm_pipeline.py, money-machine/mm_operator.py
+Description: Add mm pipeline-health --json outputting pipeline state counts, worker registry, lease statistics, circuit breaker states, rate bucket usage, recent errors, loop throughput.
+
+### P1.2 - Structured Log Query CLI
+Files: money-machine/supervisor/logquery.py, money-machine/mm_operator.py
+Description: Add mm supervisor-logs with filters: --kind, --worker, --since, --level, --json.
+
+### P1.3 - Metrics Export (Prometheus Format)
+Files: money-machine/supervisor/metrics.py, money-machine/mm_operator.py
+Description: Add mm metrics --prometheus exposing pipeline_items_total{state}, worker_alive{worker_id}, lease_active_total, circuit_breaker_state{service,state}, rate_bucket_usage{bucket,used,cap}, loop_cycles_total, loop_cycle_duration_seconds_bucket.
+
+### P1.4 - Config Hot Reload
+Files: money-machine/supervisor/configwatch.py, money-machine/mm_model_router.py
+Description: Watch routing.yaml for changes using inotify/kqueue, validate schema, test probes, hot-reload routes, emit event to supervisor log, rollback on validation failure.
+
+### P1.5 - Config Schema Validation
+Files: money-machine/config/routing.schema.yaml
+Description: Create JSON Schema for routing.yaml: PURPOSE_ROUTES structure validation, provider allowlist enforcement, model format validation (:free suffix for external), local endpoint URL format.
+
+### P1.6 - Secret Rotation Framework
+Files: money-machine/secrets/rotate.py, money-machine/outreach/catalyx_send.py
+Description: Create rotation CLI for Gmail OAuth token: mm secret rotate gmail, mm secret status gmail, mm secret rotate --dry-run, stores in macOS Keychain with fallback to encrypted file, audit log entry on rotation.
+
+---
+
+## 4. UPGRADE PLAN - PHASE P2
+
+---
+
+## 5. IMPLEMENTATION SEQUENCE
+
+1. Create supervisor package skeleton (money-machine/supervisor/)
+2. Implement daemon.py + pid.py (PID lock, signal handlers)
+3. Wire mm run-pipeline --daemon in mm_operator.py
+4. Add retry/backoff to mm_model_router.py
+5. Run full suite - ensure no regressions
+6. Push to trial/hermes for validation
+
+---
+
+## 6. RISK REGISTER
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| Daemon PID lock contention | Medium | High | Atomic PID write, lock file cleanup on startup |
+| Log rotation race condition | Low | Medium | Atomic rename, verify before compress |
+| Config hot-reload breaks workers | Medium | High | Validation before reload, graceful drain |
+| Secret rotation breaks Gmail | Low | High | Dry-run mode, immediate rollback token |
+| Circuit breaker false positive | Low | Medium | Tunable threshold, half-open probe |
+| Log rotation loses events | Very Low | High | Atomic write, fsync, verify before delete |
+
+---
+
+## 6. SUCCESS CRITERIA
+
+| Metric | Target | Measurement |
+|--------|--------|-------------|
+| Daemon uptime | > 99.9% over 7 days | mm supervisor-status uptime |
+| Loop cycle latency | < 100ms p99 | Prometheus histogram |
+| Inference recovery time | < 30s after outage | mm_model_router probe logs |
+| Config reload latency | < 5s | Supervisor log timestamp |
+| Dead letter triage time | < 2 min | mm dead-letter show |
+| Secret rotation time | < 60s | mm secret rotate gmail |
+| Doc coverage | 100% commands | grep -r "mm " CONTINUITY_RUNBOOK.md |
+
+---
+
+## 7. FILE CREATION CHECKLIST
+
+### New Files to Create
+- money-machine/supervisor/__init__.py
+- money-machine/supervisor/daemon.py
+- money-machine/supervisor/pid.py
+- money-machine/supervisor/logrotate.py
+- money-machine/supervisor/logquery.py
+- money-machine/supervisor/configwatch.py
+- money-machine/supervisor/metrics.py
+- money-machine/supervisor/secret_scan.py
+- money-machine/supervisor/hotreload.py
+- money-machine/supervisor/__init__.py
+- money-machine/config/routing.schema.yaml
+- money-machine/secrets/rotate.py
+- reports/CONTINUITY_RUNBOOK.md
+- reports/INCIDENT_RESPONSE.md
+
+### Existing Files to Modify
+- money-machine/mm_pipeline.py - add daemon helpers, worker config
+- money-machine/mm_operator.py - add CLI commands
+- money-machine/mm_model_router.py - retry logic, cache, circuit breaker
+- money-machine/mm_pipeline.py - health endpoint, metrics
+- money-machine/mm_operator.py - new CLI subcommands
+- money-machine/mm_model_router.py - retry logic, cache, circuit breaker
+- money-machine/outreach/catalyx_send.py - secret rotation hook
+- money-machine/mm_core.py - migration version table
+
+---
+
+## 8. IMMEDIATE NEXT STEPS
+
+1. Create supervisor package skeleton (money-machine/supervisor/)
+2. Implement daemon.py + pid.py (PID lock, signal handlers)
+3. Wire mm run-pipeline --daemon in mm_operator.py
+4. Add retry/backoff to mm_model_router.py
+5. Run full suite - ensure no regressions
+6. Push to trial/hermes for validation
+
+---
+
+*End of Continuity Upgrade Plan*
