@@ -35,6 +35,8 @@ jobs:
         run: python -m pytest auditor_core/test_passive.py -q
       - name: Run crawl helper tests
         run: python -m pytest auditor_core/test_crawl.py -q
+      - name: Run asset verification tests
+        run: python -m pytest auditor_core/test_assets.py -q
       - name: Run action-engine tests
         run: python -m pytest website_auditor/test_actions.py -q
       - name: Smoke safe action CLI
