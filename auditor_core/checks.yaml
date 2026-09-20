@@ -336,6 +336,54 @@ checks:
     human_review: true
     patterns: ["^No DMARC record detected$"]
 
+  - id: ecommerce.product_schema_missing
+    name: Ecommerce product schema not detected
+    category: seo
+    severity: medium
+    standards: [Schema.org Product]
+    auto_fixable: true
+    evidence_required: [html]
+    default_priority: P3
+    confidence: 0.90
+    human_review: true
+    patterns: ["^Ecommerce product schema not detected$"]
+
+  - id: ecommerce.shipping_returns_unclear
+    name: Shipping or returns information not clearly detected
+    category: conversion
+    severity: medium
+    standards: []
+    auto_fixable: false
+    evidence_required: [html]
+    default_priority: P4
+    confidence: 0.75
+    human_review: true
+    patterns: ["^Shipping or returns information not clearly detected$"]
+
+  - id: ecommerce.gst_clarity_missing
+    name: GST pricing clarity not detected
+    category: conversion
+    severity: low
+    standards: []
+    auto_fixable: false
+    evidence_required: [html]
+    default_priority: P5
+    confidence: 0.75
+    human_review: true
+    patterns: ["^GST pricing clarity not detected$"]
+
+  - id: ecommerce.checkout_insecure
+    name: Insecure checkout or payment URL
+    category: security
+    severity: critical
+    standards: [OWASP Transport Layer Security]
+    auto_fixable: false
+    evidence_required: [html]
+    default_priority: P0
+    confidence: 0.99
+    human_review: true
+    patterns: ["^[0-9]+ insecure checkout/payment URL\\(s\\) detected$"]
+
   - id: technical.site_unreachable
     name: Site unreachable
     category: technical_health
