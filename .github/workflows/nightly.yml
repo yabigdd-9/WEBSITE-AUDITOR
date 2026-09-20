@@ -1,0 +1,35 @@
+name: Nightly Website Watchdog
+
+on:
+  schedule:
+    # Runs at 14:00 UTC every day (2:00 AM NZST / 3:00 AM NZDT)
+    - cron: '0 14 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  nightly-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install httpx beautifulsoup4 lxml
+
+      - name: Run Nightly Watchdog
+        run: python nightly_watchdog.py
+
+      - name: Commit new snapshots
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add outputs/snapshots/
+          git diff --staged --quiet || git commit -m "chore: update nightly snapshots [skip ci]"
+          git push

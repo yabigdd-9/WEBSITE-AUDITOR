@@ -17,6 +17,11 @@ Usage:
     python3 ultimate_auditor.py --batch prospects.csv [--concurrency 8]
     python3 ultimate_auditor.py --stealth <url>  # bypass bot protection
 """
+
+if __name__ == "__main__":
+    from auditor_toolkit.compat import legacy_main
+    raise SystemExit(legacy_main())
+
 import argparse, asyncio, json, re, sys, time, urllib.parse, hashlib
 from datetime import datetime, timezone, timedelta
 from pathlib import Path

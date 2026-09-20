@@ -18,9 +18,23 @@ dependencies = [
   "yarl>=1.25",
   "requests>=2.32",
   "pyyaml>=6",
+  "dnspython>=2.6,<3",
 ]
 
+[project.scripts]
+wa = "auditor_toolkit.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["auditor_toolkit*", "website_auditor*"]
+exclude = ["toolkit_tests*", "money-machine*", "deepseek-harness*"]
+
+[tool.setuptools.package-data]
+auditor_toolkit = ["assets/*.js", "assets/*.txt"]
+
 [project.optional-dependencies]
+browser = ["playwright>=1.51,<2"]
+portal = ["fastapi>=0.115,<1", "uvicorn>=0.30,<1", "argon2-cffi>=23,<26", "python-multipart>=0.0.18"]
+ai = ["llama-cpp-python>=0.3,<1"]
 dev = [
   "pytest>=8.3",
   "pytest-asyncio>=0.24",
@@ -42,8 +56,7 @@ known-first-party = ["integrations", "money-machine"]
 
 [tool.pytest.ini_options]
 testpaths = [
-  "integrations",
-  "money-machine",
+  "toolkit_tests",
 ]
 python_files = ["test_*.py"]
 addopts = "-ra --strict-markers"

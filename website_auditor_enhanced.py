@@ -32,6 +32,11 @@ Usage:
     python3 website_auditor_enhanced.py --competitor <url> --comp-urls url1,url2,url3
     python3 website_auditor_enhanced.py --trend <domain> [--months 6]
 """
+
+if __name__ == "__main__":
+    from auditor_toolkit.compat import legacy_main
+    raise SystemExit(legacy_main())
+
 import argparse, asyncio, json, re, sys, time, urllib.parse
 from datetime import datetime, timezone, timedelta
 from pathlib import Path

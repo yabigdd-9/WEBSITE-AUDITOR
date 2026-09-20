@@ -14,6 +14,11 @@ Usage:
 
 All checks use public data only. No login, no API keys required.
 """
+
+if __name__ == "__main__":
+    from auditor_toolkit.compat import legacy_main
+    raise SystemExit(legacy_main())
+
 import argparse, asyncio, json, re, sys, time, urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
