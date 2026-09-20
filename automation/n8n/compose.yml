@@ -2,7 +2,7 @@
 # MoneyMachine remains the source of truth. No Docker socket is exposed.
 services:
   n8n:
-    image: docker.io/n8nio/n8n:${N8N_VERSION:-latest}
+    image: docker.io/n8nio/n8n:${N8N_VERSION:-2.39.8}
     container_name: website-auditor-n8n
     restart: unless-stopped
     ports:
