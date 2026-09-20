@@ -28,6 +28,7 @@ from auditor_core import (
     normalize_defects,
     resolve_profile,
 )
+from auditor_core.network import NetworkSafetyError, SafeFetcher, robots_policy
 from auditor_core.registry import get_registry
 
 # ── config ──────────────────────────────────────────────────────────
@@ -59,30 +60,61 @@ def cache_set(key: str, data: Any, ttl: int = CACHE_TTL) -> None:
     p.write_text(json.dumps({"_ts": time.time(), "_data": data}, default=str))
 
 # ── async HTTP ──────────────────────────────────────────────────────
-async def fetch_html(session: httpx.AsyncClient, url: str) -> str:
-    key = f"html:{url}"
+async def fetch_page(session: httpx.AsyncClient, url: str) -> dict:
+    """Fetch a bounded public HTTP(S) page with redirect re-validation."""
+    key = f"safe-page:{url}"
     cached = cache_get(key)
-    if cached: return cached
+    if isinstance(cached, dict) and "text" in cached:
+        return cached
+
+    fetcher = SafeFetcher(
+        session,
+        timeout=TIMEOUT,
+        max_redirects=5,
+        max_body_bytes=5_000_000,
+        per_domain_concurrency=2,
+        delay_seconds=0.25,
+    )
     try:
-        r = await session.get(url, timeout=TIMEOUT, follow_redirects=True)
-        html = r.text
-        cache_set(key, html, ttl=3600)
-        return html
-    except Exception:
-        return ""
+        result = await fetcher.get_text(url)
+    except (httpx.HTTPError, NetworkSafetyError) as exc:
+        return {"error": str(exc), "text": "", "headers": {}, "status": None}
+
+    payload = result.to_dict()
+    cache_set(key, payload, ttl=3600)
+    return payload
+
+
+async def fetch_html(session: httpx.AsyncClient, url: str) -> str:
+    """Backward-compatible HTML helper using the safe fetcher."""
+    return str((await fetch_page(session, url)).get("text") or "")
+
 
 async def fetch_head(session: httpx.AsyncClient, url: str) -> dict:
-    key = f"head:{url}"
+    """Backward-compatible header helper using the safe fetcher."""
+    key = f"safe-head:{url}"
     cached = cache_get(key, ttl=1800)
-    if cached: return cached
+    if isinstance(cached, dict):
+        return cached
+
+    fetcher = SafeFetcher(
+        session,
+        timeout=TIMEOUT,
+        max_redirects=5,
+        max_body_bytes=64_000,
+        per_domain_concurrency=2,
+        delay_seconds=0.25,
+    )
     try:
-        r = await session.head(url, timeout=TIMEOUT, follow_redirects=True)
-        result = dict(r.headers)
-        result["status"] = r.status_code
-        cache_set(key, result, ttl=1800)
-        return result
-    except Exception:
+        result = await fetcher.head_status(url)
+    except (httpx.HTTPError, NetworkSafetyError):
         return {}
+    headers = dict(result.headers)
+    headers["status"] = result.status
+    headers["final_url"] = result.final_url
+    headers["redirect_chain"] = result.redirect_chain
+    cache_set(key, headers, ttl=1800)
+    return headers
 
 def _rendered_evidence_sync(url: str) -> dict:
     """Run the existing Playwright/Lighthouse/axe evidence engine when installed."""
@@ -317,18 +349,60 @@ async def audit_one(
     domain = domain_match.group(1) if domain_match else url
     print(f"  🔍 {domain}")
 
-    html, headers = await asyncio.gather(
-        fetch_html(session, url),
-        fetch_head(session, url),
-    )
-    if not html:
+    try:
+        robots = await robots_policy(session, url, user_agent=USER_AGENT, timeout=10)
+    except NetworkSafetyError as exc:
+        robots = {
+            "allowed": False,
+            "robots_url": None,
+            "reason": f"target blocked by network safety policy: {exc}",
+            "crawl_delay": None,
+        }
+
+    if not robots.get("allowed", True):
         result = {
             "url": url,
             "domain": domain,
-            "defects": [{"defect": "Site unreachable", "impact": "Cannot audit"}],
+            "defects": [],
+            "defect_count": 0,
+            "score": 0,
+            "evidence": {"robots": robots},
+            "meta": {},
+            "social": [],
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "audit_state": "skipped",
+            "skip_reason": robots.get("reason", "robots.txt disallowed audit"),
+        }
+        return finalize_audit_result(
+            result,
+            html="",
+            headers={},
+            profile=profile,
+            mode=mode,
+            schema_types=[],
+        )
+
+    page = await fetch_page(session, url)
+    html = str(page.get("text") or "")
+    headers = dict(page.get("headers") or {})
+    if page.get("status") is not None:
+        headers["status"] = page.get("status")
+
+    if not html:
+        reason = str(page.get("error") or "Cannot audit")
+        result = {
+            "url": url,
+            "domain": domain,
+            "defects": [{"defect": "Site unreachable", "impact": reason}],
             "defect_count": 1,
             "score": 100,
-            "evidence": {},
+            "evidence": {
+                "robots": robots,
+                "network": {
+                    "error": page.get("error"),
+                    "redirect_chain": page.get("redirect_chain", []),
+                },
+            },
             "meta": {},
             "social": [],
             "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -346,7 +420,16 @@ async def audit_one(
     body_text = trafilatura.extract(html, include_links=False, include_images=False) or ""
 
     defects = []
-    evidence = {}
+    evidence = {
+        "robots": robots,
+        "network": {
+            "requested_url": page.get("requested_url", url),
+            "final_url": page.get("final_url", url),
+            "status": page.get("status"),
+            "bytes_read": page.get("bytes_read", 0),
+            "redirect_chain": page.get("redirect_chain", []),
+        },
+    }
 
     # SSL
     ssl_info = check_ssl(domain)
@@ -413,29 +496,38 @@ async def audit_one(
     except Exception:
         pass
 
-    # Broken links (internal, sampled)
+    # Broken links (internal, sampled) — safe fetcher re-validates redirects.
     hrefs = re.findall(r'href=["\'](/[^"\']*|https?://[^"\']*)["\']', html, re.IGNORECASE)
+    final_base = str(page.get("final_url") or url)
+    parsed_base = urllib.parse.urlsplit(final_base)
+    base_domain = urllib.parse.urlunsplit((parsed_base.scheme, parsed_base.netloc, "", "", ""))
     internal = [h for h in hrefs if h.startswith("/") and len(h) > 1][:10]
-    base_m = re.match(r"(https?://[^/]+)", url)
-    base_domain = base_m.group(1) if base_m else ""
     broken = []
-    if base_domain:
-        sem = asyncio.Semaphore(5)
-        async def check_link(href):
-            async with sem:
-                full = base_domain + href
-                try:
-                    r = await session.head(full, timeout=8, follow_redirects=True)
-                    if r.status_code >= 400: broken.append({"url": full, "status": r.status_code})
-                except Exception:
-                    try:
-                        r = await session.get(full, timeout=8, follow_redirects=True)
-                        if r.status_code >= 400: broken.append({"url": full, "status": r.status_code})
-                    except Exception: pass
-        await asyncio.gather(*(check_link(h) for h in internal))
+    link_fetcher = SafeFetcher(
+        session,
+        timeout=8,
+        max_redirects=5,
+        max_body_bytes=64_000,
+        per_domain_concurrency=2,
+        delay_seconds=max(0.25, float(robots.get("crawl_delay") or 0)),
+    )
+
+    async def check_link(href):
+        full = urllib.parse.urljoin(base_domain + "/", href)
+        try:
+            link_robots = await robots_policy(session, full, user_agent=USER_AGENT, timeout=8)
+            if not link_robots.get("allowed", True):
+                return
+            response = await link_fetcher.head_status(full)
+            if response.status >= 400:
+                broken.append({"url": full, "status": response.status})
+        except (httpx.HTTPError, NetworkSafetyError):
+            return
+
+    await asyncio.gather(*(check_link(h) for h in internal))
     if broken:
         defects.append({"defect": f"{len(broken)} broken link(s)", "impact": "Frustrates visitors; wastes crawl budget"})
-        evidence["broken_links"] = len(broken)
+        evidence["broken_links"] = broken
 
     score = score_defects(defects)
 
