@@ -18,6 +18,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip uv
           uv pip install --system -r requirements.txt
+      - name: Compile evidence-first P0 surfaces
+        run: |
+          python -m py_compile website_auditor.py remediation-engine.py audit-dashboard.py audit/merge_audit.py
+          python -m compileall -q auditor_core
       - name: Run auditor core tests
         run: python -m pytest auditor_core/test_core.py -q
       - name: Run tier1 tests
