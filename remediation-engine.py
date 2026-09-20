@@ -17,6 +17,7 @@ import argparse, json, os, re, shlex, sys
 from pathlib import Path
 from datetime import datetime
 
+from auditor_core.bundles import build_fix_bundles, bundles_markdown
 from auditor_core.quick_wins import quick_wins_markdown, rank_quick_wins
 from auditor_core.remediation import initial_remediation
 from auditor_core.verification import compare_audits
@@ -429,8 +430,15 @@ def run_single(audit_path, output_dir=None):
         quick_json.write_text(json.dumps(quick_wins, indent=2, default=str))
         quick_md.write_text(quick_wins_markdown(quick_wins))
 
+        bundles = build_fix_bundles(remediation)
+        bundle_json = out_dir / f"{safe}-fix-bundles.json"
+        bundle_md = out_dir / f"{safe}-fix-bundles.md"
+        bundle_json.write_text(json.dumps(bundles, indent=2, default=str))
+        bundle_md.write_text(bundles_markdown(bundles))
+
         print(f"     💾 Saved: {out_file}")
         print(f"     ⚡ Quick wins: {quick_md}")
+        print(f"     📦 Fix bundles: {bundle_md}")
 
     return remediation
 
