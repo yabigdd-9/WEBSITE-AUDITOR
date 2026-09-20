@@ -244,8 +244,8 @@ class BridgeHandler(http.server.BaseHTTPRequestHandler):
             self._error(403, str(exc), request_id)
         except (ValueError, json.JSONDecodeError) as exc:
             self._error(422, str(exc), request_id)
-        except Exception as exc:
-            self._error(500, f"internal error: {exc}", request_id)
+        except Exception:
+            self._error(500, "internal error", request_id)
 
     def do_GET(self):
         self._serve("GET")
