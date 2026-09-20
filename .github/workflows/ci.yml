@@ -51,6 +51,8 @@ jobs:
         run: python -m pytest website_auditor/test_actions.py -q
       - name: Run outreach suppression tests
         run: python -m pytest website_auditor/test_suppression.py -q
+      - name: Run campaign simulation tests
+        run: python -m pytest website_auditor/test_campaign.py -q
       - name: Smoke safe action CLI
         run: |
           python -m website_auditor.cli --output-dir /tmp/wa-actions actions init
