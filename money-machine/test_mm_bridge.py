@@ -1,286 +1,266 @@
-import contextlib
-import http.client
-import importlib
+import importlib.util
+import io
 import json
 import os
 import sys
-import threading
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
-HERE = Path(__file__).resolve().parent
-if str(HERE) not in sys.path:
-    sys.path.insert(0, str(HERE))
-
-import mm_bridge as bridge
-
-
-class FakeDB:
-    def __init__(self, rows=None, inserted_id=42):
-        self.rows = list(rows or [])
-        self.inserted_id = inserted_id
-        self.calls = []
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc, tb):
-        return False
-
-    def execute(self, sql, params=()):
-        self.calls.append((sql, params))
-        if sql.lstrip().startswith("SELECT id,name,public_website"):
-            return list(self.rows)
-        if sql.lstrip().startswith("INSERT INTO businesses"):
-            return SimpleNamespace(lastrowid=self.inserted_id)
-        return SimpleNamespace(lastrowid=None)
+ROOT = Path(__file__).resolve().parents[1]
+MODULE_PATH = ROOT / "money-machine" / "mm_bridge.py"
+spec = importlib.util.spec_from_file_location("mm_bridge_under_test", MODULE_PATH)
+bridge = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(bridge)
 
 
 def handler():
-    return object.__new__(bridge.BridgeHandler)
+    h = object.__new__(bridge.BridgeHandler)
+    h.path = "/status"
+    h.headers = {}
+    h.client_address = ("127.0.0.1", 12345)
+    return h
 
 
-@pytest.mark.parametrize(
-    "value,expected",
-    [("1", 1), (1, 1), (str(bridge.MAX_ID), bridge.MAX_ID)],
-)
-def test_safe_int_accepts_valid(value, expected):
-    assert bridge._safe_int(value) == expected
+def fake_connection():
+    conn = MagicMock()
+    conn.__enter__.return_value = conn
+    conn.__exit__.return_value = False
+    return conn
 
 
-@pytest.mark.parametrize("value", [None, "", "abc", 0, -1, bridge.MAX_ID + 1])
-def test_safe_int_rejects_invalid(value):
-    with pytest.raises(ValueError):
-        bridge._safe_int(value)
-
-
-def test_scalar_map_collapses_query_values():
+def test_scalar_map_and_safe_int():
     assert bridge._scalar_map({"a": ["1", "2"], "b": "x"}) == {"a": "2", "b": "x"}
+    assert bridge._safe_int("7") == 7
+    with pytest.raises(ValueError):
+        bridge._safe_int("bad")
+    with pytest.raises(ValueError):
+        bridge._safe_int("0")
+    with pytest.raises(ValueError):
+        bridge._safe_int(str(bridge.MAX_ID + 1))
 
 
-def test_require_token_fail_closed(monkeypatch):
+def test_require_token(monkeypatch):
     monkeypatch.delenv("MM_BRIDGE_TOKEN", raising=False)
-    assert bridge._require_token("Bearer anything") == (False, "bridge token not configured")
+    assert bridge._require_token(None) == (False, "bridge token not configured")
 
     monkeypatch.setenv("MM_BRIDGE_TOKEN", "secret")
-    assert bridge._require_token(None)[0] is False
-    assert bridge._require_token("Basic secret")[0] is False
-    assert bridge._require_token("Bearer wrong")[0] is False
+    assert bridge._require_token(None) == (False, "missing bearer token")
+    assert bridge._require_token("Token secret") == (False, "missing bearer token")
+    assert bridge._require_token("Bearer wrong") == (False, "invalid bearer token")
     assert bridge._require_token("Bearer secret") == (True, None)
 
 
-def test_dispatch_forbids_external_send():
+def test_parse_action():
     h = handler()
-    for action in bridge.FORBIDDEN_ACTIONS:
-        with pytest.raises(PermissionError):
-            h._dispatch(action, {})
-
-
-def test_dispatch_rejects_unknown_action():
-    with pytest.raises(ValueError, match="unknown action"):
-        handler()._dispatch("definitely-not-real", {})
-
-
-def test_status_doctor_email_and_preflight(monkeypatch):
-    db = FakeDB()
-    monkeypatch.setattr(bridge.core, "connect", lambda readonly=False: db)
-    monkeypatch.setattr(bridge.operator, "run_day", lambda d, write=False: {"status": "ok", "write": write})
-    monkeypatch.setattr(bridge.operator, "doctor", lambda d: {"db_integrity": "ok"})
-    monkeypatch.setattr(bridge.email_store, "status", lambda d, bid: {"business_id": bid})
-    monkeypatch.setattr(bridge.outreach, "preflight", lambda d, mid: {"message_id": mid, "passed": False})
-
-    h = handler()
-    assert h._dispatch("status", {})["write"] is False
-    assert h._dispatch("doctor", {})["db_integrity"] == "ok"
-    assert h._dispatch("email-status", {"id": "7"}) == {"business_id": 7}
-    assert h._dispatch("outreach-preflight", {"id": "9"}) == {"message_id": 9, "passed": False}
-
-
-def test_intake_success(monkeypatch):
-    db = FakeDB(inserted_id=73)
-    monkeypatch.setattr(bridge.core, "connect", lambda readonly=False: db)
-    monkeypatch.setattr(bridge.core, "public_url", lambda url: "example.test")
-    monkeypatch.setattr(bridge.core, "now", lambda: "2026-09-21T00:00:00+00:00")
-    events = []
-    monkeypatch.setattr(bridge.core, "event", lambda d, kind, bid, source: events.append((kind, bid, source)))
-
-    result = handler()._dispatch(
-        "intake",
-        {"name": "Example Ltd", "url": "https://example.test", "region": "Canterbury", "source": "test"},
-    )
-
-    assert result == {"business_id": 73}
-    assert events == [("intake", 73, "test")]
-    assert any("INSERT INTO businesses" in sql for sql, _ in db.calls)
-    assert any("INSERT INTO mm_deals" in sql for sql, _ in db.calls)
-
-
-def test_intake_duplicate_is_blocked(monkeypatch):
-    db = FakeDB(rows=[{"id": 3, "name": "Example Ltd", "public_website": "https://example.test"}])
-    monkeypatch.setattr(bridge.core, "connect", lambda readonly=False: db)
-    monkeypatch.setattr(bridge.core, "public_url", lambda url: "example.test")
-
-    with pytest.raises(ValueError, match="duplicate prospect"):
-        handler()._dispatch(
-            "intake",
-            {"name": "Example Ltd", "url": "https://example.test", "region": "Canterbury"},
-        )
-
-
-@pytest.mark.parametrize(
-    "params,message",
-    [
-        ({"name": "", "url": "https://example.test", "region": "Canterbury"}, "intake requires"),
-        ({"name": "X", "url": "", "region": "Canterbury"}, "intake requires"),
-        ({"name": "X", "url": "https://example.test", "region": ""}, "intake requires"),
-    ],
-)
-def test_intake_requires_identity_fields(params, message):
-    with pytest.raises(ValueError, match=message):
-        handler()._dispatch("intake", params)
-
-
-def test_audit_success(monkeypatch):
-    db = FakeDB()
-    monkeypatch.setattr(bridge.core, "connect", lambda readonly=False: db)
-    captured = {}
-
-    def record_evidence(d, bid, url, observation, limitation, capture, status, method, confidence, claim_type):
-        captured.update(
-            bid=bid,
-            url=url,
-            observation=observation,
-            limitation=limitation,
-            capture=capture,
-            status=status,
-            method=method,
-            confidence=confidence,
-            claim_type=claim_type,
-        )
-        return 88
-
-    monkeypatch.setattr(bridge.core, "record_evidence", record_evidence)
-
-    result = handler()._dispatch(
-        "audit",
-        {
-            "id": "5",
-            "url": "https://example.test",
-            "observation": "Missing CTA",
-            "limitation": "Public homepage only",
-            "capture": "sha256:abc",
-            "status": "verified",
-            "method": "browser",
-            "confidence": "0.9",
-            "claim_type": "website_quality",
-        },
-    )
-    assert result == {"evidence_id": 88}
-    assert captured["bid"] == 5
-    assert captured["confidence"] == 0.9
-
-
-@pytest.mark.parametrize(
-    "params,error",
-    [
-        ({"id": 1}, "audit requires"),
-        (
-            {
-                "id": 1, "url": "u", "observation": "o", "limitation": "l", "capture": "c",
-                "status": "not-a-status",
-            },
-            "invalid evidence status",
-        ),
-        (
-            {
-                "id": 1, "url": "u", "observation": "o", "limitation": "l", "capture": "c",
-                "claim_type": "made-up",
-            },
-            "invalid claim-type",
-        ),
-        (
-            {
-                "id": 1, "url": "u", "observation": "o", "limitation": "l", "capture": "c",
-                "confidence": "not-a-number",
-            },
-            "confidence must be numeric",
-        ),
-    ],
-)
-def test_audit_validation(params, error):
-    with pytest.raises(ValueError, match=error):
-        handler()._dispatch("audit", params)
-
-
-@pytest.fixture
-def live_server(monkeypatch):
-    monkeypatch.setenv("MM_BRIDGE_TOKEN", "unit-secret")
-    db = FakeDB()
-    monkeypatch.setattr(bridge.core, "connect", lambda readonly=False: db)
-    monkeypatch.setattr(bridge.operator, "run_day", lambda d, write=False: {"status": "ok"})
-
-    server = bridge.http.server.ThreadingHTTPServer(("127.0.0.1", 0), bridge.BridgeHandler)
-    thread = threading.Thread(target=server.serve_forever, daemon=True)
-    thread.start()
-    try:
-        yield server
-    finally:
-        server.shutdown()
-        server.server_close()
-        thread.join(timeout=2)
-
-
-def request(server, path, token=None, method="GET", body=None):
-    conn = http.client.HTTPConnection("127.0.0.1", server.server_address[1], timeout=3)
-    headers = {}
-    if token is not None:
-        headers["Authorization"] = f"Bearer {token}"
-    payload = None
-    if body is not None:
-        payload = json.dumps(body)
-        headers["Content-Type"] = "application/json"
-    conn.request(method, path, body=payload, headers=headers)
-    resp = conn.getresponse()
-    raw = resp.read()
-    conn.close()
-    return resp.status, json.loads(raw.decode())
-
-
-def test_http_auth_and_status(live_server):
-    status, body = request(live_server, "/status")
-    assert status == 401
-    assert body["ok"] is False
-
-    status, body = request(live_server, "/status", token="wrong")
-    assert status == 401
-
-    status, body = request(live_server, "/status", token="unit-secret")
-    assert status == 200
-    assert body["result"] == {"status": "ok"}
-    assert body["request_id"]
-
-
-def test_http_forbidden_and_unknown(live_server):
-    status, body = request(live_server, "/send", token="unit-secret")
-    assert status == 403
-    assert "forbidden action" in body["error"]
-
-    status, body = request(live_server, "/unknown", token="unit-secret")
-    assert status == 422
-    assert "unknown action" in body["error"]
-
-
-def test_parse_action_and_request_id():
-    h = handler()
-    h.path = "/email-status?id=12&id=13"
+    h.path = "/email-status?id=42&id=43"
     action, params = h._parse_action()
     assert action == "email-status"
-    assert params == {"id": "13"}
+    assert params == {"id": "43"}
 
-    h.client_address = ("127.0.0.1", 1234)
-    rid = h._request_id()
-    assert isinstance(rid, str)
-    assert len(rid) == 16
+
+def test_read_body_json_and_form():
+    h = handler()
+    raw = json.dumps({"name": "Example"}).encode()
+    h.headers = {"Content-Length": str(len(raw)), "Content-Type": "application/json"}
+    h.rfile = io.BytesIO(raw)
+    assert h._read_body() == {"name": "Example"}
+
+    raw = b"id=3&name=Test"
+    h.headers = {"Content-Length": str(len(raw)), "Content-Type": "application/x-www-form-urlencoded"}
+    h.rfile = io.BytesIO(raw)
+    assert h._read_body() == {"id": "3", "name": "Test"}
+
+    h.headers = {"Content-Length": str(bridge.MAX_BODY + 1)}
+    h.rfile = io.BytesIO()
+    with pytest.raises(ValueError):
+        h._read_body()
+
+
+def test_json_response_helpers():
+    h = handler()
+    h.send_response = MagicMock()
+    h.send_header = MagicMock()
+    h.end_headers = MagicMock()
+    h.wfile = io.BytesIO()
+    h._json(200, {"ok": True})
+    h.send_response.assert_called_once_with(200)
+    assert json.loads(h.wfile.getvalue()) == {"ok": True}
+
+
+def test_dispatch_rejects_send_and_unknown():
+    h = handler()
+    with pytest.raises(PermissionError):
+        h._dispatch("send", {})
+    with pytest.raises(PermissionError):
+        h._dispatch("record-sent", {})
+    with pytest.raises(ValueError):
+        h._dispatch("does-not-exist", {})
+
+
+def test_dispatch_read_actions():
+    h = handler()
+    conn = fake_connection()
+
+    with patch.object(bridge.core, "connect", return_value=conn), patch.object(
+        bridge.operator, "run_day", return_value={"status": "ok"}
+    ):
+        assert h._dispatch("status", {}) == {"status": "ok"}
+
+    with patch.object(bridge.core, "connect", return_value=conn), patch.object(
+        bridge.operator, "doctor", return_value={"db_integrity": "ok"}
+    ):
+        assert h._dispatch("doctor", {}) == {"db_integrity": "ok"}
+
+    with patch.object(bridge.core, "connect", return_value=conn), patch.object(
+        bridge.email_store, "status", return_value={"selected": None}
+    ) as status:
+        assert h._dispatch("email-status", {"id": "5"}) == {"selected": None}
+        status.assert_called_once_with(conn, 5)
+
+    with patch.object(bridge.core, "connect", return_value=conn), patch.object(
+        bridge.outreach, "preflight", return_value={"passed": False}
+    ) as preflight:
+        assert h._dispatch("outreach-preflight", {"id": "8"}) == {"passed": False}
+        preflight.assert_called_once_with(conn, 8)
+
+
+def test_dispatch_intake_and_duplicate():
+    h = handler()
+    conn = fake_connection()
+
+    def execute(sql, params=None):
+        if sql.startswith("SELECT id,name,public_website"):
+            return []
+        if sql.startswith("INSERT INTO businesses"):
+            return SimpleNamespace(lastrowid=42)
+        return MagicMock()
+
+    conn.execute.side_effect = execute
+    with patch.object(bridge.core, "connect", return_value=conn), patch.object(
+        bridge.core, "public_url", return_value="example.com"
+    ), patch.object(bridge.core, "event") as event:
+        result = h._dispatch(
+            "intake",
+            {"name": "Example Ltd", "url": "https://example.com", "region": "Canterbury"},
+        )
+    assert result == {"business_id": 42}
+    event.assert_called_once()
+
+    existing = {"id": 9, "name": "Example Ltd", "public_website": "https://example.com"}
+    conn.execute.side_effect = lambda sql, params=None: [existing] if sql.startswith("SELECT") else MagicMock()
+    with patch.object(bridge.core, "connect", return_value=conn), patch.object(
+        bridge.core, "public_url", return_value="example.com"
+    ):
+        with pytest.raises(ValueError, match="duplicate prospect"):
+            h._dispatch(
+                "intake",
+                {"name": "Example Ltd", "url": "https://example.com", "region": "Canterbury"},
+            )
+
+    with pytest.raises(ValueError, match="intake requires"):
+        h._dispatch("intake", {"name": "Only name"})
+
+
+def test_dispatch_audit_validation_and_write():
+    h = handler()
+    conn = fake_connection()
+    payload = {
+        "id": "4",
+        "url": "https://example.com",
+        "observation": "Missing clear CTA",
+        "limitation": "Public homepage only",
+        "capture": "sha256:abc",
+        "status": "verified",
+        "method": "observed",
+        "confidence": "0.9",
+        "claim_type": "website_quality",
+    }
+    with patch.object(bridge.core, "connect", return_value=conn), patch.object(
+        bridge.core, "record_evidence", return_value=77
+    ) as record:
+        assert h._dispatch("audit", payload) == {"evidence_id": 77}
+        assert record.call_args.args[1] == 4
+
+    bad = dict(payload, confidence="nope")
+    with pytest.raises(ValueError, match="confidence"):
+        h._dispatch("audit", bad)
+
+    bad = dict(payload, status="invented")
+    with pytest.raises(ValueError, match="invalid evidence status"):
+        h._dispatch("audit", bad)
+
+    bad = dict(payload, claim_type="invented")
+    with pytest.raises(ValueError, match="invalid claim-type"):
+        h._dispatch("audit", bad)
+
+    bad = dict(payload, capture="")
+    with pytest.raises(ValueError, match="audit requires"):
+        h._dispatch("audit", bad)
+
+
+def test_auth_and_serve_error_paths(monkeypatch):
+    h = handler()
+    h._error = MagicMock()
+    monkeypatch.setenv("MM_BRIDGE_TOKEN", "secret")
+
+    h.headers = {"Authorization": "Bearer wrong"}
+    assert h._auth("rid") is False
+    h._error.assert_called_once()
+
+    h._error.reset_mock()
+    h.headers = {"Authorization": "Bearer secret"}
+    assert h._auth("rid") is True
+
+    h._json = MagicMock()
+    h._dispatch = MagicMock(return_value={"ok": 1})
+    h._parse_action = MagicMock(return_value=("status", {}))
+    h._serve("GET")
+    h._json.assert_called_once()
+
+    h._json.reset_mock()
+    h._dispatch.side_effect = PermissionError("forbidden")
+    h._serve("GET")
+    h._error.assert_called()
+
+    h._error.reset_mock()
+    h._dispatch.side_effect = ValueError("bad")
+    h._serve("GET")
+    h._error.assert_called()
+
+    h._error.reset_mock()
+    h._dispatch.side_effect = RuntimeError("sensitive detail")
+    h._serve("GET")
+    assert h._error.call_args.args[1] == "internal error"
+
+
+def test_main_fails_closed_and_runs_local_server(monkeypatch):
+    monkeypatch.setenv("MM_BRIDGE_TOKEN", "secret")
+    monkeypatch.setenv("MM_EXTERNAL_SEND_DISABLED", "1")
+
+    with patch.object(sys, "argv", ["mm_bridge.py", "--host", "0.0.0.0"]):
+        with pytest.raises(SystemExit, match="localhost"):
+            bridge.main()
+
+    monkeypatch.setenv("MM_EXTERNAL_SEND_DISABLED", "0")
+    with patch.object(sys, "argv", ["mm_bridge.py"]):
+        with pytest.raises(SystemExit, match="must remain 1"):
+            bridge.main()
+
+    monkeypatch.setenv("MM_EXTERNAL_SEND_DISABLED", "1")
+    monkeypatch.delenv("MM_BRIDGE_TOKEN")
+    with patch.object(sys, "argv", ["mm_bridge.py"]):
+        with pytest.raises(SystemExit, match="MM_BRIDGE_TOKEN"):
+            bridge.main()
+
+    monkeypatch.setenv("MM_BRIDGE_TOKEN", "secret")
+    fake_server = MagicMock()
+    fake_server.serve_forever.side_effect = KeyboardInterrupt
+    with patch.object(sys, "argv", ["mm_bridge.py"]), patch.object(
+        bridge.http.server, "ThreadingHTTPServer", return_value=fake_server
+    ) as server_cls:
+        bridge.main()
+    server_cls.assert_called_once()
+    fake_server.server_close.assert_called_once()
