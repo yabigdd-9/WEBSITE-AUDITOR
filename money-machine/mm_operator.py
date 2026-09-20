@@ -211,6 +211,16 @@ def main(argv=None):
             q.add_argument('--max-backoff',type=float,default=60)
         if cmd=='supervisor-logs':
             q.add_argument('--lines',type=int,default=80)
+    q=s.add_parser('supervisor-install')
+    q.add_argument('--no-load',action='store_true')
+    q.add_argument('--sleep',type=float,default=60)
+    q.add_argument('--report-every',type=int,default=10)
+    q.add_argument('--lease',type=int,default=300)
+    q.add_argument('--heartbeat',type=float,default=5)
+    q.add_argument('--max-backoff',type=float,default=60)
+    s.add_parser('supervisor-launchd-status')
+    q=s.add_parser('supervisor-uninstall')
+    q.add_argument('--keep-plist',action='store_true')
     a=p.parse_args(argv)
     if a.cmd=='polish-status':
         report=json.loads((root()/'reports/polish-status.json').read_text())
@@ -239,6 +249,23 @@ def main(argv=None):
                 d.executescript((Path(__file__).resolve().parents[1]/'migrations/003_email_finder_v2_rollback.sql').read_text())
                 result={'mode':'v1_hold','history_retained':True,'new_approvals_held':True,'external_sends':0}
         print(email_cli.human_text(result) if a.cmd in ('email-status','email-find') and not a.json else json.dumps(result,indent=2))
+        return 0
+    if a.cmd in ('supervisor-install','supervisor-launchd-status','supervisor-uninstall'):
+        from supervisor import launchd as supervisor_launchd
+        if a.cmd=='supervisor-install':
+            result=supervisor_launchd.install(
+                load=not a.no_load,
+                sleep=a.sleep,
+                heartbeat=a.heartbeat,
+                lease=a.lease,
+                report_every=a.report_every,
+                max_backoff=a.max_backoff,
+            )
+        elif a.cmd=='supervisor-launchd-status':
+            result=supervisor_launchd.status()
+        else:
+            result=supervisor_launchd.uninstall(remove=not a.keep_plist)
+        print(json.dumps(result,indent=2,default=str))
         return 0
     if a.cmd.startswith('supervisor-'):
         import supervisor.service as supervisor_service
