@@ -29,6 +29,7 @@ from auditor_core import (
     resolve_profile,
 )
 import auditor_core.builtin_plugins  # noqa: F401
+from auditor_core.assets import audit_image_urls, discover_image_urls
 from auditor_core.check_plugins import AuditCheckContext, run_plugins
 from auditor_core.crawl import discover_internal_links, merge_site_findings
 from auditor_core.network import NetworkSafetyError, SafeFetcher, ensure_public_url, robots_policy
@@ -597,8 +598,19 @@ async def audit_one(
     except Exception:
         pass
 
-    # Discover same-origin links for optional multi-page crawl and sample broken links.
+    # Bounded broken-image verification.
     final_base = str(page.get("final_url") or url)
+    image_urls = discover_image_urls(html, final_base, limit=30)
+    image_defects, image_evidence = await audit_image_urls(
+        session,
+        image_urls,
+        user_agent=USER_AGENT,
+        sample_limit=12,
+    )
+    defects.extend(image_defects)
+    evidence["image_url_checks"] = image_evidence
+
+    # Discover same-origin links for optional multi-page crawl and sample broken links.
     internal_links = discover_internal_links(html, final_base, limit=100)
     evidence["internal_links"] = internal_links
     internal = internal_links[:10]
