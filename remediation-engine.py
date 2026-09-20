@@ -13,7 +13,7 @@ Generates:
   - Cost/time estimates for each fix
 """
 
-import argparse, json, os, re, sys
+import argparse, json, os, re, shlex, sys
 from pathlib import Path
 from datetime import datetime
 
@@ -331,7 +331,11 @@ def generate_remediation(audit_data):
         state = item.get("remediation")
         if not isinstance(state, dict):
             state = initial_remediation(
-                verification_command=f"python website_auditor.py https://{domain} --format json"
+                verification_command=(
+                    "python website_auditor.py "
+                    + shlex.quote(f"https://{domain}")
+                    + " --format json"
+                )
             )
         actions.append({
             "check_id": check_id or "legacy.unclassified",
