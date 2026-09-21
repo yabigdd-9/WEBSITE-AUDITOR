@@ -35,6 +35,16 @@ auditor_toolkit/verify.py
 auditor_toolkit/assets/axe-LICENSE.txt
 auditor_toolkit/assets/axe-provenance.txt
 auditor_toolkit/assets/axe.min.js
+tests/test_acceptance.py
+tests/test_dsh_harness_bridge.py
+tests/test_email_finder.py
+tests/test_email_hardening.py
+tests/test_email_integration.py
+tests/test_lead_qualifier.py
+tests/test_outreach.py
+tests/test_pipeline.py
+tests/test_pipeline_loop.py
+tests/test_polish.py
 website_auditor/__init__.py
 website_auditor/control_center.py
 website_auditor/models.py

@@ -4,10 +4,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 class Watchdog:
-    def __init__(self, snapshot_dir="outputs/snapshots"):
-        self.snapshot_dir = Path(snapshot_dir)
+    def __init__(self, output_root=None, snapshot_dir=None, webhook_url=None):
+        if snapshot_dir is not None:
+            self.snapshot_dir = Path(snapshot_dir)
+        elif output_root is not None:
+            self.snapshot_dir = Path(output_root) / "snapshots"
+        else:
+            self.snapshot_dir = Path("outputs/snapshots")
         self.snapshot_dir.mkdir(parents=True, exist_ok=True)
-        self.webhook_url = os.getenv("ALERT_WEBHOOK_URL", "")
+        self.webhook_url = webhook_url or os.getenv("ALERT_WEBHOOK_URL", "")
 
     def take_snapshot(self, domain, defects):
         ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")

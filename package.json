@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "test": "python -m pytest toolkit_tests -x",
+    "test:verbose": "python -m pytest toolkit_tests/ -v",
+    "test:p4": "python -m pytest toolkit_tests/test_p4_hygiene.py::test_pipeline_includes_hygiene_ux_and_links -v"
+  },
+  "dependencies": {
+    "odiff-bin": "^4.5.0",
+    "pixelmatch": "^7.2.0"
+  }
+}

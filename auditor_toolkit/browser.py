@@ -91,9 +91,37 @@ def run_browser_checks(url, output_dir, enabled=True, allow_private=False, axe_p
         return {"status": "error", "reason": str(exc), "evidence": evidence}
 
 
-def export_pdf(html_path, pdf_path):
-    from playwright.sync_api import sync_playwright
+def export_pdf(html_path, pdf_path, opts=None):
+    use_gotenberg = False
+    gotenberg_url = "http://localhost:3000"
+    if opts is not None:
+        use_gotenberg = getattr(opts, 'use_gotenberg', False)
+        # Allow overriding via environment variable
+        import os
+        gotenberg_url = os.getenv("GOTENBERG_URL", gotenberg_url)
 
+    if use_gotenberg:
+        try:
+            import requests
+            # Read the HTML file
+            html_content = Path(html_path).read_text()
+            # Send to Gotenberg
+            response = requests.post(
+                f"{gotenberg_url}/forms/html",
+                files={"index.html": ("index.html", html_content, "text/html")},
+                data={"margin": "0.5in"},  # optional
+                timeout=30,
+            )
+            response.raise_for_status()
+            # Write the PDF
+            Path(pdf_path).write_bytes(response.content)
+            return
+        except Exception as e:
+            # Fall back to Playwright if Gotenberg fails
+            pass
+
+    # Fallback to Playwright method
+    from playwright.sync_api import sync_playwright
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         try:

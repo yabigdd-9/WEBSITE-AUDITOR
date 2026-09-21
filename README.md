@@ -21,7 +21,8 @@ Python 3.11 is the supported runtime.
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install -e '.[portal,dev]'
+python -m pip install -e '.[dev,browser,portal]'
+npm install
 ```
 
 Run a deterministic audit:
