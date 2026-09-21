@@ -48,6 +48,24 @@ def validate_url(url, allow_private=False):
     return urlunparse(parts._replace(fragment=""))
 
 
+
+def workspace_path(value, *, must_exist=False, file_only=False, root=None):
+    """Resolve an operator path beneath a trusted workspace root.
+
+    Existing symlink components are resolved before the containment check, so a
+    workspace symlink cannot be used to escape the allowed tree.
+    """
+    base = Path(root or Path.cwd()).resolve()
+    raw = Path(value)
+    candidate = (raw if raw.is_absolute() else base / raw).resolve()
+    if not candidate.is_relative_to(base):
+        raise ValueError("Path must remain inside the current workspace")
+    if must_exist and not candidate.exists():
+        raise ValueError("Required workspace path does not exist")
+    if file_only and (not candidate.is_file()):
+        raise ValueError("Required workspace file does not exist")
+    return candidate
+
 def public_headers(headers):
     allowed = {
         "content-type",
