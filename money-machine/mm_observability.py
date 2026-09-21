@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import contextlib
 import json
+import os
 from pathlib import Path
 
 import mm_core as core
@@ -124,6 +125,14 @@ def errors(limit=100) -> dict:
     return {"generated_at": core.now(), "errors": records, "count": len(records)}
 
 
+def _append_jsonl(path: Path, value: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "a", encoding="utf-8") as handle:
+        handle.write(json.dumps(value, sort_keys=True, default=str) + "\n")
+        handle.flush()
+        os.fsync(handle.fileno())
+
+
 def write_snapshots() -> dict:
     from auditor_toolkit.common import atomic_write_json
 
@@ -133,12 +142,11 @@ def write_snapshots() -> dict:
     metrics_doc = metrics()
     errors_doc = errors()
     atomic_write_json(state / "health.json", health_doc)
-    # Current snapshots are JSON; append-only runtime logs remain in worker-logs.
-    atomic_write_json(state / "metrics.json", metrics_doc)
-    atomic_write_json(state / "errors.json", errors_doc)
+    _append_jsonl(state / "metrics.jsonl", metrics_doc)
+    _append_jsonl(state / "errors.jsonl", errors_doc)
     return {
         "health": str(state / "health.json"),
-        "metrics": str(state / "metrics.json"),
-        "errors": str(state / "errors.json"),
+        "metrics": str(state / "metrics.jsonl"),
+        "errors": str(state / "errors.jsonl"),
         "database_mutations": 0,
     }
