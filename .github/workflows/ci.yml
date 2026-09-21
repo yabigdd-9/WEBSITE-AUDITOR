@@ -33,5 +33,5 @@ jobs:
         run: |
           python -m pip install --upgrade pip uv
           uv pip install --system -r requirements.txt
-      - name: Smoke audit
-        run: python website_auditor.py https://example.com --format json -o /tmp/smoke.json
+      - name: Smoke canonical auditor
+        run: python -m auditor_toolkit.cli audit https://example.com --output-root /tmp/wa-smoke --no-tls
