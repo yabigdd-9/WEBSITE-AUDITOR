@@ -16,14 +16,10 @@ def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _bind(label: str, obj: dict, path: str | None = None) -> dict:
+def _bind(label: str, obj: dict) -> dict:
+    """Bind only the supplied manifest object; never follow manifest-provided paths."""
     encoded = json.dumps(obj, sort_keys=True, separators=(",", ":"), default=str).encode()
-    result = {"kind": label, "sha256": hashlib.sha256(encoded).hexdigest()}
-    if path:
-        p = Path(path)
-        if p.is_file():
-            result.update(path=str(p), file_sha256=_sha(p))
-    return result
+    return {"kind": label, "sha256": hashlib.sha256(encoded).hexdigest()}
 
 
 def _draft(report: dict, quote: dict) -> str:
@@ -119,7 +115,7 @@ def build_packet(
         "evidence": [
             _bind("audit", report),
             _bind("remediation", remediation),
-            _bind("demo", demo, demo.get("demo_html")),
+            _bind("demo", demo),
             _bind("quote", quote),
         ],
         "draft_message_path": str(output / "draft-message.txt"),
