@@ -134,7 +134,7 @@ def create_app(root, session_seconds=3600):
             for r in history.list(q)
         )
         return (
-            '<h1>Website Auditor</h1><form><label>Search sites <input name="q" value="'
+            '<h1>Website Auditor</h1><p><a href="/monthly">Monthly report drafts</a></p><form><label>Search sites <input name="q" value="'
             + html.escape(q, quote=True)
             + '"></label><button>Search</button></form><table><thead><tr>'
             "<th>Site</th><th>Status</th><th>Health</th><th>Report</th></tr></thead><tbody>"
@@ -142,6 +142,66 @@ def create_app(root, session_seconds=3600):
             + '</tbody></table><form method="post" action="/logout"><input type="hidden" name="csrf" value="'
             + value["csrf"]
             + '"><button>Log out</button></form>'
+        )
+
+    @app.get("/monthly", response_class=HTMLResponse)
+    def monthly_reports(request: Request):
+        session(request)
+
+        from .monthly import MonthlyStore
+
+        store = MonthlyStore(root)
+        rows = []
+
+        for report in store.list():
+            identity = report["id"]
+            manifest = report.get("manifest", {})
+
+            links = " ".join(
+                f'<a href="/monthly-artifacts/{identity}/{kind}">{html.escape(kind)}</a>'
+                for kind in ("pdf", "html", "email", "json", "revenue", "roi", "action")
+                if kind in manifest
+            )
+
+            rows.append(
+                "<tr>"
+                f"<td>{html.escape(str(report.get('client_id', '')))}</td>"
+                f"<td>{html.escape(str(report.get('month', '')))}</td>"
+                f"<td>{html.escape(str(report.get('status', '')))}</td>"
+                f"<td>{links}</td>"
+                "</tr>"
+            )
+
+        body = "".join(rows) or (
+            '<tr><td colspan="4">No monthly report drafts available.</td></tr>'
+        )
+
+        return (
+            "<h1>Monthly report drafts</h1>"
+            '<p><a href="/">Back to dashboard</a></p>'
+            "<table>"
+            "<thead><tr>"
+            "<th>Client</th><th>Month</th><th>Status</th><th>Artifacts</th>"
+            "</tr></thead>"
+            f"<tbody>{body}</tbody>"
+            "</table>"
+        )
+
+    @app.get("/monthly-artifacts/{identity}/{kind}")
+    def monthly_artifact(identity: str, kind: str, request: Request):
+        session(request)
+
+        from .monthly import MonthlyStore
+
+        try:
+            path = MonthlyStore(root).artifact(identity, kind)
+        except (KeyError, ValueError, OSError):
+            raise HTTPException(404, "Monthly artifact unavailable") from None
+
+        return FileResponse(
+            path,
+            filename=path.name,
+            media_type="application/octet-stream",
         )
 
     @app.get("/runs/{run_id}", response_class=HTMLResponse)

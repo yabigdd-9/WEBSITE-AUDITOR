@@ -172,6 +172,22 @@ def atomic_write_json(path, data):
     atomic_write_text(path, json.dumps(data, indent=2, ensure_ascii=False) + "\n")
 
 
+
+def atomic_write_bytes(path, data):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp_name = tempfile.mkstemp(
+        prefix=f".{path.name}.",
+        dir=str(path.parent),
+    )
+    try:
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(data)
+        os.replace(tmp_name, path)
+    finally:
+        if os.path.exists(tmp_name):
+            os.unlink(tmp_name)
+
 def atomic_write_text(path, text):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)

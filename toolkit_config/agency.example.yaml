@@ -1,0 +1,47 @@
+# Copy this file and replace client details. These are hypothetical inputs, not NZ benchmarks.
+timezone: Pacific/Auckland
+agency:
+  name: Example Agency
+  primary_color: '#0f766e'
+  secondary_color: '#142c3b'
+  footer: Prepared for client review. Financial values are scenarios, not measured losses.
+  # logo: ./logo.png  # Local PNG/JPEG only; embedded without external requests.
+contact:
+  email: agency@example.com
+  phone: ''
+  website: ''
+  address: ''
+reporting:
+  enabled: true
+  auto_send: false
+  schedule_enabled: false
+clients:
+  - id: example
+    name: Example Business
+    url: https://example.com/
+    email: client@example.com
+    profile: static
+    revenue:
+      currency: NZD
+      # Baseline conversion rate means estimated rate WITHOUT the modeled defects.
+      # Use expected business value per lead, not sale value unless conversion means sale.
+      monthly_visitors: 2000
+      baseline_conversion_rate: 0.05
+      value_per_conversion_nzd: 150
+      contribution_margin: 0.6
+      hourly_rate_nzd: 120
+      horizon_months: 12
+      segments:
+        all: 1.0
+      # No built-in defect-to-revenue multipliers. Uncomment only after client review.
+      impacts: {}
+      # Example of an explicitly hypothetical, reviewed scenario:
+      # impacts:
+      #   missing_title:
+      #     segment: all
+      #     relative_conversion_loss: {low: 0.01, high: 0.03}
+      #     recovery_fraction: {low: 0.25, high: 0.75}
+      #     fix_hours: {low: 0.5, high: 1.5}
+      #     source: Client-approved sensitivity analysis; not an industry benchmark
+      #     rationale: Hypothetical range for planning, pending measurement
+      #     reviewed_by: Replace with the actual reviewer and review date
