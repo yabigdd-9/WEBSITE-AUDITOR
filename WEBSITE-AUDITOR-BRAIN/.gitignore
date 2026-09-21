@@ -1,0 +1,12 @@
+# Generated/operator-local Obsidian content.
+# Keep prospect/runtime/approval views out of Git.
+.obsidian/
+00-DASHBOARD/
+01-MASTER-PLAN/
+02-LEADS/
+03-PROSPECTS/
+04-AGENTS/
+05-APPROVALS/
+06-EXPERIMENTS/
+07-REPORTS/
+08-RUNBOOK/
