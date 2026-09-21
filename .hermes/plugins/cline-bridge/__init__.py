@@ -209,7 +209,7 @@ def register(ctx):
         ]
 
         if mode == "plan":
-            cmd += ["--plan", "--auto-approve", "false"]
+            cmd += ["--plan", "--auto-approve", "true"]
         else:
             cmd += ["--auto-approve", "true"]
 
