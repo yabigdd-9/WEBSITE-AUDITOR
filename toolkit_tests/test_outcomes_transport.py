@@ -123,3 +123,16 @@ def test_transport_packet_preflight_rejects_any_send_authority():
     result = transport.preflight_packet(unsafe)
     assert result["passed"] is False
     assert result["network_calls"] == 0
+
+
+def test_outcome_summary_is_read_only_when_uninitialised(tmp_path):
+    path = tmp_path / "empty.db"
+    d = sqlite3.connect(path)
+    d.row_factory = sqlite3.Row
+    before = d.execute("SELECT count(*) FROM sqlite_master").fetchone()[0]
+    result = outcomes.summary(d)
+    after = d.execute("SELECT count(*) FROM sqlite_master").fetchone()[0]
+    d.close()
+    assert result["status"] == "uninitialised"
+    assert result["total"] == 0
+    assert before == after
