@@ -40,7 +40,7 @@ class EmailUnit(unittest.TestCase):
         self.assertNotEqual(e.root_domain('one.github.io'), e.root_domain('two.github.io'))
 
     def test_synthetic_taxonomy(self):
-        cases = json.loads((ROOT / 'tests/fixtures/email_regressions.json').read_text())['cases']
+        cases = json.loads((ROOT / 'fixtures/email_regressions.json').read_text())['cases']
         for case in cases:
             with self.subTest(case=case['id']):
                 business = {'id': 1, 'name': 'Koru Plumbing', 'region': 'Auckland', 'public_website': 'https://koruplumbing.co.nz/'}
