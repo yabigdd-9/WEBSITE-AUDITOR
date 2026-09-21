@@ -31,5 +31,5 @@ jobs:
         run: python -m pip install --upgrade pip "setuptools>=83" pip-audit
       - name: Audit declared dependencies
         run: |
-          python -m pip install -e .
-          pip-audit --strict --skip-editable
+          pip-audit --strict .
+          pip-audit --strict -r money-machine/requirements-email.txt
