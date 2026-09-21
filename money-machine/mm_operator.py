@@ -228,7 +228,7 @@ def main(argv=None):
             elif a.cmd=='email-duplicates':result=email_store.duplicate_entities(d)
             elif a.cmd=='email-v1':result={'business':dict(business(d,a.id)),'legacy_contacts':[dict(x) for x in d.execute('SELECT address_or_channel,source,last_verified,do_not_contact FROM contacts WHERE business_id=?',(a.id,))],'legacy_captures':[dict(x) for x in d.execute('SELECT recipient,source_url,checked_at,confidence FROM mm_contact_evidence WHERE business_id=?',(a.id,))],'email_status':'UNVERIFIED_LEGACY_VIEW','outreach_eligible':False,'note':'Historical confidence is a capture-only score; it is not email verification.'}
             elif a.cmd=='email-rollback':
-                d.executescript((Path(__file__).resolve().parents[1]/'migrations/003_email_finder_v2_rollback.sql').read_text())
+                d.executescript((Path(__file__).resolve().parent/'003_email_finder_v2_rollback.sql').read_text())
                 result={'mode':'v1_hold','history_retained':True,'new_approvals_held':True,'external_sends':0}
         print(email_cli.human_text(result) if a.cmd in ('email-status','email-find') and not a.json else json.dumps(result,indent=2))
         return 0
