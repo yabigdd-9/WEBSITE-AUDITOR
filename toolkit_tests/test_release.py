@@ -23,7 +23,7 @@ HEALTHY = (
 <script type="application/ld+json">{"@type":"LocalBusiness"}</script></head>
 <body><main><h1>Services</h1><p>"""
     + ("Useful business information " * 100)
-    + "</p></main></body></html>"
+    + '</p><a href="/contact">Contact us</a></main></body></html>'
 )
 HEADERS = {
     "content-type": "text/html",
@@ -43,9 +43,29 @@ def public_dns(monkeypatch):
 
 
 def fixture_audit(root, body=HEALTHY, **kwargs):
-    transport = httpx.MockTransport(
-        lambda request: httpx.Response(200, text=body, headers=HEADERS, request=request)
-    )
+    def handler(request):
+        path = request.url.path
+        if path == "/robots.txt":
+            return httpx.Response(
+                200,
+                text="User-agent: *\nAllow: /\nSitemap: https://example.com/sitemap.xml\n",
+                headers={"content-type": "text/plain"},
+                request=request,
+            )
+        if path == "/sitemap.xml":
+            return httpx.Response(
+                200,
+                text=(
+                    '<?xml version="1.0" encoding="UTF-8"?>'
+                    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+                    '<url><loc>https://example.com/</loc></url></urlset>'
+                ),
+                headers={"content-type": "application/xml"},
+                request=request,
+            )
+        return httpx.Response(200, text=body, headers=HEADERS, request=request)
+
+    transport = httpx.MockTransport(handler)
     client = Fetcher(transport=transport, min_interval=0)
     try:
         return run_audit("https://example.com/", AuditOptions(output_root=root, **kwargs), client)
