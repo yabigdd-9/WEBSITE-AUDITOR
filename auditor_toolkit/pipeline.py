@@ -208,11 +208,11 @@ def run_audit(url, options=None, fetcher=None):
                     history = History(opts.output_root)
                     # Get previous complete runs for same URL and profile
                     previous_runs = [
-                        r for r in history.list(report["url"], 1000)
-                        if r["url"] == report["url"]
+                        r for r in history.list(url, 1000)
+                        if r["url"] == url
                         and r["status"] == "complete"
                         and r["profile"] == opts.profile
-                        and r["run_id"] != report["run_id"]
+                        and r["run_id"] != run_id
                     ]
                     if previous_runs:
                         previous_run = previous_runs[0]  # most recent
@@ -248,7 +248,6 @@ def run_audit(url, options=None, fetcher=None):
                                     )
                                     if result_odiff.returncode == 0 and diff_path.exists():
                                         evidence["browser"][f"{evidence_key}_diff"] = str(diff_path)
-                                        report["artifacts"][f"{evidence_key}_diff"] = str(diff_path)
                 except Exception:
                     # Log warning but do not fail the audit
                     pass
@@ -415,7 +414,7 @@ def run_audit(url, options=None, fetcher=None):
         "trend": str(trend_path),
         "actions": str(run_dir / "actions/preview.json"),
     }
-    for key in ("screenshot", "mobile_screenshot"):
+    for key in ("screenshot", "mobile_screenshot", "screenshot_diff", "mobile_screenshot_diff"):
         path = evidence.get("browser", {}).get(key)
         if path and Path(path).is_file():
             report["artifacts"][key] = path
