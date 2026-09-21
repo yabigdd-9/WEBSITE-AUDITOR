@@ -14,7 +14,6 @@ dependencies = [
   "lxml>=6",
   "trafilatura>=2",
   "textstat>=0.7",
-  "nltk>=3.10",
   "yarl>=1.25",
   "requests>=2.32",
   "pyyaml>=6",
