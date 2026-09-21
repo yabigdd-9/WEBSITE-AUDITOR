@@ -26,7 +26,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-import httpx, bs4, trafilatura, textstat
+import httpx, bs4, trafilatura
+from auditor_toolkit import readability as textstat
 
 # ── config ──────────────────────────────────────────────────────────
 CACHE_DIR = Path("outputs/.cache")
