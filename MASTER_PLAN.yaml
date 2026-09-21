@@ -1,0 +1,287 @@
+plan:
+  name: "WEBSITE-AUDITOR Master Merged Plan"
+  version: "32.0"
+  status: "CANONICAL_EXECUTION_PLAN"
+  primary_workspace: "/Users/dd/WEBSITE-AUDITOR"
+  experimental_cline_workspace: "/Users/dd/Downloads/WEBSITE-AUDITOR-master"
+  execution_mode: "local-first, zero-paid-token, evidence-first, supervised, obsidian-operator-workspace"
+  paid_allowed: false
+  max_cost_usd: 0
+  outreach_default_enabled: false
+  destructive_actions_default_allowed: false
+
+non_negotiables:
+  zero_cost:
+    paid_allowed: false
+    max_cost_usd: 0
+    rules:
+      - "Never silently fall back to a paid provider."
+      - "When all free providers are unavailable, defer the job."
+      - "Prefer deterministic Python over LLM calls."
+  repository_safety:
+    rules:
+      - "Do not overwrite /Users/dd/WEBSITE-AUDITOR with the Downloads experimental copy."
+      - "Do not merge experimental files directly into master."
+      - "Use isolated branches/worktrees."
+      - "Back up databases/state before migrations."
+      - "Never allow concurrent coding agents to edit the same file."
+  outreach_safety:
+    send_enabled: false
+    rules:
+      - "No guessed email pattern is verified."
+      - "Catch-all does not equal verified."
+      - "NO_VERIFIED_EMAIL is acceptable."
+      - "Respect suppression, duplicate prevention, cooldown, bounce and stop-on-response rules."
+  production_change_policy:
+    rules:
+      - "No autonomous direct-to-master edits."
+      - "Tests and quality gates are required before promotion."
+      - "No measurable improvement means no self-improvement merge."
+      - "Human review remains required for high-risk changes."
+
+canonical_direction:
+  repository: "/Users/dd/WEBSITE-AUDITOR"
+  audit_engine: "auditor_toolkit + thin CLI layer"
+  operator_cli: "./mm"
+  runtime_state: "SQLite + state files"
+  queue: "SQLite leased work queue"
+  supervisor: "launchd + ./mm supervisor"
+  orchestrator: "Hermes"
+  human_workspace: "Obsidian"
+  obsidian_authoritative: false
+  n8n_default_runtime: false
+
+phases:
+  P0:
+    name: "Repository reconciliation"
+    priority: CRITICAL
+    goal: "One trustworthy canonical codebase."
+    gate:
+      - "Canonical repo preserved."
+      - "Experimental changes are selectively reviewed."
+      - "No production data loss."
+      - "Accepted/rejected imports traceable."
+  P1:
+    name: "Reproducible green baseline"
+    priority: CRITICAL
+    python: "3.11"
+    actions:
+      - "Standardize dependency source."
+      - "Run full tests and record baseline."
+      - "Fix dependency/import failures."
+      - "Remove tracked generated state."
+      - "Maintain .env.example and hardened .gitignore."
+      - "Run gitleaks and strict pip-audit."
+    gate:
+      - "Tests green or explicitly accepted."
+      - "./mm doctor passes except optional integrations."
+      - "Python 3.11 confirmed."
+      - "No active secrets committed."
+      - "Working tree clean."
+  P2:
+    name: "Code consolidation"
+    priority: HIGH
+    goal: "One canonical audit engine and operator CLI."
+  P3:
+    name: "Continuous control plane"
+    priority: CRITICAL
+    queue: "SQLite leased work queue"
+    required_cli:
+      - "./mm supervisor start"
+      - "./mm supervisor stop"
+      - "./mm supervisor restart"
+      - "./mm supervisor status"
+      - "./mm supervisor health"
+      - "./mm supervisor logs"
+    features:
+      - "single-instance protection"
+      - "graceful shutdown"
+      - "heartbeats"
+      - "leases"
+      - "stale-worker recovery"
+      - "bounded retries/backoff/jitter"
+      - "circuit breakers"
+      - "dead-letter queue"
+      - "log rotation/retention"
+      - "disk/network guards"
+      - "crash recovery"
+  P4:
+    name: "Audit engine"
+    priority: HIGH
+    keep: ["Playwright", "axe-core", "BeautifulSoup", "trafilatura", "HTTP checks"]
+    finish:
+      - "Lighthouse/Core Web Vitals"
+      - "Lychee broken-link validation"
+      - "canonical domain resolution"
+      - "security headers"
+      - "robots/sitemap/schema"
+      - "contact/booking/quote detection"
+      - "responsive/HTML/TLS checks"
+    fetch_chain: ["HTTP", "lightweight JS/browser", "Playwright"]
+  P5:
+    name: "Evidence-first findings"
+    priority: CRITICAL
+    rule: "Scores are derived from findings; material findings require evidence."
+  P6:
+    name: "NZ business discovery"
+    priority: HIGH
+    lanes: ["NZBN", "SearXNG", "industry directories", "public business directories", "public websites", "search engines", "permitted OSM-derived sources", "existing DB"]
+    rule: "Deduplicate before expensive audit stages."
+  P7:
+    name: "Identity resolution"
+    priority: HIGH
+    rule: "Use weighted evidence/confidence across NZBN, legal/trading name, domain, website, email domain and region."
+  P8:
+    name: "Email Finder V2"
+    priority: CRITICAL
+    states: ["VERIFIED", "STRONG_EVIDENCE", "CATCH_ALL", "UNVERIFIED", "NO_VERIFIED_EMAIL", "INVALID"]
+    rule: "Every eligible email has provenance; pattern/MX/catch-all alone never equals verified."
+  P9:
+    name: "Opportunity scoring"
+    priority: HIGH
+    formula: "need * business_value * contactability * fixability * confidence / delivery_effort"
+    rule: "Deterministic and replayable from stored inputs."
+  P10:
+    name: "Remediation engine"
+    priority: HIGH
+    classes: ["AUTO_SAFE", "AUTO_PREVIEW", "HUMAN_REVIEW", "CLIENT_ACCESS_REQUIRED", "UNSUPPORTED"]
+  P11:
+    name: "Demo factory"
+    priority: HIGH
+    flow: ["audit", "select", "create patch/reconstruction", "test", "render", "before screenshot", "after screenshot", "compare"]
+  P12:
+    name: "Quote engine"
+    priority: HIGH
+    rule: "Versioned deterministic pricing rules; LLM may explain but never determine price."
+  P13:
+    name: "Prospect packet"
+    priority: HIGH
+    gate: "No prospect reaches outreach without a complete reviewable packet."
+  P14:
+    name: "Outreach engine"
+    priority: HIGH
+    send_enabled: false
+    rule: "Agents cannot bypass transport policy."
+  P15:
+    name: "Free model router"
+    priority: HIGH
+    route: ["DETERMINISTIC_CODE", "LOCAL_FREE_MODEL", "FREE_EXTERNAL_ROUTE_1", "FREE_EXTERNAL_ROUTE_2", "DEFER"]
+    max_cost_usd: 0
+    max_large_local_models_concurrent: 0
+    preferred_small_local_models_concurrent: 1
+  P16:
+    name: "Agent team"
+    priority: HIGH
+    orchestrator: "Hermes"
+    roles: ["RESEARCHER", "CODER", "OPERATOR", "JUDGE", "PROOFER", "INTEGRATOR"]
+    rule: "One branch/worktree per coding agent; no shared-file concurrent writes."
+  P17:
+    name: "Observability"
+    priority: MEDIUM
+    start_with: ["state/health.json", "state/metrics.jsonl", "state/errors.jsonl", "state/worker-heartbeats/", "state/dead-letter/"]
+    defer: ["Prometheus", "Grafana", "Loki", "Langfuse"]
+  P18:
+    name: "Self improvement"
+    priority: MEDIUM
+    flow: ["propose", "branch", "test", "evaluate", "shadow run", "compare metrics", "judge", "merge or reject"]
+    rule: "No direct autonomous modification of production."
+
+obsidian_operator_workspace:
+  priority: HIGH
+  recommended_root: "WEBSITE-AUDITOR-BRAIN"
+  role:
+    - "master brain"
+    - "operator dashboard"
+    - "project documentation"
+    - "prospect/approval review"
+    - "agent output viewer"
+    - "experiment history"
+    - "daily/weekly reporting"
+    - "runbook/recovery reference"
+  authority:
+    canonical_runtime_state: false
+    canonical_database: false
+    canonical_queue: false
+    canonical_send_authority: false
+    canonical_pricing_authority: false
+  runtime_relationship:
+    supervisor: "launchd"
+    operator_cli: "./mm"
+    canonical_queue: "SQLite leased work queue"
+    canonical_state: "SQLite + state files"
+    agent_orchestrator: "Hermes"
+    human_workspace: "Obsidian"
+  vault_folders:
+    - "00-DASHBOARD"
+    - "01-MASTER-PLAN"
+    - "02-LEADS"
+    - "03-PROSPECTS"
+    - "04-AGENTS"
+    - "05-APPROVALS"
+    - "06-EXPERIMENTS"
+    - "07-REPORTS"
+    - "08-RUNBOOK"
+  sync_policy:
+    runtime_to_obsidian: "automatic/read-mostly"
+    obsidian_to_runtime: "explicit gated commands only"
+  docker_relationship:
+    docker_required_for_obsidian: false
+    docker_required_for_core_runtime: false
+    optional_services: ["SearXNG"]
+    n8n:
+      required: false
+      install_by_default: false
+      status: "REMOVED_FROM_DEFAULT_STACK"
+
+exact_execution_order:
+  - "Reconcile canonical repo with experimental Cline source."
+  - "Back up databases, state and important outputs."
+  - "Use isolated upgrade branch/worktree."
+  - "Standardize Python 3.11 and venv."
+  - "Get full test suite green."
+  - "Rotate/remove exposed secrets."
+  - "Maintain gitleaks, dependency audit and CI security checks."
+  - "Consolidate auditor implementations."
+  - "Consolidate planning/operator documentation."
+  - "Finish supervisor/daemon and prove crash recovery."
+  - "Create Obsidian operator workspace as non-authoritative view."
+  - "Improve identity and deterministic audit evidence."
+  - "Add Lighthouse/Lychee."
+  - "Build multi-source NZ discovery."
+  - "Upgrade Email Finder V2."
+  - "Keep technical and commercial opportunity scores separate."
+  - "Build remediation, demo, screenshots and deterministic quote engine."
+  - "Build prospect packet and draft+QA pipeline."
+  - "Add configurable outreach transport while keeping send disabled by default."
+  - "Add outcome tracking."
+  - "Optimize free/local model routing."
+  - "Create golden evaluation dataset and challenger loop."
+  - "Benchmark heavier optional infrastructure only after core acceptance."
+
+final_acceptance:
+  reliability:
+    - "24+ hour unattended run."
+    - "Crash/restart recovery."
+    - "No duplicate restart work."
+    - "Visible dead-letter triage."
+  audit_quality:
+    - "Every material finding has evidence."
+    - "Scores derive from findings."
+    - "False positives tracked."
+  lead_quality:
+    - "Businesses deduplicated."
+    - "Identity confidence explicit."
+    - "Eligible emails have provenance."
+  commercial_output:
+    - "Qualified prospects can produce demo, before/after proof, quote band and draft."
+  cost:
+    - "Paid model/API spend remains $0."
+    - "No silent paid inference path."
+  safety:
+    - "Live outreach disabled by default."
+    - "High-risk changes require review."
+    - "No autonomous direct-to-master self-improvement."
+  maintainability:
+    - "One canonical repo/auditor/control plane/master plan."
+    - "Obsidian is human-facing only."
+    - "n8n is not required by the default stack."
