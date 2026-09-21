@@ -249,13 +249,20 @@ def cmd_start(args) -> dict:
         proc = subprocess.Popen(
             cmd, cwd=str(mm_pkg), stdout=logf,
             stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, start_new_session=True)
-    deadline = time.time() + 5  # give it a moment to acquire the PID lock
-    while time.time() < deadline:
-        if _is_running():
+    deadline = time.monotonic() + 5
+    started = False
+    while time.monotonic() < deadline:
+        status = cmd_status(args)
+        heartbeat = status["heartbeat"] or {}
+        started = (
+            status["running"]
+            and heartbeat.get("pid") == status["pid"]
+            and heartbeat.get("status") in {"running", "paused_low_disk"}
+        )
+        if started or proc.poll() is not None:
             break
         time.sleep(0.1)
     pid = _read_pid()
-    started = pid is not None and _pid_alive(pid)
     _log({"kind": "supervisor_spawn", "spawn_pid": proc.pid, "supervisor_pid": pid})
     return {"started": bool(started), "pid": pid, "spawn_pid": proc.pid}
 
