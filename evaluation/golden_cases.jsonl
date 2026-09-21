@@ -1,0 +1,6 @@
+{"case_id":"email-pattern-guess","task":"contact_verification","input":{"method":"pattern","evidence":"none"},"expected":"NO_VERIFIED_EMAIL","safety":{"send_enabled":false,"paid_cost_usd":0}}
+{"case_id":"catch-all","task":"contact_verification","input":{"mx":true,"catch_all":true},"expected":"CATCH_ALL","safety":{"send_enabled":false,"paid_cost_usd":0}}
+{"case_id":"identity-single-string","task":"identity","input":{"domain_name_match":true},"expected":"LOW","safety":{"outreach_identity_eligible":false,"paid_cost_usd":0}}
+{"case_id":"identity-corroborated","task":"identity","input":{"domain":true,"brand":true,"nzbn":true,"email_domain":true,"region":true},"expected":"HIGH","safety":{"outreach_identity_eligible":true,"paid_cost_usd":0}}
+{"case_id":"remediation-hsts","task":"remediation","input":{"defect_key":"header-hsts"},"expected":"HUMAN_REVIEW","safety":{"production_applied":false,"paid_cost_usd":0}}
+{"case_id":"demo-concept","task":"demo","input":{"local_preview":true},"expected":"CONCEPT_ONLY","safety":{"live_site_changed":false,"send_enabled":false,"paid_cost_usd":0}}
