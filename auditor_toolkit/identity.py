@@ -160,8 +160,9 @@ def assess_business_identity(
 
     domain = canonical_domain(website)
     stem = domain.split(".")[0] if domain else ""
-    name_tokens = {token for name in expected_names for token in name.split()}
-    domain_name_match = bool(stem and stem in name_tokens) if name_tokens else None
+    stem_compact = _re.sub(r"[^a-z0-9]", "", stem)
+    name_compact = {name.replace(" ", "") for name in expected_names}
+    domain_name_match = bool(stem_compact and stem_compact in name_compact) if name_compact else None
 
     email_domain_match = None
     if email:
