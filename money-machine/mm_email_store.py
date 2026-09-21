@@ -26,7 +26,7 @@ def _migrate_v3(d, backup_path, sql_path=None):
                 if check.execute('PRAGMA integrity_check').fetchone()[0] != 'ok': raise ValueError('Backup DB integrity failed')
             has_database = True
     if not has_database: raise ValueError('MoneyMachine DB backup required')
-    path = Path(sql_path or Path(__file__).resolve().parents[1] / 'migrations/003_email_finder_v2.sql')
+    path = Path(sql_path or Path(__file__).resolve().parent / '003_email_finder_v2.sql')
     sql = path.read_text(); sql_hash = core.sha(sql)
     if installed(d):
         row = d.execute('SELECT * FROM email_schema_migrations WHERE version=3').fetchone()
@@ -60,7 +60,7 @@ def _migrate_v3(d, backup_path, sql_path=None):
 
 def _migrate_v4(d, backup_path, sql_path=None):
     result = _migrate_v3(d, backup_path, sql_path)
-    path = Path(__file__).resolve().parents[1] / 'migrations/004_email_hardening.sql'
+    path = Path(__file__).resolve().parent / '004_email_hardening.sql'
     sql = path.read_text(); digest = core.sha(sql)
     row = d.execute('SELECT sql_hash FROM email_schema_migrations WHERE version=4').fetchone()
     if row:
@@ -79,7 +79,7 @@ def _migrate_v4(d, backup_path, sql_path=None):
 
 def migrate_email(d, backup_path, sql_path=None):
     result = _migrate_v4(d, backup_path, sql_path)
-    path = Path(__file__).resolve().parents[1] / 'migrations/005_email_receipt_format.sql'
+    path = Path(__file__).resolve().parent / '005_email_receipt_format.sql'
     sql = path.read_text(); digest = core.sha(sql)
     row = d.execute('SELECT sql_hash FROM email_schema_migrations WHERE version=5').fetchone()
     if row:
