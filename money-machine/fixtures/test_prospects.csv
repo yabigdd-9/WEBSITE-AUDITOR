@@ -1,0 +1,6 @@
+business_id,name,website,region,industry
+1,Test Plumbing Ltd,testplumbing.co.nz,Canterbury,plumbing
+2,Example Electrical Services,exampleelectrical.co.nz,Canterbury,electrical
+3,Sample Retail Store,sample-retail.co.nz,Canterbury,retail
+4,Tech Startup NZ,techstartup.co.nz,Canterbury,saas
+5,Construction Company Ltd,constructionco.co.nz,Canterbury,construction

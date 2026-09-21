@@ -1,0 +1,48 @@
+{
+  "recipe_id": "enquiry_path_repair",
+  "name": "Enquiry Path Repair",
+  "description": "Fix broken or inefficient customer inquiry processes",
+  "opportunity_type": "enquiry_path_repair",
+  "problem_indicators": [
+    "contact form",
+    "inquiry form",
+    "get in touch",
+    "contact us",
+    "enquiry",
+    "quote request",
+    "booking form"
+  ],
+  "complaint_indicators": [
+    "form not working",
+    "can't contact",
+    "difficult to reach",
+    "no response",
+    "slow response",
+    "broken form",
+    "form submission failed"
+  ],
+  "strength_indicators": [
+    "good contact information",
+    "clear contact details",
+    "responsive communication",
+    "easy to contact"
+  ],
+  "service_expansion_indicators": [
+    "online booking",
+    "digital enquiry",
+    "contact management",
+    "customer portal"
+  ],
+  "change_indicators": [
+    "updated contact information",
+    "new contact form",
+    "revised inquiry process",
+    "changed business hours"
+  ],
+  "contradiction_indicators": [
+    "previously had contact form",
+    "used to accept online enquiries",
+    "had working inquiry system",
+    "contact form was functional"
+  ]
+}

@@ -14,6 +14,10 @@ import tempfile
 import time
 from mm_core import *
 from mm_intelligence import *
+# Keep the CLI's parser dependencies explicit.  The wildcard import above is
+# retained for the legacy operator helpers, but command registration must not
+# depend on it exposing a validation constant.
+from mm_intelligence import ONTOLOGY
 
 class DemoParser(HTMLParser):
     def __init__(self):super().__init__();self.tags=[]
@@ -130,7 +134,7 @@ def run_day(d,write=True):
         atomic_write(root()/'reports/KPI_DASHBOARD.md','# Evidence-based KPI snapshot\n\n'+json.dumps(data['metrics'],indent=2)+'\n\nStages: '+json.dumps(data['pipeline_stages'])+'\n')
     return data
 
-def doctor(d):
+def doctor(d, profile='default'):
     import shutil
     import ast
     tools={}
@@ -143,11 +147,12 @@ def doctor(d):
             if not p.stat().st_size:raise ValueError('Empty script')
             ast.parse(p.read_text())
         except (ValueError,SyntaxError) as e:broken.append({'path':str(p),'error':str(e)})
-    return {'generated_at':now(),'tools':tools,'broken_python':broken,'db_integrity':d.execute('PRAGMA integrity_check').fetchone()[0],'foreign_key_errors':[list(x) for x in d.execute('PRAGMA foreign_key_check')],'models_enabled':False,'model_calls':0,'limitation':'Read-only inventory. Presence does not prove a service works. Runtime processes and system cron may need separate host access.'}
+    return {'generated_at':now(),'profile':profile,'tools':tools,'broken_python':broken,'db_integrity':d.execute('PRAGMA integrity_check').fetchone()[0],'foreign_key_errors':[list(x) for x in d.execute('PRAGMA foreign_key_check')],'models_enabled':False,'model_calls':0,'limitation':'Read-only inventory. Presence does not prove a service works. Runtime processes and system cron may need separate host access.'}
 
 def main(argv=None):
     p=argparse.ArgumentParser(description=__doc__);s=p.add_subparsers(dest='cmd',required=True)
-    for cmd in ('daily','run-day','status','money','learn','backup','init','doctor','health','metrics','errors','queue','dead-letter','observability-snapshot'):s.add_parser(cmd)
+    for cmd in ('daily','run-day','status','money','learn','backup','init','health','metrics','errors','queue','dead-letter','observability-snapshot'):s.add_parser(cmd)
+    q=s.add_parser('doctor');q.add_argument('--profile',default='default')
     s.add_parser('obsidian-sync')
     s.add_parser('obsidian-status')
     q=s.add_parser('supervisor')
@@ -340,7 +345,7 @@ def main(argv=None):
             if a.cmd in ('daily','run-day','status'):result=run_day(d,write=a.cmd!='status')
             elif a.cmd=='money':result=run_day(d,False)['next_revenue_action']
             elif a.cmd=='learn':result=learn(d)
-            elif a.cmd=='doctor':result=doctor(d)
+            elif a.cmd=='doctor':result=doctor(d,a.profile)
             elif a.cmd=='experiment':result=assign_experiment(d,a.id,a.industry,a.problem,a.offer,a.price_band,a.style,a.demo_type)
             elif a.cmd=='intake':
                 host=public_url(a.url);public_url(a.source)
