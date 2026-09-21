@@ -1,0 +1,55 @@
+{
+  "description": "Synthetic test businesses for pipeline and discovery worker testing",
+  "businesses": [
+    {
+      "id": 1001,
+      "name": "Bloomington Bakery",
+      "region": "midwest",
+      "public_website": "https://bloomingtonbakery.example.com",
+      "source": "google_search",
+      "discovered_at": "2026-09-01T10:00:00Z",
+      "current_status": "discovered",
+      "is_dummy": 1
+    },
+    {
+      "id": 1002,
+      "name": "Riverfront Dental Practice",
+      "region": "northeast",
+      "public_website": "https://riverfrontdental.example.com",
+      "source": "yelp",
+      "discovered_at": "2026-09-02T14:30:00Z",
+      "current_status": "discovered",
+      "is_dummy": 1
+    },
+    {
+      "id": 1003,
+      "name": "Summit Construction Co",
+      "region": "west",
+      "public_website": "https://summitconstruction.example.com",
+      "source": "yellow_pages",
+      "discovered_at": "2026-09-03T09:15:00Z",
+      "current_status": "discovered",
+      "is_dummy": 1
+    },
+    {
+      "id": 1004,
+      "name": "Harmony Yoga Studio",
+      "region": "south",
+      "public_website": "https://harmonyyoga.example.com",
+      "source": "facebook",
+      "discovered_at": "2026-09-04T16:45:00Z",
+      "current_status": "discovered",
+      "is_dummy": 1
+    },
+    {
+      "id": 1005,
+      "name": "TechStart IT Solutions",
+      "region": "west",
+      "public_website": "https://techstartitsolutions.example.com",
+      "source": "linkedin",
+      "discovered_at": "2026-09-05T11:20:00Z",
+      "current_status": "discovered",
+      "is_dummy": 1
+    }
+  ]
+}

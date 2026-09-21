@@ -1,0 +1,49 @@
+{
+  "campaign_id": "local_business_seo",
+  "name": "Local Business SEO Optimization",
+  "description": "Target local businesses needing SEO and online presence improvements",
+  "target_region": "local",
+  "business_characteristics": [
+    "has_physical_location",
+    "serves_local_area",
+    "local_search_dependent",
+    "google_my_business_present",
+    "service_area_business"
+  ],
+  "supported_services": [
+    "local_seo",
+    "google_my_business_optimization",
+    "online_directory_management",
+    "review_generation",
+    "local_content_creation",
+    "location_page_optimization"
+  ],
+  "discovery_sources": [
+    "google_local_search",
+    "google_maps",
+    "yelp",
+    "yellow_pages",
+    "industry_directories",
+    "facebook_business_pages",
+    "local_chamber_of_commerce"
+  ],
+  "opportunity_recipes": [
+    "enquiry_path_repair",
+    "quote_information",
+    "repeat_order_assistance"
+  ],
+  "research_capacity_per_business": 180,
+  "evidence_freshness_days": 21,
+  "default_recipe": "enquiry_path_repair",
+  "qualification_criteria": {
+    "minimum_evidence_sources": 3,
+    "requires_website": true,
+    "requires_contact_info": true,
+    "requires_service_description": true
+  },
+  "geographic_constraints": {
+    "radius_miles": 25,
+    "exclude_competitors": true,
+    "require_service_area_match": true
+  }
+}

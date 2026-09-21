@@ -1,0 +1,79 @@
+{
+  "recipe_id": "online_reputation_management",
+  "opportunity_type": "reputation_improvement",
+  "description": "Improve online reputation management and review generation for local businesses",
+  "problem_indicators": [
+    "negative reviews",
+    "poor rating",
+    "no reviews",
+    "bad reputation",
+    "customer complaints",
+    "unresolved issues",
+    "poor online reputation",
+    "damaged reputation"
+  ],
+  "complaint_indicators": [
+    "bad review",
+    "negative feedback",
+    "poor service review",
+    "unhappy customer",
+    "refund request",
+    "complaint ignored",
+    "no response to review",
+    "review not addressed"
+  ],
+  "strength_indicators": [
+    "positive reviews",
+    "high rating",
+    "testimonials",
+    "customer satisfaction",
+    "five star rating",
+    "excellent service",
+    "recommended by customers",
+    "loyal customer base"
+  ],
+  "service_expansion_indicators": [
+    "review management",
+    "reputation monitoring",
+    "customer feedback system",
+    "review generation",
+    "testimonial collection",
+    "customer satisfaction survey",
+    "net promoter score",
+    "customer loyalty program"
+  ],
+  "change_indicators": [
+    "new review system",
+    "updated review policy",
+    "launched customer feedback",
+    "improved review response",
+    "new testimonial page",
+    "enhanced customer service",
+    "revised complaint process"
+  ],
+  "contradiction_indicators": [
+    "outdated testimonials",
+    "fake reviews",
+    "incorrect rating display",
+    "missing review responses",
+    "broken review system",
+    "outdated contact for reviews",
+    "incorrect review platform links"
+  ],
+  "evidence_sources": [
+    "reviews_page",
+    "testimonials_page",
+    "google_my_business",
+    "yelp_page",
+    "facebook_reviews",
+    "trustpilot",
+    " BBB_rating",
+    "contact_page"
+  ],
+  "validation_criteria": {
+    "review_platform_present": true,
+    "response_to_reviews": true,
+    "review_generation_system": false,
+    "rating_displayed": true
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "recipe_id": "website_performance_optimization",
+  "opportunity_type": "performance_improvement",
+  "description": "Optimize website performance, loading speed, and technical SEO for better user experience and search rankings",
+  "problem_indicators": [
+    "slow loading",
+    "page speed",
+    "performance issues",
+    "technical seo",
+    "mobile unfriendly",
+    "not mobile responsive",
+    "broken links",
+    "404 errors",
+    "server errors",
+    "database connection",
+    "website downtime"
+  ],
+  "complaint_indicators": [
+    "website slow",
+    "pages load slowly",
+    "mobile site broken",
+    "site not working on phone",
+    "website down",
+    "site unavailable",
+    "error loading page",
+    "timeout error",
+    "server not responding"
+  ],
+  "strength_indicators": [
+    "fast loading",
+    "quick response",
+    "mobile optimized",
+    "responsive design",
+    "good performance",
+    "reliable hosting",
+    "secure website",
+    "ssl certificate",
+    "regular backups"
+  ],
+  "service_expansion_indicators": [
+    "performance monitoring",
+    "speed optimization",
+    "cdn integration",
+    "caching solution",
+    "image optimization",
+    "database optimization",
+    "server upgrades",
+    "uptime guarantee",
+    "technical support"
+  ],
+  "change_indicators": [
+    "new hosting provider",
+    "website redesign",
+    "platform migration",
+    "performance upgrade",
+    "ssl certificate added",
+    "mobile version launched",
+    "speed improvement",
+    "server maintenance",
+    "backup system updated"
+  ],
+  "contradiction_indicators": [
+    "outdated performance claims",
+    "incorrect loading times",
+    "missing mobile version",
+    "broken ssl certificate",
+    "outdated backup system",
+    "incorrect hosting information",
+    "wrong technology stack",
+    "expired security certificate"
+  ],
+  "evidence_sources": [
+    "homepage",
+    "about_page",
+    "services_page",
+    "contact_page",
+    "blog_page",
+    "privacy_policy",
+    "terms_of_service",
+    "footer"
+  ],
+  "validation_criteria": {
+    "mobile_friendly": true,
+    "ssl_present": true,
+    "load_time_under_3_seconds": false,
+    "has_blog": true
+  }
+}

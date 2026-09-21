@@ -1,0 +1,83 @@
+{
+  "description": "Synthetic test pipeline items for testing pipeline worker",
+  "pipeline_items": [
+    {
+      "business_id": 1001,
+      "state": "DISCOVERED",
+      "payload": {
+        "discovery_timestamp": "2026-09-20T10:00:00Z",
+        "discovery_result": {
+          "should_proceed": true,
+          "opportunity_type": "enquiry_path_optimization",
+          "confidence_score": 0.85,
+          "supported_signals": [
+            {
+              "type": "problem_indicator",
+              "indicator": "contact form",
+              "source": "evidence",
+              "url": "https://bloomingtonbakery.example.com/contact",
+              "snippet": "Get in touch with us today for custom cake orders"
+            }
+          ],
+          "evidence_sources": [2001, 2002],
+          "discovery_angle": "problem_led"
+        },
+        "campaign_id": "local_business_seo",
+        "recipe_id": "enquiry_path_repair"
+      },
+      "attempts": 0,
+      "max_attempts": 5,
+      "created_at": "2026-09-20T10:00:00Z",
+      "updated_at": "2026-09-20T10:00:00Z"
+    },
+    {
+      "business_id": 1002,
+      "state": "DISCOVERED",
+      "payload": {
+        "discovery_timestamp": "2026-09-20T11:30:00Z",
+        "discovery_result": {
+          "should_proceed": true,
+          "opportunity_type": "quote_information",
+          "confidence_score": 0.72,
+          "supported_signals": [
+            {
+              "type": "existing_strength",
+              "strength": "clear contact information",
+              "evidence_score": 0.9,
+              "source": "high_performing_area"
+            }
+          ],
+          "evidence_sources": [2003, 2004],
+          "discovery_angle": "strength_led"
+        },
+        "campaign_id": "local_business_seo",
+        "recipe_id": "quote_information"
+      },
+      "attempts": 0,
+      "max_attempts": 5,
+      "created_at": "2026-09-20T11:30:00Z",
+      "updated_at": "2026-09-20T11:30:00Z"
+    },
+    {
+      "business_id": 1003,
+      "state": "DISCOVERED",
+      "payload": {
+        "discovery_timestamp": "2026-09-20T12:45:00Z",
+        "discovery_result": {
+          "should_proceed": false,
+          "reason": "Insufficient confidence for opportunity pursuit",
+          "angle": "change_led",
+          "confidence_score": 0.45,
+          "evidence_sources": [2005],
+          "supported_signals": []
+        },
+        "campaign_id": "local_business_seo",
+        "recipe_id": "repeat_order_assistance"
+      },
+      "attempts": 0,
+      "max_attempts": 5,
+      "created_at": "2026-09-20T12:45:00Z",
+      "updated_at": "2026-09-20T12:45:00Z"
+    }
+  ]
+}

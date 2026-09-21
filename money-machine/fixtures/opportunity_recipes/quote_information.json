@@ -1,0 +1,75 @@
+{
+  "recipe_id": "quote_information",
+  "opportunity_type": "quote_transparency_improvement",
+  "description": "Improve clarity and accessibility of pricing/quote information",
+  "problem_indicators": [
+    "pricing",
+    "quote",
+    "price list",
+    "cost estimator",
+    "package pricing",
+    "hidden fees",
+    "custom quote",
+    "call for price",
+    "price on request",
+    "starting at",
+    "from only"
+  ],
+  "complaint_indicators": [
+    "unclear pricing",
+    "hidden costs",
+    "quote took too long",
+    "confusing packages",
+    "no online pricing",
+    "difficult to compare",
+    "pressure to buy",
+    "upselling during quote"
+  ],
+  "strength_indicators": [
+    "transparent pricing",
+    "clear packages",
+    "instant quote",
+    "price calculator",
+    "detailed breakdown",
+    "no hidden fees",
+    "money back guarantee"
+  ],
+  "service_expansion_indicators": [
+    "subscription options",
+    "payment plans",
+    "financing available",
+    "discount for annual",
+    "bundle and save",
+    "loyalty program"
+  ],
+  "change_indicators": [
+    "updated pricing",
+    "new package launched",
+    "seasonal promotion",
+    "limited time offer",
+    "price matching",
+    "competitor price match"
+  ],
+  "contradiction_indicators": [
+    "outdated pricing information",
+    "expired promotion still showing",
+    "incorrect package details",
+    "missing fees disclosure",
+    "outdated money-back guarantee",
+    "incorrect contact for quotes"
+  ],
+  "evidence_sources": [
+    "pricing_page",
+    "packages_page",
+    "quote_form",
+    "service_details",
+    "faq_page",
+    "testimonials_mentioning_price"
+  ],
+  "validation_criteria": {
+    "price_clarity_score": 0.7,
+    "package_comparison_available": true,
+    "instant_estimate_available": false,
+    "contact_required_for_quote": true
+  }
+}

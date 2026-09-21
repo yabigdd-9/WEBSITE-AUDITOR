@@ -1,0 +1,70 @@
+{
+  "description": "Synthetic test opportunities for pipeline testing",
+  "opportunities": [
+    {
+      "business_id": 1001,
+      "opportunity_type": "enquiry_path_optimization",
+      "discovery_angle": "problem_led",
+      "confidence_score": 0.85,
+      "supported_signals": [
+        {
+          "type": "problem_indicator",
+          "indicator": "contact form",
+          "source": "evidence",
+          "url": "https://bloomingtonbakery.example.com/contact",
+          "snippet": "Get in touch with us today for custom cake orders"
+        },
+        {
+          "type": "explicit_complaint",
+          "complaint": "form not working",
+          "source": "evidence_feedback"
+        }
+      ],
+      "evidence_sources": [2001, 2002],
+      "discovery_timestamp": "2026-09-20T10:00:00Z"
+    },
+    {
+      "business_id": 1002,
+      "opportunity_type": "quote_information",
+      "discovery_angle": "strength_led",
+      "confidence_score": 0.72,
+      "supported_signals": [
+        {
+          "type": "existing_strength",
+          "strength": "clear contact information",
+          "evidence_score": 0.9,
+          "source": "high_performing_area"
+        },
+        {
+          "type": "service_expansion_opportunity",
+          "opportunity": "online booking",
+          "source": "evidence_analysis"
+        }
+      ],
+      "evidence_sources": [2003, 2004],
+      "discovery_timestamp": "2026-09-20T11:30:00Z"
+    },
+    {
+      "business_id": 1003,
+      "opportunity_type": "repeat_order_assistance",
+      "discovery_angle": "change_led",
+      "confidence_score": 0.68,
+      "supported_signals": [
+        {
+          "type": "recent_change",
+          "change": "new service offering",
+          "evidence_age_days": 5,
+          "source": "timely_evidence"
+        },
+        {
+          "type": "contradictory_evidence",
+          "contradiction": "outdated contact form",
+          "previous_assessment": "AUDITED",
+          "source": "evidence_contradiction"
+        }
+      ],
+      "evidence_sources": [2005, 2006],
+      "discovery_timestamp": "2026-09-20T12:45:00Z"
+    }
+  ]
+}

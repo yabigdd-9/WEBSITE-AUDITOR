@@ -1,0 +1,77 @@
+{
+  "recipe_id": "repeat_order_assistance",
+  "opportunity_type": "repeat_business_optimization",
+  "description": "Streamline repeat business and customer retention processes",
+  "problem_indicators": [
+    "repeat customer",
+    "loyalty program",
+    "returning client",
+    "account management",
+    "reorder process",
+    "subscription renewal",
+    "service continuation",
+    "ongoing support",
+    "maintenance contract",
+    "customer portal"
+  ],
+  "complaint_indicators": [
+    "difficult to reorder",
+    "no account history",
+    "have to re-explain needs",
+    "no loyalty benefits",
+    "forgotten preferences",
+    "inconvenient billing",
+    "payment method issues",
+    "no self-service options"
+  ],
+  "strength_indicators": [
+    "easy reorder process",
+    "customer account portal",
+    "order history visible",
+    "saved preferences",
+    "automatic renewals",
+    "proactive service reminders",
+    "volume discounts",
+    "dedicated account manager"
+  ],
+  "service_expansion_indicators": [
+    "subscription management",
+    "automatic reorder",
+    "usage-based billing",
+    "service upgrades",
+    "cross-selling recommendations",
+    "preferred customer benefits"
+  ],
+  "change_indicators": [
+    "new customer portal launched",
+    "updated loyalty program",
+    "revised pricing for existing customers",
+    "expanded service offerings for current clients",
+    "improved billing system",
+    "enhanced support hours"
+  ],
+  "contradiction_indicators": [
+    "outdated customer portal information",
+    "incorrect loyalty program details",
+    "wrong account management contacts",
+    "missing self-service options",
+    "expired promotional offers for existing customers",
+    "broken reorder functionality"
+  ],
+  "evidence_sources": [
+    "customer_login",
+    "account_page",
+    "order_history",
+    "pricing_for_existing_customers",
+    "support_page",
+    "billing_information",
+    "terms_conditions",
+    "privacy_policy_for_clients"
+  ],
+  "validation_criteria": {
+    "account_creation_required": false,
+    "order_history_available": true,
+    "reorder_process_simple": true,
+    "loyalty_program_clear": true
+  }
+}
