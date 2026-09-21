@@ -41,6 +41,8 @@ The isolated v32 branch adds:
 - `WEBSITE-AUDITOR-BRAIN/` vault root
 - tests proving Obsidian is optional and cannot authorize sends/approvals
 - `reports/V32_PHASE_AUDIT.md`
+- fail-closed `money-machine/supervisor/launchd.py` + `./mm launchd install|status|uninstall`
+- local-only Git ignore boundary for generated Obsidian prospect/runtime views
 
 The vault is explicitly non-authoritative. Editing Markdown cannot mutate SQLite, approve outreach, bypass suppression, change pricing, or enable transport.
 
