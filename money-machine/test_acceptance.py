@@ -17,7 +17,7 @@ import time
 import traceback
 import unittest
 from unittest.mock import patch
-sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
+sys.path.insert(0,str(Path(__file__).resolve().parent/'scripts'))
 import mm_core as c
 import mm_intelligence as i
 import mm_operator as o
