@@ -110,6 +110,17 @@ REGISTRY = {
         CheckDefinition("dns", "technical"),
         CheckDefinition("crawl", "technical"),
         CheckDefinition(
+            "lychee",
+            "technical",
+            limitation="External local CLI check; bounded by Lychee configuration and network conditions.",
+        ),
+        CheckDefinition(
+            "lighthouse",
+            "performance",
+            "rendered",
+            limitation="Laboratory result; not field Core Web Vitals.",
+        ),
+        CheckDefinition(
             "browser",
             "performance",
             "rendered",
