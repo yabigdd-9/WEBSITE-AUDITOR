@@ -11,6 +11,7 @@ from urllib.parse import urlparse
 from .browser import export_pdf, run_browser_checks
 from .checks import Finding, analyse_html, classify_response, dedupe_findings, score_findings
 from .common import Fetcher, atomic_write_json, atomic_write_text, validate_url
+from .external_tools import run_lighthouse, run_lychee
 from .hygiene import (
     check_mixed_content,
     check_robots,
@@ -45,6 +46,7 @@ class AuditOptions:
     ai_timeout: float = 120.0
     brand: str = "Website Auditor"
     hourly_rate_nzd: float | None = None
+    external_tools: bool = False
 
     def __post_init__(self):
         self.output_root = Path(self.output_root).resolve()
@@ -168,6 +170,13 @@ def run_audit(url, options=None, fetcher=None):
             for name in ("page", "schema", "headers", "hygiene", "ux", "links"):
                 if name in evidence:
                     evidence[name]["observed_at"] = fetched_at
+            if opts.external_tools:
+                perform("lychee", lambda: run_lychee(final_url), required=True)
+                perform("lighthouse", lambda: run_lighthouse(final_url), required=True)
+            else:
+                skip("lychee", "Enable external local tools")
+                skip("lighthouse", "Enable external local tools")
+
             if opts.tls:
                 perform("tls", lambda: inspect_tls(final_url, opts.timeout))
             else:
@@ -244,6 +253,8 @@ def run_audit(url, options=None, fetcher=None):
                 "tls",
                 "dns",
                 "crawl",
+                "lychee",
+                "lighthouse",
                 "browser",
                 "axe",
             ):
