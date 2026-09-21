@@ -1,0 +1,31 @@
+# Local-only n8n orchestration for WEBSITE-AUDITOR.
+# MoneyMachine remains the source of truth. No Docker socket is exposed.
+services:
+  n8n:
+    image: docker.io/n8nio/n8n:${N8N_VERSION:-2.39.8}
+    container_name: website-auditor-n8n
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5678:5678"
+    environment:
+      GENERIC_TIMEZONE: Pacific/Auckland
+      TZ: Pacific/Auckland
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      N8N_RESTRICT_FILE_ACCESS_TO: /files
+    volumes:
+      - ${N8N_DATA_DIR}:/home/node/.n8n
+      - ${N8N_FILES_DIR}:/files
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:5678/healthz >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - auditor_net
+
+networks:
+  auditor_net:
+    name: website-auditor-net
