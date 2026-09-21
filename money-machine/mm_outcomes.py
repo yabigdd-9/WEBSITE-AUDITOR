@@ -110,10 +110,25 @@ def record(d, business_id, outcome, evidence_path, evidence_hash, actor, note=""
 
 
 def summary(d):
-    migrate(d)
-    by_outcome = {r[0]: r[1] for r in d.execute(
-        "SELECT outcome,count(*) FROM prospect_outcomes GROUP BY outcome"
-    )}
+    exists = d.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='prospect_outcomes'"
+    ).fetchone()
+    if not exists:
+        return {
+            "generated_at": core.now(),
+            "total": 0,
+            "by_outcome": {},
+            "latest": [],
+            "status": "uninitialised",
+            "automatic_learning_applied": False,
+            "promotion_requires_p18_evaluation": True,
+        }
+    by_outcome = {
+        r[0]: r[1]
+        for r in d.execute(
+            "SELECT outcome,count(*) FROM prospect_outcomes GROUP BY outcome"
+        )
+    }
     total = sum(by_outcome.values())
     latest = [
         dict(r)
@@ -127,6 +142,7 @@ def summary(d):
         "total": total,
         "by_outcome": by_outcome,
         "latest": latest,
+        "status": "ready",
         "automatic_learning_applied": False,
         "promotion_requires_p18_evaluation": True,
     }
