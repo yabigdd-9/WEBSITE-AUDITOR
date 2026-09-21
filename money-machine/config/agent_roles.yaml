@@ -1,0 +1,41 @@
+version: "1.0"
+orchestrator: HERMES
+merge_authority: INTEGRATOR
+rules:
+  one_task_per_coding_agent: true
+  one_branch_or_worktree_per_coding_agent: true
+  concurrent_writes_to_same_path: false
+  direct_master_writes: false
+  judge_reviews_evidence_not_confidence: true
+  high_risk_changes_require_human_review: true
+  paid_model_usage_allowed: false
+  external_send_authority: false
+roles:
+  HERMES:
+    may_edit_code: false
+    may_merge: false
+    responsibilities: [delegate, schedule, monitor, collect_evidence]
+  RESEARCHER:
+    may_edit_code: false
+    may_merge: false
+    responsibilities: [research, provenance, evidence]
+  CODER:
+    may_edit_code: true
+    may_merge: false
+    responsibilities: [isolated_implementation, tests]
+  OPERATOR:
+    may_edit_code: false
+    may_merge: false
+    responsibilities: [runtime_checks, health, recovery]
+  JUDGE:
+    may_edit_code: false
+    may_merge: false
+    responsibilities: [test_review, evidence_review, regression_review]
+  PROOFER:
+    may_edit_code: false
+    may_merge: false
+    responsibilities: [copy_review, safety_review, evidence_linkage]
+  INTEGRATOR:
+    may_edit_code: true
+    may_merge: true
+    responsibilities: [resolve_conflicts, run_gates, promote_reviewed_changes]
