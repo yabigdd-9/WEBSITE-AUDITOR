@@ -65,6 +65,7 @@ def test_real_browser_pdf_portal(tmp_path):
                 assert download.value.suggested_filename == 'report.pdf'
                 page.goto(address)
                 page.get_by_role('button', name='Log out').click()
+                page.wait_for_url('**/login')
                 assert page.get_by_label('Password').is_visible()
                 browser.close()
         finally:
