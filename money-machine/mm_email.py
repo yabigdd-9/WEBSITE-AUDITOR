@@ -71,49 +71,87 @@ def is_disposable_email(email: str) -> bool:
         return False
 
 
-def refresh_disposable_blocklist(force: bool = False) -> dict:
-    """Attempt to refresh the disposable email blocklist from upstream source.
+def refresh_disposable_blocklist(
+    force: bool = False,
+    destination: str | Path | None = None,
+    expected_sha: str | None = None,
+) -> dict:
+    """Refresh the disposable-domain snapshot with normal TLS verification.
 
-    Returns a dict with status info. Set force=True to bypass cache and always download.
+    The download is fail-closed: only HTTPS is accepted, response size is bounded,
+    and a checksum mismatch never overwrites the trusted local snapshot.
     """
-    import hashlib
-    from pathlib import Path
-    import json as _json
+    import os
+    import tempfile
+    import urllib.request
+    from urllib.parse import urlsplit
 
-    config_path = Path(__file__).resolve().parents[1] / 'config/disposable_email_blocklist.conf'
+    config_path = Path(destination or (
+        Path(__file__).resolve().parents[1] / 'config/disposable_email_blocklist.conf'
+    ))
     source_info = DISPOSABLE_SOURCE.copy()
+    expected = expected_sha or source_info['sha256']
 
     if not force and config_path.exists():
         existing_sha = hashlib.sha256(config_path.read_bytes()).hexdigest()
-        if existing_sha == source_info['sha256']:
-            source_info['fresh'] = True
-            source_info['already_up_to_date'] = True
+        if existing_sha == expected:
+            source_info.update(fresh=True, already_up_to_date=True)
             return source_info
 
+    url = source_info['download_url']
+    parsed = urlsplit(url)
+    if parsed.scheme != 'https' or not parsed.hostname:
+        source_info.update(fresh=False, error='Blocklist source must use HTTPS', fallback=True)
+        return source_info
+
     try:
-        import urllib.request
-        import ssl
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
-        url = source_info['download_url']
-        with urllib.request.urlopen(url, timeout=30, context=ctx) as resp:
-            content = resp.read().decode('utf-8')
-        new_lines = [line.strip() for line in content.splitlines()
-                     if line.strip() and not line.startswith('#')]
-        # Write new blocklist
-        config_path.write_text('\n'.join(new_lines) + '\n')
-        new_sha = hashlib.sha256(config_path.read_bytes()).hexdigest()
-        source_info['fresh'] = True
-        source_info['downloaded'] = True
-        source_entries = len(set(line.lower() for line in new_lines))
-        source_info['entries'] = source_entries
-        source_info['sha256_match'] = new_sha == source_info['sha256']
+        with urllib.request.urlopen(url, timeout=30) as resp:
+            raw = resp.read(5 * 1024 * 1024 + 1)
+        if len(raw) > 5 * 1024 * 1024:
+            raise ValueError('Blocklist response exceeds 5 MiB')
+        content = raw.decode('utf-8')
+        new_lines = [
+            line.strip()
+            for line in content.splitlines()
+            if line.strip() and not line.startswith('#')
+        ]
+        candidate = ('\n'.join(new_lines) + '\n').encode('utf-8')
+        new_sha = hashlib.sha256(candidate).hexdigest()
+        if expected and new_sha != expected:
+            source_info.update(
+                fresh=False,
+                downloaded=False,
+                checksum_mismatch=True,
+                observed_sha256=new_sha,
+                error='Upstream blocklist checksum mismatch; trusted snapshot unchanged',
+                fallback=True,
+            )
+            return source_info
+
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+        fd, tmp = tempfile.mkstemp(prefix='.' + config_path.name, dir=config_path.parent)
+        try:
+            with os.fdopen(fd, 'wb') as handle:
+                handle.write(candidate)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(tmp, config_path)
+        finally:
+            if os.path.exists(tmp):
+                os.unlink(tmp)
+
+        source_info.update(
+            fresh=True,
+            downloaded=True,
+            entries=len({line.lower() for line in new_lines}),
+            sha256_match=True,
+            observed_sha256=new_sha,
+        )
         return source_info
-    except Exception as e:
-        source_info['error'] = str(e)
-        source_info['fallback'] = True
+    except Exception as exc:
+        source_info.update(error=str(exc), fallback=True, fresh=False)
         return source_info
+
 THIRD_PARTY = {'yellow.co.nz', 'yellowpages.com', 'yelp.com', 'facebook.com', 'instagram.com', 'linkedin.com', 'booking.com', 'tripadvisor.com', 'fresha.com', 'trademe.co.nz', 'builderscrack.co.nz', 'companyhub.nz', 'wixsite.com'}
 THIRD_PARTY.update({'finda.co.nz','neighbourly.co.nz','hotfrog.co.nz','cylex.co.nz','cybo.com','trustindex.io','birdeye.com','foursquare.com','google.com'})
 VENDORS = {'wix.com', 'sentry.io', 'xero.com', 'squarespace.com', 'godaddy.com', 'mailchimp.com', 'hubspot.com'}
