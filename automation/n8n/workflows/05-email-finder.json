@@ -1,0 +1,83 @@
+{
+  "name": "05 - Email Finder V2 Status",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://host.docker.internal:8787/email-status",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "Authorization": "Bearer {{$credentials.mmBridgeToken}}"
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "id",
+              "value": "={{$json.business_id}}"
+            }
+          ]
+        }
+      },
+      "name": "Email Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        350,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const envelope = $input.first().json;\\nconst result = envelope.result || envelope;\\nconst selected = result.selected || {};\\nreturn [{ json: { business_id: result.business_id, business: result.business, email: selected.normalized_email || 'NO_VERIFIED_EMAIL', confidence: selected.confidence_score || 0, confidence_label: selected.confidence_label || 'NO_VERIFIED_EMAIL', reasons: selected.reasons || [], provenance: selected.evidence || [] } }];"
+      },
+      "name": "Format Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Email Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Status": {
+      "main": [
+        [
+          {
+            "node": "Format Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "timezone": "Pacific/Auckland",
+    "executionTimeout": 300
+  }
+}
