@@ -1,23 +1,65 @@
-# WEBSITES/BUISNESSaudits — current state
+# WEBSITE-AUDITOR — current state
 
-Internal repairs and two evidence-backed packets are ready for owner review. Outreach remains blocked. This is not evidence of revenue, delivery, or successful Hermes inference.
+Updated: 2026-09-21  
+Canonical local workspace: `/Users/dd/WEBSITE-AUDITOR`  
+Canonical repository: `yabigdd-9/WEBSITE-AUDITOR`  
+Baseline master inspected: `dafb280308c4686fe4018da842b2b5df59ec85fc`  
+Active v32 execution branch: `execution/v32-obsidian-canonical`
 
-Authoritative repository: https://github.com/yabigdd-9/HERMES_MONEY_ENGINE. Canonical local checkout: `/Users/yabigdd/HERMES_MONEY_ENGINE`. The isolated build under this task's `work/` is a test checkout, not a second operator root. Baseline master HEAD: `08441a8c56f7de51b73feabc053af16cb1065b9a`.
+## Canonical direction
 
-## Measured results
+The active execution specification is **WEBSITE-AUDITOR Master Merged Plan v32**.
 
-- Fresh frozen batch: 25 businesses, 17 engine selections, 8 NO_VERIFIED_EMAIL, 7 unresolved engine identities, 26 candidates preserved.
-- Separate agent review: 13 attributable, 4 uncertain, 0 definitely wrong. Independent human review: 0. No outreach eligibility granted.
-- Moutere Caravans and Aspect both reach HUMAN_APPROVAL_REQUIRED through deterministic internal stages. No model-powered orchestration was run.
-- The final test log and test summary are authoritative for counts. Existing test resource warnings and two skips remain disclosed.
-- Hermes 0.21.2 (2026.9.11) exposes `chat --query-file --oneshot --safe-mode`; capability checks pass. No paid fallback exists in the repaired adapter. Inference smoke is BLOCKED_COST.
+- Python 3.11.
+- Local-first and deterministic-first.
+- Paid model/API usage forbidden by default: `paid_allowed=false`, `max_cost_usd=0`.
+- No silent paid fallback.
+- Outreach sending disabled by default.
+- SQLite + state files + `./mm` remain authoritative.
+- launchd / `./mm supervisor` are the intended runtime supervision layer.
+- Obsidian is the human-facing master brain/operator workspace only.
+- n8n is not required by the default runtime.
 
-## Operator entrypoints
+## Confirmed recent integration
 
-`mm --runtime` identifies the workspace/interpreter. `mm --help` lists commands. `mm email-status 5 --json` reads current contact status. `mm polish-status` shows this dated validation snapshot. `money-machine/Daily Operator.command --runtime` reports the same runtime; normal Daily execution produces the local dashboard.
+PR #33 merged the agency revenue/monthly reporting work into master. Before merge, local validation showed:
 
-Fresh artifacts live in this task's outputs. See [pilot result](PILOT_001_RESULT.md), [validation](EMAIL_FINDER_V2_FRESH_VALIDATION.md), [blockers](OPEN_BLOCKERS.md), [change manifest](/Users/yabigdd/Documents/Codex/2026-09-13/files-mentioned-by-the-user-websites/outputs/change-manifest.json) and [local installation evidence](/Users/yabigdd/Documents/Codex/2026-09-13/files-mentioned-by-the-user-websites/outputs/evidence/local-installation.json).
+- agency/monthly suite: 21 passed
+- release suite: 16 passed
+- real Chromium monthly portal E2E: 1 passed
+- draft-only email delivery remained fail-closed
 
-The user's three pre-existing outreach edits and live SQLite database are preserved. The local installation report states exact verification results. No GitHub push or production publication is part of this run.
+A fresh full repository regression/security run is still required after the v32 Obsidian changes before promotion.
 
-Evidence is in the sibling outputs/evidence directory. All times in evidence are UTC; this run occurred 13 September 2026 in Pacific/Auckland.
+## v32 execution now in progress
+
+The isolated v32 branch adds:
+
+- `money-machine/mm_obsidian.py`: one-way runtime → Obsidian renderer
+- `./mm obsidian-sync`
+- `./mm obsidian-status`
+- `WEBSITE-AUDITOR-BRAIN/` vault root
+- tests proving Obsidian is optional and cannot authorize sends/approvals
+- `reports/V32_PHASE_AUDIT.md`
+
+The vault is explicitly non-authoritative. Editing Markdown cannot mutate SQLite, approve outreach, bypass suppression, change pricing, or enable transport.
+
+## Current safety state
+
+- External send: disabled by default
+- Paid inference: forbidden by policy
+- Obsidian runtime dependency: false
+- n8n default dependency: false
+- Direct-to-master autonomous self-improvement: forbidden
+- High-risk changes: human review required
+
+## Highest-priority remaining gates
+
+1. Run focused Obsidian tests and full regression on the v32 branch.
+2. Prove supervisor kill/restart recovery and complete launchd validation.
+3. Finish one canonical NZ discovery + identity-resolution path.
+4. Re-run Email Finder V2 precision/regression gates.
+5. Complete missing deterministic audit checks and P10-P13 commercial artifact flow.
+6. Expand observability and measured challenger promotion after the above are green.
+
+See `reports/V32_PHASE_AUDIT.md` for the phase-by-phase assessment.
