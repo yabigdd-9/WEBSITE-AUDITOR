@@ -148,6 +148,11 @@ def doctor(d):
 def main(argv=None):
     p=argparse.ArgumentParser(description=__doc__);s=p.add_subparsers(dest='cmd',required=True)
     for cmd in ('daily','run-day','status','money','learn','backup','init','doctor'):s.add_parser(cmd)
+    q=s.add_parser('supervisor')
+    q.add_argument('action',choices=['start','stop','restart','status','health','logs'])
+    q.add_argument('--sleep',type=float,default=5)
+    q.add_argument('--tail',type=int,default=50)
+    q.add_argument('--timeout',type=float,default=15)
     q=s.add_parser('outreach-plan');q.add_argument('--brief',required=True)
     s.add_parser('polish-status')
     q=s.add_parser('audit-packet');q.add_argument('--case',required=True);q.add_argument('--output',required=True);q.add_argument('--rendered-review')
@@ -220,6 +225,12 @@ def main(argv=None):
         print(email_cli.human_text(result) if a.cmd in ('email-status','email-find') and not a.json else json.dumps(result,indent=2))
         return 0
     if a.cmd=='backup':print(backup());return 0
+    if a.cmd=='supervisor':
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from supervisor import cli as _sc
+        result=_sc.COMMANDS[a.action](a)
+        print(json.dumps(result,indent=2,default=str))
+        return 0
     if a.cmd in ('pipeline-run','pipeline-status','pipeline-enqueue','pipeline-transition','pipeline-health','approval-check','approval-decide','model-plan','deploy-check'):
         import mm_pipeline, mm_approval, mm_model_router, mm_workers
         readonly=a.cmd in ('approval-check',)

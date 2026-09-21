@@ -1,0 +1,40 @@
+# Gitleaks configuration — P0 secret-scanning gate (DEEP_UPGRADE_PLAN section 10).
+# Default ruleset is extended with project-specific API keys.
+title = "WEBSITE-AUDITOR secrets"
+
+[extend]
+useDefault = true
+
+[[rules]]
+  id = "generic-api-key-assignment"
+  description = "Generic API key"
+  regex = '''["'](?i)(?:api[_-]?key|token|secret|password)["']?\s*[:=]\s*["']([A-Za-z0-9_\-]{12,})["']'''
+
+[[rules]]
+  id = "google-api-key"
+  description = "Google API key (PageSpeed Insights)"
+  regex = '''AIza[0-9A-Za-z_\-]{35}'''
+  tags = ["key", "google", "pagespeed"]
+
+[[rules]]
+  id = "ranknibbler-live-key"
+  description = "RankNibbler live key"
+  regex = '''rnk_live_[A-Za-z0-9]+'''
+  tags = ["key", "ranknibbler"]
+
+[[rules]]
+  id = "gmail-oauth-refresh-token"
+  description = "Google OAuth refresh token"
+  regex = '''1//0[0-9A-Za-z_\-]{50,}'''
+  tags = ["oauth", "google", "gmail"]
+
+[allowlist]
+  description = "Docs, placeholders and generated evidence archives"
+  paths = [
+    "\\.gitleaks\\.toml",
+    "\\.env\\.example",
+    "DEEP_UPGRADE_PLAN\\.md",
+    "UPGRADE_PLAN\\.md",
+    "reports/email-observation-evidence/.*",
+    "test_.*\\.py",
+  ]

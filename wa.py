@@ -1,248 +1,229 @@
 #!/usr/bin/env python3
 """
-wa — WEBSITE-AUDITOR CLI
-Usage: python3 wa.py <command> [options]
+wa - WEBSITE-AUDITOR Master Command
+Runs the ENTIRE 18-module platform in one command.
+
+Usage:
+  python3 wa.py run <domain>     Run everything for one domain
+  python3 wa.py run --all        Run everything for all clients
+  python3 wa.py status           Quick system status
+  python3 wa.py open             Open the command center
+  python3 wa.py help             Show all commands
 """
-import sys, os, json, subprocess
+import subprocess, sys, os, time
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime
 
 os.environ.setdefault("SSL_CERT_FILE", "/etc/ssl/cert.pem")
 os.environ.setdefault("REQUESTS_CA_BUNDLE", "/etc/ssl/cert.pem")
 
-HELP = """
-╔══════════════════════════════════════════════════════════╗
-║  wa — WEBSITE-AUDITOR Command Center                    ║
-╠══════════════════════════════════════════════════════════╣
-║                                                          ║
-║  AUDIT                                                   ║
-║    wa audit <url>          Audit a single site           ║
-║    wa batch                Run batch remediation         ║
-║    wa dashboard            Generate HTML dashboard       ║
-║                                                          ║
-║  ACTIONS                                                 ║
-║    wa actions status       Show action engine status     ║
-║    wa actions list         List proposed actions         ║
-║    wa actions dry-run      Evaluate all actions          ║
-║    wa actions approve <id> Approve an action             ║
-║                                                          ║
-║  MONITOR                                                 ║
-║    wa watchdog             Run regression check          ║
-║    wa watchdog history     Show snapshot history         ║
-║                                                          ║
-║  OUTREACH                                                ║
-║    wa outreach drafts      List generated drafts         ║
-║    wa outreach compliance  Check compliance status       ║
-║                                                          ║
-║  AI                                                      ║
-║    wa ai summary <url>     Generate AI summary           ║
-║    wa ai status            Check Ollama availability     ║
-║                                                          ║
-║  PORTAL                                                  ║
-║    wa portal               Start client portal           ║
-║                                                          ║
-║  PIPELINE                                                ║
-║    wa run <url>            Run FULL pipeline             ║
-║    wa status               Show system status            ║
-║                                                          ║
-╚══════════════════════════════════════════════════════════╝
-"""
+MODULES = [
+    {"name": "Single-Site Audit",    "script": "website_auditor.py",    "args": ["{domain}"],  "phase": "AUDIT"},
+    {"name": "Batch Remediation",    "script": "remediation-engine.py", "args": ["--all", "--output-dir", "outputs/remediations"], "phase": "AUDIT"},
+    {"name": "Dashboard",            "script": "audit-dashboard.py",    "args": ["--output", "report.html"], "phase": "AUDIT"},
+    {"name": "Revenue Calculator",   "script": "revenue_report.py",     "args": [],            "phase": "REVENUE"},
+    {"name": "Monthly Reports",      "script": "monthly_report.py",     "args": [],            "phase": "REVENUE"},
+    {"name": "Prospect Scoring",     "script": "generate_outreach.py",  "args": [],            "phase": "SALES"},
+    {"name": "AI Sales Assistant",   "script": "ai_sales.py",           "args": ["{domain}"],  "phase": "SALES"},
+    {"name": "Approval Workflow",    "script": "approval_workflow.py",  "args": [],            "phase": "CLIENT"},
+    {"name": "Churn Predictor",      "script": "churn_predictor.py",    "args": [],            "phase": "CLIENT"},
+    {"name": "Nightly Watchdog",     "script": "nightly_watchdog.py",   "args": [],            "phase": "MONITOR"},
+    {"name": "SSL Monitor",          "script": "ssl_monitor.py",        "args": ["--days", "30"], "phase": "MONITOR"},
+    {"name": "Uptime Monitor",       "script": "uptime_monitor.py",     "args": [],            "phase": "MONITOR"},
+    {"name": "SEO Tracker",          "script": "seo_tracker.py",        "args": [],            "phase": "MONITOR"},
+    {"name": "Backup Checker",       "script": "backup_checker.py",     "args": [],            "phase": "MONITOR"},
+    {"name": "Legal Shield",         "script": "legal_shield.py",       "args": [],            "phase": "COMPLIANCE"},
+    {"name": "CRM Export",           "script": "crm_hub.py",            "args": ["--format", "generic"], "phase": "EXPORT"},
+    {"name": "Command Center",       "script": "command_center.py",     "args": [],            "phase": "DASHBOARD"},
+]
 
-def cmd_audit(url):
-    print(f"\n🔍 Auditing: {url}")
-    subprocess.run([sys.executable, "website_auditor.py", url])
 
-def cmd_batch():
-    print("\n🔧 Running batch remediation...")
-    subprocess.run([sys.executable, "remediation-engine.py", "--all", "--output-dir", "outputs/remediations"])
+def run_module(module, domain=None):
+    script = module["script"]
+    if not Path(script).exists():
+        return {"status": "skipped", "reason": script + " not found"}
 
-def cmd_dashboard():
-    print("\n📊 Generating dashboard...")
-    subprocess.run([sys.executable, "audit-dashboard.py", "--output", "report.html"])
-    print("   Open: open report.html")
+    args = []
+    for arg in module.get("args", []):
+        if arg == "{domain}" and domain:
+            args.append(domain)
+        elif arg != "{domain}":
+            args.append(arg)
 
-def cmd_run(url):
-    print(f"\n🚀 Running full pipeline for: {url}")
-    subprocess.run([sys.executable, "run_all.py", url])
+    if "{domain}" in module.get("args", []) and not domain:
+        return {"status": "skipped", "reason": "No domain specified"}
 
-def cmd_actions_status():
+    cmd = [sys.executable, script] + args
     try:
-        from website_auditor.actions.executor import ActionExecutor
-        ex = ActionExecutor()
-        summary = ex.status_summary()
-        print(json.dumps(summary, indent=2))
+        start = time.time()
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        elapsed = time.time() - start
+        if result.returncode == 0:
+            return {"status": "success", "time": round(elapsed, 1)}
+        else:
+            err = result.stderr.strip().split("\n")[-1][:80] if result.stderr else "Unknown"
+            return {"status": "error", "reason": err, "time": round(elapsed, 1)}
+    except subprocess.TimeoutExpired:
+        return {"status": "timeout", "reason": "Exceeded 120s"}
     except Exception as e:
-        print(f"⚠️  {e}")
+        return {"status": "error", "reason": str(e)[:80]}
 
-def cmd_actions_list():
-    path = Path("outputs/actions/proposed_actions.jsonl")
-    if not path.exists():
-        print("No actions found. Run: wa run <url>")
-        return
-    for line in path.read_text().splitlines():
-        if line.strip():
-            a = json.loads(line)
-            print(f"  {a['action_id'][:16]} | {a['domain']:<30} | {a['name']:<35} | {a['risk']:<8} | {a['status']}")
 
-def cmd_actions_dry_run():
-    try:
-        from website_auditor.actions.executor import ActionExecutor
-        ex = ActionExecutor()
-        result = ex.dry_run_all()
-        print(json.dumps(result, indent=2))
-    except Exception as e:
-        print(f"⚠️  {e}")
+def run_all(domain=None):
+    sep = "#" * 70
+    eq = "=" * 70
+    print("\n" + sep)
+    print("#  WEBSITE-AUDITOR - FULL PLATFORM EXECUTION")
+    print("#  Target: " + (domain or "All Clients"))
+    print("#  Started: " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    print(sep + "\n")
 
-def cmd_watchdog():
-    try:
-        from website_auditor.monitoring.watchdog import Watchdog
-        wd = Watchdog()
-        rem_dir = Path("outputs/remediations")
-        if not rem_dir.exists():
-            print("No remediation data. Run: wa batch")
-            return
-        for f in rem_dir.glob("*.json"):
-            if "summary" in f.name: continue
-            data = json.loads(f.read_text())
-            domain = f.stem.replace("-remediation", "")
-            defects = data.get("defects", data.get("issues", []))
-            result = wd.run_check(domain, defects)
-            status = "baseline" if result.get("first_audit") else f"{len(result.get('regressions', []))} regressions"
-            print(f"  {domain}: {status}")
-    except Exception as e:
-        print(f"⚠️  {e}")
+    results = []
+    current_phase = ""
 
-def cmd_watchdog_history():
-    snap_dir = Path("outputs/snapshots")
-    if not snap_dir.exists():
-        print("No snapshots yet. Run: wa watchdog")
-        return
-    for f in sorted(snap_dir.glob("*.json")):
-        data = json.loads(f.read_text())
-        print(f"  {data.get('domain', '?'):<30} | {data.get('timestamp', '?')} | {data.get('count', 0)} defects")
+    for module in MODULES:
+        if module["phase"] != current_phase:
+            current_phase = module["phase"]
+            print("\n" + eq)
+            print("  PHASE: " + current_phase)
+            print(eq)
 
-def cmd_outreach_drafts():
-    draft_dir = Path("outputs/outreach")
-    if not draft_dir.exists():
-        print("No drafts. Run: wa run <url>")
-        return
-    for f in draft_dir.glob("draft_*.json"):
-        d = json.loads(f.read_text())
-        comp = d.get("compliance", {})
-        print(f"  {d.get('domain', '?'):<30} | to: {d.get('to', '?'):<30} | compliance: {'✅' if comp.get('passed') else '❌'}")
+        print("  Running: " + module["name"].ljust(35), end=" ", flush=True)
+        result = run_module(module, domain)
+        results.append({"module": module["name"], **result})
 
-def cmd_ai_status():
-    import urllib.request
-    try:
-        req = urllib.request.Request("http://localhost:11434/api/tags")
-        with urllib.request.urlopen(req, timeout=2) as resp:
-            models = json.loads(resp.read()).get("models", [])
-            print(f"  ✅ Ollama running | Models: {[m['name'] for m in models]}")
-    except Exception:
-        print("  ℹ️  Ollama not running — using template fallback")
+        if result["status"] == "success":
+            print("OK (" + str(result.get("time", "")) + "s)")
+        elif result["status"] == "skipped":
+            print("SKIP: " + result.get("reason", ""))
+        elif result["status"] == "timeout":
+            print("TIMEOUT")
+        else:
+            print("FAIL: " + result.get("reason", "")[:50])
 
-def cmd_ai_summary(url):
-    try:
-        from website_auditor.ai.summarizer import AISummarizer
-        ai = AISummarizer()
-        clean = url.replace("https://", "").replace("http://", "").split("/")[0]
-        defects = []
-        score = 0
-        for f in Path("outputs/remediations").glob("*.json"):
-            if "summary" in f.name: continue
-            try:
-                data = json.loads(f.read_text())
-                defects = data.get("defects", data.get("issues", []))
-                score = data.get("score", 0)
-                break
-            except: continue
-        result = ai.generate_summary(clean, defects, score)
-        print(f"\n  [{result['source']}]")
-        print(f"  {result['summary']}")
-    except Exception as e:
-        print(f"⚠️  {e}")
+    success = len([r for r in results if r["status"] == "success"])
+    skipped = len([r for r in results if r["status"] == "skipped"])
+    failed = len([r for r in results if r["status"] in ["error", "timeout"]])
 
-def cmd_portal():
-    subprocess.run([sys.executable, "-m", "website_auditor.portal.server"])
+    print("\n" + sep)
+    print("#  EXECUTION COMPLETE")
+    print("#  Success: " + str(success) + "  |  Skipped: " + str(skipped) + "  |  Failed: " + str(failed))
+    print(sep + "\n")
 
-def cmd_status():
-    print("\n╔══════════════════════════════════════════╗")
-    print("║  SYSTEM STATUS                           ║")
-    print("╠══════════════════════════════════════════╣")
-    
-    # Audit outputs
-    rem_dir = Path("outputs/remediations")
-    site_count = len(list(rem_dir.glob("*-remediation.json"))) if rem_dir.exists() else 0
-    print(f"║  Sites audited:    {site_count:<25}║")
-    
-    # Actions
-    act_file = Path("outputs/actions/proposed_actions.jsonl")
-    act_count = len(act_file.read_text().splitlines()) if act_file.exists() else 0
-    print(f"║  Proposed actions: {act_count:<25}║")
-    
-    # Snapshots
-    snap_dir = Path("outputs/snapshots")
-    snap_count = len(list(snap_dir.glob("*.json"))) if snap_dir.exists() else 0
-    print(f"║  Snapshots:        {snap_count:<25}║")
-    
-    # Drafts
-    draft_dir = Path("outputs/outreach")
-    draft_count = len(list(draft_dir.glob("draft_*.json"))) if draft_dir.exists() else 0
-    print(f"║  Outreach drafts:  {draft_count:<25}║")
-    
-    # AI
-    import urllib.request
-    try:
-        urllib.request.urlopen("http://localhost:11434/api/tags", timeout=1)
-        ai_status = "✅ Ollama active"
-    except:
-        ai_status = "ℹ️  Template fallback"
-    print(f"║  AI engine:        {ai_status:<25}║")
-    
-    # Portal
-    print(f"║  Portal:           python3 wa.py portal  ║")
-    print("╚══════════════════════════════════════════╝")
+    rev_summary = Path("outputs/revenue/portfolio-summary.json")
+    if rev_summary.exists():
+        import json
+        data = json.loads(rev_summary.read_text())
+        risk = data.get("total_revenue_at_risk_nzd", 0)
+        cost = data.get("total_fix_cost_nzd", 0)
+        sites = data.get("sites_analysed", 0)
+        print("  Revenue at Risk: $" + format(risk, ",") + "/month")
+        print("  Fix Investment:  $" + format(cost, ","))
+        print("  Sites Analysed:  " + str(sites))
+
+    print("\n  Reports:    outputs/reports/")
+    print("  Revenue:    outputs/revenue/")
+    print("  CRM Export: outputs/crm/")
+    print("  Compliance: outputs/compliance/")
+    print("\n  Open Command Center: python3 wa.py open")
+    print(sep + "\n")
+    return results
+
+
+def show_status():
+    eq = "=" * 60
+    print("\n" + eq)
+    print("  WEBSITE-AUDITOR SYSTEM STATUS")
+    print(eq + "\n")
+
+    checks = {
+        "Audit Data": Path("outputs/remediations").exists(),
+        "Revenue Data": Path("outputs/revenue").exists(),
+        "Monthly Reports": Path("outputs/reports").exists(),
+        "Outreach Pipeline": Path("outputs/outreach").exists(),
+        "Snapshots": Path("outputs/snapshots").exists(),
+        "Compliance": Path("outputs/compliance").exists(),
+        "SSL Reports": Path("outputs/ssl").exists(),
+        "Uptime Data": Path("outputs/uptime").exists(),
+        "SEO Data": Path("outputs/seo").exists(),
+        "CRM Export": Path("outputs/crm").exists(),
+        "Command Center": Path("outputs/command_center.html").exists(),
+    }
+
+    for name, exists in checks.items():
+        icon = "[OK]" if exists else "[--]"
+        print("  " + icon + " " + name)
+
+    print("\n" + eq + "\n")
+
+
+def open_command_center():
+    cc_path = Path("outputs/command_center.html")
+    if cc_path.exists():
+        if sys.platform == "darwin":
+            subprocess.run(["open", str(cc_path)])
+        elif sys.platform == "linux":
+            subprocess.run(["xdg-open", str(cc_path)])
+        elif sys.platform == "win32":
+            subprocess.run(["start", str(cc_path)], shell=True)
+        print("  Opened: " + str(cc_path))
+    else:
+        print("  Command center not found. Run: python3 wa.py run --all")
+
+
+def show_help():
+    eq = "=" * 60
+    print("\n" + eq)
+    print("  wa - WEBSITE-AUDITOR MASTER COMMAND")
+    print(eq)
+    print("")
+    print("  USAGE:")
+    print("    python3 wa.py run <domain>    Run full platform for one domain")
+    print("    python3 wa.py run --all       Run full platform for all clients")
+    print("    python3 wa.py status          Show system status")
+    print("    python3 wa.py open            Open command center in browser")
+    print("    python3 wa.py help            Show this help")
+    print("")
+    print("  EXAMPLES:")
+    print("    python3 wa.py run clyne-bennie.co.nz")
+    print("    python3 wa.py run --all")
+    print("    python3 wa.py open")
+    print("")
+    print("  PHASES (17 modules):")
+    print("    AUDIT      Site audit, remediation, dashboard")
+    print("    REVENUE    Revenue calculator, monthly reports")
+    print("    SALES      Prospect scoring, AI sales assistant")
+    print("    CLIENT     Approval workflow, churn predictor")
+    print("    MONITOR    Watchdog, SSL, uptime, SEO, backups")
+    print("    COMPLIANCE Legal shield")
+    print("    EXPORT     CRM export")
+    print("    DASHBOARD  Command center generation")
+    print("")
+    print(eq + "\n")
+
 
 def main():
     if len(sys.argv) < 2:
-        print(HELP)
+        show_help()
         return
-    
-    cmd = sys.argv[1]
-    args = sys.argv[2:]
-    
-    commands = {
-        "audit": lambda: cmd_audit(args[0] if args else "https://example.co.nz"),
-        "batch": cmd_batch,
-        "dashboard": cmd_dashboard,
-        "run": lambda: cmd_run(args[0] if args else "https://example.co.nz"),
-        "status": cmd_status,
-        "portal": cmd_portal,
-        "help": lambda: print(HELP),
-    }
-    
-    # Nested commands
-    if cmd == "actions" and args:
-        sub = args[0]
-        if sub == "status": cmd_actions_status()
-        elif sub == "list": cmd_actions_list()
-        elif sub == "dry-run": cmd_actions_dry_run()
-        else: print(f"Unknown actions command: {sub}")
-    elif cmd == "watchdog":
-        if args and args[0] == "history": cmd_watchdog_history()
-        else: cmd_watchdog()
-    elif cmd == "outreach":
-        if args and args[0] == "drafts": cmd_outreach_drafts()
-        else: cmd_outreach_drafts()
-    elif cmd == "ai":
-        if args and args[0] == "status": cmd_ai_status()
-        elif args and args[0] == "summary": cmd_ai_summary(args[1] if len(args) > 1 else "example.co.nz")
-        else: cmd_ai_status()
-    elif cmd in commands:
-        commands[cmd]()
+
+    cmd = sys.argv[1].lower()
+
+    if cmd == "run":
+        domain = None
+        if len(sys.argv) > 2 and sys.argv[2] != "--all":
+            domain = sys.argv[2]
+        run_all(domain)
+    elif cmd == "status":
+        show_status()
+    elif cmd == "open":
+        open_command_center()
+    elif cmd == "help":
+        show_help()
     else:
-        print(f"Unknown command: {cmd}")
-        print(HELP)
+        print("Unknown command: " + cmd)
+        show_help()
+
 
 if __name__ == "__main__":
     main()

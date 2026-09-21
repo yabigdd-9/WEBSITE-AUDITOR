@@ -9,4 +9,3 @@ def load_cpu_llama(model_path: str | Path, **kwargs):
     defaults = {"n_gpu_layers": 0, "n_ctx": 2048, "n_threads": 2, "n_batch": 32, "verbose": False}
     defaults.update(kwargs)
     return Llama(model_path=str(model_path), **defaults)
-

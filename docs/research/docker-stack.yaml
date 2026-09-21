@@ -1,0 +1,24 @@
+services:
+  redis:
+    image: redis:7-alpine
+    volumes: [redis-data:/data]
+  gotenberg:
+    image: gotenberg/gotenberg:8
+  mailpit:
+    image: axllent/mailpit
+    ports: ["8025:8025", "1025:1025"]
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+  beszel:
+    image: henrygd/beszel
+  searxng:
+    image: searxng/searxng:latest
+  minio:
+    image: minio/minio
+    command: server /data
+  reacher:
+    image: reacherhq/check-if-email-exists
+  n8n:
+    image: n8nio/n8n
+volumes:
+  redis-data: {}

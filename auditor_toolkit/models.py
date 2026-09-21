@@ -1,25 +1,26 @@
 """Versioned audit records. A completed check can contain defects."""
+
 from dataclasses import asdict, dataclass, field
 from typing import Any, Literal
 
 SCHEMA_VERSION = 2
-Status = Literal['ok', 'error', 'skipped']
+Status = Literal["ok", "error", "skipped"]
 
 
 @dataclass(frozen=True)
 class CheckDefinition:
     id: str
     category: str
-    mode: str = 'static'
-    version: str = '1'
+    mode: str = "static"
+    version: str = "1"
     evidence_required: bool = True
-    limitation: str = ''
+    limitation: str = ""
 
 
 @dataclass
 class CheckResult:
     status: Status
-    reason: str = ''
+    reason: str = ""
     required: bool = True
     elapsed_ms: int = 0
 
@@ -30,7 +31,7 @@ class Evidence:
     observed_at: str
     mode: str
     data: dict[str, Any] = field(default_factory=dict)
-    tool_version: str = '2'
+    tool_version: str = "2"
 
 
 @dataclass
@@ -51,10 +52,10 @@ class Artifact:
 @dataclass
 class Remediation:
     finding_id: str
-    state: str = 'detected'
-    owner: str = ''
-    due_date: str = ''
-    fix_reference: str = ''
+    state: str = "detected"
+    owner: str = ""
+    due_date: str = ""
+    fix_reference: str = ""
     last_verified: str | None = None
 
 
@@ -72,17 +73,44 @@ class AuditRun:
         return asdict(self)
 
 
-REGISTRY = {d.id: d for d in (
-    CheckDefinition('fetch', 'technical'),
-    CheckDefinition('page', 'seo', limitation='Content and conversion observations require editorial review.'),
-    CheckDefinition('schema', 'local', limitation='Presence does not establish eligibility or business identity.'),
-    CheckDefinition('accessibility_static', 'accessibility', limitation='Static checks do not establish conformance.'),
-    CheckDefinition('ux', 'privacy', limitation='Observed behavior is not a legal determination.'),
-    CheckDefinition('headers', 'security'),
-    CheckDefinition('tls', 'security'),
-    CheckDefinition('dns', 'technical'),
-    CheckDefinition('crawl', 'technical'),
-    CheckDefinition('browser', 'performance', 'rendered', limitation='Laboratory observations, not field Core Web Vitals.'),
-    CheckDefinition('axe', 'accessibility', 'rendered', limitation='Manual keyboard, screen-reader and content review remains necessary.'),
-    CheckDefinition('pdf', 'reporting', 'rendered'),
-)}
+REGISTRY = {
+    d.id: d
+    for d in (
+        CheckDefinition("fetch", "technical"),
+        CheckDefinition(
+            "page",
+            "seo",
+            limitation="Content and conversion observations require editorial review.",
+        ),
+        CheckDefinition(
+            "schema",
+            "local",
+            limitation="Presence does not establish eligibility or business identity.",
+        ),
+        CheckDefinition(
+            "accessibility_static",
+            "accessibility",
+            limitation="Static checks do not establish conformance.",
+        ),
+        CheckDefinition(
+            "ux", "privacy", limitation="Observed behavior is not a legal determination."
+        ),
+        CheckDefinition("headers", "security"),
+        CheckDefinition("tls", "security"),
+        CheckDefinition("dns", "technical"),
+        CheckDefinition("crawl", "technical"),
+        CheckDefinition(
+            "browser",
+            "performance",
+            "rendered",
+            limitation="Laboratory observations, not field Core Web Vitals.",
+        ),
+        CheckDefinition(
+            "axe",
+            "accessibility",
+            "rendered",
+            limitation="Manual keyboard, screen-reader and content review remains necessary.",
+        ),
+        CheckDefinition("pdf", "reporting", "rendered"),
+    )
+}

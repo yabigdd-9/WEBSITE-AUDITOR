@@ -1,0 +1,212 @@
+# WEBSITE-AUDITOR — Machine-readable upgrade research
+# Companion to UPGRADE_RESEARCH_2026.md (v2.0.0)
+# Generated: 2026-09-21 — licences per the .md verification legend
+# (verified = checked against the official source this session)
+
+report:
+  title: "WEBSITE-AUDITOR — Deep Upgrade, Optimisation & Tool Discovery"
+  version: "2.0.0"
+  date: "2026-09-21"
+  constraints:
+    operating_cost: "$0"
+    platforms: [macos, docker]
+    operation: "unattended 24/7, scriptable, actively maintained"
+    license_preference: [open-source, self-hostable, local-first]
+
+ground_truth:
+  blocking_defects:
+    - "python:email venv missing -> ./mm doctor BLOCKED_RUNTIME"
+    - "money-machine/.venv-email broken symlink"
+    - "host python 3.9.6 vs required >=3.11"
+    - "docker absent"
+    - "ollama absent / no local models pulled"
+    - "auditor_toolkit/ai.py pins stale llama-2-7b-chat.Q4_K_M.gguf"
+  strengths_to_keep:
+    - mm_pipeline state machine (leases, expiry recovery, circuit breakers, BlockedCost)
+    - mm_approval + approval_gates.yaml (evidence-gated, per_message approval)
+    - mm_intelligence interval-based expected-value scoring
+    - JUDGE_SPEC / PROOFER_SPEC adversarial gates
+    - tier1_enrichment keyless-first enrichment + cache
+    - mm_suppression, outreach_send_ledger, mm_receipts
+
+top_25_upgrades:
+  - {id: 1,  priority: P0, upgrade: "Containerise whole system (python:3.12-slim, root compose.yaml, restart: unless-stopped)", stage: foundation, effort: M}
+  - {id: 2,  priority: P0, upgrade: "Replace Llama-2-7B pin with role-routed local stack (qwen3-vl:8b + small tool-calling model)", stage: ai/vision, license: Apache-2.0, effort: S}
+  - {id: 3,  priority: P0, upgrade: "Add Groq + Google AI Studio (Gemini) + Cloudflare Workers AI as free routes in PURPOSE_ROUTES", stage: ai/reliability, license: free-tiers, effort: M}
+  - {id: 4,  priority: P0, upgrade: "Adopt NZBN API as discovery + identity backbone (free registry, bulk extract, change events)", stage: discovery/identity, license: free-verified, effort: M}
+  - {id: 5,  priority: P0, upgrade: "Drop public Nominatim POI harvesting (banned); use Geofabrik nz-latest.osm.pbf + self-host", stage: discovery/legal, license: ODbL, effort: M}
+  - {id: 6,  priority: P0, upgrade: "Probabilistic entity resolution with Splink over SQLite/DuckDB", stage: identity-resolution, license: MIT-verified, effort: S}
+  - {id: 7,  priority: P0, upgrade: "Real Lighthouse/Core Web Vitals via Unlighthouse behind audit worker", stage: website-auditing, license: MIT-verified, effort: S}
+  - {id: 8,  priority: P0, upgrade: "axe-core WCAG scan in audit fan-out", stage: accessibility, license: "MIT OR MPL-2.0", effort: S}
+  - {id: 9,  priority: P0, upgrade: "Vision-based design critique on full-page screenshots with prompt-injection isolation", stage: visual-analysis, license: local-free, effort: M}
+  - {id: 10, priority: P0, upgrade: "PURPOSE_ROUTES -> provider-health-scored router with quota ledger in rate_buckets", stage: reliability, effort: M}
+  - {id: 11, priority: P1, upgrade: "Email verification consensus; check-if-email-exists only as isolated container (AGPL boundary); port-25 fallback", stage: email-verification, license: AGPL-3.0-warning, effort: M}
+  - {id: 12, priority: P1, upgrade: "Refreshable versioned disposable-domain list; catch-all as first-class signal", stage: email-verification, license: MIT/PD, effort: S}
+  - {id: 13, priority: P1, upgrade: "Broken-link verification with lychee", stage: website-auditing, license: MIT/Apache-2.0, effort: S}
+  - {id: 14, priority: P1, upgrade: "Passive-only security: testssl.sh TLS grading + existing header grading", stage: security, license: GPL-2.0, effort: S}
+  - {id: 15, priority: P1, upgrade: "Gatus health checks + status page (15 MB Go, config-as-code)", stage: monitoring, license: Apache-2.0-reported, effort: S}
+  - {id: 16, priority: P1, upgrade: "promptfoo eval + regression harness driven by mm_experiments/mm_learning", stage: self-improvement, license: MIT-verified, effort: M}
+  - {id: 17, priority: P1, upgrade: "GEPA prompt optimisation against local/free models (3+ examples)", stage: self-improvement, license: Apache-2.0-reported, effort: M}
+  - {id: 18, priority: P1, upgrade: "PDF/proposal rendering via Gotenberg (HTML->PDF, screenshots, PDF/UA)", stage: reporting/quotes, license: MIT-verified, effort: S}
+  - {id: 19, priority: P1, upgrade: "Structured screenshot diffing (odiff / pixelmatch) for before/after evidence", stage: visual-analysis, license: MIT/ISC, effort: S}
+  - {id: 20, priority: P1, upgrade: "Harden secrets: Keychain/Docker secrets, per-provider scoping, gitleaks in CI", stage: security, license: MIT, effort: S}
+  - {id: 21, priority: P1, upgrade: "Set data_collection: deny; free-tier calls treated as public disclosure", stage: privacy, effort: XS}
+  - {id: 22, priority: P1, upgrade: "Delete hazardous symlink aliases (config, control-plane, migrations, scripts, tests)", stage: maintainability, effort: XS}
+  - {id: 23, priority: P2, upgrade: "Vector retrieval (sqlite-vec) + Qwen3-Embedding 0.6B local embeddings", stage: data/ai, license: Apache-2.0, effort: S}
+  - {id: 24, priority: P2, upgrade: "Windmill as scheduler/ops UI over Python CLI (cron, retries, run history)", stage: workflow, license: AGPL-3.0, effort: M}
+  - {id: 25, priority: P2, upgrade: "NZ outreach-law compliance layer (UEMA 2007 + Privacy Act 2020): permission basis, unsubscribe, suppression enforcement", stage: outreach/legal, effort: M}
+
+install_now: [docker+colima, ollama, unlighthouse, axe-core-cli, gotenberg, splink, lychee, testssl-sh, promptfoo, qwen3-vl-8b]
+
+model_stack_local:
+  planner_tool_caller: {model: qwen3:8b, size: "~5.2 GB", license: Apache-2.0, note: "native tool calling via Ollama tools API"}
+  coder_fixes: {model: qwen2.5-coder:7b, size: "~4.7 GB", license: Apache-2.0, note: "feeds remediation-engine"}
+  vision_design: {model: qwen3-vl:8b, size: "6.1 GB, 256K ctx", license: Apache-2.0, note: "qwen3-vl:4b (3.3 GB) on 8 GB RAM"}
+  ocr_documents: {model: glm-ocr, size: "2.2 GB", license: reported, note: "0.9B OCR specialist"}
+  low_vram_vision: {model: "minicpm-v4.6 | qwen3-vl:2b", size: "<=2 GB", note: "4-6 GB machines only"}
+  judge_critic: {model: qwen3:14b, temp: 0, note: "per JUDGE_SPEC; pair with deterministic assertions"}
+  proofer: {model: qwen3:14b, temp: 0, note: "never model-only fact gating"}
+  extraction: {model: qwen3:4b, temp: 0, note: "cheap volume classification"}
+  embeddings_primary: {model: qwen3-embedding:0.6b, size: "~0.6 GB", license: Apache-2.0, note: "32K ctx, instruction-aware"}
+  embeddings_alt: {model: embeddinggemma, size: "<200 MB", license: Gemma-terms-warning, note: "Matryoshka 768->128 dims"}
+  embeddings_hybrid: {model: bge-m3, license: MIT, note: "dense+sparse+ColBERT in one pass"}
+  tool_call_reliability_fallback: {model: llama-3-groq-8b-tool-use, bfcl: 89.06}
+  constraint: "llama3.2-vision is English-only for image input — incompatible with te reo Maori drafts"
+
+model_stack_remote_free:
+  google_ai_studio: {quota: "5-30 RPM / 15-1000 RPD", role: vision+long-context, data_terms: "TRAINS ON INPUTS - public data only", card: false}
+  groq: {quota: "~30 RPM / 1000 RPD / 8000 TPM", role: fast classification/extraction, card: false}
+  cloudflare_workers_ai: {quota: "10000 Neurons/day, resets 00:00 UTC", role: burst fallback, card: false}
+  openrouter_free: {quota: "20 RPM / 50 RPD (1000 RPD only after $10 lifetime purchase = NOT $0)", role: last resort}
+  sambanova: {quota: "20 RPM / 20 RPD", role: emergency only}
+  reject: [cerebras-trial+card, together-trial-credit, openai-legacy-free, anthropic-no-free-api, mistral-may-train, zai-unpublished, huggingface-0.10mo, nvidia-nim-prototyping]
+  router_policy:
+    - "OpenRouter alone cannot carry 24/7 (50 RPD ~ 2 req/hr)"
+    - "Groq + Gemini = ~1250 req/day real capacity"
+    - "remote free tiers are PUBLIC: only route already-public site copy; confidential stays local, enforced in code"
+    - "never silently fall back to paid; extend PaidRouteRefused via FREE_TIER_ALLOWLIST"
+    - "set data_collection: deny in config/routing.yaml (currently allow)"
+
+docker_stack:
+  core:
+    - {service: auditor, image: python:3.12-slim, note: "restart: unless-stopped"}
+    - {service: worker, note: "scale with --scale worker=N; consumes leased queue"}
+    - {service: scheduler, note: "cron/loop entrypoint or delegate to Windmill"}
+  ai: [{service: ollama, image: ollama/ollama, port: 11434, note: "named volume for models"}]
+  web:
+    - {service: playwright, image: "mcr.microsoft.com/playwright", note: "screenshots + JS rendering"}
+    - {service: unlighthouse, port: 5678, note: "needs Node >= 22.18"}
+  search: [{service: searxng, port: 8888}]
+  docs: [{service: gotenberg, image: gotenberg/gotenberg:8, port: 3000}]
+  monitor:
+    - {service: gatus, image: twinproduction/gatus, port: 8080, ram: "~15 MB"}
+    - {service: glitchtip, port: 8000, optional: true, needs: postgres}
+  ops_optional_p2: [{service: windmill, port: 8000, needs: "own postgres"}]
+  rejected: [postgresql-as-primary, twenty-crm, espocrm, celery+redis-rabbitmq, redis, uptime-kuma-optional-prefer-gatus, qdrant-use-sqlite-vec]
+  tested_only: {lightpanda: "AGPL, NO rendering engine - cannot screenshot; cheap HTML crawl only"}
+  sizing: "8 GB: core ~1.2 GB idle, ~1.9 GB peak with Unlighthouse+Playwright; defer Windmill/GlitchTip to P2/P3"
+
+mcp_plugin_stack:
+  principle: "prefer CLI-as-a-tool over MCP for coding agents (per playwright-mcp README): token efficiency"
+  install_now:
+    - {tool: playwright-cli+skill-wrapper, license: Apache-2.0}
+    - {tool: filesystem-mcp, scope: [audits/, outputs/, state/]}
+    - {tool: sqlite-mcp, credentials: read-only}
+    - {tool: searxng-mcp}
+    - {tool: gotenberg, mode: plain-http-tool}
+  test: [{tool: playwright-mcp, use: stateful-interactive-sessions}]
+  optional: [firecrawl-selfhost-only-AGPL-hosted-bills, chrome-devtools-mcp, gepa-skill]
+  reject: {deepseek-harness-bridge: "pinned package never published; docker absent"}
+  anti_patterns: [no-mutation-tools-to-agents, agents-never-read-secrets, no-arbitrary-shell]
+
+workflow_architecture:
+  keep_verbatim: [mm_pipeline.py, mm_approval.py, mm_intelligence.py, JUDGE_SPEC, PROOFER_SPEC, tier1_enrichment, mm_suppression, outreach_send_ledger, mm_receipts]
+  scheduler: "Windmill or supervisor --daemon; cron: discover 6h, audit 1h, verify 15m, follow-up 1h, health 5m, eval daily"
+  queue: "existing SQLite leased queue (claim/retry/dead-letter) - do NOT add Celery/Redis"
+  stages: [discover, identity, contact, verify, audit, score, draft, judge->proofer, human-approval, outcome-capture, eval]
+  audit_fanout: [toolkit, unlighthouse, lychee, axe-core, testssl-passive, vision-critique]
+  verify: "consensus of 4 independent signals; no port-25 reliance"
+  bottlenecks_and_fixes:
+    - {problem: "serial subprocess audit, 60s timeout", fix: "N concurrent workers; asyncio.gather across 6 engines"}
+    - {problem: "subprocess.run python3 per audit (mm_workers.py:43)", fix: "in-process import or container as engine host"}
+    - {problem: "identity_handler no-op (parses host only)", fix: "redirect chain -> registrable domain (PSL) -> NZBN cross-check"}
+    - {problem: "cache scoped to tier1_enrichment", fix: "shared SQLite HTTP cache keyed URL+method+body-hash+TTL"}
+    - {problem: "static PURPOSE_ROUTES", fix: "provider-health-scored router, quota ledger in rate_buckets"}
+    - {problem: "no prompt-injection defence", fix: "harvested content = untrusted data: delimit, strip instruction-like text"}
+
+parallel_workers:
+  io_pool: {concurrency: "16-32", tasks: [http-fetch, crawl, dns]}
+  browser_pool: {concurrency: "2-3", tasks: [playwright, unlighthouse]}
+  llm_pool: {concurrency: 1, note: "serialize against Ollama; judge jobs exclusive"}
+  docker_pool: {concurrency: high, tasks: [gotenberg]}
+
+self_improvement_loop:
+  dataset: "evals/dataset.jsonl from audits + human verdicts + replies"
+  harness: promptfoo (driven by mm_experiments/mm_learning)
+  prompt_optimisation: GEPA against local/free models
+  regression: "fixture HTML with expected findings; snapshot findings registry"
+  feedback: "outcomes -> per-template/per-model success rates -> monthly rubric update"
+  shadow_mode: "new check_version runs parallel 2 weeks before promotion"
+
+reliability_failover:
+  health: gatus + watchdogs
+  backups: "SQLite WAL + file replica + nightly snapshots; retire .bak files"
+  circuit_breakers: "per dependency with cached last-known-good results"
+  rate_limits: "token buckets per domain and per API; 429/503 -> backoff not failure"
+  degradation: "no-Lighthouse audit path; DNS/MX-only verification; WeasyPrint fallback if Gotenberg down"
+
+security_secrets:
+  storage: "macOS Keychain / Docker secrets, per-provider scoping"
+  ci: gitleaks
+  privacy: "data_collection: deny; free remote tiers = public disclosure"
+  vuln_findings: "private under outputs/security/; outreach says only 'security issues found (private report available)'"
+  prompt_injection: "harvested page content is untrusted data"
+  compliance: "NZ UEMA 2007 + Privacy Act 2020 permission basis + functional unsubscribe + suppression enforcement"
+
+missing_capabilities: [vision, entity-resolution, real-web-performance, running-runtime-docker-python311, provider-failover, prompt-injection-defence, screenshot-diffing, eval-loop, dead-letter-triage-cli]
+
+remove_or_replace:
+  - "llama-2-7b pin in auditor_toolkit/ai.py"
+  - "symlink aliases config/control-plane/migrations/scripts/tests"
+  - "mm_* duplicate legacy tables (consolidate, migrate rows)"
+  - "database/*.bak files"
+  - "static disposable blocklist (124 KB stale) -> refreshable versioned pipeline"
+  - "DeepSeek Harness bridge (unpublished pin)"
+  - "public Nominatim POI discovery (ban risk)"
+  - "any paid-token path except FREE_TIER_ALLOWLIST"
+
+implementation_order:
+  - {step: 1, action: "Colima+Docker, compose.yaml, python:3.12-slim app/worker/scheduler", effort: "1-2 days"}
+  - {step: 2, action: "ollama service + qwen3-vl:8b + qwen3:8b pulled; router healthcheck+prewarm", effort: "1 day"}
+  - {step: 3, action: "Add Groq/Gemini/CF Workers AI routes + FREE_TIER_ALLOWLIST + data_collection: deny", effort: "1 day"}
+  - {step: 4, action: "Unlighthouse + axe-core in audit fan-out", effort: "1-2 days"}
+  - {step: 5, action: "Splink entity resolution + canonical_entity_id + NZBN load", effort: "2 days"}
+  - {step: 6, action: "Gotenberg + screenshot diff (odiff) for before/after", effort: "1-2 days"}
+  - {step: 7, action: "Gatus + watchdogs + healthchecks", effort: "1 day"}
+  - {step: 8, action: "Secrets hardening (Keychain, gitleaks CI)", effort: "0.5 day"}
+  - {step: 9, action: "promptfoo eval harness + fixture regression tests", effort: "2 days"}
+  - {step: 10, action: "lychee + testssl.sh passive lane", effort: "1 day"}
+  - {step: 11, action: "Windmill scheduler trial (keep existing state machine)", effort: "1 day eval"}
+  - {step: 12, action: "NZ outreach-law compliance layer", effort: "2-3 days"}
+  - {step: 13, action: "sqlite-vec + embeddings retrieval (P2)", effort: "2 days"}
+
+architecture_diagram: |
+  SCHEDULER (Windmill / supervisor --daemon)
+    -> SQLite LEASED QUEUE (claim/retry/dead-letter)
+    -> DISCOVER(NZBN + OSM-selfhost + SearXNG)
+    -> IDENTITY(Splink + PSL + NZBN)
+    -> CONTACT(crawl + trafilatura + schema.org + mailto provenance)
+    -> VERIFY(consensus of 4, no port-25 reliance)
+    -> AUDIT fan-out(toolkit, Unlighthouse, lychee, axe-core, testssl-passive, vision)
+    -> SCORE(rubric + EV intervals) -> DRAFT(local AI for confidential)
+    -> JUDGE -> PROOFER (fabrication = FAIL)
+    -> HUMAN APPROVAL (per-message) -> SEND-or-never
+    -> OUTCOME -> EVAL(promptfoo/GEPA) -> back into prompts
+  DATA: SQLite+WAL(+vector) · run-ID artifacts · Gatus · GlitchTip(optional)
+  AGENTS: Hermes/Goose/OpenCode via CLI-as-tool + scoped MCP; no mutation tools
+
+backlog:
+  P0: [dockerise, ollama+model-stack, provider-failover-routes, nzbn-backbone, discovery-compliance, splink, unlighthouse, axe-core, vision-critique, provider-health-router]
+  P1: [email-consensus, disposable-list-refresh, lychee, testssl-passive, gatus, promptfoo, gepa, gotenberg, screenshot-diff, secrets-hardening, data-collection-deny, delete-symlinks]
+  P2: [sqlite-vec-embeddings, windmill, nz-compliance-layer, dead-letter-triage-cli, migration-version-table]
+  P3: [glitchtip, qdrant-eval, selfhost-nominatim, scorer-retraining]

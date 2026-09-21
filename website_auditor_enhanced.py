@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Website Rescue Auditor v4 — Enhanced defect detection with auto-remediation.
+"""DEPRECATED — use `wa` (auditor_toolkit.cli:main) or `./mm` instead.
+
+Website Rescue Auditor v4 — Enhanced defect detection with auto-remediation.
 
 New in v4 (beyond v3):
   - Compression (gzip/br) detection
