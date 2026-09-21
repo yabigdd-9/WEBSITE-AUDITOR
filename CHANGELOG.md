@@ -1,5 +1,16 @@
 # Changelog
 
+## [Unreleased] — v32 canonical execution
+
+### Master plan / control-plane alignment
+
+- Adopted `MASTER_PLAN.md` and `MASTER_PLAN.yaml` as the canonical v32.0 execution plan.
+- Reaffirmed zero-paid-token operation, evidence-first behavior, supervised changes and draft-only outreach.
+- Made Obsidian the human-facing operator/master-brain workspace while keeping SQLite, `./mm`, launchd and Hermes authoritative.
+- Explicitly removed n8n from the default runtime; any future n8n use is optional and must demonstrate measurable value.
+- Reset the temporary `integration/n8n-safe-current` experiment to current `master` so it cannot become an accidental integration path.
+- Created isolated execution branch `upgrade/v32-canonical-execution`.
+
 All notable changes to WEBSITE-AUDITOR are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This project adheres to the
 zero-paid-token, evidence-first, supervised execution policy in the master plan.
