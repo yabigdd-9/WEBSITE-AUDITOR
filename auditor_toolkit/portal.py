@@ -67,9 +67,11 @@ def create_app(root, session_seconds=3600):
         )
         return response
 
+    login_html = '<h1>Website Auditor</h1><form method="post" action="/login"><label>Password <input name="password" type="password" autocomplete="current-password" required></label><button>Log in</button></form>'
+
     @app.get("/login", response_class=HTMLResponse)
     def login_page():
-        return '<h1>Website Auditor</h1><form method="post" action="/login"><label>Password <input name="password" type="password" autocomplete="current-password" required></label><button>Log in</button></form>'
+        return login_html
 
     @app.post("/login")
     async def login(request: Request):
@@ -111,7 +113,7 @@ def create_app(root, session_seconds=3600):
         if not secrets.compare_digest(submitted, value["csrf"]):
             raise HTTPException(403, "CSRF token required")
         app.state.sessions.pop(key, None)
-        response = RedirectResponse("/login", status_code=303)
+        response = HTMLResponse(login_html, status_code=200)
         response.delete_cookie("wa_session")
         return response
 
