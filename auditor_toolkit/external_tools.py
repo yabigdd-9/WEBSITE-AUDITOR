@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import shutil
 import subprocess
+from urllib.parse import urlparse, urlunparse
 
 from .checks import Finding
 
@@ -23,8 +24,26 @@ def _binary(name: str) -> str:
     return path
 
 
+
+def _safe_url(url: str) -> str:
+    value = str(url or "").strip()
+    if not value or len(value) > 2048 or any(ord(ch) < 32 for ch in value):
+        raise ValueError("Invalid audit URL")
+    parsed = urlparse(value)
+    if (
+        parsed.scheme not in {"http", "https"}
+        or not parsed.hostname
+        or parsed.username
+        or parsed.password
+    ):
+        raise ValueError("External tools require an absolute HTTP(S) URL without credentials")
+    # A normalized HTTP(S) value cannot be parsed by the child CLI as an option.
+    return urlunparse(parsed._replace(fragment=""))
+
+
 def run_lychee(url: str, timeout: float = 90.0):
-    command = [_binary("lychee"), "--format", "json", "--no-progress", url]
+    target = _safe_url(url)
+    command = [_binary("lychee"), "--format", "json", "--no-progress", target]
     try:
         result = subprocess.run(
             command,
@@ -75,9 +94,10 @@ def run_lychee(url: str, timeout: float = 90.0):
 
 
 def run_lighthouse(url: str, timeout: float = 180.0):
+    target = _safe_url(url)
     command = [
         _binary("lighthouse"),
-        url,
+        target,
         "--output=json",
         "--output-path=stdout",
         "--quiet",
