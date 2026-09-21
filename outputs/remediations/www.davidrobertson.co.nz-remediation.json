@@ -2,7 +2,7 @@
   "domain": "www.davidrobertson.co.nz",
   "score": 35,
   "total_defects": 3,
-  "generated": "2026-09-22T05:37:46.136579",
+  "generated": "2026-09-21T05:35:08.989561",
   "actions": [
     {
       "defect": "Missing page title",
