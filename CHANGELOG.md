@@ -18,6 +18,9 @@ zero-paid-token, evidence-first, supervised execution policy in the master plan.
 - Added `reports/V32_PHASE_AUDIT.md`.
 - Added fail-closed user-scoped launchd management via `./mm launchd install|status|uninstall`, targeting the current supervisor CLI.
 - Kept generated Obsidian prospect/runtime views local-only through `WEBSITE-AUDITOR-BRAIN/.gitignore`.
+- Removed unused vulnerable `nltk` from declared runtime dependencies after confirming no runtime imports.
+- Aligned `requirements.txt` with core `pyproject.toml` dependencies and made pip-audit scan the declared runtime set rather than unrelated runner packages.
+- Removed tracked generated `website_auditor.egg-info/` metadata and added `*.egg-info/` to `.gitignore`.
 - Replaced stale `reports/CURRENT_STATE.md` references with the current WEBSITE-AUDITOR repo/workspace and v32 direction.
 - Added the exact uploaded v32 plan as `WEBSITE_AUDITOR_MASTER_MERGED_PLAN_v32_OBSIDIAN.yaml.md`.
 
