@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from .ai import generate_drafts, verify_model
+from .agency_cli import add_commands, run_command
 from .pipeline import AuditOptions, run_audit
 from .storage import History
 
@@ -87,7 +88,14 @@ def main(argv=None):
     actions.add_argument("operation", choices=["preview", "cancel"])
     actions.add_argument("report", type=Path)
     actions.add_argument("--output-dir", type=Path, default=Path("outputs/action-previews"))
+    add_commands(sub)
     args = parser.parse_args(argv)
+    if args.command in {"revenue", "monthly"}:
+        try:
+            return run_command(args)
+        except (ValueError, OSError, KeyError) as exc:
+            parser.error(str(exc))
+
     if args.command == "doctor":
         result = doctor(args.output_root, args.smoke)
         print(json.dumps(result, indent=2))
