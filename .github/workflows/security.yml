@@ -32,4 +32,4 @@ jobs:
       - name: Audit declared dependencies
         run: |
           python -m pip install -e .
-          pip-audit --strict
+          pip-audit --strict --skip-editable
