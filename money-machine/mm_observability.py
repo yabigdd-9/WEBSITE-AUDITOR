@@ -141,12 +141,33 @@ def write_snapshots() -> dict:
     health_doc = health()
     metrics_doc = metrics()
     errors_doc = errors()
+    dead_doc = dead_letter(1000)
     atomic_write_json(state / "health.json", health_doc)
     _append_jsonl(state / "metrics.jsonl", metrics_doc)
     _append_jsonl(state / "errors.jsonl", errors_doc)
+
+    dead_dir = state / "dead-letter"
+    dead_dir.mkdir(parents=True, exist_ok=True)
+    atomic_write_json(dead_dir / "queue.json", dead_doc)
+
+    heartbeat_dir = state / "worker-heartbeats"
+    heartbeat_dir.mkdir(parents=True, exist_ok=True)
+    workers = []
+    d = _open()
+    if d is not None:
+        with contextlib.closing(d):
+            if "worker_registry" in _tables(d):
+                workers = [dict(r) for r in d.execute("SELECT * FROM worker_registry ORDER BY worker_id")]
+    for worker in workers:
+        safe = "".join(ch if ch.isalnum() or ch in "-_." else "_" for ch in worker["worker_id"])
+        atomic_write_json(heartbeat_dir / (safe + ".json"), worker)
+
     return {
         "health": str(state / "health.json"),
         "metrics": str(state / "metrics.jsonl"),
         "errors": str(state / "errors.jsonl"),
+        "dead_letter": str(dead_dir / "queue.json"),
+        "worker_heartbeats": str(heartbeat_dir),
+        "worker_count": len(workers),
         "database_mutations": 0,
     }
