@@ -1,56 +1,61 @@
 # WEBSITE-AUDITOR — Current State
 
-_Last updated: 2026-09-21 · branch `upgrade/cline-master-merge`_
-
-## Baseline (P1)
-
-| Metric                  | Value                                   |
-| ----------------------- | --------------------------------------- |
-| Python target           | 3.11 (`requires-python = ">=3.11"`)     |
-| Active dev venv         | `.venv` (currently CPython 3.14.7)      |
-| Tests total             | 36 (26 + 4 supervisor + 6 P5)         |
-| Tests pass              | 35                                      |
-| Tests fail              | 0                                       |
-| Tests skipped           | 1 (`test_browser_e2e`, opt-in via env)  |
-
-> Note: the active `.venv` interpreter is CPython 3.14.7 while the project's stated target
-> is 3.11. All CI workflows pin 3.11 (sonarcloud analysis job uses 3.12). The suite passes
-> on the active venv. A dedicated 3.11 venv (`python3.11 -m venv .venv`) can be created for
-> exact-version validation; flagged for follow-up but not blocking.
+_Last updated: 2026-09-21 · branch `upgrade/v32-canonical-execution` · master plan v32.0_
 
 ## Canonical direction
 
-- **Audit engine:** `auditor_toolkit/` (thin CLI layer `wa` → `auditor_toolkit.cli:main`).
-- **Operator CLI:** `./mm` (delegates to `money-machine/mm`).
-- **Master plan:** `MASTER_PLAN.md` / `MASTER_PLAN.yaml` (canonical). This plan:
-  `WEBSITE_AUDITOR_MASTER_MERGED_PLAN.yaml.md` (execution driver, v31.0).
+- **Repository:** `/Users/dd/WEBSITE-AUDITOR`
+- **Audit engine:** `auditor_toolkit/` with thin `wa` CLI.
+- **Operator CLI:** `./mm` → `money-machine/mm`.
+- **Runtime state:** SQLite + state files.
+- **Queue:** SQLite leased work queue.
+- **Supervisor:** launchd + `./mm supervisor`.
+- **Agent orchestrator:** Hermes.
+- **Human workspace:** Obsidian.
+- **n8n:** not part of the default runtime.
+- **Cost policy:** `paid_allowed=false`, `max_cost_usd=0`.
+- **Outreach:** disabled by default.
 
-## Phase status (master plan v31.0)
+## v32 execution status
 
-| Phase | Status      | Notes                                                        |
-| ----- | ----------- | ------------------------------------------------------------ |
-| P0 Reconciliation   | ✅ Done  | Ported identity/verify/fetch_chain/gitleaks + research docs; rejected formatter churn; backup taken; branch `upgrade/cline-master-merge` created. |
-| P1 Baseline         | ✅ Done  | Tests green (25/1 skip); deps added; README→3.11; `.gitignore` hardened; security CI added. |
-| P2 Consolidation    | ◐ Partial | Legacy auditors marked DEPRECATED (not deleted); canonical = `auditor_toolkit` + `./mm`. Full legacy sweep + docs archive pending. |
-| P3 Control plane    | ✅ Done   | `mm supervisor start/stop/restart/status/health/logs` wired over existing leased queue; crash-recovery proven by test; live DB untracked; heartbeat/PID ignored. |
-| P4 Audit engine     | ◐ Partial | `hygiene.py` added (robots/sitemap/security-grade/mixed-content/broken-links/conversion-signals, deterministic $0); not yet wired into live pipeline run in THIS commit (wiring landed in P5 bare commit, re-verified by P4 tests — P4 tests pass; full live-pipeline smoke deferred to P2')="" cleanup pass). `test_p4_hygiene.py` (8 tests) green. |
-| P5 Evidence-first   | ✅ Done   | `scoring.py` derives scores from findings w/ deduction breakdown; findings carry evidence/remediation/effort; `report["breakdown"]` reconciles with legacy scores; 6 tests. |
-| P9 Opportunity score| ✅ Done   | `auditor_toolkit/opportunity.py` — deterministic `need*value*contact*fix*conf/(1+effort)` score with versioned formula, strict input envelopes, full component storage/replay; NO-LLM-by-design. |
-| P6 NZ discovery     | ⬜ Pending | Multi-source lanes + dedupe-before-audit.                    |
-| P7 Identity         | ◐ Partial | canonical_domain ported; NZBN/weighted confidence pending.   |
-| P8 Email finder v2  | ◐ Partial | verify_local consensus ported; full provenance pipeline pending. |
-| P9 Opportunity score| ⬜ Pending | Deterministic, inspectable formula.                          |
-| P10–P18             | ⬜ Pending | Remediation/demo/quote/packet/outreach/router/agents/observability/self-improvement. |
+| Phase | Status | Current evidence / next gate |
+| --- | --- | --- |
+| P0 Repository reconciliation | ✅ Established | Canonical repo preserved; experimental sources remain selective-port only. Current execution branch created from merged `master`. |
+| P1 Reproducible baseline | ◐ Revalidate | Python target is 3.11; blocking gitleaks + strict pip-audit exist; .gitignore is hardened. Recent agency/release/browser suites passed before v32 adoption. Full regression + local `./mm doctor` still needs a fresh v32 run. |
+| P2 Consolidation | ◐ Partial | Canonical audit path and operator CLI are documented. Legacy/archive sweep remains. |
+| P3 Continuous control plane | ✅ Implemented | Supervisor package, PID/single-instance, daemon, metrics/log helpers and crash/recovery tests are present. Host launchd continuity still needs current-machine verification. |
+| P4 Audit engine | ◐ Partial | Deterministic hygiene/fetch work exists. Lighthouse, Lychee and remaining checks still pending. |
+| P5 Evidence-first findings | ✅ Implemented | Scores derive from finding/evidence records. |
+| P6 NZ discovery | ⬜ Pending | Multi-source discovery/dedupe implementation remains to be integrated into canonical path. |
+| P7 Identity | ◐ Partial | Canonical domain support exists; NZBN + weighted confidence still pending. |
+| P8 Email Finder V2 | ◐ Partial | Provenance/verification work exists; canonical end-to-end eligibility path still needs final consolidation. |
+| P9 Opportunity scoring | ✅ Implemented | Deterministic commercial scoring exists separately from audit weakness. |
+| P10 Remediation | ⬜ Pending | Classification + real implementation artifacts required. |
+| P11 Demo factory | ⬜ Pending | Before/after evidence pipeline required. |
+| P12 Quote engine | ◐ Partial | Revenue/quote helpers exist, but canonical versioned quote rules need finalization. |
+| P13 Prospect packet | ⬜ Pending | Complete reviewable packet pipeline required. |
+| P14 Outreach | ◐ Draft-only | Draft/review logic exists. External sending must remain disabled by default. |
+| P15 Free model router | ◐ Partial | Free/local-only policy exists; runtime routing needs final canonicalization and provider verification. |
+| P16 Agent team | ◐ Partial | Hermes direction exists; role/worktree enforcement needs operational wiring. |
+| P17 Observability | ◐ Partial | Supervisor logging/metrics exist; canonical health/metrics/errors/DLQ views need consolidation. |
+| P18 Self-improvement | ⬜ Pending | Golden dataset + challenger/shadow promotion loop required. |
+| Obsidian operator workspace | ▶ In progress | v32 makes Obsidian the human-facing read-mostly workspace; it must never become canonical runtime state. |
 
-## Non-negotiables in force
+## Security and safety gates currently in force
 
-- `paid_allowed=false`, `max_cost_usd=0` — no silent paid fallback; defer if free providers down.
-- Outreach send **disabled** by default.
-- No autonomous direct-to-master edits; changes land on isolated branches with test evidence.
-- Databases/state backed up before migration (see `backups/p0-preserve-*/`).
+- No paid fallback.
+- No live outreach by default.
+- No plain Markdown checkbox can authorize send/deploy/high-risk actions.
+- No direct autonomous edits to `master`.
+- Secrets and runtime databases are ignored from Git.
+- Gitleaks and strict pip-audit are blocking CI jobs.
+- Experimental n8n work is not part of the default runtime.
 
-## Known follow-ups
+## Immediate execution queue
 
-- Create a dedicated Python 3.11 venv for exact-version CI parity (optional).
-- Install `gitleaks` / `pip-audit` locally for pre-push checks (CI covers it).
-- P2: deprecate `ultimate_auditor.py`, `website_auditor_enhanced.py`, duplicate control-plane paths.
+1. Adopt v32 canonical plan files.
+2. Create Obsidian vault skeleton and read-mostly sync/status tooling.
+3. Fresh Python 3.11 full regression + `./mm doctor`.
+4. Reconcile/retire stale plan branches and archive old planning docs.
+5. Finish P4/P6/P7/P8 in that order before remediation/demo/quote/packet work.
+6. Keep send disabled while P14 is developed.
