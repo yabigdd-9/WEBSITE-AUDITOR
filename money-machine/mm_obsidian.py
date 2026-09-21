@@ -23,9 +23,19 @@ EXPECTED_FILES = (
     "00-DASHBOARD/TODAY.md",
     "00-DASHBOARD/PIPELINE-STATUS.md",
     "00-DASHBOARD/SYSTEM-HEALTH.md",
+    "01-MASTER-PLAN/MASTER-PLAN.md",
     "01-MASTER-PLAN/CURRENT-STATE.md",
+    "01-MASTER-PLAN/CHANGELOG.md",
     "01-MASTER-PLAN/ROADMAP.md",
+    "04-AGENTS/HERMES.md",
+    "04-AGENTS/CODER.md",
+    "04-AGENTS/RESEARCHER.md",
+    "04-AGENTS/JUDGE.md",
+    "04-AGENTS/PROOFER.md",
+    "04-AGENTS/INTEGRATOR.md",
     "08-RUNBOOK/RECOVERY.md",
+    "08-RUNBOOK/PROVIDERS.md",
+    "08-RUNBOOK/EMAIL-VERIFICATION.md",
     "08-RUNBOOK/EMERGENCY-STOP.md",
 )
 
@@ -161,6 +171,45 @@ def sync(repo_root: Path, snapshot: dict, vault: Path | None = None) -> dict:
         "8. Improve only through tested challenger branches.\n"
     )
 
+    canonical_plan = repo_root / "MASTER_PLAN.md"
+    canonical_changelog = repo_root / "CHANGELOG.md"
+    master_plan_view = _header("Master Plan") + (
+        canonical_plan.read_text(encoding="utf-8")
+        if canonical_plan.is_file()
+        else "Canonical MASTER_PLAN.md is unavailable.\n"
+    )
+    changelog_view = _header("Changelog") + (
+        canonical_changelog.read_text(encoding="utf-8")
+        if canonical_changelog.is_file()
+        else "Canonical CHANGELOG.md is unavailable.\n"
+    )
+
+    agent_docs = {
+        "HERMES": "Orchestrator. Delegates bounded work; does not bypass policy gates or paid-cost rules.",
+        "CODER": "Implements one isolated task per branch/worktree and supplies test evidence.",
+        "RESEARCHER": "Collects evidence and sources; does not mutate production state.",
+        "JUDGE": "Reviews evidence, regressions, and measurable outcomes rather than agent confidence.",
+        "PROOFER": "Checks factual support, copy quality, provenance, compliance, and unsupported claims.",
+        "INTEGRATOR": "Only role permitted to promote accepted tested changes after gates are green.",
+    }
+
+    providers = _header("Providers")
+    providers += (
+        "Provider policy: deterministic code first, then local/free inference, then verified free external routes, otherwise DEFER.\n\n"
+        "Silent paid fallback is forbidden. Do not place API keys or secrets in Obsidian notes.\n"
+    )
+
+    email_verification = _header("Email Verification")
+    email_verification += (
+        "Email Finder V2 rules:\n\n"
+        "- Pattern guess is not verified.\n"
+        "- Catch-all is not verified.\n"
+        "- MX existence is not mailbox verification.\n"
+        "- NO_VERIFIED_EMAIL is a valid final state.\n"
+        "- Eligible contacts require provenance and explicit verification state.\n"
+        "- SMTP evidence is optional and never the sole authority.\n"
+    )
+
     recovery = _header("Recovery")
     recovery += (
         "1. Run ./mm --runtime.\n"
@@ -186,11 +235,17 @@ def sync(repo_root: Path, snapshot: dict, vault: Path | None = None) -> dict:
         "00-DASHBOARD/TODAY.md": today,
         "00-DASHBOARD/PIPELINE-STATUS.md": pipeline_md,
         "00-DASHBOARD/SYSTEM-HEALTH.md": health_md,
+        "01-MASTER-PLAN/MASTER-PLAN.md": master_plan_view,
         "01-MASTER-PLAN/CURRENT-STATE.md": current,
+        "01-MASTER-PLAN/CHANGELOG.md": changelog_view,
         "01-MASTER-PLAN/ROADMAP.md": roadmap,
         "08-RUNBOOK/RECOVERY.md": recovery,
+        "08-RUNBOOK/PROVIDERS.md": providers,
+        "08-RUNBOOK/EMAIL-VERIFICATION.md": email_verification,
         "08-RUNBOOK/EMERGENCY-STOP.md": emergency,
     }
+    for role, description in agent_docs.items():
+        files["04-AGENTS/" + role + ".md"] = _header(role) + description + "\n"
     for rel, body in files.items():
         _atomic_write(vault / rel, body)
 
