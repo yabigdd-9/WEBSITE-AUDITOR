@@ -50,9 +50,19 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e '.[portal,dev]'
           python -m pip install -r money-machine/requirements-email.txt
+      - name: Compile canonical Python modules
+        run: python -m compileall -q auditor_toolkit website_auditor money-machine
       - name: Run toolkit regression suite
         run: python -m pytest toolkit_tests -v
-      - name: Run canonical discovery + email verification regressions
+      - name: Run portable MoneyMachine regressions
         run: |
-          python -m pytest money-machine/test_discovery.py -v
-          python -m pytest money-machine/test_email_finder.py -v
+          python -m pytest \
+            money-machine/test_discovery.py \
+            money-machine/test_email_finder.py \
+            money-machine/test_pipeline.py \
+            money-machine/test_dsh_harness_bridge.py \
+            money-machine/test_lead_qualifier.py \
+            money-machine/test_polish.py \
+            -v
+      - name: Operator CLI import smoke
+        run: python money-machine/mm_operator.py --help >/tmp/mm-help.txt
