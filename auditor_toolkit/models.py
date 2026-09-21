@@ -96,6 +96,8 @@ REGISTRY = {
             "ux", "privacy", limitation="Observed behavior is not a legal determination."
         ),
         CheckDefinition("headers", "security"),
+        CheckDefinition("hygiene", "technical", limitation="Deterministic robots, sitemap, header and mixed-content checks."),
+        CheckDefinition("links", "technical", limitation="Bounded same-origin link validation."),
         CheckDefinition("tls", "security"),
         CheckDefinition("dns", "technical"),
         CheckDefinition("crawl", "technical"),
