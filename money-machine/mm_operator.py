@@ -148,6 +148,8 @@ def doctor(d):
 def main(argv=None):
     p=argparse.ArgumentParser(description=__doc__);s=p.add_subparsers(dest='cmd',required=True)
     for cmd in ('daily','run-day','status','money','learn','backup','init','doctor'):s.add_parser(cmd)
+    s.add_parser('obsidian-sync')
+    s.add_parser('obsidian-status')
     q=s.add_parser('supervisor')
     q.add_argument('action',choices=['start','stop','restart','status','health','logs'])
     q.add_argument('--sleep',type=float,default=5)
@@ -196,6 +198,10 @@ def main(argv=None):
     q=s.add_parser('model-plan');q.add_argument('--purpose',required=True)
     q=s.add_parser('deploy-check');q.add_argument('--candidate');q.add_argument('--execute',action='store_true')
     a=p.parse_args(argv)
+    if a.cmd in ('obsidian-sync','obsidian-status'):
+        import mm_obsidian
+        result=mm_obsidian.sync() if a.cmd=='obsidian-sync' else mm_obsidian.status()
+        print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd=='polish-status':
         report=json.loads((root()/'reports/polish-status.json').read_text())
         report.update(workspace=str(root()),python=sys.executable,snapshot_only=True)
