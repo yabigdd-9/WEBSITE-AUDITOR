@@ -129,6 +129,90 @@ def test_read_candidates_csv_and_rejections(tmp_path):
     assert len(rejected) == 1
 
 
+
+def test_nzbn_and_osm_exports_preserve_source_provenance(tmp_path):
+    nzbn = tmp_path / "nzbn.json"
+    nzbn.write_text(
+        json.dumps(
+            {
+                "items": [
+                    {
+                        "nzbn": "9429000000000",
+                        "entityName": "Koru Plumbing Limited",
+                        "tradingName": "Koru Plumbing",
+                        "website": "https://koruplumbing.co.nz/contact",
+                        "region": "Canterbury",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    rows, rejected = discovery.read_candidates(nzbn, default_source="nzbn")
+    assert rejected == []
+    assert rows[0]["legal_name"] == "Koru Plumbing Limited"
+    assert rows[0]["trading_name"] == "Koru Plumbing"
+    assert rows[0]["provenance"]["lane"] == "nzbn"
+    assert rows[0]["provenance"]["record_id"] == "9429000000000"
+
+    osm = tmp_path / "osm.json"
+    osm.write_text(
+        json.dumps(
+            {
+                "elements": [
+                    {
+                        "type": "node",
+                        "id": 123,
+                        "tags": {
+                            "name": "Fixture Electric",
+                            "contact:website": "https://fixtureelectric.co.nz/work",
+                            "addr:city": "Christchurch",
+                        },
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    rows, rejected = discovery.read_candidates(osm, default_source="osm")
+    assert rejected == []
+    assert rows[0]["name"] == "Fixture Electric"
+    assert rows[0]["region"] == "Christchurch"
+    assert rows[0]["provenance"]["lane"] == "osm"
+    assert rows[0]["provenance"]["record_id"] == "123"
+
+
+def test_discovery_event_and_queue_payload_retain_provenance():
+    d = db()
+    result = discovery.ingest(
+        d,
+        [
+            {
+                "entityName": "Fixture Limited",
+                "tradingName": "Fixture",
+                "website": "https://fixture.co.nz",
+                "region": "Canterbury",
+                "nzbn": "9429000000001",
+                "source_lane": "nzbn",
+            }
+        ],
+        actor="fixture-discovery",
+    )
+    bid = result["inserted"][0]["business_id"]
+    event = json.loads(
+        d.execute(
+            "SELECT detail FROM mm_events WHERE business_id=? AND action='discovery_intake'",
+            (bid,),
+        ).fetchone()[0]
+    )
+    payload = json.loads(
+        d.execute("SELECT payload FROM pipeline_items WHERE business_id=?", (bid,)).fetchone()[0]
+    )
+    assert event["provenance"]["lane"] == "nzbn"
+    assert event["provenance"]["record_id"] == "9429000000001"
+    assert payload["discovery_provenance"] == event["provenance"]
+    assert payload["contact_eligibility"] == "UNASSESSED"
+
 def test_searxng_must_be_loopback():
     for endpoint in ("https://127.0.0.1:8888", "http://example.com:8888"):
         with pytest.raises(ValueError, match="loopback"):
