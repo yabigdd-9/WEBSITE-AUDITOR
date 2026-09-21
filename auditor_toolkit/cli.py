@@ -9,6 +9,7 @@ from pathlib import Path
 
 from .agency_cli import add_commands, run_command
 from .ai import generate_drafts, verify_model
+from .common import workspace_path
 from .external_tools import installed_tools
 from .pipeline import AuditOptions, run_audit
 from .storage import History
@@ -119,33 +120,50 @@ def main(argv=None):
 
     if args.command == "remediate":
         from .remediation import build_remediation
-        report = json.loads(args.report.read_text())
-        result = build_remediation(report, args.output_dir)
+        report_path = workspace_path(args.report, must_exist=True, file_only=True)
+        output_dir = workspace_path(args.output_dir)
+        report = json.loads(report_path.read_text())
+        result = build_remediation(report, output_dir)
         print(json.dumps(result, indent=2))
         return 0
     if args.command == "demo":
         from .demo import build_demo
-        report = json.loads(args.report.read_text())
-        remediation = json.loads(args.remediation.read_text())
-        result = build_demo(report, remediation, args.output_dir, render=args.render)
+        report_path = workspace_path(args.report, must_exist=True, file_only=True)
+        remediation_path = workspace_path(args.remediation, must_exist=True, file_only=True)
+        output_dir = workspace_path(args.output_dir)
+        report = json.loads(report_path.read_text())
+        remediation = json.loads(remediation_path.read_text())
+        result = build_demo(
+            report,
+            remediation,
+            output_dir,
+            render=args.render,
+            report_path=report_path,
+        )
         print(json.dumps(result, indent=2))
         return 0
     if args.command == "quote":
         from .common import atomic_write_json
         from .quote import calculate_quote
-        report = json.loads(args.report.read_text())
+        report_path = workspace_path(args.report, must_exist=True, file_only=True)
+        report = json.loads(report_path.read_text())
         result = calculate_quote(report, args.hourly_rate_nzd)
         if args.output:
-            atomic_write_json(args.output, result)
+            atomic_write_json(workspace_path(args.output), result)
         print(json.dumps(result, indent=2))
         return 0
     if args.command == "packet":
         from .packet import build_packet
-        report = json.loads(args.report.read_text())
-        remediation = json.loads(args.remediation.read_text())
-        demo = json.loads(args.demo.read_text())
-        quote = json.loads(args.quote.read_text())
-        result = build_packet(report, remediation, demo, quote, args.output_dir)
+        report_path = workspace_path(args.report, must_exist=True, file_only=True)
+        remediation_path = workspace_path(args.remediation, must_exist=True, file_only=True)
+        demo_path = workspace_path(args.demo, must_exist=True, file_only=True)
+        quote_path = workspace_path(args.quote, must_exist=True, file_only=True)
+        output_dir = workspace_path(args.output_dir)
+        report = json.loads(report_path.read_text())
+        remediation = json.loads(remediation_path.read_text())
+        demo = json.loads(demo_path.read_text())
+        quote = json.loads(quote_path.read_text())
+        result = build_packet(report, remediation, demo, quote, output_dir)
         print(json.dumps(result, indent=2))
         return 0
     if args.command == "doctor":
