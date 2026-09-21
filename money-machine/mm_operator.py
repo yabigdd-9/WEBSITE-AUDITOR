@@ -197,6 +197,9 @@ def main(argv=None):
     s.add_parser('pipeline-health')
     q=s.add_parser('approval-check');q.add_argument('id',type=int)
     q=s.add_parser('approval-decide');q.add_argument('approval_id',type=int);q.add_argument('--actor',required=True);q.add_argument('--reason',required=True)
+    s.add_parser('model-routes')
+    q=s.add_parser('agent-policy-check');q.add_argument('--file',required=True)
+    q=s.add_parser('challenger-eval');q.add_argument('--golden',required=True);q.add_argument('--baseline',required=True);q.add_argument('--challenger',required=True);q.add_argument('--min-improvement',type=float,default=0.01)
     q=s.add_parser('model-plan');q.add_argument('--purpose',required=True)
     q=s.add_parser('deploy-check');q.add_argument('--candidate');q.add_argument('--execute',action='store_true')
     a=p.parse_args(argv)
@@ -263,6 +266,22 @@ def main(argv=None):
         result=_sc.COMMANDS[a.action](a)
         print(json.dumps(result,indent=2,default=str))
         return 0
+    if a.cmd=='model-routes':
+        import mm_model_router
+        print(json.dumps({'routes':mm_model_router.routes_report(),'paid_allowed':False,'max_cost_usd':0,'fallback':'DEFER'},indent=2));return 0
+    if a.cmd=='agent-policy-check':
+        import mm_agent_policy
+        assignments=json.loads(Path(a.file).read_text())
+        print(json.dumps(mm_agent_policy.validate_assignments(assignments),indent=2));return 0
+    if a.cmd=='challenger-eval':
+        import mm_challenger
+        result=mm_challenger.compare(
+            mm_challenger.load_jsonl(a.golden),
+            mm_challenger.load_jsonl(a.baseline),
+            mm_challenger.load_jsonl(a.challenger),
+            a.min_improvement,
+        )
+        print(json.dumps(result,indent=2));return 0
     if a.cmd in ('pipeline-run','pipeline-status','pipeline-enqueue','pipeline-transition','pipeline-health','approval-check','approval-decide','model-plan','deploy-check'):
         import mm_pipeline, mm_approval, mm_model_router, mm_workers
         readonly=a.cmd in ('approval-check',)
