@@ -162,6 +162,10 @@ def main(argv=None):
     q=s.add_parser('outreach-preflight');q.add_argument('id',type=int)
     q=s.add_parser('outreach-dsn');q.add_argument('--eml',required=True);q.add_argument('--recipient',required=True);q.add_argument('--original-message-id',required=True)
     s.add_parser('outreach-health')
+    s.add_parser('transport-status')
+    q=s.add_parser('transport-preflight');q.add_argument('--packet',required=True)
+    s.add_parser('outcomes')
+    q=s.add_parser('outcome-record');q.add_argument('id',type=int);q.add_argument('--outcome',required=True);q.add_argument('--evidence',required=True);q.add_argument('--sha256',required=True);q.add_argument('--actor',required=True);q.add_argument('--note',default='')
     q=s.add_parser('email-migrate');q.add_argument('--backup',required=True)
     q=s.add_parser('email-status');q.add_argument('id',type=int);q.add_argument('--json',action='store_true')
     q=s.add_parser('email-find');q.add_argument('id',type=int);q.add_argument('--json',action='store_true')
@@ -218,6 +222,20 @@ def main(argv=None):
     if a.cmd in ('obsidian-sync','obsidian-status'):
         import mm_obsidian
         result=mm_obsidian.sync() if a.cmd=='obsidian-sync' else mm_obsidian.status()
+        print(json.dumps(result,indent=2,default=str));return 0
+    if a.cmd in ('transport-status','transport-preflight'):
+        import mm_transport
+        result=mm_transport.status() if a.cmd=='transport-status' else mm_transport.preflight_packet(json.loads(Path(a.packet).read_text()))
+        print(json.dumps(result,indent=2,default=str));return 0
+    if a.cmd in ('outcomes','outcome-record'):
+        import mm_outcomes
+        readonly=a.cmd=='outcomes'
+        with contextlib.closing(connect(readonly=readonly)) as d:
+            if a.cmd=='outcomes':
+                result=mm_outcomes.summary(d)
+            else:
+                with d:
+                    result=mm_outcomes.record(d,a.id,a.outcome,a.evidence,a.sha256,a.actor,a.note)
         print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd=='polish-status':
         report=json.loads((root()/'reports/polish-status.json').read_text())
