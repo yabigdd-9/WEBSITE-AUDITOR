@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import shutil
 import subprocess
+from pathlib import Path
 from urllib.parse import urlparse, urlunparse
 
 from .checks import Finding
@@ -18,10 +19,15 @@ def installed_tools() -> dict[str, str | None]:
 
 
 def _binary(name: str) -> str:
+    if name not in {"lychee", "lighthouse"}:
+        raise ValueError("External tool is not allow-listed")
     path = shutil.which(name)
     if not path:
         raise RuntimeError(f"{name} is not installed")
-    return path
+    resolved = Path(path).resolve()
+    if not resolved.is_file():
+        raise RuntimeError(f"{name} executable is invalid")
+    return str(resolved)
 
 
 
@@ -43,7 +49,7 @@ def _safe_url(url: str) -> str:
 
 def run_lychee(url: str, timeout: float = 90.0):
     target = _safe_url(url)
-    command = [_binary("lychee"), "--format", "json", "--no-progress", target]
+    command = [_binary("lychee"), "--format", "json", "--no-progress", "--", target]
     try:
         result = subprocess.run(
             command,
@@ -51,6 +57,7 @@ def run_lychee(url: str, timeout: float = 90.0):
             text=True,
             timeout=timeout,
             check=False,
+            shell=False,
         )
     except subprocess.TimeoutExpired as exc:
         raise RuntimeError("lychee timed out") from exc
@@ -111,6 +118,7 @@ def run_lighthouse(url: str, timeout: float = 180.0):
             text=True,
             timeout=timeout,
             check=False,
+            shell=False,
         )
     except subprocess.TimeoutExpired as exc:
         raise RuntimeError("lighthouse timed out") from exc
