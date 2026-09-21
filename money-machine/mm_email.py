@@ -26,7 +26,7 @@ PSL = tldextract.TLDExtract(suffix_list_urls=(), cache_dir=None, include_psl_pri
 EMAIL_RE = re.compile(r"(?<![\w.!#$%&'*+/=?^`{|}~@-])[\w.!#$%&'*+/=?^`{|}~-]+@[\w.-]+(?![\w@.-])", re.UNICODE)
 FREE_MAIL = {'gmail.com', 'googlemail.com', 'outlook.com', 'hotmail.com', 'hotmail.co.nz', 'live.com', 'yahoo.com', 'yahoo.co.nz', 'icloud.com', 'xtra.co.nz', 'proton.me', 'protonmail.com'}
 DISPOSABLE = {'mailinator.com', 'guerrillamail.com', '10minutemail.com', 'tempmail.com', 'yopmail.com', 'sharklasers.com', 'trashmail.com', 'getnada.com'}
-DISPOSABLE.update(line.strip() for line in (Path(__file__).resolve().parents[1] / 'config/disposable_email_blocklist.conf').read_text().splitlines() if line.strip() and not line.startswith('#'))
+DISPOSABLE.update(line.strip() for line in (Path(__file__).resolve().parent / 'config/disposable_email_blocklist.conf').read_text().splitlines() if line.strip() and not line.startswith('#'))
 
 # Blocklist source metadata (auto-downloadable from upstream)
 DISPOSABLE_SOURCE = {
