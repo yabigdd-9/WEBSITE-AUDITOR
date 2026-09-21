@@ -19,6 +19,10 @@ from urllib.parse import urlsplit
 
 UTC = dt.timezone.utc
 STAGES = ('DISCOVERED','VERIFIED','AUDITED','QUALIFIED','DRAFT_READY','AWAITING_APPROVAL','APPROVED_TO_SEND','SENT','REPLIED','CALL_OR_DISCOVERY','PROPOSAL_READY','PROPOSAL_SENT','WON','LOST','SUPPRESSED')
+CLAIM_TYPES = (
+    'observed_fact', 'explicit_request', 'interpretation', 'hypothesis',
+    'contradiction',
+)
 
 def now(): return dt.datetime.now(UTC).isoformat()
 def root(): return Path(os.environ.get('MM_ROOT', Path(__file__).resolve().parents[1])).resolve()
@@ -292,6 +296,23 @@ def latest_evidence(d,bid):
     if not e:raise ValueError('Dated evidence required')
     return e[0]
 
+def opportunity_score_6_component(supported_problem,evidence_to_solution_fit,business_and_campaign_fit,bounded_delivery_feasibility,evidence_quality_freshness,supported_reason_to_act_now):
+    """Return a deterministic 0–100 score; it never changes state or sends."""
+    components={
+        'supported_problem':(supported_problem,25),
+        'evidence_to_solution_fit':(evidence_to_solution_fit,20),
+        'business_and_campaign_fit':(business_and_campaign_fit,20),
+        'bounded_delivery_feasibility':(bounded_delivery_feasibility,15),
+        'evidence_quality_freshness':(evidence_quality_freshness,10),
+        'supported_reason_to_act_now':(supported_reason_to_act_now,10),
+    }
+    breakdown={}
+    for name,(value,weight) in components.items():
+        if isinstance(value,bool) or not isinstance(value,(int,float)) or not 0<=value<=1:raise ValueError(name+' must be a number from 0 to 1')
+        breakdown[name]=round(value*weight,2)
+    score_value=round(sum(breakdown.values()),2)
+    return {'score':score_value,'is_shortlist':score_value>=65,'components':breakdown,'threshold':65,'basis':'Deterministic score; human review remains required.'}
+
 def readiness(d,bid,eid,address):
     reasons=[]
     for check in (lambda:eligible(d,bid,address),lambda:evidence(d,eid,bid)):
@@ -310,7 +331,8 @@ def readiness(d,bid,eid,address):
             except ValueError as e:reasons.append(str(e))
     return reasons
 
-def record_evidence(d,bid,url,observation,limitation,path,status,method,confidence,claim_type='conversion',relevance='Unquantified',verifier='local review',days=7):
+def record_evidence(d,bid,url,observation,limitation,path,status,method,confidence,claim_type='observed_fact',relevance='Unquantified',verifier='local review',days=7):
+    if claim_type not in CLAIM_TYPES:raise ValueError('Known claim type required')
     business(d,bid);public_url(url);p=Path(path).resolve()
     if not p.is_file() or not p.stat().st_size:raise ValueError('Nonempty evidence capture required')
     if days<1 or days>7:raise ValueError('Evidence expiry must be 1-7 days')

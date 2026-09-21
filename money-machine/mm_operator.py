@@ -17,7 +17,7 @@ from mm_intelligence import *
 # Keep the CLI's parser dependencies explicit.  The wildcard import above is
 # retained for the legacy operator helpers, but command registration must not
 # depend on it exposing a validation constant.
-from mm_intelligence import ONTOLOGY
+from mm_core import CLAIM_TYPES
 
 class DemoParser(HTMLParser):
     def __init__(self):super().__init__();self.tags=[]
@@ -138,7 +138,7 @@ def doctor(d, profile='default'):
     import shutil
     import ast
     tools={}
-    for name in ('hermes','python3','git','node','npm','npx','ollama','goose','opencode','gh','docker','himalaya'):
+    for name in ('hermes','python3','git','node','npm','npx','goose','opencode','gh','docker','himalaya'):
         p=shutil.which(name)
         tools[name]={'path':p,'status':'MISSING' if not p else 'EMPTY_STUB' if Path(p).stat().st_size==0 else 'PRESENT_NOT_EXECUTED'}
     broken=[]
@@ -181,7 +181,7 @@ def main(argv=None):
     q=s.add_parser('discover-import');q.add_argument('--file',required=True);q.add_argument('--region',default='');q.add_argument('--source',default='import');q.add_argument('--dry-run',action='store_true')
     q=s.add_parser('discover-search');q.add_argument('--query',required=True);q.add_argument('--region',required=True);q.add_argument('--endpoint',default='http://127.0.0.1:8888');q.add_argument('--limit',type=int,default=20);q.add_argument('--dry-run',action='store_true')
     q=s.add_parser('intake');q.add_argument('--name',required=True);q.add_argument('--url',required=True);q.add_argument('--region',required=True);q.add_argument('--source',required=True)
-    q=s.add_parser('audit');q.add_argument('id',type=int);q.add_argument('--url',required=True);q.add_argument('--observation',required=True);q.add_argument('--limitation',required=True);q.add_argument('--capture',required=True);q.add_argument('--status',choices=['verified','partial','refuted','unverified'],required=True);q.add_argument('--method',required=True);q.add_argument('--confidence',type=float,required=True);q.add_argument('--claim-type',choices=ONTOLOGY,default='conversion')
+    q=s.add_parser('audit');q.add_argument('id',type=int);q.add_argument('--url',required=True);q.add_argument('--observation',required=True);q.add_argument('--limitation',required=True);q.add_argument('--capture',required=True);q.add_argument('--status',choices=['verified','partial','refuted','unverified'],required=True);q.add_argument('--method',required=True);q.add_argument('--confidence',type=float,required=True);q.add_argument('--claim-type',choices=CLAIM_TYPES,default='observed_fact')
     q=s.add_parser('contact');q.add_argument('id',type=int);q.add_argument('--recipient',required=True);q.add_argument('--url',required=True);q.add_argument('--capture',required=True);q.add_argument('--relevance',required=True)
     q=s.add_parser('draft');q.add_argument('id',type=int);q.add_argument('--recipient',required=True);q.add_argument('--body-file',required=True);q.add_argument('--parent',type=int)
     q=s.add_parser('review');q.add_argument('id',type=int);q.add_argument('--body-file',required=True);q.add_argument('--human',required=True);q.add_argument('--approval-receipt',type=int,required=True);q.add_argument('--proposal',action='store_true')
