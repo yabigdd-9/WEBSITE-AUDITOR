@@ -99,6 +99,8 @@ REGISTRY = {
         CheckDefinition("tls", "security"),
         CheckDefinition("dns", "technical"),
         CheckDefinition("crawl", "technical"),
+        CheckDefinition("hygiene", "technical"),
+        CheckDefinition("links", "technical"),
         CheckDefinition(
             "browser",
             "performance",

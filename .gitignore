@@ -45,3 +45,8 @@ state/supervisor.heartbeat
 .pytest_cache/
 .ruff_cache/
 node_modules/
+
+# Ignore .env files in any subdirectory
+**/.env
+**/.env.*
+!**/.env.example

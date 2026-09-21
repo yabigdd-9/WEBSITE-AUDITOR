@@ -13,6 +13,13 @@ from .checks import Finding, analyse_html, classify_response, dedupe_findings, s
 from .common import Fetcher, atomic_write_json, atomic_write_text, validate_url
 from .models import REGISTRY, SCHEMA_VERSION
 from .network import crawl, inspect_dns, inspect_headers, inspect_schema, inspect_tls
+from .hygiene import (
+    check_robots,
+    check_sitemap,
+    detect_conversion_signals,
+    discover_internal_links,
+    validate_links,
+)
 from .reporting import render_trend_svg, write_html_report
 from .storage import History, finding_id
 
@@ -122,6 +129,25 @@ def run_audit(url, options=None, fetcher=None):
             perform("page", lambda: analyse_html(response.text, final_url))
             perform("schema", lambda: inspect_schema(response.text, final_url, opts.profile))
             perform("headers", lambda: inspect_headers(response))
+            if opts.deep:
+                def run_hygiene():
+                    robot_findings, robot_data = check_robots(client, final_url)
+                    sitemap_findings, sitemap_data = check_sitemap(
+                        client, final_url, robot_data.get("sitemaps_declared")
+                    )
+                    return robot_findings + sitemap_findings, {
+                        "robots": robot_data,
+                        "sitemap": sitemap_data,
+                    }
+
+                perform("hygiene", run_hygiene)
+                perform("ux", lambda: detect_conversion_signals(response.text, final_url))
+                links = discover_internal_links(response.text, final_url, opts.max_links)
+                perform("links", lambda: validate_links(client, final_url, links))
+            else:
+                skip("hygiene", "Enable deep checks")
+                skip("ux", "Enable deep checks")
+                skip("links", "Enable deep checks")
             for name in ("page", "schema", "headers"):
                 if name in evidence:
                     evidence[name]["observed_at"] = fetched_at
