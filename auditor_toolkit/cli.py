@@ -3,6 +3,7 @@ import getpass
 import importlib.util
 import json
 import os
+import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -10,6 +11,7 @@ from pathlib import Path
 from .ai import generate_drafts, verify_model
 from .pipeline import AuditOptions, run_audit
 from .storage import History
+from website_auditor.monitoring.watchdog import Watchdog
 
 
 def doctor(root, smoke=False):
@@ -79,6 +81,30 @@ def main(argv=None):
     history.add_argument("--query", default="")
     history.add_argument("--output-root", default="outputs/toolkit")
     history.add_argument("--retention-preview", type=int, metavar="KEEP_LAST")
+
+    watchdog = sub.add_parser("watchdog")
+    watchdog.add_argument("domain", help="Domain to check for regressions")
+    watchdog.add_argument("--output-root", default="outputs/toolkit", help="Root directory for audit outputs")
+    watchdog.add_argument("--alert", action="store_true", help="Send alert if regressions are detected")
+    secret = sub.add_parser("secret")
+    secret_sub = secret.add_subparsers(dest="secret_command", required=True)
+    # set
+    secret_set = secret_sub.add_parser("set", help="Store a secret in the keychain")
+    secret_set.add_argument("name", help="Secret name")
+    secret_set.add_argument("value", help="Secret value")
+    # get
+    secret_get = secret_sub.add_parser("get", help="Retrieve a secret from the keychain")
+    secret_get.add_argument("name", help="Secret name")
+    # list
+    secret_list = secret_sub.add_parser("list", help="List secret names")
+    # delete
+    secret_delete = secret_sub.add_parser("delete", help="Delete a secret from the keychain")
+    secret_delete.add_argument("name", help="Secret name")
+
+    eval = sub.add_parser("eval")
+    eval.add_argument("--config", default="money-machine/promptfoo.yaml", help="Path to promptfoo config")
+    eval.add_argument("--quiet", action="store_true", help="Quiet mode")
+
     dashboard = sub.add_parser("dashboard")
     dashboard.add_argument("--output-root", default="outputs/toolkit")
     dashboard.add_argument("--set-password", action="store_true")
@@ -128,6 +154,80 @@ def main(argv=None):
         else:
             print(json.dumps(reports, indent=2))
         return 0
+
+    if args.command == "watchdog":
+        root = Path(args.output_root)
+        history = History(root)
+        reports = history.list(args.domain, 1)
+        if not reports:
+            print(f"No audit found for domain {args.domain}")
+            return 1
+        latest = reports[0]
+        defects = latest.get("defects", [])
+        wd = Watchdog(output_root=root)
+        result = wd.detect_regressions(args.domain, defects)
+        wd.take_snapshot(args.domain, defects)
+        print(json.dumps(result, indent=2))
+        if args.alert and result.get("regressions"):
+            alert_result = wd.send_alert(args.domain, result["regressions"])
+            print(json.dumps(alert_result, indent=2))
+        return 1 if result.get("regressions") else 0
+
+    if args.command == "secret":
+        root = Path(args.output_root)
+        if args.secret_command == "set":
+            subprocess.run([
+                "security", "add-generic-password",
+                "-s", "website-auditor",
+                "-a", args.name,
+                "-w", args.value,
+                "-U"
+            ], check=True)
+            print(f"Secret '{args.name}' stored.")
+        elif args.secret_command == "get":
+            try:
+                result = subprocess.run([
+                    "security", "find-generic-password",
+                    "-s", "website-auditor",
+                    "-a", args.name,
+                    "-w"
+                ], capture_output=True, text=True, check=True)
+                print(result.stdout.strip())
+            except subprocess.CalledProcessError as e:
+                print(f"Error: Secret '{args.name}' not found.", file=sys.stderr)
+                return 1
+        elif args.secret_command == "list":
+            # List all secrets for the service
+            try:
+                result = subprocess.run([
+                    "security", "find-generic-password", "-s", "website-auditor", "-g"
+                ], capture_output=True, text=True, check=True)
+                # The `-g` flag gets the password, but we don't want that for listing.
+                # Instead, we can try to get the list of accounts by parsing the output of
+                # `security find-generic-password -s website-auditor` without `-g` and `-w`.
+                # However, the output is intended for humans. For simplicity, we'll just note
+                # that listing is not implemented in this version.
+                print("Listing secrets is not yet implemented in this version.")
+            except subprocess.CalledProcessError as e:
+                print("No secrets found.")
+        elif args.secret_command == "delete":
+            subprocess.run([
+                "security", "delete-generic-password",
+                "-s", "website-auditor",
+                "-a", args.name
+            ], check=True)
+            print(f"Secret '{args.name}' deleted.")
+        else:
+            parser.error("Invalid secret command")
+        return 0
+
+    if args.command == "eval":
+        cmd = ["promptfoo", "eval", "--config", args.config]
+        if args.quiet:
+            cmd.append("--quiet")
+        subprocess.run(cmd, check=True)
+        return 0
+
     if args.command == "actions":
         from .actions import import_report, preview_report
 

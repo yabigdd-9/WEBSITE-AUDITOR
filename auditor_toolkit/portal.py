@@ -39,6 +39,8 @@ def create_app(root, session_seconds=3600):
         TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost", "testserver"]
     )
     app.state.sessions = {}
+    app.state.history = history
+    app.state.root = root
     attempts = {}
 
     def session(request):
@@ -182,5 +184,15 @@ def create_app(root, session_seconds=3600):
         except (KeyError, ValueError) as exc:
             raise HTTPException(400, str(exc)) from None
         return {"status": "updated"}
+
+    @app.get("/health")
+    def health_check():
+        try:
+            from pathlib import Path
+            if not Path(app.state.root).exists():
+                raise RuntimeError("Root directory does not exist")
+            return {"status": "ok"}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
 
     return app

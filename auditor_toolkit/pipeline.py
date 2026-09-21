@@ -29,6 +29,8 @@ class AuditOptions:
     output_root: Path = Path("outputs/toolkit")
     allow_private: bool = False
     browser: bool = False
+    screenshot_diff: bool = False
+    use_gotenberg: bool = False
     tls: bool = False
     timeout: float = 8.0
     profile: str = "static"
@@ -176,6 +178,55 @@ def run_audit(url, options=None, fetcher=None):
                 "required": opts.browser,
             }
             evidence["browser"] = result.get("evidence", {})
+            if opts.screenshot_diff and result.get("status") == "ok":
+                try:
+                    history = History(opts.output_root)
+                    # Get previous complete runs for same URL and profile
+                    previous_runs = [
+                        r for r in history.list(report["url"], 1000)
+                        if r["url"] == report["url"]
+                        and r["status"] == "complete"
+                        and r["profile"] == opts.profile
+                        and r["run_id"] != report["run_id"]
+                    ]
+                    if previous_runs:
+                        previous_run = previous_runs[0]  # most recent
+                        # Define screenshot types to check
+                        screenshot_types = [
+                            ("screenshot", "screenshot"),
+                            ("mobile_screenshot", "mobile_screenshot"),
+                        ]
+                        for evidence_key, artifact_key in screenshot_types:
+                            current_path = evidence["browser"].get(evidence_key)
+                            if current_path and Path(current_path).exists():
+                                # Retrieve previous artifact
+                                prev_artifact = history.artifact(previous_run["run_id"], artifact_key)
+                                if prev_artifact and Path(prev_artifact).exists():
+                                    # Create diff image path
+                                    diff_path = run_dir / "artifacts" / f"{evidence_key}-diff.png"
+                                    # Run odiff
+                                    import subprocess
+                                    result_odiff = subprocess.run(
+                                        [
+                                            "odiff",
+                                            "--threshold",
+                                            "0.1",
+                                            "--output-type",
+                                            "diff-image",
+                                            str(prev_artifact),
+                                            str(current_path),
+                                            str(diff_path),
+                                        ],
+                                        capture_output=True,
+                                        text=True,
+                                        timeout=30,
+                                    )
+                                    if result_odiff.returncode == 0 and diff_path.exists():
+                                        evidence["browser"][f"{evidence_key}_diff"] = str(diff_path)
+                                        report["artifacts"][f"{evidence_key}_diff"] = str(diff_path)
+                except Exception:
+                    # Log warning but do not fail the audit
+                    pass
             if opts.browser:
                 axe = evidence["browser"].get("axe")
                 checks["axe"] = {
@@ -333,7 +384,7 @@ def run_audit(url, options=None, fetcher=None):
     if opts.browser:
         try:
             pdf_path = run_dir / "report.pdf"
-            export_pdf(html_path, pdf_path)
+            export_pdf(html_path, pdf_path, opts)
             report["artifacts"]["pdf"] = str(pdf_path)
             checks["pdf"] = {"status": "ok", "required": True}
         except Exception as exc:
@@ -351,7 +402,7 @@ def run_audit(url, options=None, fetcher=None):
     # Regenerate PDF with final coverage, status and comparison after successful browser export.
     if "pdf" in report["artifacts"]:
         try:
-            export_pdf(html_path, Path(report["artifacts"]["pdf"]))
+            export_pdf(html_path, Path(report["artifacts"]["pdf"]), opts)
         except Exception as exc:
             report["artifacts"].pop("pdf")
             checks["pdf"].update(status="error", reason=str(exc))

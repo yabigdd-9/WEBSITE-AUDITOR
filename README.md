@@ -14,6 +14,18 @@ Evidence-first website auditing for NZ businesses — auto-detect defects, gener
 ## Quick Start
 
 ```bash
+# Install the complete local test/toolkit environment
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e '.[dev,browser,portal]'
+npm install
+
+# Verify the toolkit (browser E2E is opt-in)
+python -m pytest toolkit_tests -x
+python -m pytest toolkit_tests/test_p4_hygiene.py::test_pipeline_includes_hygiene_ux_and_links -v
+python -m pytest toolkit_tests/ -v
+
 # Audit a single site
 python3 website_auditor.py https://example.co.nz
 
@@ -112,7 +124,10 @@ See [the Harness integration guide](integrations/deepseek-harness/README.md) for
 
 - Python 3.11
 - No API keys needed (free stack only)
-- Optional: `aiohttp` for async batch mode (`pip install aiohttp`)
+- Full development/test setup: `python -m pip install -e '.[dev,browser,portal]'`
+- Node helpers: `npm install` (installs the native `odiff` image-diff CLI and `pixelmatch`)
+- Check the image-diff CLI with `npm exec -- odiff --help`
+- Optional: `aiohttp` for async batch mode (included in the main package dependencies)
 
 ## License
 
