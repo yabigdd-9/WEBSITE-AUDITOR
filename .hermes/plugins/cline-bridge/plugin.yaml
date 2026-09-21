@@ -1,0 +1,30 @@
+name: cline-bridge
+version: "1.0.0"
+description: Delegate WEBSITE-AUDITOR coding, review, testing, and repair tasks from Hermes to the local Cline CLI.
+manifest_version: 2
+api_version: 1
+provides_tools:
+  - cline_delegate
+  - cline_status
+tags:
+  - coding
+  - cline
+  - local
+  - website-auditor
+config_schema:
+  repo_path:
+    type: str
+    default: "/Users/dd/WEBSITE-AUDITOR"
+    description: Absolute path to the WEBSITE-AUDITOR checkout.
+  provider:
+    type: str
+    default: "ollama"
+    description: Cline provider. This bridge only permits local zero-cost providers.
+  model:
+    type: str
+    default: "qwen3:4b"
+    description: Local Cline model id.
+  timeout_seconds:
+    type: int
+    default: 900
+    description: Maximum seconds for one delegated Cline task.
