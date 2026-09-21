@@ -18,28 +18,33 @@ _Last updated: 2026-09-21 · branch `upgrade/v32-canonical-execution` · master 
 
 ## v32 execution status
 
-| Phase | Status | Current evidence / next gate |
+| Phase | Status | Current evidence / remaining acceptance |
 | --- | --- | --- |
-| P0 Repository reconciliation | ✅ Established | Canonical repo preserved; experimental sources remain selective-port only. Current execution branch created from merged `master`. |
-| P1 Reproducible baseline | ◐ Revalidate | Python target is 3.11; blocking gitleaks + strict pip-audit exist; .gitignore is hardened. Recent agency/release/browser suites passed before v32 adoption. Full regression + local `./mm doctor` still needs a fresh v32 run. |
-| P2 Consolidation | ◐ Partial | Canonical audit path and operator CLI are documented. Legacy/archive sweep remains. |
-| P3 Continuous control plane | ✅ Implemented | Supervisor package, PID/single-instance, daemon, metrics/log helpers and crash/recovery tests are present. Host launchd continuity still needs current-machine verification. |
-| P4 Audit engine | ◐ Partial | Deterministic hygiene/fetch work exists. Lighthouse, Lychee and remaining checks still pending. |
-| P5 Evidence-first findings | ✅ Implemented | Scores derive from finding/evidence records. |
-| P6 NZ discovery | ⬜ Pending | Multi-source discovery/dedupe implementation remains to be integrated into canonical path. |
-| P7 Identity | ◐ Partial | Canonical domain support exists; NZBN + weighted confidence still pending. |
-| P8 Email Finder V2 | ◐ Partial | Provenance/verification work exists; canonical end-to-end eligibility path still needs final consolidation. |
-| P9 Opportunity scoring | ✅ Implemented | Deterministic commercial scoring exists separately from audit weakness. |
-| P10 Remediation | ⬜ Pending | Classification + real implementation artifacts required. |
-| P11 Demo factory | ⬜ Pending | Before/after evidence pipeline required. |
-| P12 Quote engine | ◐ Partial | Revenue/quote helpers exist, but canonical versioned quote rules need finalization. |
-| P13 Prospect packet | ⬜ Pending | Complete reviewable packet pipeline required. |
-| P14 Outreach | ◐ Draft-only | Draft/review logic exists. External sending must remain disabled by default. |
-| P15 Free model router | ◐ Partial | Free/local-only policy exists; runtime routing needs final canonicalization and provider verification. |
-| P16 Agent team | ◐ Partial | Hermes direction exists; role/worktree enforcement needs operational wiring. |
-| P17 Observability | ◐ Partial | Supervisor logging/metrics exist; canonical health/metrics/errors/DLQ views need consolidation. |
-| P18 Self-improvement | ⬜ Pending | Golden dataset + challenger/shadow promotion loop required. |
-| Obsidian operator workspace | ▶ In progress | v32 makes Obsidian the human-facing read-mostly workspace; it must never become canonical runtime state. |
+| P0 Repository reconciliation | ✅ Implemented | Canonical repo preserved; v32 branch/PR isolates reviewed changes from master. |
+| P1 Reproducible baseline | ▶ Revalidating latest head | Python 3.11, compile-all, toolkit + portable MoneyMachine CI, gitleaks and strict third-party dependency audit are wired. Latest CI is rerunning; local `./mm doctor` and clean host validation remain. |
+| P2 Consolidation | ◐ Canonical path established | `auditor_toolkit` + `wa` and `./mm` are canonical. Root alias symlinks, tracked venv alias and stale DeepSeek gitlink are removed. Deprecated compatibility scripts remain until downstream callers are migrated/archived safely. |
+| P3 Continuous control plane | ✅ Implemented in code | Leased queue, PID/single-instance, shutdown, heartbeats, lease recovery, retries/backoff, circuit-breakers, DLQ, log rotation and new disk/network guards are present. launchd restart/host continuity still needs current-Mac validation and 24h soak. |
+| P4 Audit engine | ✅ Implemented in code | Deterministic hygiene/security/robots/sitemap/contact/schema checks plus optional local Lighthouse/Lychee. Installed-tool execution and latest real-browser run remain host gates. |
+| P5 Evidence-first findings | ✅ Implemented | Scores derive from finding/evidence records and deductions link back to findings. |
+| P6 NZ discovery | ✅ Implemented in code | Local import + loopback SearXNG, early dedupe, NZBN/OSM-style export adapters and source provenance. Live/source-specific acquisition remains operator-configured. |
+| P7 Identity | ✅ Implemented | Weighted deterministic NZBN/name/domain/email-domain/region/address/phone evidence; conflicts lower confidence and weak single-signal matches cannot grant high confidence. |
+| P8 Email Finder V2 | ✅ Implemented in code | Provenance-first verification, catch-all/pattern fail-closed behavior, canonical paths, TLS-verified/checksummed disposable-list refresh and clean-checkout tests. |
+| P9 Opportunity scoring | ✅ Implemented | Deterministic commercial scoring remains separate from audit weakness. |
+| P10 Remediation | ✅ Implemented | Deterministic remediation classes create reviewable preview artifacts; production changes remain zero. |
+| P11 Demo factory | ✅ Implemented | Local concept demo + render path explicitly records `CONCEPT_ONLY`, `live_site_changed=false`, and never claims measured improvement. |
+| P12 Quote engine | ✅ Implemented | Versioned deterministic NZD effort/rate rules; LLM cannot determine price. |
+| P13 Prospect packet | ✅ Implemented | Hashed audit/remediation/demo/quote packet, exact draft, human-review state, send disabled. |
+| P14 Outreach | ✅ Draft/QA boundary implemented | Legacy transports are fail-closed; old SMTP generator retired; canonical transport config/provider is `none`, daily cap 0 and network-send implementation absent. Live sending intentionally remains disabled. |
+| P15 Free model router | ✅ Implemented in code | Local-first, verified-free external routes only with explicit opt-in, `:free` enforcement, zero-cost ledger, DEFER fallback, and external data collection default `deny`. Provider availability is inherently time-sensitive. |
+| P16 Agent team | ✅ Policy implemented | Machine-readable roles, isolated branch/worktree rule, one writer per path, Integrator-only merge authority, no direct master writes. Host/Hermes operational enforcement remains an acceptance check. |
+| P17 Observability | ✅ Implemented | `./mm health|metrics|errors|queue|dead-letter`; state snapshots include health, metrics/errors JSONL, DLQ and worker heartbeat files without DB mutation. |
+| P18 Self-improvement | ✅ Evaluation loop implemented | Synthetic golden dataset + baseline/challenger comparison can recommend promotion only after measurable no-regression improvement; cannot merge or modify production. |
+| Outcome tracking | ✅ Implemented | Evidence-backed append-only outcomes support measured learning; no automatic prompt/price/code changes. |
+| Obsidian operator workspace | ✅ Implemented in code | Read-mostly runtime → Obsidian sync/status; Obsidian remains non-authoritative and cannot authorize send/deploy/high-risk actions. |
+
+### Remaining acceptance gates
+
+The implementation is not release-complete until the latest branch checks are green and host-only evidence is captured for: `./mm doctor`, actual launchd/supervisor restart recovery, real Chromium regression on the latest head, installed Lighthouse/Lychee execution when requested, local SearXNG integration when used, Obsidian sync against the actual vault, and a 24+ hour unattended run with no duplicate restart work and visible DLQ triage.
 
 ## Security and safety gates currently in force
 
@@ -53,9 +58,9 @@ _Last updated: 2026-09-21 · branch `upgrade/v32-canonical-execution` · master 
 
 ## Immediate execution queue
 
-1. Adopt v32 canonical plan files.
-2. Create Obsidian vault skeleton and read-mostly sync/status tooling.
-3. Fresh Python 3.11 full regression + `./mm doctor`.
-4. Reconcile/retire stale plan branches and archive old planning docs.
-5. Finish P4/P6/P7/P8 in that order before remediation/demo/quote/packet work.
-6. Keep send disabled while P14 is developed.
+1. Get the latest v32 branch CI/security/Sonar checks green.
+2. Run the current-head local acceptance bundle: `./mm doctor`, Chromium E2E, optional Lighthouse/Lychee, supervisor restart/crash recovery and Obsidian sync.
+3. Reconcile remaining deprecated compatibility callers before archiving old auditor scripts.
+4. Exercise optional local SearXNG discovery when that service is enabled.
+5. Run and record the 24+ hour unattended soak with zero duplicate restart work, DLQ visibility, $0 model spend and zero external sends.
+6. Keep PR #36 draft until all blocking automated gates are green; keep live outreach disabled.
