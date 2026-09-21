@@ -1,12 +1,16 @@
 [run]
 relative_files = True
-source =
-    auditor_toolkit
-    website_auditor
+source = .
 
 [report]
 show_missing = True
 skip_empty = True
+omit =
+    toolkit_tests/*
+    money-machine/test_*.py
+    integrations/*/tests/*
+    .venv/*
+    .venv-email/*
 
 [xml]
 output = coverage.xml
