@@ -211,9 +211,23 @@ def run_audit(url, options=None, fetcher=None):
         record["observed_at"] = evidence.get(record["evidence_ref"], {}).get(
             "observed_at", timestamp
         )
+        # P5: every material defect carries an evidence summary so scores,
+        # quotes and drafts below can cite it instead of restating a number.
+        record["evidence_summary"] = (
+            finding.observed or finding.evidence_source or finding.selector or record["evidence_ref"]
+        )
+        material = finding.severity in {"medium", "high", "critical"}
+        if material and not (
+            finding.observed or finding.evidence_source or finding.selector
+        ):
+            record["confidence"] = "heuristic"
         defects.append(record)
     complete = all(c["status"] == "ok" for c in checks.values() if c["required"])
+    from .scoring import score_from_findings as _score_from_findings
+
+    breakdown = _score_from_findings(defects, complete)
     scores = score_findings(deduped, complete)
+    scores["breakdown"] = breakdown.to_dict()
     report = {
         "schema_version": SCHEMA_VERSION,
         "run_id": run_id,

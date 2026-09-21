@@ -8,8 +8,8 @@ _Last updated: 2026-09-21 · branch `upgrade/cline-master-merge`_
 | ----------------------- | --------------------------------------- |
 | Python target           | 3.11 (`requires-python = ">=3.11"`)     |
 | Active dev venv         | `.venv` (currently CPython 3.14.7)      |
-| Tests total             | 30 (26 + 4 supervisor)                |
-| Tests pass              | 29                                      |
+| Tests total             | 36 (26 + 4 supervisor + 6 P5)         |
+| Tests pass              | 35                                      |
 | Tests fail              | 0                                       |
 | Tests skipped           | 1 (`test_browser_e2e`, opt-in via env)  |
 
@@ -34,7 +34,7 @@ _Last updated: 2026-09-21 · branch `upgrade/cline-master-merge`_
 | P2 Consolidation    | ◐ Partial | Legacy auditors marked DEPRECATED (not deleted); canonical = `auditor_toolkit` + `./mm`. Full legacy sweep + docs archive pending. |
 | P3 Control plane    | ✅ Done   | `mm supervisor start/stop/restart/status/health/logs` wired over existing leased queue; crash-recovery proven by test; live DB untracked; heartbeat/PID ignored. |
 | P4 Audit engine     | ◐ Partial | fetch_chain ported; Lighthouse/Lychee/headers/robots/sitemap/schema pending. |
-| P5 Evidence-first   | ⬜ Pending | Finding schema + evidence/confidence linkage.                |
+| P5 Evidence-first   | ✅ Done   | `scoring.py` derives scores from findings w/ deduction breakdown; findings carry evidence/remediation/effort; `report["breakdown"]` reconciles with legacy scores; 6 tests. |
 | P6 NZ discovery     | ⬜ Pending | Multi-source lanes + dedupe-before-audit.                    |
 | P7 Identity         | ◐ Partial | canonical_domain ported; NZBN/weighted confidence pending.   |
 | P8 Email finder v2  | ◐ Partial | verify_local consensus ported; full provenance pipeline pending. |

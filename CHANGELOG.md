@@ -4,7 +4,26 @@ All notable changes to WEBSITE-AUDITOR are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This project adheres to the
 zero-paid-token, evidence-first, supervised execution policy in the master plan.
 
-## [Unreleased] — upgrade/cline-master-merge (P0/P1/P2/P3)
+## [Unreleased] — upgrade/cline-master-merge (P0/P1/P2/P3/P5)
+
+### P5 — Evidence-first findings (scores derived from evidence, never invented)
+
+- New `auditor_toolkit/scoring.py`: `score_from_findings()` derives health/severity
+  strictly from finding records and returns a `ScoreBreakdown` with every deduction
+  linked to its `finding_id`, points, confidence and evidence summary. Totals reconcile
+  (`severity_total == severity_score`, `health_score == health`); weak evidence is
+  flagged `heuristic`, never silent.
+- `Finding` gains P5 fields: `evidence_source`, `observed`, `business_impact`,
+  `remediation_action`, `remediation_automation` (AUTO_SAFE/AUTO_PREVIEW/HUMAN_REVIEW/
+  CLIENT_ACCESS_REQUIRED/UNSUPPORTED), `effort_band` (XS–XL). All static HTML findings
+  now carry observed evidence + remediation pointers; thin-content/schema findings are
+  marked `heuristic`. Positional construction still works (backward compatible).
+- `run_audit()` attaches `evidence_summary` to every defect, auto-flags material
+  findings lacking observed evidence as `heuristic`, and emits `report["breakdown"]`
+  alongside the legacy `score/severity_score/health_score` (unchanged values).
+- New `toolkit_tests/test_p5_evidence.py` (6 tests): evidence/remediation/effort on
+  material findings, heuristic flagging, score-derivation reconciliation, pipeline
+  deduction↔defect linkage, backward compatibility.
 
 ### P2 — Code consolidation (partial: legacy audit paths; control-plane consolidated by reuse)
 
