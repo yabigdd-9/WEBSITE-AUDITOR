@@ -84,7 +84,7 @@ This bypasses Hermes and confirms Cline itself can work in the repository:
 
 ```bash
 cd ~/WEBSITE-AUDITOR
-cline --json --cwd "$PWD" --provider ollama --model qwen3:4b --plan --auto-approve false \
+cline --json --cwd "$PWD" --provider ollama --model qwen3:4b --plan --auto-approve true \
   "Inspect git status and README.md only. Do not edit anything. Summarize repository state."
 ```
 
