@@ -138,7 +138,7 @@ def doctor(d):
         p=shutil.which(name)
         tools[name]={'path':p,'status':'MISSING' if not p else 'EMPTY_STUB' if Path(p).stat().st_size==0 else 'PRESENT_NOT_EXECUTED'}
     broken=[]
-    for p in (root()/'scripts').glob('*.py'):
+    for p in (Path(__file__).resolve().parent/'scripts').glob('*.py'):
         try:
             if not p.stat().st_size:raise ValueError('Empty script')
             ast.parse(p.read_text())
