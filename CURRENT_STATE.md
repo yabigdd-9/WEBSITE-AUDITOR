@@ -33,8 +33,9 @@ _Last updated: 2026-09-21 · branch `upgrade/cline-master-merge`_
 | P1 Baseline         | ✅ Done  | Tests green (25/1 skip); deps added; README→3.11; `.gitignore` hardened; security CI added. |
 | P2 Consolidation    | ◐ Partial | Legacy auditors marked DEPRECATED (not deleted); canonical = `auditor_toolkit` + `./mm`. Full legacy sweep + docs archive pending. |
 | P3 Control plane    | ✅ Done   | `mm supervisor start/stop/restart/status/health/logs` wired over existing leased queue; crash-recovery proven by test; live DB untracked; heartbeat/PID ignored. |
-| P4 Audit engine     | ◐ Partial | fetch_chain ported; Lighthouse/Lychee/headers/robots/sitemap/schema pending. |
+| P4 Audit engine     | ◐ Partial | `hygiene.py` added (robots/sitemap/security-grade/mixed-content/broken-links/conversion-signals, deterministic $0); not yet wired into live pipeline run in THIS commit (wiring landed in P5 bare commit, re-verified by P4 tests — P4 tests pass; full live-pipeline smoke deferred to P2')="" cleanup pass). `test_p4_hygiene.py` (8 tests) green. |
 | P5 Evidence-first   | ✅ Done   | `scoring.py` derives scores from findings w/ deduction breakdown; findings carry evidence/remediation/effort; `report["breakdown"]` reconciles with legacy scores; 6 tests. |
+| P9 Opportunity score| ✅ Done   | `auditor_toolkit/opportunity.py` — deterministic `need*value*contact*fix*conf/(1+effort)` score with versioned formula, strict input envelopes, full component storage/replay; NO-LLM-by-design. |
 | P6 NZ discovery     | ⬜ Pending | Multi-source lanes + dedupe-before-audit.                    |
 | P7 Identity         | ◐ Partial | canonical_domain ported; NZBN/weighted confidence pending.   |
 | P8 Email finder v2  | ◐ Partial | verify_local consensus ported; full provenance pipeline pending. |
