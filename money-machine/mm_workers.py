@@ -13,7 +13,10 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from mm_core import root, public_url
+from mm_management_worker import management_worker_handler
 from mm_pipeline import RetryableError, PermanentError, BlockedCost
+from mm_preparation_worker import preparation_worker_handler
+from mm_understanding_worker import understanding_worker_handler
 
 REPO = Path(__file__).resolve().parents[1]
 AUDIT_TIMEOUT = 60
@@ -52,7 +55,7 @@ def audit_handler(d, it, worker):
             # Reuse existing audit results
             defects = recent_audit.get('defects', [])
             score = recent_audit.get('score', recent_audit.get('defect_score', 0))
-            return ('QUALIFICATION_PENDING', 'audit reused (recent)',
+            return ('AUDITED', 'audit reused (recent)',
                     {'defect_count': len(defects), 'score': score})
 
     # No recent audit found, run new detection
@@ -72,7 +75,7 @@ def audit_handler(d, it, worker):
     if isinstance(result, dict) and result.get('error'):
         raise RetryableError('site unreachable: ' + str(result['error'])[:200])
     defects = result.get('defects', result.get('findings', []))
-    return ('QUALIFICATION_PENDING', 'audit captured',
+    return ('AUDITED', 'audit captured',
             {'defect_count': len(defects), 'score': result.get('score')})
 
 
@@ -201,10 +204,10 @@ def outreach_handler(d, it, worker):
 WORKERS = {
     'identity':      (('DISCOVERED', 'IDENTITY_PENDING'), identity_handler),
     'audit':         (('AUDIT_PENDING',), audit_handler),
-    'qualification': (('AUDITED', 'QUALIFICATION_PENDING'), qualification_handler),
+    'understanding': (('AUDITED',), understanding_worker_handler),
+    'qualification': (('QUALIFICATION_PENDING',), qualification_handler),
     'contact':       (('QUALIFIED', 'CONTACT_PENDING'), contact_handler),
-    'demo':          (('VERIFIED', 'REMEDIATION_PENDING', 'DEMO_PENDING'), demo_handler),
-    'qa':            (('DEMO_READY', 'QA_PENDING'), qa_handler),
+    'preparation':   (('VERIFIED', 'REMEDIATION_PENDING', 'DEMO_PENDING', 'QA_PENDING'), preparation_worker_handler),
     'outreach_gate': (('OUTREACH_PENDING',), outreach_handler),
+    'management':    (('RESPONDED',), management_worker_handler),
 }
-
