@@ -18,7 +18,21 @@ def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def build_demo(report: dict, remediation: dict, output_dir) -> dict:
+
+def _render_html(html: str, screenshot: Path) -> None:
+    """Render trusted HTML created in this module; never navigate a manifest-provided URI."""
+    from playwright.sync_api import sync_playwright
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        try:
+            page = browser.new_page(viewport={"width": 1440, "height": 1000})
+            page.set_content(html, wait_until="load")
+            page.screenshot(path=str(screenshot), full_page=True)
+        finally:
+            browser.close()
+
+def build_demo(report: dict, remediation: dict, output_dir, *, render: bool = False) -> dict:
     if remediation.get("source_run_id") != report.get("run_id"):
         raise ValueError("Remediation manifest does not match audit run")
     output = Path(output_dir)
@@ -61,11 +75,20 @@ This page is not proof of improved performance, accessibility, SEO, leads or rev
 
     before = None
     source_screenshot = (report.get("artifacts") or {}).get("screenshot")
+    screenshot_record = (report.get("manifest") or {}).get("screenshot") or {}
     report_json = (report.get("artifacts") or {}).get("json")
-    if source_screenshot and report_json:
+    if source_screenshot and report_json and screenshot_record:
         source = Path(source_screenshot).resolve()
         run_dir = Path(report_json).resolve().parent
-        if source.is_file() and source.parent == run_dir:
+        registered = Path(str(screenshot_record.get("path") or "")).resolve()
+        expected_hash = str(screenshot_record.get("sha256") or "")
+        if (
+            source == registered
+            and source.is_file()
+            and source.parent == run_dir
+            and expected_hash
+            and _sha(source) == expected_hash
+        ):
             target = output / "before-source.png"
             shutil.copy2(source, target)
             before = {"path": str(target), "sha256": _sha(target), "kind": "captured_source"}
@@ -87,40 +110,13 @@ This page is not proof of improved performance, accessibility, SEO, leads or rev
         "review_required": True,
         "verification_required": "Approved implementation + repeat audit of actual source website.",
     }
+    if render:
+        screenshot = output / "concept-render.png"
+        _render_html(html, screenshot)
+        manifest["after"] = {
+            "path": str(screenshot),
+            "sha256": _sha(screenshot),
+            "kind": "local_concept_render",
+        }
     atomic_write_json(output / "demo.json", manifest)
     return manifest
-
-
-def render_demo(demo_manifest: dict) -> dict:
-    """Render the local concept to PNG. This still is not a live-site 'after'."""
-    from playwright.sync_api import sync_playwright
-
-    if demo_manifest.get("kind") != "local_demo_concept":
-        raise ValueError("Demo manifest kind invalid")
-    if demo_manifest.get("status") != "CONCEPT_ONLY":
-        raise ValueError("Only local concept manifests may be rendered")
-    path = Path(demo_manifest["demo_html"]).resolve()
-    expected = str(demo_manifest.get("demo_html_sha256") or "")
-    if not path.is_file() or not expected or _sha(path) != expected:
-        raise ValueError("Demo HTML missing or integrity check failed")
-    manifest_path = path.parent / "demo.json"
-    if not manifest_path.is_file():
-        raise ValueError("Demo manifest must sit beside generated HTML")
-    screenshot = path.parent / "concept-render.png"
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        try:
-            page = browser.new_page(viewport={"width": 1440, "height": 1000})
-            page.goto(path.as_uri(), wait_until="load")
-            page.screenshot(path=str(screenshot), full_page=True)
-        finally:
-            browser.close()
-    updated = dict(demo_manifest)
-    updated["after"] = {
-        "path": str(screenshot),
-        "sha256": _sha(screenshot),
-        "kind": "local_concept_render",
-    }
-    updated["improvement_claim_valid"] = False
-    atomic_write_json(path.parent / "demo.json", updated)
-    return updated
