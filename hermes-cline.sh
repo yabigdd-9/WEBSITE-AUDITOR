@@ -17,4 +17,13 @@ if ! command -v cline >/dev/null 2>&1; then
   exit 1
 fi
 
+CLINE_HELP="$(cline --help 2>&1 || true)"
+for flag in --json --cwd --provider --model --auto-approve; do
+  if ! printf '%s\n' "$CLINE_HELP" | grep -q -- "$flag"; then
+    echo "ERROR: installed Cline CLI is too old for the Hermes bridge (missing $flag)." >&2
+    echo "Update with: npm install -g cline@latest && hash -r" >&2
+    exit 1
+  fi
+done
+
 exec hermes "$@"
