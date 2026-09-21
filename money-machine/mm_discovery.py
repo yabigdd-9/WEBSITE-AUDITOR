@@ -39,6 +39,59 @@ def _first(row, names):
     return ""
 
 
+
+def _adapt_source_row(row, lane):
+    """Normalize common export shapes without trusting them as identity proof."""
+    if not isinstance(row, dict):
+        return row
+    lane = str(lane or "").strip().lower()
+    if lane == "osm" or "tags" in row:
+        tags = row.get("tags") if isinstance(row.get("tags"), dict) else {}
+        return {
+            "name": tags.get("name") or tags.get("official_name") or "",
+            "website": tags.get("website") or tags.get("contact:website") or "",
+            "region": (
+                tags.get("addr:city")
+                or tags.get("addr:suburb")
+                or tags.get("addr:district")
+                or tags.get("addr:region")
+                or ""
+            ),
+            "source": "osm-import",
+            "source_record_id": str(row.get("id") or ""),
+            "source_url": "",
+            "source_lane": "osm",
+        }
+    if lane == "nzbn" or any(k in row for k in ("nzbn", "entityName", "entity_name")):
+        trading = row.get("tradingName") or row.get("trading_name") or ""
+        return {
+            "name": row.get("entityName") or row.get("entity_name") or trading or row.get("name") or "",
+            "legal_name": row.get("entityName") or row.get("entity_name") or "",
+            "trading_name": trading,
+            "website": (
+                row.get("website")
+                or row.get("websiteUrl")
+                or row.get("website_url")
+                or row.get("public_website")
+                or ""
+            ),
+            "region": row.get("region") or row.get("city") or row.get("addressRegion") or "",
+            "source": "nzbn-import",
+            "source_record_id": str(row.get("nzbn") or row.get("NZBN") or row.get("id") or ""),
+            "source_url": str(row.get("source_url") or ""),
+            "source_lane": "nzbn",
+        }
+    return dict(row)
+
+
+def _source_provenance(row, source):
+    lane = str(row.get("source_lane") or source or "import").strip().lower()
+    return {
+        "lane": lane[:80],
+        "record_id": str(row.get("source_record_id") or row.get("nzbn") or "")[:160],
+        "source_url": str(row.get("source_url") or "")[:500],
+    }
+
 def root_url(raw):
     value = str(raw or "").strip()
     if not value:
@@ -54,6 +107,7 @@ def root_url(raw):
 def normalize_candidate(row, default_region="", default_source="import"):
     if not isinstance(row, dict):
         raise ValueError("candidate must be an object")
+    row = _adapt_source_row(row, row.get("source_lane") or default_source)
     raw_url = _first(row, ("public_website", "website_url", "website", "url", "link"))
     website, host = root_url(raw_url)
     name = _first(row, ("business_name", "company_name", "name", "title")) or host
@@ -61,10 +115,13 @@ def normalize_candidate(row, default_region="", default_source="import"):
     source = _first(row, ("source",)) or str(default_source or "import").strip()
     return {
         "name": name[:250],
+        "legal_name": _first(row, ("legal_name", "entityName", "entity_name"))[:250],
+        "trading_name": _first(row, ("trading_name", "tradingName"))[:250],
         "region": region[:160],
         "public_website": website,
         "canonical_host": host,
         "source": source[:160],
+        "provenance": _source_provenance(row, source),
     }
 
 
@@ -84,7 +141,17 @@ def read_candidates(path, default_region="", default_source="import"):
             rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
         else:
             doc = json.loads(path.read_text(encoding="utf-8"))
-            rows = doc.get("results", []) if isinstance(doc, dict) else doc
+            if isinstance(doc, dict):
+                if isinstance(doc.get("results"), list):
+                    rows = doc["results"]
+                elif isinstance(doc.get("elements"), list):
+                    rows = [_adapt_source_row(row, "osm") for row in doc["elements"]]
+                elif isinstance(doc.get("items"), list):
+                    rows = [_adapt_source_row(row, default_source) for row in doc["items"]]
+                else:
+                    rows = []
+            else:
+                rows = doc
     else:
         raise ValueError("discovery input must be .csv, .json, or .jsonl")
 
@@ -181,6 +248,9 @@ def ingest(d, candidates, actor="discovery-v2", dry_run=False):
                 {
                     "source": candidate["source"],
                     "canonical_host": host,
+                    "provenance": candidate["provenance"],
+                    "legal_name": candidate.get("legal_name"),
+                    "trading_name": candidate.get("trading_name"),
                     "actor": actor,
                 },
                 sort_keys=True,
@@ -192,6 +262,9 @@ def ingest(d, candidates, actor="discovery-v2", dry_run=False):
             "DISCOVERED",
             payload={
                 "discovery_source": candidate["source"],
+                "discovery_provenance": candidate["provenance"],
+                "legal_name": candidate.get("legal_name"),
+                "trading_name": candidate.get("trading_name"),
                 "canonical_host": host,
                 "contact_eligibility": "UNASSESSED",
             },
