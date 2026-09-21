@@ -169,6 +169,8 @@ def main(argv=None):
     s.add_parser('email-duplicates')
     q=s.add_parser('email-v1');q.add_argument('id',type=int)
     s.add_parser('email-rollback')
+    q=s.add_parser('discover-import');q.add_argument('--file',required=True);q.add_argument('--region',default='');q.add_argument('--source',default='import');q.add_argument('--dry-run',action='store_true')
+    q=s.add_parser('discover-search');q.add_argument('--query',required=True);q.add_argument('--region',required=True);q.add_argument('--endpoint',default='http://127.0.0.1:8888');q.add_argument('--limit',type=int,default=20);q.add_argument('--dry-run',action='store_true')
     q=s.add_parser('intake');q.add_argument('--name',required=True);q.add_argument('--url',required=True);q.add_argument('--region',required=True);q.add_argument('--source',required=True)
     q=s.add_parser('audit');q.add_argument('id',type=int);q.add_argument('--url',required=True);q.add_argument('--observation',required=True);q.add_argument('--limitation',required=True);q.add_argument('--capture',required=True);q.add_argument('--status',choices=['verified','partial','refuted','unverified'],required=True);q.add_argument('--method',required=True);q.add_argument('--confidence',type=float,required=True);q.add_argument('--claim-type',choices=ONTOLOGY,default='conversion')
     q=s.add_parser('contact');q.add_argument('id',type=int);q.add_argument('--recipient',required=True);q.add_argument('--url',required=True);q.add_argument('--capture',required=True);q.add_argument('--relevance',required=True)
@@ -230,6 +232,18 @@ def main(argv=None):
                 result={'mode':'v1_hold','history_retained':True,'new_approvals_held':True,'external_sends':0}
         print(email_cli.human_text(result) if a.cmd in ('email-status','email-find') and not a.json else json.dumps(result,indent=2))
         return 0
+    if a.cmd in ('discover-import','discover-search'):
+        import mm_discovery
+        if a.cmd=='discover-import':
+            candidates,rejected=mm_discovery.read_candidates(a.file,a.region,a.source)
+        else:
+            candidates=mm_discovery.searxng_candidates(a.query,a.region,a.endpoint,a.limit)
+            rejected=[]
+        with contextlib.closing(connect()) as d,d:
+            result=mm_discovery.ingest(d,candidates,actor='mm-'+a.cmd,dry_run=a.dry_run)
+        result['source_rejections']=rejected
+        result['external_sends']=0
+        print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd=='backup':print(backup());return 0
     if a.cmd=='supervisor':
         sys.path.insert(0, str(Path(__file__).resolve().parent))
