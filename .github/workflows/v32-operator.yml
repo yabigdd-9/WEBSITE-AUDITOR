@@ -23,9 +23,9 @@ jobs:
       - name: Compile operator modules
         run: |
           python -m compileall money-machine auditor_toolkit website_auditor
-      - name: Obsidian non-authority tests
+      - name: Obsidian and launchd safety tests
         run: |
-          python -m pytest money-machine/test_obsidian.py -v
+          python -m pytest money-machine/test_obsidian.py money-machine/test_launchd.py -v
       - name: Agency and monthly regression
         run: |
           python -m pytest toolkit_tests/test_agency_revenue_monthly.py -v
