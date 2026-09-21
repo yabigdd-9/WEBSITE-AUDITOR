@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 
 import pytest
@@ -75,11 +74,11 @@ def test_p12_quote_is_deterministic_and_rate_explicit():
     assert first["currency"] == "NZD"
     assert first["llm_determined_price"] is False
     assert first["price_band_nzd"]["low"] == "300.00"
-    assert DecimalString(first["price_band_nzd"]["high"]) > DecimalString(first["price_band_nzd"]["low"])
+    assert decimal_string(first["price_band_nzd"]["high"]) > decimal_string(first["price_band_nzd"]["low"])
     assert first["review_required"] is True
 
 
-def DecimalString(value):
+def decimal_string(value):
     from decimal import Decimal
     return Decimal(value)
 
