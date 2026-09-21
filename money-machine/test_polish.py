@@ -86,8 +86,9 @@ class Polish(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'replay'):flow.load_case(case)
 
     def test_relocated_cli_and_desktop_runtime_match(self):
-        cli=subprocess.run([str(ROOT/'mm'),'--runtime'],capture_output=True,text=True,check=True)
-        desktop=subprocess.run(['bash',str(ROOT/'money-machine/Daily Operator.command'),'--runtime'],capture_output=True,text=True,check=True)
+        runtime_env=dict(os.environ,MM_PYTHON=sys.executable)
+        cli=subprocess.run([str(ROOT/'mm'),'--runtime'],capture_output=True,text=True,check=True,env=runtime_env)
+        desktop=subprocess.run(['bash',str(ROOT/'money-machine/Daily Operator.command'),'--runtime'],capture_output=True,text=True,check=True,env=runtime_env)
         self.assertEqual(json.loads(cli.stdout),json.loads(desktop.stdout))
         with patch.dict('os.environ',{'MM_PYTHON':'/missing/python'}):
             r=subprocess.run([str(ROOT/'mm'),'--help'],capture_output=True,text=True)
