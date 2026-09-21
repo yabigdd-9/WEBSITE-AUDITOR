@@ -19,17 +19,53 @@ from mm_core import now, sha
 from mm_pipeline import BlockedCost
 
 PURPOSE_ROUTES = {
-    # role -> ordered candidate routes (local first, then free external)
-    'orchestrator':    [('local:llamacpp', None), ('local:ollama', None), ('openrouter', 'meituan/longcat-2.0:free')],
-    'researcher':      [('local:llamacpp', None), ('local:ollama', None), ('openrouter', 'upstage/solar-pro4:free'),
-                        ('openrouter', 'stepfun/step-3.7-flash:free')],
-    'executor_sales':  [('local:llamacpp', None), ('local:ollama', None), ('openrouter', 'tencent/hy3:free')],
-    'executor_content':[('local:llamacpp', None), ('local:ollama', None), ('openrouter', 'stepfun/step-3.7-flash:free')],
-    'coder':           [('local:llamacpp', None), ('local:ollama', None), ('openrouter', 'poolside/laguna-s-2.1:free')],
-    'lightweight_worker': [('local:llamacpp', None), ('local:ollama', None), ('openrouter', 'poolside/laguna-xs-2.1:free')],
-    'judge':           [('local:llamacpp', None), ('local:ollama', None), ('openrouter', 'tencent/hy3:free')],
-    'proofer':         [('local:llamacpp', None), ('local:ollama', None), ('openrouter', 'upstage/solar-pro4:free')],
+    # Live-verified free routes as of 2026-09-21; local inference always wins.
+    'orchestrator': [
+        ('local:llamacpp', None), ('local:ollama', None),
+        ('openrouter', 'meituan/longcat-2.0:free'),
+        ('openrouter', 'nvidia/nemotron-3-ultra-550b-a55b:free'),
+    ],
+    'researcher': [
+        ('local:llamacpp', None), ('local:ollama', None),
+        ('openrouter', 'thinkingmachines/inkling:free'),
+        ('openrouter', 'nvidia/nemotron-3.5-lightning:free'),
+    ],
+    'executor_sales': [
+        ('local:llamacpp', None), ('local:ollama', None),
+        ('openrouter', 'inclusionai/ling-3.0-flash:free'),
+        ('openrouter', 'meituan/longcat-2.0:free'),
+    ],
+    'executor_content': [
+        ('local:llamacpp', None), ('local:ollama', None),
+        ('openrouter', 'thinkingmachines/inkling:free'),
+        ('openrouter', 'inclusionai/ling-3.0-flash:free'),
+    ],
+    'coder': [
+        ('local:llamacpp', None), ('local:ollama', None),
+        ('openrouter', 'poolside/laguna-s-2.1:free'),
+        ('openrouter', 'poolside/laguna-xs-2.1:free'),
+    ],
+    'lightweight_worker': [
+        ('local:llamacpp', None), ('local:ollama', None),
+        ('openrouter', 'nvidia/nemotron-3.5-lightning:free'),
+        ('openrouter', 'poolside/laguna-xs-2.1:free'),
+    ],
+    'judge': [
+        ('local:llamacpp', None), ('local:ollama', None),
+        ('openrouter', 'nvidia/nemotron-3-ultra-550b-a55b:free'),
+        ('openrouter', 'meituan/longcat-2.0:free'),
+    ],
+    'proofer': [
+        ('local:llamacpp', None), ('local:ollama', None),
+        ('openrouter', 'nvidia/nemotron-3.5-lightning:free'),
+        ('openrouter', 'inclusionai/ling-3.0-flash:free'),
+    ],
+    'vision': [
+        ('local:llamacpp', None), ('local:ollama', None),
+        ('openrouter', 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free'),
+    ],
 }
+
 
 # Local, zero-cost, no-API-key inference endpoints on this machine.
 # llama.cpp's llama-server exposes an OpenAI-compatible /v1/models surface;
@@ -38,6 +74,7 @@ PURPOSE_ROUTES = {
 LLAMACPP_BASE = os.environ.get('MM_LLAMACPP_HOST', 'http://127.0.0.1:8080')
 OLLAMA_BASE = os.environ.get('OLLAMA_HOST', 'http://127.0.0.1:11434')
 LOCAL_MODEL_ENV = 'MM_LOCAL_MODEL'  # exact model id, e.g. qwen3:4b or a GGUF ref
+EXTERNAL_FREE_ENV = 'MM_ALLOW_EXTERNAL_FREE_MODELS'
 
 
 class PaidRouteRefused(Exception):
@@ -134,6 +171,13 @@ def plan(d, purpose, at=None, local_lookup=None):
             tried.append({'provider': provider, 'kind': kind,
                           'reason': 'no local model available'})
             continue
+        if os.environ.get(EXTERNAL_FREE_ENV) != '1':
+            tried.append({
+                'provider': provider,
+                'model': model,
+                'reason': 'external free models disabled; set MM_ALLOW_EXTERNAL_FREE_MODELS=1 for public/non-confidential prompts',
+            })
+            continue
         if provider == 'openrouter' and not os.environ.get('OPENROUTER_API_KEY'):
             tried.append({'provider': provider, 'model': model,
                           'reason': 'OPENROUTER_API_KEY unset'})
@@ -176,8 +220,19 @@ def finish(d, run_key, ok, error=None):
 
 def routes_report():
     """Static report of configured routes for observability (no probing)."""
-    return {purpose: [{'provider': p, 'model': m} for p, m in routes]
-            for purpose, routes in PURPOSE_ROUTES.items()}
+    return {
+        'policy': {
+            'paid_allowed': False,
+            'max_cost_usd': 0,
+            'external_free_enabled': os.environ.get(EXTERNAL_FREE_ENV) == '1',
+            'external_data_rule': 'public or non-confidential prompts only',
+            'fallback': 'DEFER',
+        },
+        'routes': {
+            purpose: [{'provider': p, 'model': m} for p, m in routes]
+            for purpose, routes in PURPOSE_ROUTES.items()
+        },
+    }
 
 
 def local_complete(prompt, purpose='lightweight_worker', max_tokens=64,
