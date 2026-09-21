@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "enabled": false,
+  "provider": "none",
+  "daily_cap": 0,
+  "requires_exact_approval": true,
+  "requires_verified_recipient": true,
+  "requires_suppression_check": true,
+  "external_send_allowed": false
+}
