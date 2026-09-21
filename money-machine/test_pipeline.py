@@ -457,7 +457,7 @@ class ModelRouter(unittest.TestCase):
                 router.PURPOSE_ROUTES.pop('test-role')
 
     def test_free_routes_accepted(self):
-        self.assertIsNone(router.check_route('openrouter', 'tencent/hy3:free'))
+        self.assertIsNone(router.check_route('openrouter', 'meituan/longcat-2.0:free'))
         self.assertIsNone(router.check_route('local:ollama', None))
 
     def test_unknown_provider_refused(self):
@@ -491,11 +491,24 @@ class ModelRouter(unittest.TestCase):
 
     def test_external_route_used_only_when_no_local_route_exists(self):
         os.environ['OPENROUTER_API_KEY'] = 'stub-key-never-called'
+        os.environ['MM_ALLOW_EXTERNAL_FREE_MODELS'] = '1'
         try:
             res = router.plan(self.d, 'judge', local_lookup=lambda kind: None)
             self.assertEqual(res['status'], 'planned')
             self.assertTrue(res['model'].endswith(':free'))
             self.assertEqual(res['cost_usd'], 0)
+        finally:
+            os.environ.pop('OPENROUTER_API_KEY', None)
+            os.environ.pop('MM_ALLOW_EXTERNAL_FREE_MODELS', None)
+
+    def test_external_free_route_requires_explicit_opt_in(self):
+        os.environ['OPENROUTER_API_KEY'] = 'stub-key-never-called'
+        os.environ.pop('MM_ALLOW_EXTERNAL_FREE_MODELS', None)
+        try:
+            res = router.plan(self.d, 'judge', local_lookup=lambda kind: None)
+            self.assertEqual(res['status'], 'blocked')
+            self.assertEqual(res['cost_usd'], 0)
+            self.assertIn('external free models disabled', res['reason'])
         finally:
             os.environ.pop('OPENROUTER_API_KEY', None)
 
