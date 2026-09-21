@@ -288,7 +288,8 @@ def test_monthly_artifact_allowlist_and_integrity(tmp_path):
         store.artifact(result["id"], "html")
 
 
-def test_cli_config_and_wrong_client(tmp_path, capsys):
+def test_cli_config_and_wrong_client(tmp_path, capsys, monkeypatch):
+    monkeypatch.chdir(tmp_path)
     seed(tmp_path)
     path = tmp_path / "agency.json"
     path.write_text(json.dumps(config()))
@@ -329,3 +330,33 @@ def test_delivery_cannot_be_enabled_by_config():
     cfg["reporting"]["auto_send"] = True
     with pytest.raises(ValueError, match="drafts only"):
         validate_config(cfg)
+
+
+@pytest.mark.parametrize("field", ["report", "config", "output_dir"])
+def test_revenue_cli_rejects_workspace_escape(tmp_path, monkeypatch, field):
+    from auditor_toolkit.agency_cli import run_command
+
+    monkeypatch.chdir(tmp_path)
+    config_path = tmp_path / "agency.json"
+    config_path.write_text(json.dumps(config()), encoding="utf-8")
+    report_path = tmp_path / "report.json"
+    report_path.write_text(json.dumps(report()), encoding="utf-8")
+    args = SimpleNamespace(
+        command="revenue", config=config_path, report=report_path,
+        client="one", output_dir=tmp_path / "result",
+    )
+    setattr(args, field, tmp_path.parent / "outside")
+    with pytest.raises(ValueError, match="current workspace"):
+        run_command(args)
+
+
+def test_revenue_cli_writes_reviewed_scenario_inside_workspace(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    config_path = tmp_path / "agency.json"
+    config_path.write_text(json.dumps(config()), encoding="utf-8")
+    report_path = tmp_path / "report.json"
+    report_path.write_text(json.dumps(report()), encoding="utf-8")
+    assert main(["revenue", str(report_path), "--config", str(config_path), "--client", "one"]) == 0
+    result = json.loads(capsys.readouterr().out)
+    assert Path(result["roi"]).is_relative_to(tmp_path)
+    assert Path(result["roi"]).is_file()

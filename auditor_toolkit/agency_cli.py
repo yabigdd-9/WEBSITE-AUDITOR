@@ -8,7 +8,7 @@ from pathlib import Path
 
 from .actions import import_report
 from .agency_config import get_client, load_config, site_url
-from .common import atomic_write_json, atomic_write_text
+from .common import atomic_write_json, atomic_write_text, workspace_path
 from .monthly import due_monthly, generate_monthly
 from .revenue import calculate_revenue, roi_csv
 
@@ -35,17 +35,18 @@ def add_commands(sub):
 
 
 def run_command(args):
-    config = load_config(args.config)
+    config = load_config(workspace_path(args.config, must_exist=True, file_only=True))
     if args.command == "revenue":
         client = get_client(config, args.client)
-        report = import_report(args.report)
+        report = import_report(workspace_path(args.report, must_exist=True, file_only=True))
         if site_url(report["url"]) != client["url"] or report.get("profile") != client["profile"]:
             raise ValueError("Report URL/profile does not match the configured client")
         result = calculate_revenue(report, client.get("revenue"))
         import uuid
 
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S") + "-" + uuid.uuid4().hex[:8]
-        directory = args.output_dir / client["id"] / stamp
+        output_dir = workspace_path(args.output_dir)
+        directory = workspace_path(Path(client["id"]) / stamp, root=output_dir)
         atomic_write_json(directory / "revenue.json", result)
         atomic_write_text(directory / "roi.csv", roi_csv(result))
         print(
@@ -60,9 +61,10 @@ def run_command(args):
             )
         )
         return 0 if result["status"] == "scenario" else 2
+    output_root = workspace_path(args.output_root)
     if args.due_preview:
         print(
-            json.dumps({"mode": "draft", "jobs": due_monthly(args.output_root, config)}, indent=2)
+            json.dumps({"mode": "draft", "jobs": due_monthly(output_root, config)}, indent=2)
         )
         return 0
     if not args.client and not args.all:
@@ -72,7 +74,7 @@ def run_command(args):
     for client in clients:
         try:
             result = generate_monthly(
-                args.output_root, config, client["id"], args.month, not args.html_only
+                output_root, config, client["id"], args.month, not args.html_only
             )
             reports.append(result)
         except (ValueError, OSError, KeyError) as exc:
