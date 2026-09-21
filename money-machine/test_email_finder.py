@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent / 'scripts'))
 import mm_email as e
 from mm_email_network import smtp_evidence
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parent
 
 
 def page(body, url='https://koruplumbing.co.nz/contact', name='Koru Plumbing', stamp=None, **extra):
