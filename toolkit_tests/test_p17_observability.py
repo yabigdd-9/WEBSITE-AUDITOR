@@ -34,6 +34,14 @@ def seed(root: Path):
           last_error TEXT,
           updated_at TEXT NOT NULL);
         CREATE TABLE mm_metrics(name TEXT PRIMARY KEY,value INTEGER NOT NULL,updated_at TEXT);
+        CREATE TABLE worker_registry(
+          worker_id TEXT PRIMARY KEY,
+          kind TEXT NOT NULL,
+          hostname TEXT NOT NULL,
+          pid INTEGER NOT NULL,
+          started_at TEXT NOT NULL,
+          heartbeat_at TEXT NOT NULL,
+          lease_seconds INTEGER NOT NULL);
         CREATE TABLE mm_model_invocations(
           id INTEGER PRIMARY KEY,
           cost_usd REAL NOT NULL DEFAULT 0);
@@ -46,6 +54,9 @@ def seed(root: Path):
         "INSERT INTO pipeline_items VALUES(2,'PERMANENT_FAILURE',5,5,NULL,NULL,NULL,NULL,'fixture failure','2026-09-21T00:01:00+00:00')"
     )
     d.execute("INSERT INTO mm_metrics VALUES('pipeline.items.completed',7,'2026-09-21')")
+    d.execute(
+        "INSERT INTO worker_registry VALUES('worker-a','audit','fixture',123,'2026-09-21','2026-09-21',300)"
+    )
     d.execute("INSERT INTO mm_model_invocations(cost_usd) VALUES(0)")
     d.commit()
     d.close()
@@ -88,6 +99,11 @@ def test_observability_is_read_only_and_matches_v32_snapshots(tmp_path, monkeypa
     assert Path(paths["health"]).name == "health.json"
     assert Path(paths["metrics"]).name == "metrics.jsonl"
     assert Path(paths["errors"]).name == "errors.jsonl"
+    assert Path(paths["dead_letter"]).name == "queue.json"
+    assert Path(paths["worker_heartbeats"]).name == "worker-heartbeats"
+    assert paths["worker_count"] == 1
+    assert json.loads((root / "state" / "dead-letter" / "queue.json").read_text())["count"] == 1
+    assert json.loads((root / "state" / "worker-heartbeats" / "worker-a.json").read_text())["kind"] == "audit"
     assert json.loads((root / "state" / "health.json").read_text())["paid_model_fallback"] is False
     assert len((root / "state" / "metrics.jsonl").read_text().splitlines()) == 1
     assert len((root / "state" / "errors.jsonl").read_text().splitlines()) == 1
