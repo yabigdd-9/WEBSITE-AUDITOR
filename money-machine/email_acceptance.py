@@ -26,17 +26,24 @@ import mm_email_store as store
 from email_benchmark import compare, write_report
 from mm_email_network import atomic_json
 
-ROOT=Path(__file__).resolve().parents[1]
+MM_DIR=Path(__file__).resolve().parent
+ROOT=MM_DIR.parent
 BACKUP=ROOT/'backups/pre_email_finder_v2_20260908T022750Z'
 OUT=ROOT/'reports/email-finder-evidence'
 
 
 def source_fingerprints():
     paths=[]
-    for base in ('scripts','tests','migrations','config'):
-        paths.extend(p for p in (ROOT/base).rglob('*') if p.is_file() and p.name!='.DS_Store' and '__pycache__' not in p.parts and p.suffix not in ('.pyc',))
-    paths.extend(ROOT/p for p in ('mm','Daily Operator.command','requirements-email.txt'))
-    return {str(p.relative_to(ROOT)):c.sha(p.read_bytes()) for p in sorted(paths)}
+    for base in ('scripts','config'):
+        paths.extend(
+            p for p in (MM_DIR/base).rglob('*')
+            if p.is_file() and p.name!='.DS_Store'
+            and '__pycache__' not in p.parts and p.suffix not in ('.pyc',)
+        )
+    paths.extend(MM_DIR.glob('test_*.py'))
+    paths.extend(MM_DIR.glob('*.sql'))
+    paths.extend(MM_DIR/p for p in ('mm','Daily Operator.command','requirements-email.txt'))
+    return {str(p.relative_to(ROOT)):c.sha(p.read_bytes()) for p in sorted(set(paths))}
 
 
 def historical_fingerprints(d):
@@ -112,9 +119,9 @@ def secret_scan():
 def run(promote=False):
     OUT.mkdir(parents=True,exist_ok=True)
     before=source_fingerprints()
-    sys.path.insert(0,str(ROOT/'tests'))
+    sys.path.insert(0,str(MM_DIR))
     warnings.filterwarnings('ignore',category=ResourceWarning)
-    suite=unittest.defaultTestLoader.discover(str(ROOT/'tests'))
+    suite=unittest.defaultTestLoader.discover(str(MM_DIR), pattern='test_*.py')
     log=io.StringIO();test_result=unittest.TextTestRunner(stream=log,verbosity=2).run(suite)
     (OUT/'tests-final.txt').write_text(log.getvalue())
     tests={'run':test_result.testsRun,'passed':test_result.testsRun-len(test_result.failures)-len(test_result.errors)-len(test_result.skipped),
