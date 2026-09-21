@@ -1,0 +1,12 @@
+[run]
+relative_files = True
+source =
+    auditor_toolkit
+    website_auditor
+
+[report]
+show_missing = True
+skip_empty = True
+
+[xml]
+output = coverage.xml
