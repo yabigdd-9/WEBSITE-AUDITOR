@@ -34,7 +34,7 @@ jobs:
           python -m pip install --upgrade pip uv
           uv pip install --system -r requirements.txt
       - name: Smoke audit
-        run: python website_auditor.py https://example.com --format json -o /tmp/smoke.json
+        run: python website_auditor.py https://example.com --format json --output /tmp/smoke.json
 
 
   full-regression:
