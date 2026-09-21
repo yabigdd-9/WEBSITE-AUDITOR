@@ -92,7 +92,13 @@ def test_demo_copies_only_manifest_verified_screenshot_and_renders_in_memory(tmp
         screenshot.write_bytes(b"rendered-concept")
 
     with patch("auditor_toolkit.demo._render_html", side_effect=fake_render):
-        demo = build_demo(report, remediation, tmp_path / "demo", render=True)
+        demo = build_demo(
+            report,
+            remediation,
+            tmp_path / "demo",
+            render=True,
+            report_path=report["artifacts"]["json"],
+        )
     assert demo["before"]["kind"] == "captured_source"
     assert Path(demo["before"]["path"]).read_bytes() == b"synthetic-png"
     assert demo["after"]["kind"] == "local_concept_render"
@@ -105,7 +111,12 @@ def test_demo_copies_only_manifest_verified_screenshot_and_renders_in_memory(tmp
             "sha256": "0" * 64,
         }
     }
-    clean = build_demo(tampered, remediation, tmp_path / "demo-tampered")
+    clean = build_demo(
+        tampered,
+        remediation,
+        tmp_path / "demo-tampered",
+        report_path=report["artifacts"]["json"],
+    )
     assert clean["before"] is None
 
 
@@ -132,7 +143,8 @@ def test_packet_verified_contact_and_manifest_binding_do_not_follow_paths(tmp_pa
     assert all("file_sha256" not in item for item in packet["evidence"])
 
 
-def test_delivery_cli_commands_end_to_end(tmp_path, capsys):
+def test_delivery_cli_commands_end_to_end(tmp_path, capsys, monkeypatch):
+    monkeypatch.chdir(tmp_path)
     report, report_json = full_report(tmp_path)
     remediation_dir = tmp_path / "cli-remediation"
     assert cli.main(["remediate", str(report_json), "--output-dir", str(remediation_dir)]) == 0
@@ -199,3 +211,24 @@ def test_quote_partial_or_heuristic_lowers_confidence(tmp_path):
     report["status"] = "complete"
     report["defects"][0]["confidence"] = "heuristic"
     assert calculate_quote(report, 150)["confidence"] == "MEDIUM"
+
+
+def test_workspace_path_rejects_escape(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    outside = tmp_path.parent / "outside.json"
+    outside.write_text("{}", encoding="utf-8")
+    try:
+        with pytest.raises(ValueError, match="current workspace"):
+            cli.workspace_path(outside, must_exist=True, file_only=True)
+    finally:
+        outside.unlink(missing_ok=True)
+
+
+def test_external_tool_url_rejects_option_and_credentials():
+    from auditor_toolkit.external_tools import _safe_url
+
+    with pytest.raises(ValueError):
+        _safe_url("--output=/tmp/evil")
+    with pytest.raises(ValueError):
+        _safe_url("https://user:pass@example.com/")
+    assert _safe_url("https://example.com/a#fragment") == "https://example.com/a"
