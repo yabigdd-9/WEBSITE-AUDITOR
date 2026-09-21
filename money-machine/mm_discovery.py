@@ -44,6 +44,10 @@ def _adapt_source_row(row, lane):
     """Normalize common export shapes without trusting them as identity proof."""
     if not isinstance(row, dict):
         return row
+    # Rows produced by this adapter are already canonical; do not erase
+    # legal/trading names or source record IDs on a second normalization pass.
+    if row.get("source_lane") and "source_record_id" in row:
+        return dict(row)
     lane = str(lane or "").strip().lower()
     if lane == "osm" or "tags" in row:
         tags = row.get("tags") if isinstance(row.get("tags"), dict) else {}
