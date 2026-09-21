@@ -7,8 +7,8 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from .ai import generate_drafts, verify_model
 from .agency_cli import add_commands, run_command
+from .ai import generate_drafts, verify_model
 from .pipeline import AuditOptions, run_audit
 from .storage import History
 
