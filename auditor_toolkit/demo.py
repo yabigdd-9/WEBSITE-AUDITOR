@@ -7,7 +7,6 @@ re-audited with the same profile.
 from __future__ import annotations
 
 import hashlib
-import json
 import shutil
 from html import escape
 from pathlib import Path
