@@ -2,13 +2,17 @@ import importlib.util
 import io
 import json
 import sqlite3
+import sys
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-MODULE_PATH = ROOT / "money-machine" / "mm_discovery.py"
+MM_DIR = ROOT / "money-machine"
+if str(MM_DIR) not in sys.path:
+    sys.path.insert(0, str(MM_DIR))
+MODULE_PATH = MM_DIR / "mm_discovery.py"
 spec = importlib.util.spec_from_file_location("mm_discovery_under_test", MODULE_PATH)
 discovery = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(discovery)
