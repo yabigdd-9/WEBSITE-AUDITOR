@@ -162,6 +162,7 @@ def main(argv=None):
     q.add_argument('--timeout',type=float,default=15)
     q=s.add_parser('outreach-plan');q.add_argument('--brief',required=True)
     s.add_parser('polish-status')
+    s.add_parser('module-status')
     q=s.add_parser('audit-packet');q.add_argument('--case',required=True);q.add_argument('--output',required=True);q.add_argument('--rendered-review')
     q=s.add_parser('outreach-audit');q.add_argument('--packet',required=True)
     q=s.add_parser('outreach-preflight');q.add_argument('id',type=int)
@@ -246,6 +247,9 @@ def main(argv=None):
         report=json.loads((root()/'reports/polish-status.json').read_text())
         report.update(workspace=str(root()),python=sys.executable,snapshot_only=True)
         print(json.dumps(report,indent=2));return 0
+    if a.cmd=='module-status':
+        import mm_module_registry
+        print(json.dumps(mm_module_registry.status(),indent=2));return 0
     if a.cmd=='audit-packet':
         import mm_audit_workflow
         return mm_audit_workflow.main(['--case',a.case,'--output',a.output]+(['--rendered-review',a.rendered_review] if a.rendered_review else []))
