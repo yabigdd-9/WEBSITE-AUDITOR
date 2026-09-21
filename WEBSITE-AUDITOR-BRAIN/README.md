@@ -26,3 +26,8 @@ Expected generated folders:
 - `08-RUNBOOK`
 
 Obsidian may be closed or absent without affecting WEBSITE-AUDITOR runtime.
+
+
+## Git/privacy behavior
+
+Generated dashboard, prospect, approval, agent, experiment, report and runbook folders are ignored by Git. They remain local to the operator machine unless deliberately exported elsewhere. This prevents routine syncs from committing prospect/runtime state.
