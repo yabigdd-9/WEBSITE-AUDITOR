@@ -3,6 +3,8 @@ import json
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 from auditor_toolkit import cli
 from auditor_toolkit.demo import build_demo
 from auditor_toolkit.packet import build_packet

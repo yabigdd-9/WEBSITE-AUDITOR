@@ -61,6 +61,7 @@ def test_monthly_pdf_and_portal(tmp_path):
                 assert pending.value.suggested_filename == "email.eml"
                 page.goto(address)
                 page.get_by_role("button", name="Log out").click()
+                page.wait_for_url("**/login")
                 response = page.request.get(
                     address + "/monthly-artifacts/" + generated["id"] + "/pdf"
                 )
