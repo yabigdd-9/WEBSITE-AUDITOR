@@ -19,7 +19,7 @@ pytestmark = pytest.mark.skipif(
 
 def test_monthly_pdf_and_portal(tmp_path):
     import uvicorn
-    from playwright.sync_api import sync_playwright
+    from playwright.sync_api import expect, sync_playwright
 
     root = (
         Path(os.environ["WA_MONTHLY_DEMO_ROOT"]) / uuid.uuid4().hex[:8]
@@ -52,7 +52,8 @@ def test_monthly_pdf_and_portal(tmp_path):
                 page.get_by_label("Password").fill("monthly fixture password")
                 page.get_by_role("button", name="Log in").click()
                 page.get_by_role("link", name="Monthly report drafts").click()
-                assert page.get_by_role("heading", name="Monthly report drafts").is_visible()
+                page.wait_for_url("**/monthly")
+                expect(page.get_by_role("heading", name="Monthly report drafts")).to_be_visible()
                 with page.expect_download() as pending:
                     page.get_by_role("link", name="pdf", exact=True).click()
                 assert pending.value.suggested_filename == "monthly-report.pdf"
