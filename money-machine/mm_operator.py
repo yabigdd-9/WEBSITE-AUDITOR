@@ -197,11 +197,22 @@ def main(argv=None):
     q=s.add_parser('deploy-check');q.add_argument('--candidate');q.add_argument('--execute',action='store_true')
     q=s.add_parser('obsidian-sync');q.add_argument('--vault')
     q=s.add_parser('obsidian-status');q.add_argument('--vault')
+    q=s.add_parser('launchd');q.add_argument('action',choices=['install','status','uninstall']);q.add_argument('--no-load',action='store_true');q.add_argument('--keep-plist',action='store_true');q.add_argument('--sleep',type=float,default=5);q.add_argument('--lease',type=int,default=300);q.add_argument('--rotate-every',type=int,default=60)
     a=p.parse_args(argv)
     if a.cmd=='polish-status':
         report=json.loads((root()/'reports/polish-status.json').read_text())
         report.update(workspace=str(root()),python=sys.executable,snapshot_only=True)
         print(json.dumps(report,indent=2));return 0
+    if a.cmd=='launchd':
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from supervisor import launchd as _ld
+        if a.action=='install':
+            result=_ld.install(load=not a.no_load,sleep=a.sleep,lease=a.lease,rotate_every=a.rotate_every)
+        elif a.action=='status':
+            result=_ld.status()
+        else:
+            result=_ld.uninstall(remove=not a.keep_plist)
+        print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd in ('obsidian-sync','obsidian-status'):
         import mm_obsidian
         vault=Path(a.vault).expanduser() if a.vault else None
