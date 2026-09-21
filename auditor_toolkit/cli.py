@@ -87,6 +87,24 @@ def main(argv=None):
     dashboard.add_argument("--output-root", default="outputs/toolkit")
     dashboard.add_argument("--set-password", action="store_true")
     dashboard.add_argument("--port", type=int, default=8080)
+    remediate = sub.add_parser("remediate")
+    remediate.add_argument("report", type=Path)
+    remediate.add_argument("--output-dir", type=Path, required=True)
+    demo_cmd = sub.add_parser("demo")
+    demo_cmd.add_argument("report", type=Path)
+    demo_cmd.add_argument("remediation", type=Path)
+    demo_cmd.add_argument("--output-dir", type=Path, required=True)
+    demo_cmd.add_argument("--render", action="store_true")
+    quote_cmd = sub.add_parser("quote")
+    quote_cmd.add_argument("report", type=Path)
+    quote_cmd.add_argument("--hourly-rate-nzd", type=float, required=True)
+    quote_cmd.add_argument("--output", type=Path)
+    packet_cmd = sub.add_parser("packet")
+    packet_cmd.add_argument("report", type=Path)
+    packet_cmd.add_argument("remediation", type=Path)
+    packet_cmd.add_argument("demo", type=Path)
+    packet_cmd.add_argument("quote", type=Path)
+    packet_cmd.add_argument("--output-dir", type=Path, required=True)
     actions = sub.add_parser("actions")
     actions.add_argument("operation", choices=["preview", "cancel"])
     actions.add_argument("report", type=Path)
@@ -99,6 +117,39 @@ def main(argv=None):
         except (ValueError, OSError, KeyError) as exc:
             parser.error(str(exc))
 
+    if args.command == "remediate":
+        from .remediation import build_remediation
+        report = json.loads(args.report.read_text())
+        result = build_remediation(report, args.output_dir)
+        print(json.dumps(result, indent=2))
+        return 0
+    if args.command == "demo":
+        from .demo import build_demo, render_demo
+        report = json.loads(args.report.read_text())
+        remediation = json.loads(args.remediation.read_text())
+        result = build_demo(report, remediation, args.output_dir)
+        if args.render:
+            result = render_demo(result)
+        print(json.dumps(result, indent=2))
+        return 0
+    if args.command == "quote":
+        from .common import atomic_write_json
+        from .quote import calculate_quote
+        report = json.loads(args.report.read_text())
+        result = calculate_quote(report, args.hourly_rate_nzd)
+        if args.output:
+            atomic_write_json(args.output, result)
+        print(json.dumps(result, indent=2))
+        return 0
+    if args.command == "packet":
+        from .packet import build_packet
+        report = json.loads(args.report.read_text())
+        remediation = json.loads(args.remediation.read_text())
+        demo = json.loads(args.demo.read_text())
+        quote = json.loads(args.quote.read_text())
+        result = build_packet(report, remediation, demo, quote, args.output_dir)
+        print(json.dumps(result, indent=2))
+        return 0
     if args.command == "doctor":
         result = doctor(args.output_root, args.smoke)
         print(json.dumps(result, indent=2))
