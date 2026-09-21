@@ -124,12 +124,10 @@ def main(argv=None):
         print(json.dumps(result, indent=2))
         return 0
     if args.command == "demo":
-        from .demo import build_demo, render_demo
+        from .demo import build_demo
         report = json.loads(args.report.read_text())
         remediation = json.loads(args.remediation.read_text())
-        result = build_demo(report, remediation, args.output_dir)
-        if args.render:
-            result = render_demo(result)
+        result = build_demo(report, remediation, args.output_dir, render=args.render)
         print(json.dumps(result, indent=2))
         return 0
     if args.command == "quote":
