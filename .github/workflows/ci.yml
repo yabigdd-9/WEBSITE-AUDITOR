@@ -49,5 +49,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e '.[portal,dev]'
+          python -m pip install -r money-machine/requirements-email.txt
       - name: Run toolkit regression suite
         run: python -m pytest toolkit_tests -v
+      - name: Run canonical discovery + email verification regressions
+        run: |
+          python -m pytest money-machine/test_discovery.py -v
+          python -m pytest money-machine/test_email_finder.py -v
