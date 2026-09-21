@@ -30,7 +30,8 @@ from pathlib import Path
 from typing import Any
 from collections import Counter
 
-import httpx, bs4, trafilatura, textstat
+import httpx, bs4, trafilatura
+from auditor_toolkit import readability as textstat
 
 # ── config ──────────────────────────────────────────────────────────
 CACHE_DIR = Path("outputs/.cache")
