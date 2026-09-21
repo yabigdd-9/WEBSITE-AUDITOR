@@ -116,7 +116,7 @@ def export_pdf(html_path, pdf_path, opts=None):
             # Write the PDF
             Path(pdf_path).write_bytes(response.content)
             return
-        except Exception as e:
+        except Exception:
             # Fall back to Playwright if Gotenberg fails
             pass
 
