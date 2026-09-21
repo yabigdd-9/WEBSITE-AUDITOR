@@ -9,6 +9,7 @@ from pathlib import Path
 
 from .ai import generate_drafts, verify_model
 from .agency_cli import add_commands, run_command
+from .external_tools import installed_tools
 from .pipeline import AuditOptions, run_audit
 from .storage import History
 
@@ -25,6 +26,7 @@ def doctor(root, smoke=False):
         "output_writable": os.access(root if root.exists() else root.parent, os.W_OK),
         "generation": {"status": "not_tested"},
         "browser": {"status": "not_tested"},
+        "external_tools": installed_tools(),
     }
     try:
         from playwright.sync_api import sync_playwright
@@ -65,6 +67,7 @@ def main(argv=None):
     )
     audit.add_argument("--no-tls", action="store_true")
     audit.add_argument("--deep", action="store_true")
+    audit.add_argument("--external-tools", action="store_true", help="Require installed local Lighthouse + Lychee checks")
     audit.add_argument("--max-pages", type=int, default=10)
     audit.add_argument("--max-depth", type=int, default=2)
     audit.add_argument("--cache", action="store_true")
@@ -167,6 +170,7 @@ def main(argv=None):
         ai_timeout=args.ai_timeout,
         brand=args.brand,
         hourly_rate_nzd=args.hourly_rate_nzd,
+        external_tools=args.external_tools,
     )
     urls = (
         ([args.url] if args.url else [])
