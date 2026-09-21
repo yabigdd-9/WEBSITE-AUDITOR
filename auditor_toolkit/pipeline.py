@@ -11,6 +11,15 @@ from urllib.parse import urlparse
 from .browser import export_pdf, run_browser_checks
 from .checks import Finding, analyse_html, classify_response, dedupe_findings, score_findings
 from .common import Fetcher, atomic_write_json, atomic_write_text, validate_url
+from .hygiene import (
+    check_mixed_content,
+    check_robots,
+    check_sitemap,
+    detect_conversion_signals,
+    discover_internal_links,
+    grade_security_headers,
+    validate_links,
+)
 from .models import REGISTRY, SCHEMA_VERSION
 from .network import crawl, inspect_dns, inspect_headers, inspect_schema, inspect_tls
 from .reporting import render_trend_svg, write_html_report
@@ -122,7 +131,41 @@ def run_audit(url, options=None, fetcher=None):
             perform("page", lambda: analyse_html(response.text, final_url))
             perform("schema", lambda: inspect_schema(response.text, final_url, opts.profile))
             perform("headers", lambda: inspect_headers(response))
-            for name in ("page", "schema", "headers"):
+
+            def hygiene_checks():
+                robots_findings, robots_evidence = check_robots(client, final_url)
+                sitemap_findings, sitemap_evidence = check_sitemap(
+                    client, final_url, robots_evidence.get("sitemaps_declared")
+                )
+                header_findings, header_evidence = grade_security_headers(
+                    response.headers, final_url, deep=opts.deep
+                )
+                mixed_findings, mixed_evidence = check_mixed_content(response.text, final_url)
+                return (
+                    robots_findings
+                    + sitemap_findings
+                    + header_findings
+                    + mixed_findings,
+                    {
+                        "robots": robots_evidence,
+                        "sitemap": sitemap_evidence,
+                        "security_headers": header_evidence,
+                        "mixed_content": mixed_evidence,
+                    },
+                )
+
+            perform("hygiene", hygiene_checks)
+            perform("ux", lambda: detect_conversion_signals(response.text, final_url))
+            if opts.deep:
+                links = discover_internal_links(response.text, final_url, opts.max_links)
+                perform(
+                    "links",
+                    lambda: validate_links(client, final_url, links, limit=opts.max_links),
+                )
+            else:
+                skip("links", "Enable deep checks")
+
+            for name in ("page", "schema", "headers", "hygiene", "ux", "links"):
                 if name in evidence:
                     evidence[name]["observed_at"] = fetched_at
             if opts.tls:
@@ -191,7 +234,19 @@ def run_audit(url, options=None, fetcher=None):
             else:
                 skip("axe", "Rendered mode required")
         else:
-            for name in ("page", "schema", "headers", "tls", "dns", "crawl", "browser", "axe"):
+            for name in (
+                "page",
+                "schema",
+                "headers",
+                "hygiene",
+                "ux",
+                "links",
+                "tls",
+                "dns",
+                "crawl",
+                "browser",
+                "axe",
+            ):
                 skip(
                     name,
                     "Fetch unavailable",
