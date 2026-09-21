@@ -63,3 +63,6 @@ testpaths = [
 ]
 python_files = ["test_*.py"]
 addopts = "-ra --strict-markers"
+markers = [
+  "slow: marks tests that spawn background processes and take >10s (deselect with '-m \"not slow\"')",
+]

@@ -8,8 +8,8 @@ _Last updated: 2026-09-21 · branch `upgrade/cline-master-merge`_
 | ----------------------- | --------------------------------------- |
 | Python target           | 3.11 (`requires-python = ">=3.11"`)     |
 | Active dev venv         | `.venv` (currently CPython 3.14.7)      |
-| Tests total             | 26                                      |
-| Tests pass              | 25                                      |
+| Tests total             | 30 (26 + 4 supervisor)                |
+| Tests pass              | 29                                      |
 | Tests fail              | 0                                       |
 | Tests skipped           | 1 (`test_browser_e2e`, opt-in via env)  |
 
@@ -31,8 +31,8 @@ _Last updated: 2026-09-21 · branch `upgrade/cline-master-merge`_
 | ----- | ----------- | ------------------------------------------------------------ |
 | P0 Reconciliation   | ✅ Done  | Ported identity/verify/fetch_chain/gitleaks + research docs; rejected formatter churn; backup taken; branch `upgrade/cline-master-merge` created. |
 | P1 Baseline         | ✅ Done  | Tests green (25/1 skip); deps added; README→3.11; `.gitignore` hardened; security CI added. |
-| P2 Consolidation    | ⬜ Pending | Canonical auditor + CLI docs; mark legacy paths deprecated.  |
-| P3 Control plane    | ⬜ Pending | SQLite leased queue, supervisor CLI, heartbeats, DLQ, retry/backoff, crash-recovery proof. |
+| P2 Consolidation    | ◐ Partial | Legacy auditors marked DEPRECATED (not deleted); canonical = `auditor_toolkit` + `./mm`. Full legacy sweep + docs archive pending. |
+| P3 Control plane    | ✅ Done   | `mm supervisor start/stop/restart/status/health/logs` wired over existing leased queue; crash-recovery proven by test; live DB untracked; heartbeat/PID ignored. |
 | P4 Audit engine     | ◐ Partial | fetch_chain ported; Lighthouse/Lychee/headers/robots/sitemap/schema pending. |
 | P5 Evidence-first   | ⬜ Pending | Finding schema + evidence/confidence linkage.                |
 | P6 NZ discovery     | ⬜ Pending | Multi-source lanes + dedupe-before-audit.                    |

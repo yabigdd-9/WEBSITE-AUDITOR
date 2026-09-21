@@ -4,7 +4,29 @@ All notable changes to WEBSITE-AUDITOR are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This project adheres to the
 zero-paid-token, evidence-first, supervised execution policy in the master plan.
 
-## [Unreleased] — upgrade/cline-master-merge (P0/P1)
+## [Unreleased] — upgrade/cline-master-merge (P0/P1/P2/P3)
+
+### P2 — Code consolidation (partial: legacy audit paths; control-plane consolidated by reuse)
+
+- `ultimate_auditor.py`, `website_auditor_enhanced.py`, `website_auditor.py` marked **DEPRECATED**
+  with canonical pointers (`./mm`, `wa` → `auditor_toolkit.cli:main`). Behavior unchanged.
+- Control-plane not duplicated: `mm_pipeline.py` (leased queue, heartbeats, retry/backoff/DLQ,
+  circuit breakers), `mm_workers.py`, `supervisor/` daemon/PID/lock/metrics retained as
+  canonical; new work only wires them behind one operator entry point (P3).
+- Untracked the live SQLite database (`database/money_machine.db` still on disk, no longer
+  in git; `.gitignore` already covers `*.db`). Heartbeat/PID runtime files ignored.
+
+### P3 — Continuous control plane (operator CLI; engines pre-existing, wired not rebuilt)
+
+- New `money-machine/supervisor/cli.py` + `mm supervisor {start,stop,restart,status,health,logs}`:
+  PID-lock single-instance, detached supervised run, graceful SIGTERM/SIGINT, worker
+  heartbeats, stale-lease drain, bounded retries/backoff/DLQ via `mm_pipeline`, structured
+  JSONL logs (`state/worker-logs/supervisor.jsonl`), log rotation.
+- Crash/SIGKILL recovery proven manually and in tests: durable queue item survives kill,
+  stale lease reclaimed on restart, resume without duplicate items or transition edges.
+- New `toolkit_tests/test_supervisor.py` (isolated `MM_ROOT` temp workspaces): fresh-status/
+  health/logs, start/stop/single-instance, SIGKILL-recovery, stop-when-idle.
+- New `slow` pytest marker for process-spawning tests.
 
 ### P0 — Repository reconciliation (experimental Downloads copy → canonical repo)
 

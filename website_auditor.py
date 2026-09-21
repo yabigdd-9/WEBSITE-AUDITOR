@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Website Rescue Auditor v2 — NZ small business website defect detection.
+"""DEPRECATED — use `wa` (auditor_toolkit.cli:main) or `./mm` instead.
+
+Website Rescue Auditor v2 — NZ small business website defect detection.
 
 from __future__ import annotations
 

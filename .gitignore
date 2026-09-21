@@ -37,6 +37,8 @@ audits/
 state/worker-logs/
 state/dead-letter/
 state/worker-heartbeats/
+state/supervisor.pid
+state/supervisor.heartbeat
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal

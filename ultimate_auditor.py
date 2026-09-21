@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Ultimate Website Auditor v4 — Comprehensive, smart, fast, free.
+"""DEPRECATED — use `wa` (auditor_toolkit.cli:main) or `./mm` instead.
+
+Ultimate Website Auditor v4 — Comprehensive, smart, fast, free.
 
 New in v4:
   - Domain intelligence (WHOIS, DNS, subdomain enumeration)
