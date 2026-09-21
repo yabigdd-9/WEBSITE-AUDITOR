@@ -7,6 +7,9 @@ dist/
 .DS_Store
 *.log
 
+# Generated package metadata
+*.egg-info/
+
 # Virtual environments
 venv/
 .venv*/
