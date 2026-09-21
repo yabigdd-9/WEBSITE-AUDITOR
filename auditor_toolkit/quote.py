@@ -1,7 +1,7 @@
 """P12 deterministic NZD quote bands from versioned effort rules."""
 from __future__ import annotations
 
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import ROUND_HALF_UP, Decimal
 
 QUOTE_RULES_VERSION = "quote-v1"
 EFFORT_HOURS = {
