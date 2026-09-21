@@ -58,11 +58,22 @@ def event(d, action, bid, detail):
 def backup(r=None):
     r=Path(r or root());folder=r/'backups'/('mm-v2-'+dt.datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ')+'-'+uuid.uuid4().hex[:6]);folder.mkdir(parents=True,mode=0o700)
     items=[]
-    for name in ('control-plane','scripts','config'):
-        if not (r/name).exists(): continue
-        p=folder/(name+'.tgz')
-        with tarfile.open(p,'w:gz') as t:t.add(r/name,arcname=name)
-        items.append({'source':str(r/name),'path':str(p),'sha256':sha(p.read_bytes())})
+    preserve = (
+        Path('money-machine/config'),
+        Path('money-machine/scripts'),
+        Path('money-machine/supervisor'),
+        Path('state'),
+        Path('approval'),
+    )
+    for relative in preserve:
+        source = r / relative
+        if not source.exists():
+            continue
+        archive_name = str(relative).replace('/', '-') + '.tgz'
+        p = folder / archive_name
+        with tarfile.open(p, 'w:gz') as t:
+            t.add(source, arcname=str(relative))
+        items.append({'source':str(source),'path':str(p),'sha256':sha(p.read_bytes())})
     src=r/'database/money_machine.db';dest=folder/'money_machine.db'
     # A read-only open of a WAL-mode database can fail transiently under
     # concurrent access ("unable to open database file"). Retry with bounded
