@@ -27,6 +27,7 @@ import time
 from pathlib import Path
 
 from mm_core import connect, now, root
+from mm_runtime_guards import disk_guard, network_guard, snapshot as guard_snapshot
 
 STATE = root() / "state"
 LOG_DIR = STATE / "worker-logs"
@@ -148,7 +149,11 @@ def cmd_health(args) -> dict:
                         "active_leases": leased, "dead_lettered": dead}
         except Exception as ex:
             snap = {"error": str(ex)}
-    return {"supervisor": cmd_status(args), "pipeline": snap}
+    return {
+        "supervisor": cmd_status(args),
+        "pipeline": snap,
+        "guards": guard_snapshot(probe_network=False),
+    }
 
 
 def cmd_logs(args) -> dict:
@@ -198,13 +203,21 @@ def cmd_run_foreground(args) -> int:
         with contextlib.closing(connect()) as d, d:
             mm_pipeline.migrate(d)
             while not stop["flag"]:
+                disk = disk_guard()
+                if not disk["ok"]:
+                    cycles += 1
+                    _heartbeat(pid, "paused_low_disk")
+                    _log({"kind": "runtime_guard", "cycle": cycles, "disk": disk, "action": "pause_new_work"})
+                    time.sleep(min(max(sleep_seconds, 1), 60))
+                    continue
                 snapshot = [{"worker": w.worker_id, "processed": w.run_once(d)} for w in workers]
                 mm_pipeline.drain_expired_leases(d)
                 d.commit()
                 cycles += 1
                 _heartbeat(pid, "running")
-                _log({"kind": "loop_cycle", "cycle": cycles, "snapshot": snapshot})
+                _log({"kind": "loop_cycle", "cycle": cycles, "snapshot": snapshot, "disk": disk})
                 if cycles % rotate_every == 0:
+                    _log({"kind": "network_guard", **network_guard()})
                     _rotate_and_report()
                 for _ in range(int(sleep_seconds * 10)):  # interruptible sleep
                     if stop["flag"]:
