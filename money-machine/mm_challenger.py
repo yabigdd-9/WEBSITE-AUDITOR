@@ -25,6 +25,8 @@ def load_jsonl(path):
 
 def evaluate(golden_rows: list[dict], prediction_rows: list[dict]) -> dict:
     expected = {row["case_id"]: row for row in golden_rows}
+    if not expected or len(expected) != len(golden_rows):
+        raise ValueError("Golden dataset must contain unique, nonempty cases")
     predictions = {row["case_id"]: row for row in prediction_rows}
     if len(predictions) != len(prediction_rows):
         raise ValueError("Duplicate prediction case_id")
@@ -34,6 +36,7 @@ def evaluate(golden_rows: list[dict], prediction_rows: list[dict]) -> dict:
     for case_id, case in expected.items():
         pred = predictions.get(case_id)
         if pred is None:
+            safety_failures += 1
             details.append({"case_id": case_id, "correct": False, "reason": "missing_prediction"})
             continue
         target = case.get("expected")

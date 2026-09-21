@@ -94,3 +94,39 @@ def test_external_model_data_collection_defaults_to_deny():
     import yaml
     config = yaml.safe_load((ROOT / "money-machine" / "config" / "routing.yaml").read_text())
     assert config.get("policy", {}).get("data_collection") == "deny"
+
+
+@pytest.mark.parametrize("paths", [("auditor_toolkit", "auditor_toolkit/cli.py"), ("auditor_toolkit/cli.py", "auditor_toolkit")])
+def test_agent_policy_rejects_overlapping_directory_ownership(paths):
+    with pytest.raises(ValueError, match="concurrent write conflict"):
+        agent.validate_assignments([
+            {"role": "CODER", "task": "first", "branch": "work/first", "write_paths": [paths[0]]},
+            {"role": "CODER", "task": "second", "branch": "work/second", "write_paths": [paths[1]]},
+        ])
+
+
+@pytest.mark.parametrize("branch", ["refs/heads/master", "refs/heads/main"])
+def test_agent_policy_rejects_protected_branch_refs(branch):
+    with pytest.raises(ValueError, match="direct master"):
+        agent.validate_assignments([
+            {"role": "CODER", "task": "unsafe", "branch": branch, "write_paths": ["file.py"]}
+        ])
+
+
+def test_challenger_missing_safety_case_cannot_earn_promotion():
+    golden = [
+        {"case_id": "first", "expected": "YES", "safety": {"send_enabled": False}},
+        {"case_id": "second", "expected": "YES", "safety": {"send_enabled": False}},
+    ]
+    baseline = [
+        {"case_id": row["case_id"], "actual": "NO", "safety": {"send_enabled": False}}
+        for row in golden
+    ]
+    candidate = [{"case_id": "first", "actual": "YES", "safety": {"send_enabled": False}}]
+    assert challenger.compare(golden, baseline, candidate)["promotion_recommended"] is False
+
+
+@pytest.mark.parametrize("golden", [[], [{"case_id": "same"}, {"case_id": "same"}]])
+def test_challenger_rejects_invalid_golden_dataset(golden):
+    with pytest.raises(ValueError):
+        challenger.evaluate(golden, [])

@@ -28,7 +28,7 @@ def validate_assignments(assignments: list[dict]) -> dict:
             raise ValueError("assignment must be an object")
         role = str(item.get("role") or "").upper()
         task = str(item.get("task") or "").strip()
-        branch = str(item.get("branch") or "").strip()
+        branch = str(item.get("branch") or "").strip().removeprefix("refs/heads/")
         writes = [_safe_path(p) for p in item.get("write_paths", [])]
         wants_merge = bool(item.get("merge"))
         if not role or not task:
@@ -46,7 +46,13 @@ def validate_assignments(assignments: list[dict]) -> dict:
         if wants_merge and role != MERGE_ROLE:
             raise ValueError("only INTEGRATOR may request merge")
         for path in writes:
-            if path in owners:
+            candidate = PurePosixPath(path)
+            if any(
+                candidate == PurePosixPath(owned)
+                or candidate.is_relative_to(owned)
+                or PurePosixPath(owned).is_relative_to(candidate)
+                for owned in owners
+            ):
                 raise ValueError(f"concurrent write conflict: {path}")
             owners[path] = task
         normalized.append(

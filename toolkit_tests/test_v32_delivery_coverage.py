@@ -234,3 +234,28 @@ def test_external_tool_url_rejects_option_and_credentials():
     with pytest.raises(ValueError):
         _safe_url("https://user:pass@example.com/")
     assert _safe_url("https://example.com/a#fragment") == "https://example.com/a"
+
+
+@pytest.mark.parametrize("identifier", ["../escape", "/tmp/escape", "../../escape", "nested/file"])
+def test_action_preview_rejects_manifest_path_escape(tmp_path, identifier):
+    from auditor_toolkit.actions import preview_report
+
+    report, _ = full_report(tmp_path)
+    report["defects"][0]["finding_id"] = identifier
+    with pytest.raises(ValueError):
+        preview_report(report, tmp_path / "preview")
+
+
+def test_batch_cli_rejects_file_outside_workspace(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises(ValueError, match="current workspace"):
+        cli.main(["audit", "--batch", str(tmp_path.parent / "outside.txt")])
+
+
+def test_actions_cli_rejects_run_id_escape(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    report, report_json = full_report(tmp_path)
+    report["run_id"] = "../../escape"
+    report_json.write_text(json.dumps(report), encoding="utf-8")
+    with pytest.raises(ValueError):
+        cli.main(["actions", "cancel", str(report_json)])

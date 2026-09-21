@@ -2,10 +2,17 @@
 
 import hashlib
 import json
+import re
 from pathlib import Path
 
-from .common import atomic_write_json, atomic_write_text
+from .common import atomic_write_json, atomic_write_text, workspace_path
 from .storage import finding_id
+
+
+def artifact_id(value):
+    if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}", value):
+        raise ValueError("Artifact identifier must be a single safe filename component")
+    return value
 
 
 def import_report(path):
@@ -16,6 +23,7 @@ def import_report(path):
         raise ValueError("Unsupported report schema; use an explicit legacy adapter")
     if not isinstance(data.get("url"), str) or not data.get("run_id"):
         raise ValueError("Report URL and run_id are required")
+    artifact_id(data["run_id"])
     for defect in data["defects"]:
         if (
             not isinstance(defect, dict)
@@ -26,14 +34,15 @@ def import_report(path):
 
 
 def preview_report(report, output_dir, policy=None):
-    output_dir = Path(output_dir)
+    artifact_id(report["run_id"])
+    identities = [artifact_id(defect.get("finding_id") or finding_id(defect)) for defect in report["defects"]]
+    output_dir = Path(output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
     policy = policy or {"enabled": True, "mode": "dry_run"}
-    cancelled = output_dir / "CANCELLED"
+    cancelled = workspace_path("CANCELLED", root=output_dir)
     items = []
     seen = set()
-    for defect in report["defects"]:
-        identity = defect.get("finding_id") or finding_id(defect)
+    for defect, identity in zip(report["defects"], identities):
         if identity in seen:
             continue
         seen.add(identity)
@@ -53,7 +62,7 @@ def preview_report(report, output_dir, policy=None):
         items.append(content)
         if not blocked:
             atomic_write_text(
-                output_dir / (identity + ".md"),
+                workspace_path(identity + ".md", root=output_dir),
                 "# Proposed remediation\n\n```json\n" + json.dumps(content, indent=2) + "\n```\n",
             )
     payload = {
@@ -63,8 +72,8 @@ def preview_report(report, output_dir, policy=None):
         "count": len(items),
         "external_dispatch": False,
     }
-    atomic_write_json(output_dir / "preview.json", payload)
-    event_path = output_dir / "events.json"
+    atomic_write_json(workspace_path("preview.json", root=output_dir), payload)
+    event_path = workspace_path("events.json", root=output_dir)
     events = json.loads(event_path.read_text()) if event_path.exists() else []
     event_id = hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
     if not any(e["id"] == event_id for e in events):

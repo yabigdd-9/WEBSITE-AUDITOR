@@ -209,12 +209,13 @@ def main(argv=None):
     if args.command == "actions":
         from .actions import import_report, preview_report
 
-        report = import_report(args.report)
-        directory = args.output_dir / report["run_id"]
+        report = import_report(workspace_path(args.report, must_exist=True, file_only=True))
+        output_dir = workspace_path(args.output_dir)
+        directory = workspace_path(report["run_id"], root=output_dir)
         if args.operation == "cancel":
             from .common import atomic_write_text
 
-            atomic_write_text(directory / "CANCELLED", "Cancelled by operator\n")
+            atomic_write_text(workspace_path("CANCELLED", root=directory), "Cancelled by operator\n")
         print(json.dumps(preview_report(report, directory), indent=2))
         return 0
     if not args.url and not args.batch:
@@ -223,6 +224,7 @@ def main(argv=None):
         parser.error("Concurrency must be between 1 and 4")
     if args.hourly_rate_nzd is not None and args.hourly_rate_nzd < 0:
         parser.error("Hourly rate must be non-negative")
+    batch_path = workspace_path(args.batch, must_exist=True, file_only=True) if args.batch else None
     options = AuditOptions(
         output_root=Path(args.output_root),
         allow_private=args.allow_private,
@@ -242,8 +244,8 @@ def main(argv=None):
     urls = (
         ([args.url] if args.url else [])
         + (
-            [line.strip() for line in args.batch.read_text().splitlines() if line.strip()]
-            if args.batch
+            [line.strip() for line in batch_path.read_text().splitlines() if line.strip()]
+            if batch_path
             else []
         )
         + args.competitor
