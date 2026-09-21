@@ -32,7 +32,7 @@ def _render_html(html: str, screenshot: Path) -> None:
         finally:
             browser.close()
 
-def build_demo(report: dict, remediation: dict, output_dir, *, render: bool = False) -> dict:
+def build_demo(report: dict, remediation: dict, output_dir, *, render: bool = False, report_path=None) -> dict:
     if remediation.get("source_run_id") != report.get("run_id"):
         raise ValueError("Remediation manifest does not match audit run")
     output = Path(output_dir)
@@ -77,13 +77,16 @@ This page is not proof of improved performance, accessibility, SEO, leads or rev
     source_screenshot = (report.get("artifacts") or {}).get("screenshot")
     screenshot_record = (report.get("manifest") or {}).get("screenshot") or {}
     report_json = (report.get("artifacts") or {}).get("json")
-    if source_screenshot and report_json and screenshot_record:
+    trusted_report = Path(report_path).resolve() if report_path else None
+    if source_screenshot and report_json and screenshot_record and trusted_report:
         source = Path(source_screenshot).resolve()
-        run_dir = Path(report_json).resolve().parent
+        registered_report = Path(report_json).resolve()
+        run_dir = trusted_report.parent
         registered = Path(str(screenshot_record.get("path") or "")).resolve()
         expected_hash = str(screenshot_record.get("sha256") or "")
         if (
-            source == registered
+            registered_report == trusted_report
+            and source == registered
             and source.is_file()
             and source.parent == run_dir
             and expected_hash
