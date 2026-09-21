@@ -58,21 +58,7 @@ echo "🐍 Checking Python dependencies..."
 python3 -c "import httpx" 2>/dev/null && echo "   ✅ httpx OK" || echo "   ⚠️  httpx missing (run: pip3 install httpx --break-system-packages)"
 python3 -c "import certifi" 2>/dev/null && echo "   ✅ certifi OK" || echo "   ⚠️  certifi missing"
 
-# Fix 5: Check if Ollama is available
-echo ""
-echo "🧠 Checking AI (Ollama)..."
-if command -v ollama &>/dev/null; then
-    echo "   ✅ Ollama installed"
-    if curl -s http://localhost:11434/api/tags >/dev/null 2>&1; then
-        echo "   ✅ Ollama server running"
-    else
-        echo "   ⚠️  Ollama not running (start with: ollama serve &)"
-    fi
-else
-    echo "   ℹ️  Ollama not installed — AI will use template fallback (still works!)"
-fi
-
-# Fix 6: Check Git
+# Fix 5: Check Git
 echo ""
 echo "🔀 Checking Git..."
 if command -v git &>/dev/null; then

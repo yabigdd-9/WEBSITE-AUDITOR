@@ -13,7 +13,7 @@ try:
 except ImportError:
     WATCHDOG_AVAILABLE = False
 
-from mm_model_router import probe_llamacpp, probe_ollama
+from mm_model_router import probe_llamacpp
 from mm_pipeline import log
 
 
@@ -91,9 +91,6 @@ class ConfigWatcher:
                         if kind == 'llamacpp':
                             from mm_model_router import probe_llamacpp
                             probe_llamacpp()
-                        elif kind == 'ollama':
-                            from mm_model_router import probe_ollama
-                            probe_ollama()
 
             with open(self.config_path) as f:
                 self._last_known_good = json.load(f)

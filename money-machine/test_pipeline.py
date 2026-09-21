@@ -458,7 +458,7 @@ class ModelRouter(unittest.TestCase):
 
     def test_free_routes_accepted(self):
         self.assertIsNone(router.check_route('openrouter', 'meituan/longcat-2.0:free'))
-        self.assertIsNone(router.check_route('local:ollama', None))
+        self.assertIsNone(router.check_route('local:llamacpp', None))
 
     def test_unknown_provider_refused(self):
         self.assertIsNotNone(router.check_route('acme-paid-api', 'x:free'))
@@ -483,11 +483,6 @@ class ModelRouter(unittest.TestCase):
         self.assertEqual(res['model'], 'stub-local-4b')
         self.assertEqual(res['cost_usd'], 0)
         self.assertEqual(res['model_calls'], 0)
-
-    def test_local_route_falls_through_to_ollama_then_free_external(self):
-        only_ollama = router.plan(self.d, 'judge',
-                                  local_lookup=lambda k: 'stub-ollama' if k == 'ollama' else None)
-        self.assertEqual(only_ollama['provider'], 'local:ollama')
 
     def test_external_route_used_only_when_no_local_route_exists(self):
         os.environ['OPENROUTER_API_KEY'] = 'stub-key-never-called'
@@ -518,14 +513,6 @@ class ModelRouter(unittest.TestCase):
         try:
             self.assertEqual(router.probe_llamacpp(),
                              'ggml-org/Qwen3-4B-GGUF:Q4_K_M')
-        finally:
-            router._get_json = original
-
-    def test_ollama_probe_parses_tags_list(self):
-        original = router._get_json
-        router._get_json = lambda url, timeout=3: {'models': [{'name': 'qwen3:4b'}]}
-        try:
-            self.assertEqual(router.probe_ollama(), 'qwen3:4b')
         finally:
             router._get_json = original
 

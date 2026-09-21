@@ -11,11 +11,11 @@ It exposes two Hermes tools:
 
 ## Safety and cost defaults
 
-The bridge permits only local providers: `ollama` and `lmstudio`.
+The bridge permits only the local `lmstudio` provider.
 
 Default provider/model:
 
-- Provider: `ollama`
+- Provider: `lmstudio`
 - Model: `qwen3:4b`
 - Repository: `/Users/dd/WEBSITE-AUDITOR`
 
@@ -36,10 +36,9 @@ hermes --version
 command -v cline
 cline --version
 
-ollama list
 
 # Configure Cline to use the local model.
-cline auth ollama
+cline auth lmstudio
 
 # Enable this trusted project-local Hermes plugin for the session.
 export HERMES_ENABLE_PROJECT_PLUGINS=true
@@ -53,7 +52,7 @@ hermes plugins list
 hermes tools list --platform cli
 ```
 
-If Cline's auth screen asks for the model, choose `qwen3:4b` and the local Ollama endpoint `http://127.0.0.1:11434`.
+If Cline's auth screen asks for the model, choose a locally configured LM Studio model and its loopback endpoint.
 
 ## Launch
 
@@ -84,12 +83,12 @@ This bypasses Hermes and confirms Cline itself can work in the repository:
 
 ```bash
 cd ~/WEBSITE-AUDITOR
-cline --json --cwd "$PWD" --provider ollama --model qwen3:4b --plan --auto-approve true \
+cline --json --cwd "$PWD" --provider lmstudio --model "$LMSTUDIO_MODEL" --plan --auto-approve true \
   "Inspect git status and README.md only. Do not edit anything. Summarize repository state."
 ```
 
 ## Change bridge settings
 
-Hermes plugin settings live under the `cline-bridge` plugin entry in Hermes config. Keep the provider set to `ollama` or `lmstudio` if the requirement is zero API cost.
+Hermes plugin settings live under the `cline-bridge` plugin entry in Hermes config. Keep the provider set to `lmstudio` to remain local and zero-cost.
 
 Do not put API keys in this repository.

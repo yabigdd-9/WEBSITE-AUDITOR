@@ -12,7 +12,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-LOCAL_PROVIDERS = {"ollama", "lmstudio"}
+LOCAL_PROVIDERS = {"lmstudio"}
 
 CLINE_SYSTEM = """You are the coding worker for the WEBSITE-AUDITOR repository.
 Work only inside the supplied repository.
@@ -58,7 +58,7 @@ def register(ctx):
         raw = ctx.get_config() or {}
         return {
             "repo_path": raw.get("repo_path", "/Users/dd/WEBSITE-AUDITOR"),
-            "provider": raw.get("provider", "ollama"),
+            "provider": raw.get("provider", "lmstudio"),
             "model": raw.get("model", "qwen3:4b"),
             "timeout_seconds": int(raw.get("timeout_seconds", 900)),
         }
