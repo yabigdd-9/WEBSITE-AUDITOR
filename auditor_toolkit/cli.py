@@ -8,13 +8,14 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+from website_auditor.monitoring.watchdog import Watchdog
+
 from .agency_cli import add_commands, run_command
 from .ai import generate_drafts, verify_model
 from .common import workspace_path
 from .external_tools import installed_tools
 from .pipeline import AuditOptions, run_audit
 from .storage import History
-from website_auditor.monitoring.watchdog import Watchdog
 
 
 def doctor(root, smoke=False):
@@ -101,7 +102,7 @@ def main(argv=None):
     secret_get = secret_sub.add_parser("get", help="Retrieve a secret from the keychain")
     secret_get.add_argument("name", help="Secret name")
     # list
-    secret_list = secret_sub.add_parser("list", help="List secret names")
+    secret_sub.add_parser("list", help="List secret names")
     # delete
     secret_delete = secret_sub.add_parser("delete", help="Delete a secret from the keychain")
     secret_delete.add_argument("name", help="Secret name")
@@ -271,7 +272,7 @@ def main(argv=None):
                     "-w"
                 ], capture_output=True, text=True, check=True)
                 print(result.stdout.strip())
-            except subprocess.CalledProcessError as e:
+            except subprocess.CalledProcessError:
                 print(f"Error: Secret '{args.name}' not found.", file=sys.stderr)
                 return 1
         elif args.secret_command == "list":
@@ -286,7 +287,7 @@ def main(argv=None):
                 # However, the output is intended for humans. For simplicity, we'll just note
                 # that listing is not implemented in this version.
                 print("Listing secrets is not yet implemented in this version.")
-            except subprocess.CalledProcessError as e:
+            except subprocess.CalledProcessError:
                 print("No secrets found.")
         elif args.secret_command == "delete":
             subprocess.run([
