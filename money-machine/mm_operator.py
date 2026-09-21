@@ -195,11 +195,36 @@ def main(argv=None):
     q=s.add_parser('approval-decide');q.add_argument('approval_id',type=int);q.add_argument('--actor',required=True);q.add_argument('--reason',required=True)
     q=s.add_parser('model-plan');q.add_argument('--purpose',required=True)
     q=s.add_parser('deploy-check');q.add_argument('--candidate');q.add_argument('--execute',action='store_true')
+    q=s.add_parser('obsidian-sync');q.add_argument('--vault')
+    q=s.add_parser('obsidian-status');q.add_argument('--vault')
     a=p.parse_args(argv)
     if a.cmd=='polish-status':
         report=json.loads((root()/'reports/polish-status.json').read_text())
         report.update(workspace=str(root()),python=sys.executable,snapshot_only=True)
         print(json.dumps(report,indent=2));return 0
+    if a.cmd in ('obsidian-sync','obsidian-status'):
+        import mm_obsidian
+        vault=Path(a.vault).expanduser() if a.vault else None
+        if a.cmd=='obsidian-status':
+            result=mm_obsidian.status(root(),vault)
+        else:
+            sys.path.insert(0, str(Path(__file__).resolve().parent))
+            from supervisor import cli as _sc
+            with contextlib.closing(connect(readonly=True)) as d:
+                snapshot_status=run_day(d,write=False)
+                snapshot_doctor=doctor(d)
+            supervisor_health=_sc.cmd_health(a)
+            result=mm_obsidian.sync(
+                root(),
+                {
+                    'status':snapshot_status,
+                    'doctor':snapshot_doctor,
+                    'pipeline':supervisor_health.get('pipeline',{}),
+                    'supervisor':supervisor_health.get('supervisor',{}),
+                },
+                vault,
+            )
+        print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd=='audit-packet':
         import mm_audit_workflow
         return mm_audit_workflow.main(['--case',a.case,'--output',a.output]+(['--rendered-review',a.rendered_review] if a.rendered_review else []))
