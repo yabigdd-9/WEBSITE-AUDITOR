@@ -10,7 +10,7 @@ Status meanings: **DONE** = current implementation substantially satisfies the v
 | Phase | Status | Evidence / remaining gate |
 |---|---|---|
 | P0 repository reconciliation | PARTIAL | Canonical GitHub/master exists and experimental branches are separated. Old plans/branches still need archival/retirement and the Downloads experiment cannot be inspected from GitHub. |
-| P1 green baseline | PARTIAL | Python 3.11 runtime guard exists. Agency/monthly targeted + release tests were green before PR #33 merge. Full repository regression/security suite still needs a fresh local run on current master. |
+| P1 green baseline | PARTIAL | Python 3.11 runtime guard exists. v32 branch removes unused vulnerable NLTK, aligns core dependency declarations, removes tracked egg-info metadata, and keeps secret scanning blocking. Fresh CI/security/full regression must still complete green before the gate is DONE. |
 | P2 code consolidation | PARTIAL | Root `./mm` delegates to the MoneyMachine operator; older audit entrypoints still coexist. Deprecation map/one canonical auditor declaration needs completion. |
 | P3 continuous control plane | PARTIAL | Supervisor CLI, PID lock, heartbeat, leases/retries/DLQ primitives exist. v32 branch now adds a fail-closed launchd wrapper; local install plus kill/restart proof are still required before the gate is DONE. |
 | P4 audit engine | PARTIAL | Deterministic hygiene, Playwright/browser support, robots/sitemap/security checks exist. Lighthouse/Lychee and complete fetch-chain acceptance remain unproven. |
