@@ -153,15 +153,17 @@ def run_audit(url, options=None, fetcher=None):
                     "mixed_content": mixed_data,
                 }
 
-            perform("hygiene", _hygiene)
-            perform("ux", lambda: detect_conversion_signals(response.text, final_url))
             if opts.deep:
+                perform("hygiene", _hygiene)
+                perform("ux", lambda: detect_conversion_signals(response.text, final_url))
                 links = discover_internal_links(response.text, final_url, opts.max_links)
                 perform(
                     "links",
                     lambda: validate_links(client, final_url, links, opts.max_links),
                 )
             else:
+                skip("hygiene", "Enable deep checks")
+                skip("ux", "Enable deep checks")
                 skip("links", "Enable deep checks")
 
             for name in ("page", "schema", "headers", "hygiene", "ux", "links"):
@@ -237,7 +239,8 @@ def run_audit(url, options=None, fetcher=None):
                 skip(
                     name,
                     "Fetch unavailable",
-                    name in {"page", "schema", "headers", "hygiene", "ux"}
+                    name in {"page", "schema", "headers"}
+                    or opts.deep and name in {"hygiene", "ux", "links"}
                     or opts.browser
                     and name in {"browser", "axe"},
                 )
