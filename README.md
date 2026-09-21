@@ -18,10 +18,10 @@ The canonical stack is local-first and zero-paid-token:
 Python 3.11 is the supported runtime.
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
+python3.11 -m venv .venv-email
+source .venv-email/bin/activate
 python -m pip install --upgrade pip
-python -m pip install -e '.[dev,browser,portal]'
+python -m pip install -e '.[dev,browser,portal]' -r money-machine/requirements-email.txt
 npm install
 ```
 
