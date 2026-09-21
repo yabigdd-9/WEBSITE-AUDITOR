@@ -61,9 +61,11 @@ This page is not proof of improved performance, accessibility, SEO, leads or rev
 
     before = None
     source_screenshot = (report.get("artifacts") or {}).get("screenshot")
-    if source_screenshot:
-        source = Path(source_screenshot)
-        if source.is_file():
+    report_json = (report.get("artifacts") or {}).get("json")
+    if source_screenshot and report_json:
+        source = Path(source_screenshot).resolve()
+        run_dir = Path(report_json).resolve().parent
+        if source.is_file() and source.parent == run_dir:
             target = output / "before-source.png"
             shutil.copy2(source, target)
             before = {"path": str(target), "sha256": _sha(target), "kind": "captured_source"}
@@ -93,9 +95,17 @@ def render_demo(demo_manifest: dict) -> dict:
     """Render the local concept to PNG. This still is not a live-site 'after'."""
     from playwright.sync_api import sync_playwright
 
+    if demo_manifest.get("kind") != "local_demo_concept":
+        raise ValueError("Demo manifest kind invalid")
+    if demo_manifest.get("status") != "CONCEPT_ONLY":
+        raise ValueError("Only local concept manifests may be rendered")
     path = Path(demo_manifest["demo_html"]).resolve()
-    if not path.is_file():
-        raise ValueError("Demo HTML missing")
+    expected = str(demo_manifest.get("demo_html_sha256") or "")
+    if not path.is_file() or not expected or _sha(path) != expected:
+        raise ValueError("Demo HTML missing or integrity check failed")
+    manifest_path = path.parent / "demo.json"
+    if not manifest_path.is_file():
+        raise ValueError("Demo manifest must sit beside generated HTML")
     screenshot = path.parent / "concept-render.png"
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
