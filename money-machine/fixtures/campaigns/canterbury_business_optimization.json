@@ -1,0 +1,45 @@
+{
+  "campaign_id": "canterbury_business_optimization",
+  "name": "Canterbury Business Optimization Campaign",
+  "description": "Targeted campaign for Canterbury region businesses needing website and inquiry process improvements",
+  "target_region": "Canterbury",
+  "business_characteristics": ["has_website", "local_business", "customer_facing", "serves_local_clients"],
+  "supported_services": [
+    "website_audit",
+    "inquiry_form_optimization",
+    "contact_process_improvement",
+    "local_seo",
+    "conversion_optimization"
+  ],
+  "discovery_sources": [
+    "google_search",
+    "local_directories",
+    "industry_specific",
+    "canterbury_business_register",
+    "review_platforms"
+  ],
+  "opportunity_recipes": [
+    "enquiry_path_repair",
+    "quote_information_collection",
+    "repeat_order_assistance",
+    "service_comparison_clarity"
+  ],
+  "research_capacity_per_business": 180,  # seconds
+  "evidence_freshness_days": 30,
+  "default_recipe": "enquiry_path_repair",
+  "experimentation": {
+    "enabled": true,
+    "experiment_allocation": 0.1,
+    "experiment_types": ["discovery_angle", "outreach_timing", "offer_variation"]
+  },
+  "schedule": {
+    "research_hours": ["09:00-12:00", "14:00-17:00"],
+    "timezone": "UTC",
+    "max_daily_research_businesses": 50
+  },
+  "budget": {
+    "max_research_time_per_business": 300,
+    "cost_per_research_second": 0.01,
+    "monthly_budget": 500
+  }
+}

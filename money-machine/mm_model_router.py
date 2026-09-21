@@ -11,9 +11,11 @@ Never silently fall back to a paid model or API. Every route decision is
 recorded in mm_model_invocations (cost_usd is constrained to 0 by schema).
 """
 import datetime as dt
+import ipaddress
 import json
 import os
 import urllib.request
+from urllib.parse import urlsplit, urlunsplit
 
 from mm_core import now, sha
 from mm_pipeline import BlockedCost
@@ -97,9 +99,40 @@ def check_route(provider, model):
     return 'UNKNOWN_PROVIDER: %s not on the free-route allowlist' % provider
 
 
+def _loopback_url(url):
+    parsed = urlsplit(url)
+    host = parsed.hostname or ''
+    if host == 'localhost':
+        host = '127.0.0.1'
+    try:
+        address = ipaddress.ip_address(host)
+        valid = address.is_loopback and parsed.port != 0
+    except ValueError:
+        valid = False
+    if (not valid or parsed.scheme not in {'http', 'https'}
+            or parsed.username is not None or parsed.password is not None
+            or parsed.query or parsed.fragment):
+        raise BlockedCost('local inference requires a loopback HTTP(S) endpoint')
+    authority = '[' + host + ']' if ':' in host else host
+    if parsed.port is not None:
+        authority += ':' + str(parsed.port)
+    return urlunsplit((parsed.scheme, authority, parsed.path, '', ''))
+
+
+class LocalRedirectRefused(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        raise BlockedCost('local inference redirects are disabled')
+
+
+def _open_local(request, timeout):
+    request.full_url = _loopback_url(request.full_url)
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), LocalRedirectRefused())
+    return opener.open(request, timeout=timeout)
+
+
 def _get_json(url, timeout=3):
     req = urllib.request.Request(url)
-    with urllib.request.urlopen(req, timeout=timeout) as r:
+    with _open_local(req, timeout) as r:
         return json.loads(r.read().decode())
 
 
@@ -249,26 +282,26 @@ def local_complete(prompt, purpose='lightweight_worker', max_tokens=64,
         raise BlockedCost('no local inference route available; deferred, no paid fallback')
     model = lookup(kind)
     if kind == 'llamacpp':
-        url = LLAMACPP_BASE.rstrip('/') + '/v1/chat/completions'
+        url = _loopback_url(LLAMACPP_BASE).rstrip('/') + '/v1/chat/completions'
         body = {'model': model, 'messages': [{'role': 'user', 'content': prompt}],
                 'max_tokens': max_tokens, 'temperature': 0, 'stream': False}
         req = urllib.request.Request(url, data=json.dumps(body).encode(),
                                      headers={'Content-Type': 'application/json'})
         started = dt.datetime.now(dt.timezone.utc)
-        with urllib.request.urlopen(req, timeout=timeout) as r:
+        with _open_local(req, timeout) as r:
             payload = json.loads(r.read().decode())
         elapsed = (dt.datetime.now(dt.timezone.utc) - started).total_seconds()
         text = (payload.get('choices') or [{}])[0].get('message', {}).get('content', '')
         return {'text': text, 'provider': 'local:llamacpp', 'model': model,
                 'elapsed_s': round(elapsed, 3), 'cost_usd': 0,
                 'base_url': LLAMACPP_BASE}
-    url = OLLAMA_BASE.rstrip('/') + '/api/generate'
+    url = _loopback_url(OLLAMA_BASE).rstrip('/') + '/api/generate'
     body = {'model': model, 'prompt': prompt, 'stream': False,
             'options': {'temperature': 0, 'num_predict': max_tokens}}
     req = urllib.request.Request(url, data=json.dumps(body).encode(),
                                  headers={'Content-Type': 'application/json'})
     started = dt.datetime.now(dt.timezone.utc)
-    with urllib.request.urlopen(req, timeout=timeout) as r:
+    with _open_local(req, timeout) as r:
         payload = json.loads(r.read().decode())
     elapsed = (dt.datetime.now(dt.timezone.utc) - started).total_seconds()
     return {'text': payload.get('response', ''), 'provider': 'local:ollama',

@@ -1,0 +1,34 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.11.16, pytest-9.1.1, pluggy-1.6.0
+rootdir: /Users/dd/WEBSITE-AUDITOR
+configfile: pyproject.toml
+plugins: anyio-4.12.1
+collected 44 items
+
+toolkit_tests/test_browser_e2e.py s                                      [  2%]
+toolkit_tests/test_p0_upgrades.py ..                                     [  6%]
+toolkit_tests/test_p4_hygiene.py .......F                                [ 25%]
+toolkit_tests/test_p5_evidence.py ......                                 [ 38%]
+toolkit_tests/test_release.py ...........F....                           [ 75%]
+toolkit_tests/test_supervisor.py ....                                    [ 84%]
+toolkit_tests/test_toolkit.py .......                                    [100%]
+
+=================================== FAILURES ===================================
+_________________ test_pipeline_includes_hygiene_ux_and_links __________________
+toolkit_tests/test_p4_hygiene.py:176: in test_pipeline_includes_hygiene_ux_and_links
+    assert report["status"] == "complete"
+E   AssertionError: assert 'partial' == 'complete'
+E     
+E     - complete
+E     + partial
+______________ test_portal_sessions_csrf_injection_and_artifacts _______________
+toolkit_tests/test_release.py:161: in test_portal_sessions_csrf_injection_and_artifacts
+    setup_password(tmp_path, "long fixture password")
+auditor_toolkit/portal.py:15: in setup_password
+    from argon2 import PasswordHasher
+E   ModuleNotFoundError: No module named 'argon2'
+=========================== short test summary info ============================
+SKIPPED [1] toolkit_tests/test_browser_e2e.py:26: Set WA_BROWSER_E2E=1 for real local Chromium/PDF test
+FAILED toolkit_tests/test_p4_hygiene.py::test_pipeline_includes_hygiene_ux_and_links
+FAILED toolkit_tests/test_release.py::test_portal_sessions_csrf_injection_and_artifacts
+=================== 2 failed, 41 passed, 1 skipped in 22.63s ===================

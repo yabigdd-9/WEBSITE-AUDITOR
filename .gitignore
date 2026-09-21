@@ -48,3 +48,7 @@ node_modules/
 
 # Generated human-facing Obsidian operator workspace
 WEBSITE-AUDITOR-BRAIN/
+# Ignore .env files in any subdirectory
+**/.env
+**/.env.*
+!**/.env.example

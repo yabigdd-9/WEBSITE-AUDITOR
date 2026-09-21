@@ -4,10 +4,17 @@
 Usage:
     python3 before_after_report.py --domain example.com --before 35 --after 85
     python3 before_after_report.py --domain example.com --before 35 --after 85 --fixed 12 --revenue 5000
+    python3 before_after_report.py --domain example.com --before 35 --after 85 --pdf
+    python3 before_after_report.py --domain example.com --before 35 --after 85 --before-screenshot before.png --after-screenshot after.png --diff-output diff.png
 """
-import argparse, json, re
+import argparse, json, re, os, subprocess, sys
 from datetime import datetime, timedelta
 from pathlib import Path
+
+try:
+    import requests
+except ImportError:
+    requests = None
 
 ROOT = Path(__file__).resolve().parent
 AUDITS = ROOT / "audits"
@@ -27,7 +34,7 @@ def generate_html(domain: str, before_score: int, after_score: int, fixed: int =
     improvement = after_score - before_score
     defect_count = 10  # default estimate
     fix_count = fixed or max(1, int(defect_count * (improvement / 100)))
-    
+
     # Revenue projection
     if revenue_gain is None:
         monthly_revenue = 1125  # default NZ small business
@@ -36,15 +43,15 @@ def generate_html(domain: str, before_score: int, after_score: int, fixed: int =
     else:
         annual_gain = revenue_gain
         monthly_gain = revenue_gain / 12
-    
+
     # Social proof stats
     visitor_increase = int(monthly_visitors * (improvement / 100))
-    
+
     # Load audit details for specific defects
     audit = load_audit(domain)
     defects = audit.get("defects", [])
     top_fixed = [d.get("defect", "") for d in defects[:5]]
-    
+
     fixed_items_html = ""
     for defect in top_fixed:
         fixed_items_html += f"""
@@ -52,14 +59,14 @@ def generate_html(domain: str, before_score: int, after_score: int, fixed: int =
             <span class="checkmark">✅</span>
             <span class="defect-name">{defect}</span>
         </div>"""
-    
+
     # Score color
     def score_color(score):
         if score >= 80: return "#00D4A3"
         elif score >= 60: return "#EFFF00"
         elif score >= 40: return "#FF8A00"
         return "#FF1A1A"
-    
+
     html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -173,6 +180,129 @@ body {{ font-family: -apple-system, sans-serif; background: #0d1117; color: #c9d
     return html
 
 
+def generate_pdf(html_content: str, output_path: str, gotenberg_url: str = None) -> bool:
+    """Generate PDF from HTML using Gotenberg service.
+
+    Args:
+        html_content: The HTML string to convert.
+        output_path: Path where the PDF should be saved.
+        gotenberg_url: Base URL of Gotenberg service (defaults to http://localhost:3000).
+
+    Returns:
+        True if successful, False otherwise.
+    """
+    if requests is None:
+        print("⚠️  Requests module not available. Install with: pip install requests")
+        return False
+
+    if gotenberg_url is None:
+        gotenberg_url = os.environ.get("GOTENBERG_URL", "http://localhost:3000")
+
+    endpoint = f"{gotenberg_url}/forms/html"
+
+    try:
+        # Prepare the file for upload
+        files = {
+            'files': ('document.html', html_content, 'text/html')
+        }
+        # Optional: set proxy to None to avoid issues in some environments
+        response = requests.post(endpoint, files=files, timeout=30)
+        response.raise_for_status()
+
+        # Write the PDF content
+        with open(output_path, 'wb') as f:
+            f.write(response.content)
+        return True
+    except Exception as e:
+        print(f"⚠️  Failed to generate PDF via Gotenberg: {e}")
+        return False
+
+
+def run_screenshot_diff(before_path: str, after_path: str, diff_output: str) -> bool:
+    """Run screenshot diff using Node.js and pixelmatch.
+
+    This function creates a temporary Node.js script that uses the pixelmatch
+    library to compare two images and generate a diff image.
+
+    Args:
+        before_path: Path to the before screenshot.
+        after_path: Path to the after screenshot.
+        diff_output: Path where the diff image should be saved.
+
+    Returns:
+        True if successful, False otherwise.
+    """
+    # Check if Node.js is available
+    try:
+        subprocess.run(["node", "--version"], check=True, capture_output=True)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        print("⚠️  Node.js not found. Please install Node.js to use screenshot diff.")
+        return False
+
+    # Create a temporary Node.js script
+    node_script = """
+const pixelmatch = require('pixelmatch');
+const PNG = require('pngjs').PNG;
+const fs = require('fs');
+
+const beforePath = process.argv[2];
+const afterPath = process.argv[3];
+const diffOutput = process.argv[4];
+
+const beforeImg = PNG.sync.read(fs.readFileSync(beforePath));
+const afterImg = PNG.sync.read(fs.readFileSync(afterPath));
+
+const {width, height} = beforeImg;
+const diffImg = new PNG({width, height});
+
+const mismatchedPixels = pixelmatch(
+    beforeImg.data,
+    afterImg.data,
+    diffImg.data,
+    width, height,
+    {threshold: 0.1}
+);
+
+fs.writeFileSync(diffOutput, PNG.sync.write(diffImg));
+
+console.log(`Mismatched pixels: ${mismatchedPixels}`);
+console.log(`Total pixels: ${width * height}`);
+console.log(`Match percentage: ${((width * height - mismatchedPixels) / (width * height) * 100).toFixed(2)}%`);
+"""
+    # Write the script to a temporary file
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.js', delete=False) as f:
+        f.write(node_script)
+        script_path = f.name
+
+    try:
+        # Run the Node.js script
+        result = subprocess.run(
+            ["node", script_path, before_path, after_path, diff_output],
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        # Clean up the temporary script
+        os.unlink(script_path)
+
+        if result.returncode != 0:
+            print(f"⚠️  Screenshot diff failed: {result.stderr}")
+            return False
+
+        # Optionally print the output from the Node.js script
+        print(result.stdout.strip())
+        return True
+    except subprocess.TimeoutExpired:
+        os.unlink(script_path)
+        print("⚠️  Screenshot diff timed out.")
+        return False
+    except Exception as e:
+        if os.path.exists(script_path):
+            os.unlink(script_path)
+        print(f"⚠️  Failed to run screenshot diff: {e}")
+        return False
+
+
 def main():
     p = argparse.ArgumentParser(description="Before/After Report Generator")
     p.add_argument("--domain", required=True, help="Domain name")
@@ -180,14 +310,38 @@ def main():
     p.add_argument("--after", type=int, required=True, help="After health score")
     p.add_argument("--fixed", type=int, help="Number of issues fixed")
     p.add_argument("--revenue", type=float, help="Annual revenue gain")
-    p.add_argument("--output", "-o", help="Output file")
+    p.add_argument("--output", "-o", help="Output file (HTML)")
+    p.add_argument("--pdf", action="store_true", help="Also generate PDF via Gotenberg")
+    p.add_argument("--gotenberg-url", help="Gotenberg service URL (default: http://localhost:3000)")
+    p.add_argument("--before-screenshot", help="Path to before screenshot")
+    p.add_argument("--after-screenshot", help="Path to after screenshot")
+    p.add_argument("--diff-output", help="Output path for diff image (default: diff.png)")
     args = p.parse_args()
-    
-    output = generate_html(args.domain, args.before, args.after, args.fixed, args.revenue)
-    output_path = args.output or f"outputs/before_after_{args.domain}.html"
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    Path(output_path).write_text(output)
-    print(f"✅ Before/After report saved: {output_path}")
+
+    # Generate HTML report
+    html = generate_html(args.domain, args.before, args.after, args.fixed, args.revenue)
+
+    # Determine output paths
+    html_output = args.output or f"outputs/before_after_{args.domain}.html"
+    Path(html_output).parent.mkdir(parents=True, exist_ok=True)
+    Path(html_output).write_text(html)
+    print(f"✅ Before/After report saved: {html_output}")
+
+    # Generate PDF if requested
+    if args.pdf:
+        pdf_output = os.path.splitext(html_output)[0] + ".pdf"
+        if generate_pdf(html, pdf_output, args.gotenberg_url):
+            print(f"✅ PDF report saved: {pdf_output}")
+        else:
+            print("⚠️  PDF generation failed.")
+
+    # Run screenshot diff if both screenshots provided
+    if args.before_screenshot and args.after_screenshot:
+        diff_output = args.diff_output or "diff.png"
+        if run_screenshot_diff(args.before_screenshot, args.after_screenshot, diff_output):
+            print(f"✅ Screenshot diff saved: {diff_output}")
+        else:
+            print("⚠️  Screenshot diff failed.")
 
 
 if __name__ == "__main__":
