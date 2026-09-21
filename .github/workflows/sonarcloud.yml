@@ -41,7 +41,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          python -m pytest toolkit_tests --cov=auditor_toolkit --cov=website_auditor --cov-report=xml --cov-report=term-missing
+          python -m pytest toolkit_tests --cov-config=.coveragerc --cov=auditor_toolkit --cov=website_auditor --cov-report=xml:coverage.xml --cov-report=term-missing
 
       - name: Run SonarCloud scan
         uses: SonarSource/sonarcloud-github-action@v3
