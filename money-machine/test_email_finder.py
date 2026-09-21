@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 import sys
 import unittest
+import tempfile
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 import mm_email as e
@@ -149,6 +151,40 @@ class EmailUnit(unittest.TestCase):
         self.assertNotEqual(e.identify(b,[p])['status'],'HIGH')
         p=page('<p>Business directory — claim this business. Contact office@koruplumbing.co.nz</p>')
         self.assertEqual(e.identify(b,[p])['status'],'REJECTED')
+
+
+    def test_blocklist_refresh_is_tls_and_checksum_fail_closed(self):
+        payload = b"mailinator.com\nyopmail.com\n"
+        expected = e.hash_bytes(payload)
+
+        class Response:
+            def __enter__(self): return self
+            def __exit__(self, *args): return False
+            def read(self, _limit): return payload
+
+        with tempfile.TemporaryDirectory() as td:
+            destination = Path(td) / "blocklist.conf"
+            with patch("urllib.request.urlopen", return_value=Response()) as opener:
+                result = e.refresh_disposable_blocklist(
+                    force=True,
+                    destination=destination,
+                    expected_sha=expected,
+                )
+            self.assertTrue(result["downloaded"])
+            self.assertTrue(result["sha256_match"])
+            self.assertEqual(destination.read_bytes(), payload)
+            self.assertNotIn("context", opener.call_args.kwargs)
+
+        with tempfile.TemporaryDirectory() as td:
+            destination = Path(td) / "blocklist.conf"
+            with patch("urllib.request.urlopen", return_value=Response()):
+                result = e.refresh_disposable_blocklist(
+                    force=True,
+                    destination=destination,
+                    expected_sha="0" * 64,
+                )
+            self.assertTrue(result["checksum_mismatch"])
+            self.assertFalse(destination.exists())
 
 
 if __name__ == '__main__': unittest.main()
