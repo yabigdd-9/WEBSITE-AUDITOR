@@ -1,8 +1,0 @@
-# Local secrets and runtime data
-.env
-*.secret
-credentials/
-runtime/
-backups/
-data/
-files/
