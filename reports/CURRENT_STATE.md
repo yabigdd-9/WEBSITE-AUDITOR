@@ -43,6 +43,9 @@ The isolated v32 branch adds:
 - `reports/V32_PHASE_AUDIT.md`
 - fail-closed `money-machine/supervisor/launchd.py` + `./mm launchd install|status|uninstall`
 - local-only Git ignore boundary for generated Obsidian prospect/runtime views
+- unused NLTK dependency removed; core dependency declarations aligned
+- tracked generated egg-info metadata removed and ignored
+- dependency audit now evaluates the declared runtime requirements directly
 
 The vault is explicitly non-authoritative. Editing Markdown cannot mutate SQLite, approve outreach, bypass suppression, change pricing, or enable transport.
 
