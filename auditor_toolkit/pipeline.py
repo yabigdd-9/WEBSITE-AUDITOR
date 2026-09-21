@@ -25,6 +25,7 @@ from .models import REGISTRY, SCHEMA_VERSION
 from .network import crawl, inspect_dns, inspect_headers, inspect_schema, inspect_tls
 from .reporting import render_trend_svg, write_html_report
 from .storage import History, finding_id
+from .quality_checks import run_quality_checks
 
 
 @dataclass
@@ -339,9 +340,26 @@ def run_audit(url, options=None, fetcher=None):
     from .actions import preview_report
     from .ai import generate_drafts
 
+    # Create evidence brief for improved drafting workflows
+    from .evidence_brief import create_evidence_brief
+    evidence_brief = create_evidence_brief(report)
+
     report["drafts"] = generate_drafts(
-        {"url": url, "defects": defects[:10]}, enabled=opts.ai, timeout=opts.ai_timeout
+        {
+            "url": url,
+            "evidence_brief": evidence_brief,
+            "defects": defects[:10]  # Keep for backward compatibility
+        },
+        enabled=opts.ai,
+        timeout=opts.ai_timeout
     )
+
+    # Run quality checks on generated drafts
+    if opts.ai and report["drafts"]:
+        report["quality_checks"] = run_quality_checks(
+            report["drafts"],
+            evidence_brief
+        )
     report["proposal"] = {
         "currency": "NZD",
         "hourly_rate": opts.hourly_rate_nzd,

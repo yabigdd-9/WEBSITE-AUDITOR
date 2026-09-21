@@ -10,6 +10,7 @@ items to APPROVAL_PENDING, where the evidence-gated approval engine decides.
 import json
 import subprocess
 from pathlib import Path
+from urllib.parse import urlparse
 
 from mm_core import root, public_url
 from mm_pipeline import RetryableError, PermanentError, BlockedCost
@@ -39,6 +40,22 @@ def audit_handler(d, it, worker):
     """Run the deterministic Website Rescue detector for the business site."""
     b = _business(d, it['business_id'])
     url = b['public_website']
+    host = urlparse(url).netloc if url else None
+
+    # Check for recent valid audit to reuse
+    if host:
+        from auditor_toolkit.storage import History
+        history = History(str(REPO / 'outputs' / 'toolkit'))
+        # Look for audit from last 7 days
+        recent_audit = history.get_latest_valid_audit(host, max_age_days=7)
+        if recent_audit:
+            # Reuse existing audit results
+            defects = recent_audit.get('defects', [])
+            score = recent_audit.get('score', recent_audit.get('defect_score', 0))
+            return ('QUALIFICATION_PENDING', 'audit reused (recent)',
+                    {'defect_count': len(defects), 'score': score})
+
+    # No recent audit found, run new detection
     try:
         r = subprocess.run(
             ['python3', str(REPO / 'engines' / 'detect.py'), url],
@@ -60,20 +77,61 @@ def audit_handler(d, it, worker):
 
 
 def qualification_handler(d, it, worker):
-    """Deterministic qualification: defect evidence + signal scoring."""
+    """Deterministic qualification: separate commercial relevance from technical fitness."""
     import mm_lead_qualifier as lq
     b = _business(d, it['business_id'])
+
+    # Get audit results from payload (set by audit_handler)
+    audit_payload = it.get('payload', {})
+    audit_score = audit_payload.get('score', 0)  # defect score from audit (higher = more defects)
+    defect_count = audit_payload.get('defect_count', 0)
+    has_audit_evidence = defect_count > 0  # Consider as evidence if we found defects
+
+    # Calculate commercial relevance score from business signals
     ev = d.execute("SELECT id FROM mm_evidence WHERE business_id=? "
                    "ORDER BY id DESC LIMIT 1", (b['id'],)).fetchone()
     keys = b.keys() if hasattr(b, 'keys') else []
     text = ' '.join(str(v) for v in (b['name'],
                                      b['region'] if 'region' in keys else ''))
-    lead = lq.qualify_lead(text, industry='')
-    if ev or lead['qualification_score'] >= 30:
-        return ('CONTACT_PENDING', 'qualified: tier=' + lead['tier'],
-                {'score': lead['qualification_score'], 'tier': lead['tier']})
-    return ('REJECTED', 'no audit evidence and weak signals',
-            {'score': lead['qualification_score']})
+    commercial_lead = lq.qualify_lead(text, industry='')
+    commercial_score = commercial_lead['qualification_score']
+
+    # Calculate technical fitness score (invert defect score so higher = better)
+    # For website optimization business: more defects = more opportunity = better prospect
+    # We'll use the defect score directly as technical opportunity score
+    technical_opportunity_score = min(100, audit_score)  # Cap at 100
+
+    # Qualification logic:
+    # A prospect is qualified if they have either:
+    # 1. Sufficient commercial relevance (business signals indicate ability to pay/ready to buy)
+    # 2. Sufficient technical opportunity (website has issues we can fix)
+    # 3. Or both (ideal prospect)
+    if commercial_score >= 30 or technical_opportunity_score >= 40:
+        # Determine tier based on combined strength
+        combined_score = (commercial_score * 0.4) + (technical_opportunity_score * 0.6)
+        if combined_score >= 80:
+            tier = "HOT"
+        elif combined_score >= 55:
+            tier = "WARM"
+        else:
+            tier = "QUALIFIED"
+
+        return ('CONTACT_PENDING', f'qualified: commercial={commercial_score}, technical={technical_opportunity_score}',
+                {
+                    'commercial_score': commercial_score,
+                    'technical_score': technical_opportunity_score,
+                    'defect_count': defect_count,
+                    'tier': tier,
+                    'commercial_tier': commercial_lead['tier'],
+                    'qualification_reasons': commercial_lead['reasons']
+                })
+    else:
+        return ('REJECTED', f' insufficient commercial ({commercial_score}) and technical ({technical_opportunity_score}) scores',
+                {
+                    'commercial_score': commercial_score,
+                    'technical_score': technical_opportunity_score,
+                    'defect_count': defect_count
+                })
 
 
 def contact_handler(d, it, worker):

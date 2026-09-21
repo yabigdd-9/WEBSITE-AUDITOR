@@ -26,10 +26,10 @@ v4 improvements:
   - --output-dir for custom paths
 """
 
-import argparse, json, os, re, ssl, sys, time, urllib.request, urllib.parse
+import argparse, csv, json, os, re, ssl, sys, time, urllib.request, urllib.parse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from collections import Counter, defaultdict
 from typing import Optional
 
@@ -245,55 +245,71 @@ def mark_done(state, step, domain, result=None):
 def load_prospects():
     domains = {}
     if PROSPECTS_CSV.exists():
-        for line in open(PROSPECTS_CSV).readlines()[1:]:
-            parts = [p.strip() for p in line.split(",")]
-            if len(parts) >= 3:
-                _id, name, url = parts[0], parts[1], parts[2]
-                m = re.search(r'(?:https?://)?(?:www\.)?([^/]+)', url)
-                if m: domains[m.group(1).replace("www.", "").lower()] = {"name": name, "url": url, "id": _id}
+        with PROSPECTS_CSV.open(newline="", encoding="utf-8-sig") as handle:
+            rows = csv.reader(handle)
+            next(rows, None)
+            for row in rows:
+                if len(row) < 3:
+                    continue
+                _id, name, url = (value.strip() for value in row[:3])
+                parsed = urllib.parse.urlsplit(url if "://" in url else "https://" + url)
+                if parsed.scheme not in ("http", "https") or not parsed.hostname:
+                    continue
+                domain = norm_domain(parsed.hostname)
+                domains.setdefault(domain, {"name": name, "url": parsed.geturl(), "id": _id})
     return domains
 
-def needs_recheck(domain, days=7):
-    cutoff = datetime.now() - timedelta(days=days)
-    for aj in AUDITS.glob("{}*.json".format(domain.replace(".", r"\."))):
+
+def audit_timestamp(value):
+    """Normalize historical naive timestamps and newer offset timestamps to UTC."""
+    stamp = datetime.fromisoformat(value)
+    return stamp.replace(tzinfo=timezone.utc) if stamp.tzinfo is None else stamp.astimezone(timezone.utc)
+
+
+def latest_audits():
+    """Read each audit once, retaining the newest record per exact domain."""
+    records = {}
+    for aj in AUDITS.glob("*.json"):
         try:
-            data = json.loads(open(aj).read())
-            ts = datetime.fromisoformat(data.get("timestamp", ""))
-            if ts > cutoff: return False
-        except: continue
-    return True
+            data = json.loads(aj.read_text())
+            domain = norm_domain(data.get("domain", ""))
+            stamp = audit_timestamp(data.get("timestamp", ""))
+            if domain and stamp <= datetime.now(timezone.utc) and (
+                domain not in records or stamp > records[domain][0]
+            ):
+                records[domain] = (stamp, data)
+        except (OSError, ValueError, TypeError, AttributeError):
+            continue
+    return records
+
+
+def needs_recheck(domain, days=7, records=None):
+    records = latest_audits() if records is None else records
+    record = records.get(norm_domain(domain))
+    return record is None or record[0] <= datetime.now(timezone.utc) - timedelta(days=days)
 
 def run_scouting(recheck_days=0, since=None, filter_domain=None, top=None, threshold=None):
     if not CFG["quiet"]: print(clr("=== Website Scouting ===", C.BOLD))
     prospects = load_prospects()
     if not CFG["quiet"]: print("  Prospects file: {} entries".format(len(prospects)))
 
-    audited = {}
-    for aj in AUDITS.glob("*.json"):
-        try:
-            data = json.loads(open(aj).read())
-            d = data.get("domain", "").replace("www.", "").lower()
-            audited[d] = data.get("score", 0)
-        except: continue
+    records = latest_audits()
+    audited = {domain: data.get("score", 0) for domain, (_, data) in records.items()}
 
     not_audited = {}
     for d, p in prospects.items():
         d_clean = d.replace("www.", "").lower()
         if filter_domain and filter_domain.lower() not in d_clean: continue
-        if threshold and audited.get(d_clean, 0) >= threshold: continue
+        if threshold is not None and d_clean in audited and audited[d_clean] >= threshold: continue
         if d_clean not in audited: not_audited[d] = p
-        elif recheck_days > 0 and needs_recheck(d_clean, recheck_days): not_audited[d] = p
+        elif recheck_days > 0 and needs_recheck(d_clean, recheck_days, records): not_audited[d] = p
 
     if since:
-        cutoff = datetime.now() - timedelta(days=since)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=since)
         filtered = {}
         for d, p in not_audited.items():
-            aj = AUDITS / "{}.json".format(d.replace("www.", ""))
-            if aj.exists():
-                try:
-                    data = json.loads(open(aj).read())
-                    if datetime.fromisoformat(data.get("timestamp", "")) > cutoff: continue
-                except: pass
+            if d in records and records[d][0] > cutoff:
+                continue
             filtered[d] = p
         not_audited = filtered
 
@@ -305,6 +321,7 @@ def run_scouting(recheck_days=0, since=None, filter_domain=None, top=None, thres
         if not not_audited: print("    (all prospects audited ✓)")
 
     out = Path(CFG["output_dir"]) / "scouting-results.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
     json.dump({"timestamp": datetime.now().isoformat(), "prospects": prospects, "audited": audited,
                "not_audited": {d: v for d, v in not_audited.items()}}, out.open("w"), indent=2)
     if not CFG["quiet"]: print("  Saved: {}".format(out))

@@ -5,6 +5,7 @@ import json
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
+from datetime import datetime, timezone, timedelta
 
 STATES = {
     "detected",
@@ -43,6 +44,7 @@ class History:
             CREATE TABLE IF NOT EXISTS remediations(id TEXT PRIMARY KEY, state TEXT, metadata TEXT);
             CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY, timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
                 kind TEXT, payload TEXT);
+            CREATE INDEX IF NOT EXISTS idx_runs_url_timestamp ON runs(url, timestamp DESC);
             PRAGMA user_version=1;
             """)
 
@@ -62,6 +64,38 @@ class History:
                 ("%" + query + "%", min(max(limit, 1), 1000)),
             ).fetchall()
         return [json.loads(row[0]) for row in rows]
+
+    def get_latest_valid_audit(self, domain, max_age_days=7):
+        """
+        Get the latest valid (complete) audit for a domain, if it exists and is not too old.
+
+        Args:
+            domain (str): The domain to lookup
+            max_age_days (int): Maximum age in days for audit to be considered valid
+
+        Returns:
+            dict: The audit report if found and valid, None otherwise
+        """
+        with self.connect() as db:
+            # Calculate cutoff timestamp
+            cutoff = datetime.now(timezone.utc).replace(
+                hour=0, minute=0, second=0, microsecond=0
+            ) - timedelta(days=max_age_days)
+            cutoff_str = cutoff.isoformat()
+
+            # Get the latest complete audit for this domain that's newer than cutoff
+            row = db.execute("""
+                SELECT report FROM runs
+                WHERE url LIKE ?
+                  AND timestamp >= ?
+                  AND json_extract(report, '$.status') = 'complete'
+                ORDER BY timestamp DESC
+                LIMIT 1
+            """, (f"%{domain}%", cutoff_str)).fetchone()
+
+            if row:
+                return json.loads(row[0])
+            return None
 
     def get(self, run_id):
         with self.connect() as db:

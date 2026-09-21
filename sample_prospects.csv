@@ -1,0 +1,10 @@
+name,website,region,description
+Acme Corporation,https://acme.example.com,North Island,Leading widget manufacturer
+Beta Ltd,beta.example.co.nz,South Island,Software development company
+Gamma Industries,GAMMA.EXAMPLE.COM,Auckland,Industrial equipment supplier
+Delta Services,delta.example.org,Wellington,Professional services firm
+Epsilon Solutions,https://epsilon.example.net,Canterbury,IT consulting group
+Acme Corporation,https://acme.example.com,North Island,Duplicate entry (should be deduplicated)
+Invalid Website,not-a-url,Canterbury,Invalid URL entry
+Local Host,http://localhost:8080,Local,Localhost should be rejected
+Private IP,http://192.168.1.1,Local,Private IP should be rejected
