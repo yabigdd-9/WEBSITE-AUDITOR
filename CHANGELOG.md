@@ -16,6 +16,8 @@ zero-paid-token, evidence-first, supervised execution policy in the master plan.
 - Added `WEBSITE-AUDITOR-BRAIN/` workspace root.
 - Added tests proving Obsidian is optional and cannot authorize outreach or runtime mutations.
 - Added `reports/V32_PHASE_AUDIT.md`.
+- Added fail-closed user-scoped launchd management via `./mm launchd install|status|uninstall`, targeting the current supervisor CLI.
+- Kept generated Obsidian prospect/runtime views local-only through `WEBSITE-AUDITOR-BRAIN/.gitignore`.
 - Replaced stale `reports/CURRENT_STATE.md` references with the current WEBSITE-AUDITOR repo/workspace and v32 direction.
 - Added the exact uploaded v32 plan as `WEBSITE_AUDITOR_MASTER_MERGED_PLAN_v32_OBSIDIAN.yaml.md`.
 
