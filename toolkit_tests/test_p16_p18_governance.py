@@ -89,3 +89,9 @@ def test_repository_golden_dataset_is_valid_and_safety_focused():
     assert "email-pattern-guess" in ids
     assert "demo-concept" in ids
     assert all("safety" in row for row in rows)
+
+
+def test_external_model_data_collection_defaults_to_deny():
+    import yaml
+    config = yaml.safe_load((ROOT / "money-machine" / "config" / "routing.yaml").read_text())
+    assert config.get("data_collection") == "deny"
