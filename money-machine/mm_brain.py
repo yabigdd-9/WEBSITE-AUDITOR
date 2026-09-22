@@ -233,7 +233,9 @@ def recommend(d, limit=10) -> dict:
     actions = _candidate_actions(d, limit)
     if bottleneck["primary"]:
         for action in actions:
-            action["reason"] = f"{bottleneck['primary']} is the largest measured backlog"
+            if action.get("action_class") != "HUMAN_REVIEW":
+                # Keep the specific diagnostic reason on dead-letter reviews.
+                action["reason"] = f"{bottleneck['primary']} is the largest measured backlog"
             action["bottleneck_weight"] = 1.0 if bottleneck["primary"] in {"EVIDENCE_READY", "AUDITED"} else 0.5
     actions.sort(key=lambda item: (-item.get("bottleneck_weight", 0), -item["score"], item["business_id"]))
     top = actions[0] if actions else {"action": "NONE", "action_class": "SAFE_AUTO", "reason": "No valuable safe work is pending", "score": 0}

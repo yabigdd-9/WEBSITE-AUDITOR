@@ -113,3 +113,24 @@ def test_draft_change_after_intent_is_blocked(tmp_path):
     db.execute("UPDATE mm_messages SET body=body || ' changed' WHERE id=7")
     with pytest.raises(ValueError, match="draft changed"):
         lifecycle.record_result(db, intent["idempotency_key"], "delivered", event_store=event_path)
+
+
+def test_provider_acceptance_remains_open_until_final_outcome(tmp_path):
+    """provider_accepted is not terminal: delivered/bounced must still land."""
+    db = database(tmp_path)
+    event_path = tmp_path / "events.jsonl"
+    intent = lifecycle.create_intent(db, 7, "fixture", event_store=event_path)
+    accepted = lifecycle.record_result(
+        db, intent["idempotency_key"], "provider_accepted", provider_message_id="prov-1",
+        event_store=event_path,
+    )
+    assert accepted["status"] == "provider_accepted"
+    delivered = lifecycle.record_result(
+        db, intent["idempotency_key"], "delivered", event_store=event_path
+    )
+    assert delivered["status"] == "delivered"
+    # Only now is the intent terminal: replaying delivered is safe, regressing is not.
+    again = lifecycle.record_result(db, intent["idempotency_key"], "delivered", event_store=event_path)
+    assert again["replayed"] is True
+    with pytest.raises(ValueError, match="terminal"):
+        lifecycle.record_result(db, intent["idempotency_key"], "failed", event_store=event_path)

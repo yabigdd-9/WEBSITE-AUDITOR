@@ -115,21 +115,35 @@ def run_audit(url, options=None, fetcher=None):
         checks[name] = {"status": "skipped", "reason": reason, "required": required}
 
     def perform_parallel(specs):
-        """Run independent local checks concurrently; merge deterministically."""
-        started = {name: time.perf_counter() for name, _, _ in specs}
+        """Run independent local checks concurrently; merge deterministically.
+
+        Each worker times itself so a slow check never inflates the measured
+        elapsed time of faster checks that finish earlier.
+        """
+        def timed(fn):
+            started = time.perf_counter()
+            try:
+                found, data = fn()
+            except Exception:
+                raise
+            finally:
+                elapsed = time.perf_counter() - started
+            return found, data, elapsed
+
         with ThreadPoolExecutor(max_workers=min(4, len(specs))) as pool:
-            futures = {name: pool.submit(fn) for name, fn, _ in specs}
+            futures = {name: pool.submit(timed, fn) for name, fn, _ in specs}
             for name, fn, required in specs:
                 try:
-                    found, data = futures[name].result()
+                    found, data, elapsed = futures[name].result()
                     findings.extend(found)
                     evidence[name] = {"url": url, "observed_at": timestamp,
                                       "mode": REGISTRY[name].mode, "data": data,
                                       "check_version": REGISTRY[name].version}
-                    checks[name] = {"status": "ok", "required": required}
+                    checks[name] = {"status": "ok", "required": required,
+                                    "elapsed_ms": int(elapsed * 1000)}
                 except Exception as exc:
-                    checks[name] = {"status": "error", "reason": str(exc), "required": required}
-                checks[name]["elapsed_ms"] = int((time.perf_counter() - started[name]) * 1000)
+                    checks[name] = {"status": "error", "reason": str(exc),
+                                    "required": required, "elapsed_ms": 0}
 
     response = None
     try:

@@ -25,7 +25,7 @@ STATUSES = {
     "suppressed",
     "failed",
 }
-TERMINAL = {"dead_lettered", "provider_accepted", "delivered", "bounced", "replied", "suppressed"}
+TERMINAL = {"dead_lettered", "delivered", "bounced", "replied", "suppressed"}
 
 DDL = """
 CREATE TABLE IF NOT EXISTS email_delivery_intents(

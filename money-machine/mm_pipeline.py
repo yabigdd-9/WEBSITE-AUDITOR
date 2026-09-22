@@ -328,6 +328,29 @@ def release(d, business_id, worker_id):
 # Retry / backoff / dead-letter
 # ---------------------------------------------------------------------------
 
+# Transient SQLite contention must retry with backoff, never dead-letter:
+# 'locked'/'busy'/'disk I/O' are momentary under concurrent workers.
+_TRANSIENT_DB_MARKERS = ('locked', 'busy', 'i/o error', 'timeout')
+
+
+def classify_unexpected(ex, context=''):
+    """Map an unexpected handler/completion fault to a bounded pipeline error."""
+    if isinstance(ex, sqlite3.OperationalError):
+        if any(marker in str(ex).lower() for marker in _TRANSIENT_DB_MARKERS):
+            return RetryableError('%sdatabase contention: %s' % (context, ex))
+        return PermanentError('%sdatabase error: %s' % (context, ex))
+    if isinstance(ex, sqlite3.IntegrityError):
+        # Integrity constraint violations are permanent
+        return PermanentError('%sintegrity error: %s' % (context, ex))
+    if isinstance(ex, AttributeError):
+        # Handler contract bugs (e.g. sqlite3.Row.get misuse) never heal by retrying
+        return PermanentError('%scontract error: %s' % (context, ex))
+    if isinstance(ex, ValueError) and ('no such column' in str(ex) or 'not found' in str(ex)):
+        # Missing columns or similar schema issues
+        return PermanentError('%sschema error: %s' % (context, ex))
+    return RetryableError('%s%s: %s' % (context, type(ex).__name__, ex))
+
+
 def backoff_seconds(attempts, base=30, cap=3600, jitter=0.2):
     delay = min(cap, base * (2 ** max(0, attempts - 1)))
     return delay * (1 + random.uniform(-jitter, jitter))
@@ -639,22 +662,7 @@ class Worker:
                 except (RetryableError, PermanentError, BlockedCost):
                     raise
                 except Exception as ex:  # unknown faults are retryable, bounded
-                    # Fix known bug classes to be PermanentError rather than endless retries
-                    if isinstance(ex, sqlite3.OperationalError):
-                        # Database schema errors (missing tables, etc.) are permanent
-                        raise PermanentError('database error: %s' % ex)
-                    elif isinstance(ex, sqlite3.IntegrityError):
-                        # Integrity constraints violations are permanent
-                        raise PermanentError('integrity error: %s' % ex)
-                    elif isinstance(ex, AttributeError):
-                        # Handler contract bugs (e.g. sqlite3.Row.get misuse)
-                        # will never heal by retrying
-                        raise PermanentError('contract error: %s' % ex)
-                    elif isinstance(ex, ValueError) and ('no such column' in str(ex) or 'not found' in str(ex)):
-                        # Missing columns or similar schema issues
-                        raise PermanentError('schema error: %s' % ex)
-                    else:
-                        raise RetryableError('%s: %s' % (type(ex).__name__, ex))
+                    raise classify_unexpected(ex)
                 for svc in self.services:
                     breaker_success(d, svc)
                 try:
@@ -662,23 +670,7 @@ class Worker:
                 except Exception as ex:
                     # A bad handler target must never crash the worker loop:
                     # record it as a bounded retryable failure instead.
-                    # Fix known bug classes to be PermanentError rather than endless retries
-                    if isinstance(ex, sqlite3.OperationalError):
-                        # Database schema errors (missing tables, etc.) are permanent
-                        raise PermanentError('database error: %s' % ex)
-                    elif isinstance(ex, sqlite3.IntegrityError):
-                        # Integrity constraints violations are permanent
-                        raise PermanentError('integrity error: %s' % ex)
-                    elif isinstance(ex, AttributeError):
-                        # Handler contract bugs (e.g. sqlite3.Row.get misuse)
-                        # will never heal by retrying
-                        raise PermanentError('contract error: %s' % ex)
-                    elif isinstance(ex, ValueError) and ('no such column' in str(ex) or 'not found' in str(ex)):
-                        # Missing columns or similar schema issues
-                        raise PermanentError('schema error: %s' % ex)
-                    else:
-                        raise RetryableError('completion rejected: %s: %s'
-                                             % (type(ex).__name__, ex))
+                    raise classify_unexpected(ex, 'completion rejected: ')
                 processed += 1
             except BlockedCost as ex:
                 for svc in self.services:

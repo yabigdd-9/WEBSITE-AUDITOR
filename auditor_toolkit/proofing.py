@@ -5,7 +5,7 @@ import re
 from typing import Any
 
 UNSUPPORTED_PATTERNS = (
-    r"\bguarantee(?:d|s)?\b", r"\b100\s*%\b", r"\b(?:lost|missing)\s+(?:revenue|sales)\b",
+    r"\bguarantee(?:d|s)?\b", r"\b100\s*%", r"\b(?:lost|missing)\s+(?:revenue|sales)\b",
     r"\bdouble\s+(?:your|the)\b", r"\b(?:will|must)\s+increase\b",
 )
 

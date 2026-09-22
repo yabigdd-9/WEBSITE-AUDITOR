@@ -42,14 +42,16 @@ def confidence(defect: dict[str, Any]) -> dict[str, Any]:
     label = defect.get("confidence") or "unknown"
     observed = bool(defect.get("observed") or defect.get("evidence_summary") or defect.get("selector"))
     reproducible = bool(defect.get("reproducibility", observed))
-    if label == "observed" and observed and reproducible:
+    if label == "heuristic":
+        # An explicit heuristic label must never masquerade as observed fact,
+        # even when some evidence summary happens to exist.
+        level = "WEAK"
+    elif label == "observed" and observed and reproducible:
         level = "PROVEN"
     elif observed and reproducible:
         level = "STRONG"
     elif observed:
         level = "MODERATE"
-    elif label == "heuristic":
-        level = "WEAK"
     else:
         level = "UNKNOWN"
     return {"class": level, "observed": observed, "reproducible": reproducible}

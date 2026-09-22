@@ -120,6 +120,11 @@ def errors(limit=100, show_root_causes=False) -> dict:
             tables = _tables(d)
             if "pipeline_items" not in tables:
                 return {"generated_at": core.now(), "root_causes": [], "count": 0, "pipeline": "uninitialised"}
+            cols = {r[1] for r in d.execute("PRAGMA table_info(pipeline_items)")}
+            if "error_fingerprint" not in cols:
+                # Pre-migration database: the query would raise, not report.
+                return {"generated_at": core.now(), "root_causes": [], "count": 0,
+                        "pipeline": "error tracking columns not migrated yet"}
 
             # Get items with error fingerprints (non-null error_fingerprint)
             rows = [
