@@ -97,32 +97,82 @@ def dead_letter(limit=100) -> dict:
     }
 
 
-def errors(limit=100) -> dict:
-    limit = max(1, min(int(limit), 1000))
-    records = []
-    log_dir = core.root() / "state" / "worker-logs"
-    for path in sorted(log_dir.glob("*.jsonl"), reverse=True):
-        try:
-            lines = path.read_text(encoding="utf-8").splitlines()
-        except (OSError, UnicodeError):
-            continue
-        for raw in reversed(lines):
+def errors(limit=100, show_root_causes=False) -> dict:
+    if show_root_causes:
+        # Show root causes from pipeline_items table
+        d = _open()
+        if d is None:
+            return {"generated_at": core.now(), "root_causes": [], "count": 0, "database": "missing"}
+
+        with contextlib.closing(d):
+            # Check if error tracking columns exist
+            tables = _tables(d)
+            if "pipeline_items" not in tables:
+                return {"generated_at": core.now(), "root_causes": [], "count": 0, "pipeline": "uninitialised"}
+
+            # Get items with error fingerprints (non-null error_fingerprint)
+            rows = [
+                dict(r)
+                for r in d.execute(
+                    """
+                    SELECT business_id, state, attempts, error_fingerprint, repeat_count,
+                           component, origin, classification, first_seen, last_seen, last_error,
+                           updated_at
+                    FROM pipeline_items
+                    WHERE error_fingerprint IS NOT NULL
+                    ORDER BY repeat_count DESC, last_seen DESC
+                    LIMIT ?
+                    """,
+                    (limit,),
+                )
+            ]
+
+            # Enrich with business information
+            for row in rows:
+                if row['business_id']:
+                    try:
+                        business_row = d.execute(
+                            "SELECT name, public_website FROM businesses WHERE id = ?",
+                            (row['business_id'],)
+                        ).fetchone()
+                        if business_row:
+                            row['business_name'] = business_row['name']
+                            row['business_website'] = business_row['public_website']
+                    except Exception:
+                        pass  # Business might have been deleted
+
+            return {
+                "generated_at": core.now(),
+                "root_causes": rows,
+                "count": len(rows)
+            }
+    else:
+        # Original behavior - show recent errors from logs
+        limit = max(1, min(int(limit), 1000))
+        records = []
+        log_dir = core.root() / "state" / "worker-logs"
+        for path in sorted(log_dir.glob("*.jsonl"), reverse=True):
             try:
-                row = json.loads(raw)
-            except json.JSONDecodeError:
+                lines = path.read_text(encoding="utf-8").splitlines()
+            except (OSError, UnicodeError):
                 continue
-            if row.get("error") or row.get("kind") in {
-                "failure",
-                "worker_error",
-                "logrotate_error",
-                "schema_drift_repaired",
-            }:
-                records.append(row)
-                if len(records) >= limit:
-                    break
-        if len(records) >= limit:
-            break
-    return {"generated_at": core.now(), "errors": records, "count": len(records)}
+            for raw in reversed(lines):
+                try:
+                    row = json.loads(raw)
+                except json.JSONDecodeError:
+                    continue
+                if row.get("error") or row.get("kind") in {
+                    "failure",
+                    "worker_error",
+                    "logrotate_error",
+                    "schema_drift_repaired",
+                }:
+                    records.append(row)
+                    if len(records) >= limit:
+                        break
+            if len(records) >= limit:
+                break
+        return {"generated_at": core.now(), "errors": records, "count": len(records)}
 
 
 def _append_jsonl(path: Path, value: dict) -> None:
