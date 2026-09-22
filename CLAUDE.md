@@ -17,6 +17,11 @@
   `money-machine/supervisor/cli.py`, `daemon.py`, `launchd.py`, and related
   modules live under `money-machine/supervisor/`. The legacy shell helper is
   `money-machine/scripts/supervisor.sh`.
+- The launchd plist is generated at host-install time, not tracked in Git:
+  `~/Library/LaunchAgents/ai.website-auditor.supervisor.plist`. Inspect its
+  state with `cd money-machine && ../.venv-email/bin/python -m
+  supervisor.launchd status`. Do not install or load it without the owner's
+  explicit request.
 - `./mm` defaults to `.venv-email/bin/python`; set `MM_PYTHON` only when a
   verified Python 3.11+ environment is intentionally being used.
 - SQLite and state files are authoritative runtime state; Obsidian is the human
