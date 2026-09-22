@@ -149,9 +149,120 @@ def doctor(d, profile='default'):
         except (ValueError,SyntaxError) as e:broken.append({'path':str(p),'error':str(e)})
     return {'generated_at':now(),'profile':profile,'tools':tools,'broken_python':broken,'db_integrity':d.execute('PRAGMA integrity_check').fetchone()[0],'foreign_key_errors':[list(x) for x in d.execute('PRAGMA foreign_key_check')],'models_enabled':False,'model_calls':0,'limitation':'Read-only inventory. Presence does not prove a service works. Runtime processes and system cron may need separate host access.'}
 
+def cmd_dead_letter_resolve(reason):
+    """Resolve quarantined test-fixture dead letters without retrying them."""
+    from datetime import datetime, timezone
+
+    backup_result = backup()
+    resolved = []
+
+    with contextlib.closing(connect()) as d, d:
+        rows = d.execute(
+            """
+            SELECT
+                p.business_id,
+                p.state,
+                b.name
+            FROM pipeline_items p
+            JOIN businesses b ON b.id=p.business_id
+            WHERE b.source='test_import'
+              AND b.is_dummy=1
+              AND p.state IN ('RETRYABLE_FAILURE','PERMANENT_FAILURE')
+            ORDER BY p.business_id
+            """
+        ).fetchall()
+
+        for row in rows:
+            business_id = row[0]
+            from_state = row[1]
+            name = row[2]
+            ts = datetime.now(timezone.utc).isoformat()
+
+            cur = d.execute(
+                """
+                UPDATE pipeline_items
+                SET state='SUPPRESSED',
+                    next_retry_at=NULL,
+                    lease_owner=NULL,
+                    lease_until=NULL,
+                    last_error=NULL,
+                    updated_at=?
+                WHERE business_id=?
+                  AND state=?
+                """,
+                (ts, business_id, from_state),
+            )
+
+            if cur.rowcount != 1:
+                raise RuntimeError(
+                    f"Failed to resolve business_id={business_id}; "
+                    "state changed during operation"
+                )
+
+            evidence = json.dumps({
+                "resolution": "dead_letter",
+                "source": "test_import",
+                "is_dummy": True,
+                "previous_attempts_preserved": True,
+            }, sort_keys=True)
+
+            d.execute(
+                """
+                INSERT INTO pipeline_events(
+                    business_id,
+                    from_state,
+                    to_state,
+                    actor,
+                    reason,
+                    evidence,
+                    event_at
+                )
+                VALUES(?,?,?,?,?,?,?)
+                """,
+                (
+                    business_id,
+                    from_state,
+                    "SUPPRESSED",
+                    "mm-dead-letter-resolve",
+                    reason,
+                    evidence,
+                    ts,
+                ),
+            )
+
+            resolved.append({
+                "business_id": business_id,
+                "name": name,
+                "from_state": from_state,
+                "to_state": "SUPPRESSED",
+            })
+
+    return {
+        "status": "completed",
+        "scope": "test_import + is_dummy=1 only",
+        "reason": reason,
+        "resolved": len(resolved),
+        "items": resolved,
+        "deleted": 0,
+        "external_sends": 0,
+        "paid_calls": 0,
+        "backup": str(backup_result),
+    }
+
+
 def main(argv=None):
     p=argparse.ArgumentParser(description=__doc__);s=p.add_subparsers(dest='cmd',required=True)
-    for cmd in ('daily','run-day','status','money','learn','backup','init','health','metrics','errors','queue','dead-letter','observability-snapshot'):s.add_parser(cmd)
+    for cmd in ('daily','run-day','status','money','learn','backup','init','health','metrics','errors','queue','observability-snapshot'):s.add_parser(cmd)
+    # Add --root-causes flag to errors command
+    errors_parser = s._name_parser_map['errors']
+    errors_parser.add_argument('--root-causes', '--root-cases', dest='root_causes', action='store_true', help='Show root causes of recurring errors from pipeline')
+    q=s.add_parser('data-quarantine')
+    q.add_argument('--source',required=True)
+    q=s.add_parser('dead-letter')
+    dl=q.add_subparsers(dest='dead_letter_action')
+    r=dl.add_parser('resolve')
+    r.add_argument('--all',action='store_true',required=True)
+    r.add_argument('--reason',required=True)
     q=s.add_parser('doctor');q.add_argument('--profile',default='default')
     s.add_parser('obsidian-sync')
     s.add_parser('obsidian-status')
@@ -213,6 +324,15 @@ def main(argv=None):
     q=s.add_parser('model-plan');q.add_argument('--purpose',required=True)
     q=s.add_parser('deploy-check');q.add_argument('--candidate');q.add_argument('--execute',action='store_true')
     a=p.parse_args(argv)
+
+    if a.cmd=='dead-letter':
+        if getattr(a,'dead_letter_action',None)=='resolve':
+            result=cmd_dead_letter_resolve(a.reason)
+        else:
+            import mm_observability
+            result=mm_observability.dead_letter()
+        print(json.dumps(result,indent=2,default=str))
+        return 0
     if a.cmd in ('health','metrics','errors','queue','dead-letter','observability-snapshot'):
         import mm_observability
         functions={
@@ -223,7 +343,13 @@ def main(argv=None):
             'dead-letter':mm_observability.dead_letter,
             'observability-snapshot':mm_observability.write_snapshots,
         }
-        result=functions[a.cmd]()
+        if a.cmd == 'errors':
+            result = functions[a.cmd](show_root_causes=getattr(a, 'root_causes', False))
+        else:
+            result = functions[a.cmd]()
+        print(json.dumps(result,indent=2,default=str));return 0
+    if a.cmd=='data-quarantine':
+        result=cmd_data_quarantine(a.source)
         print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd in ('obsidian-sync','obsidian-status'):
         import mm_obsidian
@@ -392,6 +518,71 @@ def main(argv=None):
                         finish_job(d,a.key,{},str(ex));d.commit();raise
     print(json.dumps(result,indent=2))
     return 2 if a.cmd=='model-request' else 0
+
+def cmd_data_quarantine(source):
+    """Mark businesses from a source as test fixtures (P1 quarantine).
+
+    Sets is_dummy=1 and suppression_reason='test_fixture', and parks any
+    pipeline item in SUPPRESSED with an append-only pipeline_events record
+    carrying reason/timestamp/actor. Idempotent: already-quarantined rows are
+    counted, never re-mutated. Nothing is ever deleted.
+    """
+    import mm_pipeline
+    backup_result = backup()
+    quarantined = []
+    already_quarantined = 0
+    with contextlib.closing(connect()) as d, d:
+        ensure_business_columns(d)
+        mm_pipeline.migrate(d)
+        ts = now()
+        rows = d.execute(
+            "SELECT id, name FROM businesses WHERE source=? ORDER BY id",
+            (source,),
+        ).fetchall()
+        for row in rows:
+            bid = row["id"]
+            cur = d.execute(
+                "UPDATE businesses SET is_dummy=1, suppression_reason='test_fixture' "
+                "WHERE id=? AND is_dummy=0",
+                (bid,),
+            )
+            if cur.rowcount == 0:
+                already_quarantined += 1
+                continue
+            item = d.execute(
+                "SELECT state FROM pipeline_items WHERE business_id=?", (bid,)
+            ).fetchone()
+            if item and item["state"] != "SUPPRESSED":
+                d.execute(
+                    "UPDATE pipeline_items SET state='SUPPRESSED', next_retry_at=NULL, "
+                    "lease_owner=NULL, lease_until=NULL, updated_at=? WHERE business_id=?",
+                    (ts, bid),
+                )
+                d.execute(
+                    "INSERT INTO pipeline_events(business_id,from_state,to_state,"
+                    "actor,reason,evidence,event_at) VALUES(?,?,?,?,?,?,?)",
+                    (
+                        bid,
+                        item["state"],
+                        "SUPPRESSED",
+                        "mm-data-quarantine",
+                        "test_fixture",
+                        json.dumps({"source": source, "is_dummy": True}, sort_keys=True),
+                        ts,
+                    ),
+                )
+            quarantined.append({"business_id": bid, "name": row["name"]})
+    return {
+        "status": "completed",
+        "source": source,
+        "quarantined": len(quarantined),
+        "already_quarantined": already_quarantined,
+        "items": quarantined,
+        "deleted": 0,
+        "external_sends": 0,
+        "paid_calls": 0,
+        "backup": str(backup_result),
+    }
 
 if __name__=='__main__':
     try:sys.exit(main())

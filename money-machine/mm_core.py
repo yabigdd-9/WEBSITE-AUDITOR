@@ -59,6 +59,31 @@ def connect(path=None, readonly=False):
 def event(d, action, bid, detail):
     d.execute('INSERT INTO mm_events(event_at,action,business_id,detail) VALUES(?,?,?,?)',(now(),action,bid,detail))
 
+
+# v32 operational columns on businesses: quarantine + dedupe metadata.
+# Added idempotently; existing rows keep NULL until classified.
+BUSINESS_OPERATIONAL_COLUMNS = (
+    ('suppression_reason', 'TEXT'),
+    ('canonical_host', 'TEXT'),
+    ('normalized_name', 'TEXT'),
+)
+
+
+def ensure_business_columns(d):
+    """Idempotently add v32 operational columns to businesses.
+
+    Returns the list of columns added by this call (empty when already applied).
+    Safe to call before any migration or bulk data change path; callers remain
+    responsible for their own backup policy.
+    """
+    cols = {r[1] for r in d.execute('PRAGMA table_info(businesses)')}
+    added = []
+    for name, decl in BUSINESS_OPERATIONAL_COLUMNS:
+        if name not in cols:
+            d.execute('ALTER TABLE businesses ADD COLUMN %s %s' % (name, decl))
+            added.append(name)
+    return added
+
 def backup(r=None):
     r=Path(r or root());folder=r/'backups'/('mm-v2-'+dt.datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ')+'-'+uuid.uuid4().hex[:6]);folder.mkdir(parents=True,mode=0o700)
     items=[]
