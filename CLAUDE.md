@@ -13,6 +13,13 @@
 - `./mm` is the canonical Money Machine/operator entrypoint.
 - The operator implementation is `money-machine/mm_operator.py`; do not look
   for a retired `money-machine/scripts/mm_operator.py` path.
+- There is exactly one tracked `mm_operator.py`. Safety snapshots may be Git
+  branches (including `backup/v32-before-local-consolidation-2026-09-22`) or
+  partial filesystem snapshots under `backups/`; neither implies a complete
+  repository checkout. Inspect Git snapshots with `git branch` and `git show
+  BRANCH:PATH`; inspect archive contents read-only with `tar -tzf ARCHIVE`.
+  Never guess that a partial `backups/pre_merge_...` snapshot has a
+  `money-machine/` directory.
 - Supervisor code is a package, not `money-machine/supervisor.py`:
   `money-machine/supervisor/cli.py`, `daemon.py`, `launchd.py`, and related
   modules live under `money-machine/supervisor/`. The legacy shell helper is
