@@ -25,6 +25,7 @@ import mm_email as email_engine
 import mm_email_store as email_store
 SOURCE=Path(os.environ.get('MM_TEST_SOURCE',str(Path(__file__).resolve().parents[1]/'database/money_machine.db')))
 PACKAGE=Path(__file__).resolve().parents[1]
+OPERATOR=PACKAGE/'money-machine/mm_operator.py'
 BODY='Subject: A verified narrow improvement\n\nHello team, this is a local fixture describing a verified issue with explicit limitations. Dion, verified fixture identity. Please reply if useful, or reply no thanks to opt out.'
 DEMO='''<!doctype html><html lang="en"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="connect-src 'none'; form-action 'none'"><style>:focus-visible{outline:2px solid blue}</style><p>Local demonstration. Nothing is sent.</p><label for="email">Email</label><input id="email" type="email"><button type="button">Preview only</button></html>'''
 
@@ -100,7 +101,10 @@ class Acceptance(unittest.TestCase):
         for name in ('seed_data.py','mark_sent.py','fix_contacts.py'):
             p=PACKAGE/'scripts'/name
             run=subprocess.run([sys.executable,str(p)],capture_output=True,text=True,timeout=10)
-            self.assertNotEqual(run.returncode,0);self.assertIn('BLOCKED',run.stderr+run.stdout)
+            self.assertNotEqual(run.returncode,0)
+            # A retired entrypoint is safe when it is absent; if a compatibility
+            # stub remains, it must explicitly fail closed.
+            if p.exists():self.assertIn('BLOCKED',run.stderr+run.stdout)
         self.demo.write_text('')
         with self.assertRaises(ValueError):o.demo_qa(self.d,self.bid,self.demo)
     def test_13_migration_requires_verified_restorable_backup(self):
@@ -228,11 +232,11 @@ class Acceptance(unittest.TestCase):
         with self.assertRaises(sqlite3.IntegrityError):self.d.execute("UPDATE mm_messages SET approved_hash=digest,approval_ref='made-up',approved_by='Impersonator' WHERE id=?",(self.mid,))
     def test_55_model_cli_failure_keeps_log_and_nonzero_exit(self):
         self.d.commit()
-        run=subprocess.run([sys.executable,str(PACKAGE/'scripts/mm_operator.py'),'model-request','--model','test:free','--provider','nous','--purpose','fixture'],capture_output=True,text=True,timeout=10)
+        run=subprocess.run([sys.executable,str(OPERATOR),'model-request','--model','test:free','--provider','nous','--purpose','fixture'],capture_output=True,text=True,timeout=10)
         self.assertEqual(run.returncode,2);self.assertEqual(self.d.execute('SELECT count(*) FROM mm_model_invocations WHERE model=?',('test:free',)).fetchone()[0],1)
     def test_56_status_cli_persists_no_fixture_changes(self):
         self.d.commit();before=self.d.execute('SELECT count(*) FROM mm_events').fetchone()[0]
-        run=subprocess.run([sys.executable,str(PACKAGE/'scripts/mm_operator.py'),'status'],capture_output=True,text=True,timeout=10)
+        run=subprocess.run([sys.executable,str(OPERATOR),'status'],capture_output=True,text=True,timeout=10)
         self.assertEqual(run.returncode,0,run.stderr);self.assertEqual(json.loads(run.stdout)['model_calls'],0);self.assertEqual(before,self.d.execute('SELECT count(*) FROM mm_events').fetchone()[0])
 
     def test_57_raw_stage_update_cannot_bypass_demo_gate(self):

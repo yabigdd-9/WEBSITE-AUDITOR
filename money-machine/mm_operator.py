@@ -354,7 +354,16 @@ def main(argv=None):
             elif a.cmd=='intake':
                 host=public_url(a.url);public_url(a.source)
                 for b in d.execute('SELECT id,name,public_website FROM businesses WHERE is_dummy=0'):
-                    if b['name'].strip().casefold()==a.name.strip().casefold() or (b['public_website'] and public_url(b['public_website'])==host):raise ValueError('Duplicate prospect '+str(b['id']))
+                    if b['name'].strip().casefold()==a.name.strip().casefold():
+                        raise ValueError('Duplicate prospect '+str(b['id']))
+                    # Historical records may contain malformed or now-disallowed URLs.
+                    # They must not prevent a duplicate-name check or invalidate a
+                    # separate, valid intake request.
+                    try:
+                        existing_host=public_url(b['public_website']) if b['public_website'] else None
+                    except ValueError:
+                        existing_host=None
+                    if existing_host==host:raise ValueError('Duplicate prospect '+str(b['id']))
                 c=d.execute("INSERT INTO businesses(name,region,public_website,source,discovered_at,current_status,is_dummy) VALUES(?,?,?,?,?,'discovered',0)",(a.name.strip(),a.region,a.url,a.source,now()));bid=c.lastrowid
                 d.execute("INSERT INTO mm_deals(business_id,stage,updated_at) VALUES(?,'DISCOVERED',?)",(bid,now()));event(d,'intake',bid,a.source);result={'business_id':bid}
             elif a.cmd=='audit':result={'evidence_id':record_evidence(d,a.id,a.url,a.observation,a.limitation,a.capture,a.status,a.method,a.confidence,a.claim_type)}
