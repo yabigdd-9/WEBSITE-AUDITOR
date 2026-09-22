@@ -8,7 +8,14 @@ from free_role_router import RouteError, free_model, route, validate
 
 ROOT = Path(__file__).resolve().parents[2]
 
+# The routing config is a host-only control-plane fixture. When absent
+# (sandbox checkout), skip explicitly instead of erroring — Master Plan P4.
+_CONFIG_PRESENT = (ROOT / "control-plane/config/routing.yaml").is_file()
+_CONFIG_ABSENT = ("BLOCKED_FIXTURE: control-plane/config/routing.yaml not "
+                  "present in this environment")
 
+
+@unittest.skipUnless(_CONFIG_PRESENT, _CONFIG_ABSENT)
 class RoutingTests(unittest.TestCase):
     def setUp(self):
         self.config = yaml.safe_load((ROOT / "control-plane/config/routing.yaml").read_text())

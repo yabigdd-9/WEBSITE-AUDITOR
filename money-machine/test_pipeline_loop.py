@@ -8,8 +8,18 @@ import os
 from pathlib import Path
 
 import mm_core as c, mm_pipeline as p, mm_workers as w, mm_approval as a
+from mm_test_capabilities import HAS_HERMES_SOURCE_DB
+
+# These tests clone the legacy Hermes source DB as their starting fixture.
+# When that host-only fixture is absent (sandbox), skip explicitly instead of
+# failing with sqlite noise — see FABLE_MASTER_EXECUTION_PLAN P4.
+SOURCE_DB_ABSENT = (
+    "BLOCKED_FIXTURE: /Users/dd/agent-trials/hermes/database/money_machine.db "
+    "not present in this environment"
+)
 
 
+@unittest.skipUnless(HAS_HERMES_SOURCE_DB, SOURCE_DB_ABSENT)
 class LoopTests(unittest.TestCase):
     def setUp(self):
         self.root = Path(tempfile.mkdtemp(prefix='mm-loop-'))
