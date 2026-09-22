@@ -52,3 +52,12 @@ WEBSITE-AUDITOR-BRAIN/
 **/.env
 **/.env.*
 !**/.env.example
+
+# Runtime state (regenerated; never track). Verified missing before 2026-09-22:
+# these were untracked-but-committable, and errors.jsonl carries business ids.
+state/errors.jsonl
+state/health.json
+state/metrics.jsonl
+state/deployments.jsonl
+state/HERMES_EXECUTION_STATE.yaml
+reports/acceptance-results.json
