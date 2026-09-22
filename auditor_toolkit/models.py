@@ -134,6 +134,12 @@ REGISTRY = {
             "rendered",
             limitation="Manual keyboard, screen-reader and content review remains necessary.",
         ),
+        CheckDefinition(
+            "flow",
+            "conversion",
+            "rendered",
+            limitation="No form submission or synthetic inquiry; booking/payment side effects prohibited.",
+        ),
         CheckDefinition("pdf", "reporting", "rendered"),
     )
 }
