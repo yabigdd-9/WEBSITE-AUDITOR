@@ -147,7 +147,8 @@ def doctor(d, profile='default'):
             if not p.stat().st_size:raise ValueError('Empty script')
             ast.parse(p.read_text())
         except (ValueError,SyntaxError) as e:broken.append({'path':str(p),'error':str(e)})
-    return {'generated_at':now(),'profile':profile,'tools':tools,'broken_python':broken,'db_integrity':d.execute('PRAGMA integrity_check').fetchone()[0],'foreign_key_errors':[list(x) for x in d.execute('PRAGMA foreign_key_check')],'models_enabled':False,'model_calls':0,'limitation':'Read-only inventory. Presence does not prove a service works. Runtime processes and system cron may need separate host access.'}
+    import mm_test_capabilities
+    return {'generated_at':now(),'profile':profile,'tools':tools,'broken_python':broken,'db_integrity':d.execute('PRAGMA integrity_check').fetchone()[0],'foreign_key_errors':[list(x) for x in d.execute('PRAGMA foreign_key_check')],'models_enabled':False,'model_calls':0,'capabilities':mm_test_capabilities.capabilities(),'limitation':'Read-only inventory. Presence does not prove a service works. Runtime processes and system cron may need separate host access.'}
 
 def cmd_dead_letter_resolve(reason):
     """Resolve quarantined test-fixture dead letters without retrying them."""
@@ -267,7 +268,7 @@ def main(argv=None):
     s.add_parser('obsidian-sync')
     s.add_parser('obsidian-status')
     q=s.add_parser('supervisor')
-    q.add_argument('action',choices=['start','stop','restart','status','health','logs'])
+    q.add_argument('action',choices=['start','stop','restart','ensure-running','status','health','logs'])
     q.add_argument('--sleep',type=float,default=5)
     q.add_argument('--tail',type=int,default=50)
     q.add_argument('--timeout',type=float,default=15)
