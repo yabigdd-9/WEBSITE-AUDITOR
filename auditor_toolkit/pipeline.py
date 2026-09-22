@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import time
-from concurrent.futures import ThreadPoolExecutor
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -13,7 +13,9 @@ from .browser import export_pdf, run_browser_checks
 from .checks import Finding, analyse_html, classify_response, dedupe_findings, score_findings
 from .common import Fetcher, atomic_write_json, atomic_write_text, validate_url
 from .external_tools import run_lighthouse, run_lychee
-from .faults import enrich as enrich_fault, group_root_causes, regression as fault_regression
+from .faults import enrich as enrich_fault
+from .faults import group_root_causes
+from .faults import regression as fault_regression
 from .hygiene import (
     check_mixed_content,
     check_robots,
@@ -25,9 +27,9 @@ from .hygiene import (
 )
 from .models import REGISTRY, SCHEMA_VERSION
 from .network import crawl, inspect_dns, inspect_headers, inspect_schema, inspect_tls
+from .quality_checks import run_quality_checks
 from .reporting import render_trend_svg, write_html_report
 from .storage import History, finding_id
-from .quality_checks import run_quality_checks
 
 
 @dataclass
