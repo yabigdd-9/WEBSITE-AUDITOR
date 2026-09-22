@@ -30,3 +30,6 @@ FABLE · 2026-09-22 · branch `upgrade/v32-canonical-execution` · $0 · stdlib 
 - DB backup taken before backfill: `database/backups/mm_20260922_*.db` (not committed).
 - Capture files under `reports/{audit-backfills,contact-captures}/` are runtime evidence outputs — not git-added per hygiene rule.
 - Commit `c167cb2` audit note from P4 stands (doctor capabilities swept into P3 commit).
+
+## Commit hygiene note
+A pre-staged stray file, `money-machine/test_pipeline_errors.py` (pre-existing, contains 1 failing test unrelated to P5), was accidentally included in the first P5 commit. It was removed from the commit via `git rm --cached` + `--amend`; the file remains on disk untracked for separate disposition. Final P5 commit: `ee736c9`.
