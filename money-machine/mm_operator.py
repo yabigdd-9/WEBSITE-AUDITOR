@@ -327,6 +327,15 @@ def main(argv=None):
     q=s.add_parser('challenger-eval');q.add_argument('--golden',required=True);q.add_argument('--baseline',required=True);q.add_argument('--challenger',required=True);q.add_argument('--min-improvement',type=float,default=0.01)
     q=s.add_parser('model-plan');q.add_argument('--purpose',required=True)
     q=s.add_parser('deploy-check');q.add_argument('--candidate');q.add_argument('--execute',action='store_true')
+    s.add_parser('bottlenecks')
+    q=s.add_parser('schedule');q.add_argument('--limit',type=int,default=10)
+    q=s.add_parser('brain');q.add_argument('action',nargs='?',choices=['explain','next','health'],default='explain');q.add_argument('--limit',type=int,default=10)
+    q=s.add_parser('decisions');q.add_argument('--business',type=int);q.add_argument('--limit',type=int,default=100)
+    q=s.add_parser('decision');q.add_argument('decision_id')
+    q=s.add_parser('brain-replay');q.add_argument('decision_id')
+    q=s.add_parser('brain-shadow');q.add_argument('--current',required=True);q.add_argument('--challenger',required=True)
+    q=s.add_parser('db-check')
+    q=s.add_parser('safe-mode');q.add_argument('action',choices=['on','off','status'])
     a=p.parse_args(argv)
 
     if a.cmd=='dead-letter':
@@ -448,6 +457,23 @@ def main(argv=None):
             result=mm_evidence_ops.discover_own_site_contacts(d,a.id,politeness=0.0 if a.no_delay else 1.0)
         print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd=='backup':print(backup());return 0
+    if a.cmd in ('bottlenecks','schedule','brain','decisions','decision','brain-replay','brain-shadow','db-check','safe-mode'):
+        import mm_brain
+        if a.cmd == 'safe-mode':
+            result = mm_brain.safe_mode(True if a.action == 'on' else False if a.action == 'off' else None)
+        elif a.cmd == 'brain-shadow':
+            result = mm_brain.shadow(json.loads(Path(a.current).read_text()), json.loads(Path(a.challenger).read_text()))
+        else:
+            readonly = a.cmd in ('bottlenecks','schedule','brain','decisions','decision','brain-replay','db-check')
+            with contextlib.closing(connect(readonly=readonly)) as d:
+                if a.cmd == 'bottlenecks': result = mm_brain.bottlenecks(d)
+                elif a.cmd == 'schedule': result = {'items': mm_brain.recommend(d, a.limit)}
+                elif a.cmd == 'brain': result = mm_brain.recommend(d, a.limit)
+                elif a.cmd == 'decisions': result = {'decisions': mm_brain.ledger(a.business, a.limit)}
+                elif a.cmd == 'decision': result = next((row for row in mm_brain.ledger() if row.get('decision_id') == a.decision_id), None) or {'error': 'Decision not found'}
+                elif a.cmd == 'brain-replay': result = mm_brain.replay(a.decision_id)
+                else: result = mm_brain.db_check(d)
+        print(json.dumps(result, indent=2, default=str)); return 0
     if a.cmd=='supervisor':
         sys.path.insert(0, str(Path(__file__).resolve().parent))
         from supervisor import cli as _sc

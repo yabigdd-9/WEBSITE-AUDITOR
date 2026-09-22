@@ -611,6 +611,14 @@ class Worker:
 
     def run_once(self, d, limit=1):
         """Claim and process up to `limit` items. Bounded: always returns."""
+        # Safe mode is a human-controlled emergency stop. Diagnostics and
+        # heartbeats remain available, but no new leases or external work may start.
+        try:
+            import mm_brain
+            if mm_brain.safe_mode().get("enabled"):
+                return 0
+        except (ImportError, OSError, ValueError):
+            pass
         migrate(d)
         register_worker(d, self.worker_id, kind=','.join(self.states),
                         lease_seconds=self.lease_seconds)

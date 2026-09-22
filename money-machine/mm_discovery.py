@@ -448,9 +448,8 @@ def normalize_intake_url(url):
     # Lowercase hostname and remove www prefix
     host = host.lower().removeprefix('www.')
 
-    # Reject username/password in URL (userinfo)
-    if parsed.username or parsed.password:
-        raise ValueError('username/password in URL not allowed')
+    # Strip userinfo during intake normalization. The strict public_url()
+    # validator remains unchanged and rejects userinfo on frozen surfaces.
 
     # Validate port
     if parsed.port not in (None, 80, 443):
