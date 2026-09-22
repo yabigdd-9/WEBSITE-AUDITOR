@@ -14,6 +14,8 @@ auditor_toolkit/common.py
 auditor_toolkit/compat.py
 auditor_toolkit/cpu_model.py
 auditor_toolkit/demo.py
+auditor_toolkit/email_quality.py
+auditor_toolkit/evidence_brief.py
 auditor_toolkit/external_tools.py
 auditor_toolkit/fetch_chain.py
 auditor_toolkit/hygiene.py
@@ -25,7 +27,9 @@ auditor_toolkit/opportunity.py
 auditor_toolkit/packet.py
 auditor_toolkit/pipeline.py
 auditor_toolkit/portal.py
+auditor_toolkit/quality_checks.py
 auditor_toolkit/quote.py
+auditor_toolkit/readability.py
 auditor_toolkit/remediation.py
 auditor_toolkit/reporting.py
 auditor_toolkit/revenue.py
@@ -35,16 +39,6 @@ auditor_toolkit/verify.py
 auditor_toolkit/assets/axe-LICENSE.txt
 auditor_toolkit/assets/axe-provenance.txt
 auditor_toolkit/assets/axe.min.js
-tests/test_acceptance.py
-tests/test_dsh_harness_bridge.py
-tests/test_email_finder.py
-tests/test_email_hardening.py
-tests/test_email_integration.py
-tests/test_lead_qualifier.py
-tests/test_outreach.py
-tests/test_pipeline.py
-tests/test_pipeline_loop.py
-tests/test_polish.py
 website_auditor/__init__.py
 website_auditor/control_center.py
 website_auditor/models.py

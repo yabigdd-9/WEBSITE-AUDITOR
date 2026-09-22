@@ -3,7 +3,7 @@
 ## Canonical workspace and branch
 
 - Repository: `/Users/dd/WEBSITE-AUDITOR`
-- Working branch: `upgrade/v32-canonical-execution`
+- Working branch: `upgrade/v32-canonical-execution `
 - Do not merge directly to `master`; keep PR #36 as a draft.
 - Read `MASTER_PLAN.md` and `CURRENT_STATE.md` before making architectural changes.
 
