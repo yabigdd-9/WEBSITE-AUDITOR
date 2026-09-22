@@ -1,10 +1,12 @@
 {
-  "generated_at": "2026-09-11T11:03:54.740430+00:00",
+  "project": "WEBSITES/BUISNESSaudits",
+  "workspace": "/Users/dd/WEBSITE-AUDITOR",
+  "generated_at": "2026-09-22T08:15:17.858678+00:00",
   "metrics": {
-    "real_prospects": 21,
-    "fresh_legacy_observation_prospects": 14,
+    "real_prospects": 39,
+    "fresh_legacy_observation_prospects": 0,
     "independently_verified_current_claims": 0,
-    "prospects_without_any_evidence": 7,
+    "prospects_without_any_evidence": 25,
     "verified_sends": 0,
     "verified_replies": 0,
     "legacy_claimed_sends_unverified": 3,
@@ -344,6 +346,276 @@
       "last_checked": null,
       "human_review": "REQUIRED",
       "outreach_eligible": false
+    },
+    {
+      "business_id": 23,
+      "business": "Acme Corporation",
+      "website": "acme.example.com",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 24,
+      "business": "Beta Ltd",
+      "website": "beta.example.co.nz",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 25,
+      "business": "Gamma Industries",
+      "website": "gamma.example.com",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 26,
+      "business": "Delta Services",
+      "website": "delta.example.org",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 27,
+      "business": "Epsilon Solutions",
+      "website": "epsilon.example.net",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 28,
+      "business": "Invalid Website",
+      "website": "not-a-url",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 29,
+      "business": "Acme Corporation",
+      "website": "acme.example.com",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 30,
+      "business": "Beta Ltd",
+      "website": "beta.example.co.nz",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 31,
+      "business": "Gamma Industries",
+      "website": "gamma.example.com",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 32,
+      "business": "Delta Services",
+      "website": "delta.example.org",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 33,
+      "business": "Epsilon Solutions",
+      "website": "epsilon.example.net",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 34,
+      "business": "Invalid Website",
+      "website": "not-a-url",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 35,
+      "business": "Acme Corporation",
+      "website": "acme.example.com",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 36,
+      "business": "Beta Ltd",
+      "website": "beta.example.co.nz",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 37,
+      "business": "Gamma Industries",
+      "website": "gamma.example.com",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 38,
+      "business": "Delta Services",
+      "website": "delta.example.org",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 39,
+      "business": "Epsilon Solutions",
+      "website": "epsilon.example.net",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 40,
+      "business": "Invalid Website",
+      "website": "not-a-url",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
     }
   ],
   "pipeline_stages": {
@@ -477,6 +749,61 @@
   ],
   "missing_or_stale": [
     {
+      "id": 2,
+      "name": "Blizzard HVAC & Electrical",
+      "reason": "Expired"
+    },
+    {
+      "id": 3,
+      "name": "Trident Electrical & Air Conditioning",
+      "reason": "Expired"
+    },
+    {
+      "id": 5,
+      "name": "Heat Force",
+      "reason": "Expired"
+    },
+    {
+      "id": 6,
+      "name": "BA Heat Pumps",
+      "reason": "Expired"
+    },
+    {
+      "id": 7,
+      "name": "AES",
+      "reason": "Expired"
+    },
+    {
+      "id": 8,
+      "name": "Simpson Climate Control",
+      "reason": "Expired"
+    },
+    {
+      "id": 9,
+      "name": "Kiwi Heat Pumps",
+      "reason": "Expired"
+    },
+    {
+      "id": 10,
+      "name": "Imperial HVAC",
+      "reason": "Expired"
+    },
+    {
+      "id": 11,
+      "name": "New Zealand Heat Pumps",
+      "reason": "Expired"
+    },
+    {
+      "id": 12,
+      "name": "Superior Renovations",
+      "reason": "Expired"
+    },
+    {
+      "id": 15,
+      "name": "Evoke Renovations",
+      "reason": "Expired"
+    },
+    {
       "id": 16,
       "name": "Modern Age Kitchens",
       "reason": "Missing"
@@ -485,6 +812,11 @@
       "id": 17,
       "name": "Kitchen Studio Christchurch",
       "reason": "Missing"
+    },
+    {
+      "id": 18,
+      "name": "Best Nest Building Co",
+      "reason": "Expired"
     },
     {
       "id": 19,
@@ -499,12 +831,12 @@
     "action": "Requalify Heat Force against its existing Tradify form; verify a specific unmet need before creating another offer",
     "ev_hour_low": 0
   },
-  "elapsed_ms": 5014.56,
+  "elapsed_ms": 1165.57,
   "model_calls": 0,
   "external_sends": 0,
   "outreach_self_audit": {
     "version": "outreach-v1.0.0",
-    "checked_at": "2026-09-11T11:03:54.820127+00:00",
+    "checked_at": "2026-09-22T08:15:17.893519+00:00",
     "messages_checked": 1,
     "copy_issues": [
       {

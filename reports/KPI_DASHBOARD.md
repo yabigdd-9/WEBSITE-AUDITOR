@@ -1,10 +1,10 @@
 # Evidence-based KPI snapshot
 
 {
-  "real_prospects": 21,
-  "fresh_legacy_observation_prospects": 14,
+  "real_prospects": 39,
+  "fresh_legacy_observation_prospects": 0,
   "independently_verified_current_claims": 0,
-  "prospects_without_any_evidence": 7,
+  "prospects_without_any_evidence": 25,
   "verified_sends": 0,
   "verified_replies": 0,
   "legacy_claimed_sends_unverified": 3,
