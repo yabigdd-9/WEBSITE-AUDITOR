@@ -148,6 +148,22 @@ def evaluate_scenario(scenario: dict) -> dict:
             "paid_calls": 0, "model_cost_usd": 0.0}
 
 
+def email_intents(d) -> dict:
+    """Count delivery intents by status when the lifecycle table exists."""
+    empty = {"total": 0, "by_status": {}, "dead_lettered": 0, "retryable_failed": 0}
+    tables = {row[0] for row in d.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    if "email_delivery_intents" not in tables:
+        return empty
+    rows = d.execute("SELECT status, count(*) FROM email_delivery_intents GROUP BY status").fetchall()
+    by_status = {str(row[0]): int(row[1]) for row in rows}
+    return {
+        "total": sum(by_status.values()),
+        "by_status": dict(sorted(by_status.items())),
+        "dead_lettered": by_status.get("dead_lettered", 0),
+        "retryable_failed": by_status.get("retryable_failed", 0),
+    }
+
+
 def bottlenecks(d) -> dict:
     stages = funnel(d)
     ranked = sorted(
@@ -155,7 +171,19 @@ def bottlenecks(d) -> dict:
         key=lambda item: (-item[1]["backlog"], item[0]),
     )
     primary = ranked[0][0] if ranked and ranked[0][1]["backlog"] else None
-    return {"stages": stages, "primary": primary, "severity": "HIGH" if primary else "NONE", "policy_version": POLICY_VERSION}
+    severity = "HIGH" if primary else "NONE"
+    intents = email_intents(d)
+    if intents["dead_lettered"]:
+        # Undeliverable approved work blocks the funnel and needs a human.
+        primary = "EMAIL_DEAD_LETTER"
+        severity = "HIGH"
+    return {
+        "stages": stages,
+        "primary": primary,
+        "severity": severity,
+        "email_intents": intents,
+        "policy_version": POLICY_VERSION,
+    }
 
 
 def _candidate_actions(d, limit=10) -> list[dict]:
@@ -170,6 +198,23 @@ def _candidate_actions(d, limit=10) -> list[dict]:
         for row in rows:
             action = "refresh_evidence" if row[1] in {"AUDITED", "VERIFICATION_PENDING"} else "advance_pipeline"
             actions.append({"business_id": row[0], "business": row[3], "action": action, "state": row[1], "action_class": "SAFE_AUTO", "score": max(1, 100 - row[2] * 10)})
+    if "email_delivery_intents" in tables:
+        dead = d.execute(
+            "SELECT business_id, recipient, attempt_count, last_error FROM email_delivery_intents "
+            "WHERE status='dead_lettered' ORDER BY updated_at LIMIT ?", (limit,)
+        ).fetchall()
+        for row in dead:
+            actions.append({
+                "business_id": row["business_id"],
+                "recipient": row["recipient"],
+                "action": "review_dead_lettered_email",
+                "reason": (
+                    "delivery failed %d times: %s" % (row["attempt_count"], (row["last_error"] or "unknown")[:120])
+                ),
+                "state": "dead_lettered",
+                "action_class": "HUMAN_REVIEW",
+                "score": 150,
+            })
     if not actions and "mm_deals" in tables:
         rows = d.execute(
             "SELECT m.business_id,m.stage,b.name FROM mm_deals m JOIN businesses b ON b.id=m.business_id "
@@ -201,6 +246,7 @@ def recommend(d, limit=10) -> dict:
         "confidence": 0.75 if top["action"] != "NONE" else 0.95,
         "expected_effect": {"review_ready_delta": 1 if top["action"] != "NONE" else 0},
         "safe_to_execute": top["action_class"] == "SAFE_AUTO",
+        "blocking_review_items": bottleneck["email_intents"]["dead_lettered"],
         "human_approval_required": False,
         "safety": {"external_sends": 0, "paid_calls": 0, "model_cost_usd": 0.0},
         "policy_version": POLICY_VERSION,

@@ -292,7 +292,7 @@ def main(argv=None):
     q=s.add_parser('email-track');q.add_argument('--store')
     q=s.add_parser('email-reconcile');q.add_argument('message_id');q.add_argument('--store')
     q=s.add_parser('email-intent');q.add_argument('message_id',type=int);q.add_argument('--campaign',required=True);q.add_argument('--max-attempts',type=int,default=3);q.add_argument('--store')
-    q=s.add_parser('email-intent-result');q.add_argument('idempotency_key');q.add_argument('--status',required=True);q.add_argument('--provider-message-id');q.add_argument('--error');q.add_argument('--store')
+    q=s.add_parser('email-intent-result');q.add_argument('idempotency_key');q.add_argument('--status',required=True);q.add_argument('--provider-message-id');q.add_argument('--error');q.add_argument('--max-attempts',type=int);q.add_argument('--store')
     q=s.add_parser('email-lifecycle');q.add_argument('message_id',type=int);q.add_argument('--store')
     s.add_parser('email-duplicates')
     q=s.add_parser('email-v1');q.add_argument('id',type=int)
@@ -432,7 +432,7 @@ def main(argv=None):
                 if a.cmd == 'email-intent':
                     result = lifecycle.create_intent(d, a.message_id, a.campaign, max_attempts=a.max_attempts, event_store=a.store)
                 elif a.cmd == 'email-intent-result':
-                    result = lifecycle.record_result(d, a.idempotency_key, a.status, provider_message_id=a.provider_message_id, error=a.error, event_store=a.store)
+                    result = lifecycle.record_result(d, a.idempotency_key, a.status, provider_message_id=a.provider_message_id, error=a.error, event_store=a.store, max_attempts=a.max_attempts)
                 else:
                     result = lifecycle.reconstruct(d, a.message_id, event_store=a.store)
         print(json.dumps(result, indent=2, default=str)); return 0
