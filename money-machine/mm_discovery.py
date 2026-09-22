@@ -20,11 +20,22 @@ import ipaddress
 import json
 import sqlite3
 from pathlib import Path
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urlsplit, urlunsplit
 from urllib.request import Request, urlopen
 
 import mm_core as core
 import mm_pipeline
+
+
+class SearchBlocked(RuntimeError):
+    """Typed SearXNG/search-lane failure (P5): code is BLOCKED_SEARCH_*."""
+
+    def __init__(self, code, endpoint, detail):
+        super().__init__(f"{code}: {endpoint}: {detail}")
+        self.code = code
+        self.endpoint = endpoint
+        self.detail = detail
 
 MAX_IMPORT_ROWS = 5000
 MAX_SEARCH_RESULTS = 50
@@ -322,6 +333,9 @@ def searxng_candidates(query, region, endpoint="http://127.0.0.1:8888", limit=20
     limit = max(1, min(int(limit), MAX_SEARCH_RESULTS))
     endpoint = _loopback_endpoint(endpoint)
 
+    # P5: typed BLOCKED_SEARCH_* failures instead of raw URLError tracebacks.
+    # The frozen signature and happy path are unchanged; only the failure mode
+    # is upgraded to a machine-readable, typed error.
     params = urlencode({
         "q": query,
         "format": "json",
@@ -333,14 +347,28 @@ def searxng_candidates(query, region, endpoint="http://127.0.0.1:8888", limit=20
         endpoint + "/search?" + params,
         headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
     )
-    with urlopen(request, timeout=SEARCH_TIMEOUT) as response:
-        body = response.read(MAX_SEARCH_RESPONSE + 1)
+    try:
+        with urlopen(request, timeout=SEARCH_TIMEOUT) as response:
+            body = response.read(MAX_SEARCH_RESPONSE + 1)
+    except HTTPError as e:
+        raise SearchBlocked("BLOCKED_SEARCH_BAD_STATUS", endpoint,
+                            f"SearXNG returned HTTP {e.code}") from e
+    except URLError as e:
+        reason = str(getattr(e, "reason", e))
+        code = ("BLOCKED_SEARCH_TIMEOUT" if "timed out" in reason.lower()
+                else "BLOCKED_SEARCH_SERVICE_ABSENT")
+        raise SearchBlocked(code, endpoint, reason) from e
+    except OSError as e:
+        raise SearchBlocked("BLOCKED_SEARCH_SERVICE_ABSENT", endpoint, str(e)) from e
     if len(body) > MAX_SEARCH_RESPONSE:
-        raise ValueError("SearXNG response exceeds size limit")
-    document = json.loads(body.decode("utf-8"))
+        raise SearchBlocked("BLOCKED_SEARCH_BAD_RESPONSE", endpoint, "response exceeds size limit")
+    try:
+        document = json.loads(body.decode("utf-8"))
+    except ValueError as e:
+        raise SearchBlocked("BLOCKED_SEARCH_BAD_RESPONSE", endpoint, f"invalid JSON: {e}") from e
     results = document.get("results", [])
     if not isinstance(results, list):
-        raise ValueError("invalid SearXNG JSON response")
+        raise SearchBlocked("BLOCKED_SEARCH_BAD_RESPONSE", endpoint, "results not a list")
 
     candidates = []
     seen = set()

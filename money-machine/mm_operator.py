@@ -293,6 +293,8 @@ def main(argv=None):
     s.add_parser('email-rollback')
     q=s.add_parser('discover-import');q.add_argument('--file',required=True);q.add_argument('--region',default='');q.add_argument('--source',default='import');q.add_argument('--dry-run',action='store_true')
     q=s.add_parser('discover-search');q.add_argument('--query',required=True);q.add_argument('--region',required=True);q.add_argument('--endpoint',default='http://127.0.0.1:8888');q.add_argument('--limit',type=int,default=20);q.add_argument('--dry-run',action='store_true')
+    q=s.add_parser('audit-backfill');q.add_argument('--id',type=int,action='append',dest='ids');q.add_argument('--no-delay',action='store_true')
+    q=s.add_parser('discover-contacts');q.add_argument('--id',type=int,required=True);q.add_argument('--no-delay',action='store_true')
     q=s.add_parser('intake');q.add_argument('--name',required=True);q.add_argument('--url',required=True);q.add_argument('--region',required=True);q.add_argument('--source',required=True)
     q=s.add_parser('audit');q.add_argument('id',type=int);q.add_argument('--url',required=True);q.add_argument('--observation',required=True);q.add_argument('--limitation',required=True);q.add_argument('--capture',required=True);q.add_argument('--status',choices=['verified','partial','refuted','unverified'],required=True);q.add_argument('--method',required=True);q.add_argument('--confidence',type=float,required=True);q.add_argument('--claim-type',choices=CLAIM_TYPES,default='observed_fact')
     q=s.add_parser('contact');q.add_argument('id',type=int);q.add_argument('--recipient',required=True);q.add_argument('--url',required=True);q.add_argument('--capture',required=True);q.add_argument('--relevance',required=True)
@@ -406,12 +408,29 @@ def main(argv=None):
         if a.cmd=='discover-import':
             candidates,rejected=mm_discovery.read_candidates(a.file,a.region,a.source)
         else:
-            candidates=mm_discovery.searxng_candidates(a.query,a.region,a.endpoint,a.limit)
+            try:
+                candidates=mm_discovery.searxng_candidates(a.query,a.region,a.endpoint,a.limit)
+            except mm_discovery.SearchBlocked as e:
+                # Typed BLOCKED_SEARCH_* failure: structured, no raw traceback.
+                print(json.dumps({'query':a.query,'region':a.region,'dry_run':a.dry_run,
+                                  'candidates':[],'blocked':{'code':e.code,'endpoint':e.endpoint,'detail':e.detail},
+                                  'note':'Search lane is blocked in this environment; run on a host with a local SearXNG for ranked candidates.'},indent=2))
+                return 0
             rejected=[]
         with contextlib.closing(connect()) as d,d:
             result=mm_discovery.ingest(d,candidates,actor='mm-'+a.cmd,dry_run=a.dry_run)
         result['source_rejections']=rejected
         result['external_sends']=0
+        print(json.dumps(result,indent=2,default=str));return 0
+    if a.cmd=='audit-backfill':
+        import mm_evidence_ops
+        with contextlib.closing(connect()) as d,d:
+            result=mm_evidence_ops.audit_backfill(d,ids=a.ids,politeness=0.0 if a.no_delay else 1.0)
+        print(json.dumps(result,indent=2,default=str));return 0
+    if a.cmd=='discover-contacts':
+        import mm_evidence_ops
+        with contextlib.closing(connect()) as d,d:
+            result=mm_evidence_ops.discover_own_site_contacts(d,a.id,politeness=0.0 if a.no_delay else 1.0)
         print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd=='backup':print(backup());return 0
     if a.cmd=='supervisor':
