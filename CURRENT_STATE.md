@@ -64,3 +64,23 @@ The implementation is not release-complete until the latest branch checks are gr
 4. Exercise optional local SearXNG discovery when that service is enabled.
 5. Run and record the 24+ hour unattended soak with zero duplicate restart work, DLQ visibility, $0 model spend and zero external sends.
 6. Keep PR #36 draft until all blocking automated gates are green; keep live outreach disabled.
+
+---
+
+# v32 Canonical Execution — Before/After (FABLE, 2026-09-22)
+
+| Metric | Baseline (§1 of master plan, 2026-09-22) | After P0–P8 |
+|---|---|---|
+| Real prospects | 39 (incl. later-quarantined fixtures) | 21 (12 fixtures quarantined, none deleted) |
+| Prospects with zero evidence | 25 | 1 (typed skip: no public_website) — 95.2% coverage (gate ≥85%) |
+| Dead-letter queue | 12 (all test fixtures, root-caused) | 0 — dispositioned `test_fixture`, quarantined not deleted |
+| Retryable failures | 12 | 0 |
+| Supervisor continuity | single instance, no self-recovery | kill -9 → cron re-spawn ≤5 min, no duplicate workers (proven) |
+| Network guard | degraded rows flooding (2 rows/5 min) | multi-probe, TTL-deduped (≤1 row/hour), health `network.mode` |
+| Test suite | errors from environment noise | explicit `BLOCKED_FIXTURE` skips; 405 passed / 22 skipped gate; P5 +9, P6 +8 all green |
+| Reporting | none | `mm report daily` w/ safety attestation + funnel delta; `mm metrics` funnel_stages |
+| Alerting | none | typed rules in `state/alert-rules.yaml` surfaced in `mm health` alerts array |
+| Send safety | fail-closed (unproven) | fail-closed with negative-proof test (transport cap 0, provider none, tamper rejected) |
+| Docs | scattered plans | `docs/RUNBOOK.md` (DLQ tree, quarantine, supervisor/cron, capabilities, backup) |
+
+Human review remains REQUIRED everywhere; `outreach_eligible` flips only via the existing approval path.
