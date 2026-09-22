@@ -33,6 +33,12 @@ def health() -> dict:
     result["authoritative"] = "SQLite + ./mm supervisor"
     result["paid_model_fallback"] = False
     result["live_outreach_default"] = False
+    # P6: typed alert rules surfaced with every health snapshot.
+    try:
+        import mm_reporting
+        result["alerts"] = mm_reporting.evaluate_alerts()["alerts"]
+    except Exception as ex:  # never let alerting break the health probe
+        result["alerts"] = [{"rule": "evaluate_alerts", "status": "ERROR", "detail": str(ex)}]
     return result
 
 
@@ -55,6 +61,11 @@ def metrics() -> dict:
             result["pipeline_states"] = {
                 r[0]: r[1]
                 for r in d.execute("SELECT state,count(*) FROM pipeline_items GROUP BY state")
+            }
+        # P6: per-stage funnel counts (canonical CRM stages).
+        if "mm_deals" in tables:
+            result["funnel_stages"] = {
+                r[0]: r[1] for r in d.execute("SELECT stage,count(*) FROM mm_deals GROUP BY stage")
             }
         if "mm_model_invocations" in tables:
             spent = d.execute("SELECT coalesce(sum(cost_usd),0) FROM mm_model_invocations").fetchone()[0]

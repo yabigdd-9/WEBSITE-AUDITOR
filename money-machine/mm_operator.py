@@ -295,6 +295,7 @@ def main(argv=None):
     q=s.add_parser('discover-search');q.add_argument('--query',required=True);q.add_argument('--region',required=True);q.add_argument('--endpoint',default='http://127.0.0.1:8888');q.add_argument('--limit',type=int,default=20);q.add_argument('--dry-run',action='store_true')
     q=s.add_parser('audit-backfill');q.add_argument('--id',type=int,action='append',dest='ids');q.add_argument('--no-delay',action='store_true')
     q=s.add_parser('discover-contacts');q.add_argument('--id',type=int,required=True);q.add_argument('--no-delay',action='store_true')
+    q=s.add_parser('report');q.add_argument('granularity',nargs='?',choices=['daily'],default='daily');s.add_parser('alerts');s.add_parser('rotate-logs')
     q=s.add_parser('intake');q.add_argument('--name',required=True);q.add_argument('--url',required=True);q.add_argument('--region',required=True);q.add_argument('--source',required=True)
     q=s.add_parser('audit');q.add_argument('id',type=int);q.add_argument('--url',required=True);q.add_argument('--observation',required=True);q.add_argument('--limitation',required=True);q.add_argument('--capture',required=True);q.add_argument('--status',choices=['verified','partial','refuted','unverified'],required=True);q.add_argument('--method',required=True);q.add_argument('--confidence',type=float,required=True);q.add_argument('--claim-type',choices=CLAIM_TYPES,default='observed_fact')
     q=s.add_parser('contact');q.add_argument('id',type=int);q.add_argument('--recipient',required=True);q.add_argument('--url',required=True);q.add_argument('--capture',required=True);q.add_argument('--relevance',required=True)
@@ -336,6 +337,20 @@ def main(argv=None):
             result=mm_observability.dead_letter()
         print(json.dumps(result,indent=2,default=str))
         return 0
+    if a.cmd=='report':
+        import mm_reporting
+        result=mm_reporting.daily_report()
+        print(json.dumps({k:result[k] for k in ('report','delta','safety_attestation')},indent=2,default=str));return 0
+    if a.cmd=='alerts':
+        import mm_reporting
+        print(json.dumps(mm_reporting.evaluate_alerts(),indent=2,default=str));return 0
+    if a.cmd=='rotate-logs':
+        import mm_reporting
+        result=[r for r in (mm_reporting.rotate_jsonl('metrics.jsonl'),mm_reporting.rotate_jsonl('errors.jsonl')) if r]
+        print(json.dumps({'rotated':result},indent=2));return 0
+    if a.cmd=='health':
+        import mm_observability
+        result=mm_observability.health();print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd in ('health','metrics','errors','queue','dead-letter','observability-snapshot'):
         import mm_observability
         functions={
