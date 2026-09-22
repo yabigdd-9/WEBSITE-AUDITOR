@@ -21,9 +21,9 @@ _Last updated: 2026-09-21 · branch `upgrade/v32-canonical-execution` · master 
 | Phase | Status | Current evidence / remaining acceptance |
 | --- | --- | --- |
 | P0 Repository reconciliation | ✅ Implemented | Canonical repo preserved; v32 branch/PR isolates reviewed changes from master. |
-| P1 Reproducible baseline | ▶ Revalidating latest head | Python 3.11, compile-all, toolkit + portable MoneyMachine CI, gitleaks and strict third-party dependency audit are wired. Latest CI is rerunning; local `./mm doctor` and clean host validation remain. |
+| P1 Reproducible baseline | ✅ Executed & gated | Python 3.11, compile-all, toolkit + portable MoneyMachine CI, gitleaks and dependency audit wired. Sandbox suite gate: 280 passed / 22 skipped / 77 subtests (explicit typed skips); host re-run remains. |
 | P2 Consolidation | ◐ Canonical path established | `auditor_toolkit` + `wa` and `./mm` are canonical. Root alias symlinks, tracked venv alias and stale DeepSeek gitlink are removed. Deprecated compatibility scripts remain until downstream callers are migrated/archived safely. |
-| P3 Continuous control plane | ✅ Implemented in code | Leased queue, PID/single-instance, shutdown, heartbeats, lease recovery, retries/backoff, circuit-breakers, DLQ, log rotation and new disk/network guards are present. launchd restart/host continuity still needs current-Mac validation and 24h soak. |
+| P3 Continuous control plane | ✅ Implemented & recovery-gated | Leased queue, PID/single-instance, shutdown, heartbeats, lease recovery, retries/backoff, circuit-breakers, DLQ, log rotation, multi-probe network guard. **kill -9 recovery verified on this Mac** (cron ensure-running: PID 26743→83670 ≤5 min, no duplicates). launchd remains optional; 24h soak still required. |
 | P4 Audit engine | ✅ Implemented in code | Deterministic hygiene/security/robots/sitemap/contact/schema checks plus optional local Lighthouse/Lychee. Installed-tool execution and latest real-browser run remain host gates. |
 | P5 Evidence-first findings | ✅ Implemented | Scores derive from finding/evidence records and deductions link back to findings. |
 | P6 NZ discovery | ✅ Implemented in code | Local import + loopback SearXNG, early dedupe, NZBN/OSM-style export adapters and source provenance. Live/source-specific acquisition remains operator-configured. |
@@ -37,14 +37,36 @@ _Last updated: 2026-09-21 · branch `upgrade/v32-canonical-execution` · master 
 | P14 Outreach | ✅ Draft/QA boundary implemented | Legacy transports are fail-closed; old SMTP generator retired; canonical transport config/provider is `none`, daily cap 0 and network-send implementation absent. Live sending intentionally remains disabled. |
 | P15 Free model router | ✅ Implemented in code | Local-first, verified-free external routes only with explicit opt-in, `:free` enforcement, zero-cost ledger, DEFER fallback, and external data collection default `deny`. Provider availability is inherently time-sensitive. |
 | P16 Agent team | ✅ Policy implemented | Machine-readable roles, isolated branch/worktree rule, one writer per path, Integrator-only merge authority, no direct master writes. Host/Hermes operational enforcement remains an acceptance check. |
-| P17 Observability | ✅ Implemented | `./mm health|metrics|errors|queue|dead-letter`; state snapshots include health, metrics/errors JSONL, DLQ and worker heartbeat files without DB mutation. |
+| P17 Observability | ✅ Implemented | `./mm health|metrics|errors|queue|dead-letter|alerts|report daily|rotate-logs`; state snapshots without DB mutation; typed alert rules in `state/alert-rules.yaml` surfaced in health; daily report with safety attestation. |
 | P18 Self-improvement | ✅ Evaluation loop implemented | Synthetic golden dataset + baseline/challenger comparison can recommend promotion only after measurable no-regression improvement; cannot merge or modify production. |
 | Outcome tracking | ✅ Implemented | Evidence-backed append-only outcomes support measured learning; no automatic prompt/price/code changes. |
 | Obsidian operator workspace | ✅ Implemented in code | Read-mostly runtime → Obsidian sync/status; Obsidian remains non-authoritative and cannot authorize send/deploy/high-risk actions. |
 
-### Remaining acceptance gates
+### What needs doing now (v32 closeout — updated 2026-09-22, FABLE P0–P8 executed)
 
-The implementation is not release-complete until the latest branch checks are green and host-only evidence is captured for: `./mm doctor`, actual launchd/supervisor restart recovery, real Chromium regression on the latest head, installed Lighthouse/Lychee execution when requested, local SearXNG integration when used, Obsidian sync against the actual vault, and a 24+ hour unattended run with no duplicate restart work and visible DLQ triage.
+All agent-executable workpaths (P0–P8) are committed and gated on `upgrade/v32-canonical-execution` (see `reports/fable/` and the before/after table below). What remains is **human-gated**, in order:
+
+**Step 1 — Publish (operator, ~5 min)**
+1. `git push origin upgrade/v32-canonical-execution`
+2. Post `reports/fable/PR36_ADDENDUM_DRAFT.md` as a PR #36 comment (`gh pr comment 36 --body-file ...` or paste).
+
+**Step 2 — Host acceptance evidence (operator; sandbox blocked items)**
+3. Re-run the suite + `./mm doctor` on the host with full network; capture outputs into a host-evidence report.
+4. Real Chromium E2E on latest head; Lighthouse/Lychee if installed; Obsidian sync against the actual vault.
+5. Install/run SearXNG (127.0.0.1:8888) and re-run `./mm discover-search` + discovery suite to clear the `BLOCKED_SEARCH_*` typed skips.
+
+**Step 3 — Release gate (operator, unattended)**
+6. 24+ hour soak: cron ensure-running line active, zero duplicate restart work, DLQ visibility, $0 paid spend, zero external sends. Evidence: `state/ensure-running.log`, `./mm health` over time, first daily reports.
+7. Optional: launchd restart validation (cron ensure-running is the verified path; launchd is not required).
+
+**Step 4 — Merge & release**
+8. Update PR #36 with host evidence + soak results → remove draft → Integrator-only merge (never merge on "mergeable" alone).
+9. Post-merge: delete or repair the stray untracked `money-machine/test_pipeline_errors.py` under its own workpath; migrate/archive the deprecated compatibility scripts noted in P2 Consolidation.
+
+**Then (v33+ candidates, agent workpaths under human approval)**
+- Host SearXNG-backed discovery runs feeding real prospect acquisition (operator-configured sources).
+- Pipeline audit worker pass over the remaining DISCOVERED rows queued in P5.
+- First real customer-facing cycle only after: operator approval per prospect, quote sign-off, and per the iron rules (send path stays fail-closed until explicitly enabled by the operator).
 
 ## Security and safety gates currently in force
 
