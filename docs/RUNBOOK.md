@@ -86,3 +86,30 @@ $0 spend (`paid_allowed=false`, never set `MM_ALLOW_EXTERNAL_FREE_MODELS=1`) · 
 fail-closed transport (`external_send_allowed=false`, `daily_cap=0`) · loopback-only probes ·
 one writer per file · never commit `state/*`, `*.db`, `.env`, reports outputs, caches, secrets ·
 human-only: external sends, model enablement, pricing to customers, approvals, launchd, SearXNG host service, master merges, remote pushes.
+
+## 9. Fast audit and visual evidence
+
+- Use `wa audit URL --cache --concurrency 4` for bounded parallel checks. Cache keys include schema and profile; a policy change invalidates prior cache entries.
+- Rendered audits produce desktop, tablet and mobile captures, targeted crops, layout measurements, console failures, blocked requests and SHA-256 artifact metadata.
+- Visual captures are lab evidence only. They do not prove conversion, revenue, legal compliance or field Core Web Vitals.
+- Root-cause groups and regressions appear under `fault_taxonomy` and `fault_regression` in `report.json`.
+- Local concept previews are review artifacts only; they never mutate the audited website.
+
+## 10. Email lifecycle tracking
+
+- `./mm email-event --file EVENT.json` records one provider/review event idempotently.
+- `./mm email-track` summarizes the latest state per message.
+- `./mm email-reconcile MESSAGE_ID` shows provider/thread reconciliation status.
+- Tracked events include approval, provider acceptance, delivery, delay, bounce, reply, suppression and human outcome.
+- Open pixels and click tracking are disabled. The tracking module never sends mail.
+- `./mm email-intent MESSAGE_ID --campaign NAME` creates a provider-neutral `transport=none` intent only after the exact approved draft hash and suppression checks pass.
+- `./mm email-intent-result IDEMPOTENCY_KEY --status failed|delivered|bounced|replied` records an outcome; retryable failures are bounded by `max_attempts` and then become `dead_lettered`. No automatic retry or suppression mutation occurs.
+- `./mm email-lifecycle MESSAGE_ID` reconstructs the draft, approval, intent and event trail. All lifecycle commands report `external_sends: 0`, `paid_calls: 0`, and require human approval.
+- A provider adapter must preserve exact approval hashes, suppression, idempotency and human review before any future transport is enabled.
+
+## 11. Proofing and optional free-model assistance
+
+- `report.json` contains a claim ledger mapping draftable claims to finding IDs, source URLs, evidence references, freshness and confidence.
+- Draft proofing rejects guarantees, invented percentages, unsupported revenue claims and unbounded promises.
+- Optional external free-model prompts must pass the redaction boundary; secrets, contact details and local paths are masked, and human review remains required.
+- Deterministic findings and evidence remain canonical; model output is challenger material only.

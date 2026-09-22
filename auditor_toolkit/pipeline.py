@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import time
+from concurrent.futures import ThreadPoolExecutor
 import uuid
 from dataclasses import asdict, dataclass, replace
 from datetime import UTC, datetime
@@ -12,6 +13,7 @@ from .browser import export_pdf, run_browser_checks
 from .checks import Finding, analyse_html, classify_response, dedupe_findings, score_findings
 from .common import Fetcher, atomic_write_json, atomic_write_text, validate_url
 from .external_tools import run_lighthouse, run_lychee
+from .faults import enrich as enrich_fault, group_root_causes, regression as fault_regression
 from .hygiene import (
     check_mixed_content,
     check_robots,
@@ -73,6 +75,7 @@ class AuditOptions:
 
 def run_audit(url, options=None, fetcher=None):
     opts = options or AuditOptions()
+    started_at = time.perf_counter()
     run_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%S") + "-" + uuid.uuid4().hex[:12]
     run_dir = opts.output_root / run_id
     run_dir.mkdir(parents=True, exist_ok=False)
@@ -83,6 +86,7 @@ def run_audit(url, options=None, fetcher=None):
         opts.max_bytes,
         opts.allow_private,
         cache_dir=opts.output_root / ".cache" if opts.cache else None,
+        cache_namespace=f"schema:{SCHEMA_VERSION}:profile:{opts.profile}",
     )
 
     def perform(name, fn, required=True):
@@ -107,6 +111,23 @@ def run_audit(url, options=None, fetcher=None):
 
     def skip(name, reason, required=False):
         checks[name] = {"status": "skipped", "reason": reason, "required": required}
+
+    def perform_parallel(specs):
+        """Run independent local checks concurrently; merge deterministically."""
+        started = {name: time.perf_counter() for name, _, _ in specs}
+        with ThreadPoolExecutor(max_workers=min(4, len(specs))) as pool:
+            futures = {name: pool.submit(fn) for name, fn, _ in specs}
+            for name, fn, required in specs:
+                try:
+                    found, data = futures[name].result()
+                    findings.extend(found)
+                    evidence[name] = {"url": url, "observed_at": timestamp,
+                                      "mode": REGISTRY[name].mode, "data": data,
+                                      "check_version": REGISTRY[name].version}
+                    checks[name] = {"status": "ok", "required": required}
+                except Exception as exc:
+                    checks[name] = {"status": "error", "reason": str(exc), "required": required}
+                checks[name]["elapsed_ms"] = int((time.perf_counter() - started[name]) * 1000)
 
     response = None
     try:
@@ -133,9 +154,11 @@ def run_audit(url, options=None, fetcher=None):
     try:
         if checks["fetch"]["status"] == "ok":
             final_url = str(response.url)
-            perform("page", lambda: analyse_html(response.text, final_url))
-            perform("schema", lambda: inspect_schema(response.text, final_url, opts.profile))
-            perform("headers", lambda: inspect_headers(response))
+            perform_parallel([
+                ("page", lambda: analyse_html(response.text, final_url), True),
+                ("schema", lambda: inspect_schema(response.text, final_url, opts.profile), True),
+                ("headers", lambda: inspect_headers(response), True),
+            ])
             def hygiene_checks():
                 robots_findings, robots_evidence = check_robots(client, final_url)
                 sitemap_findings, sitemap_evidence = check_sitemap(
@@ -344,8 +367,14 @@ def run_audit(url, options=None, fetcher=None):
     breakdown = _score_from_findings(defects, complete)
     scores = score_findings(deduped, complete)
     scores["breakdown"] = breakdown.to_dict()
+    defects = [enrich_fault(defect) for defect in defects]
     report = {
         "schema_version": SCHEMA_VERSION,
+        "performance": {
+            "total_elapsed_ms": int((time.perf_counter() - started_at) * 1000) if "started_at" in locals() else 0,
+            "checks": {name: value.get("elapsed_ms", 0) for name, value in checks.items()},
+            "slowest_checks": sorted(((name, value.get("elapsed_ms", 0)) for name, value in checks.items()), key=lambda item: -item[1])[:5],
+        },
         "run_id": run_id,
         "url": url,
         "domain": urlparse(url).hostname,
@@ -356,6 +385,11 @@ def run_audit(url, options=None, fetcher=None):
         **scores,
         "defects": defects,
         "defect_count": len(defects),
+        "fault_taxonomy": {
+            "root_causes": group_root_causes(defects),
+            "reproducible_count": sum(1 for defect in defects if defect.get("reproducibility")),
+            "weak_or_unknown_count": sum(1 for defect in defects if defect.get("confidence_assessment", {}).get("class") in {"WEAK", "UNKNOWN"}),
+        },
         "checks": checks,
         "evidence": evidence,
         "check_registry": {key: asdict(value) for key, value in REGISTRY.items()},
@@ -386,12 +420,22 @@ def run_audit(url, options=None, fetcher=None):
         report["category_scores"][category] = score_findings(selected, available)
     history = History(opts.output_root)
     report["comparison"] = history.compare(report)
+    previous_defects = []
+    baseline_id = report["comparison"].get("baseline")
+    if baseline_id:
+        try:
+            previous_defects = history.get(baseline_id).get("defects", [])
+        except KeyError:
+            previous_defects = []
+    report["fault_regression"] = fault_regression(defects, previous_defects)
     from .actions import preview_report
     from .ai import generate_drafts
 
     # Create evidence brief for improved drafting workflows
     from .evidence_brief import create_evidence_brief
+    from .proofing import build_claim_ledger, proof_draft
     evidence_brief = create_evidence_brief(report)
+    report["claim_ledger"] = build_claim_ledger(report)
 
     report["drafts"] = generate_drafts(
         {
@@ -409,6 +453,11 @@ def run_audit(url, options=None, fetcher=None):
             report["drafts"],
             evidence_brief
         )
+    report["proofing"] = {
+        key: proof_draft(value.get("text", ""), report["claim_ledger"])
+        for key, value in report.get("drafts", {}).get("drafts", {}).items()
+        if isinstance(value, dict)
+    }
     report["proposal"] = {
         "currency": "NZD",
         "hourly_rate": opts.hourly_rate_nzd,
@@ -436,6 +485,13 @@ def run_audit(url, options=None, fetcher=None):
         path = evidence.get("browser", {}).get(key)
         if path and Path(path).is_file():
             report["artifacts"][key] = path
+    visual_pack = evidence.get("browser", {}).get("visual_pack", {})
+    for viewport, artifact in visual_pack.get("viewports", {}).items():
+        if artifact.get("path") and Path(artifact["path"]).is_file():
+            report["artifacts"][f"visual_{viewport}"] = artifact["path"]
+    for crop in visual_pack.get("crops", []):
+        if crop.get("path") and Path(crop["path"]).is_file():
+            report["artifacts"][f"visual_crop_{crop['name']}"] = crop["path"]
     write_html_report(report, html_path)
     if opts.browser:
         try:

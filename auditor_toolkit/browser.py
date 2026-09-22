@@ -1,6 +1,20 @@
+import hashlib
+import json
 from pathlib import Path
 
 from .common import validate_url
+
+
+VIEWPORTS = {
+    "desktop": {"width": 1366, "height": 900},
+    "tablet": {"width": 834, "height": 1112},
+    "mobile": {"width": 390, "height": 844},
+}
+
+
+def _artifact(path: Path) -> dict:
+    return {"path": str(path), "size": path.stat().st_size,
+            "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
 
 
 def run_browser_checks(url, output_dir, enabled=True, allow_private=False, axe_path=None):
@@ -50,6 +64,37 @@ def run_browser_checks(url, output_dir, enabled=True, allow_private=False, axe_p
                         "blocked_requests": blocked,
                     }
                 )
+                # Evidence-grade visual pack: fixed viewports, deterministic
+                # names, hashes, layout measurements, and targeted crops.
+                visual = {"viewports": {}, "crops": [], "limitations": "Lab captures; no field conversion claim."}
+                for viewport_name, viewport in VIEWPORTS.items():
+                    page.set_viewport_size(viewport)
+                    path = output_dir / f"{viewport_name}.png"
+                    if viewport_name == "desktop":
+                        path = screenshot
+                    else:
+                        page.screenshot(path=str(path), full_page=True, timeout=15000)
+                    visual["viewports"][viewport_name] = {"viewport": viewport, **_artifact(path)}
+                page.set_viewport_size(VIEWPORTS["desktop"])
+                visual["layout"] = page.evaluate("""() => ({
+                    document_width: document.documentElement.scrollWidth,
+                    viewport_width: innerWidth,
+                    horizontal_overflow: document.documentElement.scrollWidth > innerWidth,
+                    landmarks: [...document.querySelectorAll('header,nav,main,footer,h1,form,[role="button"]')].slice(0,100).map((el,i) => { const r=el.getBoundingClientRect(); return {index:i,tag:el.tagName.toLowerCase(),role:el.getAttribute('role'),text:(el.innerText||'').trim().slice(0,120),x:r.x,y:r.y,width:r.width,height:r.height,visible:!!(r.width&&r.height)}; })
+                })""")
+                for crop_name, selector in (("hero", "header, main > section, main"), ("primary_cta", "main a, main button, main [role=button]"), ("form", "form"), ("navigation", "nav")):
+                    locator = page.locator(selector).first
+                    if not locator.count():
+                        continue
+                    try:
+                        box = locator.bounding_box()
+                        if box and box["width"] > 1 and box["height"] > 1:
+                            crop_path = output_dir / f"crop-{crop_name}.png"
+                            page.screenshot(path=str(crop_path), clip=box, timeout=15000)
+                            visual["crops"].append({"name": crop_name, "selector": selector, "box": box, **_artifact(crop_path)})
+                    except Exception as exc:
+                        visual.setdefault("crop_errors", []).append({"name": crop_name, "reason": str(exc)[:300]})
+                evidence["visual_pack"] = visual
                 evidence["timing"] = page.evaluate(
                     """() => ({navigation: performance.getEntriesByType('navigation').map(x => ({duration:x.duration, domContentLoaded:x.domContentLoadedEventEnd, responseStart:x.responseStart})), paint:performance.getEntriesByType('paint').map(x=>({name:x.name,startTime:x.startTime})), resources:performance.getEntriesByType('resource').slice(0,100).map(x=>({initiatorType:x.initiatorType,duration:x.duration,transferSize:x.transferSize}))})"""
                 )
@@ -77,13 +122,16 @@ def run_browser_checks(url, output_dir, enabled=True, allow_private=False, axe_p
                     evidence["axe_error"] = (
                         "Pinned axe-core asset is missing; install browser assets."
                     )
-                page.set_viewport_size({"width": 390, "height": 844})
+                page.set_viewport_size(VIEWPORTS["mobile"])
                 evidence["mobile"] = page.evaluate(
                     "()=>({overflow:document.documentElement.scrollWidth>innerWidth,width:innerWidth})"
                 )
                 mobile = output_dir / "mobile.png"
+                # Keep the legacy artifact name while the visual pack uses
+                # the same hashed mobile capture.
                 page.screenshot(path=str(mobile), full_page=True, timeout=15000)
                 evidence["mobile_screenshot"] = str(mobile)
+                evidence["visual_pack"]["legacy_mobile_artifact"] = _artifact(mobile)
             finally:
                 browser.close()
         return {"status": "ok", "evidence": evidence}

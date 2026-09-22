@@ -361,7 +361,7 @@ def _get_quick_wins_actions(defects_by_severity: Dict[str, List]) -> List[str]:
         + defects_by_severity.get("high", [])
         + defects_by_severity.get("medium", [])
     ):
-        actions.Add("Add descriptive title tag")
+        actions.append("Add descriptive title tag")
 
     if any(
         d.get("check") == "no_meta_description"

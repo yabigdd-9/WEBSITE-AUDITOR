@@ -1,0 +1,36 @@
+from auditor_toolkit.faults import enrich, group_root_causes, regression
+from auditor_toolkit.proofing import build_claim_ledger, proof_draft
+
+
+def test_faults_group_correlated_browser_symptoms():
+    defects = [
+        {"finding_id": "a", "defect_key": "javascript_error", "check": "browser", "observed": "TypeError"},
+        {"finding_id": "b", "defect_key": "failed_request", "check": "browser", "observed": "/api/quote 500"},
+    ]
+    enriched = [enrich(item) for item in defects]
+    groups = group_root_causes(enriched)
+    assert groups[0]["root_cause_id"] == "client_runtime_failure"
+    assert groups[0]["likely"] is True
+    assert groups[0]["confidence"] == "MODERATE"
+
+
+def test_fault_regression_is_stable():
+    current = [{"finding_id": "new"}, {"finding_id": "same"}]
+    previous = [{"finding_id": "old"}, {"finding_id": "same"}]
+    assert regression(current, previous) == {"new": ["new"], "resolved": ["old"], "unchanged": ["same"]}
+
+
+def test_claim_ledger_rejects_unbounded_draft_claims():
+    report = {
+        "url": "https://fixture.example",
+        "timestamp": "2026-01-01T00:00:00+00:00",
+        "defects": [{
+            "finding_id": "f1", "defect": "Missing title", "confidence_assessment": {"class": "PROVEN"},
+            "evidence_ref": "page", "evidence_summary": "no title element", "source_url": "https://fixture.example",
+        }],
+    }
+    claims = build_claim_ledger(report)
+    result = proof_draft("Your site is guaranteed to double revenue.", claims)
+    assert result["passed"] is False
+    assert result["human_review_required"] is True
+    assert claims[0]["claim_type"] == "observed_fact"

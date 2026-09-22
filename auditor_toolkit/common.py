@@ -94,12 +94,14 @@ class Fetcher:
         transport=None,
         cache_dir=None,
         min_interval=0.1,
+        cache_namespace="",
     ):
         self.allow_private = allow_private
         self.max_bytes = max_bytes
         self.timeout = timeout
         self.cache_dir = Path(cache_dir) if cache_dir else None
         self.min_interval = min_interval
+        self.cache_namespace = str(cache_namespace)
         self.last_request = {}
         self.client = httpx.Client(
             timeout=httpx.Timeout(timeout),
@@ -127,8 +129,9 @@ class Fetcher:
             cache_path = None
             headers = {}
             if self.cache_dir:
+                cache_key = current + "|" + self.cache_namespace
                 cache_path = self.cache_dir / (
-                    hashlib.sha256(current.encode()).hexdigest() + ".json"
+                    hashlib.sha256(cache_key.encode()).hexdigest() + ".json"
                 )
                 if cache_path.exists():
                     cached = json.loads(cache_path.read_text())

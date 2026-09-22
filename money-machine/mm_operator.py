@@ -288,6 +288,12 @@ def main(argv=None):
     q=s.add_parser('email-status');q.add_argument('id',type=int);q.add_argument('--json',action='store_true')
     q=s.add_parser('email-find');q.add_argument('id',type=int);q.add_argument('--json',action='store_true')
     q=s.add_parser('email-shadow');q.add_argument('--persist',action='store_true')
+    q=s.add_parser('email-event');q.add_argument('--file',required=True);q.add_argument('--store')
+    q=s.add_parser('email-track');q.add_argument('--store')
+    q=s.add_parser('email-reconcile');q.add_argument('message_id');q.add_argument('--store')
+    q=s.add_parser('email-intent');q.add_argument('message_id',type=int);q.add_argument('--campaign',required=True);q.add_argument('--max-attempts',type=int,default=3);q.add_argument('--store')
+    q=s.add_parser('email-intent-result');q.add_argument('idempotency_key');q.add_argument('--status',required=True);q.add_argument('--provider-message-id');q.add_argument('--error');q.add_argument('--store')
+    q=s.add_parser('email-lifecycle');q.add_argument('message_id',type=int);q.add_argument('--store')
     s.add_parser('email-duplicates')
     q=s.add_parser('email-v1');q.add_argument('id',type=int)
     s.add_parser('email-rollback')
@@ -412,6 +418,24 @@ def main(argv=None):
             result=mm_outreach.cli(a,d)
         print(json.dumps(result,indent=2,ensure_ascii=False))
         return 2 if (a.cmd=='outreach-audit' and not result['passed']) or (a.cmd=='outreach-plan' and result['planning_holds']) or a.cmd=='outreach-preflight' else 0
+    if a.cmd in ('email-event','email-track','email-reconcile','email-intent','email-intent-result','email-lifecycle'):
+        import mm_email_tracking as tracking
+        if a.cmd == 'email-event':
+            result = tracking.record(json.loads(Path(a.file).read_text(encoding='utf-8')), a.store)
+        elif a.cmd == 'email-track':
+            result = tracking.summary(a.store)
+        elif a.cmd == 'email-reconcile':
+            result = tracking.reconcile(a.message_id, a.store)
+        else:
+            import mm_email_lifecycle as lifecycle
+            with contextlib.closing(connect()) as d, d:
+                if a.cmd == 'email-intent':
+                    result = lifecycle.create_intent(d, a.message_id, a.campaign, max_attempts=a.max_attempts, event_store=a.store)
+                elif a.cmd == 'email-intent-result':
+                    result = lifecycle.record_result(d, a.idempotency_key, a.status, provider_message_id=a.provider_message_id, error=a.error, event_store=a.store)
+                else:
+                    result = lifecycle.reconstruct(d, a.message_id, event_store=a.store)
+        print(json.dumps(result, indent=2, default=str)); return 0
     if a.cmd.startswith('email-'):
         import mm_email_store as email_store
         import mm_email_cli as email_cli

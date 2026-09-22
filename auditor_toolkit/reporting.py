@@ -18,6 +18,31 @@ def render_html_report(report: dict[str, Any]) -> str:
         "</tr>"
         for d in report.get("defects", [])
     )
+    root_causes = "".join(
+        f"<li><strong>{html.escape(str(item.get('root_cause_id')))}</strong> — "
+        f"{item.get('symptom_count', 0)} symptom(s), confidence "
+        f"{html.escape(str(item.get('confidence', 'UNKNOWN')))}: "
+        f"{html.escape(str(item.get('explanation', '')))}</li>"
+        for item in report.get("fault_taxonomy", {}).get("root_causes", [])
+    ) or "<li>No grouped root causes recorded.</li>"
+    claims = "".join(
+        f"<tr><td>{html.escape(str(item.get('claim_id')))}</td>"
+        f"<td>{html.escape(str(item.get('claim')))}</td>"
+        f"<td>{html.escape(str(item.get('confidence')))}</td>"
+        f"<td>{html.escape(str(item.get('evidence_ref')))}</td></tr>"
+        for item in report.get("claim_ledger", [])
+    ) or '<tr><td colspan="4">No claim ledger entries.</td></tr>'
+    proofing = "".join(
+        f"<li>{html.escape(key)}: {html.escape(str(value.get('errors', [])))}; "
+        f"references {html.escape(str(value.get('referenced_claim_ids', [])))}</li>"
+        for key, value in report.get("proofing", {}).items()
+    ) or "<li>Draft proofing was not requested.</li>"
+    visual = report.get("evidence", {}).get("browser", {}).get("visual_pack", {})
+    visual_rows = "".join(
+        f"<li>{html.escape(str(name))}: {html.escape(str(item.get('path')))} "
+        f"({html.escape(str(item.get('sha256', ''))[:16])}…)</li>"
+        for name, item in visual.get("viewports", {}).items()
+    ) or "<li>No rendered visual pack; enable the rendered profile.</li>"
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -32,10 +57,14 @@ th,td {{ border-bottom: 1px solid #e6eef6; padding: .55rem; text-align: left; ve
 <p>Status: {html.escape(report["status"])} · Findings: {report["defect_count"]} · Coverage: {html.escape(str(report.get("coverage", "pending")))}</p>
 <p><code>{html.escape(str(report.get("url") or ""))}</code></p>
 <div class="score"><strong>Health</strong><br>{html.escape(str(report.get("health_score")))}</div>
-<div class="score"><strong>Defect severity</strong><br>{html.escape(str(report.get("severity_score")))}</div>
-<h2>Findings</h2>
+<div class="score"><strong>Defect severity</strong><br>{html.escape(str(report.get("severity_score")))}</div><h2>Findings</h2>
 <table><thead><tr><th>Severity</th><th>Finding</th><th>Evidence</th><th>Check</th></tr></thead><tbody>{rows}</tbody></table>
-<h2>Checks and coverage</h2><pre>{html.escape(json.dumps(report.get("checks", {}), indent=2))}</pre>
+<h2>Root-cause groups</h2><ul>{root_causes}</ul>
+<h2>Visual evidence pack</h2><ul>{visual_rows}</ul>
+<h2>Claim ledger</h2><table><thead><tr><th>Claim ID</th><th>Claim</th><th>Confidence</th><th>Evidence ref</th></tr></thead><tbody>{claims}</tbody></table>
+<h2>Draft proofing</h2><ul>{proofing}</ul>
+<h2>Checks and coverage</h2>
+<pre>{html.escape(json.dumps(report.get("checks", {}), indent=2))}</pre>
 <h2>Category scores</h2><pre>{html.escape(json.dumps(report.get("category_scores", {}), indent=2))}</pre>
 <h2>Historical comparison</h2><pre>{html.escape(json.dumps(report.get("comparison", {}), indent=2))}</pre>
 <h2>Evidence</h2><pre style="white-space:pre-wrap;overflow-wrap:anywhere">{html.escape(json.dumps(report.get("evidence", {}), indent=2, ensure_ascii=False))}</pre>
