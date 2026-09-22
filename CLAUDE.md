@@ -11,6 +11,14 @@
 
 - `auditor_toolkit/` is the canonical audit engine.
 - `./mm` is the canonical Money Machine/operator entrypoint.
+- The operator implementation is `money-machine/mm_operator.py`; do not look
+  for a retired `money-machine/scripts/mm_operator.py` path.
+- Supervisor code is a package, not `money-machine/supervisor.py`:
+  `money-machine/supervisor/cli.py`, `daemon.py`, `launchd.py`, and related
+  modules live under `money-machine/supervisor/`. The legacy shell helper is
+  `money-machine/scripts/supervisor.sh`.
+- `./mm` defaults to `.venv-email/bin/python`; set `MM_PYTHON` only when a
+  verified Python 3.11+ environment is intentionally being used.
 - SQLite and state files are authoritative runtime state; Obsidian is the human
   review and orchestration workspace, not an authorization or sending system.
 - n8n is excluded from the runtime. Do not reintroduce it.
