@@ -18,6 +18,13 @@ def frozen_case(cid):
     at=dt.datetime.fromisoformat(doc['result']['results'][0]['checked_at'])
     return doc,e.evaluate(doc['case']['business'],pages,doc['dns'],at=at)
 
+# Frozen real-observation cases are a host-only evidence corpus. When absent
+# (sandbox checkout), skip explicitly instead of erroring — Master Plan P4.
+from mm_test_capabilities import HAS_EMAIL_CASE_FIXTURES
+_CASES_ABSENT=("BLOCKED_FIXTURE: reports/email-observation-evidence/cases corpus "
+               "not present in this environment")
+
+@unittest.skipUnless(HAS_EMAIL_CASE_FIXTURES,_CASES_ABSENT)
 class HardeningEvidence(unittest.TestCase):
     def test_real_privacy_only_admin_rejected_legitimate_office_retained(self):
         _,r=frozen_case('new-039');v={v['email']:v for v in r['results']}

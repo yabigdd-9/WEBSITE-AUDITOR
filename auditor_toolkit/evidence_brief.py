@@ -6,8 +6,8 @@ human-written, template-based) to improve the quality and effectiveness
 of generated content.
 """
 
-from typing import Dict, List, Any
 from datetime import datetime, timezone
+from typing import Any, Dict, List
 
 
 def create_evidence_brief(audit_report: Dict[str, Any]) -> Dict[str, Any]:
@@ -38,12 +38,6 @@ def create_evidence_brief(audit_report: Dict[str, Any]) -> Dict[str, Any]:
     total_defects = len(defects)
     critical_count = len(defects_by_severity["critical"])
     high_count = len(defects_by_severity["high"])
-    medium_count = len(defects_by_severity["medium"])
-    low_count = len(defects_by_severity["low"])
-
-    # Generate evidence summary
-    evidence_summary = _generate_evidence_summary(defects_by_severity)
-
     # Generate priority recommendations
     priority_recommendations = _generate_priority_recommendations(defects_by_severity)
 
@@ -361,7 +355,7 @@ def _get_quick_wins_actions(defects_by_severity: Dict[str, List]) -> List[str]:
         + defects_by_severity.get("high", [])
         + defects_by_severity.get("medium", [])
     ):
-        actions.Add("Add descriptive title tag")
+        actions.append("Add descriptive title tag")
 
     if any(
         d.get("check") == "no_meta_description"

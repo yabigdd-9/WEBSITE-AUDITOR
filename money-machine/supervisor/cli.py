@@ -27,7 +27,12 @@ import time
 from pathlib import Path
 
 from mm_core import connect, now, root
-from mm_runtime_guards import disk_guard, network_guard, snapshot as guard_snapshot
+from mm_runtime_guards import (
+    disk_guard,
+    network_guard_event,
+    network_status,
+    snapshot as guard_snapshot,
+)
 
 STATE = root() / "state"
 LOG_DIR = STATE / "worker-logs"
@@ -152,6 +157,7 @@ def cmd_health(args) -> dict:
     return {
         "supervisor": cmd_status(args),
         "pipeline": snap,
+        "network": network_status(),
         "guards": guard_snapshot(probe_network=False),
     }
 
@@ -217,7 +223,9 @@ def cmd_run_foreground(args) -> int:
                 _heartbeat(pid, "running")
                 _log({"kind": "loop_cycle", "cycle": cycles, "snapshot": snapshot, "disk": disk})
                 if cycles % rotate_every == 0:
-                    _log({"kind": "network_guard", **network_guard()})
+                    net_result, net_kind = network_guard_event()
+                    if net_kind:
+                        _log({"kind": net_kind, **net_result})
                     _rotate_and_report()
                 for _ in range(int(sleep_seconds * 10)):  # interruptible sleep
                     if stop["flag"]:
@@ -285,10 +293,27 @@ def cmd_restart(args) -> dict:
     return {"stop": cmd_stop(args), "start": cmd_start(args)}
 
 
+def cmd_ensure_running(args) -> dict:
+    """Idempotent start-if-dead: no-op when alive, start when dead.
+
+    Designed for cron (`*/5 * * * *` + `@reboot`). Single-instance protection
+    comes from the PID lock + flock in _run-foreground, so concurrent invocations
+    can never produce duplicate supervisors/workers.
+    """
+    pid = _is_running()
+    if pid:
+        return {"ensure_running": True, "started": False,
+                "reason": "already_running", "pid": pid}
+    start = cmd_start(args)
+    return {"ensure_running": True, "recovered": bool(start.get("started")),
+            **start}
+
+
 COMMANDS = {
     "start": cmd_start,
     "stop": cmd_stop,
     "restart": cmd_restart,
+    "ensure-running": cmd_ensure_running,
     "status": cmd_status,
     "health": cmd_health,
     "logs": cmd_logs,

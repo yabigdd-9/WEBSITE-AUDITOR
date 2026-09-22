@@ -19,6 +19,7 @@ from urllib.parse import urlsplit, urlunsplit
 
 from mm_core import now, sha
 from mm_pipeline import BlockedCost
+from mm_redaction import prepare_prompt
 
 PURPOSE_ROUTES = {
     # Live-verified free routes as of 2026-09-21; local inference always wins.
@@ -234,6 +235,15 @@ def finish(d, run_key, ok, error=None):
     if not ok:
         raise BlockedCost('route %s/%s failed: %s — deferred; no paid fallback'
                           % (r['provider'], r['model'], error))
+
+
+def prepare_external_prompt(prompt: str) -> dict:
+    """Prepare a redacted, zero-cost-safe prompt for an optional free route.
+
+    This does not call a provider. The caller must still opt in to an external
+    free route and preserve the returned hashes/redaction metadata.
+    """
+    return prepare_prompt(prompt, public_only=True)
 
 
 def routes_report():

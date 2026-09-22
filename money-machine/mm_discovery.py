@@ -16,13 +16,26 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import ipaddress
 import json
+import sqlite3
 from pathlib import Path
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urlsplit, urlunsplit
 from urllib.request import Request, urlopen
 
 import mm_core as core
 import mm_pipeline
+
+
+class SearchBlocked(RuntimeError):
+    """Typed SearXNG/search-lane failure (P5): code is BLOCKED_SEARCH_*."""
+
+    def __init__(self, code, endpoint, detail):
+        super().__init__(f"{code}: {endpoint}: {detail}")
+        self.code = code
+        self.endpoint = endpoint
+        self.detail = detail
 
 MAX_IMPORT_ROWS = 5000
 MAX_SEARCH_RESULTS = 50
@@ -117,8 +130,10 @@ def normalize_candidate(row, default_region="", default_source="import"):
     name = _first(row, ("business_name", "company_name", "name", "title")) or host
     region = _first(row, ("region", "city", "area")) or str(default_region or "").strip()
     source = _first(row, ("source",)) or str(default_source or "import").strip()
+    normalized_name = name.strip().casefold()
     return {
         "name": name[:250],
+        "normalized_name": normalized_name,
         "legal_name": _first(row, ("legal_name", "entityName", "entity_name"))[:250],
         "trading_name": _first(row, ("trading_name", "tradingName"))[:250],
         "region": region[:160],
@@ -240,6 +255,11 @@ def ingest(d, candidates, actor="discovery-v2", dry_run=False):
             ),
         )
         business_id = cursor.lastrowid
+        core.ensure_business_columns(d)
+        d.execute(
+            "UPDATE businesses SET canonical_host=?, normalized_name=? WHERE id=?",
+            (host, candidate["name"].strip().casefold(), business_id),
+        )
         d.execute(
             "INSERT INTO mm_deals(business_id,stage,updated_at) VALUES(?,'DISCOVERED',?)",
             (business_id, core.now()),
@@ -313,6 +333,9 @@ def searxng_candidates(query, region, endpoint="http://127.0.0.1:8888", limit=20
     limit = max(1, min(int(limit), MAX_SEARCH_RESULTS))
     endpoint = _loopback_endpoint(endpoint)
 
+    # P5: typed BLOCKED_SEARCH_* failures instead of raw URLError tracebacks.
+    # The frozen signature and happy path are unchanged; only the failure mode
+    # is upgraded to a machine-readable, typed error.
     params = urlencode({
         "q": query,
         "format": "json",
@@ -324,14 +347,28 @@ def searxng_candidates(query, region, endpoint="http://127.0.0.1:8888", limit=20
         endpoint + "/search?" + params,
         headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
     )
-    with urlopen(request, timeout=SEARCH_TIMEOUT) as response:
-        body = response.read(MAX_SEARCH_RESPONSE + 1)
+    try:
+        with urlopen(request, timeout=SEARCH_TIMEOUT) as response:
+            body = response.read(MAX_SEARCH_RESPONSE + 1)
+    except HTTPError as e:
+        raise SearchBlocked("BLOCKED_SEARCH_BAD_STATUS", endpoint,
+                            f"SearXNG returned HTTP {e.code}") from e
+    except URLError as e:
+        reason = str(getattr(e, "reason", e))
+        code = ("BLOCKED_SEARCH_TIMEOUT" if "timed out" in reason.lower()
+                else "BLOCKED_SEARCH_SERVICE_ABSENT")
+        raise SearchBlocked(code, endpoint, reason) from e
+    except OSError as e:
+        raise SearchBlocked("BLOCKED_SEARCH_SERVICE_ABSENT", endpoint, str(e)) from e
     if len(body) > MAX_SEARCH_RESPONSE:
-        raise ValueError("SearXNG response exceeds size limit")
-    document = json.loads(body.decode("utf-8"))
+        raise SearchBlocked("BLOCKED_SEARCH_BAD_RESPONSE", endpoint, "response exceeds size limit")
+    try:
+        document = json.loads(body.decode("utf-8"))
+    except ValueError as e:
+        raise SearchBlocked("BLOCKED_SEARCH_BAD_RESPONSE", endpoint, f"invalid JSON: {e}") from e
     results = document.get("results", [])
     if not isinstance(results, list):
-        raise ValueError("invalid SearXNG JSON response")
+        raise SearchBlocked("BLOCKED_SEARCH_BAD_RESPONSE", endpoint, "results not a list")
 
     candidates = []
     seen = set()
@@ -354,3 +391,251 @@ def searxng_candidates(query, region, endpoint="http://127.0.0.1:8888", limit=20
             "canonical_host": host,
         })
     return candidates
+
+
+def normalize_intake_url(url):
+    """Normalize and validate an intake URL according to v32 canonicalization rules.
+
+    Allowed transformations:
+    - trim whitespace
+    - prepend https:// to valid bare domain
+    - lowercase hostname
+    - strip fragments
+    - strip userinfo
+    - normalize canonical host
+
+    Reject:
+    - garbage
+    - private IP
+    - loopback IP
+    - .example
+    - .invalid
+    - .test
+    - example.com
+    - example.net
+    - example.org
+
+    Returns normalized URL string on success.
+    Raises ValueError on rejection.
+    """
+    if not isinstance(url, str):
+        raise ValueError("URL must be a string")
+
+    # Trim whitespace
+    value = url.strip()
+    if not value:
+        raise ValueError("website is required")
+
+    # Prepend https:// if no scheme present
+    if "://" not in value:
+        value = "https://" + value
+
+    # Parse URL
+    try:
+        parsed = urlsplit(value)
+    except Exception as e:
+        raise ValueError(f"invalid URL: {e}")
+
+    # Validate scheme
+    if parsed.scheme not in ('https', 'http'):
+        raise ValueError('Public HTTP(S) website URL required')
+
+    # Extract and validate host
+    host = parsed.hostname
+    if not host:
+        raise ValueError('Public HTTP(S) website URL required')
+
+    # Lowercase hostname and remove www prefix
+    host = host.lower().removeprefix('www.')
+
+    # Strip userinfo during intake normalization. The strict public_url()
+    # validator remains unchanged and rejects userinfo on frozen surfaces.
+
+    # Validate port
+    if parsed.port not in (None, 80, 443):
+        raise ValueError('Port must be None, 80, or 443 for public websites')
+
+    # Reject localhost and internal domains
+    if host == 'localhost' or host.endswith(('.local', '.internal')):
+        raise ValueError('Private website URL rejected')
+
+    # Reject private IP addresses
+    try:
+        ip_addr = ipaddress.ip_address(host)
+        if not ip_addr.is_global:
+            raise ValueError('Private IP rejected')
+    except ValueError as e:
+        # Check if this is from ipaddress.ip_address failing (not an IP address)
+        # or if it's our own 'Private IP rejected' error
+        if 'Private IP rejected' in str(e):
+            raise  # Re-raise our own private IP error
+        # Otherwise, it's not an IP address, which is fine for hostnames
+        pass
+    except Exception as e:
+        # Re-raise if it's a different ValueError
+        if 'AddressValueError' in str(e):
+            raise
+
+    # Reject reserved and example TLDs/domains
+    host_parts = host.split('.')
+    if len(host_parts) >= 2:
+        # Check for reserved TLDs
+        tld = host_parts[-1]
+        if tld in ('example', 'invalid', 'test'):
+            raise ValueError(f'reserved TLD "{tld}" not allowed')
+
+        # Check for example domains
+        if len(host_parts) >= 2:
+            domain = '.'.join(host_parts[-2:])
+            if domain in ('example.com', 'example.net', 'example.org'):
+                raise ValueError(f'example domain "{domain}" not allowed')
+
+    # Reconstruct URL without fragments, userinfo, with normalized host
+    # Keep the original path and query, but remove fragment
+    normalized = urlunsplit((
+        parsed.scheme,
+        host,  # already lowercased
+        parsed.path or '/',  # ensure path exists
+        parsed.query,  # keep query parameters
+        ''  # remove fragment
+    ))
+
+    return normalized
+
+
+def _business_fk_references(d):
+    """Dynamically discover (table, column) pairs referencing businesses(id)."""
+    refs = []
+    for row in d.execute("SELECT name FROM sqlite_master WHERE type='table'"):
+        table = row[0]
+        if table == "businesses" or table.startswith("sqlite_"):
+            continue
+        for fk in d.execute(f"PRAGMA foreign_key_list({table})"):
+            # fk: (id, seq, ref_table, from_column, to_column, ...)
+            if fk[2] == "businesses" and fk[3]:
+                refs.append((table, fk[3]))
+    return refs
+
+
+def dedupe_businesses(d, actor="dedupe-v1", dry_run=False):
+    """Merge duplicate businesses on the canonical key, transactionally.
+
+    Canonical key: (canonical_host, normalized_name, region). The lowest valid
+    canonical ID survives. Foreign keys are repointed to the survivor; rows
+    that would violate a UNIQUE constraint are left pointing at the retained
+    suppressed business and reported as conflicts. Duplicates are marked with
+    suppression_reason='duplicate_of:<ID>' and current_status='suppressed';
+    their pipeline items are parked in SUPPRESSED. Nothing is ever deleted.
+
+    Idempotent: a second run finds every duplicate already suppressed and
+    performs no further mutation.
+    """
+    core.ensure_business_columns(d)
+    ts = core.now()
+
+    rows = [
+        dict(r)
+        for r in d.execute(
+            "SELECT id, name, public_website, region, is_dummy, suppression_reason "
+            "FROM businesses ORDER BY id"
+        )
+    ]
+
+    groups = {}
+    for row in rows:
+        host = ""
+        if row["public_website"]:
+            try:
+                host = core.public_url(row["public_website"])
+            except ValueError:
+                host = ""
+        norm = (row["name"] or "").strip().casefold()
+        region = (row["region"] or "").strip().casefold()
+        if not dry_run:
+            d.execute(
+                "UPDATE businesses SET canonical_host=?, normalized_name=? WHERE id=?",
+                (host or None, norm or None, row["id"]),
+            )
+        if row["is_dummy"] or row["suppression_reason"] or not host or not norm:
+            continue
+        groups.setdefault((host, norm, region), []).append(row["id"])
+
+    merges = []
+    for ids in groups.values():
+        if len(ids) > 1:
+            for dup in ids[1:]:
+                merges.append({"survivor_id": ids[0], "duplicate_id": dup})
+
+    if dry_run:
+        return {
+            "actor": actor,
+            "dry_run": True,
+            "merges": merges,
+            "deleted": 0,
+        }
+
+    refs = _business_fk_references(d)
+    repointed = {}
+    conflicts = {}
+    for merge in merges:
+        survivor, dup = merge["survivor_id"], merge["duplicate_id"]
+        for table, column in refs:
+            if table == "pipeline_items":
+                continue  # parked below; PK makes blind repointing unsafe
+            for r in d.execute(
+                f"SELECT rowid FROM {table} WHERE {column}=?", (dup,)
+            ).fetchall():
+                try:
+                    d.execute(
+                        f"UPDATE {table} SET {column}=? WHERE rowid=?",
+                        (survivor, r[0]),
+                    )
+                    repointed[table] = repointed.get(table, 0) + 1
+                except sqlite3.IntegrityError as exc:
+                    if "UNIQUE constraint failed" not in str(exc):
+                        raise  # not a conflict: abort so the caller rolls back
+                    # Survivor already holds an equivalent unique row; keep the
+                    # duplicate's row attached to the retained suppressed record.
+                    conflicts[table] = conflicts.get(table, 0) + 1
+
+        d.execute(
+            "UPDATE businesses SET suppression_reason=?, current_status='suppressed' "
+            "WHERE id=? AND suppression_reason IS NULL",
+            (f"duplicate_of:{survivor}", dup),
+        )
+
+        item = d.execute(
+            "SELECT state FROM pipeline_items WHERE business_id=?", (dup,)
+        ).fetchone()
+        if item and item["state"] != "SUPPRESSED":
+            d.execute(
+                "UPDATE pipeline_items SET state='SUPPRESSED', next_retry_at=NULL, "
+                "lease_owner=NULL, lease_until=NULL, updated_at=? WHERE business_id=?",
+                (ts, dup),
+            )
+            d.execute(
+                "INSERT INTO pipeline_events(business_id,from_state,to_state,"
+                "actor,reason,evidence,event_at) VALUES(?,?,?,?,?,?,?)",
+                (
+                    dup,
+                    item["state"],
+                    "SUPPRESSED",
+                    actor,
+                    f"duplicate_of:{survivor}",
+                    json.dumps(
+                        {"survivor_id": survivor, "duplicate_id": dup},
+                        sort_keys=True,
+                    ),
+                    ts,
+                ),
+            )
+
+    return {
+        "actor": actor,
+        "dry_run": False,
+        "merges": merges,
+        "merged": len(merges),
+        "repointed": repointed,
+        "conflicts": conflicts,
+        "deleted": 0,
+    }

@@ -18,9 +18,51 @@ import json
 import os
 import random
 import socket
+import sqlite3
+import traceback
 from pathlib import Path
 
 from mm_core import now, root, sha, timestamp
+
+
+def error_fingerprint(exception, component="unknown"):
+    """Generate a deterministic error fingerprint for deduplication and tracking.
+
+    Args:
+        exception: The exception object
+        component: The component/worker where the error occurred
+
+    Returns:
+        String fingerprint combining exception_type, component, normalized_message, and call_site
+    """
+    if not isinstance(exception, BaseException):
+        exception = Exception(str(exception))
+
+    # Get exception type
+    exc_type = type(exception).__name__
+
+    # Get normalized exception message (strip variable parts like IDs, timestamps, etc.)
+    exc_message = str(exception)
+
+    # Normalize common variable parts in error messages
+    # Replace numbers with # (but preserve small numbers that might be meaningful)
+    import re
+    normalized_message = re.sub(r'\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})?', '<ts>', exc_message)  # ISO timestamps
+    normalized_message = re.sub(r'\b\d{4,}\b', '#', normalized_message)  # Large numbers (years, IDs, etc.)
+    normalized_message = re.sub(r'\d{1,3}:\d{2}:\d{2}', '<time>', normalized_message)  # Timestamps
+    normalized_message = re.sub(r'\b\d{1,2}[-/]\d{1,2}[-/]\d{2,4}\b', '#-#-#', normalized_message)  # Dates like MM-DD-YYYY or MM/DD/YYYY
+    normalized_message = re.sub(r'\b\d{1,2}[-/]\d{1,2}\b', '#-#', normalized_message)  # Dates like MM-DD or MM/DD
+    normalized_message = re.sub(r'[0-9a-f]{8,}', '#', normalized_message, flags=re.IGNORECASE)  # Hex IDs
+    normalized_message = re.sub(r'/[^\s]*/[^\s]*/[^\s]+', '/path/to/file', normalized_message)  # File paths
+
+    # Get call site (simplified - in production we'd want actual stack trace)
+    # For now, we'll use a placeholder that could be enhanced later
+    call_site = "worker_handler"  # This could be enhanced with inspect.stack() if needed
+
+    # Create fingerprint
+    fingerprint_string = f"{exc_type}|{component}|{normalized_message}|{call_site}"
+    return sha(fingerprint_string.encode('utf-8'))
+
 
 # ---------------------------------------------------------------------------
 # Canonical prospect state machine (trial-specified model)
@@ -69,6 +111,13 @@ CREATE TABLE IF NOT EXISTS pipeline_items(
   lease_until TEXT,
   heartbeat_at TEXT,
   last_error TEXT,
+  error_fingerprint TEXT,
+  repeat_count INTEGER DEFAULT 0,
+  component TEXT,
+  origin TEXT,
+  classification TEXT,
+  first_seen TEXT,
+  last_seen TEXT,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS pipeline_events(
@@ -131,6 +180,29 @@ def migrate(d):
     preserved, because the event trail is append-only history.
     """
     d.executescript(DDL)
+
+    # Handle schema drift for pipeline_items - add new error tracking columns if they don't exist
+    item_cols = {r[1] for r in d.execute('PRAGMA table_info(pipeline_items)')}
+    migrations = []
+
+    if 'error_fingerprint' not in item_cols:
+        migrations.append("ALTER TABLE pipeline_items ADD COLUMN error_fingerprint TEXT")
+    if 'repeat_count' not in item_cols:
+        migrations.append("ALTER TABLE pipeline_items ADD COLUMN repeat_count INTEGER DEFAULT 0")
+    if 'component' not in item_cols:
+        migrations.append("ALTER TABLE pipeline_items ADD COLUMN component TEXT")
+    if 'origin' not in item_cols:
+        migrations.append("ALTER TABLE pipeline_items ADD COLUMN origin TEXT")
+    if 'classification' not in item_cols:
+        migrations.append("ALTER TABLE pipeline_items ADD COLUMN classification TEXT")
+    if 'first_seen' not in item_cols:
+        migrations.append("ALTER TABLE pipeline_items ADD COLUMN first_seen TEXT")
+    if 'last_seen' not in item_cols:
+        migrations.append("ALTER TABLE pipeline_items ADD COLUMN last_seen TEXT")
+
+    for migration in migrations:
+        d.execute(migration)
+
     cols = {r[1] for r in d.execute('PRAGMA table_info(pipeline_events)')}
     if cols and 'to_state' not in cols:  # legacy shape from an earlier build
         d.execute('ALTER TABLE pipeline_events RENAME TO pipeline_events_legacy')
@@ -256,6 +328,29 @@ def release(d, business_id, worker_id):
 # Retry / backoff / dead-letter
 # ---------------------------------------------------------------------------
 
+# Transient SQLite contention must retry with backoff, never dead-letter:
+# 'locked'/'busy'/'disk I/O' are momentary under concurrent workers.
+_TRANSIENT_DB_MARKERS = ('locked', 'busy', 'i/o error', 'timeout')
+
+
+def classify_unexpected(ex, context=''):
+    """Map an unexpected handler/completion fault to a bounded pipeline error."""
+    if isinstance(ex, sqlite3.OperationalError):
+        if any(marker in str(ex).lower() for marker in _TRANSIENT_DB_MARKERS):
+            return RetryableError('%sdatabase contention: %s' % (context, ex))
+        return PermanentError('%sdatabase error: %s' % (context, ex))
+    if isinstance(ex, sqlite3.IntegrityError):
+        # Integrity constraint violations are permanent
+        return PermanentError('%sintegrity error: %s' % (context, ex))
+    if isinstance(ex, AttributeError):
+        # Handler contract bugs (e.g. sqlite3.Row.get misuse) never heal by retrying
+        return PermanentError('%scontract error: %s' % (context, ex))
+    if isinstance(ex, ValueError) and ('no such column' in str(ex) or 'not found' in str(ex)):
+        # Missing columns or similar schema issues
+        return PermanentError('%sschema error: %s' % (context, ex))
+    return RetryableError('%s%s: %s' % (context, type(ex).__name__, ex))
+
+
 def backoff_seconds(attempts, base=30, cap=3600, jitter=0.2):
     delay = min(cap, base * (2 ** max(0, attempts - 1)))
     return delay * (1 + random.uniform(-jitter, jitter))
@@ -266,20 +361,46 @@ def fail(d, business_id, worker_id, error, retryable=True):
     r = item(d, business_id)
     attempts = r['attempts'] + 1
     msg = str(error)[:500]
+
+    # Generate error fingerprint and determine component
+    component = getattr(worker_id, 'kind', str(worker_id)) if hasattr(worker_id, 'kind') else str(worker_id)
+    fingerprint = error_fingerprint(error, component)
+    origin = component
+
+    # Determine classification based on error type
+    if isinstance(error, BlockedCost):
+        classification = 'blocked_cost'
+    elif isinstance(error, PermanentError):
+        classification = 'permanent'
+    elif isinstance(error, RetryableError):
+        classification = 'transient'
+    else:
+        classification = 'unknown'
+
+    now_time = now()
+
     if retryable and attempts < r['max_attempts']:
         nxt = (dt.datetime.now(dt.timezone.utc)
                + dt.timedelta(seconds=backoff_seconds(attempts))).isoformat()
-        d.execute("UPDATE pipeline_items SET attempts=?,next_retry_at=?,"
-                  "last_error=?,lease_owner=NULL,lease_until=NULL,updated_at=? "
-                  "WHERE business_id=?", (attempts, nxt, msg, now(), business_id))
+        d.execute("""UPDATE pipeline_items SET attempts=?,next_retry_at=?,last_error=?,
+                      error_fingerprint=?,repeat_count=repeat_count+1,component=?,origin=?,
+                      classification=?,first_seen=COALESCE(first_seen,?),last_seen=?,
+                      lease_owner=NULL,lease_until=NULL,updated_at=?
+                      WHERE business_id=?""",
+                  (attempts, nxt, msg, fingerprint, component, origin, classification,
+                   now_time, now_time, now_time, business_id))
         _record(d, business_id, r['state'], r['state'], worker_id,
                 'retryable_failure: ' + msg, {'attempts': attempts})
         outcome = 'retry_scheduled'
     else:
         to = 'RETRYABLE_FAILURE' if retryable else 'PERMANENT_FAILURE'
-        d.execute("UPDATE pipeline_items SET attempts=?,last_error=?,"
-                  "lease_owner=NULL,lease_until=NULL,updated_at=? "
-                  "WHERE business_id=?", (attempts, msg, now(), business_id))
+        d.execute("""UPDATE pipeline_items SET attempts=?,last_error=?,
+                      error_fingerprint=?,repeat_count=repeat_count+1,component=?,origin=?,
+                      classification=?,first_seen=COALESCE(first_seen,?),last_seen=?,
+                      lease_owner=NULL,lease_until=NULL,updated_at=?
+                      WHERE business_id=?""",
+                  (attempts, msg, fingerprint, component, origin, classification,
+                   now_time, now_time, now_time, business_id))
         if r['state'] not in TERMINAL:
             transition(d, business_id, to, worker_id,
                        'dead-lettered after %d attempts: %s' % (attempts, msg),
@@ -513,6 +634,14 @@ class Worker:
 
     def run_once(self, d, limit=1):
         """Claim and process up to `limit` items. Bounded: always returns."""
+        # Safe mode is a human-controlled emergency stop. Diagnostics and
+        # heartbeats remain available, but no new leases or external work may start.
+        try:
+            import mm_brain
+            if mm_brain.safe_mode().get("enabled"):
+                return 0
+        except (ImportError, OSError, ValueError):
+            pass
         migrate(d)
         register_worker(d, self.worker_id, kind=','.join(self.states),
                         lease_seconds=self.lease_seconds)
@@ -533,7 +662,7 @@ class Worker:
                 except (RetryableError, PermanentError, BlockedCost):
                     raise
                 except Exception as ex:  # unknown faults are retryable, bounded
-                    raise RetryableError('%s: %s' % (type(ex).__name__, ex))
+                    raise classify_unexpected(ex)
                 for svc in self.services:
                     breaker_success(d, svc)
                 try:
@@ -541,8 +670,7 @@ class Worker:
                 except Exception as ex:
                     # A bad handler target must never crash the worker loop:
                     # record it as a bounded retryable failure instead.
-                    raise RetryableError('completion rejected: %s: %s'
-                                         % (type(ex).__name__, ex))
+                    raise classify_unexpected(ex, 'completion rejected: ')
                 processed += 1
             except BlockedCost as ex:
                 for svc in self.services:

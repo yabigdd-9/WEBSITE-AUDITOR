@@ -147,16 +147,128 @@ def doctor(d, profile='default'):
             if not p.stat().st_size:raise ValueError('Empty script')
             ast.parse(p.read_text())
         except (ValueError,SyntaxError) as e:broken.append({'path':str(p),'error':str(e)})
-    return {'generated_at':now(),'profile':profile,'tools':tools,'broken_python':broken,'db_integrity':d.execute('PRAGMA integrity_check').fetchone()[0],'foreign_key_errors':[list(x) for x in d.execute('PRAGMA foreign_key_check')],'models_enabled':False,'model_calls':0,'limitation':'Read-only inventory. Presence does not prove a service works. Runtime processes and system cron may need separate host access.'}
+    import mm_test_capabilities
+    return {'generated_at':now(),'profile':profile,'tools':tools,'broken_python':broken,'db_integrity':d.execute('PRAGMA integrity_check').fetchone()[0],'foreign_key_errors':[list(x) for x in d.execute('PRAGMA foreign_key_check')],'models_enabled':False,'model_calls':0,'capabilities':mm_test_capabilities.capabilities(),'limitation':'Read-only inventory. Presence does not prove a service works. Runtime processes and system cron may need separate host access.'}
+
+def cmd_dead_letter_resolve(reason):
+    """Resolve quarantined test-fixture dead letters without retrying them."""
+    from datetime import datetime, timezone
+
+    backup_result = backup()
+    resolved = []
+
+    with contextlib.closing(connect()) as d, d:
+        rows = d.execute(
+            """
+            SELECT
+                p.business_id,
+                p.state,
+                b.name
+            FROM pipeline_items p
+            JOIN businesses b ON b.id=p.business_id
+            WHERE b.source='test_import'
+              AND b.is_dummy=1
+              AND p.state IN ('RETRYABLE_FAILURE','PERMANENT_FAILURE')
+            ORDER BY p.business_id
+            """
+        ).fetchall()
+
+        for row in rows:
+            business_id = row[0]
+            from_state = row[1]
+            name = row[2]
+            ts = datetime.now(timezone.utc).isoformat()
+
+            cur = d.execute(
+                """
+                UPDATE pipeline_items
+                SET state='SUPPRESSED',
+                    next_retry_at=NULL,
+                    lease_owner=NULL,
+                    lease_until=NULL,
+                    last_error=NULL,
+                    updated_at=?
+                WHERE business_id=?
+                  AND state=?
+                """,
+                (ts, business_id, from_state),
+            )
+
+            if cur.rowcount != 1:
+                raise RuntimeError(
+                    f"Failed to resolve business_id={business_id}; "
+                    "state changed during operation"
+                )
+
+            evidence = json.dumps({
+                "resolution": "dead_letter",
+                "source": "test_import",
+                "is_dummy": True,
+                "previous_attempts_preserved": True,
+            }, sort_keys=True)
+
+            d.execute(
+                """
+                INSERT INTO pipeline_events(
+                    business_id,
+                    from_state,
+                    to_state,
+                    actor,
+                    reason,
+                    evidence,
+                    event_at
+                )
+                VALUES(?,?,?,?,?,?,?)
+                """,
+                (
+                    business_id,
+                    from_state,
+                    "SUPPRESSED",
+                    "mm-dead-letter-resolve",
+                    reason,
+                    evidence,
+                    ts,
+                ),
+            )
+
+            resolved.append({
+                "business_id": business_id,
+                "name": name,
+                "from_state": from_state,
+                "to_state": "SUPPRESSED",
+            })
+
+    return {
+        "status": "completed",
+        "scope": "test_import + is_dummy=1 only",
+        "reason": reason,
+        "resolved": len(resolved),
+        "items": resolved,
+        "deleted": 0,
+        "external_sends": 0,
+        "paid_calls": 0,
+        "backup": str(backup_result),
+    }
+
 
 def main(argv=None):
     p=argparse.ArgumentParser(description=__doc__);s=p.add_subparsers(dest='cmd',required=True)
-    for cmd in ('daily','run-day','status','money','learn','backup','init','health','metrics','errors','queue','dead-letter','observability-snapshot'):s.add_parser(cmd)
+    for cmd in ('daily','run-day','status','money','learn','backup','init','health','metrics','errors','queue','observability-snapshot'):s.add_parser(cmd)
+    # Add --root-causes flag to errors command
+    errors_parser = s._name_parser_map['errors']
+    errors_parser.add_argument('--root-causes', '--root-cases', dest='root_causes', action='store_true', help='Show root causes of recurring errors from pipeline')
+    q=s.add_parser('data-quarantine')
+    q.add_argument('--source',required=True)
+    q=s.add_parser('dead-letter')
+    dl=q.add_subparsers(dest='dead_letter_action')
+    r=dl.add_parser('resolve')
+    r.add_argument('--all',action='store_true',required=True)
+    r.add_argument('--reason',required=True)
     q=s.add_parser('doctor');q.add_argument('--profile',default='default')
     s.add_parser('obsidian-sync')
     s.add_parser('obsidian-status')
     q=s.add_parser('supervisor')
-    q.add_argument('action',choices=['start','stop','restart','status','health','logs'])
+    q.add_argument('action',choices=['start','stop','restart','ensure-running','status','health','logs'])
     q.add_argument('--sleep',type=float,default=5)
     q.add_argument('--tail',type=int,default=50)
     q.add_argument('--timeout',type=float,default=15)
@@ -176,11 +288,20 @@ def main(argv=None):
     q=s.add_parser('email-status');q.add_argument('id',type=int);q.add_argument('--json',action='store_true')
     q=s.add_parser('email-find');q.add_argument('id',type=int);q.add_argument('--json',action='store_true')
     q=s.add_parser('email-shadow');q.add_argument('--persist',action='store_true')
+    q=s.add_parser('email-event');q.add_argument('--file',required=True);q.add_argument('--store')
+    q=s.add_parser('email-track');q.add_argument('--store')
+    q=s.add_parser('email-reconcile');q.add_argument('message_id');q.add_argument('--store')
+    q=s.add_parser('email-intent');q.add_argument('message_id',type=int);q.add_argument('--campaign',required=True);q.add_argument('--max-attempts',type=int,default=3);q.add_argument('--store')
+    q=s.add_parser('email-intent-result');q.add_argument('idempotency_key');q.add_argument('--status',required=True);q.add_argument('--provider-message-id');q.add_argument('--error');q.add_argument('--max-attempts',type=int);q.add_argument('--store')
+    q=s.add_parser('email-lifecycle');q.add_argument('message_id',type=int);q.add_argument('--store')
     s.add_parser('email-duplicates')
     q=s.add_parser('email-v1');q.add_argument('id',type=int)
     s.add_parser('email-rollback')
     q=s.add_parser('discover-import');q.add_argument('--file',required=True);q.add_argument('--region',default='');q.add_argument('--source',default='import');q.add_argument('--dry-run',action='store_true')
     q=s.add_parser('discover-search');q.add_argument('--query',required=True);q.add_argument('--region',required=True);q.add_argument('--endpoint',default='http://127.0.0.1:8888');q.add_argument('--limit',type=int,default=20);q.add_argument('--dry-run',action='store_true')
+    q=s.add_parser('audit-backfill');q.add_argument('--id',type=int,action='append',dest='ids');q.add_argument('--no-delay',action='store_true')
+    q=s.add_parser('discover-contacts');q.add_argument('--id',type=int,required=True);q.add_argument('--no-delay',action='store_true')
+    q=s.add_parser('report');q.add_argument('granularity',nargs='?',choices=['daily'],default='daily');s.add_parser('alerts');s.add_parser('rotate-logs')
     q=s.add_parser('intake');q.add_argument('--name',required=True);q.add_argument('--url',required=True);q.add_argument('--region',required=True);q.add_argument('--source',required=True)
     q=s.add_parser('audit');q.add_argument('id',type=int);q.add_argument('--url',required=True);q.add_argument('--observation',required=True);q.add_argument('--limitation',required=True);q.add_argument('--capture',required=True);q.add_argument('--status',choices=['verified','partial','refuted','unverified'],required=True);q.add_argument('--method',required=True);q.add_argument('--confidence',type=float,required=True);q.add_argument('--claim-type',choices=CLAIM_TYPES,default='observed_fact')
     q=s.add_parser('contact');q.add_argument('id',type=int);q.add_argument('--recipient',required=True);q.add_argument('--url',required=True);q.add_argument('--capture',required=True);q.add_argument('--relevance',required=True)
@@ -212,7 +333,39 @@ def main(argv=None):
     q=s.add_parser('challenger-eval');q.add_argument('--golden',required=True);q.add_argument('--baseline',required=True);q.add_argument('--challenger',required=True);q.add_argument('--min-improvement',type=float,default=0.01)
     q=s.add_parser('model-plan');q.add_argument('--purpose',required=True)
     q=s.add_parser('deploy-check');q.add_argument('--candidate');q.add_argument('--execute',action='store_true')
+    s.add_parser('bottlenecks')
+    q=s.add_parser('schedule');q.add_argument('--limit',type=int,default=10)
+    q=s.add_parser('brain');q.add_argument('action',nargs='?',choices=['explain','next','health'],default='explain');q.add_argument('--limit',type=int,default=10)
+    q=s.add_parser('decisions');q.add_argument('--business',type=int);q.add_argument('--limit',type=int,default=100)
+    q=s.add_parser('decision');q.add_argument('decision_id')
+    q=s.add_parser('brain-replay');q.add_argument('decision_id')
+    q=s.add_parser('brain-shadow');q.add_argument('--current',required=True);q.add_argument('--challenger',required=True)
+    q=s.add_parser('db-check')
+    q=s.add_parser('safe-mode');q.add_argument('action',choices=['on','off','status'])
     a=p.parse_args(argv)
+
+    if a.cmd=='dead-letter':
+        if getattr(a,'dead_letter_action',None)=='resolve':
+            result=cmd_dead_letter_resolve(a.reason)
+        else:
+            import mm_observability
+            result=mm_observability.dead_letter()
+        print(json.dumps(result,indent=2,default=str))
+        return 0
+    if a.cmd=='report':
+        import mm_reporting
+        result=mm_reporting.daily_report()
+        print(json.dumps({k:result[k] for k in ('report','delta','safety_attestation')},indent=2,default=str));return 0
+    if a.cmd=='alerts':
+        import mm_reporting
+        print(json.dumps(mm_reporting.evaluate_alerts(),indent=2,default=str));return 0
+    if a.cmd=='rotate-logs':
+        import mm_reporting
+        result=[r for r in (mm_reporting.rotate_jsonl('metrics.jsonl'),mm_reporting.rotate_jsonl('errors.jsonl')) if r]
+        print(json.dumps({'rotated':result},indent=2));return 0
+    if a.cmd=='health':
+        import mm_observability
+        result=mm_observability.health();print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd in ('health','metrics','errors','queue','dead-letter','observability-snapshot'):
         import mm_observability
         functions={
@@ -223,7 +376,13 @@ def main(argv=None):
             'dead-letter':mm_observability.dead_letter,
             'observability-snapshot':mm_observability.write_snapshots,
         }
-        result=functions[a.cmd]()
+        if a.cmd == 'errors':
+            result = functions[a.cmd](show_root_causes=getattr(a, 'root_causes', False))
+        else:
+            result = functions[a.cmd]()
+        print(json.dumps(result,indent=2,default=str));return 0
+    if a.cmd=='data-quarantine':
+        result=cmd_data_quarantine(a.source)
         print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd in ('obsidian-sync','obsidian-status'):
         import mm_obsidian
@@ -259,6 +418,24 @@ def main(argv=None):
             result=mm_outreach.cli(a,d)
         print(json.dumps(result,indent=2,ensure_ascii=False))
         return 2 if (a.cmd=='outreach-audit' and not result['passed']) or (a.cmd=='outreach-plan' and result['planning_holds']) or a.cmd=='outreach-preflight' else 0
+    if a.cmd in ('email-event','email-track','email-reconcile','email-intent','email-intent-result','email-lifecycle'):
+        import mm_email_tracking as tracking
+        if a.cmd == 'email-event':
+            result = tracking.record(json.loads(Path(a.file).read_text(encoding='utf-8')), a.store)
+        elif a.cmd == 'email-track':
+            result = tracking.summary(a.store)
+        elif a.cmd == 'email-reconcile':
+            result = tracking.reconcile(a.message_id, a.store)
+        else:
+            import mm_email_lifecycle as lifecycle
+            with contextlib.closing(connect()) as d, d:
+                if a.cmd == 'email-intent':
+                    result = lifecycle.create_intent(d, a.message_id, a.campaign, max_attempts=a.max_attempts, event_store=a.store)
+                elif a.cmd == 'email-intent-result':
+                    result = lifecycle.record_result(d, a.idempotency_key, a.status, provider_message_id=a.provider_message_id, error=a.error, event_store=a.store, max_attempts=a.max_attempts)
+                else:
+                    result = lifecycle.reconstruct(d, a.message_id, event_store=a.store)
+        print(json.dumps(result, indent=2, default=str)); return 0
     if a.cmd.startswith('email-'):
         import mm_email_store as email_store
         import mm_email_cli as email_cli
@@ -279,14 +456,48 @@ def main(argv=None):
         if a.cmd=='discover-import':
             candidates,rejected=mm_discovery.read_candidates(a.file,a.region,a.source)
         else:
-            candidates=mm_discovery.searxng_candidates(a.query,a.region,a.endpoint,a.limit)
+            try:
+                candidates=mm_discovery.searxng_candidates(a.query,a.region,a.endpoint,a.limit)
+            except mm_discovery.SearchBlocked as e:
+                # Typed BLOCKED_SEARCH_* failure: structured, no raw traceback.
+                print(json.dumps({'query':a.query,'region':a.region,'dry_run':a.dry_run,
+                                  'candidates':[],'blocked':{'code':e.code,'endpoint':e.endpoint,'detail':e.detail},
+                                  'note':'Search lane is blocked in this environment; run on a host with a local SearXNG for ranked candidates.'},indent=2))
+                return 0
             rejected=[]
         with contextlib.closing(connect()) as d,d:
             result=mm_discovery.ingest(d,candidates,actor='mm-'+a.cmd,dry_run=a.dry_run)
         result['source_rejections']=rejected
         result['external_sends']=0
         print(json.dumps(result,indent=2,default=str));return 0
+    if a.cmd=='audit-backfill':
+        import mm_evidence_ops
+        with contextlib.closing(connect()) as d,d:
+            result=mm_evidence_ops.audit_backfill(d,ids=a.ids,politeness=0.0 if a.no_delay else 1.0)
+        print(json.dumps(result,indent=2,default=str));return 0
+    if a.cmd=='discover-contacts':
+        import mm_evidence_ops
+        with contextlib.closing(connect()) as d,d:
+            result=mm_evidence_ops.discover_own_site_contacts(d,a.id,politeness=0.0 if a.no_delay else 1.0)
+        print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd=='backup':print(backup());return 0
+    if a.cmd in ('bottlenecks','schedule','brain','decisions','decision','brain-replay','brain-shadow','db-check','safe-mode'):
+        import mm_brain
+        if a.cmd == 'safe-mode':
+            result = mm_brain.safe_mode(True if a.action == 'on' else False if a.action == 'off' else None)
+        elif a.cmd == 'brain-shadow':
+            result = mm_brain.shadow(json.loads(Path(a.current).read_text()), json.loads(Path(a.challenger).read_text()))
+        else:
+            readonly = a.cmd in ('bottlenecks','schedule','brain','decisions','decision','brain-replay','db-check')
+            with contextlib.closing(connect(readonly=readonly)) as d:
+                if a.cmd == 'bottlenecks': result = mm_brain.bottlenecks(d)
+                elif a.cmd == 'schedule': result = {'items': mm_brain.recommend(d, a.limit)}
+                elif a.cmd == 'brain': result = mm_brain.recommend(d, a.limit)
+                elif a.cmd == 'decisions': result = {'decisions': mm_brain.ledger(a.business, a.limit)}
+                elif a.cmd == 'decision': result = next((row for row in mm_brain.ledger() if row.get('decision_id') == a.decision_id), None) or {'error': 'Decision not found'}
+                elif a.cmd == 'brain-replay': result = mm_brain.replay(a.decision_id)
+                else: result = mm_brain.db_check(d)
+        print(json.dumps(result, indent=2, default=str)); return 0
     if a.cmd=='supervisor':
         sys.path.insert(0, str(Path(__file__).resolve().parent))
         from supervisor import cli as _sc
@@ -392,6 +603,71 @@ def main(argv=None):
                         finish_job(d,a.key,{},str(ex));d.commit();raise
     print(json.dumps(result,indent=2))
     return 2 if a.cmd=='model-request' else 0
+
+def cmd_data_quarantine(source):
+    """Mark businesses from a source as test fixtures (P1 quarantine).
+
+    Sets is_dummy=1 and suppression_reason='test_fixture', and parks any
+    pipeline item in SUPPRESSED with an append-only pipeline_events record
+    carrying reason/timestamp/actor. Idempotent: already-quarantined rows are
+    counted, never re-mutated. Nothing is ever deleted.
+    """
+    import mm_pipeline
+    backup_result = backup()
+    quarantined = []
+    already_quarantined = 0
+    with contextlib.closing(connect()) as d, d:
+        ensure_business_columns(d)
+        mm_pipeline.migrate(d)
+        ts = now()
+        rows = d.execute(
+            "SELECT id, name FROM businesses WHERE source=? ORDER BY id",
+            (source,),
+        ).fetchall()
+        for row in rows:
+            bid = row["id"]
+            cur = d.execute(
+                "UPDATE businesses SET is_dummy=1, suppression_reason='test_fixture' "
+                "WHERE id=? AND is_dummy=0",
+                (bid,),
+            )
+            if cur.rowcount == 0:
+                already_quarantined += 1
+                continue
+            item = d.execute(
+                "SELECT state FROM pipeline_items WHERE business_id=?", (bid,)
+            ).fetchone()
+            if item and item["state"] != "SUPPRESSED":
+                d.execute(
+                    "UPDATE pipeline_items SET state='SUPPRESSED', next_retry_at=NULL, "
+                    "lease_owner=NULL, lease_until=NULL, updated_at=? WHERE business_id=?",
+                    (ts, bid),
+                )
+                d.execute(
+                    "INSERT INTO pipeline_events(business_id,from_state,to_state,"
+                    "actor,reason,evidence,event_at) VALUES(?,?,?,?,?,?,?)",
+                    (
+                        bid,
+                        item["state"],
+                        "SUPPRESSED",
+                        "mm-data-quarantine",
+                        "test_fixture",
+                        json.dumps({"source": source, "is_dummy": True}, sort_keys=True),
+                        ts,
+                    ),
+                )
+            quarantined.append({"business_id": bid, "name": row["name"]})
+    return {
+        "status": "completed",
+        "source": source,
+        "quarantined": len(quarantined),
+        "already_quarantined": already_quarantined,
+        "items": quarantined,
+        "deleted": 0,
+        "external_sends": 0,
+        "paid_calls": 0,
+        "backup": str(backup_result),
+    }
 
 if __name__=='__main__':
     try:sys.exit(main())

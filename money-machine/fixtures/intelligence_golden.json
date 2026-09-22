@@ -1,0 +1,37 @@
+[
+  {
+    "name": "evidence_backlog_dominant",
+    "primary_bottleneck": "EVIDENCE",
+    "expected_action": "refresh_evidence"
+  },
+  {
+    "name": "high_value_nearly_complete",
+    "high_value_nearly_complete": true,
+    "expected_action": "complete_high_value_work"
+  },
+  {
+    "name": "stale_strong_prospect",
+    "stale_high_value": true,
+    "expected_action": "refresh_stale_evidence"
+  },
+  {
+    "name": "network_outage",
+    "network": "BLOCKED",
+    "expected_action": "pause_external_work"
+  },
+  {
+    "name": "review_queue_full",
+    "review_queue": 10,
+    "review_capacity": 10,
+    "expected_action": "hold_draft_generation"
+  },
+  {
+    "name": "integrity_warning",
+    "integrity_failed": true,
+    "expected_action": "db_check"
+  },
+  {
+    "name": "healthy_empty_queue",
+    "expected_action": "NONE"
+  }
+]

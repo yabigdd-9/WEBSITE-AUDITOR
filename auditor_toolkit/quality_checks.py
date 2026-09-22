@@ -5,8 +5,8 @@ against quality criteria to ensure they meet standards for specificity,
 actionability, and professionalism.
 """
 
-from typing import Dict, List, Any, Tuple
 import re
+from typing import Any, Dict
 
 
 def check_outreach_draft_quality(draft_text: str, evidence_brief: Dict[str, Any] = None) -> Dict[str, Any]:
@@ -63,7 +63,6 @@ def check_outreach_draft_quality(draft_text: str, evidence_brief: Dict[str, Any]
         key_findings = evidence_brief.get("evidence", {}).get("key_findings", [])
         talking_points = evidence_brief.get("talking_points", {}).get("evidence_phrases", [])
 
-        evidence_used = False
         # Simple check: look for specific terms that might come from evidence
         evidence_indicators = [
             "critical", "high priority", "medium priority", "issue", "problem",
