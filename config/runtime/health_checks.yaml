@@ -1,0 +1,15 @@
+health_checks:
+  interval_seconds: 60
+  capabilities:
+    - discovery
+    - crawl
+    - browser
+    - performance
+    - accessibility
+    - local_seo
+    - technology
+    - reviewer
+    - evidence
+  optional:
+    - agentic
+    - proof
