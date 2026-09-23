@@ -61,10 +61,13 @@ def probe_environment() -> ProofEnvironment:
     When called outside a live browser context (e.g. from a test harness),
     returns sensible defaults with the host platform recorded.
     """
+    browser_version = ""
+    playwright_version = ""
+
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
-        playwright_version = ""
+        pass
     else:
         with sync_playwright() as pw:
             browser = pw.chromium.launch(headless=True)
