@@ -35,15 +35,15 @@ class ServiceAreaAnalysis:
 
     @property
     def is_service_area(self) -> bool:
-        return self.classification == ServiceAreaClassification.SERVICE_AREA
+        return self.classification == "SERVICE_AREA"
 
     @property
     def is_physical(self) -> bool:
-        return self.classification == ServiceAreaClassification.PHYSICAL_LOCATION
+        return self.classification == "PHYSICAL_LOCATION"
 
     @property
     def requires_address(self) -> bool:
-        return not self.has_physical_address and self.classification != ServiceAreaClassification.SERVICE_AREA
+        return not self.has_physical_address and self.classification != "SERVICE_AREA"
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -207,17 +207,29 @@ def classify_service_area(
     )
 
 
-def should_flag_missing_address(analysis: ServiceAreaAnalysis) -> bool:
-    """Determine if a missing address should be flagged as a defect.
+def should_flag_missing_address(
+    analysis: ServiceAreaAnalysis | None = None,
+    *,
+    has_address: bool | None = None,
+    has_area_served: bool = False,
+) -> bool:
+    """Return whether a missing physical address is a defensible defect.
 
-    SERVICE_AREA businesses should NOT be flagged for hiding their address.
+    The canonical API accepts a ServiceAreaAnalysis object. Legacy boolean
+    arguments remain supported while preserving the fail-closed rule:
+    service-area evidence suppresses a missing-address defect.
     """
+    if analysis is None:
+        analysis = classify_service_area(
+            has_address=bool(has_address),
+            service_areas=["region"] if has_area_served else None,
+        )
+
     if analysis.classification == "SERVICE_AREA":
         return False
     if analysis.classification == "UNKNOWN" and analysis.confidence < 0.3:
-        # Don't flag when we can't tell
         return False
-    return True
+    return not analysis.has_physical_address
 
 
 def to_location_type(analysis: ServiceAreaAnalysis) -> BusinessLocationType:
@@ -242,17 +254,3 @@ def classify_business_type(
     )
 
 
-def should_flag_missing_address(
-    has_address: bool = True,
-    has_area_served: bool = False,
-) -> bool:
-    """Compatibility wrapper matching v38 test expectations."""
-    analysis = classify_service_area(
-        has_address=has_address,
-        service_areas=["region"] if has_area_served else None,
-    )
-    return analysis.requires_address
-
-
-# Type alias for backward compatibility
-ServiceAreaClassification = ServiceAreaAnalysis
