@@ -146,7 +146,7 @@ def extract_location_features(
     return LocationPageFeatures(
         url=url,
         title=title,
-        h1=(headings or [None for _ in range(1)])[0] if headings else "",
+        h1=headings[0] if headings else "",
         has_address_on_page=has_address,
         has_phone_on_page=has_phone,
         has_localbusiness_schema=has_localbusiness_schema,
