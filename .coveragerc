@@ -1,6 +1,8 @@
 [run]
 relative_files = True
-source = .
+source =
+    ./auditor_toolkit
+    ./website_auditor
 
 [report]
 show_missing = True
