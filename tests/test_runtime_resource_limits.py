@@ -1,15 +1,11 @@
 """Tests for runtime resource limits and shutdown."""
 
-from auditor_toolkit.runtime.resource_limits import (
-    check_disk_usage,
-    ResourceLimits,
-    enforce_limits,
-)
+from auditor_toolkit.runtime.resource_limits import check_disk_usage, enforce_limits
 from auditor_toolkit.runtime.shutdown import (
-    is_shutting_down,
-    request_shutdown,
-    register_shutdown_callback,
     _shutdown_event,
+    is_shutting_down,
+    register_shutdown_callback,
+    request_shutdown,
 )
 
 
