@@ -1,0 +1,21 @@
+{
+  "finding_id": "verified_cta_001",
+  "rule_id": "RESPONSIVE.CTA.CLIPPED",
+  "url": "https://fixture.test/broken-cta/",
+  "claim": "Primary booking CTA is clipped on 390px mobile viewport.",
+  "evidence": [
+    {
+      "type": "VISUAL",
+      "selector": ".booking-cta",
+      "bounding_box": {"x": 0, "y": 520, "width": 390, "height": 45}
+    },
+    {
+      "type": "DOM",
+      "selector": ".booking-cta",
+      "outer_html": "<div class=\"booking-cta\" style=\"overflow:hidden\">Book Now</div>"
+    }
+  ],
+  "severity": "high",
+  "confidence": 0.95,
+  "status": "CONFIRMED"
+}

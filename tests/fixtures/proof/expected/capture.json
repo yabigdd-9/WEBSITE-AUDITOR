@@ -1,0 +1,22 @@
+{
+  "capture_status": "CAPTURED",
+  "environment": {
+    "browser": {"name": "chromium", "version": "128.0"},
+    "viewport": {"width": 1280, "height": 900},
+    "device_scale_factor": 1.0,
+    "locale": "en-NZ",
+    "timezone": "Pacific/Auckland",
+    "reduced_motion": true
+  },
+  "artifacts": {
+    "screenshot": "before/screenshot.png",
+    "dom": "before/dom.html",
+    "accessibility": "before/accessibility.json",
+    "network": "before/network.json"
+  },
+  "region": {
+    "selector": ".booking-cta",
+    "status": "CAPTURED",
+    "bounding_box": {"x": 0, "y": 500, "width": 390, "height": 80}
+  }
+}

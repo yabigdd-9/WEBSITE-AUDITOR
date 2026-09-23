@@ -6,7 +6,8 @@ so that every before/after capture uses identical settings.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone as tz_utc
+from datetime import datetime
+from datetime import timezone as tz_utc
 
 from auditor_toolkit.proof.schema import CaptureEnvironment
 

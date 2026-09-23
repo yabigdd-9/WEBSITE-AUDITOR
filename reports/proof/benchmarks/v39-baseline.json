@@ -1,0 +1,19 @@
+{
+  "benchmark_version": "v39",
+  "proof_eligibility_precision": 0.95,
+  "before_capture_success": 0.98,
+  "issue_region_precision": 0.96,
+  "stale_finding_detection": 1.0,
+  "prototype_generation_success": 0.9,
+  "original_detector_fix_rate": 0.92,
+  "bad_fix_rejection_rate": 1.0,
+  "regression_detection_rate": 0.98,
+  "false_proof_rate": 0.01,
+  "environment_match_rate": 1.0,
+  "artifact_provenance_rate": 1.0,
+  "median_runtime_seconds": 3.5,
+  "peak_memory_mb": 120,
+  "browser_crash_rate": 0.0,
+  "ai_usage_rate": 0.1,
+  "local_only_generation_rate": 1.0
+}
