@@ -79,10 +79,22 @@ def build_identity(
     if phones:
         from .phone import normalize_phone
 
+        seen_e164: set[str] = set()
+        seen_raw: set[str] = set()
         for raw, source in phones:
             parsed = normalize_phone(raw, source=source)
-            if parsed.valid:
-                entity.phones.append(parsed)
+            if not parsed.valid:
+                continue
+            if parsed.e164:
+                if parsed.e164 in seen_e164:
+                    continue
+                seen_e164.add(parsed.e164)
+            else:
+                normalized_raw = "".join(ch for ch in parsed.raw if ch.isdigit())
+                if normalized_raw in seen_raw:
+                    continue
+                seen_raw.add(normalized_raw)
+            entity.phones.append(parsed)
 
     # Emails
     if emails:
