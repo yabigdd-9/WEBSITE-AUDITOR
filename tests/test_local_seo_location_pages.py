@@ -1,9 +1,9 @@
 """Tests for location page detection and classification."""
 
 from auditor_toolkit.local_seo.location_pages import (
-    detect_location_pages,
-    classify_location_page,
     LocationPageFeatures,
+    classify_location_page,
+    scan_urls_for_location_patterns,
 )
 
 
@@ -15,73 +15,60 @@ def test_detect_location_pages_path_pattern():
         "https://example.com/locations/riccarton/",
         "https://example.com/about/",
     ]
-    location_pages = detect_location_pages(urls)
-    loc_urls = {p.url for p in location_pages}
-    assert "https://example.com/christchurch/" in loc_urls
-    assert "https://example.com/locations/riccarton/" in loc_urls
-    assert "https://example.com/about/" not in loc_urls
+    matches = set(scan_urls_for_location_patterns(urls))
+    assert "https://example.com/christchurch/" in matches
+    assert "https://example.com/locations/riccarton/" in matches
+    assert "https://example.com/about/" not in matches
 
 
 def test_classify_location_page_branch():
     features = LocationPageFeatures(
         url="https://example.com/christchurch/",
-        has_address=True,
-        has_phone=True,
+        h1="Christchurch Branch",
+        has_address_on_page=True,
+        has_phone_on_page=True,
         has_localbusiness_schema=True,
-        has_h1_with_city=True,
-        has_breadcrumb=True,
+        has_breadcrumbs=True,
+        breadcrumb_text="Home > Locations > Christchurch",
     )
-    classification = classify_location_page(features)
-    assert classification.role in ("branch", "service_location", "location")
+    result = classify_location_page(features)
+    assert result.classification == "location"
+    assert result.confidence >= 0.75
 
 
 def test_classify_location_page_service_area():
     features = LocationPageFeatures(
-        url="https://example.com/service-area/",
-        has_address=False,
-        has_phone=True,
-        has_localbusiness_schema=False,
-        has_h1_with_city=True,
-        has_breadcrumb=False,
+        url="https://example.com/service-area/wellington/",
+        h1="Serving Wellington",
+        has_phone_on_page=True,
     )
-    classification = classify_location_page(features)
-    assert classification.role in ("service_area", "location")
+    result = classify_location_page(features)
+    assert result.classification in ("service_area", "location")
 
 
-def test__good():
+def test_strong_location_signals_raise_confidence():
     features = LocationPageFeatures(
         url="https://example.com/christchurch/",
-        has_address=True,
-        has_phone=True,
+        title="Christchurch Location",
+        h1="Christchurch Branch",
+        has_address_on_page=True,
+        has_phone_on_page=True,
         has_localbusiness_schema=True,
-        has_h1_with_city=True,
-        has_breadcrumb=True,
-        is_indexable=True,
-        has_canonical=True,
-        has_unique_content=True,
-        has_map_link=True,
-        word_count=500,
+        has_breadcrumbs=True,
+        breadcrumb_text="Home > Locations > Christchurch",
     )
-    quality = (features)
-    assert quality.score > 0.7
+    assert classify_location_page(features).confidence >= 0.9
 
 
-def test__poor():
+def test_non_location_page_stays_other():
     features = LocationPageFeatures(
-        url="https://example.com/christchurch/",
-        has_address=False,
-        has_phone=False,
-        has_localbusiness_schema=False,
-        has_h1_with_city=False,
-        has_breadcrumb=False,
-        is_indexable=False,
-        has_canonical=False,
-        has_unique_content=False,
-        has_map_link=False,
-        word_count=50,
+        url="https://example.com/services/general/",
+        title="General Services",
+        h1="Our Services",
     )
-    quality = (features)
-    assert quality.score < 0.3
+    result = classify_location_page(features)
+    assert result.classification == "other"
+    assert result.confidence < 0.3
 
 
 def test_detect_location_pages_no_locations():
@@ -90,4 +77,4 @@ def test_detect_location_pages_no_locations():
         "https://example.com/about/",
         "https://example.com/contact/",
     ]
-    assert detect_location_pages(urls) == []
+    assert scan_urls_for_location_patterns(urls) == []
