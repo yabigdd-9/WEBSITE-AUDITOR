@@ -68,7 +68,7 @@ class ReplayRunner:
 
         snapshot = ReplaySnapshot(
             snapshot_id=snapshot_id,
-            fixture_path=str(fixtures[list(fixtures.keys())[0]])
+            fixture_path=str(next(iter(fixtures.values())))
             if fixtures
             else "",
             content_hash=hash_fixture_content(
@@ -111,23 +111,18 @@ class ReplayRunner:
 
         Returns (all_match, list_of_mismatched_fixture_ids).
         """
-        mismatches = []
-        for fid, fpath in fixtures.items():
-            if not fpath.exists():
-                mismatches.append(f"{fid} (file missing)")
-                continue
+        missing = [fid for fid, fpath in fixtures.items() if not fpath.exists()]
+        if missing:
+            return False, [f"{fid} (file missing)" for fid in missing]
 
-            # Re-compute the snapshot's content_hash from current fixtures
-            current_hashes = {
-                f: hash_fixture(p) for f, p in fixtures.items()
-            }
-            current_content_hash = hash_fixture_content(
-                json.dumps(current_hashes, sort_keys=True)
-            )
-            if current_content_hash != snapshot.content_hash:
-                mismatches.append(fid)
+        current_hashes = {fid: hash_fixture(fpath) for fid, fpath in fixtures.items()}
+        current_content_hash = hash_fixture_content(json.dumps(current_hashes, sort_keys=True))
+        if current_content_hash == snapshot.content_hash:
+            return True, []
 
-        return (len(mismatches) == 0, mismatches)
+        # Older snapshots store only the aggregate hash, so they cannot identify
+        # the exact changed fixture. Report all inputs rather than claiming a match.
+        return False, list(fixtures)
 
     def run_replay(
         self,
@@ -142,7 +137,7 @@ class ReplayRunner:
         """
         snapshot = self.load_snapshot(snapshot_id)
         if snapshot:
-            ok, mismatches = self.verify_snapshot(snapshot, fixtures)
+            ok, _ = self.verify_snapshot(snapshot, fixtures)
             if not ok:
                 # Create a failed run rather than silently continuing
                 run = EvalRun(

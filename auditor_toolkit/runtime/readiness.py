@@ -77,7 +77,7 @@ def _check_python_deps() -> PreflightCheck:
 
 def _check_disk_space(min_mb: int = 500) -> PreflightCheck:
     import shutil
-    total, used, free = shutil.disk_usage(ROOT)
+    _, _, free = shutil.disk_usage(ROOT)
     free_mb = free // (1024 * 1024)
     ok = free_mb >= min_mb
     return _check(f"disk:space>={min_mb}MB", ok, f"{free_mb}MB free" if ok else f"only {free_mb}MB free")

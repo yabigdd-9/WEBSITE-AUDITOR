@@ -236,7 +236,10 @@ def _extract_email(soup: Any, page_text: str) -> str:
 
     # Check email patterns in text
     import re
-    match = re.search(r"[\w.+-]+@[\w-]+\.[\w.-]+", page_text)
+    match = re.search(
+        r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+",
+        page_text,
+    )
     if match:
         return match.group(0)
 

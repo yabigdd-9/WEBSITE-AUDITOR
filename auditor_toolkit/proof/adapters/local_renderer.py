@@ -10,6 +10,7 @@ from __future__ import annotations
 import http.server
 import os
 import socketserver
+import tempfile
 import threading
 from typing import Any
 
@@ -19,6 +20,7 @@ from auditor_toolkit.proof.prototype import Prototype
 _server: socketserver.TCPServer | None = None
 _server_thread: threading.Thread | None = None
 _server_url: str = ""
+_default_assets_dir = tempfile.mkdtemp(prefix="website-auditor-proof-")
 
 
 class _ProofRequestHandler(http.server.SimpleHTTPRequestHandler):
@@ -49,7 +51,7 @@ def _find_free_port() -> int:
 
 def render_prototype(
     prototype: Prototype,
-    assets_dir: str = "/tmp/proof_prototypes",
+    assets_dir: str = _default_assets_dir,
 ) -> str:
     """Write prototype HTML to *assets_dir* and return the file path.
 
@@ -81,7 +83,7 @@ def render_prototype(
 
 
 def start_server(
-    assets_dir: str = "/tmp/proof_prototypes",
+    assets_dir: str = _default_assets_dir,
     port: int | None = None,
 ) -> str:
     """Start a local HTTP server serving *assets_dir* on an ephemeral port.

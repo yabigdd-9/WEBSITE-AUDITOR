@@ -29,8 +29,9 @@ def detect_technology(html: str, url: str, headers: dict) -> List[Technology]:
 
     # WordPress detection via meta generator
     generator = soup.find("meta", attrs={"name": "generator"})
-    if generator and generator.get("content"):
-        content = generator.get("content").lower()
+    generator_content = generator.get("content") if generator else None
+    if isinstance(generator_content, str):
+        content = generator_content.lower()
         if "wordpress" in content:
             # Try to extract version
             version_match = re.search(r"wordpress\s+([\d.]+)", content)
@@ -173,5 +174,4 @@ def analyse_html(html: str, url: str, headers: dict) -> tuple[List[Finding], dic
                 )
             )
     return findings, {"technologies": [t.__dict__ for t in techs]}
-
 

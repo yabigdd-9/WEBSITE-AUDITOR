@@ -66,7 +66,7 @@ class JSONValidityGrader(Grader):
         try:
             json.loads(result.agent_output)
             return "PASS"
-        except (json.JSONDecodeError, ValueError):
+        except ValueError:
             result.add_failure(
                 EvalFailure(
                     failure_class="BROKEN_FORM",
@@ -100,7 +100,7 @@ class SchemaValidityGrader(Grader):
             return "N/A"
         try:
             data = json.loads(result.agent_output)
-        except (json.JSONDecodeError, ValueError):
+        except ValueError:
             return "PASS"  # JSON_VALIDITY will catch this
 
         required_keys = {"finding_id", "category", "severity"}

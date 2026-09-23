@@ -193,8 +193,9 @@ def extract_features_from_html(
     # Check for LocalBusiness schema
     has_schema = False
     for script in soup.find_all("script", type="application/ld+json"):
-        if script.string and any(
-            kw in script.string for kw in ("LocalBusiness", '"address"', '"telephone"')
+        script_content = script.string
+        if script_content and any(
+            kw in script_content for kw in ("LocalBusiness", '"address"', '"telephone"')
         ):
             has_schema = True
             break

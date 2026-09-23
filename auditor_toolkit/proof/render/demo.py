@@ -7,6 +7,7 @@ with fix description and verification summary.
 from __future__ import annotations
 
 import os
+import tempfile
 from datetime import datetime, timezone
 
 from auditor_toolkit.proof.schema import (
@@ -17,9 +18,11 @@ from auditor_toolkit.proof.schema import (
     VerificationResult,
 )
 
+_default_output_dir = tempfile.mkdtemp(prefix="website-auditor-proof-")
+
 
 def generate_demo_html(
-    output_dir: str = "/tmp/proof_capture",
+    output_dir: str = _default_output_dir,
     before_state: BeforeState | None = None,
     after_state: AfterState | None = None,
     proposed_fix: ProposedFix | None = None,

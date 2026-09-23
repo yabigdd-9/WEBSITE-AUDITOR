@@ -6,6 +6,7 @@ before marking a package as READY for human review.
 
 from __future__ import annotations
 
+import tempfile
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -17,6 +18,8 @@ from auditor_toolkit.proof.schema import (
     ProposedFix,
     VerificationResult,
 )
+
+_default_output_dir = tempfile.mkdtemp(prefix="website-auditor-proof-")
 
 
 def _validate_screenshot(path: str, label: str) -> str:
@@ -37,7 +40,7 @@ def build_proof_package(
     after: AfterState,
     verification: VerificationResult,
     diff_path: str = "",
-    output_dir: str = "/tmp/proof_capture",
+    output_dir: str = _default_output_dir,
 ) -> ProofPackage:
     """Assemble a complete ProofPackage and validate its contents.
 

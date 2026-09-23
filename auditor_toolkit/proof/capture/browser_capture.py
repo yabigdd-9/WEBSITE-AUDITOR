@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import tempfile
 from datetime import datetime, timezone
 from typing import Any
 
@@ -32,6 +33,7 @@ _DEFAULT_VIEWPORT = {"width": 1280, "height": 900}
 _DEFAULT_LOCALE = "en-NZ"
 _DEFAULT_TIMEZONE = "Pacific/Auckland"
 _DEFAULT_BROWSER = "chromium"
+_default_output_dir = tempfile.mkdtemp(prefix="website-auditor-proof-")
 
 
 def _sha256(path: str) -> str:
@@ -107,7 +109,7 @@ def _save_dom_snapshot(page: Any, output_dir: str, label: str) -> DOMSnapshot:
 
 def capture_before(
     url: str,
-    output_dir: str = "/tmp/proof_capture",
+    output_dir: str = _default_output_dir,
     timeout: int = 30_000,
     issue_region: IssueRegion | None = None,
     env: CaptureEnvironment | None = None,
@@ -197,7 +199,7 @@ def capture_after(
     url: str,
     finding_id: str,
     proposed_fix_id: str,
-    output_dir: str = "/tmp/proof_capture",
+    output_dir: str = _default_output_dir,
     timeout: int = 30_000,
     issue_region: IssueRegion | None = None,
     env: CaptureEnvironment | None = None,

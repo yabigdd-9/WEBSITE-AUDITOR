@@ -37,7 +37,7 @@ def evaluate_prototype(
             "grader": "v36-harness",
             "details": result,
         }
-    except (ImportError, ModuleNotFoundError):
+    except ImportError:
         pass
 
     # Fallback: basic deterministic evaluation
