@@ -168,7 +168,7 @@ def extract_features_from_html(
 
     title = ""
     title_tag = soup.find("title")
-    if title_tag and title_tag.string:
+    if title_tag and isinstance(title_tag.string, str):
         title = title_tag.string.strip()
 
     h1_tags = soup.find_all("h1")

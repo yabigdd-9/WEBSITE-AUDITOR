@@ -92,6 +92,8 @@ def _detect_generator_cms(soup: BeautifulSoup, name: str, pattern: str) -> Techn
     if not tag:
         return None
     content = tag.get("content")
+    if not isinstance(content, str):
+        return None
     return _technology(name, "CMS", f"meta generator: {content}", 0.8)
 
 
