@@ -47,18 +47,33 @@ _LOCAL_TYPES = frozenset(
 
 
 def _extract_jsonld(html: str) -> list[dict[str, Any]]:
-    """Parse all JSON-LD blocks from HTML using extruct."""
-    try:
-        import extruct
-    except ImportError:
-        return []
+    """Parse JSON-LD blocks from HTML using declared runtime dependencies.
 
-    try:
-        data = extruct.extract(html, syntaxes=["json-ld"])
-    except Exception:
-        return []
+    Invalid JSON-LD blocks are ignored individually so one malformed script
+    does not suppress valid structured data elsewhere on the page.
+    """
+    import json
 
-    return data.get("json-ld", [])
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(html, "html.parser")
+    blocks: list[dict[str, Any]] = []
+
+    for script in soup.find_all("script", type="application/ld+json"):
+        raw = script.string or script.get_text()
+        if not raw or not raw.strip():
+            continue
+        try:
+            data = json.loads(raw)
+        except (json.JSONDecodeError, TypeError):
+            continue
+
+        if isinstance(data, dict):
+            blocks.append(data)
+        elif isinstance(data, list):
+            blocks.extend(item for item in data if isinstance(item, dict))
+
+    return blocks
 
 
 def _find_local_entities(jsonld_blocks: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -106,7 +121,7 @@ def _extract_address(obj: dict[str, Any]) -> NormalizedAddress:
 
 def _extract_geo(obj: dict[str, Any]) -> GeoCoordinates | None:
     """Extract GeoCoordinates from schema geo or map."""
-    geo = obj.get("geo") or obj.get("geo")
+    geo = obj.get("geo")
     if isinstance(geo, dict):
         try:
             lat = float(geo.get("latitude", 0))
@@ -319,7 +334,15 @@ def validate_localbusiness_schema(
 
     # Must have address or serviceArea
     addr = entity.get("address")
-    if not addr and not entity.get("raw_block", {}).get("serviceArea"):
+    has_address = bool(
+        addr
+        and (
+            getattr(addr, "normalized", "")
+            or getattr(addr, "raw", "")
+            or (isinstance(addr, str) and addr.strip())
+        )
+    )
+    if not has_address and not entity.get("raw_block", {}).get("serviceArea"):
         issues.append({
             "field": "address",
             "severity": "warning",
