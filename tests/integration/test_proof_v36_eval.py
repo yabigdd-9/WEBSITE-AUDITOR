@@ -1,6 +1,5 @@
 """Integration tests for proof prototype evaluation via v36 adapter."""
 
-import pytest
 
 from auditor_toolkit.proof.adapters.ai_generator import (
     configure,
@@ -12,10 +11,7 @@ from auditor_toolkit.proof.adapters.v36_evaluator import (
     evaluate_prototype,
     get_evaluation_verdict,
 )
-from auditor_toolkit.proof.prototype import (
-    PrototypeManifest,
-    patch_poor_contrast,
-)
+from auditor_toolkit.proof.prototype import PrototypeManifest
 
 
 # ---------------------------------------------------------------------------
