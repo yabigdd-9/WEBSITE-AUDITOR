@@ -252,3 +252,6 @@ def external_value_note(
         "retrieved_at": source_evidence.retrieved_at,
         "note": "External value — not copied to canonical without review",
     }
+
+add_external_evidence = create_external_evidence
+compute_corroboration_score = corroborate_record

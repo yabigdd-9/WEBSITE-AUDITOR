@@ -54,7 +54,7 @@ def _extract_jsonld(html: str) -> list[dict[str, Any]]:
         return []
 
     try:
-        data = extruct.extract(html, syntaxes=["json-ld"], return_jsonld=True)
+        data = extruct.extract(html, syntaxes=["json-ld"])
     except Exception:
         return []
 
@@ -343,3 +343,5 @@ def validate_localbusiness_schema(
         })
 
     return issues
+
+extract_localbusiness_schema = extract_local_business_from_html

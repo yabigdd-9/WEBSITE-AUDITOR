@@ -4,7 +4,7 @@ from auditor_toolkit.local_seo.consistency import (
     check_nap_consistency,
         ConsistencyContradiction,
 )
-from auditor_toolkit.local_seo.schema import ConsistencyStatus
+from auditor_toolkit.local_seo.consistency import ConsistencyContradiction
 
 
 def test_contradiction_record():

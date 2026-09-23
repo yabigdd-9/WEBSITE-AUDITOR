@@ -170,3 +170,6 @@ def clear_geo_cache() -> None:
 def cache_size() -> int:
     """Return number of cached entries."""
     return len(_geo_cache)
+
+compare_geo_coordinates = corroborate_geo
+compute_geo_distance = haversine_distance

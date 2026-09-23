@@ -380,3 +380,5 @@ def contradictions_to_findings(
             })
 
     return findings
+
+check_schema_visible_consistency = check_nap_consistency

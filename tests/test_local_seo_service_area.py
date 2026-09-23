@@ -1,10 +1,10 @@
 """Tests for service-area business classification."""
 
 from auditor_toolkit.local_seo.service_area import (
-    classify_service_area,
+    classify_business_type as classify_service_area,
     should_flag_missing_address,
-    ServiceAreaClassification,
 )
+from auditor_toolkit.local_seo.service_area import ServiceAreaClassification
 # ServiceAreaClassification imported from service_area module
 
 

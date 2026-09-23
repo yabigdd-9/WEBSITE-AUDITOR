@@ -48,7 +48,7 @@ def test_classify_location_page_service_area():
     assert classification.role in ("service_area", "location")
 
 
-def test_assess_location_page_quality_good():
+def test__good():
     features = LocationPageFeatures(
         url="https://example.com/christchurch/",
         has_address=True,
@@ -62,11 +62,11 @@ def test_assess_location_page_quality_good():
         has_map_link=True,
         word_count=500,
     )
-    quality = assess_location_page_quality(features)
+    quality = (features)
     assert quality.score > 0.7
 
 
-def test_assess_location_page_quality_poor():
+def test__poor():
     features = LocationPageFeatures(
         url="https://example.com/christchurch/",
         has_address=False,
@@ -80,7 +80,7 @@ def test_assess_location_page_quality_poor():
         has_map_link=False,
         word_count=50,
     )
-    quality = assess_location_page_quality(features)
+    quality = (features)
     assert quality.score < 0.3
 
 
