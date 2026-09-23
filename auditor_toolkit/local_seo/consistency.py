@@ -124,7 +124,7 @@ def _check_name(
         return []
 
     if schema_name and visible_name:
-        eq, status = names_equivalent(schema_name, visible_name)
+        _, status = names_equivalent(schema_name, visible_name)
         return [ConsistencyContradiction(
             field="name",
             status=status,

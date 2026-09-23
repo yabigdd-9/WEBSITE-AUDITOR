@@ -195,7 +195,12 @@ def _render_markdown(report: BenchmarkReport) -> str:
         c_val = c.get(key, 0)
         b_val = b.get(key, 0)
         delta = c_val - b_val
-        direction = "↑" if delta > 0 else ("↓" if delta < 0 else "→")
+        if delta > 0:
+            direction = "↑"
+        elif delta < 0:
+            direction = "↓"
+        else:
+            direction = "→"
         lines.append(
             f"| {key} | {c_val:.4f} | {b_val:.4f} | {delta:+.4f} {direction} |"
         )

@@ -214,9 +214,17 @@ def _metric_direction(metric: str, delta: float) -> str:
         "estimated_api_cost",
     }
     if metric in higher_is_better:
-        return "improved" if delta > 0 else "regressed" if delta < 0 else "neutral"
+        if delta > 0:
+            return "improved"
+        if delta < 0:
+            return "regressed"
+        return "neutral"
     if metric in lower_is_better:
-        return "improved" if delta < 0 else "regressed" if delta > 0 else "neutral"
+        if delta < 0:
+            return "improved"
+        if delta > 0:
+            return "regressed"
+        return "neutral"
     if abs(delta) < 0.001:
         return "neutral"
     return "improved" if delta < 0 else "regressed"
