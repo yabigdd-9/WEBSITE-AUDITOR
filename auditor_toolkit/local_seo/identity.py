@@ -174,23 +174,8 @@ def _compute_confidence(entity: LocalBusinessEntity) -> float:
     if entity.structured_data_entities:
         score += 0.15
         # Bonus if schema has visible-page counterpart
-        if entity.names and any(
-            n.source.startswith("schema") for n in entity.names
-        ):
-            schema_name = next(
-                (n for n in entity.names if n.source.startswith("schema")),
-                None,
-            )
-            visible_name = next(
-                (n for n in entity.names if not n.source.startswith("schema")),
-                None,
-            )
-            if schema_name and visible_name:
-                from .nap import names_equivalent
-
-                eq, _ = names_equivalent(schema_name.value, visible_name.value)
-                if eq:
-                    score += 0.05  # Match bonus
+        if _schema_name_matches_visible(entity):
+            score += 0.05
 
     # Email evidence
     max_score += 0.2
@@ -201,6 +186,24 @@ def _compute_confidence(entity: LocalBusinessEntity) -> float:
         return 0.0
 
     return round(score / max_score, 4)
+
+
+def _schema_name_matches_visible(entity: LocalBusinessEntity) -> bool:
+    schema_name = next(
+        (name for name in entity.names if name.source.startswith("schema")),
+        None,
+    )
+    visible_name = next(
+        (name for name in entity.names if not name.source.startswith("schema")),
+        None,
+    )
+    if not entity.structured_data_entities or not schema_name or not visible_name:
+        return False
+
+    from .nap import names_equivalent
+
+    equivalent, _ = names_equivalent(schema_name.value, visible_name.value)
+    return equivalent
 
 
 # ---------------------------------------------------------------------------

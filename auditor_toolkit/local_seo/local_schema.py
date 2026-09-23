@@ -223,85 +223,92 @@ def compare_schema_to_visible(
     Returns list of contradiction records with field, status, schema_value,
     visible_value, and confidence.
     """
-    contradictions: list[dict[str, Any]] = []
+    return (
+        _compare_schema_name(schema_name, visible_name)
+        + _compare_schema_address(schema_address, visible_address)
+        + _compare_schema_phone(schema_phone, visible_phone)
+        + _compare_schema_hours(schema_hours, visible_hours)
+    )
 
-    # Name comparison
-    if schema_name and visible_name:
-        from .nap import names_equivalent
 
-        eq, status = names_equivalent(schema_name, visible_name)
-        contradictions.append({
-            "field": "name",
-            "status": status,
-            "schema_value": schema_name,
-            "visible_value": visible_name,
-            "equivalent": eq,
-        })
-    elif not schema_name and visible_name:
-        contradictions.append({
-            "field": "name",
-            "status": "INSUFFICIENT_EVIDENCE",
-            "schema_value": "",
-            "visible_value": visible_name,
-        })
-    elif schema_name and not visible_name:
-        contradictions.append({
+def _compare_schema_name(schema_name: str, visible_name: str) -> list[dict[str, Any]]:
+    if not schema_name and not visible_name:
+        return []
+
+    if not schema_name or not visible_name:
+        return [{
             "field": "name",
             "status": "INSUFFICIENT_EVIDENCE",
             "schema_value": schema_name,
-            "visible_value": "",
-        })
+            "visible_value": visible_name,
+        }]
 
-    # Address comparison
-    if schema_address and visible_address:
+    from .nap import names_equivalent
+
+    equivalent, status = names_equivalent(schema_name, visible_name)
+    return [{
+        "field": "name",
+        "status": status,
+        "schema_value": schema_name,
+        "visible_value": visible_name,
+        "equivalent": equivalent,
+    }]
+
+
+def _compare_schema_address(
+    schema_address: NormalizedAddress | None,
+    visible_address: NormalizedAddress | None,
+) -> list[dict[str, Any]]:
+    if not schema_address and not visible_address:
+        return []
+
+    schema_value = schema_address.normalized if schema_address else ""
+    visible_value = visible_address.normalized if visible_address else ""
+    if not schema_address or not visible_address:
+        status = "INSUFFICIENT_EVIDENCE"
+    else:
         from .address import compare_addresses
 
-        addr_status = compare_addresses(schema_address, visible_address)
-        contradictions.append({
-            "field": "address",
-            "status": addr_status,
-            "schema_value": schema_address.normalized,
-            "visible_value": visible_address.normalized,
-        })
-    elif schema_address and not visible_address:
-        contradictions.append({
-            "field": "address",
-            "status": "INSUFFICIENT_EVIDENCE",
-            "schema_value": schema_address.normalized,
-            "visible_value": "",
-        })
-    elif not schema_address and visible_address:
-        contradictions.append({
-            "field": "address",
-            "status": "INSUFFICIENT_EVIDENCE",
-            "schema_value": "",
-            "visible_value": visible_address.normalized,
-        })
+        status = compare_addresses(schema_address, visible_address)
+    return [{
+        "field": "address",
+        "status": status,
+        "schema_value": schema_value,
+        "visible_value": visible_value,
+    }]
 
-    # Phone comparison
-    if schema_phone and visible_phone:
-        phone_status = _compare_phone_status(schema_phone, visible_phone)
-        contradictions.append({
-            "field": "phone",
-            "status": phone_status,
-            "schema_value": schema_phone.e164 or schema_phone.raw,
-            "visible_value": visible_phone.e164 or visible_phone.raw,
-        })
 
-    # Hours comparison
-    if schema_hours and visible_hours:
-        from .hours import hours_match
+def _compare_schema_phone(
+    schema_phone: NormalizedPhone | None,
+    visible_phone: NormalizedPhone | None,
+) -> list[dict[str, Any]]:
+    if not schema_phone or not visible_phone:
+        return []
+    return [{
+        "field": "phone",
+        "status": _compare_phone_status(schema_phone, visible_phone),
+        "schema_value": schema_phone.e164 or schema_phone.raw,
+        "visible_value": visible_phone.e164 or visible_phone.raw,
+    }]
 
-        match, detail = hours_match(schema_hours, visible_hours)
-        contradictions.append({
-            "field": "hours",
-            "status": "MATCH" if match else "CONTRADICTION",
-            "schema_value": f"{len(schema_hours)} rules",
-            "visible_value": f"{len(visible_hours)} rules",
-            "detail": detail,
-        })
 
-    return contradictions
+def _compare_schema_hours(
+    schema_hours: list[OpeningHour] | None,
+    visible_hours: list[OpeningHour] | None,
+) -> list[dict[str, Any]]:
+    if not schema_hours or not visible_hours:
+        return []
+
+    from .hours import hours_match
+
+    match, detail = hours_match(schema_hours, visible_hours)
+    return [{
+        "field": "hours",
+        "status": "MATCH" if match else "CONTRADICTION",
+        "schema_value": f"{len(schema_hours)} rules",
+        "visible_value": f"{len(visible_hours)} rules",
+        "detail": detail,
+    }]
 
 
 def _compare_phone_status(a: NormalizedPhone, b: NormalizedPhone) -> ConsistencyStatus:
@@ -344,7 +351,13 @@ def validate_localbusiness_schema(
             or (isinstance(addr, str) and addr.strip())
         )
     )
-    if not has_address and not entity.get("raw_block", {}).get("serviceArea"):
+    raw_block = entity.get("raw_block")
+    has_service_area = (
+        bool(raw_block.get("serviceArea"))
+        if isinstance(raw_block, dict)
+        else False
+    )
+    if not has_address and not has_service_area:
         issues.append({
             "field": "address",
             "severity": "warning",

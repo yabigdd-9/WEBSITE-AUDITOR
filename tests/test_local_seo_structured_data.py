@@ -80,3 +80,14 @@ def test_validate_localbusiness_schema_geo():
     entity = extract_local_business_from_html(html)[0]
     issues = validate_localbusiness_schema(entity)
     assert not any(issue["field"] == "geo" for issue in issues)
+
+
+def test_validate_localbusiness_schema_tolerates_malformed_raw_block():
+    for raw_block in (None, "invalid", []):
+        issues = validate_localbusiness_schema({"raw_block": raw_block})
+        assert {issue["field"] for issue in issues} == {
+            "name",
+            "address",
+            "telephone",
+            "geo",
+        }

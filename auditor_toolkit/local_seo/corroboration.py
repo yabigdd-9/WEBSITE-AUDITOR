@@ -113,7 +113,6 @@ def corroborate_record(
             canonical_name,
             canonical_address_normalized,
             canonical_phone_e164,
-            name_threshold,
         )
 
         record_dict = {
@@ -159,66 +158,92 @@ def _compare_external_to_canonical(
     canonical_name: str,
     canonical_address: str,
     canonical_phone: str,
-    name_threshold: float,
 ) -> dict[str, Any]:
     """Compare one external record to canonical values."""
-    from .address import compare_addresses, normalize_address
-    from .phone import compare_phones, normalize_phone
-
     result: dict[str, Any] = {"match_score": 0.0}
-    has_conflict = False
     components = 0
     score_sum = 0.0
 
-    # Name
-    if ext.name and canonical_name:
-        eq, status = names_equivalent(ext.name, canonical_name)
-        if eq:
-            score = 1.0 if status == "MATCH" else (0.85 if status == "EQUIVALENT_FORMAT" else 0.7)
-        else:
-            score = 0.0
-            has_conflict = True
+    name = _compare_external_name(ext.name, canonical_name)
+    if name is not None:
+        score, status, equivalent = name
         result["name_status"] = status
-        result["name_equivalent"] = eq
-        components += 1
+        result["name_equivalent"] = equivalent
         score_sum += score
+        components += 1
 
-    # Address
-    if ext.address and canonical_address:
-        ext_addr = normalize_address(ext.address)
-        can_addr = normalize_address(canonical_address)
-        addr_status = compare_addresses(ext_addr, can_addr)
-        if addr_status in ("MATCH", "EQUIVALENT_FORMAT", "PROBABLE_MATCH"):
-            score = 1.0 if addr_status == "MATCH" else 0.7
-        elif addr_status == "CONTRADICTION":
-            score = 0.0
-            has_conflict = True
-        else:
-            score = 0.3
-        result["address_status"] = addr_status
-        components += 1
+    address = _compare_external_address(ext.address, canonical_address)
+    if address is not None:
+        score, status = address
+        result["address_status"] = status
         score_sum += score
+        components += 1
 
-    # Phone
-    if ext.phone and canonical_phone:
-        ext_phone = normalize_phone(ext.phone)
-        can_phone = normalize_phone(canonical_phone)
-        phone_status = compare_phones(ext_phone, can_phone)
-        if phone_status in ("MATCH", "EQUIVALENT_FORMAT"):
-            score = 1.0 if phone_status == "MATCH" else 0.8
-        elif phone_status == "CONTRADICTION":
-            score = 0.0
-            has_conflict = True
-        else:
-            score = 0.3
-        result["phone_status"] = phone_status
-        components += 1
+    phone = _compare_external_phone(ext.phone, canonical_phone)
+    if phone is not None:
+        score, status = phone
+        result["phone_status"] = status
         score_sum += score
+        components += 1
 
     result["match_score"] = score_sum / components if components > 0 else 0.0
-    result["has_conflict"] = has_conflict
+    result["has_conflict"] = any(
+        result.get(f"{field}_status") == "CONTRADICTION"
+        for field in ("name", "address", "phone")
+    )
 
     return result
+
+
+def _compare_external_name(
+    external_name: str,
+    canonical_name: str,
+) -> tuple[float, str, bool] | None:
+    if not external_name or not canonical_name:
+        return None
+    equivalent, status = names_equivalent(external_name, canonical_name)
+    if not equivalent:
+        return 0.0, "CONTRADICTION", False
+    score = 1.0 if status == "MATCH" else (0.85 if status == "EQUIVALENT_FORMAT" else 0.7)
+    return score, status, equivalent
+
+
+def _compare_external_address(
+    external_address: str,
+    canonical_address: str,
+) -> tuple[float, str] | None:
+    if not external_address or not canonical_address:
+        return None
+    from .address import compare_addresses, normalize_address
+
+    status = compare_addresses(
+        normalize_address(external_address),
+        normalize_address(canonical_address),
+    )
+    if status in ("MATCH", "EQUIVALENT_FORMAT", "PROBABLE_MATCH"):
+        return (1.0 if status == "MATCH" else 0.7), status
+    if status == "CONTRADICTION":
+        return 0.0, status
+    return 0.3, status
+
+
+def _compare_external_phone(
+    external_phone: str,
+    canonical_phone: str,
+) -> tuple[float, str] | None:
+    if not external_phone or not canonical_phone:
+        return None
+    from .phone import compare_phones, normalize_phone
+
+    status = compare_phones(
+        normalize_phone(external_phone),
+        normalize_phone(canonical_phone),
+    )
+    if status in ("MATCH", "EQUIVALENT_FORMAT"):
+        return (1.0 if status == "MATCH" else 0.8), status
+    if status == "CONTRADICTION":
+        return 0.0, status
+    return 0.3, status
 
 
 # ---------------------------------------------------------------------------

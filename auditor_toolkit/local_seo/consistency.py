@@ -193,20 +193,7 @@ def _check_phones(
     # Compare each schema phone against each visible phone
     results: list[ConsistencyContradiction] = []
     for sp in schema_phones:
-        best_status: ConsistencyStatus = "INSUFFICIENT_EVIDENCE"
-        best_vp: NormalizedPhone | None = None
-        for vp in visible_phones:
-            status = compare_phones(sp, vp)
-            if status == "MATCH":
-                best_status = "MATCH"
-                best_vp = vp
-                break
-            if status in ("EQUIVALENT_FORMAT", "PROBABLE_MATCH"):
-                best_status = status
-                best_vp = vp
-            elif best_status == "INSUFFICIENT_EVIDENCE":
-                best_status = status
-                best_vp = vp
+        best_status, best_vp = _best_phone_match(sp, visible_phones)
 
         results.append(ConsistencyContradiction(
             field="phone",
@@ -217,6 +204,24 @@ def _check_phones(
         ))
 
     return results
+
+
+def _best_phone_match(
+    schema_phone: NormalizedPhone,
+    visible_phones: list[NormalizedPhone],
+) -> tuple[ConsistencyStatus, NormalizedPhone | None]:
+    """Choose the strongest visible match while preserving source order ties."""
+    best_status: ConsistencyStatus = "INSUFFICIENT_EVIDENCE"
+    best_phone: NormalizedPhone | None = None
+    for visible_phone in visible_phones:
+        status = compare_phones(schema_phone, visible_phone)
+        if status == "MATCH":
+            return status, visible_phone
+        if status in ("EQUIVALENT_FORMAT", "PROBABLE_MATCH"):
+            best_status, best_phone = status, visible_phone
+        elif best_status == "INSUFFICIENT_EVIDENCE":
+            best_status, best_phone = status, visible_phone
+    return best_status, best_phone
 
 
 def _check_hours(

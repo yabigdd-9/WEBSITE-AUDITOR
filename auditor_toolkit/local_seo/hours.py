@@ -275,28 +275,33 @@ def hours_match(
     if not a or not b:
         return False, "INSUFFICIENT_EVIDENCE"
 
-    a_map = {h.day: h for h in a}
-    b_map = {h.day: h for h in b}
-
-    conflicts = 0
-    matches = 0
-
-    common_days = set(a_map.keys()) & set(b_map.keys())
-    if not common_days:
+    scores = _score_common_days(a, b)
+    if scores is None:
         return False, "INSUFFICIENT_EVIDENCE"
+    matches, conflicts, total = scores
+    return _hours_match_result(matches / total, conflicts / total)
 
+
+def _score_common_days(
+    a: list[OpeningHour],
+    b: list[OpeningHour],
+) -> tuple[float, int, int] | None:
+    a_map = {hour.day: hour for hour in a}
+    b_map = {hour.day: hour for hour in b}
+    common_days = a_map.keys() & b_map.keys()
+    if not common_days:
+        return None
+
+    matches = 0.0
+    conflicts = 0
     for day in common_days:
         day_matches, day_conflicts = _compare_day_hours(a_map[day], b_map[day])
         matches += day_matches
         conflicts += day_conflicts
+    return matches, conflicts, len(common_days)
 
-    total = len(common_days)
-    if total == 0:
-        return False, "INSUFFICIENT_EVIDENCE"
 
-    match_ratio = matches / total
-    conflict_ratio = conflicts / total
-
+def _hours_match_result(match_ratio: float, conflict_ratio: float) -> tuple[bool, str]:
     if conflict_ratio > 0.3:
         return False, "CONTRADICTION"
 

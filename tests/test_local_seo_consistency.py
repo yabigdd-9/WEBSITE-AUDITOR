@@ -51,3 +51,17 @@ def test_check_schema_visible_consistency_alias():
         visible_phones=[normalize_phone("03 379 5555")],
     )
     assert not any(item.status == "CONTRADICTION" for item in results)
+
+
+def test_phone_matching_prefers_an_exact_match_over_earlier_candidates():
+    results = check_nap_consistency(
+        schema_phones=[normalize_phone("+6433795555")],
+        visible_phones=[
+            normalize_phone("+6433801234"),
+            normalize_phone("03 379 5555"),
+            normalize_phone("+6433795555"),
+        ],
+    )
+    phone = next(item for item in results if item.field == "phone")
+    assert phone.status == "MATCH"
+    assert phone.visible_value == "+6433795555"

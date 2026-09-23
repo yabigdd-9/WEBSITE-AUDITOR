@@ -197,14 +197,23 @@ def find_by_address(
 def _parse_elements(data: dict[str, Any]) -> list[OverpassNode]:
     """Parse Overpass JSON response into OverpassNode objects."""
     elements: list[OverpassNode] = []
-    for elem in data.get("elements", []):
+    raw_elements = data.get("elements")
+    if not isinstance(raw_elements, list):
+        return elements
+
+    for elem in raw_elements:
+        if not isinstance(elem, dict):
+            continue
         etype = elem.get("type", "")
-        tags = elem.get("tags", {})
+        raw_tags = elem.get("tags")
+        tags = raw_tags if isinstance(raw_tags, dict) else {}
 
         # For ways, get center coordinates
         if etype == "way":
-            lat = elem.get("center", {}).get("lat", 0)
-            lon = elem.get("center", {}).get("lon", 0)
+            center = elem.get("center")
+            center = center if isinstance(center, dict) else {}
+            lat = center.get("lat", 0)
+            lon = center.get("lon", 0)
         else:
             lat = elem.get("lat", 0)
             lon = elem.get("lon", 0)

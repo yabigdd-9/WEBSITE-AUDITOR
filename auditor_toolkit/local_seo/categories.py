@@ -11,6 +11,7 @@ from typing import Any
 
 _REAL_ESTATE_AGENCY = "Real Estate Agency"
 _AUTO_REPAIR = "Auto Repair"
+_HAIR_SALON = "Hair Salon"
 
 
 @dataclass(frozen=True)
@@ -85,9 +86,9 @@ _CATEGORY_ALIASES: dict[str, str] = {
     "real estate agent": _REAL_ESTATE_AGENCY,
     "realty": _REAL_ESTATE_AGENCY,
     "property management": _REAL_ESTATE_AGENCY,
-    "hair salon": "Hair Salon",
-    "hairdresser": "Hair Salon",
-    "barber": "Hair Salon",
+    "hair salon": _HAIR_SALON,
+    "hairdresser": _HAIR_SALON,
+    "barber": _HAIR_SALON,
     "mechanic": _AUTO_REPAIR,
     "auto repair": _AUTO_REPAIR,
     "car repair": _AUTO_REPAIR,

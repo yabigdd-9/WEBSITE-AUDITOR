@@ -23,6 +23,7 @@ from .schema import (
 
 # Common equivalence mappings
 _LIMITED = " limited "
+_COMPANY = " company "
 _AND = " and "
 _NAME_EQUIVALENCES: list[tuple[str, str]] = [
     ("&", _AND),
@@ -33,9 +34,9 @@ _NAME_EQUIVALENCES: list[tuple[str, str]] = [
     (" inc ", " incorporated "),
     (" incorporated ", " inc "),
     (" plc ", " public limited company "),
-    (" company ", " co "),
-    (" co. ", " company "),
-    (" co ", " company "),
+    (_COMPANY, " co "),
+    (" co. ", _COMPANY),
+    (" co ", _COMPANY),
 ]
 
 _STRIP_CHARS = "\"'.,!?;:()[]{}"
