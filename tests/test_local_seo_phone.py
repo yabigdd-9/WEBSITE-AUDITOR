@@ -1,9 +1,6 @@
 """Tests for phone normalization and comparison."""
 
-from auditor_toolkit.local_seo.phone import (
-    compare_phones,
-    normalize_phone,
-)
+from auditor_toolkit.local_seo.phone import compare_phones, normalize_phone
 from auditor_toolkit.local_seo.schema import NormalizedPhone
 
 
