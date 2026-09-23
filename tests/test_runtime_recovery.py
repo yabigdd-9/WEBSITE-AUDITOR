@@ -1,11 +1,6 @@
 """Tests for runtime recovery and retry policies."""
 
-from auditor_toolkit.runtime.recovery import (
-    classify_error,
-    get_retry_policy,
-    should_retry,
-    RetryPolicy,
-)
+from auditor_toolkit.runtime.recovery import classify_error, get_retry_policy, should_retry
 
 
 def test_classify_http_429():
