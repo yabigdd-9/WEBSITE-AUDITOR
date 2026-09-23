@@ -1,69 +1,72 @@
 """Tests for service-area business classification."""
 
 from auditor_toolkit.local_seo.service_area import (
-    classify_business_type as classify_service_area,
+    classify_business_type,
+    classify_service_area,
     should_flag_missing_address,
 )
-from auditor_toolkit.local_seo.service_area import ServiceAreaClassification
-# ServiceAreaClassification imported from service_area module
 
 
 def test_classify_service_area():
-    classification = classify_service_area(
+    analysis = classify_business_type(
         has_address=False,
         has_service_area_schema=True,
         areas_served=["Wellington", "Auckland"],
     )
-    assert classification.is_service_area == True
-    assert not classification.is_physical
+    assert analysis.is_service_area
+    assert not analysis.is_physical
 
 
 def test_classify_physical_location():
-    classification = classify_service_area(
+    analysis = classify_business_type(
         has_address=True,
         has_service_area_schema=False,
         areas_served=[],
     )
-    assert classification.is_service_area == False
+    assert not analysis.is_service_area
 
 
 def test_classify_hybrid():
-    classification = classify_service_area(
+    analysis = classify_business_type(
         has_address=True,
         has_service_area_schema=True,
         areas_served=["Wellington"],
     )
-    assert classification.is_service_area == False
+    assert analysis.classification == "HYBRID"
+    assert not analysis.is_service_area
 
 
-def test_should_flag_missing_address_true():
-    assert should_flag_missing_address(
-        has_address=False,
-        has_area_served=True,
-    )
-
-
-def test_should_flag_missing_address_false_with_address():
-    assert not should_flag_missing_address(
-        has_address=True,
-        has_area_served=False,
-    )
-
-
-def test_service_area_no_auto_defect():
-    """Service-area businesses legitimately hide addresses."""
-    classification = classify_service_area(
+def test_service_area_missing_address_is_not_auto_defect():
+    analysis = classify_business_type(
         has_address=False,
         has_service_area_schema=True,
         areas_served=["Wellington"],
     )
-    assert not classification.requires_address
+    assert not should_flag_missing_address(analysis)
+    assert not analysis.requires_address
 
 
-def test_classify_unknown():
-    classification = classify_service_area(
+def test_physical_business_missing_address_can_be_flagged():
+    analysis = classify_service_area(
+        has_address=False,
+        page_text="Visit us at our office for an appointment.",
+    )
+    assert analysis.classification == "PHYSICAL_LOCATION"
+    assert should_flag_missing_address(analysis)
+
+
+def test_unknown_business_is_fail_closed():
+    analysis = classify_business_type(
         has_address=False,
         has_service_area_schema=False,
         areas_served=[],
     )
-    assert classification.is_service_area == False
+    assert analysis.classification == "UNKNOWN"
+    assert not should_flag_missing_address(analysis)
+
+
+def test_legacy_boolean_wrapper_preserves_service_area_safety():
+    assert not should_flag_missing_address(
+        has_address=False,
+        has_area_served=True,
+    )
