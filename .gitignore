@@ -40,3 +40,15 @@ backups/**/.env
 .env.*
 !.env.example
 backups/**/.env
+
+# Local secrets
+.env
+.env.*
+!.env.example
+**/.env
+
+# Runtime/generated files
+__pycache__/
+*.pyc
+*.db-wal
+state/
