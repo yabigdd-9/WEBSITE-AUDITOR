@@ -148,73 +148,79 @@ def extract_issue_region(
     """
     finding_id = finding.get("finding_id", "")
     selector = finding.get("selector", "")
-
-    # Try evidence array for selector / bounding_box
     if not selector:
-        for ev in finding.get("evidence", []):
-            if ev.get("selector"):
-                selector = ev["selector"]
-                break
+        selector = _evidence_selector(finding)
 
-    # --- 1. selector ---
-    if selector:
-        el, outer, box = _by_selector(page, selector)
-        if el is not None or outer:
-            padded = _pad_bounding_box(box) if box else {}
-            status: RegionCaptureStatus = "CAPTURED" if box else "PARTIAL"
-            return IssueRegion(
-                finding_id=finding_id,
-                selector=selector,
-                outer_html=outer,
-                bounding_box=padded,
-                capture_status=status,
-                description=finding.get("claim", ""),
-                severity=finding.get("severity", ""),
-            )
+    region = _region_by_selector(page, finding, selector)
+    if region is not None:
+        return region
 
-    # --- 2. role/name ---
-    el, outer, box = _by_role_name(page, finding)
-    if el is not None or outer:
-        padded = _pad_bounding_box(box) if box else {}
-        status = "CAPTURED" if box else "PARTIAL"
-        return IssueRegion(
-            finding_id=finding_id,
-            selector="",
-            outer_html=outer,
-            bounding_box=padded,
-            capture_status=status,
-            description=finding.get("claim", ""),
-            severity=finding.get("severity", ""),
-        )
+    region = _region_by_role(page, finding)
+    if region is not None:
+        return region
 
-    # --- 3. bounding_box from evidence ---
-    bb: dict[str, int] = {}
-    for ev in finding.get("evidence", []):
-        if ev.get("bounding_box"):
-            bb = ev["bounding_box"]
-            break
-    if bb:
-        outer_html = ""
-        _, outer_html, _ = _by_bounding_box(page, bb)
-        padded = _pad_bounding_box(bb)
-        status = "CAPTURED" if outer_html else "TARGET_NOT_FOUND"
-        return IssueRegion(
-            finding_id=finding_id,
-            selector="",
-            outer_html=outer_html,
-            bounding_box=padded,
-            capture_status=status,
-            description=finding.get("claim", ""),
-            severity=finding.get("severity", ""),
-        )
-
-    # --- 4. NEEDS_REVIEW ---
-    return IssueRegion(
+    return _region_by_evidence_box(page, finding) or IssueRegion(
         finding_id=finding_id,
-        selector="",
-        outer_html="",
-        bounding_box={},
-        capture_status="NEEDS_REVIEW",
+        description=finding.get("claim", ""),
+        severity=finding.get("severity", ""),
+    )
+
+
+def _evidence_selector(finding: dict[str, Any]) -> str:
+    return next(
+        (evidence.get("selector", "") for evidence in finding.get("evidence", [])
+         if evidence.get("selector")),
+        "",
+    )
+
+
+def _region_by_selector(page: Any, finding: dict[str, Any], selector: str) -> IssueRegion | None:
+    if not selector:
+        return None
+    element, outer, box = _by_selector(page, selector)
+    if element is None and not outer:
+        return None
+    return _region_from_capture(finding, selector, outer, box)
+
+
+def _region_by_role(page: Any, finding: dict[str, Any]) -> IssueRegion | None:
+    element, outer, box = _by_role_name(page, finding)
+    if element is None and not outer:
+        return None
+    return _region_from_capture(finding, "", outer, box)
+
+
+def _region_from_capture(
+    finding: dict[str, Any],
+    selector: str,
+    outer: str,
+    box: dict[str, int],
+) -> IssueRegion:
+    return IssueRegion(
+        finding_id=finding.get("finding_id", ""),
+        selector=selector,
+        outer_html=outer,
+        bounding_box=_pad_bounding_box(box) if box else {},
+        capture_status="CAPTURED" if box else "PARTIAL",
+        description=finding.get("claim", ""),
+        severity=finding.get("severity", ""),
+    )
+
+
+def _region_by_evidence_box(page: Any, finding: dict[str, Any]) -> IssueRegion | None:
+    box = next(
+        (evidence.get("bounding_box", {}) for evidence in finding.get("evidence", [])
+         if evidence.get("bounding_box")),
+        {},
+    )
+    if not box:
+        return None
+    _, outer, _ = _by_bounding_box(page, box)
+    return IssueRegion(
+        finding_id=finding.get("finding_id", ""),
+        outer_html=outer,
+        bounding_box=_pad_bounding_box(box),
+        capture_status="CAPTURED" if outer else "TARGET_NOT_FOUND",
         description=finding.get("claim", ""),
         severity=finding.get("severity", ""),
     )

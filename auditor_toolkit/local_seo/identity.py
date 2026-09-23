@@ -226,44 +226,36 @@ def merge_entities(
         secondary.parent_entity_id = primary.business_id
         return primary  # Don't merge
 
-    # Merge names (deduplicate)
-    existing_norms = {normalize_name(n.value) for n in primary.names}
-    for name in secondary.names:
-        norm = normalize_name(name.value)
-        if norm not in existing_norms:
-            primary.names.append(name)
-            existing_norms.add(norm)
-
-    # Merge locations
-    existing_loc_ids = {loc.location_id for loc in primary.locations}
-    for loc in secondary.locations:
-        if loc.location_id not in existing_loc_ids:
-            primary.locations.append(loc)
-            existing_loc_ids.add(loc.location_id)
-
-    # Merge phones (deduplicate by e164)
-    existing_e164 = {p.e164 for p in primary.phones if p.e164}
-    for phone in secondary.phones:
-        if not phone.e164 or phone.e164 not in existing_e164:
-            primary.phones.append(phone)
-            if phone.e164:
-                existing_e164.add(phone.e164)
-
-    # Merge emails
-    existing_emails = set(primary.emails)
-    for email in secondary.emails:
-        if email not in existing_emails:
-            primary.emails.append(email)
-            existing_emails.add(email)
-
-    # Merge domains
-    existing_domains = set(primary.domains)
-    for domain in secondary.domains:
-        if domain not in existing_domains:
-            primary.domains.append(domain)
-            existing_domains.add(domain)
+    _merge_names(primary, secondary)
+    _merge_unique_values(primary.locations, secondary.locations, lambda item: item.location_id)
+    _merge_unique_values(primary.phones, secondary.phones, lambda item: item.e164, keep_empty=True)
+    _merge_unique_values(primary.emails, secondary.emails, lambda item: item)
+    _merge_unique_values(primary.domains, secondary.domains, lambda item: item)
 
     # Recalculate confidence
     primary.confidence = _compute_confidence(primary)
 
     return primary
+
+
+def _merge_names(primary: LocalBusinessEntity, secondary: LocalBusinessEntity) -> None:
+    existing_names = {normalize_name(name.value) for name in primary.names}
+    for name in secondary.names:
+        normalized = normalize_name(name.value)
+        if normalized not in existing_names:
+            primary.names.append(name)
+            existing_names.add(normalized)
+
+
+def _merge_unique_values(
+    primary: list[Any],
+    secondary: list[Any],
+    key: Any,
+    keep_empty: bool = False,
+) -> None:
+    existing = {key(item) for item in primary}
+    for item in secondary:
+        value = key(item)
+        if (keep_empty and not value) or value not in existing:
+            primary.append(item)
+            existing.add(value)

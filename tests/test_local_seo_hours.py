@@ -90,6 +90,14 @@ def test_normalize_hours_weekday_range():
     assert hours[0].closes == "17:00"
 
 
+def test_normalize_hours_multiple_segments():
+    hours = normalize_hours("Mon-Fri 9am-5pm; Saturday 10am-2pm")
+    assert len(hours) == 6
+    assert hours[-1].day == "Saturday"
+    assert hours[-1].opens == "10:00"
+    assert hours[-1].closes == "14:00"
+
+
 def test_normalize_hours_empty():
     assert normalize_hours("") == []
 

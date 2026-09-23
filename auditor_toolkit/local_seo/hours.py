@@ -139,42 +139,38 @@ def _extract_closed_days(cleaned: str) -> list[str]:
 
 def _parse_hours_pattern(cleaned: str, source: str) -> list[OpeningHour]:
     """Parse 'Mon-Fri 9am-5pm' style patterns."""
-    results: list[OpeningHour] = []
-
     # Split by common delimiters for multiple schedules
     segments = re.split(r";\s*|\s{2,}", cleaned)
+    return [
+        hour
+        for segment in segments
+        for hour in _parse_hours_segment(segment, source)
+    ]
 
-    for segment in segments:
-        # Try to find day range and time range
-        day_time_match = re.match(
-            r"([a-z,\s\-]+?)\s+(\d[^;]+)?", segment
+
+def _parse_hours_segment(segment: str, source: str) -> list[OpeningHour]:
+    match = re.match(r"([a-z,\s\-]+?)\s+(\d[^;]+)?", segment)
+    if not match:
+        return []
+
+    days = _expand_day_range(match.group(1).strip())
+    time_part = match.group(2)
+    if not time_part:
+        return [OpeningHour(day=day, source=source) for day in days]
+
+    times = _parse_time_range(time_part)
+    if not times:
+        return []
+    return [
+        OpeningHour(
+            day=day,
+            opens=times[0],
+            closes=times[1] if len(times) > 1 else "",
+            overnight=times[0] > times[1] if len(times) > 1 else False,
+            source=source,
         )
-        if not day_time_match:
-            continue
-
-        day_part = day_time_match.group(1).strip()
-        time_part = day_time_match.group(2)
-
-        days = _expand_day_range(day_part)
-
-        if time_part:
-            times = _parse_time_range(time_part)
-            for d in days:
-                if times:
-                    results.append(
-                        OpeningHour(
-                            day=d,
-                            opens=times[0],
-                            closes=times[1] if len(times) > 1 else "",
-                            overnight=times[0] > times[1] if len(times) > 1 else False,
-                            source=source,
-                        )
-                    )
-        else:
-            for d in days:
-                results.append(OpeningHour(day=d, source=source))
-
-    return results
+        for day in days
+    ]
 
 
 def _expand_day_range(day_range: str) -> list[str]:

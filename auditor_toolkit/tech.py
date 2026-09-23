@@ -54,7 +54,7 @@ def _technology(name: str, category: str, evidence: str, confidence: float) -> T
 
 def _detect_wordpress(soup: BeautifulSoup) -> Technology | None:
     generator = soup.find("meta", attrs={"name": "generator"})
-    generator_content = generator.get("content") if generator else None
+    generator_content = generator.get("content") if generator is not None else None
     if not isinstance(generator_content, str) or "wordpress" not in generator_content.lower():
         return None
 
