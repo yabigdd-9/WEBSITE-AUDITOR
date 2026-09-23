@@ -1,12 +1,9 @@
-"""E2E test for local SEO rendered schema detection."""
+"""E2E-style tests for LocalBusiness schema detection from rendered HTML."""
 
-from auditor_toolkit.local_seo.local_schema import (
-    extract_local_business_from_html,
-)
+from auditor_toolkit.local_seo.local_schema import extract_local_business_from_html
 
 
 def test_rendered_schema_extraction():
-    """Extract LocalBusiness schema from rendered HTML."""
     html = """
     <!DOCTYPE html>
     <html>
@@ -17,7 +14,7 @@ def test_rendered_schema_extraction():
             "@context": "https://schema.org",
             "@type": "LocalBusiness",
             "name": "ABC Plumbing",
-            "telephone": "+6431234567",
+            "telephone": "+6433795555",
             "address": {
                 "@type": "PostalAddress",
                 "streetAddress": "17 High St",
@@ -33,19 +30,16 @@ def test_rendered_schema_extraction():
         }
         </script>
     </head>
-    <body>
-        <h1>ABC Plumbing</h1>
-    </body>
+    <body><h1>ABC Plumbing</h1></body>
     </html>
     """
     entities = extract_local_business_from_html(html)
-    assert len(entities) >= 1
-    types = [e.get("@type") for e in entities]
-    assert "LocalBusiness" in types
+    assert len(entities) == 1
+    assert "LocalBusiness" in entities[0]["entity_type"]
+    assert entities[0]["geo"] is not None
 
 
 def test_rendered_schema_multiple_entities():
-    """Multiple schema entities on same page."""
     html = """
     <script type="application/ld+json">
     [{"@type": "LocalBusiness", "name": "Branch A"},
@@ -53,13 +47,11 @@ def test_rendered_schema_multiple_entities():
     </script>
     """
     entities = extract_local_business_from_html(html)
-    assert len(entities) >= 1  # Organization normalized into entity format
+    assert {entity["name"] for entity in entities} == {"Branch A", "Head Office"}
 
 
 def test_rendered_schema_no_schema():
-    html = "<html><body>No structured data</body></html>"
-    entities = extract_local_business_from_html(html)
-    assert entities == []
+    assert extract_local_business_from_html("<html><body>No structured data</body></html>") == []
 
 
 def test_rendered_schema_geo_extraction():
@@ -69,5 +61,6 @@ def test_rendered_schema_geo_extraction():
      "geo": {"@type": "GeoCoordinates", "latitude": -41.28, "longitude": 174.77}}
     </script>
     """
-    entities = extract_local_business_from_html(html)
-    assert len(entities) >= 1
+    entity = extract_local_business_from_html(html)[0]
+    assert entity["geo"].latitude == -41.28
+    assert entity["geo"].longitude == 174.77
