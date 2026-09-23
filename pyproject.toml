@@ -6,7 +6,7 @@ requires-python = ">=3.11"
 readme = "README.md"
 license = {text = "MIT"}
 
-# Main dependencies (same as requirements.txt + requests added earlier)
+# Main dependencies (kept aligned with requirements.txt)
 dependencies = [
   "httpx>=0.28,<1",
   "aiohttp>=3.10",
@@ -17,6 +17,7 @@ dependencies = [
   "requests>=2.32",
   "pyyaml>=6",
   "dnspython>=2.6,<3",
+  "phonenumbers>=8.13,<10",
 ]
 
 [project.scripts]
