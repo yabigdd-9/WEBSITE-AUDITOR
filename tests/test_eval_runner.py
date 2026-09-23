@@ -12,7 +12,9 @@ from auditor_toolkit.evaluation.runner import (
 from auditor_toolkit.evaluation.schema import (
     EvalCase,
     EvalEvidenceRef,
+    EvalFailure,
     EvalResult,
+    EvalRun,
 )
 
 
@@ -162,6 +164,56 @@ def test_compute_metrics():
     assert metrics.total_cases == 1
     assert metrics.pass_count == 1
     assert metrics.completion_rate == 1.0
+
+
+def test_compute_metrics_aggregates_claims_abstentions_and_failures():
+    runner = EvalRunner(adapter=_FakeAdapter())
+    run = EvalRun(
+        run_id="run-metrics",
+        candidate_id="candidate",
+        baseline_id="baseline",
+        model_name="fake",
+        agent_version="1",
+        repository_commit="abc",
+        policy_version="1",
+        results=[
+            EvalResult(
+                case_id="supported",
+                run_id="run-metrics",
+                overall="PASS",
+                claims=[{"evidence_id": "e1"}, {"text": "unsupported"}],
+                duration_ms=100,
+            ),
+            EvalResult(
+                case_id="evidence-abstention",
+                run_id="run-metrics",
+                overall="ABSTAIN",
+                evidence_selected=[EvalEvidenceRef(evidence_id="e2")],
+                duration_ms=300,
+                failures=[
+                    EvalFailure("GOLDEN_CORPUS_REGRESSION", "c2", "g", "regression"),
+                    EvalFailure("FORBIDDEN_ACTION", "c2", "g", "blocked"),
+                    EvalFailure("TOOL_POLICY_VIOLATION", "c2", "g", "policy"),
+                ],
+            ),
+            EvalResult(
+                case_id="empty-abstention",
+                run_id="run-metrics",
+                overall="N/A",
+                duration_ms=200,
+            ),
+        ],
+    )
+
+    metrics = runner.compute_metrics(run)
+
+    assert metrics.unsupported_claim_rate == 0.5
+    assert metrics.correct_abstention_rate == 0.5
+    assert metrics.incorrect_abstention_rate == 0.5
+    assert metrics.avg_latency_ms == 200
+    assert metrics.golden_corpus_retention == 0.99
+    assert metrics.prohibited_action_count == 1
+    assert metrics.tool_policy_violation_count == 1
 
 
 def test_save_run(tmp_path):

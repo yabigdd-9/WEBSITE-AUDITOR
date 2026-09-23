@@ -114,58 +114,8 @@ class EvalRunner:
         if metrics.total_cases > 0:
             metrics.completion_rate = metrics.pass_count / metrics.total_cases
 
-        # Compute detailed metrics from results
-        total_claims = 0
-        supported_claims = 0
-        unsupported_claims = 0
-        correct_abstentions = 0
-        incorrect_abstentions = 0
-        total_duration = 0
-
-        for result in run.results:
-            total_claims += len(result.claims)
-            total_duration += result.duration_ms
-
-            # Unsupported claims
-            for claim in result.claims:
-                if claim.get("evidence_id") or claim.get("finding_id"):
-                    supported_claims += 1
-                else:
-                    unsupported_claims += 1
-
-            # Abstention analysis
-            if not result.claims and result.evidence_selected:
-                correct_abstentions += 1
-            elif not result.claims and not result.evidence_selected:
-                incorrect_abstentions += 1
-
-        if total_claims > 0:
-            metrics.unsupported_claim_rate = unsupported_claims / total_claims
-
-        total_abstentions = correct_abstentions + incorrect_abstentions
-        if total_abstentions > 0:
-            metrics.correct_abstention_rate = (
-                correct_abstentions / total_abstentions
-            )
-            metrics.incorrect_abstention_rate = (
-                incorrect_abstentions / total_abstentions
-            )
-
-        if metrics.total_cases > 0:
-            metrics.avg_latency_ms = total_duration / metrics.total_cases
-
-        # Count failures by type
-        for result in run.results:
-            for failure in result.failures:
-                if failure.failure_class == "GOLDEN_CORPUS_REGRESSION":
-                    metrics.golden_corpus_retention = max(
-                        0, metrics.golden_corpus_retention - 0.01
-                    )
-                if failure.failure_class == "FORBIDDEN_ACTION":
-                    metrics.prohibited_action_count += 1
-                if failure.failure_class == "TOOL_POLICY_VIOLATION":
-                    metrics.tool_policy_violation_count += 1
-
+        _populate_result_metrics(metrics, run)
+        _populate_failure_metrics(metrics, run)
         return metrics
 
     def save_run(self, run: EvalRun, metrics: EvalMetrics) -> Path | None:
@@ -306,3 +256,50 @@ def hash_fixture(path: Path) -> str:
 def hash_fixture_content(content: str) -> str:
     """Compute SHA-256 hash of fixture content string."""
     return hashlib.sha256(content.encode()).hexdigest()
+
+
+def _populate_result_metrics(metrics: EvalMetrics, run: EvalRun) -> None:
+    """Compute claim, abstention, and latency metrics from results."""
+    total_claims = sum(len(result.claims) for result in run.results)
+    unsupported_claims = sum(
+        1
+        for result in run.results
+        for claim in result.claims
+        if not (claim.get("evidence_id") or claim.get("finding_id"))
+    )
+    correct_abstentions = sum(
+        1
+        for result in run.results
+        if not result.claims and result.evidence_selected
+    )
+    incorrect_abstentions = sum(
+        1
+        for result in run.results
+        if not result.claims and not result.evidence_selected
+    )
+
+    if total_claims:
+        metrics.unsupported_claim_rate = unsupported_claims / total_claims
+
+    total_abstentions = correct_abstentions + incorrect_abstentions
+    if total_abstentions:
+        metrics.correct_abstention_rate = correct_abstentions / total_abstentions
+        metrics.incorrect_abstention_rate = incorrect_abstentions / total_abstentions
+
+    if metrics.total_cases:
+        total_duration = sum(result.duration_ms for result in run.results)
+        metrics.avg_latency_ms = total_duration / metrics.total_cases
+
+
+def _populate_failure_metrics(metrics: EvalMetrics, run: EvalRun) -> None:
+    """Count policy and regression failures across a run."""
+    for result in run.results:
+        for failure in result.failures:
+            if failure.failure_class == "GOLDEN_CORPUS_REGRESSION":
+                metrics.golden_corpus_retention = max(
+                    0, metrics.golden_corpus_retention - 0.01
+                )
+            elif failure.failure_class == "FORBIDDEN_ACTION":
+                metrics.prohibited_action_count += 1
+            elif failure.failure_class == "TOOL_POLICY_VIOLATION":
+                metrics.tool_policy_violation_count += 1

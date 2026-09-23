@@ -319,15 +319,25 @@ def _compare_day_hours(a: OpeningHour, b: OpeningHour) -> tuple[float, int]:
         return (1, 0) if a.special_text == b.special_text else (0, 1)
 
     if (a.special_text or a.closed) != (b.special_text or b.closed):
-        if a.special_text == _BY_APPOINTMENT or b.special_text == _BY_APPOINTMENT:
-            return 1, 0
-        return 0, 1
+        return _compare_special_state(a, b)
 
     if a.opens and b.opens:
-        if a.opens == b.opens and a.closes == b.closes:
-            return 1, 0
-        if a.opens == b.opens or a.closes == b.closes:
-            return 0.5, 0
-        return 0, 1
+        return _compare_open_hours(a, b)
 
     return 0, 0
+
+
+def _compare_special_state(a: OpeningHour, b: OpeningHour) -> tuple[float, int]:
+    if a.special_text == _BY_APPOINTMENT or b.special_text == _BY_APPOINTMENT:
+        return 1, 0
+    return 0, 1
+
+
+def _compare_open_hours(a: OpeningHour, b: OpeningHour) -> tuple[float, int]:
+    same_open = a.opens == b.opens
+    same_close = a.closes == b.closes
+    if same_open and same_close:
+        return 1, 0
+    if same_open or same_close:
+        return 0.5, 0
+    return 0, 1

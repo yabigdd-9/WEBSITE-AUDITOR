@@ -55,17 +55,12 @@ def generate_diff(
     # Convert to grayscale for threshold comparison
     gray_diff = diff_img.convert("L")
 
-    # Count differing pixels
     total_pixels = gray_diff.width * gray_diff.height
-    diff_pixels = 0
-
     pixels = gray_diff.load()
-    for y in range(gray_diff.height):
-        for x in range(gray_diff.width):
-            if pixels[x, y] > threshold:
-                diff_pixels += 1
-
-    diff_percent = (diff_pixels / total_pixels * 100) if total_pixels > 0 else 0.0
+    diff_pixels = _count_different_pixels(
+        pixels, gray_diff.width, gray_diff.height, threshold
+    )
+    diff_percent = diff_pixels / total_pixels * 100 if total_pixels else 0.0
 
     # Create annotated diff image with red highlights
     annotated = before_img.copy()
@@ -73,10 +68,14 @@ def generate_diff(
     overlay = Image.new("RGBA", before_img.size, (0, 0, 0, 0))
     overlay_draw = ImageDraw.Draw(overlay)
 
-    for y in range(gray_diff.height):
-        for x in range(gray_diff.width):
-            if pixels[x, y] > threshold:
-                overlay_draw.point((x, y), fill=(*highlight_color, 128))
+    _draw_highlights(
+        overlay_draw,
+        pixels,
+        gray_diff.width,
+        gray_diff.height,
+        threshold,
+        highlight_color,
+    )
 
     annotated = annotated.convert("RGBA")
     annotated = Image.alpha_composite(annotated, overlay)
@@ -91,3 +90,20 @@ def generate_diff(
         "diff_path": diff_path,
         "diff_percent": round(diff_percent, 2),
     }
+
+
+def _count_different_pixels(pixels, width: int, height: int, threshold: int) -> int:
+    return sum(
+        1
+        for y in range(height)
+        for x in range(width)
+        if pixels[x, y] > threshold
+    )
+
+
+def _draw_highlights(draw, pixels, width, height, threshold, highlight_color) -> None:
+    color = (*highlight_color, 128)
+    for y in range(height):
+        for x in range(width):
+            if pixels[x, y] > threshold:
+                draw.point((x, y), fill=color)
