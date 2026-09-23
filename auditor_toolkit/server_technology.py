@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import re
-
 from .checks import Finding
 
 
@@ -14,7 +12,6 @@ def analyse_html(
     findings: list[Finding] = []
     evidence: dict = {}
 
-    # Server header
     server = response_headers.get("Server", "")
     if server:
         findings.append(
@@ -28,7 +25,6 @@ def analyse_html(
             )
         )
 
-    # X-Powered-By header
     x_powered_by = response_headers.get("X-Powered-By", "")
     if x_powered_by:
         findings.append(
@@ -42,7 +38,6 @@ def analyse_html(
             )
         )
 
-    # Via header (can reveal proxies)
     via = response_headers.get("Via", "")
     if via:
         findings.append(
@@ -56,7 +51,6 @@ def analyse_html(
             )
         )
 
-    # X-Generator header (CMS)
     x_generator = response_headers.get("X-Generator", "")
     if x_generator:
         findings.append(
@@ -70,8 +64,6 @@ def analyse_html(
             )
         )
 
-    # Look for common server signatures in headers
-    # Examples: Cloudflare, Akamai, etc.
     for header, value in response_headers.items():
         header_lower = header.lower()
         value_lower = value.lower()
