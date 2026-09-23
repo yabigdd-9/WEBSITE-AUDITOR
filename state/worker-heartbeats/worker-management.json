@@ -1,0 +1,9 @@
+{
+  "worker_id": "worker-management",
+  "kind": "RESPONDED",
+  "hostname": "YabigDDs-Air",
+  "pid": 26743,
+  "started_at": "2026-09-22T08:24:34.388303+00:00",
+  "heartbeat_at": "2026-09-22T08:29:16.393399+00:00",
+  "lease_seconds": 300
+}

@@ -31,6 +31,7 @@ from .quality_checks import run_quality_checks
 from .reporting import render_trend_svg, write_html_report
 from .storage import History, finding_id
 
+from . import tech, vuln_js, structured_validation, hreflang, language, images, social_meta, cookie_consent, third_party, browser_console, server_technology
 
 @dataclass
 class AuditOptions:
@@ -171,9 +172,17 @@ def run_audit(url, options=None, fetcher=None):
         if checks["fetch"]["status"] == "ok":
             final_url = str(response.url)
             perform_parallel([
-                ("page", lambda: analyse_html(response.text, final_url), True),
-                ("schema", lambda: inspect_schema(response.text, final_url, opts.profile), True),
-                ("headers", lambda: inspect_headers(response), True),
+                (page, lambda: analyse_html(response.text, final_url), True),
+                (schema, lambda: inspect_schema(response.text, final_url, opts.profile), True),
+                (headers, lambda: inspect_headers(response), True),
+                (technology, lambda: tech.analyse_html(response.text, final_url, response.headers), True),
+                (js_vulnerabilities, lambda: vuln_js.analyse_html(response.text, final_url, response.headers), True),
+                (structured_validation, lambda: structured_validation.analyse_html(response.text, final_url, response.headers), True),
+                (hreflang, lambda: hreflang.analyse_html(response.text, final_url, response.headers), True),
+                (language, lambda: language.analyse_html(response.text, final_url, response.headers), True),
+                (images, lambda: images.analyse_html(response.text, final_url, response.headers), True),
+                (social_meta, lambda: social_meta.analyse_html(response.text, final_url, response.headers), True),
+                (server_technology, lambda: server_technology.analyse_html(response.text, final_url, response.headers), True),
             ])
             def hygiene_checks():
                 robots_findings, robots_evidence = check_robots(client, final_url)
@@ -182,6 +191,7 @@ def run_audit(url, options=None, fetcher=None):
                 )
                 header_findings, header_evidence = grade_security_headers(
                     response.headers, final_url, deep=opts.deep
+                ("server_technology", lambda: server_technology.analyse_html(response.text, final_url, response.headers), True)
                 )
                 mixed_findings, mixed_evidence = check_mixed_content(response.text, final_url)
                 return (

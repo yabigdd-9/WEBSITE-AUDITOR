@@ -1,0 +1,35 @@
+{
+  "created_at": "2026-09-22T10:12:37.714791+00:00",
+  "items": [
+    {
+      "source": "/Users/dd/WEBSITE-AUDITOR/money-machine/config",
+      "path": "/Users/dd/WEBSITE-AUDITOR/backups/mm-v2-20260922T101237495376Z-c02631/money-machine-config.tgz",
+      "sha256": "24eff847c5f6dc8a8124bf8f5f58265899575393cf6614f898f841b002d69fb6"
+    },
+    {
+      "source": "/Users/dd/WEBSITE-AUDITOR/money-machine/scripts",
+      "path": "/Users/dd/WEBSITE-AUDITOR/backups/mm-v2-20260922T101237495376Z-c02631/money-machine-scripts.tgz",
+      "sha256": "34b2e3f43ab2400605624ac207338de24f0dd508cf2af3b88e49abf1b4a16e37"
+    },
+    {
+      "source": "/Users/dd/WEBSITE-AUDITOR/money-machine/supervisor",
+      "path": "/Users/dd/WEBSITE-AUDITOR/backups/mm-v2-20260922T101237495376Z-c02631/money-machine-supervisor.tgz",
+      "sha256": "4575cecf15f118b9c0061bd472bbabd1580eea04459441e114c7897ecc068281"
+    },
+    {
+      "source": "/Users/dd/WEBSITE-AUDITOR/state",
+      "path": "/Users/dd/WEBSITE-AUDITOR/backups/mm-v2-20260922T101237495376Z-c02631/state.tgz",
+      "sha256": "83a451a7d002644b025e57a15bec4cef916a405c4b8edc6f2aae14386aebec82"
+    },
+    {
+      "source": "/Users/dd/WEBSITE-AUDITOR/approval",
+      "path": "/Users/dd/WEBSITE-AUDITOR/backups/mm-v2-20260922T101237495376Z-c02631/approval.tgz",
+      "sha256": "1a02a0a56a90240d7d29b68a2ef2e7d9e0b792045da64aebf3b02e5721c58de9"
+    },
+    {
+      "source": "/Users/dd/WEBSITE-AUDITOR/database/money_machine.db",
+      "path": "/Users/dd/WEBSITE-AUDITOR/backups/mm-v2-20260922T101237495376Z-c02631/money_machine.db",
+      "sha256": "5ee6ba7e9db006cff38f75e74f54090c099ebee773a7ac1b922df41b8290f160"
+    }
+  ]
+}

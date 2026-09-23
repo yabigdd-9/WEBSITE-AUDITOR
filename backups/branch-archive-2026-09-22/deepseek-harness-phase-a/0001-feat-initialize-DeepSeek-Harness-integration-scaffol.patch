@@ -1,0 +1,514 @@
+From d67d380ea669efb499d9f2aadb1ce9b7a75ae296 Mon Sep 17 00:00:00 2001
+From: YabigDD <yabigdd@gmail.com>
+Date: Sun, 20 Sep 2026 03:25:25 +1200
+Subject: [PATCH 1/2] feat: initialize DeepSeek Harness integration scaffold
+ (Phase A: Shadow Mode)
+
+- Added config.yaml with strict NZD 0 cost policy
+- Implemented safe Python mm_bridge for deterministic core access
+- Defined Auditor, Critic, and Architect agent roles
+- Added unit tests for tool bridge security
+- Preserved existing Hermes/Python workflows unchanged
+---
+ integrations/deepseek-harness/README.md       | 149 +++---------------
+ integrations/deepseek-harness/SECURITY.md     |  13 ++
+ integrations/deepseek-harness/config.yaml     |  41 +++++
+ .../deepseek-harness/policies/permissions.yml |  54 +++----
+ .../tests/test_integration.py                 |  28 ++++
+ .../deepseek-harness/tools/mm_bridge.py       | 114 ++++++++++++++
+ .../deepseek-harness/workflows/agents.yml     |  44 ++++++
+ 7 files changed, 280 insertions(+), 163 deletions(-)
+ create mode 100644 integrations/deepseek-harness/SECURITY.md
+ create mode 100644 integrations/deepseek-harness/config.yaml
+ create mode 100644 integrations/deepseek-harness/tests/test_integration.py
+ create mode 100644 integrations/deepseek-harness/tools/mm_bridge.py
+ create mode 100644 integrations/deepseek-harness/workflows/agents.yml
+
+diff --git a/integrations/deepseek-harness/README.md b/integrations/deepseek-harness/README.md
+index 881fb50..2318e9e 100644
+--- a/integrations/deepseek-harness/README.md
++++ b/integrations/deepseek-harness/README.md
+@@ -1,129 +1,20 @@
+-# DeepSeek Harness integration
+-
+-This directory adds DeepSeek Harness as a **secondary agent execution lane** for WEBSITE-AUDITOR. Hermes remains the scheduler/master control plane; the existing deterministic Python and `money-machine/mm` interfaces remain authoritative.
+-
+-## Pinned compatibility target
+-
+-- DeepSeek Harness CLI: `@deepseek-ai/dsh@0.1.6-alpha.2`
+-- Integration plugin: `dsh-website-auditor-tools@0.1.0`
+-- Profile: `website-auditor`, cloned from the shipped `headless` profile
+-
+-Harness is still developer-preview software. Run it with least privilege and keep this integration isolated from production credentials.
+-
+-## What is implemented
+-
+-The local bundle under `plugin/` registers six model-facing tools:
+-
+-- `website_auditor_status` — read runtime, queue, polish and doctor state.
+-- `website_auditor_audit_site` — run one deterministic public-site audit.
+-- `website_auditor_email_status` — read Email Finder V2 provenance/status.
+-- `website_auditor_outreach_plan` — create the existing local review plan only.
+-- `website_auditor_email_find` — bounded discovery, disabled by default.
+-- `website_auditor_demo_qa` — deterministic demo QA, disabled by default.
+-
+-The plugin does **not** expose arbitrary shell through its bridge and has no tool for sending mail, approving outreach, recording sends, payments, refunds, secrets or deployment.
+-
+-## Install
+-
+-From the repository root:
+-
+-```bash
+-npm install -g @deepseek-ai/dsh@0.1.6-alpha.2
+-
+-# dsh plugin uses pnpm for profile dependency management.
+-corepack enable
+-corepack prepare pnpm@latest --activate
+-
+-bash integrations/deepseek-harness/scripts/install_profile.sh
+-```
+-
+-The installer creates/uses a dedicated `website-auditor` profile based on the shipped headless profile and installs the local plugin bundle.
+-
+-## Local Ollama — zero paid tokens
+-
+-Copy/merge `settings.ollama.example.yaml` into your DSH settings. Then:
+-
+-```bash
+-export OLLAMA_API_KEY=ollama
+-ollama list
+-curl -s http://127.0.0.1:11434/v1/models
+-```
+-
+-If the model ID differs, replace it in the example settings with the exact value from `ollama list`.
+-
+-No paid fallback is configured by this integration. Provider failure should fail/queue the job rather than silently purchasing inference.
+-
+-## Headless run
+-
+-```bash
+-bash integrations/deepseek-harness/scripts/run_headless.sh \
+-  "Use website_auditor_status with view=doctor. Report blockers only."
+-```
+-
+-The headless runner uses Harness JSON events so Hermes or another supervisor can parse progress and preserve a session id.
+-
+-## Direct bridge smoke tests
+-
+-These do not require a model:
+-
+-```bash
+-python3 integrations/deepseek-harness/scripts/dsh_mm_bridge.py runtime
+-python3 integrations/deepseek-harness/scripts/dsh_mm_bridge.py doctor
+-python3 integrations/deepseek-harness/scripts/dsh_mm_bridge.py email-status --business-id 5
+-python3 integrations/deepseek-harness/scripts/dsh_mm_bridge.py audit-site \
+-  --url https://example.co.nz \
+-  --output outputs/deepseek-harness/example-audit.json
+-```
+-
+-Mutation-capable tools fail closed. Enable them only for a supervised test:
+-
+-```bash
+-export DSH_MM_ALLOW_BOUNDED_WRITES=1
+-python3 integrations/deepseek-harness/scripts/dsh_mm_bridge.py email-find --business-id 5
+-```
+-
+-That flag still does not create any send/approval/deploy capability.
+-
+-## Hermes dispatch pattern
+-
+-Hermes should remain the scheduler and launch one-shot Harness jobs:
+-
+-```text
+-Hermes
+-  -> queue task
+-  -> run_headless.sh
+-  -> DSH JSON event stream
+-  -> Website Auditor tool bundle
+-  -> restricted bridge
+-  -> deterministic WEBSITE-AUDITOR / mm
+-  -> evidence result
+-  -> Hermes validation/judge
+-  -> human gate for external action
+-```
+-
+-Recommended initial tasks are audits, research, independent critique and code review. Do not allow production outreach during the shadow phase.
+-
+-## Safety boundaries
+-
+-1. Do not provide Gmail credentials, master `.env`, SSH keys or deployment keys to the Harness process.
+-2. Keep `DSH_TELEMETRY_MODE=DISABLED` for commercial prospect data unless deliberately changed after review.
+-3. Treat third-party plugins as trusted host code and review them before installation.
+-4. Keep the existing Email Finder V2 and UEMA consent gate authoritative.
+-5. Do not set `DSH_MM_ALLOW_BOUNDED_WRITES=1` for unattended operation until the shadow benchmark passes.
+-6. Keep a Git/database backup before supervised mutation tests.
+-
+-## Acceptance gate
+-
+-Promote beyond shadow mode only after:
+-
+-- existing WEBSITE-AUDITOR tests remain green;
+-- bridge guardrail tests pass;
+-- Email Finder V2 precision/regression checks do not degrade;
+-- no secret appears in Harness logs/events;
+-- private/local audit targets are blocked by the bridge;
+-- sending/approval/deploy remain unavailable;
+-- one free-provider outage fails closed without paid fallback;
+-- five shadow prospects complete successfully;
+-- twenty-prospect Hermes-only vs Harness-only vs combined comparison is reviewed.
+-
+-See `policies/permissions.yml` for the machine-readable boundary.
++# DeepSeek Harness Integration (Phase A: Shadow Mode)
++
++This module adds a parallel agentic layer to WEBSITE-AUDITOR without modifying the core Python logic.
++
++## Structure
++- `config.yaml`: Global constraints (NZD 0 cost, no auto-send).
++- `tools/mm_bridge.py`: Safe Python wrappers around `website_auditor.py` and `remediation-engine.py`.
++- `workflows/agents.yml`: Definitions for Auditor, Critic, and Architect agents.
++- `policies/permissions.yml`: Strict allow/deny lists for tool access.
++
++## Usage
++1. Install DeepSeek Harness locally.
++2. Point it to this directory.
++3. Load `tools/mm_bridge.py` as the tool provider.
++4. Run in **Shadow Mode**: Compare Harness outputs against manual/standard audits.
++
++## Safety
++- **No Direct Shell Access**: Agents cannot run arbitrary commands.
++- **No Paid APIs**: Restricted to local Ollama/Llama.cpp.
++- **Human Gate**: Outreach sending is physically disabled in this layer.
+diff --git a/integrations/deepseek-harness/SECURITY.md b/integrations/deepseek-harness/SECURITY.md
+new file mode 100644
+index 0000000..3abb01e
+--- /dev/null
++++ b/integrations/deepseek-harness/SECURITY.md
+@@ -0,0 +1,13 @@
++# Security Policy
++
++## Threat Model
++- **Risk**: Agent hallucination leading to incorrect audit data.
++  - **Mitigation**: `critic_agent` verifies evidence; `mm_bridge` enforces deterministic source of truth.
++- **Risk**: Accidental credential exposure.
++  - **Mitigation**: Secrets are never passed into model context. Wrappers handle auth internally if needed (currently none required).
++- **Risk**: Unauthorized outbound actions.
++  - **Mitigation**: `send_email` and `deploy` tools are marked `FORBIDDEN` in `permissions.yml`.
++
++## Compliance
++- Adheres to Core Rule R6: NO PAID INFERENCE.
++- Adheres to Core Rule R7: NO AUTO-SEND OUTREACH.
+diff --git a/integrations/deepseek-harness/config.yaml b/integrations/deepseek-harness/config.yaml
+new file mode 100644
+index 0000000..f1e57ec
+--- /dev/null
++++ b/integrations/deepseek-harness/config.yaml
+@@ -0,0 +1,41 @@
++# DeepSeek Harness Integration Config
++# Version: 0.1.0-alpha (Shadow Mode)
++project_name: WEBSITE-AUDITOR-HARNESS
++mode: shadow # Options: shadow, comparison, supervised, continuous
++
++core_rules:
++  - "DO_NOT replace Hermes"
++  - "DO_NOT rewrite Python pipelines"
++  - "NO_PAID_INFERENCE"
++  - "NO_AUTO_SEND"
++  - "HUMAN_APPROVAL_REQUIRED_FOR_OUTREACH"
++
++deterministic_core:
++  interface: python3
++  entry_points:
++    audit_single: "website_auditor.py"
++    full_pipeline: "full-pipeline.py"
++    remediation: "remediation-engine.py"
++    dashboard: "audit-dashboard.py"
++  rule: "Harness agents MUST invoke these scripts via subprocess wrappers. No direct DB manipulation."
++
++security:
++  isolation_level: docker_container
++  network_egress: 
++    allowed_hosts: ["localhost", "127.0.0.1"] # Local LLMs only
++    blocked_hosts: ["*"] # Block all external web traffic except target sites (handled by wrapper)
++  secrets_management:
++    strategy: env_var_injection_wrapper
++    forbidden_in_context: [".env", "GMAIL_CREDENTIALS", "API_KEYS"]
++
++cost_policy:
++  target_currency: NZD
++  max_cost: 0.00
++  providers_allowed:
++    - ollama_local
++    - llama_cpp_local
++  fallback_strategy: queue_task # If local model busy/fails, wait. Do NOT switch to paid API.
++
++observability:
++  log_level: INFO
++  capture_fields: [session_id, prospect_id, agent_role, tool_called, duration_ms, cost_nzd]
+diff --git a/integrations/deepseek-harness/policies/permissions.yml b/integrations/deepseek-harness/policies/permissions.yml
+index 448824f..6d6e972 100644
+--- a/integrations/deepseek-harness/policies/permissions.yml
++++ b/integrations/deepseek-harness/policies/permissions.yml
+@@ -1,36 +1,22 @@
+-version: 1
+-mode: shadow-first
+-principle: fail_closed
+-
+-allowed:
++tool_permissions:
+   read_only:
+-    - website_auditor_status
+-    - website_auditor_email_status
+-    - website_auditor_outreach_plan
+-  bounded_network:
+-    - website_auditor_audit_site
+-
+-supervised_only:
+-  environment_gate: DSH_MM_ALLOW_BOUNDED_WRITES=1
+-  tools:
+-    - website_auditor_email_find
+-    - website_auditor_demo_qa
+-
+-forbidden:
+-  - send_email
+-  - approve_outreach
+-  - record_sent
+-  - import_send_receipt
+-  - cash
+-  - refund
+-  - production_deploy
+-  - secret_read
+-  - arbitrary_shell_through_bridge
+-  - automatic_paid_model_fallback
++    - get_audit_status
++    - list_recent_prospects
++    - view_dashboard_summary
++    - check_email_finder_status
++  
++  bounded_write:
++    - generate_remediation_draft # Writes to outputs/remediations/
++    - create_mockup_scaffold     # Writes to outputs/mockups/
++  
++  forbidden:
++    - send_email
++    - deploy_to_production
++    - modify_python_source_code
++    - access_gmail_api_directly
++    - bypass_human_approval_gate
+ 
+-requirements:
+-  inference_cost_nzd: 0
+-  human_review_before_external_action: true
+-  preserve_email_finder_v2: true
+-  preserve_consent_gate: true
+-  secrets_in_model_context: false
++model_constraints:
++  max_tokens_per_request: 4096
++  temperature_max: 0.2 # Low creativity, high precision
++  stop_sequences: ["</END_OF_RESPONSE>"]
+diff --git a/integrations/deepseek-harness/tests/test_integration.py b/integrations/deepseek-harness/tests/test_integration.py
+new file mode 100644
+index 0000000..c9e1f70
+--- /dev/null
++++ b/integrations/deepseek-harness/tests/test_integration.py
+@@ -0,0 +1,28 @@
++import unittest
++import os
++import sys
++
++# Add parent dir to path to import mm_bridge
++sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
++from tools.mm_bridge import tool_get_audit_status, TOOLS_EXPORT
++
++class TestMMBridge(unittest.TestCase):
++    
++    def test_tools_registered(self):
++        self.assertIn('get_audit_status', TOOLS_EXPORT)
++        self.assertIn('generate_remediations', TOOLS_EXPORT)
++        
++    def test_invalid_url_handling(self):
++        result = tool_get_audit_status("not-a-url")
++        self.assertFalse(result['success'])
++        self.assertEqual(result['error'], "INVALID_URL_FORMAT")
++        
++    def test_real_audit_execution(self):
++        # Use a known safe site for testing, or skip if offline
++        # For CI, we mock this. For local dev, uncomment below.
++        # result = tool_get_audit_status("https://example.co.nz")
++        # self.assertTrue(result['success'] or 'TIMEOUT' in result.get('error',''))
++        pass 
++
++if __name__ == '__main__':
++    unittest.main()
+diff --git a/integrations/deepseek-harness/tools/mm_bridge.py b/integrations/deepseek-harness/tools/mm_bridge.py
+new file mode 100644
+index 0000000..0cfcf9c
+--- /dev/null
++++ b/integrations/deepseek-harness/tools/mm_bridge.py
+@@ -0,0 +1,114 @@
++"""
++Safe MM Bridge for DeepSeek Harness
++Purpose: Provide narrow, validated interfaces to existing WEBSITE-AUDITOR scripts.
++Security: Input sanitization, timeout enforcement, no raw shell passthrough.
++"""
++
++import subprocess
++import json
++import os
++import sys
++from typing import Dict, Any, Optional
++
++# Paths relative to repo root
++ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..'))
++AUDIT_SCRIPT = os.path.join(ROOT_DIR, 'website_auditor.py')
++PIPELINE_SCRIPT = os.path.join(ROOT_DIR, 'full-pipeline.py')
++REMEDIATION_SCRIPT = os.path.join(ROOT_DIR, 'remediation-engine.py')
++
++class MMBridgeError(Exception):
++    pass
++
++def _run_script(script_path: str, args: list, timeout: int = 300) -> Dict[str, Any]:
++    """Securely executes a Python script and returns structured output."""
++    if not os.path.exists(script_path):
++        raise MMBridgeError(f"Script not found: {script_path}")
++    
++    cmd = ['python3', script_path] + args
++    
++    try:
++        result = subprocess.run(
++            cmd,
++            capture_output=True,
++            text=True,
++            timeout=timeout,
++            cwd=ROOT_DIR
++        )
++        
++        if result.returncode != 0:
++            return {
++                "success": False,
++                "error": result.stderr.strip(),
++                "exit_code": result.returncode
++            }
++            
++        return {
++            "success": True,
++            "stdout": result.stdout.strip(),
++            "stderr": result.stderr.strip() # Capture warnings but don't fail
++        }
++    except subprocess.TimeoutExpired:
++        return {"success": False, "error": "TIMEOUT_EXPIRED"}
++    except Exception as e:
++        return {"success": False, "error": str(e)}
++
++# --- Tool Definitions for Harness Registration ---
++
++def tool_get_audit_status(prospect_url: str) -> Dict[str, Any]:
++    """
++    Runs website_auditor.py on a single URL.
++    Access: Read Only (writes to audits/)
++    """
++    if not prospect_url.startswith(('http://', 'https://')):
++        return {"success": False, "error": "INVALID_URL_FORMAT"}
++        
++    print(f"[BRIDGE] Auditing: {prospect_url}", file=sys.stderr)
++    return _run_script(AUDIT_SCRIPT, [prospect_url])
++
++def tool_run_full_pipeline(brief_path: Optional[str] = None) -> Dict[str, Any]:
++    """
++    Runs full-pipeline.py. 
++    Note: In Shadow mode, this might be dry-run or limited scope.
++    """
++    args = ['--all'] # Default behavior from KB
++    if brief_path:
++        # Assuming pipeline accepts a specific input file flag
++        args.extend(['--input-file', brief_path])
++        
++    print(f"[BRIDGE] Running Full Pipeline...", file=sys.stderr)
++    return _run_script(PIPELINE_SCRIPT, args, timeout=600)
++
++def tool_generate_remediations(domain_filter: Optional[str] = None) -> Dict[str, Any]:
++    """
++    Generates fix suggestions based on existing audits.
++    """
++    args = ['--all', '--output-dir', 'outputs/remediations']
++    if domain_filter:
++        args.extend(['--domain', domain_filter])
++        
++    print(f"[BRIDGE] Generating Remediations...", file=sys.stderr)
++    return _run_script(REMEDIATION_SCRIPT, args)
++
++def tool_list_pending_outreach() -> Dict[str, Any]:
++    """
++    Reads outreach-ranking.csv to show what's ready for human review.
++    Access: Read Only
++    """
++    csv_path = os.path.join(ROOT_DIR, 'outputs', 'outreach-ranking.csv')
++    if not os.path.exists(csv_path):
++        return {"success": True, "data": [], "message": "No outreach list generated yet."}
++        
++    try:
++        with open(csv_path, 'r') as f:
++            lines = f.readlines()[:50] # Limit context size
++        return {"success": True, "data_preview": lines}
++    except Exception as e:
++        return {"success": False, "error": str(e)}
++
++# Export tools for Harness loader
++TOOLS_EXPORT = {
++    "get_audit_status": tool_get_audit_status,
++    "run_full_pipeline": tool_run_full_pipeline,
++    "generate_remediations": tool_generate_remediations,
++    "list_pending_outreach": tool_list_pending_outreach
++}
+diff --git a/integrations/deepseek-harness/workflows/agents.yml b/integrations/deepseek-harness/workflows/agents.yml
+new file mode 100644
+index 0000000..77d58b0
+--- /dev/null
++++ b/integrations/deepseek-harness/workflows/agents.yml
+@@ -0,0 +1,44 @@
++agents:
++  auditor_agent:
++    role: "Website Auditor"
++    description: "Performs technical and UX audits using deterministic tools."
++    tools:
++      - get_audit_status
++      - generate_remediations
++    system_prompt: |
++      You are an expert Web Auditor. Your goal is to identify factual defects in websites.
++      
++      RULES:
++      1. ALWAYS use the `get_audit_status` tool to fetch real data. Do not guess.
++      2. Categorize findings by severity: P0 (Critical), P1 (High), P2 (Medium), P3 (Low).
++      3. For each finding, cite the specific evidence (e.g., "Missing H1 tag on homepage").
++      4. Output must be valid JSON matching the schema: { url, score, findings: [{category, severity, description, evidence}] }.
++      5. DO NOT suggest sending emails. That is out of scope.
++
++  critic_agent:
++    role: "Quality Assurance Critic"
++    description: "Independently reviews auditor findings to prevent hallucinations."
++    tools: [] # Pure reasoning agent
++    system_prompt: |
++      You are a skeptical QA Critic. Your job is to reject weak or hallucinated findings.
++      
++      REVIEW CHECKLIST:
++      1. Does the auditor claim match standard web best practices?
++      2. Is the evidence concrete (e.g., specific HTML element vs. vague feeling)?
++      3. Reject any finding labeled "Generic Advice" unless supported by data.
++      4. Output: { verdict: APPROVE|REJECT, reason: string, adjusted_severity: optional_string }.
++
++  solution_architect_agent:
++    role: "Solution Architect"
++    description: "Turns approved findings into actionable improvement plans."
++    tools:
++      - generate_remediations
++    system_prompt: |
++      You are a Solution Architect. Convert audit findings into a prioritized roadmap.
++      
++      TASKS:
++      1. Group related findings (e.g., all SEO issues together).
++      2. Estimate effort (Minutes/Hours/Days) based on complexity.
++      3. Identify quick wins (P0/P1 fixes < 1 hour).
++      4. Generate a summary report suitable for client presentation.
++      5. Output: { roadmap: [{phase, tasks: [{title, description, effort_estimate, priority}]}] }.
+-- 
+2.55.0
+

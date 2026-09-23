@@ -1,0 +1,18 @@
+{
+  "domain": "example.co.nz",
+  "to": "info@example.co.nz",
+  "subject": "Quick note about example.co.nz",
+  "body": "Hi,\n\nI ran a free website audit on example.co.nz and noticed:\n\n\u2022 website health issues\n\nThis may affect how visitors trust and find your site. There are quick fixes (most under 30 minutes).\n\nHappy to send the full evidence-backed report if useful \u2014 no obligation.\n\nRegards,\n[Your Name]\n[Agency Name]\n[Physical Address]\n\n---\nReply STOP to opt out. We respect your inbox.\n",
+  "sender_identity": "[Your Name] - [Agency Name]",
+  "opt_out": "Reply STOP to opt out",
+  "physical_address": "[Your Business Address]",
+  "lawful_basis": "legitimate_interest_b2b_nz",
+  "suppression_checked": true,
+  "evidence_refs": [],
+  "generated_at": "2026-09-20T14:58:02.038287+00:00",
+  "status": "draft",
+  "compliance": {
+    "passed": true,
+    "issues": []
+  }
+}

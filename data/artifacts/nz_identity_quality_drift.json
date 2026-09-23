@@ -1,0 +1,10 @@
+{
+  "source_id": "nz_companies_office",
+  "drift_checks": {
+    "record_count_change": 0.0,
+    "schema_changes": [],
+    "null_rate_changes": {}
+  },
+  "quality_score": "PASS",
+  "checked_at": "2026-09-23T00:00:00Z"
+}

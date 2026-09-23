@@ -1,0 +1,103 @@
+# Source Manifest Schema
+# Defines the structure of source metadata records.
+
+type: object
+required:
+  - source_id
+  - source_name
+  - source_url
+  - documentation_url
+  - license
+  - commercial_use_status
+  - access_method
+  - snapshot_id
+  - snapshot_date
+  - downloaded_at
+  - raw_sha256
+  - raw_size_bytes
+  - content_type
+  - schema_version
+  - ingestion_version
+  - record_count
+  - refresh_policy
+  - status
+properties:
+  source_id:
+    type: string
+    description: Unique identifier for the source
+  source_name:
+    type: string
+    description: Human-readable name of the source
+  source_url:
+    type: string
+    format: uri
+    description: URL where the source data is available
+  documentation_url:
+    type: string
+    format: uri
+    description: URL to documentation about the source
+  license:
+    type: string
+    description: License under which the source data is provided
+  commercial_use_status:
+    type: string
+    enum: [allowed, allowed_with_attribution, not_allowed, unknown]
+    description: Whether commercial use is permitted
+  access_method:
+    type: string
+    description: How to access the data (e.g., REST API, bulk download, etc.)
+  snapshot_id:
+    type: string
+    description: Identifier for this specific snapshot
+  snapshot_date:
+    type: string
+    format: date
+    description: Date of the snapshot
+  downloaded_at:
+    type: string
+    format: date-time
+    description: Timestamp when the data was downloaded
+  raw_sha256:
+    type: string
+    pattern: '^[a-f0-9]{64}$'
+    description: SHA256 checksum of the raw downloaded data
+  raw_size_bytes:
+    type: integer
+    minimum: 0
+    description: Size of the raw downloaded data in bytes
+  content_type:
+    type: string
+    description: MIME type or format indicator of the raw data
+  schema_version:
+    type: string
+    description: Version of the source's native schema
+  ingestion_version:
+    type: string
+    version of our ingestion pipeline used to process this snapshot
+  record_count:
+    type: integer
+    minimum: 0
+    description: Number of records in the snapshot
+  refresh_policy:
+    type: string
+    description: How often the source should be refreshed (e.g., daily, weekly, monthly)
+  status:
+    type: string
+    enum: [DISCOVERED, DOWNLOADED, VERIFIED, STAGED, NORMALIZED, QUALITY_CHECKED, PUBLISHED_LOCAL, FAILED]
+    description: Current status of the source in the ingestion pipeline
+  etag:
+    type: string
+    description: ETag from HTTP headers for cache validation
+  last_modified:
+    type: string
+    format: date-time
+    description: Last-Modified header from HTTP
+  source_release:
+    type: string
+    description: Version or release identifier from the source
+  geographic_scope:
+    type: string
+    description: Geographic coverage of the data (e.g., NZ, global)
+  notes:
+    type: string
+    description: Free-form notes about the source or snapshot

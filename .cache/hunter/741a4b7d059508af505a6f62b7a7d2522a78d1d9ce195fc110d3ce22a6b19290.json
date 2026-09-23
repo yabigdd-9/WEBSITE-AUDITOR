@@ -1,0 +1,24 @@
+{
+  "email": "info@trident.nz",
+  "result": "risky",
+  "score": 81,
+  "regexp": true,
+  "gibberish": false,
+  "disposable": false,
+  "webmail": false,
+  "mx_records": true,
+  "smtp_server": true,
+  "smtp_check": true,
+  "accept_all": true,
+  "block": false,
+  "sources": [
+    "https://trident.nz/about",
+    "https://trident.nz",
+    "https://trident.nz/projects",
+    "https://trident.nz/air-conditioning",
+    "https://trident.nz/electrical",
+    "https://greeac.co.nz/where-to-buy"
+  ],
+  "cached_at": "2026-09-18T16:14:17.893796+00:00",
+  "from_cache": false
+}

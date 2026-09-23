@@ -1,0 +1,201 @@
+{"at": "2026-09-21T07:05:18.071964+00:00", "attempts": 1, "business_id": 1, "error": "BLOCKED_COST: no free route", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-5"}
+{"at": "2026-09-21T07:05:18.202298+00:00", "failures": 5, "kind": "circuit_open", "service": "dns"}
+{"at": "2026-09-21T07:05:18.315740+00:00", "attempts": 1, "business_id": 1, "error": "always broken", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-3"}
+{"at": "2026-09-21T07:05:18.324097+00:00", "attempts": 2, "business_id": 1, "error": "always broken", "kind": "failure", "outcome": "dead_lettered", "worker": "w-3"}
+{"at": "2026-09-21T07:05:18.560392+00:00", "attempts": 1, "business_id": 1, "error": "unfixable", "kind": "failure", "outcome": "dead_lettered", "worker": "w-4"}
+{"at": "2026-09-21T07:05:18.705337+00:00", "attempts": 1, "business_id": 1, "error": "transient", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-2"}
+{"at": "2026-09-21T07:05:18.868128+00:00", "counts": {"bounced": 2, "sent": 4}, "kind": "quarantine", "reason": "bounce_rate"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T07:05:18.879969+00:00", "business_id": 1, "kind": "approval_decision", "status": "REJECTED"}
+{"at": "2026-09-21T07:05:18.887133+00:00", "counts": {"bounced": 2, "sent": 4}, "kind": "quarantine", "reason": "bounce_rate"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T07:05:18.956006+00:00", "business_id": 1, "kind": "approval_decision", "status": "APPROVED"}
+{"approval_id": 1, "at": "2026-09-21T07:05:18.962647+00:00", "business_id": 1, "campaign": "trial-campaign", "idempotency_key": "861cad7cac9c78a6", "kind": "send_planned"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T07:05:19.068299+00:00", "business_id": 1, "kind": "approval_decision", "status": "NEEDS_REVIEW"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T07:05:19.225803+00:00", "business_id": 1, "kind": "approval_decision", "status": "APPROVED"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T07:05:19.448989+00:00", "business_id": 1, "kind": "approval_decision", "status": "REJECTED"}
+{"at": "2026-09-21T07:05:19.991314+00:00", "kind": "schema_drift_repaired", "rows_preserved": 1, "table": "pipeline_events"}
+{"at": "2026-09-21T07:05:20.142258+00:00", "attempts": 1, "business_id": 1, "error": "completion rejected: ValueError: Handler may not cross the approval boundary (SENT); use the approval/send engine", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-bad"}
+{"at": "2026-09-21T07:05:20.634361+00:00", "attempts": 1, "business_id": 10, "error": "OperationalError: no such table: mm_demo_qa", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-qa"}
+{"at": "2026-09-21T07:05:20.641717+00:00", "attempts": 1, "business_id": 11, "error": "OperationalError: no such table: mm_demo_qa", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-qa"}
+{"at": "2026-09-21T07:05:20.720177+00:00", "attempts": 1, "business_id": 1, "error": "no public website; identity cannot be resolved", "kind": "failure", "outcome": "dead_lettered", "worker": "w-id"}
+{"at": "2026-09-21T07:07:27.365030+00:00", "attempts": 1, "business_id": 1, "error": "BLOCKED_COST: no free route", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-5"}
+{"at": "2026-09-21T07:07:27.481311+00:00", "failures": 5, "kind": "circuit_open", "service": "dns"}
+{"at": "2026-09-21T07:07:27.685166+00:00", "attempts": 1, "business_id": 1, "error": "always broken", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-3"}
+{"at": "2026-09-21T07:07:27.690335+00:00", "attempts": 2, "business_id": 1, "error": "always broken", "kind": "failure", "outcome": "dead_lettered", "worker": "w-3"}
+{"at": "2026-09-21T07:07:28.117009+00:00", "attempts": 1, "business_id": 1, "error": "unfixable", "kind": "failure", "outcome": "dead_lettered", "worker": "w-4"}
+{"at": "2026-09-21T07:07:28.331793+00:00", "attempts": 1, "business_id": 1, "error": "transient", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-2"}
+{"at": "2026-09-21T07:07:28.601123+00:00", "counts": {"bounced": 2, "sent": 4}, "kind": "quarantine", "reason": "bounce_rate"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T07:07:28.610221+00:00", "business_id": 1, "kind": "approval_decision", "status": "REJECTED"}
+{"at": "2026-09-21T07:07:28.613250+00:00", "counts": {"bounced": 2, "sent": 4}, "kind": "quarantine", "reason": "bounce_rate"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T07:07:28.732910+00:00", "business_id": 1, "kind": "approval_decision", "status": "APPROVED"}
+{"approval_id": 1, "at": "2026-09-21T07:07:28.736968+00:00", "business_id": 1, "campaign": "trial-campaign", "idempotency_key": "861cad7cac9c78a6", "kind": "send_planned"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T07:07:28.838630+00:00", "business_id": 1, "kind": "approval_decision", "status": "NEEDS_REVIEW"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T07:07:29.112185+00:00", "business_id": 1, "kind": "approval_decision", "status": "APPROVED"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T07:07:29.316113+00:00", "business_id": 1, "kind": "approval_decision", "status": "REJECTED"}
+{"at": "2026-09-21T07:07:29.914439+00:00", "kind": "schema_drift_repaired", "rows_preserved": 1, "table": "pipeline_events"}
+{"at": "2026-09-21T07:07:29.985060+00:00", "attempts": 1, "business_id": 1, "error": "completion rejected: ValueError: Handler may not cross the approval boundary (SENT); use the approval/send engine", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-bad"}
+{"at": "2026-09-21T07:07:30.586425+00:00", "attempts": 1, "business_id": 10, "error": "OperationalError: no such table: mm_demo_qa", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-qa"}
+{"at": "2026-09-21T07:07:30.593177+00:00", "attempts": 1, "business_id": 11, "error": "OperationalError: no such table: mm_demo_qa", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-qa"}
+{"at": "2026-09-21T07:07:30.791453+00:00", "attempts": 1, "business_id": 1, "error": "no public website; identity cannot be resolved", "kind": "failure", "outcome": "dead_lettered", "worker": "w-id"}
+{"at": "2026-09-21T07:10:38.107128+00:00", "attempts": 1, "business_id": 1, "error": "BLOCKED_COST: no free route", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-5"}
+{"at": "2026-09-21T07:10:38.256076+00:00", "failures": 5, "kind": "circuit_open", "service": "dns"}
+{"at": "2026-09-21T07:10:38.386952+00:00", "attempts": 1, "business_id": 1, "error": "always broken", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-3"}
+{"at": "2026-09-21T07:10:38.394381+00:00", "attempts": 2, "business_id": 1, "error": "always broken", "kind": "failure", "outcome": "dead_lettered", "worker": "w-3"}
+{"at": "2026-09-21T07:10:38.973272+00:00", "attempts": 1, "business_id": 1, "error": "unfixable", "kind": "failure", "outcome": "dead_lettered", "worker": "w-4"}
+{"at": "2026-09-21T07:10:39.239582+00:00", "attempts": 1, "business_id": 1, "error": "transient", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-2"}
+{"at": "2026-09-21T07:10:39.489387+00:00", "counts": {"bounced": 2, "sent": 4}, "kind": "quarantine", "reason": "bounce_rate"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T07:10:39.509639+00:00", "business_id": 1, "kind": "approval_decision", "status": "REJECTED"}
+{"at": "2026-09-21T07:10:39.514227+00:00", "counts": {"bounced": 2, "sent": 4}, "kind": "quarantine", "reason": "bounce_rate"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T07:10:39.783734+00:00", "business_id": 1, "kind": "approval_decision", "status": "APPROVED"}
+{"approval_id": 1, "at": "2026-09-21T07:10:39.787547+00:00", "business_id": 1, "campaign": "trial-campaign", "idempotency_key": "861cad7cac9c78a6", "kind": "send_planned"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T07:10:39.859148+00:00", "business_id": 1, "kind": "approval_decision", "status": "NEEDS_REVIEW"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T07:10:40.122018+00:00", "business_id": 1, "kind": "approval_decision", "status": "APPROVED"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T07:10:40.505698+00:00", "business_id": 1, "kind": "approval_decision", "status": "REJECTED"}
+{"at": "2026-09-21T07:10:40.986343+00:00", "kind": "schema_drift_repaired", "rows_preserved": 1, "table": "pipeline_events"}
+{"at": "2026-09-21T07:10:41.074826+00:00", "attempts": 1, "business_id": 1, "error": "completion rejected: ValueError: Handler may not cross the approval boundary (SENT); use the approval/send engine", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-bad"}
+{"at": "2026-09-21T07:10:41.375268+00:00", "attempts": 1, "business_id": 10, "error": "OperationalError: no such table: mm_demo_qa", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-qa"}
+{"at": "2026-09-21T07:10:41.381801+00:00", "attempts": 1, "business_id": 11, "error": "OperationalError: no such table: mm_demo_qa", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-qa"}
+{"at": "2026-09-21T07:10:41.507688+00:00", "attempts": 1, "business_id": 1, "error": "no public website; identity cannot be resolved", "kind": "failure", "outcome": "dead_lettered", "worker": "w-id"}
+{"at": "2026-09-21T07:11:28.106629+00:00", "attempts": 1, "business_id": 1, "error": "BLOCKED_COST: no free route", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-5"}
+{"at": "2026-09-21T07:11:28.166644+00:00", "failures": 5, "kind": "circuit_open", "service": "dns"}
+{"at": "2026-09-21T07:11:28.251658+00:00", "attempts": 1, "business_id": 1, "error": "always broken", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-3"}
+{"at": "2026-09-21T07:11:28.258206+00:00", "attempts": 2, "business_id": 1, "error": "always broken", "kind": "failure", "outcome": "dead_lettered", "worker": "w-3"}
+{"at": "2026-09-21T07:11:28.521637+00:00", "attempts": 1, "business_id": 1, "error": "unfixable", "kind": "failure", "outcome": "dead_lettered", "worker": "w-4"}
+{"at": "2026-09-21T07:11:28.728169+00:00", "attempts": 1, "business_id": 1, "error": "transient", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-2"}
+{"at": "2026-09-21T07:11:28.894201+00:00", "counts": {"bounced": 2, "sent": 4}, "kind": "quarantine", "reason": "bounce_rate"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T07:11:28.905854+00:00", "business_id": 1, "kind": "approval_decision", "status": "REJECTED"}
+{"at": "2026-09-21T07:11:28.908627+00:00", "counts": {"bounced": 2, "sent": 4}, "kind": "quarantine", "reason": "bounce_rate"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T07:11:29.001519+00:00", "business_id": 1, "kind": "approval_decision", "status": "APPROVED"}
+{"approval_id": 1, "at": "2026-09-21T07:11:29.007717+00:00", "business_id": 1, "campaign": "trial-campaign", "idempotency_key": "861cad7cac9c78a6", "kind": "send_planned"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T07:11:29.367437+00:00", "business_id": 1, "kind": "approval_decision", "status": "NEEDS_REVIEW"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T07:11:29.702549+00:00", "business_id": 1, "kind": "approval_decision", "status": "APPROVED"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T07:11:30.073795+00:00", "business_id": 1, "kind": "approval_decision", "status": "REJECTED"}
+{"at": "2026-09-21T07:11:30.675151+00:00", "kind": "schema_drift_repaired", "rows_preserved": 1, "table": "pipeline_events"}
+{"at": "2026-09-21T07:11:30.841129+00:00", "attempts": 1, "business_id": 1, "error": "completion rejected: ValueError: Handler may not cross the approval boundary (SENT); use the approval/send engine", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-bad"}
+{"at": "2026-09-21T07:11:31.256375+00:00", "attempts": 1, "business_id": 10, "error": "OperationalError: no such table: mm_demo_qa", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-qa"}
+{"at": "2026-09-21T07:11:31.271937+00:00", "attempts": 1, "business_id": 11, "error": "OperationalError: no such table: mm_demo_qa", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-qa"}
+{"at": "2026-09-21T07:11:31.502930+00:00", "attempts": 1, "business_id": 1, "error": "no public website; identity cannot be resolved", "kind": "failure", "outcome": "dead_lettered", "worker": "w-id"}
+{"at": "2026-09-21T20:27:50.351598+00:00", "attempts": 1, "business_id": 1, "error": "BLOCKED_COST: no free route", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-5"}
+{"at": "2026-09-21T20:27:50.423924+00:00", "failures": 5, "kind": "circuit_open", "service": "dns"}
+{"at": "2026-09-21T20:27:50.508707+00:00", "attempts": 1, "business_id": 1, "error": "always broken", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-3"}
+{"at": "2026-09-21T20:27:50.512610+00:00", "attempts": 2, "business_id": 1, "error": "always broken", "kind": "failure", "outcome": "dead_lettered", "worker": "w-3"}
+{"at": "2026-09-21T20:27:51.076086+00:00", "attempts": 1, "business_id": 1, "error": "unfixable", "kind": "failure", "outcome": "dead_lettered", "worker": "w-4"}
+{"at": "2026-09-21T20:27:51.707602+00:00", "attempts": 1, "business_id": 1, "error": "transient", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-2"}
+{"at": "2026-09-21T20:27:52.384120+00:00", "counts": {"bounced": 2, "sent": 4}, "kind": "quarantine", "reason": "bounce_rate"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:27:52.396800+00:00", "business_id": 1, "kind": "approval_decision", "status": "REJECTED"}
+{"at": "2026-09-21T20:27:52.400864+00:00", "counts": {"bounced": 2, "sent": 4}, "kind": "quarantine", "reason": "bounce_rate"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:27:52.475117+00:00", "business_id": 1, "kind": "approval_decision", "status": "APPROVED"}
+{"approval_id": 1, "at": "2026-09-21T20:27:52.479410+00:00", "business_id": 1, "campaign": "trial-campaign", "idempotency_key": "861cad7cac9c78a6", "kind": "send_planned"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:27:52.552187+00:00", "business_id": 1, "kind": "approval_decision", "status": "NEEDS_REVIEW"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:27:52.727630+00:00", "business_id": 1, "kind": "approval_decision", "status": "APPROVED"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:27:52.902217+00:00", "business_id": 1, "kind": "approval_decision", "status": "REJECTED"}
+{"at": "2026-09-21T20:27:53.343447+00:00", "kind": "schema_drift_repaired", "rows_preserved": 1, "table": "pipeline_events"}
+{"at": "2026-09-21T20:27:53.430864+00:00", "attempts": 1, "business_id": 1, "error": "completion rejected: ValueError: Handler may not cross the approval boundary (SENT); use the approval/send engine", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-bad"}
+{"at": "2026-09-21T20:27:53.726146+00:00", "attempts": 1, "business_id": 3, "error": "AttributeError: 'sqlite3.Row' object has no attribute 'get'", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-qualification"}
+{"at": "2026-09-21T20:27:53.734430+00:00", "attempts": 1, "business_id": 4, "error": "AttributeError: 'sqlite3.Row' object has no attribute 'get'", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-qualification"}
+{"at": "2026-09-21T20:27:53.818337+00:00", "attempts": 1, "business_id": 10, "error": "OperationalError: no such table: mm_demo_qa", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-qa"}
+{"at": "2026-09-21T20:27:53.833571+00:00", "attempts": 1, "business_id": 11, "error": "OperationalError: no such table: mm_demo_qa", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-qa"}
+{"at": "2026-09-21T20:27:54.141939+00:00", "attempts": 1, "business_id": 1, "error": "no public website; identity cannot be resolved", "kind": "failure", "outcome": "dead_lettered", "worker": "w-id"}
+{"at": "2026-09-21T20:41:26.003305+00:00", "attempts": 1, "business_id": 1, "error": "BLOCKED_COST: no free route", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-5"}
+{"at": "2026-09-21T20:41:26.046355+00:00", "failures": 5, "kind": "circuit_open", "service": "dns"}
+{"at": "2026-09-21T20:41:26.090480+00:00", "attempts": 1, "business_id": 1, "error": "always broken", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-3"}
+{"at": "2026-09-21T20:41:26.095536+00:00", "attempts": 2, "business_id": 1, "error": "always broken", "kind": "failure", "outcome": "dead_lettered", "worker": "w-3"}
+{"at": "2026-09-21T20:41:26.224573+00:00", "attempts": 1, "business_id": 1, "error": "unfixable", "kind": "failure", "outcome": "dead_lettered", "worker": "w-4"}
+{"at": "2026-09-21T20:41:26.308142+00:00", "attempts": 1, "business_id": 1, "error": "transient", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-2"}
+{"at": "2026-09-21T20:41:26.397547+00:00", "counts": {"bounced": 2, "sent": 4}, "kind": "quarantine", "reason": "bounce_rate"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:41:26.402936+00:00", "business_id": 1, "kind": "approval_decision", "status": "REJECTED"}
+{"at": "2026-09-21T20:41:26.405541+00:00", "counts": {"bounced": 2, "sent": 4}, "kind": "quarantine", "reason": "bounce_rate"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:41:26.466393+00:00", "business_id": 1, "kind": "approval_decision", "status": "APPROVED"}
+{"approval_id": 1, "at": "2026-09-21T20:41:26.469164+00:00", "business_id": 1, "campaign": "trial-campaign", "idempotency_key": "861cad7cac9c78a6", "kind": "send_planned"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:41:26.518471+00:00", "business_id": 1, "kind": "approval_decision", "status": "NEEDS_REVIEW"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:41:26.614257+00:00", "business_id": 1, "kind": "approval_decision", "status": "APPROVED"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:41:26.707995+00:00", "business_id": 1, "kind": "approval_decision", "status": "REJECTED"}
+{"at": "2026-09-21T20:41:26.920181+00:00", "kind": "schema_drift_repaired", "rows_preserved": 1, "table": "pipeline_events"}
+{"at": "2026-09-21T20:41:26.964279+00:00", "attempts": 1, "business_id": 1, "error": "completion rejected: ValueError: Handler may not cross the approval boundary (SENT); use the approval/send engine", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-bad"}
+{"at": "2026-09-21T20:41:27.098951+00:00", "attempts": 1, "business_id": 3, "error": "AttributeError: 'sqlite3.Row' object has no attribute 'get'", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-qualification"}
+{"at": "2026-09-21T20:41:27.101849+00:00", "attempts": 1, "business_id": 4, "error": "AttributeError: 'sqlite3.Row' object has no attribute 'get'", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-qualification"}
+{"at": "2026-09-21T20:41:27.121705+00:00", "attempts": 1, "business_id": 10, "error": "OperationalError: no such table: mm_demo_qa", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-qa"}
+{"at": "2026-09-21T20:41:27.125357+00:00", "attempts": 1, "business_id": 11, "error": "OperationalError: no such table: mm_demo_qa", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-qa"}
+{"at": "2026-09-21T20:41:27.172079+00:00", "attempts": 1, "business_id": 1, "error": "no public website; identity cannot be resolved", "kind": "failure", "outcome": "dead_lettered", "worker": "w-id"}
+{"at": "2026-09-21T20:50:41.683977+00:00", "attempts": 1, "business_id": 1, "error": "BLOCKED_COST: no free route", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-5"}
+{"at": "2026-09-21T20:50:41.733491+00:00", "failures": 5, "kind": "circuit_open", "service": "dns"}
+{"at": "2026-09-21T20:50:41.786427+00:00", "attempts": 1, "business_id": 1, "error": "always broken", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-3"}
+{"at": "2026-09-21T20:50:41.793119+00:00", "attempts": 2, "business_id": 1, "error": "always broken", "kind": "failure", "outcome": "dead_lettered", "worker": "w-3"}
+{"at": "2026-09-21T20:50:41.915892+00:00", "attempts": 1, "business_id": 1, "error": "unfixable", "kind": "failure", "outcome": "dead_lettered", "worker": "w-4"}
+{"at": "2026-09-21T20:50:42.030471+00:00", "attempts": 1, "business_id": 1, "error": "transient", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-2"}
+{"at": "2026-09-21T20:50:42.131990+00:00", "counts": {"bounced": 2, "sent": 4}, "kind": "quarantine", "reason": "bounce_rate"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:50:42.138456+00:00", "business_id": 1, "kind": "approval_decision", "status": "REJECTED"}
+{"at": "2026-09-21T20:50:42.140949+00:00", "counts": {"bounced": 2, "sent": 4}, "kind": "quarantine", "reason": "bounce_rate"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:50:42.185193+00:00", "business_id": 1, "kind": "approval_decision", "status": "APPROVED"}
+{"approval_id": 1, "at": "2026-09-21T20:50:42.189532+00:00", "business_id": 1, "campaign": "trial-campaign", "idempotency_key": "861cad7cac9c78a6", "kind": "send_planned"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:50:42.233466+00:00", "business_id": 1, "kind": "approval_decision", "status": "NEEDS_REVIEW"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:50:42.318472+00:00", "business_id": 1, "kind": "approval_decision", "status": "APPROVED"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:50:42.414722+00:00", "business_id": 1, "kind": "approval_decision", "status": "REJECTED"}
+{"at": "2026-09-21T20:50:42.668170+00:00", "kind": "schema_drift_repaired", "rows_preserved": 1, "table": "pipeline_events"}
+{"at": "2026-09-21T20:50:42.721203+00:00", "attempts": 1, "business_id": 1, "error": "completion rejected: ValueError: Handler may not cross the approval boundary (SENT); use the approval/send engine", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-bad"}
+{"at": "2026-09-21T20:50:42.901250+00:00", "attempts": 1, "business_id": 3, "error": "OperationalError: no such table: mm_evidence_meta", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-understanding"}
+{"at": "2026-09-21T20:50:42.908853+00:00", "attempts": 1, "business_id": 4, "error": "AttributeError: 'sqlite3.Row' object has no attribute 'get'", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-qualification"}
+{"at": "2026-09-21T20:50:42.923251+00:00", "attempts": 1, "business_id": 7, "error": "unsupported preparation state: VERIFIED", "kind": "failure", "outcome": "dead_lettered", "worker": "w-preparation"}
+{"at": "2026-09-21T20:50:42.932723+00:00", "attempts": 1, "business_id": 10, "error": "OperationalError: no such table: mm_demo_qa", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-preparation"}
+{"at": "2026-09-21T20:50:59.582521+00:00", "attempts": 1, "business_id": 1, "error": "BLOCKED_COST: no free route", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-5"}
+{"at": "2026-09-21T20:50:59.622312+00:00", "failures": 5, "kind": "circuit_open", "service": "dns"}
+{"at": "2026-09-21T20:50:59.664126+00:00", "attempts": 1, "business_id": 1, "error": "always broken", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-3"}
+{"at": "2026-09-21T20:50:59.666792+00:00", "attempts": 2, "business_id": 1, "error": "always broken", "kind": "failure", "outcome": "dead_lettered", "worker": "w-3"}
+{"at": "2026-09-21T20:50:59.789213+00:00", "attempts": 1, "business_id": 1, "error": "unfixable", "kind": "failure", "outcome": "dead_lettered", "worker": "w-4"}
+{"at": "2026-09-21T20:50:59.867164+00:00", "attempts": 1, "business_id": 1, "error": "transient", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-2"}
+{"at": "2026-09-21T20:50:59.951981+00:00", "counts": {"bounced": 2, "sent": 4}, "kind": "quarantine", "reason": "bounce_rate"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:50:59.958900+00:00", "business_id": 1, "kind": "approval_decision", "status": "REJECTED"}
+{"at": "2026-09-21T20:50:59.964252+00:00", "counts": {"bounced": 2, "sent": 4}, "kind": "quarantine", "reason": "bounce_rate"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:51:00.008111+00:00", "business_id": 1, "kind": "approval_decision", "status": "APPROVED"}
+{"approval_id": 1, "at": "2026-09-21T20:51:00.013751+00:00", "business_id": 1, "campaign": "trial-campaign", "idempotency_key": "861cad7cac9c78a6", "kind": "send_planned"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:51:00.063588+00:00", "business_id": 1, "kind": "approval_decision", "status": "NEEDS_REVIEW"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:51:00.149226+00:00", "business_id": 1, "kind": "approval_decision", "status": "APPROVED"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:51:00.236372+00:00", "business_id": 1, "kind": "approval_decision", "status": "REJECTED"}
+{"at": "2026-09-21T20:51:00.445554+00:00", "kind": "schema_drift_repaired", "rows_preserved": 1, "table": "pipeline_events"}
+{"at": "2026-09-21T20:51:00.488299+00:00", "attempts": 1, "business_id": 1, "error": "completion rejected: ValueError: Handler may not cross the approval boundary (SENT); use the approval/send engine", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-bad"}
+{"at": "2026-09-21T20:51:00.647990+00:00", "attempts": 1, "business_id": 3, "error": "OperationalError: no such table: mm_evidence_meta", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-understanding"}
+{"at": "2026-09-21T20:51:00.651857+00:00", "attempts": 1, "business_id": 4, "error": "AttributeError: 'sqlite3.Row' object has no attribute 'get'", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-qualification"}
+{"at": "2026-09-21T20:51:00.663030+00:00", "attempts": 1, "business_id": 7, "error": "unsupported preparation state: VERIFIED", "kind": "failure", "outcome": "dead_lettered", "worker": "w-preparation"}
+{"at": "2026-09-21T20:51:00.671891+00:00", "attempts": 1, "business_id": 10, "error": "OperationalError: no such table: mm_demo_qa", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-preparation"}
+{"at": "2026-09-21T20:51:00.721842+00:00", "attempts": 1, "business_id": 1, "error": "no public website; identity cannot be resolved", "kind": "failure", "outcome": "dead_lettered", "worker": "w-id"}
+{"at": "2026-09-21T20:53:08.617521+00:00", "attempts": 1, "business_id": 1, "error": "BLOCKED_COST: no free route", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-5"}
+{"at": "2026-09-21T20:53:08.655570+00:00", "failures": 5, "kind": "circuit_open", "service": "dns"}
+{"at": "2026-09-21T20:53:08.698699+00:00", "attempts": 1, "business_id": 1, "error": "always broken", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-3"}
+{"at": "2026-09-21T20:53:08.704399+00:00", "attempts": 2, "business_id": 1, "error": "always broken", "kind": "failure", "outcome": "dead_lettered", "worker": "w-3"}
+{"at": "2026-09-21T20:53:08.827913+00:00", "attempts": 1, "business_id": 1, "error": "unfixable", "kind": "failure", "outcome": "dead_lettered", "worker": "w-4"}
+{"at": "2026-09-21T20:53:08.917603+00:00", "attempts": 1, "business_id": 1, "error": "transient", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-2"}
+{"at": "2026-09-21T20:53:09.004533+00:00", "counts": {"bounced": 2, "sent": 4}, "kind": "quarantine", "reason": "bounce_rate"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:53:09.009431+00:00", "business_id": 1, "kind": "approval_decision", "status": "REJECTED"}
+{"at": "2026-09-21T20:53:09.012094+00:00", "counts": {"bounced": 2, "sent": 4}, "kind": "quarantine", "reason": "bounce_rate"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:53:09.072375+00:00", "business_id": 1, "kind": "approval_decision", "status": "APPROVED"}
+{"approval_id": 1, "at": "2026-09-21T20:53:09.075138+00:00", "business_id": 1, "campaign": "trial-campaign", "idempotency_key": "861cad7cac9c78a6", "kind": "send_planned"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:53:09.120301+00:00", "business_id": 1, "kind": "approval_decision", "status": "NEEDS_REVIEW"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:53:09.204201+00:00", "business_id": 1, "kind": "approval_decision", "status": "APPROVED"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T20:53:09.292308+00:00", "business_id": 1, "kind": "approval_decision", "status": "REJECTED"}
+{"at": "2026-09-21T20:53:09.527509+00:00", "kind": "schema_drift_repaired", "rows_preserved": 1, "table": "pipeline_events"}
+{"at": "2026-09-21T20:53:09.572026+00:00", "attempts": 1, "business_id": 1, "error": "completion rejected: ValueError: Handler may not cross the approval boundary (SENT); use the approval/send engine", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-bad"}
+{"at": "2026-09-21T20:53:09.707990+00:00", "attempts": 1, "business_id": 3, "error": "OperationalError: no such table: mm_evidence_meta", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-understanding"}
+{"at": "2026-09-21T20:53:09.714083+00:00", "attempts": 1, "business_id": 4, "error": "AttributeError: 'sqlite3.Row' object has no attribute 'get'", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-qualification"}
+{"at": "2026-09-21T20:53:09.724377+00:00", "attempts": 1, "business_id": 7, "error": "unsupported preparation state: VERIFIED", "kind": "failure", "outcome": "dead_lettered", "worker": "w-preparation"}
+{"at": "2026-09-21T20:53:09.736444+00:00", "attempts": 1, "business_id": 10, "error": "OperationalError: no such table: mm_demo_qa", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-preparation"}
+{"at": "2026-09-21T20:53:09.781150+00:00", "attempts": 1, "business_id": 1, "error": "no public website; identity cannot be resolved", "kind": "failure", "outcome": "dead_lettered", "worker": "w-id"}
+{"at": "2026-09-21T23:50:45.071782+00:00", "attempts": 1, "business_id": 1, "error": "BLOCKED_COST: no free route", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-5"}
+{"at": "2026-09-21T23:50:45.116880+00:00", "failures": 5, "kind": "circuit_open", "service": "dns"}
+{"at": "2026-09-21T23:50:45.159669+00:00", "attempts": 1, "business_id": 1, "error": "always broken", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-3"}
+{"at": "2026-09-21T23:50:45.164169+00:00", "attempts": 2, "business_id": 1, "error": "always broken", "kind": "failure", "outcome": "dead_lettered", "worker": "w-3"}
+{"at": "2026-09-21T23:50:45.299114+00:00", "attempts": 1, "business_id": 1, "error": "unfixable", "kind": "failure", "outcome": "dead_lettered", "worker": "w-4"}
+{"at": "2026-09-21T23:50:45.374788+00:00", "attempts": 1, "business_id": 1, "error": "transient", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-2"}
+{"at": "2026-09-21T23:50:45.452975+00:00", "counts": {"bounced": 2, "sent": 4}, "kind": "quarantine", "reason": "bounce_rate"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T23:50:45.458953+00:00", "business_id": 1, "kind": "approval_decision", "status": "REJECTED"}
+{"at": "2026-09-21T23:50:45.461211+00:00", "counts": {"bounced": 2, "sent": 4}, "kind": "quarantine", "reason": "bounce_rate"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T23:50:45.507848+00:00", "business_id": 1, "kind": "approval_decision", "status": "APPROVED"}
+{"approval_id": 1, "at": "2026-09-21T23:50:45.510780+00:00", "business_id": 1, "campaign": "trial-campaign", "idempotency_key": "861cad7cac9c78a6", "kind": "send_planned"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T23:50:45.558389+00:00", "business_id": 1, "kind": "approval_decision", "status": "NEEDS_REVIEW"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T23:50:45.643976+00:00", "business_id": 1, "kind": "approval_decision", "status": "APPROVED"}
+{"actor": "hermes-test", "approval_id": 1, "at": "2026-09-21T23:50:45.735651+00:00", "business_id": 1, "kind": "approval_decision", "status": "REJECTED"}
+{"at": "2026-09-21T23:50:45.937935+00:00", "kind": "schema_drift_repaired", "rows_preserved": 1, "table": "pipeline_events"}
+{"at": "2026-09-21T23:50:45.984180+00:00", "attempts": 1, "business_id": 1, "error": "completion rejected: ValueError: Handler may not cross the approval boundary (SENT); use the approval/send engine", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-bad"}
+{"at": "2026-09-21T23:50:46.120182+00:00", "attempts": 1, "business_id": 3, "error": "OperationalError: no such table: mm_evidence_meta", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-understanding"}
+{"at": "2026-09-21T23:50:46.126852+00:00", "attempts": 1, "business_id": 4, "error": "AttributeError: 'sqlite3.Row' object has no attribute 'get'", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-qualification"}
+{"at": "2026-09-21T23:50:46.143747+00:00", "attempts": 1, "business_id": 7, "error": "unsupported preparation state: VERIFIED", "kind": "failure", "outcome": "dead_lettered", "worker": "w-preparation"}
+{"at": "2026-09-21T23:50:46.154384+00:00", "attempts": 1, "business_id": 10, "error": "OperationalError: no such table: mm_demo_qa", "kind": "failure", "outcome": "retry_scheduled", "worker": "w-preparation"}
+{"at": "2026-09-21T23:50:46.203277+00:00", "attempts": 1, "business_id": 1, "error": "no public website; identity cannot be resolved", "kind": "failure", "outcome": "dead_lettered", "worker": "w-id"}

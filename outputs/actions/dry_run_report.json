@@ -1,0 +1,306 @@
+{
+  "mode": "dry_run",
+  "total_actions": 25,
+  "results": [
+    {
+      "action_id": "act_c95b64d11a2474fe",
+      "name": "Queue defect for human review",
+      "domain": "www.clyne-bennie.co.nz",
+      "risk": "low",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": false
+      }
+    },
+    {
+      "action_id": "act_5db2256c26038fb1",
+      "name": "Generate broken link fix patch (301 redirects or link removal)",
+      "domain": "www.clyne-bennie.co.nz",
+      "risk": "medium",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": true
+      }
+    },
+    {
+      "action_id": "act_0f5170073d594455",
+      "name": "Queue defect for human review",
+      "domain": "www.clyne-bennie.co.nz",
+      "risk": "low",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": false
+      }
+    },
+    {
+      "action_id": "act_ab74c787cb9291a3",
+      "name": "Generate broken link fix patch (301 redirects or link removal)",
+      "domain": "clyne-bennie.co.nz",
+      "risk": "medium",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": true
+      }
+    },
+    {
+      "action_id": "act_b1c351e974990bbd",
+      "name": "Propose HSTS header change",
+      "domain": "clyne-bennie.co.nz",
+      "risk": "medium",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": true
+      }
+    },
+    {
+      "action_id": "act_9e2f9e9421a3b0f1",
+      "name": "Propose security headers bundle (CSP, X-Frame, X-Content-Type, Referrer-Policy, Permissions-Policy)",
+      "domain": "clyne-bennie.co.nz",
+      "risk": "medium",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": true
+      }
+    },
+    {
+      "action_id": "act_c1b670e115f7889f",
+      "name": "Propose security headers bundle (CSP, X-Frame, X-Content-Type, Referrer-Policy, Permissions-Policy)",
+      "domain": "clyne-bennie.co.nz",
+      "risk": "medium",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": true
+      }
+    },
+    {
+      "action_id": "act_0a18ab58a15e8c63",
+      "name": "Propose security headers bundle (CSP, X-Frame, X-Content-Type, Referrer-Policy, Permissions-Policy)",
+      "domain": "clyne-bennie.co.nz",
+      "risk": "medium",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": true
+      }
+    },
+    {
+      "action_id": "act_9ae6c71a99f386f6",
+      "name": "Generate/add missing meta/title patch",
+      "domain": "www.jcconstruction.co.nz",
+      "risk": "low",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": false
+      }
+    },
+    {
+      "action_id": "act_5cddc7d24b035b25",
+      "name": "Generate/add missing meta/title patch",
+      "domain": "www.jcconstruction.co.nz",
+      "risk": "low",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": false
+      }
+    },
+    {
+      "action_id": "act_aa482603af9cff04",
+      "name": "Queue defect for human review",
+      "domain": "www.jcconstruction.co.nz",
+      "risk": "low",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": false
+      }
+    },
+    {
+      "action_id": "act_0453dc03b8a35497",
+      "name": "Queue defect for human review",
+      "domain": "www.jcconstruction.co.nz",
+      "risk": "low",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": false
+      }
+    },
+    {
+      "action_id": "act_c91ad3bfddc3a7e5",
+      "name": "Generate/add missing meta/title patch",
+      "domain": "www.tbir.co.nz",
+      "risk": "low",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": false
+      }
+    },
+    {
+      "action_id": "act_bc37cb2a9fe19602",
+      "name": "Generate/add missing meta/title patch",
+      "domain": "www.tbir.co.nz",
+      "risk": "low",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": false
+      }
+    },
+    {
+      "action_id": "act_6ad9257ea86bd637",
+      "name": "Queue defect for human review",
+      "domain": "www.tbir.co.nz",
+      "risk": "low",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": false
+      }
+    },
+    {
+      "action_id": "act_726cd23c998e040a",
+      "name": "Queue defect for human review",
+      "domain": "www.tbir.co.nz",
+      "risk": "low",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": false
+      }
+    },
+    {
+      "action_id": "act_ddd8b5697f036f26",
+      "name": "Generate broken link fix patch (301 redirects or link removal)",
+      "domain": "prodecorators.co.nz",
+      "risk": "medium",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": true
+      }
+    },
+    {
+      "action_id": "act_d879ce7e93474e44",
+      "name": "Propose HSTS header change",
+      "domain": "prodecorators.co.nz",
+      "risk": "medium",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": true
+      }
+    },
+    {
+      "action_id": "act_4d6d947cde9486f0",
+      "name": "Propose security headers bundle (CSP, X-Frame, X-Content-Type, Referrer-Policy, Permissions-Policy)",
+      "domain": "prodecorators.co.nz",
+      "risk": "medium",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": true
+      }
+    },
+    {
+      "action_id": "act_7094fa92ac9dd156",
+      "name": "Propose security headers bundle (CSP, X-Frame, X-Content-Type, Referrer-Policy, Permissions-Policy)",
+      "domain": "prodecorators.co.nz",
+      "risk": "medium",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": true
+      }
+    },
+    {
+      "action_id": "act_ea57f5a0539db5d5",
+      "name": "Propose security headers bundle (CSP, X-Frame, X-Content-Type, Referrer-Policy, Permissions-Policy)",
+      "domain": "prodecorators.co.nz",
+      "risk": "medium",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": true
+      }
+    },
+    {
+      "action_id": "act_9ba29c1107842d01",
+      "name": "Propose security headers bundle (CSP, X-Frame, X-Content-Type, Referrer-Policy, Permissions-Policy)",
+      "domain": "prodecorators.co.nz",
+      "risk": "medium",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": true
+      }
+    },
+    {
+      "action_id": "act_b66e422e8f7ebf01",
+      "name": "Generate/add missing meta/title patch",
+      "domain": "www.davidrobertson.co.nz",
+      "risk": "low",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": false
+      }
+    },
+    {
+      "action_id": "act_a6975d8316a80d75",
+      "name": "Queue defect for human review",
+      "domain": "www.davidrobertson.co.nz",
+      "risk": "low",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": false
+      }
+    },
+    {
+      "action_id": "act_a1e840d4e7163fb1",
+      "name": "Queue defect for human review",
+      "domain": "www.davidrobertson.co.nz",
+      "risk": "low",
+      "decision": {
+        "allowed": true,
+        "effect": "dry_run",
+        "reason": "Dry-run mode: plan and log only.",
+        "requires_approval": false
+      }
+    }
+  ]
+}

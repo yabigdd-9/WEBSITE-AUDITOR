@@ -1,0 +1,84 @@
+{
+  "domain": "www.clyne-bennie.co.nz",
+  "calculated_at": "2026-09-21T17:37:46.468534+00:00",
+  "assumptions": {
+    "monthly_visitors": 2000,
+    "conversion_rate": 0.025,
+    "avg_lead_value_nzd": 150,
+    "baseline_monthly_revenue_nzd": 7500.0
+  },
+  "total_revenue_at_risk_nzd": 2100.0,
+  "total_fix_cost_nzd": 840,
+  "overall_roi_ratio": 2.5,
+  "defect_count": 3,
+  "top_5_risks": [
+    {
+      "defect": "{'defect': 'No contact form', 'impact': 'Every enquiry requires manual step; leads are lost', 'priority': 3, 'fix': {'title': 'Add Contact Form', 'effort': '15 min', 'cost': 'Free (Formspree/Netlify)', 'code': '<form action=\"https://formspree.io/f/YOUR_ID\" method=\"POST\"><input name=\"email\" type=\"email\" required><textarea name=\"message\" required></textarea><button type=\"submit\">Send</button></form>', 'docs': 'https://formspree.io/', 'steps': ['Sign up at formspree.io (free)', 'Add form HTML to contact page', 'Verify email forwarding works']}}",
+      "impact_factor": 0.22,
+      "confidence": "high",
+      "source": "Primary conversion path missing. 20-25% of ready-to-buy visitors cannot contact you. Source: Baymard Institute",
+      "revenue_at_risk_nzd": 1650.0,
+      "fix_cost_nzd": 480,
+      "payback_months": 0.29,
+      "roi_ratio": 3.4,
+      "priority": 3
+    },
+    {
+      "defect": "{'defect': '1 broken link(s) detected', 'impact': 'Frustrates visitors and wastes marketing spend', 'priority': 4, 'fix': {'title': 'Fix Broken Links', 'effort': '10-30 min', 'cost': 'Free', 'code': None, 'docs': 'https://support.google.com/webmasters/answer/9019367', 'steps': ['Identify broken URLs', 'Fix or remove links', 'Set 301 redirects for moved pages', 'Re-scan to verify']}}",
+      "impact_factor": 0.04,
+      "confidence": "medium",
+      "source": "Each broken link = 2-4% bounce increase. Compounds across site. Source: SEMrush",
+      "revenue_at_risk_nzd": 300.0,
+      "fix_cost_nzd": 240,
+      "payback_months": 0.8,
+      "roi_ratio": 1.2,
+      "priority": 4
+    },
+    {
+      "defect": "{'defect': '135 HTML markup error(s)', 'impact': 'Inconsistent rendering across browsers; SEO impact', 'priority': 5, 'fix': {'title': 'Fix HTML Validation Errors', 'effort': '15-60 min', 'cost': 'Free', 'code': None, 'docs': 'https://validator.w3.org/', 'steps': ['Run W3C validator', 'Fix missing closing tags', 'Validate nested elements', 'Re-validate']}}",
+      "impact_factor": 0.02,
+      "confidence": "low",
+      "source": "Markup errors reduce crawl efficiency. Minor SEO.",
+      "revenue_at_risk_nzd": 150.0,
+      "fix_cost_nzd": 120,
+      "payback_months": 0.8,
+      "roi_ratio": 1.2,
+      "priority": 5
+    }
+  ],
+  "all_defects": [
+    {
+      "defect": "{'defect': 'No contact form', 'impact': 'Every enquiry requires manual step; leads are lost', 'priority': 3, 'fix': {'title': 'Add Contact Form', 'effort': '15 min', 'cost': 'Free (Formspree/Netlify)', 'code': '<form action=\"https://formspree.io/f/YOUR_ID\" method=\"POST\"><input name=\"email\" type=\"email\" required><textarea name=\"message\" required></textarea><button type=\"submit\">Send</button></form>', 'docs': 'https://formspree.io/', 'steps': ['Sign up at formspree.io (free)', 'Add form HTML to contact page', 'Verify email forwarding works']}}",
+      "impact_factor": 0.22,
+      "confidence": "high",
+      "source": "Primary conversion path missing. 20-25% of ready-to-buy visitors cannot contact you. Source: Baymard Institute",
+      "revenue_at_risk_nzd": 1650.0,
+      "fix_cost_nzd": 480,
+      "payback_months": 0.29,
+      "roi_ratio": 3.4,
+      "priority": 3
+    },
+    {
+      "defect": "{'defect': '1 broken link(s) detected', 'impact': 'Frustrates visitors and wastes marketing spend', 'priority': 4, 'fix': {'title': 'Fix Broken Links', 'effort': '10-30 min', 'cost': 'Free', 'code': None, 'docs': 'https://support.google.com/webmasters/answer/9019367', 'steps': ['Identify broken URLs', 'Fix or remove links', 'Set 301 redirects for moved pages', 'Re-scan to verify']}}",
+      "impact_factor": 0.04,
+      "confidence": "medium",
+      "source": "Each broken link = 2-4% bounce increase. Compounds across site. Source: SEMrush",
+      "revenue_at_risk_nzd": 300.0,
+      "fix_cost_nzd": 240,
+      "payback_months": 0.8,
+      "roi_ratio": 1.2,
+      "priority": 4
+    },
+    {
+      "defect": "{'defect': '135 HTML markup error(s)', 'impact': 'Inconsistent rendering across browsers; SEO impact', 'priority': 5, 'fix': {'title': 'Fix HTML Validation Errors', 'effort': '15-60 min', 'cost': 'Free', 'code': None, 'docs': 'https://validator.w3.org/', 'steps': ['Run W3C validator', 'Fix missing closing tags', 'Validate nested elements', 'Re-validate']}}",
+      "impact_factor": 0.02,
+      "confidence": "low",
+      "source": "Markup errors reduce crawl efficiency. Minor SEO.",
+      "revenue_at_risk_nzd": 150.0,
+      "fix_cost_nzd": 120,
+      "payback_months": 0.8,
+      "roi_ratio": 1.2,
+      "priority": 5
+    }
+  ]
+}

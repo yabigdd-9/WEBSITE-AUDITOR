@@ -1,0 +1,72 @@
+{
+  "url": "https://prodecorators.co.nz",
+  "domain": "prodecorators.co.nz",
+  "defects": [
+    {
+      "defect": "Missing HSTS",
+      "impact": "Missing HSTS \u2014 reduces XSS/clickjacking protection"
+    },
+    {
+      "defect": "Missing X-Frame-Options",
+      "impact": "Missing X-Frame-Options \u2014 reduces XSS/clickjacking protection"
+    },
+    {
+      "defect": "Missing X-Content-Type",
+      "impact": "Missing X-Content-Type \u2014 reduces XSS/clickjacking protection"
+    },
+    {
+      "defect": "Missing Referrer-Policy",
+      "impact": "Missing Referrer-Policy \u2014 reduces XSS/clickjacking protection"
+    },
+    {
+      "defect": "Missing Permissions-Policy",
+      "impact": "Missing Permissions-Policy \u2014 reduces XSS/clickjacking protection"
+    },
+    {
+      "defect": "4 broken link(s)",
+      "impact": "Frustrates visitors; wastes crawl budget"
+    }
+  ],
+  "defect_count": 6,
+  "score": 37,
+  "evidence": {
+    "schema_org": {
+      "count": 4,
+      "types": [
+        "WebSite",
+        "Organization",
+        "Organization",
+        "Unknown"
+      ]
+    },
+    "social_links": [
+      "facebook",
+      "instagram",
+      "linkedin",
+      "youtube"
+    ],
+    "emails": [
+      "contact@prodecorators.co.nz"
+    ],
+    "readability": {
+      "flesch": null,
+      "grade": null
+    },
+    "word_count": 1780,
+    "broken_links": 4
+  },
+  "meta": {
+    "title": "Pro Decorators: Premier Painting Services in Christchurch",
+    "meta_description": "Pro Decorators: Christchurch's premier painting experts delivering exceptional home services with uncompromising quality and customer satisfaction."
+  },
+  "social": [
+    "facebook",
+    "instagram",
+    "linkedin",
+    "youtube"
+  ],
+  "emails": [
+    "contact@prodecorators.co.nz"
+  ],
+  "timestamp": "2026-09-16T16:25:11.374845"
+}

@@ -1,0 +1,17 @@
+{
+  "domain": "www.davidrobertson.co.nz",
+  "action_id": "act_b66e422e8f7ebf01",
+  "cms": "WordPress",
+  "is_wordpress": true,
+  "instructions": [
+    "Review and fix: Generate/add missing meta/title patch",
+    "Via WordPress admin: edit the relevant page/post/theme file.",
+    "Or via FTP/SFTP: edit wp-content/themes/{theme}/ files.",
+    "Test on staging first before deploying to production."
+  ],
+  "plugin_suggestions": [],
+  "theme_file_paths": [],
+  "rest_api_endpoints": [],
+  " difficulty": "easy",
+  "difficulty": "medium"
+}

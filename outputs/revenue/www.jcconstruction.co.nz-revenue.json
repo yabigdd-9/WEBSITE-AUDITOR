@@ -1,0 +1,106 @@
+{
+  "domain": "www.jcconstruction.co.nz",
+  "calculated_at": "2026-09-21T17:37:46.472838+00:00",
+  "assumptions": {
+    "monthly_visitors": 2000,
+    "conversion_rate": 0.025,
+    "avg_lead_value_nzd": 150,
+    "baseline_monthly_revenue_nzd": 7500.0
+  },
+  "total_revenue_at_risk_nzd": 3150.0,
+  "total_fix_cost_nzd": 1560,
+  "overall_roi_ratio": 2.0,
+  "defect_count": 4,
+  "top_5_risks": [
+    {
+      "defect": "{'defect': 'No contact form', 'impact': 'Every enquiry requires manual step; leads are lost', 'priority': 3, 'fix': {'title': 'Add Contact Form', 'effort': '15 min', 'cost': 'Free (Formspree/Netlify)', 'code': '<form action=\"https://formspree.io/f/YOUR_ID\" method=\"POST\"><input name=\"email\" type=\"email\" required><textarea name=\"message\" required></textarea><button type=\"submit\">Send</button></form>', 'docs': 'https://formspree.io/', 'steps': ['Sign up at formspree.io (free)', 'Add form HTML to contact page', 'Verify email forwarding works']}}",
+      "impact_factor": 0.22,
+      "confidence": "high",
+      "source": "Primary conversion path missing. 20-25% of ready-to-buy visitors cannot contact you. Source: Baymard Institute",
+      "revenue_at_risk_nzd": 1650.0,
+      "fix_cost_nzd": 480,
+      "payback_months": 0.29,
+      "roi_ratio": 3.4,
+      "priority": 3
+    },
+    {
+      "defect": "{'defect': 'Missing page title', 'impact': 'Google shows blank/untitled results; visitors see no context', 'priority': 3, 'fix': {'title': 'Add Page Title Tag', 'effort': '5 min/page', 'cost': 'Free', 'code': '<title>Your Keyword | Business Name</title>', 'docs': 'https://developers.google.com/search/docs/appearance/title-link', 'steps': ['Add <title> to <head> on each page', 'Keep under 60 characters', 'Include primary keyword']}}",
+      "impact_factor": 0.12,
+      "confidence": "high",
+      "source": "Title tag is #1 on-page SEO factor. Missing = invisible in search. Source: Moz/BrightEdge",
+      "revenue_at_risk_nzd": 900.0,
+      "fix_cost_nzd": 480,
+      "payback_months": 0.53,
+      "roi_ratio": 1.9,
+      "priority": 3
+    },
+    {
+      "defect": "{'defect': 'Missing meta description', 'impact': 'Lower click-through from search results', 'priority': 3, 'fix': {'title': 'Add Meta Description', 'effort': '5 min/page', 'cost': 'Free', 'code': '<meta name=\"description\" content=\"Compelling summary with keyword, 150-160 chars\">', 'docs': 'https://developers.google.com/search/docs/appearance/snippet', 'steps': ['Add meta description to each page', 'Include primary keyword naturally', 'Keep 150-160 characters']}}",
+      "impact_factor": 0.06,
+      "confidence": "high",
+      "source": "2-5% CTR reduction from search results. Source: Backlinko 2024",
+      "revenue_at_risk_nzd": 450.0,
+      "fix_cost_nzd": 480,
+      "payback_months": 1.07,
+      "roi_ratio": 0.9,
+      "priority": 3
+    },
+    {
+      "defect": "{'defect': '976 HTML markup error(s)', 'impact': 'Inconsistent rendering across browsers; SEO impact', 'priority': 5, 'fix': {'title': 'Fix HTML Validation Errors', 'effort': '15-60 min', 'cost': 'Free', 'code': None, 'docs': 'https://validator.w3.org/', 'steps': ['Run W3C validator', 'Fix missing closing tags', 'Validate nested elements', 'Re-validate']}}",
+      "impact_factor": 0.02,
+      "confidence": "low",
+      "source": "Markup errors reduce crawl efficiency. Minor SEO.",
+      "revenue_at_risk_nzd": 150.0,
+      "fix_cost_nzd": 120,
+      "payback_months": 0.8,
+      "roi_ratio": 1.2,
+      "priority": 5
+    }
+  ],
+  "all_defects": [
+    {
+      "defect": "{'defect': 'No contact form', 'impact': 'Every enquiry requires manual step; leads are lost', 'priority': 3, 'fix': {'title': 'Add Contact Form', 'effort': '15 min', 'cost': 'Free (Formspree/Netlify)', 'code': '<form action=\"https://formspree.io/f/YOUR_ID\" method=\"POST\"><input name=\"email\" type=\"email\" required><textarea name=\"message\" required></textarea><button type=\"submit\">Send</button></form>', 'docs': 'https://formspree.io/', 'steps': ['Sign up at formspree.io (free)', 'Add form HTML to contact page', 'Verify email forwarding works']}}",
+      "impact_factor": 0.22,
+      "confidence": "high",
+      "source": "Primary conversion path missing. 20-25% of ready-to-buy visitors cannot contact you. Source: Baymard Institute",
+      "revenue_at_risk_nzd": 1650.0,
+      "fix_cost_nzd": 480,
+      "payback_months": 0.29,
+      "roi_ratio": 3.4,
+      "priority": 3
+    },
+    {
+      "defect": "{'defect': 'Missing page title', 'impact': 'Google shows blank/untitled results; visitors see no context', 'priority': 3, 'fix': {'title': 'Add Page Title Tag', 'effort': '5 min/page', 'cost': 'Free', 'code': '<title>Your Keyword | Business Name</title>', 'docs': 'https://developers.google.com/search/docs/appearance/title-link', 'steps': ['Add <title> to <head> on each page', 'Keep under 60 characters', 'Include primary keyword']}}",
+      "impact_factor": 0.12,
+      "confidence": "high",
+      "source": "Title tag is #1 on-page SEO factor. Missing = invisible in search. Source: Moz/BrightEdge",
+      "revenue_at_risk_nzd": 900.0,
+      "fix_cost_nzd": 480,
+      "payback_months": 0.53,
+      "roi_ratio": 1.9,
+      "priority": 3
+    },
+    {
+      "defect": "{'defect': 'Missing meta description', 'impact': 'Lower click-through from search results', 'priority': 3, 'fix': {'title': 'Add Meta Description', 'effort': '5 min/page', 'cost': 'Free', 'code': '<meta name=\"description\" content=\"Compelling summary with keyword, 150-160 chars\">', 'docs': 'https://developers.google.com/search/docs/appearance/snippet', 'steps': ['Add meta description to each page', 'Include primary keyword naturally', 'Keep 150-160 characters']}}",
+      "impact_factor": 0.06,
+      "confidence": "high",
+      "source": "2-5% CTR reduction from search results. Source: Backlinko 2024",
+      "revenue_at_risk_nzd": 450.0,
+      "fix_cost_nzd": 480,
+      "payback_months": 1.07,
+      "roi_ratio": 0.9,
+      "priority": 3
+    },
+    {
+      "defect": "{'defect': '976 HTML markup error(s)', 'impact': 'Inconsistent rendering across browsers; SEO impact', 'priority': 5, 'fix': {'title': 'Fix HTML Validation Errors', 'effort': '15-60 min', 'cost': 'Free', 'code': None, 'docs': 'https://validator.w3.org/', 'steps': ['Run W3C validator', 'Fix missing closing tags', 'Validate nested elements', 'Re-validate']}}",
+      "impact_factor": 0.02,
+      "confidence": "low",
+      "source": "Markup errors reduce crawl efficiency. Minor SEO.",
+      "revenue_at_risk_nzd": 150.0,
+      "fix_cost_nzd": 120,
+      "payback_months": 0.8,
+      "roi_ratio": 1.2,
+      "priority": 5
+    }
+  ]
+}

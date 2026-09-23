@@ -1,0 +1,30 @@
+{
+  "started": "2026-09-20T15:05:57.647498+00:00",
+  "phases": {
+    "audit": 0,
+    "remediation": 0,
+    "dashboard": 0,
+    "actions": {
+      "mapped": 25,
+      "git_patches": 25,
+      "github_prs": 25,
+      "wp_fixes": 25
+    },
+    "ai": {
+      "summary": "Your website (example.co.nz) scored 30/100. There are several quick wins available that would significantly improve your site.",
+      "source": "template_fallback"
+    },
+    "watchdog": {
+      "regressions": [],
+      "resolved": [],
+      "first_audit": false,
+      "previous_count": 0,
+      "current_count": 0
+    },
+    "outreach": {
+      "file": "outputs/outreach/draft_007f4a9997fc.json",
+      "compliance": true
+    }
+  },
+  "finished": "2026-09-20T15:11:12.962985+00:00"
+}

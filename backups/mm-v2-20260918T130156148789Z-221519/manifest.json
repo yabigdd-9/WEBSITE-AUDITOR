@@ -1,0 +1,25 @@
+{
+  "created_at": "2026-09-18T13:01:56.220024+00:00",
+  "items": [
+    {
+      "source": "/Users/dd/WEBSITE-AUDITOR/control-plane",
+      "path": "/Users/dd/WEBSITE-AUDITOR/backups/mm-v2-20260918T130156148789Z-221519/control-plane.tgz",
+      "sha256": "f5c575565122d34ddfcf1bb8d03a77c58c5a704128059928f611b1df1a4efdb0"
+    },
+    {
+      "source": "/Users/dd/WEBSITE-AUDITOR/scripts",
+      "path": "/Users/dd/WEBSITE-AUDITOR/backups/mm-v2-20260918T130156148789Z-221519/scripts.tgz",
+      "sha256": "e3550fd1fdd140332d3fb282340f1d567e0fd8fab7cc0f76c68db1629049d6d1"
+    },
+    {
+      "source": "/Users/dd/WEBSITE-AUDITOR/config",
+      "path": "/Users/dd/WEBSITE-AUDITOR/backups/mm-v2-20260918T130156148789Z-221519/config.tgz",
+      "sha256": "e3e919d0d5686f4bb049ac227bfdbc7c923b9aca5e4cbc4207340ec8e71bd145"
+    },
+    {
+      "source": "/Users/dd/WEBSITE-AUDITOR/database/money_machine.db",
+      "path": "/Users/dd/WEBSITE-AUDITOR/backups/mm-v2-20260918T130156148789Z-221519/money_machine.db",
+      "sha256": "aa4249a4f5c5a0c30d8d73887a0d9bb78ddbf9f078bdb30586775c6fee8648c3"
+    }
+  ]
+}

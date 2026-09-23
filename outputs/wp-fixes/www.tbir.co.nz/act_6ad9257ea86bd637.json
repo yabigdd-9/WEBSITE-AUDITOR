@@ -1,0 +1,13 @@
+{
+  "domain": "www.tbir.co.nz",
+  "action_id": "act_6ad9257ea86bd637",
+  "cms": "unknown",
+  "is_wordpress": false,
+  "instructions": [
+    "Site does not appear to be WordPress. Manual review required for: Queue defect for human review"
+  ],
+  "plugin_suggestions": [],
+  "theme_file_paths": [],
+  "rest_api_endpoints": [],
+  " difficulty": "easy"
+}

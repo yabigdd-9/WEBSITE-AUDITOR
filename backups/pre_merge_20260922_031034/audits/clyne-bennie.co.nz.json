@@ -1,0 +1,66 @@
+{
+  "url": "https://clyne-bennie.co.nz",
+  "domain": "clyne-bennie.co.nz",
+  "defects": [
+    {
+      "defect": "Missing HSTS",
+      "impact": "Missing HSTS \u2014 reduces XSS/clickjacking protection"
+    },
+    {
+      "defect": "Missing X-Frame-Options",
+      "impact": "Missing X-Frame-Options \u2014 reduces XSS/clickjacking protection"
+    },
+    {
+      "defect": "Missing Referrer-Policy",
+      "impact": "Missing Referrer-Policy \u2014 reduces XSS/clickjacking protection"
+    },
+    {
+      "defect": "Missing Permissions-Policy",
+      "impact": "Missing Permissions-Policy \u2014 reduces XSS/clickjacking protection"
+    },
+    {
+      "defect": "1 broken link(s)",
+      "impact": "Frustrates visitors; wastes crawl budget"
+    }
+  ],
+  "defect_count": 5,
+  "score": 32,
+  "evidence": {
+    "schema_org": {
+      "count": 2,
+      "types": [
+        "Unknown",
+        "HomeAndConstructionBusiness"
+      ]
+    },
+    "social_links": [
+      "facebook",
+      "instagram",
+      "linkedin"
+    ],
+    "emails": [
+      "service.cbnt@clyne-bennie.co.nz",
+      "service@clyne-bennie.co.nz"
+    ],
+    "readability": {
+      "flesch": null,
+      "grade": null
+    },
+    "word_count": 1691,
+    "broken_links": 1
+  },
+  "meta": {
+    "title": "Christchurch Plumber, Gas Fitter, Drainlayer, Electrician",
+    "meta_description": "Clyne & Bennie\u2019s friendly, professional team can look after all your plumbing, gas fitting, drainage, electrical and heating requirements."
+  },
+  "social": [
+    "facebook",
+    "instagram",
+    "linkedin"
+  ],
+  "emails": [
+    "service.cbnt@clyne-bennie.co.nz",
+    "service@clyne-bennie.co.nz"
+  ],
+  "timestamp": "2026-09-16T16:25:12.613815"
+}

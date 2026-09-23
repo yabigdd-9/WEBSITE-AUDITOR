@@ -1,0 +1,52 @@
+ M auditor_toolkit/__init__.py
+ M auditor_toolkit/__main__.py
+ M auditor_toolkit/actions.py
+ M auditor_toolkit/ai.py
+ M auditor_toolkit/ai_worker.py
+ M auditor_toolkit/browser.py
+ M auditor_toolkit/checks.py
+ M auditor_toolkit/cli.py
+ M auditor_toolkit/common.py
+ M auditor_toolkit/compat.py
+ M auditor_toolkit/cpu_model.py
+ M auditor_toolkit/models.py
+ M auditor_toolkit/network.py
+ M auditor_toolkit/pipeline.py
+ M auditor_toolkit/portal.py
+ M auditor_toolkit/reporting.py
+ M auditor_toolkit/storage.py
+ M docs/LOCAL_TOOLKIT.md
+ M monthly_report.py
+ M outputs/remediations/clyne-bennie.co.nz-remediation.json
+ M outputs/remediations/prodecorators.co.nz-remediation.json
+ M outputs/remediations/remediation-summary.json
+ M outputs/remediations/www.clyne-bennie.co.nz-remediation.json
+ M outputs/remediations/www.davidrobertson.co.nz-remediation.json
+ M outputs/remediations/www.jcconstruction.co.nz-remediation.json
+ M outputs/remediations/www.tbir.co.nz-remediation.json
+ M pyproject.toml
+ M report.html
+ M toolkit_tests/test_toolkit.py
+ M wa.py
+?? .github/workflows/toolkit-audit.yml
+?? .github/workflows/toolkit-tests.yml
+?? Launch-Website-Auditor.command
+?? docs/TOOLKIT_CONTRIBUTING.md
+?? make_branding.py
+?? make_fix.py
+?? make_fix2.py
+?? make_master_command.py
+?? make_masterclass.py
+?? make_monthly_reporting.py
+?? make_print_fix.py
+?? make_report_cli.py
+?? make_revenue_calc.py
+?? money-machine/config/branding.yaml
+?? revenue_report.py
+?? run_masterclass.py
+?? toolkit_config/
+?? toolkit_tests/test_browser_e2e.py
+?? toolkit_tests/test_release.py
+?? website_auditor/advanced/
+?? website_auditor/reporting/
+?? website_auditor/revenue/

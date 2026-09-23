@@ -1,0 +1,139 @@
+{
+  "domain": "prodecorators.co.nz",
+  "calculated_at": "2026-09-21T17:37:46.466949+00:00",
+  "assumptions": {
+    "monthly_visitors": 2000,
+    "conversion_rate": 0.025,
+    "avg_lead_value_nzd": 150,
+    "baseline_monthly_revenue_nzd": 7500.0
+  },
+  "total_revenue_at_risk_nzd": 1275.0,
+  "total_fix_cost_nzd": 840,
+  "overall_roi_ratio": 1.5,
+  "defect_count": 6,
+  "top_5_risks": [
+    {
+      "defect": "{'defect': 'Missing HSTS', 'impact': 'Missing HSTS \u2014 reduces XSS/clickjacking protection', 'priority': 99, 'fix': {'title': 'Missing HSTS', 'effort': 'TBD', 'cost': 'TBD', 'code': None, 'docs': None, 'steps': ['Investigate manually']}}",
+      "impact_factor": 0.05,
+      "confidence": "low",
+      "source": "No visible impact to users, but fails security audits. Indirect trust.",
+      "revenue_at_risk_nzd": 375.0,
+      "fix_cost_nzd": 120,
+      "payback_months": 0.32,
+      "roi_ratio": 3.1,
+      "priority": 99
+    },
+    {
+      "defect": "{'defect': '4 broken link(s)', 'impact': 'Frustrates visitors; wastes crawl budget', 'priority': 4, 'fix': {'title': 'Fix Broken Links', 'effort': '10-30 min', 'cost': 'Free', 'code': None, 'docs': 'https://support.google.com/webmasters/answer/9019367', 'steps': ['Identify broken URLs', 'Fix or remove links', 'Set 301 redirects for moved pages', 'Re-scan to verify']}}",
+      "impact_factor": 0.04,
+      "confidence": "medium",
+      "source": "Each broken link = 2-4% bounce increase. Compounds across site. Source: SEMrush",
+      "revenue_at_risk_nzd": 300.0,
+      "fix_cost_nzd": 240,
+      "payback_months": 0.8,
+      "roi_ratio": 1.2,
+      "priority": 4
+    },
+    {
+      "defect": "{'defect': 'Missing X-Frame-Options', 'impact': 'Missing X-Frame-Options \u2014 reduces XSS/clickjacking protection', 'priority': 99, 'fix': {'title': 'Missing X-Frame-Options', 'effort': 'TBD', 'cost': 'TBD', 'code': None, 'docs': None, 'steps': ['Investigate manually']}}",
+      "impact_factor": 0.02,
+      "confidence": "low",
+      "source": "Clickjacking risk. No direct revenue impact but compliance gap.",
+      "revenue_at_risk_nzd": 150.0,
+      "fix_cost_nzd": 120,
+      "payback_months": 0.8,
+      "roi_ratio": 1.2,
+      "priority": 99
+    },
+    {
+      "defect": "{'defect': 'Missing X-Content-Type', 'impact': 'Missing X-Content-Type \u2014 reduces XSS/clickjacking protection', 'priority': 99, 'fix': {'title': 'Missing X-Content-Type', 'effort': 'TBD', 'cost': 'TBD', 'code': None, 'docs': None, 'steps': ['Investigate manually']}}",
+      "impact_factor": 0.02,
+      "confidence": "low",
+      "source": "MIME sniffing risk. Minimal direct revenue impact.",
+      "revenue_at_risk_nzd": 150.0,
+      "fix_cost_nzd": 120,
+      "payback_months": 0.8,
+      "roi_ratio": 1.2,
+      "priority": 99
+    },
+    {
+      "defect": "{'defect': 'Missing Referrer-Policy', 'impact': 'Missing Referrer-Policy \u2014 reduces XSS/clickjacking protection', 'priority': 99, 'fix': {'title': 'Missing Referrer-Policy', 'effort': 'TBD', 'cost': 'TBD', 'code': None, 'docs': None, 'steps': ['Investigate manually']}}",
+      "impact_factor": 0.02,
+      "confidence": "low",
+      "source": "Data leakage risk. Minimal direct revenue impact.",
+      "revenue_at_risk_nzd": 150.0,
+      "fix_cost_nzd": 120,
+      "payback_months": 0.8,
+      "roi_ratio": 1.2,
+      "priority": 99
+    }
+  ],
+  "all_defects": [
+    {
+      "defect": "{'defect': 'Missing HSTS', 'impact': 'Missing HSTS \u2014 reduces XSS/clickjacking protection', 'priority': 99, 'fix': {'title': 'Missing HSTS', 'effort': 'TBD', 'cost': 'TBD', 'code': None, 'docs': None, 'steps': ['Investigate manually']}}",
+      "impact_factor": 0.05,
+      "confidence": "low",
+      "source": "No visible impact to users, but fails security audits. Indirect trust.",
+      "revenue_at_risk_nzd": 375.0,
+      "fix_cost_nzd": 120,
+      "payback_months": 0.32,
+      "roi_ratio": 3.1,
+      "priority": 99
+    },
+    {
+      "defect": "{'defect': '4 broken link(s)', 'impact': 'Frustrates visitors; wastes crawl budget', 'priority': 4, 'fix': {'title': 'Fix Broken Links', 'effort': '10-30 min', 'cost': 'Free', 'code': None, 'docs': 'https://support.google.com/webmasters/answer/9019367', 'steps': ['Identify broken URLs', 'Fix or remove links', 'Set 301 redirects for moved pages', 'Re-scan to verify']}}",
+      "impact_factor": 0.04,
+      "confidence": "medium",
+      "source": "Each broken link = 2-4% bounce increase. Compounds across site. Source: SEMrush",
+      "revenue_at_risk_nzd": 300.0,
+      "fix_cost_nzd": 240,
+      "payback_months": 0.8,
+      "roi_ratio": 1.2,
+      "priority": 4
+    },
+    {
+      "defect": "{'defect': 'Missing X-Frame-Options', 'impact': 'Missing X-Frame-Options \u2014 reduces XSS/clickjacking protection', 'priority': 99, 'fix': {'title': 'Missing X-Frame-Options', 'effort': 'TBD', 'cost': 'TBD', 'code': None, 'docs': None, 'steps': ['Investigate manually']}}",
+      "impact_factor": 0.02,
+      "confidence": "low",
+      "source": "Clickjacking risk. No direct revenue impact but compliance gap.",
+      "revenue_at_risk_nzd": 150.0,
+      "fix_cost_nzd": 120,
+      "payback_months": 0.8,
+      "roi_ratio": 1.2,
+      "priority": 99
+    },
+    {
+      "defect": "{'defect': 'Missing X-Content-Type', 'impact': 'Missing X-Content-Type \u2014 reduces XSS/clickjacking protection', 'priority': 99, 'fix': {'title': 'Missing X-Content-Type', 'effort': 'TBD', 'cost': 'TBD', 'code': None, 'docs': None, 'steps': ['Investigate manually']}}",
+      "impact_factor": 0.02,
+      "confidence": "low",
+      "source": "MIME sniffing risk. Minimal direct revenue impact.",
+      "revenue_at_risk_nzd": 150.0,
+      "fix_cost_nzd": 120,
+      "payback_months": 0.8,
+      "roi_ratio": 1.2,
+      "priority": 99
+    },
+    {
+      "defect": "{'defect': 'Missing Referrer-Policy', 'impact': 'Missing Referrer-Policy \u2014 reduces XSS/clickjacking protection', 'priority': 99, 'fix': {'title': 'Missing Referrer-Policy', 'effort': 'TBD', 'cost': 'TBD', 'code': None, 'docs': None, 'steps': ['Investigate manually']}}",
+      "impact_factor": 0.02,
+      "confidence": "low",
+      "source": "Data leakage risk. Minimal direct revenue impact.",
+      "revenue_at_risk_nzd": 150.0,
+      "fix_cost_nzd": 120,
+      "payback_months": 0.8,
+      "roi_ratio": 1.2,
+      "priority": 99
+    },
+    {
+      "defect": "{'defect': 'Missing Permissions-Policy', 'impact': 'Missing Permissions-Policy \u2014 reduces XSS/clickjacking protection', 'priority': 99, 'fix': {'title': 'Missing Permissions-Policy', 'effort': 'TBD', 'cost': 'TBD', 'code': None, 'docs': None, 'steps': ['Investigate manually']}}",
+      "impact_factor": 0.02,
+      "confidence": "low",
+      "source": "Feature policy gap. Minimal direct revenue impact.",
+      "revenue_at_risk_nzd": 150.0,
+      "fix_cost_nzd": 120,
+      "payback_months": 0.8,
+      "roi_ratio": 1.2,
+      "priority": 99
+    }
+  ]
+}

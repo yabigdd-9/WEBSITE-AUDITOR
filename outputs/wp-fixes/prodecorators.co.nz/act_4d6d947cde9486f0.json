@@ -1,0 +1,17 @@
+{
+  "domain": "prodecorators.co.nz",
+  "action_id": "act_4d6d947cde9486f0",
+  "cms": "WordPress",
+  "is_wordpress": true,
+  "instructions": [
+    "Review and fix: Propose security headers bundle (CSP, X-Frame, X-Content-Type, Referrer-Policy, Permissions-Policy)",
+    "Via WordPress admin: edit the relevant page/post/theme file.",
+    "Or via FTP/SFTP: edit wp-content/themes/{theme}/ files.",
+    "Test on staging first before deploying to production."
+  ],
+  "plugin_suggestions": [],
+  "theme_file_paths": [],
+  "rest_api_endpoints": [],
+  " difficulty": "easy",
+  "difficulty": "medium"
+}

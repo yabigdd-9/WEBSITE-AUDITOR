@@ -1,0 +1,13 @@
+{
+  "domain": "www.tbir.co.nz",
+  "action_id": "act_bc37cb2a9fe19602",
+  "cms": "unknown",
+  "is_wordpress": false,
+  "instructions": [
+    "Site does not appear to be WordPress. Manual review required for: Generate/add missing meta/title patch"
+  ],
+  "plugin_suggestions": [],
+  "theme_file_paths": [],
+  "rest_api_endpoints": [],
+  " difficulty": "easy"
+}

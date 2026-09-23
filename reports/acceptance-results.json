@@ -1,0 +1,534 @@
+{
+  "generated_at": "2026-09-23T05:52:14.902519+00:00",
+  "source_database": "/Users/dd/WEBSITE-AUDITOR/database/money_machine.db",
+  "fixture_policy": "Every test uses its own temporary backup; real DB never mutated",
+  "counts": {
+    "PASS": 56,
+    "FAIL": 0,
+    "BLOCKED": 2
+  },
+  "tests": [
+    {
+      "test": "test_01_unapproved_message_cannot_be_sent",
+      "status": "PASS",
+      "elapsed_ms": 284.17,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:68"
+    },
+    {
+      "test": "test_02_modified_approved_body_invalidates_approval",
+      "status": "PASS",
+      "elapsed_ms": 135.62,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:70"
+    },
+    {
+      "test": "test_03_suppressed_prospect_cannot_enter_queue",
+      "status": "PASS",
+      "elapsed_ms": 130.14,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:72"
+    },
+    {
+      "test": "test_04_duplicate_payment_cannot_inflate_revenue",
+      "status": "PASS",
+      "elapsed_ms": 131.56,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:75"
+    },
+    {
+      "test": "test_05_historical_unverified_sends_excluded",
+      "status": "PASS",
+      "elapsed_ms": 119.46,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:79"
+    },
+    {
+      "test": "test_06_failed_receipt_recording_does_not_become_sent",
+      "status": "PASS",
+      "elapsed_ms": 122.86,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:81"
+    },
+    {
+      "test": "test_07_crm_transitions_have_timestamps_and_events",
+      "status": "PASS",
+      "elapsed_ms": 151.96,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:85"
+    },
+    {
+      "test": "test_08_proposal_requires_approval",
+      "status": "PASS",
+      "elapsed_ms": 131.46,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:88"
+    },
+    {
+      "test": "test_09_status_uses_zero_models_and_network",
+      "status": "PASS",
+      "elapsed_ms": 163.46,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:91"
+    },
+    {
+      "test": "test_10_daily_operator_does_not_send_or_change_crm",
+      "status": "PASS",
+      "elapsed_ms": 150.57,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:94"
+    },
+    {
+      "test": "test_11_every_hermes_model_invocation_logged",
+      "status": "BLOCKED",
+      "elapsed_ms": 80.83,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "BLOCKED: legacy/global Hermes calls cannot be reconciled to MoneyMachine agent_runs. Separate test covers all new local model requests.",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:98"
+    },
+    {
+      "test": "test_12_retired_entrypoints_and_empty_artifacts_fail",
+      "status": "PASS",
+      "elapsed_ms": 292.01,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:100"
+    },
+    {
+      "test": "test_13_migration_requires_verified_restorable_backup",
+      "status": "PASS",
+      "elapsed_ms": 91.92,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:110"
+    },
+    {
+      "test": "test_14_paid_routes_fail_closed",
+      "status": "PASS",
+      "elapsed_ms": 88.29,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:114"
+    },
+    {
+      "test": "test_15_discovery_to_proposal_without_unauthorized_send",
+      "status": "PASS",
+      "elapsed_ms": 138.1,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:116"
+    },
+    {
+      "test": "test_16_suppression_overrides_approval",
+      "status": "PASS",
+      "elapsed_ms": 154.99,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:119"
+    },
+    {
+      "test": "test_17_recipient_change_invalidates_approval",
+      "status": "PASS",
+      "elapsed_ms": 93.91,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:123"
+    },
+    {
+      "test": "test_18_price_change_invalidates_proposal_approval",
+      "status": "PASS",
+      "elapsed_ms": 88.07,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:125"
+    },
+    {
+      "test": "test_19_duplicate_send_protection",
+      "status": "PASS",
+      "elapsed_ms": 94.36,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:127"
+    },
+    {
+      "test": "test_20_stale_and_future_evidence_block_approval",
+      "status": "PASS",
+      "elapsed_ms": 90.1,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:131"
+    },
+    {
+      "test": "test_21_missing_contact_source_blocks_approval",
+      "status": "PASS",
+      "elapsed_ms": 90.93,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:135"
+    },
+    {
+      "test": "test_22_broken_demo_blocks_draft_ready",
+      "status": "PASS",
+      "elapsed_ms": 89.15,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:138"
+    },
+    {
+      "test": "test_23_revenue_requires_payment_evidence",
+      "status": "PASS",
+      "elapsed_ms": 86.33,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:141"
+    },
+    {
+      "test": "test_24_refunds_are_excluded_from_net_received",
+      "status": "PASS",
+      "elapsed_ms": 136.49,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:143"
+    },
+    {
+      "test": "test_25_failed_job_cannot_advance_crm",
+      "status": "PASS",
+      "elapsed_ms": 114.34,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:147"
+    },
+    {
+      "test": "test_26_interrupted_job_resumes_checkpoint_with_retry_limit",
+      "status": "PASS",
+      "elapsed_ms": 85.71,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:149"
+    },
+    {
+      "test": "test_27_duplicate_prospect_is_flagged",
+      "status": "PASS",
+      "elapsed_ms": 121.77,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:154"
+    },
+    {
+      "test": "test_28_budget_cannot_record_positive_paid_cost",
+      "status": "PASS",
+      "elapsed_ms": 80.86,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:157"
+    },
+    {
+      "test": "test_29_unavailable_free_model_fails_without_fallback",
+      "status": "PASS",
+      "elapsed_ms": 84.46,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:159"
+    },
+    {
+      "test": "test_30_send_gates_survive_connection_restart",
+      "status": "PASS",
+      "elapsed_ms": 92.1,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:161"
+    },
+    {
+      "test": "test_31_mixed_legacy_timestamp_formats_supported",
+      "status": "PASS",
+      "elapsed_ms": 84.13,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:165"
+    },
+    {
+      "test": "test_32_refuted_or_partial_evidence_cannot_approve",
+      "status": "PASS",
+      "elapsed_ms": 115.59,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:167"
+    },
+    {
+      "test": "test_33_evidence_capture_tampering_blocks_approval",
+      "status": "PASS",
+      "elapsed_ms": 102.73,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:171"
+    },
+    {
+      "test": "test_34_ev_formula_and_zero_cost_handling",
+      "status": "PASS",
+      "elapsed_ms": 78.47,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:174"
+    },
+    {
+      "test": "test_35_scoring_refuted_evidence_zeroes_priority",
+      "status": "PASS",
+      "elapsed_ms": 87.38,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:179"
+    },
+    {
+      "test": "test_36_pricing_floor_and_scope",
+      "status": "PASS",
+      "elapsed_ms": 87.65,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:182"
+    },
+    {
+      "test": "test_37_learning_does_not_invent_outcomes",
+      "status": "PASS",
+      "elapsed_ms": 106.48,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:184"
+    },
+    {
+      "test": "test_38_model_attempts_log_each_rejection",
+      "status": "PASS",
+      "elapsed_ms": 89.62,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:186"
+    },
+    {
+      "test": "test_39_payment_receipt_file_tampering_excluded",
+      "status": "PASS",
+      "elapsed_ms": 130.91,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:190"
+    },
+    {
+      "test": "test_40_live_suppressed_businesses_stay_suppressed",
+      "status": "PASS",
+      "elapsed_ms": 113.61,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:192"
+    },
+    {
+      "test": "test_41_receiptless_direct_sent_stage_blocked",
+      "status": "PASS",
+      "elapsed_ms": 90.63,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:196"
+    },
+    {
+      "test": "test_42_revenue_legacy_table_cannot_bypass_cash_proof",
+      "status": "PASS",
+      "elapsed_ms": 93.88,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:198"
+    },
+    {
+      "test": "test_43_full_approval_receipt_path_works_in_fixture",
+      "status": "PASS",
+      "elapsed_ms": 94.78,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:200"
+    },
+    {
+      "test": "test_44_external_provider_receipts_independently_verified",
+      "status": "BLOCKED",
+      "elapsed_ms": 72.35,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "BLOCKED: no live mail/bank receipt supplied or independent read-only provider verifier connected; local attestation importer is tested separately.",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:202"
+    },
+    {
+      "test": "test_45_unsubscribe_after_sent_is_recordable_and_suppresses",
+      "status": "PASS",
+      "elapsed_ms": 114.29,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:205"
+    },
+    {
+      "test": "test_46_public_email_alone_is_not_permission",
+      "status": "PASS",
+      "elapsed_ms": 111.0,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:208"
+    },
+    {
+      "test": "test_47_new_evidence_invalidates_approval",
+      "status": "PASS",
+      "elapsed_ms": 93.59,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:211"
+    },
+    {
+      "test": "test_48_reply_opportunity_ranks_before_cleanup",
+      "status": "PASS",
+      "elapsed_ms": 111.63,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:215"
+    },
+    {
+      "test": "test_49_active_job_cannot_be_claimed_twice",
+      "status": "PASS",
+      "elapsed_ms": 76.61,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:217"
+    },
+    {
+      "test": "test_50_experiment_assignment_stable_and_unverified_excluded",
+      "status": "PASS",
+      "elapsed_ms": 79.76,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:220"
+    },
+    {
+      "test": "test_51_migration_idempotent",
+      "status": "PASS",
+      "elapsed_ms": 95.43,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:223"
+    },
+    {
+      "test": "test_52_receipt_envelope_rejects_arbitrary_claims",
+      "status": "PASS",
+      "elapsed_ms": 98.56,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:225"
+    },
+    {
+      "test": "test_53_sent_record_cannot_be_erased",
+      "status": "PASS",
+      "elapsed_ms": 110.87,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:228"
+    },
+    {
+      "test": "test_54_approval_cannot_be_manufactured_from_plain_fields",
+      "status": "PASS",
+      "elapsed_ms": 87.72,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:231"
+    },
+    {
+      "test": "test_55_model_cli_failure_keeps_log_and_nonzero_exit",
+      "status": "PASS",
+      "elapsed_ms": 277.49,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:233"
+    },
+    {
+      "test": "test_56_status_cli_persists_no_fixture_changes",
+      "status": "PASS",
+      "elapsed_ms": 1041.34,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:237"
+    },
+    {
+      "test": "test_57_raw_stage_update_cannot_bypass_demo_gate",
+      "status": "PASS",
+      "elapsed_ms": 93.52,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:242"
+    },
+    {
+      "test": "test_58_raw_approval_update_requires_fresh_evidence",
+      "status": "PASS",
+      "elapsed_ms": 108.24,
+      "setup": "Disposable live SQLite snapshot, synthetic independent prospect and artifacts",
+      "expected": "Invariant enforced; no real send, payment or model call",
+      "actual": "Behavioral assertions passed",
+      "evidence": "/Users/dd/WEBSITE-AUDITOR/money-machine/test_acceptance.py:245"
+    }
+  ]
+}

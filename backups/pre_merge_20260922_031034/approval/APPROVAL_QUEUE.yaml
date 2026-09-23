@@ -1,0 +1,110 @@
+generated_at: '2026-08-18T09:38:29+12:00'
+policy: Nothing in this queue has been sent, published, purchased or committed.
+requires_dion_approval:
+- id: APR-001
+  type: cold_outreach_send
+  engine: Website Rescue Lead Engine
+  description: Send personalised website-rescue outreach emails to researched prospects.
+  blocked_until: Prospect research + proof assets + Judge >=80 + Proofer pass
+  status: NOT_READY
+  reason_not_ready: prospect research not yet executed
+- id: APR-002
+  type: cold_outreach_send
+  engine: Reputation / Unanswered Review Engine
+  description: Send review-gap outreach to businesses with visible reputation gaps.
+  blocked_until: Prospect research + proof assets + Judge >=80 + Proofer pass
+  status: NOT_READY
+  reason_not_ready: prospect research not yet executed
+- id: APR-003
+  type: cold_outreach_send
+  engine: CATALYX Flooring Lead Engine
+  description: Send flooring prospect outreach in Christchurch/Canterbury.
+  blocked_until: Prospect research + proof assets + Judge >=80 + Proofer pass
+  status: NOT_READY
+  reason_not_ready: prospect research not yet executed
+- id: APR-004
+  type: pricing_commitment
+  engine: all
+  description: Any quote containing final pricing to a real prospect.
+  blocked_until: Dion sets approved price bands per engine
+  status: AWAITING_DION
+  ask: Confirm sellable price bands for the three active engines (source suggests NZ$149–799 one-off,
+    NZ$99–599/month recurring).
+  proposed_bands_submitted: '2026-09-20T04:25:00+12:00'
+  proposed_bands: 'Website Rescue (per site): NZ$149 one-off remediation + NZ$99/month monitoring.
+    CATALYX Flooring (per lead): NZ$299 one-off qualification + NZ$199/month nurturing. Reputation
+    Repair (per incident): NZ$799 one-off response + NZ$599/month ongoing management.'
+- id: APR-005
+  type: legal_compliance_gate
+  engine: ALL THREE
+  priority: BLOCKS_ALL_OUTREACH
+  description: NZ Unsolicited Electronic Messages Act 2007 consent basis for B2B cold email.
+  verified_findings:
+  - UEMA covers email and applies to any message with a NZ link — verified on dia.govt.nz.
+  - 'Penalty for non-compliance: fine up to NZ$500,000 — verified on dia.govt.nz.'
+  - There is NO blanket B2B exemption in NZ law (unlike US CAN-SPAM).
+  - A business email published in a directory is NOT automatic consent.
+  - Onus of proof of consent sits on the SENDER (s.9(3)).
+  - Sender identification (s.10) and working unsubscribe (s.11) always apply.
+  - Address-harvesting software / harvested lists are separately restricted (s.13).
+  status: RESOLVED_BY_DION
+  ask: 'Choose the consent basis before ANY cold email is sent. Options: (a) get NZ legal sign-off on
+    an inferred-consent rationale; (b) switch to non-email first touch (phone/post/in-person, not covered
+    by UEMA email rules); (c) run an opt-in route (content/lead magnet) and only email consenting businesses.'
+  orchestrator_recommendation: Option (b) then (c). Dion already has a phone number for outreach (02904556680)
+    and telemarketing is explicitly NOT covered by UEMA. Build the proof assets now, deliver the first
+    touch by phone, and reserve email for businesses that respond or opt in. This removes the $500k exposure
+    without slowing the pipeline.
+  source_urls:
+  - https://www.dia.govt.nz/Spam-NZ-Spam-Law-for-Businesses
+  - https://www.legislation.govt.nz/act/public/2007/0007/latest/DLM405134.html
+  decision: Proceed with email. No solicitor sign-off. Rely on INFERRED consent, per-prospect, human-ratified.
+  decided_at: '2026-08-18T09:38:29+12:00'
+  risk_accepted_by: Dion
+  mitigation: Default-deny UEMA gate implemented in outreach/consent_gate.py — publication alone is NOT
+    treated as permission; Hermes cannot self-ratify; no override flag; 20/day cap; 1 message per business
+    per 90 days; 1 follow-up max.
+  residual_risk: Inferred consent is untested and onus of proof sits with sender (s.9(3)). Max penalty
+    NZ$500,000.
+  phase2_unblock_evidence: '2026-09-20T04:25:00+12:00'
+- id: APR-006
+  type: scope_change_ratification
+  engine: Reputation / Review Engine
+  description: Ratify descoping of slot 2 after verified evidence that unanswered-review detection is
+    not lawfully automatable.
+  status: AWAITING_DION
+  ask: Approve the re-scope to a Reputation Completeness & Visible-Sentiment Scanner, with ME-0274 / ME-0327
+    monitoring engines promoted as the recurring-revenue path.
+  detail_ref: outputs/VIABILITY_DECISION_ACTIVE_2.md
+- id: APR-007
+  type: per_prospect_consent_ratification
+  engine: ALL
+  description: Human ratification of the inferred-consent rationale for each prospect before its email
+    is drafted.
+  status: PARTIALLY_COMPLETE
+  recurring: true
+  ask: For each prospect the gate flags as ratifiable, confirm the rationale. Gate blocks all 9 current
+    prospects until consent evidence is collected and ratified.
+  current_state: 5 of 9 prospects permitted (clyne-bennie, jcconstruction, tbir, prodecorators, davidrobertson);
+    4 of 9 have no published email (NO_EMAIL_PUBLISHED) and route to phone/post — these cannot be emailed
+    by design. Gate check against prospect_dossier.json confirms 5 PERMITTED, 4 BLOCKED (no address).
+autonomous_no_approval_needed:
+- prospect research from public sources
+- opportunity scoring
+- draft creation
+- internal reports
+- file organisation
+- database maintenance
+- checkpointing
+blocking_summary: >
+  APR-005 RESOLVED (email approved, inferred consent, no lawyer).
+  APR-007 PARTIALLY_COMPLETE: 5 of 9 prospects PERMITTED (clyne-bennie,
+  jcconstruction, tbir, prodecorators, davidrobertson); 4 of 9
+  NO_EMAIL_PUBLISHED (whiteandtaylor, bcplumbers, greenscapes,
+  dyerdecorating) — no address on own site, route to phone/post by
+  design. Gate check against prospect_dossier.json confirms 5 PERMITTED,
+  4 BLOCKED (no address). Gmail send capability is NOT available on this
+  machine (token file absent; presence-checked only), so no send is
+  physically possible here. Endpoints:
+  ./outreach/send.py --draft prospect_dossier.json then --send
+  drafts.json --i-approve (Dion must provide the flag).

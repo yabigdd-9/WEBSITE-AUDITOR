@@ -1,0 +1,546 @@
+[2026-09-19T14:36:29+12:00] === Daemon started (interval=60s) ===
+[2026-09-19T14:36:29+12:00] --- Cycle 1 ---
+[2026-09-19T14:36:29+12:00]   Daily count: 3/20
+[2026-09-19T14:36:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:36:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:36:29+12:00]   Next sweep in 60s
+[2026-09-19T14:37:29+12:00] --- Cycle 2 ---
+[2026-09-19T14:37:29+12:00]   Daily count: 3/20
+[2026-09-19T14:37:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:37:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:37:29+12:00]   Next sweep in 60s
+[2026-09-19T14:38:29+12:00] --- Cycle 3 ---
+[2026-09-19T14:38:29+12:00]   Daily count: 3/20
+[2026-09-19T14:38:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:38:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:38:29+12:00]   Next sweep in 60s
+[2026-09-19T14:39:29+12:00] --- Cycle 4 ---
+[2026-09-19T14:39:29+12:00]   Daily count: 3/20
+[2026-09-19T14:39:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:39:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:39:29+12:00]   Next sweep in 60s
+[2026-09-19T14:40:29+12:00] --- Cycle 5 ---
+[2026-09-19T14:40:29+12:00]   Daily count: 3/20
+[2026-09-19T14:40:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:40:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:40:29+12:00]   Next sweep in 60s
+[2026-09-19T14:41:29+12:00] --- Cycle 6 ---
+[2026-09-19T14:41:29+12:00]   Daily count: 3/20
+[2026-09-19T14:41:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:41:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:41:29+12:00]   Next sweep in 60s
+[2026-09-19T14:42:29+12:00] --- Cycle 7 ---
+[2026-09-19T14:42:29+12:00]   Daily count: 3/20
+[2026-09-19T14:42:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:42:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:42:29+12:00]   Next sweep in 60s
+[2026-09-19T14:43:29+12:00] --- Cycle 8 ---
+[2026-09-19T14:43:29+12:00]   Daily count: 3/20
+[2026-09-19T14:43:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:43:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:43:29+12:00]   Next sweep in 60s
+[2026-09-19T14:44:29+12:00] --- Cycle 9 ---
+[2026-09-19T14:44:29+12:00]   Daily count: 3/20
+[2026-09-19T14:44:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:44:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:44:29+12:00]   Next sweep in 60s
+[2026-09-19T14:45:29+12:00] --- Cycle 10 ---
+[2026-09-19T14:45:29+12:00]   Daily count: 3/20
+[2026-09-19T14:45:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:45:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:45:29+12:00]   Next sweep in 60s
+[2026-09-19T14:46:29+12:00] --- Cycle 11 ---
+[2026-09-19T14:46:29+12:00]   Daily count: 3/20
+[2026-09-19T14:46:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:46:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:46:29+12:00]   Next sweep in 60s
+[2026-09-19T14:47:29+12:00] --- Cycle 12 ---
+[2026-09-19T14:47:29+12:00]   Daily count: 3/20
+[2026-09-19T14:47:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:47:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:47:29+12:00]   Next sweep in 60s
+[2026-09-19T14:48:29+12:00] --- Cycle 13 ---
+[2026-09-19T14:48:29+12:00]   Daily count: 3/20
+[2026-09-19T14:48:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:48:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:48:29+12:00]   Next sweep in 60s
+[2026-09-19T14:49:29+12:00] --- Cycle 14 ---
+[2026-09-19T14:49:29+12:00]   Daily count: 3/20
+[2026-09-19T14:49:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:49:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:49:29+12:00]   Next sweep in 60s
+[2026-09-19T14:50:29+12:00] --- Cycle 15 ---
+[2026-09-19T14:50:29+12:00]   Daily count: 3/20
+[2026-09-19T14:50:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:50:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:50:29+12:00]   Next sweep in 60s
+[2026-09-19T14:51:29+12:00] --- Cycle 16 ---
+[2026-09-19T14:51:29+12:00]   Daily count: 3/20
+[2026-09-19T14:51:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:51:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:51:29+12:00]   Next sweep in 60s
+[2026-09-19T14:52:29+12:00] --- Cycle 17 ---
+[2026-09-19T14:52:29+12:00]   Daily count: 3/20
+[2026-09-19T14:52:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:52:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:52:29+12:00]   Next sweep in 60s
+[2026-09-19T14:53:29+12:00] --- Cycle 18 ---
+[2026-09-19T14:53:29+12:00]   Daily count: 3/20
+[2026-09-19T14:53:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:53:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:53:29+12:00]   Next sweep in 60s
+[2026-09-19T14:54:29+12:00] --- Cycle 19 ---
+[2026-09-19T14:54:29+12:00]   Daily count: 3/20
+[2026-09-19T14:54:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:54:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:54:29+12:00]   Next sweep in 60s
+[2026-09-19T14:55:29+12:00] --- Cycle 20 ---
+[2026-09-19T14:55:29+12:00]   Daily count: 3/20
+[2026-09-19T14:55:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:55:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:55:29+12:00]   Next sweep in 60s
+[2026-09-19T14:56:29+12:00] --- Cycle 21 ---
+[2026-09-19T14:56:29+12:00]   Daily count: 3/20
+[2026-09-19T14:56:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:56:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:56:29+12:00]   Next sweep in 60s
+[2026-09-19T14:57:29+12:00] --- Cycle 22 ---
+[2026-09-19T14:57:29+12:00]   Daily count: 3/20
+[2026-09-19T14:57:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:57:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:57:29+12:00]   Next sweep in 60s
+[2026-09-19T14:58:29+12:00] --- Cycle 23 ---
+[2026-09-19T14:58:29+12:00]   Daily count: 3/20
+[2026-09-19T14:58:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:58:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:58:29+12:00]   Next sweep in 60s
+[2026-09-19T14:59:29+12:00] --- Cycle 24 ---
+[2026-09-19T14:59:29+12:00]   Daily count: 3/20
+[2026-09-19T14:59:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T14:59:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T14:59:29+12:00]   Next sweep in 60s
+[2026-09-19T15:00:29+12:00] --- Cycle 25 ---
+[2026-09-19T15:00:29+12:00]   Daily count: 3/20
+[2026-09-19T15:00:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T15:00:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T15:00:29+12:00]   Next sweep in 60s
+[2026-09-19T15:01:29+12:00] --- Cycle 26 ---
+[2026-09-19T15:01:29+12:00]   Daily count: 3/20
+[2026-09-19T15:01:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T15:01:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T15:01:29+12:00]   Next sweep in 60s
+[2026-09-19T15:02:29+12:00] --- Cycle 27 ---
+[2026-09-19T15:02:29+12:00]   Daily count: 3/20
+[2026-09-19T15:02:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T15:02:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T15:02:29+12:00]   Next sweep in 60s
+[2026-09-19T15:03:29+12:00] --- Cycle 28 ---
+[2026-09-19T15:03:29+12:00]   Daily count: 3/20
+[2026-09-19T15:03:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T15:03:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T15:03:29+12:00]   Next sweep in 60s
+[2026-09-19T15:04:29+12:00] --- Cycle 29 ---
+[2026-09-19T15:04:29+12:00]   Daily count: 3/20
+[2026-09-19T15:04:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T15:04:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T15:04:29+12:00]   Next sweep in 60s
+[2026-09-19T15:05:29+12:00] --- Cycle 30 ---
+[2026-09-19T15:05:29+12:00]   Daily count: 3/20
+[2026-09-19T15:05:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T15:05:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T15:05:29+12:00]   Next sweep in 60s
+[2026-09-19T15:06:29+12:00] --- Cycle 31 ---
+[2026-09-19T15:06:29+12:00]   Daily count: 3/20
+[2026-09-19T15:06:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T15:06:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T15:06:29+12:00]   Next sweep in 60s
+[2026-09-19T15:07:29+12:00] --- Cycle 32 ---
+[2026-09-19T15:07:29+12:00]   Daily count: 3/20
+[2026-09-19T15:07:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T15:07:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T15:07:29+12:00]   Next sweep in 60s
+[2026-09-19T15:08:29+12:00] --- Cycle 33 ---
+[2026-09-19T15:08:29+12:00]   Daily count: 3/20
+[2026-09-19T15:08:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T15:08:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T15:08:29+12:00]   Next sweep in 60s
+[2026-09-19T15:09:29+12:00] --- Cycle 34 ---
+[2026-09-19T15:09:29+12:00]   Daily count: 3/20
+[2026-09-19T15:09:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T15:09:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T15:09:29+12:00]   Next sweep in 60s
+[2026-09-19T15:10:29+12:00] --- Cycle 35 ---
+[2026-09-19T15:10:29+12:00]   Daily count: 3/20
+[2026-09-19T15:10:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T15:10:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T15:10:29+12:00]   Next sweep in 60s
+[2026-09-19T15:11:29+12:00] --- Cycle 36 ---
+[2026-09-19T15:11:29+12:00]   Daily count: 3/20
+[2026-09-19T15:11:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T15:11:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T15:11:29+12:00]   Next sweep in 60s
+[2026-09-19T15:12:29+12:00] --- Cycle 37 ---
+[2026-09-19T15:12:29+12:00]   Daily count: 3/20
+[2026-09-19T15:12:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T15:12:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T15:12:29+12:00]   Next sweep in 60s
+[2026-09-19T15:13:29+12:00] --- Cycle 38 ---
+[2026-09-19T15:13:29+12:00]   Daily count: 3/20
+[2026-09-19T15:13:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T15:13:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T15:13:29+12:00]   Next sweep in 60s
+[2026-09-19T15:14:29+12:00] --- Cycle 39 ---
+[2026-09-19T15:14:29+12:00]   Daily count: 3/20
+[2026-09-19T15:14:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T15:14:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T15:14:29+12:00]   Next sweep in 60s
+[2026-09-19T15:15:29+12:00] --- Cycle 40 ---
+[2026-09-19T15:15:29+12:00]   Daily count: 3/20
+[2026-09-19T15:15:29+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T15:15:29+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T15:15:29+12:00]   Next sweep in 60s
+[2026-09-19T17:20:43+12:00] --- Cycle 41 ---
+[2026-09-19T17:20:43+12:00]   Daily count: 3/20
+[2026-09-19T17:20:43+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T17:20:43+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T17:20:43+12:00]   Next sweep in 60s
+[2026-09-19T21:26:05+12:00] --- Cycle 42 ---
+[2026-09-19T21:26:05+12:00]   Daily count: 3/20
+[2026-09-19T21:26:05+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T21:26:05+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T21:26:05+12:00]   Next sweep in 60s
+[2026-09-19T21:27:05+12:00] --- Cycle 43 ---
+[2026-09-19T21:27:05+12:00]   Daily count: 3/20
+[2026-09-19T21:27:05+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T21:27:05+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T21:27:05+12:00]   Next sweep in 60s
+[2026-09-19T21:28:05+12:00] --- Cycle 44 ---
+[2026-09-19T21:28:05+12:00]   Daily count: 3/20
+[2026-09-19T21:28:05+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T21:28:05+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T21:28:05+12:00]   Next sweep in 60s
+[2026-09-19T21:29:05+12:00] --- Cycle 45 ---
+[2026-09-19T21:29:05+12:00]   Daily count: 3/20
+[2026-09-19T21:29:05+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T21:29:05+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T21:29:05+12:00]   Next sweep in 60s
+[2026-09-19T21:30:05+12:00] --- Cycle 46 ---
+[2026-09-19T21:30:05+12:00]   Daily count: 3/20
+[2026-09-19T21:30:05+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T21:30:05+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T21:30:05+12:00]   Next sweep in 60s
+[2026-09-19T21:31:05+12:00] --- Cycle 47 ---
+[2026-09-19T21:31:05+12:00]   Daily count: 3/20
+[2026-09-19T21:31:05+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T21:31:05+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T21:31:05+12:00]   Next sweep in 60s
+[2026-09-19T21:32:05+12:00] --- Cycle 48 ---
+[2026-09-19T21:32:05+12:00]   Daily count: 3/20
+[2026-09-19T21:32:05+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T21:32:05+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T21:32:05+12:00]   Next sweep in 60s
+[2026-09-19T21:33:41+12:00] --- Cycle 49 ---
+[2026-09-19T21:33:41+12:00]   Daily count: 3/20
+[2026-09-19T21:33:41+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T21:33:41+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T21:33:41+12:00]   Next sweep in 60s
+[2026-09-19T23:10:30+12:00] --- Cycle 50 ---
+[2026-09-19T23:10:30+12:00]   Daily count: 3/20
+[2026-09-19T23:10:30+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:10:30+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:10:30+12:00]   Next sweep in 60s
+[2026-09-19T23:11:30+12:00] --- Cycle 51 ---
+[2026-09-19T23:11:30+12:00]   Daily count: 3/20
+[2026-09-19T23:11:30+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:11:30+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:11:30+12:00]   Next sweep in 60s
+[2026-09-19T23:12:30+12:00] --- Cycle 52 ---
+[2026-09-19T23:12:30+12:00]   Daily count: 3/20
+[2026-09-19T23:12:30+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:12:30+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:12:30+12:00]   Next sweep in 60s
+[2026-09-19T23:13:30+12:00] --- Cycle 53 ---
+[2026-09-19T23:13:30+12:00]   Daily count: 3/20
+[2026-09-19T23:13:30+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:13:30+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:13:30+12:00]   Next sweep in 60s
+[2026-09-19T23:14:30+12:00] --- Cycle 54 ---
+[2026-09-19T23:14:30+12:00]   Daily count: 3/20
+[2026-09-19T23:14:30+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:14:30+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:14:30+12:00]   Next sweep in 60s
+[2026-09-19T23:15:30+12:00] --- Cycle 55 ---
+[2026-09-19T23:15:30+12:00]   Daily count: 3/20
+[2026-09-19T23:15:30+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:15:30+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:15:30+12:00]   Next sweep in 60s
+[2026-09-19T23:16:30+12:00] --- Cycle 56 ---
+[2026-09-19T23:16:30+12:00]   Daily count: 3/20
+[2026-09-19T23:16:30+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:16:30+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:16:30+12:00]   Next sweep in 60s
+[2026-09-19T23:17:30+12:00] --- Cycle 57 ---
+[2026-09-19T23:17:30+12:00]   Daily count: 3/20
+[2026-09-19T23:17:30+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:17:30+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:17:30+12:00]   Next sweep in 60s
+[2026-09-19T23:18:30+12:00] --- Cycle 58 ---
+[2026-09-19T23:18:30+12:00]   Daily count: 3/20
+[2026-09-19T23:18:30+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:18:30+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:18:30+12:00]   Next sweep in 60s
+[2026-09-19T23:19:30+12:00] --- Cycle 59 ---
+[2026-09-19T23:19:30+12:00]   Daily count: 3/20
+[2026-09-19T23:19:30+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:19:30+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:19:30+12:00]   Next sweep in 60s
+[2026-09-19T23:20:30+12:00] --- Cycle 60 ---
+[2026-09-19T23:20:30+12:00]   Daily count: 3/20
+[2026-09-19T23:20:30+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:20:30+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:20:30+12:00]   Next sweep in 60s
+[2026-09-19T23:21:30+12:00] --- Cycle 61 ---
+[2026-09-19T23:21:30+12:00]   Daily count: 3/20
+[2026-09-19T23:21:30+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:21:30+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:21:30+12:00]   Next sweep in 60s
+[2026-09-19T23:22:30+12:00] --- Cycle 62 ---
+[2026-09-19T23:22:30+12:00]   Daily count: 3/20
+[2026-09-19T23:22:30+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:22:30+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:22:30+12:00]   Next sweep in 60s
+[2026-09-19T23:23:30+12:00] --- Cycle 63 ---
+[2026-09-19T23:23:30+12:00]   Daily count: 3/20
+[2026-09-19T23:23:30+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:23:30+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:23:30+12:00]   Next sweep in 60s
+[2026-09-19T23:24:30+12:00] --- Cycle 64 ---
+[2026-09-19T23:24:30+12:00]   Daily count: 3/20
+[2026-09-19T23:24:30+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:24:30+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:24:30+12:00]   Next sweep in 60s
+[2026-09-19T23:25:30+12:00] --- Cycle 65 ---
+[2026-09-19T23:25:30+12:00]   Daily count: 3/20
+[2026-09-19T23:25:30+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:25:30+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:25:30+12:00]   Next sweep in 60s
+[2026-09-19T23:26:30+12:00] --- Cycle 66 ---
+[2026-09-19T23:26:30+12:00]   Daily count: 3/20
+[2026-09-19T23:26:30+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:26:30+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:26:30+12:00]   Next sweep in 60s
+[2026-09-19T23:27:30+12:00] --- Cycle 67 ---
+[2026-09-19T23:27:30+12:00]   Daily count: 3/20
+[2026-09-19T23:27:30+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:27:30+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:27:30+12:00]   Next sweep in 60s
+[2026-09-19T23:28:30+12:00] --- Cycle 68 ---
+[2026-09-19T23:28:30+12:00]   Daily count: 3/20
+[2026-09-19T23:28:30+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:28:30+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:28:30+12:00]   Next sweep in 60s
+[2026-09-19T23:29:31+12:00] --- Cycle 69 ---
+[2026-09-19T23:29:31+12:00]   Daily count: 3/20
+[2026-09-19T23:29:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:29:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:29:31+12:00]   Next sweep in 60s
+[2026-09-19T23:30:31+12:00] --- Cycle 70 ---
+[2026-09-19T23:30:31+12:00]   Daily count: 3/20
+[2026-09-19T23:30:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:30:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:30:31+12:00]   Next sweep in 60s
+[2026-09-19T23:31:31+12:00] --- Cycle 71 ---
+[2026-09-19T23:31:31+12:00]   Daily count: 3/20
+[2026-09-19T23:31:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:31:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:31:31+12:00]   Next sweep in 60s
+[2026-09-19T23:32:31+12:00] --- Cycle 72 ---
+[2026-09-19T23:32:31+12:00]   Daily count: 3/20
+[2026-09-19T23:32:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:32:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:32:31+12:00]   Next sweep in 60s
+[2026-09-19T23:33:31+12:00] --- Cycle 73 ---
+[2026-09-19T23:33:31+12:00]   Daily count: 3/20
+[2026-09-19T23:33:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:33:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:33:31+12:00]   Next sweep in 60s
+[2026-09-19T23:34:31+12:00] --- Cycle 74 ---
+[2026-09-19T23:34:31+12:00]   Daily count: 3/20
+[2026-09-19T23:34:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:34:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:34:31+12:00]   Next sweep in 60s
+[2026-09-19T23:35:31+12:00] --- Cycle 75 ---
+[2026-09-19T23:35:31+12:00]   Daily count: 3/20
+[2026-09-19T23:35:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:35:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:35:31+12:00]   Next sweep in 60s
+[2026-09-19T23:36:31+12:00] --- Cycle 76 ---
+[2026-09-19T23:36:31+12:00]   Daily count: 3/20
+[2026-09-19T23:36:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:36:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:36:31+12:00]   Next sweep in 60s
+[2026-09-19T23:37:31+12:00] --- Cycle 77 ---
+[2026-09-19T23:37:31+12:00]   Daily count: 3/20
+[2026-09-19T23:37:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:37:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:37:31+12:00]   Next sweep in 60s
+[2026-09-19T23:38:31+12:00] --- Cycle 78 ---
+[2026-09-19T23:38:31+12:00]   Daily count: 3/20
+[2026-09-19T23:38:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:38:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:38:31+12:00]   Next sweep in 60s
+[2026-09-19T23:39:31+12:00] --- Cycle 79 ---
+[2026-09-19T23:39:31+12:00]   Daily count: 3/20
+[2026-09-19T23:39:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:39:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:39:31+12:00]   Next sweep in 60s
+[2026-09-19T23:40:31+12:00] --- Cycle 80 ---
+[2026-09-19T23:40:31+12:00]   Daily count: 3/20
+[2026-09-19T23:40:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:40:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:40:31+12:00]   Next sweep in 60s
+[2026-09-19T23:41:31+12:00] --- Cycle 81 ---
+[2026-09-19T23:41:31+12:00]   Daily count: 3/20
+[2026-09-19T23:41:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:41:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:41:31+12:00]   Next sweep in 60s
+[2026-09-19T23:42:31+12:00] --- Cycle 82 ---
+[2026-09-19T23:42:31+12:00]   Daily count: 3/20
+[2026-09-19T23:42:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:42:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:42:31+12:00]   Next sweep in 60s
+[2026-09-19T23:43:31+12:00] --- Cycle 83 ---
+[2026-09-19T23:43:31+12:00]   Daily count: 3/20
+[2026-09-19T23:43:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:43:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:43:31+12:00]   Next sweep in 60s
+[2026-09-19T23:44:31+12:00] --- Cycle 84 ---
+[2026-09-19T23:44:31+12:00]   Daily count: 3/20
+[2026-09-19T23:44:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:44:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:44:31+12:00]   Next sweep in 60s
+[2026-09-19T23:45:31+12:00] --- Cycle 85 ---
+[2026-09-19T23:45:31+12:00]   Daily count: 3/20
+[2026-09-19T23:45:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:45:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:45:31+12:00]   Next sweep in 60s
+[2026-09-19T23:46:31+12:00] --- Cycle 86 ---
+[2026-09-19T23:46:31+12:00]   Daily count: 3/20
+[2026-09-19T23:46:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:46:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:46:31+12:00]   Next sweep in 60s
+[2026-09-19T23:47:31+12:00] --- Cycle 87 ---
+[2026-09-19T23:47:31+12:00]   Daily count: 3/20
+[2026-09-19T23:47:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:47:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:47:31+12:00]   Next sweep in 60s
+[2026-09-19T23:48:31+12:00] --- Cycle 88 ---
+[2026-09-19T23:48:31+12:00]   Daily count: 3/20
+[2026-09-19T23:48:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:48:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:48:31+12:00]   Next sweep in 60s
+[2026-09-19T23:49:31+12:00] --- Cycle 89 ---
+[2026-09-19T23:49:31+12:00]   Daily count: 3/20
+[2026-09-19T23:49:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:49:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:49:31+12:00]   Next sweep in 60s
+[2026-09-19T23:50:31+12:00] --- Cycle 90 ---
+[2026-09-19T23:50:31+12:00]   Daily count: 3/20
+[2026-09-19T23:50:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:50:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:50:31+12:00]   Next sweep in 60s
+[2026-09-19T23:51:31+12:00] --- Cycle 91 ---
+[2026-09-19T23:51:31+12:00]   Daily count: 3/20
+[2026-09-19T23:51:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:51:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:51:31+12:00]   Next sweep in 60s
+[2026-09-19T23:52:31+12:00] --- Cycle 92 ---
+[2026-09-19T23:52:31+12:00]   Daily count: 3/20
+[2026-09-19T23:52:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:52:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:52:31+12:00]   Next sweep in 60s
+[2026-09-19T23:53:31+12:00] --- Cycle 93 ---
+[2026-09-19T23:53:31+12:00]   Daily count: 3/20
+[2026-09-19T23:53:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:53:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:53:31+12:00]   Next sweep in 60s
+[2026-09-19T23:54:31+12:00] --- Cycle 94 ---
+[2026-09-19T23:54:31+12:00]   Daily count: 3/20
+[2026-09-19T23:54:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:54:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:54:31+12:00]   Next sweep in 60s
+[2026-09-19T23:55:31+12:00] --- Cycle 95 ---
+[2026-09-19T23:55:31+12:00]   Daily count: 3/20
+[2026-09-19T23:55:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:55:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:55:31+12:00]   Next sweep in 60s
+[2026-09-19T23:56:31+12:00] --- Cycle 96 ---
+[2026-09-19T23:56:31+12:00]   Daily count: 3/20
+[2026-09-19T23:56:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:56:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:56:31+12:00]   Next sweep in 60s
+[2026-09-19T23:57:31+12:00] --- Cycle 97 ---
+[2026-09-19T23:57:31+12:00]   Daily count: 3/20
+[2026-09-19T23:57:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:57:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:57:31+12:00]   Next sweep in 60s
+[2026-09-19T23:58:31+12:00] --- Cycle 98 ---
+[2026-09-19T23:58:31+12:00]   Daily count: 3/20
+[2026-09-19T23:58:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:58:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:58:31+12:00]   Next sweep in 60s
+[2026-09-19T23:59:31+12:00] --- Cycle 99 ---
+[2026-09-19T23:59:31+12:00]   Daily count: 3/20
+[2026-09-19T23:59:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-19T23:59:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-19T23:59:31+12:00]   Next sweep in 60s
+[2026-09-20T00:00:31+12:00] --- Cycle 100 ---
+[2026-09-20T00:00:31+12:00]   Daily count: 0/20
+[2026-09-20T00:00:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-20T00:00:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-20T00:00:31+12:00]   Next sweep in 60s
+[2026-09-20T00:01:31+12:00] --- Cycle 101 ---
+[2026-09-20T00:01:31+12:00]   Daily count: 0/20
+[2026-09-20T00:01:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-20T00:01:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-20T00:01:31+12:00]   Next sweep in 60s
+[2026-09-20T00:02:31+12:00] --- Cycle 102 ---
+[2026-09-20T00:02:31+12:00]   Daily count: 0/20
+[2026-09-20T00:02:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-20T00:02:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-20T00:02:31+12:00]   Next sweep in 60s
+[2026-09-20T00:03:31+12:00] --- Cycle 103 ---
+[2026-09-20T00:03:31+12:00]   Daily count: 0/20
+[2026-09-20T00:03:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-20T00:03:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-20T00:03:31+12:00]   Next sweep in 60s
+[2026-09-20T00:04:31+12:00] --- Cycle 104 ---
+[2026-09-20T00:04:31+12:00]   Daily count: 0/20
+[2026-09-20T00:04:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-20T00:04:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-20T00:04:31+12:00]   Next sweep in 60s
+[2026-09-20T00:05:31+12:00] --- Cycle 105 ---
+[2026-09-20T00:05:31+12:00]   Daily count: 0/20
+[2026-09-20T00:05:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-20T00:05:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-20T00:05:31+12:00]   Next sweep in 60s
+[2026-09-20T00:06:31+12:00] --- Cycle 106 ---
+[2026-09-20T00:06:31+12:00]   Daily count: 0/20
+[2026-09-20T00:06:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-20T00:06:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-20T00:06:31+12:00]   Next sweep in 60s
+[2026-09-20T00:07:31+12:00] --- Cycle 107 ---
+[2026-09-20T00:07:31+12:00]   Daily count: 0/20
+[2026-09-20T00:07:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-20T00:07:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-20T00:07:31+12:00]   Next sweep in 60s
+[2026-09-20T00:08:31+12:00] --- Cycle 108 ---
+[2026-09-20T00:08:31+12:00]   Daily count: 0/20
+[2026-09-20T00:08:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-20T00:08:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-20T00:08:31+12:00]   Next sweep in 60s
+[2026-09-20T00:09:31+12:00] --- Cycle 109 ---
+[2026-09-20T00:09:31+12:00]   Daily count: 0/20
+[2026-09-20T00:09:31+12:00] === Sweep: 0 pending / 3 total ===
+[2026-09-20T00:09:31+12:00]   Results: 0 sent, 0 failed, 0 skipped
+[2026-09-20T00:09:31+12:00]   Next sweep in 60s

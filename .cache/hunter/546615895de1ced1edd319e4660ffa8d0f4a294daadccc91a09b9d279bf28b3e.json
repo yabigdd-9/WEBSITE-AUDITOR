@@ -1,0 +1,20 @@
+{
+  "email": "office@baheatpumps.co.nz",
+  "result": "deliverable",
+  "score": 100,
+  "regexp": true,
+  "gibberish": false,
+  "disposable": false,
+  "webmail": false,
+  "mx_records": true,
+  "smtp_server": true,
+  "smtp_check": true,
+  "accept_all": false,
+  "block": false,
+  "sources": [
+    "https://baheatpumps.co.nz",
+    "https://dailygram.com/index.php/profile-362944"
+  ],
+  "cached_at": "2026-09-18T16:13:22.827239+00:00",
+  "from_cache": false
+}

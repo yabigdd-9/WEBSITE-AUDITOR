@@ -1,0 +1,260 @@
+# Feature registry for opportunity scoring
+# Each feature must have: feature_id, description, source, range, direction, missing_behavior, confidence_requirement, double_counting_group, version
+
+features:
+  - feature_id: verified_need
+    description: >
+      Evidence of a real, material problem that affects the website's function,
+      security, performance, or compliance.
+    source:
+      - audit findings
+      - crawl graph
+      - browser observations
+      - security observations
+    derive_from:
+      - material defects
+      - conversion-path failures
+      - performance gaps
+      - indexability conflicts
+      - supported technology lifecycle concerns
+      - supported vulnerability evidence
+    exclude:
+      - informational observations
+      - unsupported vulnerabilities
+      - missing CrUX alone
+      - style preference
+    range: "0.0-1.0"
+    direction: "positive"  # higher = more need
+    missing_behavior: "zero"  # missing -> no need
+    confidence_requirement: "high"  # requires strong evidence
+    double_counting_group: technical_need
+    version: "1.0.0"
+
+  - feature_id: identity_confidence
+    description: >
+      Confidence that the business identity is correct and the website belongs to that business.
+    source: identity engine
+    range: "0.0-1.0"
+    direction: "positive"
+    missing_behavior: "zero"
+    confidence_requirement: "high"
+    double_counting_group: identity
+    version: "1.0.0"
+
+  - feature_id: website_confidence
+    description: >
+      Confidence that the website ownership is credible and the business owns the website.
+    source: website ownership engine
+    range: "0.0-1.0"
+    direction: "positive"
+    missing_behavior: "zero"
+    confidence_requirement: "medium"
+    double_counting_group: identity
+    version: "1.0.0"
+
+  - feature_id: evidence_quality
+    description: >
+      Quality of evidence supporting the opportunity score.
+    derive_from:
+      - observed vs heuristic
+      - source completeness
+      - repeatability
+      - cross-source corroboration
+    scoring:
+      observed_multi_source: 1.0
+      observed_single_source: 0.9
+      strong_inference: 0.7
+      heuristic: 0.4
+      unsupported: 0.0
+    range: "0.0-1.0"
+    direction: "positive"
+    missing_behavior: "zero"
+    confidence_requirement: "medium"
+    double_counting_group: None  # meta-feature
+    version: "1.0.0"
+
+  - feature_id: fixability
+    description: >
+      Whether WEBSITE-AUDITOR can produce a practical, testable remediation for the problem.
+    question: >
+      Can WEBSITE-AUDITOR produce a practical, testable remediation for this problem?
+    high_examples:
+      - meta/title issue
+      - broken CTA
+      - missing structured data
+      - large image optimization
+      - broken internal link
+      - simple configuration issue
+    medium_examples:
+      - theme performance
+      - complex internal-link restructure
+      - large template refactor
+    low_examples:
+      - complete platform migration
+      - unknown proprietary CMS
+      - major backend replacement
+    output:
+      range: "0.0-1.0"
+    direction: "positive"  # higher = more fixable
+    missing_behavior: "heuristic"  # missing -> estimate based on finding type
+    confidence_requirement: "medium"
+    double_counting_group: technical_need
+    version: "1.0.0"
+
+  - feature_id: delivery_effort
+    description: >
+      Estimated relative implementation effort without pretending the estimate is a fixed quote.
+    objective: >
+      Estimate relative implementation effort without pretending the estimate is a fixed quote.
+    bands:
+      XS:
+        indicative: "< 1 hour"
+      S:
+        indicative: "1-3 hours"
+      M:
+        indicative: "3-8 hours"
+      L:
+        indicative: "1-3 days"
+      XL:
+        indicative: "multi-day/complex"
+      UNKNOWN:
+        action:
+          - "lower confidence"
+          - "human review"
+    evidence:
+      - "finding type"
+      - "platform"
+      - "affected pages"
+      - "technical dependencies"
+      - "historical remediation outcomes when available"
+    range: "0.0-1.0"  # normalized: XS=0.0, S=0.25, M=0.5, L=0.75, XL=1.0, UNKNOWN=0.0
+    direction: "negative"  # higher effort = lower score
+    missing_behavior: "unknown_band"
+    confidence_requirement: "medium"
+    double_counting_group: technical_need
+    version: "1.0.0"
+
+  - feature_id: business_value
+    description: >
+      Estimate whether the website appears commercially important to the business.
+    objective: >
+      Estimate whether the website appears commercially important to the business without inventing financial numbers.
+    signals:
+      - booking functionality
+      - quote/request functionality
+      - ecommerce
+      - lead-generation CTAs
+      - service business dependence on enquiries
+      - number of locations
+      - business category
+    output:
+      categories:
+        - "LOW"
+        - "MEDIUM"
+        - "HIGH"
+        - "UNKNOWN"
+    range: "0.0-1.0"  # LOW=0.0, MEDIUM=0.5, HIGH=1.0, UNKNOWN=0.0
+    direction: "positive"
+    missing_behavior: "unknown"
+    confidence_requirement: "medium"
+    double_counting_group: commercial_function
+    version: "1.0.0"
+
+  - feature_id: contactability
+    description: >
+      Measure whether legitimate business contact paths are available.
+    objective: >
+      Measure whether legitimate business contact paths are available.
+    signals:
+      strong:
+        - verified first-party business email
+        - official contact form
+        - verified business phone
+      medium:
+        - business social contact
+        - public inquiry page
+      weak:
+        - unverified guessed email
+        - catch-all only
+    rules:
+      - pattern-generated emails do not become verified
+      - catch-all does not equal verified mailbox
+      - NO_VERIFIED_EMAIL is acceptable
+    output:
+      - contactability_score
+      - contact_channels
+      - verification_status
+    range: "0.0-1.0"
+    direction: "positive"
+    missing_behavior: "zero"
+    confidence_requirement: "medium"
+    double_counting_group: commercial_function
+    version: "1.0.0"
+
+  - feature_id: peer_gap
+    description: >
+      Measure how far the website differs from relevant nearby/category peers.
+    objective: >
+      Measure how far the website differs from relevant nearby/category peers.
+    source: competitor benchmark engine
+    dimensions:
+      - technical health
+      - mobile performance
+      - conversion capability
+      - structured data
+      - technology lifecycle
+      - local SEO
+    output:
+      - percentile
+      - peer_median
+      - peer_count
+    range: "0.0-1.0"  # percentile 0.0-1.0
+    direction: "positive"  # higher gap = more opportunity
+    missing_behavior: "remove_contribution"
+    confidence_requirement: "medium"
+    double_counting_group: technical_need
+    version: "1.0.0"
+
+  - feature_id: market_context
+    description: >
+      Provide industry and regional context without pretending public market statistics reveal an individual company's buying intent.
+    objective: >
+      Provide industry and regional context without pretending public market statistics reveal an individual company's buying intent.
+    sources:
+      - Stats NZ
+      - public regional datasets
+    signals:
+      - enterprise density
+      - industry size
+      - business births/deaths
+      - regional activity
+    output:
+      strength:
+        - LOW_CONTEXT
+        - MEDIUM_CONTEXT
+        - HIGH_CONTEXT
+    range: "0.0-1.0"  # LOW_CONTEXT=0.0, MEDIUM_CONTEXT=0.5, HIGH_CONTEXT=1.0
+    direction: "positive"
+    missing_behavior: "neutralize"
+    confidence_requirement: "low"
+    double_counting_group: market
+    version: "1.0.0"
+
+  - feature_id: expected_remediation_value
+    description: >
+      Estimated value of remediating the problem (e.g., increased conversion, reduced risk).
+    early_stage:
+      derive_from:
+        - finding type
+        - scope
+        - peer gap
+        - fixability
+    mature_stage:
+      derive_from:
+        - measured historical outcomes
+    range: "0.0-1.0"
+    direction: "positive"
+    missing_behavior: "heuristic"
+    confidence_requirement: "medium"
+    double_counting_group: technical_need
+    version: "1.0.0"

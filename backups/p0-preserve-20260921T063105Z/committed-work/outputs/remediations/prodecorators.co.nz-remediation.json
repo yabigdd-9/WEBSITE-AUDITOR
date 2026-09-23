@@ -1,0 +1,106 @@
+{
+  "domain": "prodecorators.co.nz",
+  "score": 37,
+  "total_defects": 6,
+  "generated": "2026-09-21T05:35:08.984783",
+  "actions": [
+    {
+      "defect": "4 broken link(s)",
+      "impact": "Frustrates visitors; wastes crawl budget",
+      "priority": 4,
+      "fix": {
+        "title": "Fix Broken Links",
+        "effort": "10-30 min",
+        "cost": "Free",
+        "code": null,
+        "docs": "https://support.google.com/webmasters/answer/9019367",
+        "steps": [
+          "Identify broken URLs",
+          "Fix or remove links",
+          "Set 301 redirects for moved pages",
+          "Re-scan to verify"
+        ]
+      }
+    },
+    {
+      "defect": "Missing HSTS",
+      "impact": "Missing HSTS \u2014 reduces XSS/clickjacking protection",
+      "priority": 99,
+      "fix": {
+        "title": "Missing HSTS",
+        "effort": "TBD",
+        "cost": "TBD",
+        "code": null,
+        "docs": null,
+        "steps": [
+          "Investigate manually"
+        ]
+      }
+    },
+    {
+      "defect": "Missing X-Frame-Options",
+      "impact": "Missing X-Frame-Options \u2014 reduces XSS/clickjacking protection",
+      "priority": 99,
+      "fix": {
+        "title": "Missing X-Frame-Options",
+        "effort": "TBD",
+        "cost": "TBD",
+        "code": null,
+        "docs": null,
+        "steps": [
+          "Investigate manually"
+        ]
+      }
+    },
+    {
+      "defect": "Missing X-Content-Type",
+      "impact": "Missing X-Content-Type \u2014 reduces XSS/clickjacking protection",
+      "priority": 99,
+      "fix": {
+        "title": "Missing X-Content-Type",
+        "effort": "TBD",
+        "cost": "TBD",
+        "code": null,
+        "docs": null,
+        "steps": [
+          "Investigate manually"
+        ]
+      }
+    },
+    {
+      "defect": "Missing Referrer-Policy",
+      "impact": "Missing Referrer-Policy \u2014 reduces XSS/clickjacking protection",
+      "priority": 99,
+      "fix": {
+        "title": "Missing Referrer-Policy",
+        "effort": "TBD",
+        "cost": "TBD",
+        "code": null,
+        "docs": null,
+        "steps": [
+          "Investigate manually"
+        ]
+      }
+    },
+    {
+      "defect": "Missing Permissions-Policy",
+      "impact": "Missing Permissions-Policy \u2014 reduces XSS/clickjacking protection",
+      "priority": 99,
+      "fix": {
+        "title": "Missing Permissions-Policy",
+        "effort": "TBD",
+        "cost": "TBD",
+        "code": null,
+        "docs": null,
+        "steps": [
+          "Investigate manually"
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "high": 0,
+    "medium": 1,
+    "low": 5
+  }
+}

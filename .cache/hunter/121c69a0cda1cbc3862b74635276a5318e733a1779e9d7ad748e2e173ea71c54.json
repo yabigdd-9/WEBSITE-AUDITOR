@@ -1,0 +1,31 @@
+{
+  "email": "info@heatforce.co.nz",
+  "result": "deliverable",
+  "score": 100,
+  "regexp": true,
+  "gibberish": false,
+  "disposable": false,
+  "webmail": false,
+  "mx_records": true,
+  "smtp_server": true,
+  "smtp_check": true,
+  "accept_all": false,
+  "block": false,
+  "sources": [
+    "https://heatforce.co.nz",
+    "https://heatforce.co.nz/faqs",
+    "https://heatforce.co.nz/hitachi-heat-pumps",
+    "https://heatforce.co.nz/pool-heat-pump-servicing",
+    "https://heatforce.co.nz/specials-price-comparisons",
+    "https://heat-force.co.nz/products",
+    "https://heat-force.co.nz",
+    "https://heat-force.co.nz/products/daikin",
+    "https://heat-force.co.nz/products/ducted-heat-pump-solutions",
+    "https://heat-force.co.nz/products/ducted-heat-pump-solutions/ducted-zone-control",
+    "https://nailhouse-berlin.de/heat-pump-service-port-orford-or",
+    "https://waterheating.co.nz/service-agents",
+    "https://yellow.co.nz/y/heat-force-christchurch-2"
+  ],
+  "cached_at": "2026-09-18T16:13:44.082690+00:00",
+  "from_cache": false
+}

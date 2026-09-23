@@ -1,0 +1,24 @@
+{
+  "email": "info@imperialhvac.co.nz",
+  "result": "deliverable",
+  "score": 100,
+  "regexp": true,
+  "gibberish": false,
+  "disposable": false,
+  "webmail": false,
+  "mx_records": true,
+  "smtp_server": true,
+  "smtp_check": true,
+  "accept_all": false,
+  "block": false,
+  "sources": [
+    "https://imperialhvac.co.nz",
+    "https://imperialhvac.co.nz/best-heating-and-cooling-solutions-in-wellington",
+    "https://imperialhvac.co.nz/blank-2",
+    "https://imperialhvac.co.nz/blog",
+    "https://imperialhvac.co.nz/privacy-and-cookies-policy",
+    "https://supergold.govt.nz:443/offers/16784"
+  ],
+  "cached_at": "2026-09-18T16:14:30.990780+00:00",
+  "from_cache": false
+}

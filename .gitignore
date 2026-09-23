@@ -1,64 +1,42 @@
-# Caches / builds
+# Ignore raw data snapshots
+data/raw/*
+!data/raw/.gitignore
+
+# Ignore large parquet files
+data/parquet/*/*.parquet
+!data/parquet/.gitignore
+
+# Ignore DuckDB database
+data/warehouse/*.duckdb
+!data/warehouse/.gitignore
+
+# Ignore temporary downloads and caches
+data/cache/*
+!data/cache/.gitignore
+data/tmp/*
+!data/tmp/.gitignore
+
+# Ignore artifacts that are large
+data/artifacts/*/*.json
+!data/artifacts/.gitignore
+# Ignore virtual environments, dependencies, and large local files
+.venv/
+.venv-email/
+node_modules/
+database/*.db
+database/*.db-shm
+database/*.db-wal
 __pycache__/
 *.pyc
-build/
-dist/
-.cache/
-.DS_Store
-*.log
 
-# Virtual environments
-venv/
-.venv*/
-.venv-auditor/
-.venv-email/
-backups/
-WEBSITES/BUISNESSaudits/runs/
-
-# Secrets / credentials (NEVER track)
+# Secrets / local environment
 .env
 .env.*
 !.env.example
-*.pem
-id_rsa
-id_rsa.*
-service-account*.json
-*credentials*
-*secret*
+backups/**/.env
 
-# Local state / outputs
-outputs/
-audits/
-*.db
-*.db-shm
-*.db-wal
-
-/.venv-email
-state/worker-logs/
-state/dead-letter/
-state/worker-heartbeats/
-state/supervisor.pid
-state/supervisor.heartbeat
-*.sqlite
-*.sqlite-shm
-*.sqlite-wal
-.pytest_cache/
-.ruff_cache/
-node_modules/
-
-# Generated human-facing Obsidian operator workspace
-WEBSITE-AUDITOR-BRAIN/
-# Ignore .env files in any subdirectory
-**/.env
-**/.env.*
-!**/.env.example
-
-# Runtime state (regenerated; never track). Verified missing before 2026-09-22:
-# these were untracked-but-committable, and errors.jsonl carries business ids.
-state/errors.jsonl
-state/health.json
-state/metrics.jsonl
-state/deployments.jsonl
-state/HERMES_EXECUTION_STATE.yaml
-reports/acceptance-results.json
-state/
+# Secrets / environment files
+.env
+.env.*
+!.env.example
+backups/**/.env
