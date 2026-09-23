@@ -8,7 +8,7 @@ from auditor_toolkit.local_seo.scoring import (
 
 
 def test_impact_levels_defined():
-    assert "LOCAL.NAP.PHONE.CONTRADICTION" in DEFECT_CATALOGUE
+    assert "wrong_branch_phone" in DEFECT_CATALOGUE
     assert DEFECT_CATALOGUE["LOCAL.NAP.PHONE.CONTRADICTION"] == "HIGH"
 
 
