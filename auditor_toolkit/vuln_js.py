@@ -4,15 +4,13 @@ JavaScript vulnerability detection using local DB.
 from __future__ import annotations
 
 import re
-from typing import List, Tuple
+from typing import Any, List, Optional, Tuple
 
 from bs4 import BeautifulSoup
 
 from auditor_toolkit.checks import Finding
 
 
-# Hardcoded list of known vulnerable versions for demonstration
-# In reality, this would be loaded from a local vulnerability DB.
 VULN_DB: List[Tuple[str, str]] = [
     ("jQuery", "1.6.3"),
     ("jQuery", "1.6.2"),
@@ -29,13 +27,11 @@ VULN_DB: List[Tuple[str, str]] = [
     ("jQuery", "1.3.2"),
     ("jQuery", "1.3.1"),
     ("jQuery", "1.3.0"),
-    # Add more as needed
 ]
 
 
 def _extract_library_and_version(src: str) -> Tuple[Optional[str], Optional[str]]:
     """Extract library name and version from script src URL."""
-    # Common patterns for CDN releases
     patterns = [
         r"([^/]+?)[-_](\d+\.\d+\.\d+(?:\.\d+)?)(?:[.-]min)?\.(?:js)",
         r"([^/]+?)\.(\d+\.\d+\.\d+(?:\.\d+)?)(?:[.-]min)?\.(?:js)",
@@ -43,10 +39,8 @@ def _extract_library_and_version(src: str) -> Tuple[Optional[str], Optional[str]
     for pattern in patterns:
         match = re.search(pattern, src, re.IGNORECASE)
         if match:
-            lib = match.group(1)
+            lib = match.group(1).lower()
             version = match.group(2)
-            # Normalize library name
-            lib = lib.lower()
             if "jquery" in lib:
                 lib = "jQuery"
             elif "bootstrap" in lib:
@@ -87,5 +81,3 @@ def analyse_html(html: str, url: str, headers: dict) -> tuple[List[Finding], dic
     """Analyse HTML for JS vulnerability findings."""
     findings = detect_js_vulnerabilities(html, url)
     return findings, {"js_vulnerabilities_detected": len(findings)}
-
-
