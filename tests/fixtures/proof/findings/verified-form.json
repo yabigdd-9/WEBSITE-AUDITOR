@@ -1,0 +1,21 @@
+{
+  "finding_id": "verified_form_001",
+  "rule_id": "ACCESSIBILITY.FORM.MISSING_LABEL",
+  "url": "https://fixture.test/missing-form-label/",
+  "claim": "Contact form input has no associated label.",
+  "evidence": [
+    {
+      "type": "DOM",
+      "selector": "#contact-name",
+      "outer_html": "<input id=\"contact-name\" type=\"text\" placeholder=\"Your name\">"
+    },
+    {
+      "type": "ACCESSIBILITY",
+      "role": "textbox",
+      "accessible_name": ""
+    }
+  ],
+  "severity": "medium",
+  "confidence": 0.99,
+  "status": "CONFIRMED"
+}
