@@ -3,9 +3,7 @@ HTML language validation.
 """
 from __future__ import annotations
 
-from typing import List, Any
-
-from bs4 import BeautifulSoup
+from typing import Any, List
 
 from auditor_toolkit.checks import Finding
 
@@ -15,4 +13,3 @@ def analyse_html(html: str, url: str, headers: dict) -> tuple[List[Finding], dic
     findings = []
     # TODO: Implement language validation
     return findings, {}
-
