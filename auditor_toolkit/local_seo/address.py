@@ -80,21 +80,37 @@ def _split_address(addr: str) -> dict[str, str]:
     Works for common NZ/AU/US/UK address formats.
     """
     parts: dict[str, str] = {}
+    addr = _extract_unit(addr, parts)
+    addr = _extract_postal_code(addr, parts)
+    _extract_street_and_locality(addr, parts)
+    return parts
 
-    # Try to extract unit (e.g., "Unit 3", "Apt 4B", "#12")
+
+def _extract_unit(addr: str, parts: dict[str, str]) -> str:
+    """Remove an optional unit prefix and add it to the parsed parts."""
     import re
 
     unit_match = re.match(r"(?:unit|apt|suite|#)\s*(\S+?)\s*[,\s]", addr, re.I)
-    if unit_match:
-        parts["unit"] = unit_match.group(1).rstrip(",")
-        addr = addr[unit_match.end():].strip()
+    if not unit_match:
+        return addr
+    parts["unit"] = unit_match.group(1).rstrip(",")
+    return addr[unit_match.end():].strip()
 
-    # Try NZ/UK postal code at end (e.g., "6011", "SW1A 1AA")
-    # NZ: 4 digits; UK: alphanumeric
+
+def _extract_postal_code(addr: str, parts: dict[str, str]) -> str:
+    """Remove an optional NZ or UK postal code suffix."""
+    import re
+
     postal_match = re.search(r"(\d{4}|\b[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2})$", addr)
     if postal_match:
         parts["postal"] = postal_match.group(1).strip()
-        addr = addr[: postal_match.start()].strip()
+        return addr[: postal_match.start()].strip()
+    return addr
+
+
+def _extract_street_and_locality(addr: str, parts: dict[str, str]) -> None:
+    """Parse leading street number, street name, and comma-separated locality."""
+    import re
 
     # Try to extract number + street at start
     num_match = re.match(r"(\d+[\w-]?)\s+(.+)", addr)
@@ -123,9 +139,6 @@ def _split_address(addr: str) -> dict[str, str]:
                     parts["region"] = " ".join(loc_tokens[1:])
     else:
         parts["street"] = addr
-
-    return parts
-
 
 def _rebuild_normalized(parts: dict[str, str]) -> str:
     """Rebuild a canonical normalized address string."""
