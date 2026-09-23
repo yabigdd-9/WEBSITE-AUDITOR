@@ -216,6 +216,7 @@ def test_replay_integration(tmp_path):
 def test_no_second_reviewer_system():
     """Verify that P1-007 does not create a second reviewer system."""
     import ast
+
     import auditor_toolkit.evaluation.promotion as promo
 
     source = Path(promo.__file__).read_text()
