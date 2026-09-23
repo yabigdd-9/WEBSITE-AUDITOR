@@ -1,2 +1,0 @@
-auditor_toolkit
-website_auditor
