@@ -176,41 +176,10 @@ def extract_features_from_html(
     h1_tags = soup.find_all("h1")
     h1 = h1_tags[0].get_text(strip=True) if h1_tags else ""
 
-    # Check for address patterns (simple heuristic)
-    has_address = False
-    for tag in soup.find_all(["address", "p", "div"]):
-        text = tag.get_text().lower()
-        if any(kw in text for kw in ("street", "road", "avenue", "new zealand", "nz ")):
-            has_address = True
-            break
-
-    # Check for phone patterns
-    has_phone = False
-    for tag in soup.find_all(["a", "span", "p", "div"]):
-        text = tag.get_text()
-        if re.search(r"\+64|0\d{8,10}|\(\d{2}\)\s?\d{3,4}", text):
-            has_phone = True
-            break
-
-    # Check for LocalBusiness schema
-    has_schema = False
-    for script in soup.find_all("script", type="application/ld+json"):
-        script_content = script.string
-        if script_content and any(
-            kw in script_content for kw in ("LocalBusiness", '"address"', '"telephone"')
-        ):
-            has_schema = True
-            break
-
-    # Breadcrumbs
-    breadcrumbs: list[str] = []
-    bc_container = soup.find(
-        ["nav", "div"],
-        class_=re.compile(r"breadcrumb|breadcrumbs|nav", re.I),
-    )
-    if bc_container:
-        links = bc_container.find_all("a")
-        breadcrumbs = [a.get_text(strip=True) for a in links if a.get_text(strip=True)]
+    has_address = _has_address_text(soup)
+    has_phone = _has_phone_text(soup)
+    has_schema = _has_localbusiness_schema(soup)
+    breadcrumbs = _extract_breadcrumbs(soup)
 
     return extract_location_features(
         url=url,
@@ -222,6 +191,44 @@ def extract_features_from_html(
         has_localbusiness_schema=has_schema,
         breadcrumbs=breadcrumbs,
     )
+
+
+def _has_address_text(soup) -> bool:
+    keywords = ("street", "road", "avenue", "new zealand", "nz ")
+    return any(
+        any(keyword in tag.get_text().lower() for keyword in keywords)
+        for tag in soup.find_all(["address", "p", "div"])
+    )
+
+
+def _has_phone_text(soup) -> bool:
+    pattern = r"\+64|0\d{8,10}|\(\d{2}\)\s?\d{3,4}"
+    return any(
+        re.search(pattern, tag.get_text())
+        for tag in soup.find_all(["a", "span", "p", "div"])
+    )
+
+
+def _has_localbusiness_schema(soup) -> bool:
+    keywords = ("LocalBusiness", '"address"', '"telephone"')
+    for script in soup.find_all("script", type="application/ld+json"):
+        content = script.string
+        if content and any(keyword in content for keyword in keywords):
+            return True
+    return False
+
+
+def _extract_breadcrumbs(soup) -> list[str]:
+    container = soup.find(
+        ["nav", "div"], class_=re.compile(r"breadcrumb|breadcrumbs|nav", re.I)
+    )
+    if not container:
+        return []
+    return [
+        link.get_text(strip=True)
+        for link in container.find_all("a")
+        if link.get_text(strip=True)
+    ]
 
 
 # ---------------------------------------------------------------------------
