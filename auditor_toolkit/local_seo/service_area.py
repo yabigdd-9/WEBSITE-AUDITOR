@@ -125,16 +125,18 @@ def classify_service_area(
     has_sa_list = len(sa_list) > 0
 
     # Schema signals
-    if schema_has_service_area and not schema_has_address:
-        # Schema explicitly says service area, no address
-        classification = "SERVICE_AREA"
-        score = 0.85
-        reasons.append("Schema: serviceArea present, no address")
-
-    elif schema_has_service_area and schema_has_address:
+    if schema_has_service_area and (
+        schema_has_address or (has_address and address_visible)
+    ):
         classification = "HYBRID"
         score = 0.8
-        reasons.append("Schema: both address and serviceArea present")
+        reasons.append("Service area plus a visible/schema physical address")
+
+    elif schema_has_service_area:
+        # Explicit service-area evidence without a customer-facing address.
+        classification = "SERVICE_AREA"
+        score = 0.85
+        reasons.append("Schema: serviceArea present, no physical address")
 
     elif schema_has_address and not has_sa_list:
         # Schema has address, no service area mentioned
