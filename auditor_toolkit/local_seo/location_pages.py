@@ -168,8 +168,10 @@ def extract_features_from_html(
 
     title = ""
     title_tag = soup.find("title")
-    if title_tag and isinstance(title_tag.string, str):
-        title = title_tag.string.strip()
+    if title_tag is not None:
+        title_content = title_tag.string
+        if isinstance(title_content, str):
+            title = title_content.strip()
 
     h1_tags = soup.find_all("h1")
     h1 = h1_tags[0].get_text(strip=True) if h1_tags else ""
