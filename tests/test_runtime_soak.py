@@ -3,7 +3,7 @@
 import tempfile
 from pathlib import Path
 
-from auditor_toolkit.runtime.soak import SoakRunner, SoakMetrics
+from auditor_toolkit.runtime.soak import SoakMetrics, SoakRunner
 
 
 def test_soak_runner_start():
