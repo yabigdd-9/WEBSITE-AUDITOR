@@ -148,7 +148,9 @@ def detect_technology(html: str, url: str, headers: dict) -> List[Technology]:
         technologies.append(tech)
 
     # Google Analytics detection via GA script
-    if soup.find("script", src=re.compile(r"google-analytics")) or soup.find(text=re.compile(r"ga\(")):
+    if soup.find("script", src=re.compile(r"google-analytics")) or soup.find(
+        string=re.compile(r"ga\(")
+    ):
         tech = Technology(
             technology="Google Analytics",
             category="Analytics",
@@ -174,4 +176,3 @@ def analyse_html(html: str, url: str, headers: dict) -> tuple[List[Finding], dic
                 )
             )
     return findings, {"technologies": [t.__dict__ for t in techs]}
-
