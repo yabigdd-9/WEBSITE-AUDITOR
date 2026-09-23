@@ -1,7 +1,7 @@
 """Tests for vulnerability advisory generation."""
 
-from auditor_toolkit.technology.vulns import check_vulnerabilities, get_advisories
 from auditor_toolkit.technology.schema import TechFingerprint, TechStack, VersionInfo
+from auditor_toolkit.technology.vulns import check_vulnerabilities, get_advisories
 
 
 def test_get_advisories_affected():
