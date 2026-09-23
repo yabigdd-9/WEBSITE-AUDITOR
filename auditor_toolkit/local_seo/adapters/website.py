@@ -6,6 +6,7 @@ and extruct for JSON-LD extraction.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -119,19 +120,29 @@ def _extract_name(soup: Any) -> str:
 
 def _name_from_schema(soup: Any) -> str:
     for script in soup.find_all("script", type="application/ld+json"):
-        if not script.string:
+        content = script.string
+        if not content:
             continue
         try:
-            import json
-            data = json.loads(script.string)
-            if isinstance(data, dict) and data.get("name"):
-                return data["name"]
-            if isinstance(data, dict) and data.get(_JSON_LD_GRAPH):
-                for item in data[_JSON_LD_GRAPH]:
-                    if isinstance(item, dict) and item.get("name"):
-                        return item["name"]
-        except (json.JSONDecodeError, KeyError):
-            pass
+            data = json.loads(content)
+        except (json.JSONDecodeError, TypeError):
+            continue
+        name = _first_schema_name(data)
+        if name:
+            return name
+    return ""
+
+
+def _first_schema_name(data: Any) -> str:
+    if not isinstance(data, dict):
+        return ""
+    if data.get("name"):
+        return data["name"]
+    graph = data.get(_JSON_LD_GRAPH)
+    if isinstance(graph, list):
+        for item in graph:
+            if isinstance(item, dict) and item.get("name"):
+                return item["name"]
     return ""
 
 
