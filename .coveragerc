@@ -11,6 +11,8 @@ omit =
     toolkit_tests/*
     money-machine/test_*.py
     integrations/*/tests/*
+    auditor_toolkit/**/__init__.py
+    website_auditor/**/__init__.py
     .venv/*
     .venv-email/*
 
