@@ -102,27 +102,30 @@ def compare_phones(a: NormalizedPhone, b: NormalizedPhone) -> ConsistencyStatus:
         # Different E.164 = material difference
         return "CONTRADICTION"
 
-    # One has E.164, other doesn't — try to compare raw
-    if a.e164 or b.e164:
-        # Try parsing the one without E.164
-        if a.e164 and b.raw:
-            try:
-                parsed = phonenumbers.parse(b.raw, b.region or "NZ")
-                if phonenumbers.is_valid_number(parsed):
-                    e164 = phonenumbers.format_number(
-                        parsed, phonenumbers.PhoneNumberFormat.E164
-                    )
-                    if e164 == a.e164:
-                        return "EQUIVALENT_FORMAT"
-                    return "CONTRADICTION"
-            except phonenumbers.NumberParseException:
-                pass
+    # One has E.164, other doesn't — parse the raw side when possible.
+    e164 = a.e164 or b.e164
+    raw_side = b if a.e164 else a
+    if e164 and raw_side.raw:
+        parsed_result = _compare_raw_to_e164(e164, raw_side.raw, raw_side.region or "NZ")
+        if parsed_result is not None:
+            return parsed_result
 
     # Neither has E.164 — compare raw
     if _raw_equivalent(a.raw, b.raw):
         return "EQUIVALENT_FORMAT"
 
     return "CONTRADICTION"
+
+
+def _compare_raw_to_e164(e164: str, raw: str, region: str) -> ConsistencyStatus | None:
+    try:
+        parsed = phonenumbers.parse(raw, region)
+    except phonenumbers.NumberParseException:
+        return None
+    if not phonenumbers.is_valid_number(parsed):
+        return None
+    formatted = phonenumbers.format_number(parsed, phonenumbers.PhoneNumberFormat.E164)
+    return "EQUIVALENT_FORMAT" if formatted == e164 else "CONTRADICTION"
 
 
 def _raw_equivalent(a_raw: str, b_raw: str) -> bool:

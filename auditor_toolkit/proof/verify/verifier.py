@@ -108,35 +108,8 @@ def verify_fix(
             f"{axe_after - axe_before} new axe violation(s) introduced"
         )
 
-    # Determine verdict
-    verdict: VerificationVerdict = "INCONCLUSIVE"
-
-    if original_defect_present:
-        # The original defect is still there
-        if regressions > 0:
-            verdict = "REGRESSION"
-        else:
-            verdict = "NOT_FIXED"
-    else:
-        # The original defect is gone
-        if regressions > 0 or new_defects:
-            verdict = "REGRESSION"
-        else:
-            verdict = "FIXED"
-
-    # Confidence calculation
-    confidence = 0.0
-    if verdict == "FIXED":
-        confidence = 0.95
-        if axe_after > 0:
-            confidence -= 0.1 * min(axe_after, 3)
-        if console_after > 0:
-            confidence -= 0.05 * min(console_after, 4)
-        confidence = max(confidence, 0.0)
-    elif verdict == "REGRESSION":
-        confidence = 0.9
-    elif verdict == "NOT_FIXED":
-        confidence = 0.95
+    verdict = _determine_verdict(original_defect_present, regressions, new_defects)
+    confidence = _confidence_for_verdict(verdict, axe_after, console_after)
 
     diff_summary = _compute_diff_summary(before, after)
 
@@ -158,3 +131,24 @@ def verify_fix(
         verified_at=datetime.now(timezone.utc).isoformat(),
         notes=diff_summary,
     )
+
+
+def _determine_verdict(
+    original_defect_present: bool,
+    regressions: int,
+    new_defects: list[str],
+) -> VerificationVerdict:
+    if regressions > 0 or (not original_defect_present and new_defects):
+        return "REGRESSION"
+    return "NOT_FIXED" if original_defect_present else "FIXED"
+
+
+def _confidence_for_verdict(verdict: VerificationVerdict, axe_after: int, console_after: int) -> float:
+    if verdict == "FIXED":
+        score = 0.95 - 0.1 * min(axe_after, 3) - 0.05 * min(console_after, 4)
+        return max(score, 0.0)
+    if verdict == "REGRESSION":
+        return 0.9
+    if verdict == "NOT_FIXED":
+        return 0.95
+    return 0.0

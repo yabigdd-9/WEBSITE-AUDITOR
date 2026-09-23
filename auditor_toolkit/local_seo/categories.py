@@ -126,47 +126,30 @@ def extract_categories_from_schema(
     """Extract categories from a JSON-LD schema entity."""
     categories: list[BusinessCategory] = []
 
-    # @type as category
     at_type = schema_entity.get("@type", "")
-    if at_type:
-        if isinstance(at_type, str):
-            norm = normalize_category(at_type)
-            categories.append(BusinessCategory(
-                raw=at_type,
-                normalized=norm,
-                source=source or "schema:@type",
-            ))
-        elif isinstance(at_type, list):
-            for t in at_type:
-                if isinstance(t, str) and t not in ("LocalBusiness", "Organization", "Place"):
-                    norm = normalize_category(t)
-                    categories.append(BusinessCategory(
-                        raw=t,
-                        normalized=norm,
-                        source=source or "schema:@type",
-                    ))
+    if isinstance(at_type, str) and at_type:
+        categories.append(_schema_category(at_type, source, "schema:@type"))
+    elif isinstance(at_type, list):
+        categories.extend(
+            _schema_category(value, source, "schema:@type")
+            for value in at_type
+            if isinstance(value, str) and value not in ("LocalBusiness", "Organization", "Place")
+        )
 
-    # additionalType
-    add_type = schema_entity.get("additionalType", "")
-    if isinstance(add_type, str) and add_type:
-        norm = normalize_category(add_type)
-        categories.append(BusinessCategory(
-            raw=add_type,
-            normalized=norm,
-            source=source or "schema:additionalType",
-        ))
-
-    # category (some schemas)
-    cat = schema_entity.get("category", "")
-    if isinstance(cat, str) and cat:
-        norm = normalize_category(cat)
-        categories.append(BusinessCategory(
-            raw=cat,
-            normalized=norm,
-            source=source or "schema:category",
-        ))
+    for key, origin in (("additionalType", "schema:additionalType"), ("category", "schema:category")):
+        value = schema_entity.get(key, "")
+        if isinstance(value, str) and value:
+            categories.append(_schema_category(value, source, origin))
 
     return categories
+
+
+def _schema_category(raw: str, source: str, fallback_source: str) -> BusinessCategory:
+    return BusinessCategory(
+        raw=raw,
+        normalized=normalize_category(raw),
+        source=source or fallback_source,
+    )
 
 
 def extract_categories_from_text(
@@ -225,21 +208,9 @@ def compare_categories(
         all_cats.append(cat)
 
     for cat in page_categories:
-        if cat.normalized in seen_normalized and seen_normalized[cat.normalized] != cat.source:
-            # Same category from different source — consistent
-            pass
-        elif cat.normalized not in seen_normalized:
-            # New category from page not in schema — could be conflict or addition
-            _ = cat.source  # noqa: F841
-            if seen_normalized and len(seen_normalized) == 1:
-                # Different categories → potential conflict
-                conflicts.append({
-                    "field": "category",
-                    "status": "CONTRADICTION",
-                    "schema_value": list(seen_normalized.keys()),
-                    "page_value": cat.normalized,
-                    "detail": f"Page category '{cat.normalized}' not in schema categories",
-                })
+        conflict = _category_conflict(cat, seen_normalized)
+        if conflict:
+            conflicts.append(conflict)
         all_cats.append(cat)
 
     # Determine primary category (highest confidence, schema preferred)
@@ -258,6 +229,21 @@ def compare_categories(
         page_categories=page_categories,
         conflicts=conflicts,
     )
+
+
+def _category_conflict(
+    category: BusinessCategory,
+    seen_normalized: dict[str, str],
+) -> dict[str, Any] | None:
+    if category.normalized in seen_normalized or len(seen_normalized) != 1:
+        return None
+    return {
+        "field": "category",
+        "status": "CONTRADICTION",
+        "schema_value": list(seen_normalized.keys()),
+        "page_value": category.normalized,
+        "detail": f"Page category '{category.normalized}' not in schema categories",
+    }
 
 
 def deduplicate_categories(
