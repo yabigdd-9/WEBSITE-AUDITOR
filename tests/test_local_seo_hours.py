@@ -1,11 +1,6 @@
 """Tests for opening hours normalization."""
 
-from auditor_toolkit.local_seo.hours import (
-    _expand_day_range,
-    _parse_time,
-    hours_match,
-    normalize_hours,
-)
+from auditor_toolkit.local_seo.hours import _expand_day_range, _parse_time, hours_match, normalize_hours
 from auditor_toolkit.local_seo.schema import OpeningHour
 
 
