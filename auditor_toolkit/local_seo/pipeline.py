@@ -258,7 +258,13 @@ class LocalSEOPipeline:
 
             has_addr = bool(nap_data.get("address"))
             schema_addr = schema_data.get("address")
-            schema_has_addr = schema_addr is not None
+            schema_has_addr = bool(
+                schema_addr
+                and (
+                    getattr(schema_addr, "normalized", "")
+                    or getattr(schema_addr, "raw", "")
+                )
+            )
 
             analysis = classify_service_area(
                 has_address=has_addr,
@@ -462,7 +468,9 @@ class LocalSEOPipeline:
 
             entity = build_identity(
                 business_id=f"biz-{self.run_id}",
-                raw_evidence=raw_evidence,
+                names=raw_evidence,
+                emails=[nap_data["email"]] if nap_data.get("email") else None,
+                schema_entities=schema_data.get("entities"),
             )
             return entity.to_dict()
         except Exception:
