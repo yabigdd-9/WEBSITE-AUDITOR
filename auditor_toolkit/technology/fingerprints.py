@@ -201,7 +201,6 @@ def fingerprint(html: str, headers: dict[str, str] | None = None) -> TechFingerp
     payment = detect_payment(html)
     language = detect_language(headers, html)
 
-    from datetime import UTC, datetime
     return TechFingerprint(
         cms=cms,
         framework=framework,
