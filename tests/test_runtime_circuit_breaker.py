@@ -1,6 +1,5 @@
 """Tests for runtime circuit breakers."""
 
-import time
 
 from auditor_toolkit.runtime.circuit_breaker import CircuitBreaker, CircuitBreakerRegistry
 
@@ -20,7 +19,7 @@ def test_circuit_breaker_opens_after_threshold():
     assert not cb.can_execute()
 
 
-def test_circuit_breaker_opens_after_threshold():
+def test_circuit_breaker_opens_at_custom_threshold():
     cb = CircuitBreaker(name="test2", threshold=2, cooldown_seconds=1)
     cb.record_failure()
     cb.record_failure()
