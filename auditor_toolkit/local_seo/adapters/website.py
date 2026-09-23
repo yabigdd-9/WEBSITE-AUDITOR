@@ -60,7 +60,7 @@ def extract_nap_from_html(html: str, url: str = "") -> dict[str, Any]:
     soup = BeautifulSoup(html, "html.parser")
 
     # Name extraction
-    name = _extract_name(soup, html)
+    name = _extract_name(soup)
 
     # Address extraction
     address_raw = _extract_address(soup, page_text)
@@ -107,9 +107,17 @@ def extract_nap_from_html(html: str, url: str = "") -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
-def _extract_name(soup: Any, html: str) -> str:
+def _extract_name(soup: Any) -> str:
     """Extract business name from page."""
-    # Try schema first
+    return (
+        _name_from_schema(soup)
+        or _name_from_open_graph(soup)
+        or _name_from_title(soup)
+        or _name_from_heading(soup)
+    )
+
+
+def _name_from_schema(soup: Any) -> str:
     for script in soup.find_all("script", type="application/ld+json"):
         if not script.string:
             continue
@@ -124,28 +132,30 @@ def _extract_name(soup: Any, html: str) -> str:
                         return item["name"]
         except (json.JSONDecodeError, KeyError):
             pass
+    return ""
 
-    # Try OpenGraph
+
+def _name_from_open_graph(soup: Any) -> str:
     og_title = soup.find("meta", property="og:title")
     if og_title and og_title.get("content"):
         return og_title["content"].strip()
-
-    # Try page title
-    title_tag = soup.find("title")
-    if title_tag and title_tag.string:
-        # Often "Business Name | City" or "Business Name - Tagline"
-        title = title_tag.string.strip()
-        for sep in ("|", "-", "—", "–", ":"):
-            if sep in title:
-                return title.split(sep)[0].strip()
-        return title
-
-    # Try H1
-    h1 = soup.find("h1")
-    if h1:
-        return h1.get_text(strip=True)
-
     return ""
+
+
+def _name_from_title(soup: Any) -> str:
+    title_tag = soup.find("title")
+    if not title_tag or not title_tag.string:
+        return ""
+    title = title_tag.string.strip()
+    for sep in ("|", "-", "—", "–", ":"):
+        if sep in title:
+            return title.split(sep)[0].strip()
+    return title
+
+
+def _name_from_heading(soup: Any) -> str:
+    h1 = soup.find("h1")
+    return h1.get_text(strip=True) if h1 else ""
 
 
 def _extract_address(soup: Any, page_text: str) -> str:

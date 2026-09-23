@@ -59,55 +59,56 @@ def build_identity(
         canonical_domain=domain,
         domains=[domain] if domain else [],
     )
-
-    # Names — pick canonical, store all variants
-    if names:
-        for raw, source in names:
-            entity.names.append(NamedValue(value=raw, source=source))
-        # Most frequent / longest name becomes canonical
-        canonical = max(names, key=lambda x: len(x[0]))
-        entity.canonical_name = canonical[0]
-
-    # Addresses
-    if addresses:
-        for raw, source in addresses:
-            loc = _address_to_location(business_id, raw, source)
-            if loc:
-                entity.locations.append(loc)
-
-    # Phones
-    if phones:
-        from .phone import normalize_phone
-
-        seen_e164: set[str] = set()
-        seen_raw: set[str] = set()
-        for raw, source in phones:
-            parsed = normalize_phone(raw, source=source)
-            if not parsed.valid:
-                continue
-            if parsed.e164:
-                if parsed.e164 in seen_e164:
-                    continue
-                seen_e164.add(parsed.e164)
-            else:
-                normalized_raw = "".join(ch for ch in parsed.raw if ch.isdigit())
-                if normalized_raw in seen_raw:
-                    continue
-                seen_raw.add(normalized_raw)
-            entity.phones.append(parsed)
-
-    # Emails
-    if emails:
-        entity.emails = list(emails)
-
-    # Schema entities
-    if schema_entities:
-        entity.structured_data_entities = schema_entities
+    _add_names(entity, names)
+    _add_addresses(entity, business_id, addresses)
+    _add_phones(entity, phones)
+    entity.emails = list(emails or [])
+    entity.structured_data_entities = schema_entities or []
 
     # Compute initial confidence
     entity.confidence = _compute_confidence(entity)
 
     return entity
+
+
+def _add_names(entity: LocalBusinessEntity, names: list[tuple[str, str]] | None) -> None:
+    if not names:
+        return
+    entity.names.extend(NamedValue(value=raw, source=source) for raw, source in names)
+    entity.canonical_name = max(names, key=lambda item: len(item[0]))[0]
+
+
+def _add_addresses(
+    entity: LocalBusinessEntity,
+    business_id: str,
+    addresses: list[tuple[str, str]] | None,
+) -> None:
+    for raw, source in addresses or []:
+        location = _address_to_location(business_id, raw, source)
+        if location:
+            entity.locations.append(location)
+
+
+def _add_phones(
+    entity: LocalBusinessEntity,
+    phones: list[tuple[str, str]] | None,
+) -> None:
+    if not phones:
+        return
+    from .phone import normalize_phone
+
+    seen_e164: set[str] = set()
+    seen_raw: set[str] = set()
+    for raw, source in phones:
+        parsed = normalize_phone(raw, source=source)
+        if not parsed.valid:
+            continue
+        dedupe_key = parsed.e164 or "".join(ch for ch in parsed.raw if ch.isdigit())
+        seen = seen_e164 if parsed.e164 else seen_raw
+        if dedupe_key in seen:
+            continue
+        seen.add(dedupe_key)
+        entity.phones.append(parsed)
 
 
 def _address_to_location(

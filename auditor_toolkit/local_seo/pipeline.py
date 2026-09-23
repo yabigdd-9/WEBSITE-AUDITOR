@@ -397,53 +397,21 @@ class LocalSEOPipeline:
         )
 
         scored: list[ScoredFinding] = []
-
-        # Score consistency findings
-        for f in consistency_findings:
-            key = f.get("defect_key", "")
-            s = score_finding(
-                defect_key=key,
-                source_url=f.get("source_url", ""),
-                page_url=f.get("page_url", ""),
-                confidence=f.get("confidence", 0.8),
-                detail=f.get("observed", ""),
-            )
-            if s:
-                scored.append(s)
-
-        # Detect missing schema
-        if not schema_data.get("has_schema"):
-            s = detect_missing_schema(has_schema=False)
-            if s:
-                scored.append(s)
-
-        # Detect missing geo
-        if schema_data.get("has_schema") and not schema_data.get("geo"):
-            s = detect_missing_geo(has_geo=False)
-            if s:
-                scored.append(s)
-
-        # Detect schema-visible conflicts
-        if consistency_findings:
-            s = detect_schema_visible_conflict(
+        scored.extend(_score_consistency(consistency_findings, score_finding))
+        scored.extend(
+            _score_schema(
                 consistency_findings,
+                schema_data,
+                detect_missing_schema,
+                detect_missing_geo,
+                detect_schema_visible_conflict,
             )
-            if s:
-                scored.append(s)
-
-        # Check geo conflicts
-        for geo in geo_results:
-            if geo.get("status") == "MATERIAL_CONFLICT":
-                s = score_finding(
-                    defect_key="schema_visible_conflict",
-                    confidence=0.9,
-                    detail=f"Geo coordinates conflict: {geo.get('detail', '')}",
-                )
-                if s:
-                    scored.append(s)
+        )
+        scored.extend(_score_geo_conflicts(geo_results, score_finding))
 
         summary = build_scoring_summary(scored)
         return scored, summary
+
 
     # ------------------------------------------------------------------
     # Entity builder
@@ -520,3 +488,56 @@ def _basic_nap_extract(html: str, url: str) -> dict[str, Any]:
         "address_normalized": "",
         "phone_e164": phones[0].e164 if phones else "",
     }
+
+
+def _score_consistency(findings: list[dict[str, Any]], score_finding: Any) -> list[Any]:
+    scored = []
+    for finding in findings:
+        result = score_finding(
+            defect_key=finding.get("defect_key", ""),
+            source_url=finding.get("source_url", ""),
+            page_url=finding.get("page_url", ""),
+            confidence=finding.get("confidence", 0.8),
+            detail=finding.get("observed", ""),
+        )
+        if result:
+            scored.append(result)
+    return scored
+
+
+def _score_schema(
+    findings: list[dict[str, Any]],
+    schema_data: dict[str, Any],
+    detect_missing_schema: Any,
+    detect_missing_geo: Any,
+    detect_schema_visible_conflict: Any,
+) -> list[Any]:
+    scored = []
+    if not schema_data.get("has_schema"):
+        result = detect_missing_schema(has_schema=False)
+        if result:
+            scored.append(result)
+    elif not schema_data.get("geo"):
+        result = detect_missing_geo(has_geo=False)
+        if result:
+            scored.append(result)
+    if findings:
+        result = detect_schema_visible_conflict(findings)
+        if result:
+            scored.append(result)
+    return scored
+
+
+def _score_geo_conflicts(geo_results: list[dict[str, Any]], score_finding: Any) -> list[Any]:
+    scored = []
+    for geo in geo_results:
+        if geo.get("status") != "MATERIAL_CONFLICT":
+            continue
+        result = score_finding(
+            defect_key="schema_visible_conflict",
+            confidence=0.9,
+            detail=f"Geo coordinates conflict: {geo.get('detail', '')}",
+        )
+        if result:
+            scored.append(result)
+    return scored

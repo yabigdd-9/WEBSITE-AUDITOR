@@ -38,52 +38,25 @@ def generate_demo_html(
     """
     os.makedirs(output_dir, exist_ok=True)
 
-    # Unpack from package if provided
-    if package:
-        before_state = package.before
-        after_state = package.after
-        proposed_fix = package.proposed_fix
-        verification = package.verification
-
-    before_img_path = ""
-    after_img_path = ""
-    diff_img_path = ""
-    if package:
-        before_img_path = package.before_screenshot_path
-        after_img_path = package.after_screenshot_path
-        diff_img_path = package.diff_path
-    else:
-        before_img_path = before_state.screenshot.path if before_state else ""
-        after_img_path = after_state.screenshot.path if after_state else ""
-
-    url = ""
-    fix_type = ""
-    fix_description = ""
-    fix_original = ""
-    fix_proposed = ""
-    verdict = ""
-    diff_summary = ""
-    visual_diff_percent = 0.0
-    axe_before = 0
-    axe_after = 0
-    console_before = 0
-    console_after = 0
-
-    if before_state:
-        url = before_state.url
-    if proposed_fix:
-        fix_type = proposed_fix.fix_type
-        fix_description = proposed_fix.description
-        fix_original = proposed_fix.original_value
-        fix_proposed = proposed_fix.proposed_value
-    if verification:
-        verdict = verification.verdict
-        diff_summary = verification.diff_summary
-        visual_diff_percent = verification.visual_diff_percent
-        axe_before = verification.axe_violations_before
-        axe_after = verification.axe_violations_after
-        console_before = verification.console_errors_before
-        console_after = verification.console_errors_after
+    before_state, after_state, proposed_fix, verification = _resolve_demo_states(
+        package, before_state, after_state, proposed_fix, verification
+    )
+    before_img_path, after_img_path, diff_img_path = _demo_image_paths(
+        package, before_state, after_state
+    )
+    values = _demo_values(before_state, proposed_fix, verification)
+    url = values["url"]
+    fix_type = values["fix_type"]
+    fix_description = values["fix_description"]
+    fix_original = values["fix_original"]
+    fix_proposed = values["fix_proposed"]
+    verdict = values["verdict"]
+    diff_summary = values["diff_summary"]
+    visual_diff_percent = values["visual_diff_percent"]
+    axe_before = values["axe_before"]
+    axe_after = values["axe_after"]
+    console_before = values["console_before"]
+    console_after = values["console_after"]
 
     if not title:
         title = f"Proof Demo — {url}" if url else "Proof Demo"
@@ -269,3 +242,39 @@ def generate_demo_html(
         f.write(html)
 
     return html_path
+
+
+def _resolve_demo_states(package, before_state, after_state, proposed_fix, verification):
+    if package:
+        return package.before, package.after, package.proposed_fix, package.verification
+    return before_state, after_state, proposed_fix, verification
+
+
+def _demo_image_paths(package, before_state, after_state):
+    if package:
+        return (
+            package.before_screenshot_path,
+            package.after_screenshot_path,
+            package.diff_path,
+        )
+    before_path = before_state.screenshot.path if before_state else ""
+    after_path = after_state.screenshot.path if after_state else ""
+    return before_path, after_path, ""
+
+
+def _demo_values(before_state, proposed_fix, verification):
+    values = {
+        "url": before_state.url if before_state else "",
+        "fix_type": proposed_fix.fix_type if proposed_fix else "",
+        "fix_description": proposed_fix.description if proposed_fix else "",
+        "fix_original": proposed_fix.original_value if proposed_fix else "",
+        "fix_proposed": proposed_fix.proposed_value if proposed_fix else "",
+        "verdict": verification.verdict if verification else "",
+        "diff_summary": verification.diff_summary if verification else "",
+        "visual_diff_percent": verification.visual_diff_percent if verification else 0.0,
+        "axe_before": verification.axe_violations_before if verification else 0,
+        "axe_after": verification.axe_violations_after if verification else 0,
+        "console_before": verification.console_errors_before if verification else 0,
+        "console_after": verification.console_errors_after if verification else 0,
+    }
+    return values

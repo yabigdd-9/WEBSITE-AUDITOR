@@ -163,32 +163,11 @@ def compare_addresses(a: NormalizedAddress, b: NormalizedAddress) -> Consistency
     if a.normalized and b.normalized and a.normalized == b.normalized:
         return "MATCH"
 
-    exact_components = (
-        (a.country, b.country, 2, lambda value: value.lower()),
-        (a.postal_code, b.postal_code, 2, lambda value: value.replace(" ", "").lower()),
-        (a.street_number, b.street_number, 3, lambda value: value.lower()),
-    )
-    matches = 0
-    for value_a, value_b, weight, normalize in exact_components:
-        result = _compare_exact_component(value_a, value_b, weight, normalize)
-        if result is None:
-            continue
-        if result is False:
-            return "CONTRADICTION"
-        matches += result
-
-    fuzzy_components = (
-        (a.street_name, b.street_name, 90, 70, 2, 2, 1),
-        (a.locality, b.locality, 90, 70, 2, 2, 1),
-        (a.region, b.region, 85, 60, 1, 1, 0),
-    )
-    conflicts = 0
-    for value_a, value_b, match_at, partial_at, weight, conflict_weight, partial_weight in fuzzy_components:
-        component_matches, component_conflicts = _compare_fuzzy_component(
-            value_a, value_b, match_at, partial_at, weight, conflict_weight, partial_weight
-        )
-        matches += component_matches
-        conflicts += component_conflicts
+    exact_matches = _score_exact_address_components(a, b)
+    if exact_matches is None:
+        return "CONTRADICTION"
+    fuzzy_matches, conflicts = _score_fuzzy_address_components(a, b)
+    matches = exact_matches + fuzzy_matches
 
     if conflicts >= 2:
         return "CONTRADICTION"
@@ -210,6 +189,40 @@ def compare_addresses(a: NormalizedAddress, b: NormalizedAddress) -> Consistency
         return "CONTRADICTION"
 
     return "INSUFFICIENT_EVIDENCE"
+
+
+def _score_exact_address_components(a: NormalizedAddress, b: NormalizedAddress) -> int | None:
+    components = (
+        (a.country, b.country, 2, lambda value: value.lower()),
+        (a.postal_code, b.postal_code, 2, lambda value: value.replace(" ", "").lower()),
+        (a.street_number, b.street_number, 3, lambda value: value.lower()),
+    )
+    matches = 0
+    for value_a, value_b, weight, normalize in components:
+        result = _compare_exact_component(value_a, value_b, weight, normalize)
+        if result is False:
+            return None
+        if result is not None:
+            matches += result
+    return matches
+
+
+def _score_fuzzy_address_components(
+    a: NormalizedAddress, b: NormalizedAddress
+) -> tuple[int, int]:
+    components = (
+        (a.street_name, b.street_name, 90, 70, 2, 2, 1),
+        (a.locality, b.locality, 90, 70, 2, 2, 1),
+        (a.region, b.region, 85, 60, 1, 1, 0),
+    )
+    matches = conflicts = 0
+    for value_a, value_b, match_at, partial_at, weight, conflict_weight, partial_weight in components:
+        component_matches, component_conflicts = _compare_fuzzy_component(
+            value_a, value_b, match_at, partial_at, weight, conflict_weight, partial_weight
+        )
+        matches += component_matches
+        conflicts += component_conflicts
+    return matches, conflicts
 
 
 def _compare_exact_component(value_a, value_b, weight, normalize):
