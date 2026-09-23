@@ -23,9 +23,10 @@ from .schema import (
 
 # Common equivalence mappings
 _LIMITED = " limited "
+_AND = " and "
 _NAME_EQUIVALENCES: list[tuple[str, str]] = [
-    ("&", " and "),
-    (" and ", " & "),
+    ("&", _AND),
+    (_AND, " & "),
     (" ltd ", _LIMITED),
     (_LIMITED, " ltd "),
     (" ltd.", " limited "),
@@ -44,7 +45,7 @@ def normalize_name(raw: str) -> str:
     """Normalize a business name for comparison while retaining the original."""
     name = raw.strip()
     # Replace ampersand before lowercasing
-    name = name.replace("&", " and ")
+    name = name.replace("&", _AND)
     # Lowercase
     name = name.lower()
     # Strip punctuation

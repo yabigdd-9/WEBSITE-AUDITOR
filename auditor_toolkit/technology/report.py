@@ -27,62 +27,63 @@ def generate_report(result: TechEnrichmentResult) -> str:
         "",
     ]
 
-    fp = result.fingerprint
-    if fp.cms and fp.cms.confidence > 0:
-        lines.append(f"- **CMS:** {fp.cms.name} ({fp.cms.confidence:.0%})")
-    if fp.framework and fp.framework.confidence > 0:
-        lines.append(f"- **Framework:** {fp.framework.name} ({fp.framework.confidence:.0%})")
-    if fp.server and fp.server.confidence > 0:
-        lines.append(f"- **Server:** {fp.server.name}")
-    if fp.cdn and fp.cdn.confidence > 0:
-        lines.append(f"- **CDN:** {fp.cdn.name}")
-    if fp.ecommerce and fp.ecommerce.confidence > 0:
-        lines.append(f"- **E-commerce:** {fp.ecommerce.name}")
-    if fp.language and fp.language.confidence > 0:
-        lines.append(f"- **Language:** {fp.language.name}")
-    if fp.analytics:
-        lines.append(f"- **Analytics:** {', '.join(a.name for a in fp.analytics)}")
-    if fp.payment:
-        lines.append(f"- **Payment:** {', '.join(p.name for p in fp.payment)}")
-
-    lines += [
-        "",
-        "## Version Status",
-        "",
-    ]
-
-    if result.versions:
-        for v in result.versions:
-            status = "⚠️ OUTDATED" if v.is_outdated else "✅ Current"
-            lines.append(f"- **{v.name}**: {v.detected_version or 'unknown'} (latest: {v.latest_version or 'unknown'}) — {status}")
-    else:
-        lines.append("- No version information detected.")
-
-    lines += [
-        "",
-        "## Vulnerability Advisories",
-        "",
-    ]
-
-    if result.vulnerabilities:
-        for a in result.vulnerabilities:
-            lines.append(f"- **{a.severity.upper()}**: {a.component} {a.version} — {a.cve_id}")
-            lines.append(f"  - {a.description}")
-            lines.append(f"  - Remediation: {a.remediation}")
-    else:
-        lines.append("- No known vulnerabilities detected.")
-
+    _append_detections(lines, result.fingerprint)
+    _append_versions(lines, result.versions)
+    _append_vulnerabilities(lines, result.vulnerabilities)
     if result.errors:
-        lines += [
-            "",
-            "## Errors",
-            "",
-        ]
-        for e in result.errors:
-            lines.append(f"- {e}")
+        lines.extend(["", "## Errors", "", *(f"- {error}" for error in result.errors)])
 
     lines.append("")
     return "\n".join(lines)
+
+
+def _append_detections(lines: list[str], fp) -> None:
+    for label, detection in (
+        ("CMS", fp.cms),
+        ("Framework", fp.framework),
+        ("Server", fp.server),
+        ("CDN", fp.cdn),
+        ("E-commerce", fp.ecommerce),
+        ("Language", fp.language),
+    ):
+        if detection and detection.confidence > 0:
+            confidence = (
+                f" ({detection.confidence:.0%})"
+                if label in {"CMS", "Framework", "Language"}
+                else ""
+            )
+            lines.append(f"- **{label}:** {detection.name}{confidence}")
+    if fp.analytics:
+        lines.append(f"- **Analytics:** {', '.join(item.name for item in fp.analytics)}")
+    if fp.payment:
+        lines.append(f"- **Payment:** {', '.join(item.name for item in fp.payment)}")
+
+
+def _append_versions(lines: list[str], versions) -> None:
+    lines.extend(["", "## Version Status", ""])
+    if not versions:
+        lines.append("- No version information detected.")
+        return
+    for version in versions:
+        status = "⚠️ OUTDATED" if version.is_outdated else "✅ Current"
+        lines.append(
+            f"- **{version.name}**: {version.detected_version or 'unknown'} "
+            f"(latest: {version.latest_version or 'unknown'}) — {status}"
+        )
+
+
+def _append_vulnerabilities(lines: list[str], vulnerabilities) -> None:
+    lines.extend(["", "## Vulnerability Advisories", ""])
+    if not vulnerabilities:
+        lines.append("- No known vulnerabilities detected.")
+        return
+    for advisory in vulnerabilities:
+        lines.append(
+            f"- **{advisory.severity.upper()}**: {advisory.component} "
+            f"{advisory.version} — {advisory.cve_id}"
+        )
+        lines.append(f"  - {advisory.description}")
+        lines.append(f"  - Remediation: {advisory.remediation}")
 
 
 def save_report(

@@ -40,6 +40,8 @@ _LOCAL_TYPES = frozenset(
         "TouristAttraction",
     }
 )
+_SCHEMA_TYPE_KEY = "@type"
+_JSON_LD_GRAPH_KEY = "@graph"
 
 # ---------------------------------------------------------------------------
 # Extraction helpers
@@ -80,15 +82,15 @@ def _find_local_entities(jsonld_blocks: list[dict[str, Any]]) -> list[dict[str, 
     """Return blocks whose @type matches a local-business type."""
     results: list[dict[str, Any]] = []
     for block in jsonld_blocks:
-        types = _to_list(block.get("@type", []))
+        types = _to_list(block.get(_SCHEMA_TYPE_KEY, []))
         if any(t in _LOCAL_TYPES or t.startswith("LocalBusiness") for t in types):
             results.append(block)
         elif any(t == "Organization" for t in types):
             # Organizations can have location with LocalBusiness
             results.append(block)
-        elif "@graph" in block:
-            for item in block["@graph"]:
-                item_types = _to_list(item.get("@type", []))
+        elif _JSON_LD_GRAPH_KEY in block:
+            for item in block[_JSON_LD_GRAPH_KEY]:
+                item_types = _to_list(item.get(_SCHEMA_TYPE_KEY, []))
                 if any(t in _LOCAL_TYPES for t in item_types):
                     results.append(item)
     return results

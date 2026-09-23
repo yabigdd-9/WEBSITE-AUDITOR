@@ -3,7 +3,11 @@
 import tempfile
 from pathlib import Path
 
-from auditor_toolkit.runtime.readiness import PreflightCheck, run_preflight
+from auditor_toolkit.runtime.readiness import (
+    PreflightCheck,
+    _critical_check_failed,
+    run_preflight,
+)
 
 
 def test_preflight_ready():
@@ -24,6 +28,11 @@ def test_preflight_check_creation():
     check = PreflightCheck(name="test", passed=True, message="ok")
     assert check.passed
     assert check.name == "test"
+
+
+def test_critical_check_failed_requires_a_failed_check():
+    assert not _critical_check_failed([PreflightCheck(name="database:reachable", passed=True)])
+    assert _critical_check_failed([PreflightCheck(name="database:reachable", passed=False)])
 
 
 def test_preflight_result_all_passed():

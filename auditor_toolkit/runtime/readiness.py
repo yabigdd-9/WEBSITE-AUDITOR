@@ -8,6 +8,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+_BROWSER_CHECK_NAME = "browser:playwright"
+_CRITICAL_CHECK_WORDS = ("python", "database", "disk")
+
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -94,6 +97,13 @@ def _check_no_duplicate_supervisor() -> PreflightCheck:
         return _check("supervisor:no_duplicate", True, "pgrep unavailable")
 
 
+def _critical_check_failed(checks: list[PreflightCheck]) -> bool:
+    return any(
+        not check.passed and any(word in check.name for word in _CRITICAL_CHECK_WORDS)
+        for check in checks
+    )
+
+
 def run_preflight(
     db_path: Path | None = None,
     min_disk_mb: int = 500,
@@ -129,16 +139,16 @@ def run_preflight(
     # Browser check (optional)
     try:
         __import__("playwright")
-        checks.append(_check("browser:playwright", True))
+        checks.append(_check(_BROWSER_CHECK_NAME, True))
     except ImportError:
-        checks.append(_check("browser:playwright", False, "playwright not installed"))
+        checks.append(_check(_BROWSER_CHECK_NAME, False, "playwright not installed"))
 
-    has_browser = any(c.name == "browser:playwright" and c.passed for c in checks)
+    has_browser = any(c.name == _BROWSER_CHECK_NAME and c.passed for c in checks)
     if not has_browser:
         errors.append("Chrome/Playwright not available — browser checks disabled")
 
     # Determine status
-    critical_failed = any(not c.passed and "python" in c.name or "database" in c.name or "disk" in c.name for c in checks)
+    critical_failed = _critical_check_failed(checks)
     if critical_failed:
         status = "BLOCKED"
     elif any(not c.passed for c in checks):

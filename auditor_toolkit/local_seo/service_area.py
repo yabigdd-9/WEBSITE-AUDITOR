@@ -117,71 +117,27 @@ def classify_service_area(
     A PHYSICAL_LOCATION business has a customer-accessible address.
     A HYBRID business has both a physical location and service areas.
     """
-    reasons: list[str] = []
-    score = 0.0
-    classification: ServiceAreaClassification = "UNKNOWN"
-
     sa_list = service_areas or []
     has_sa_list = len(sa_list) > 0
-
-    # Schema signals
-    if schema_has_service_area and (
-        schema_has_address or (has_address and address_visible)
-    ):
-        classification = "HYBRID"
-        score = 0.8
-        reasons.append("Service area plus a visible/schema physical address")
-
-    elif schema_has_service_area:
-        # Explicit service-area evidence without a customer-facing address.
-        classification = "SERVICE_AREA"
-        score = 0.85
-        reasons.append("Schema: serviceArea present, no physical address")
-
-    elif schema_has_address and not has_sa_list:
-        # Schema has address, no service area mentioned
-        # Still need to check page content
-        if has_address and address_visible:
-            classification = "PHYSICAL_LOCATION"
-            score = 0.7
-            reasons.append("Schema address present and visible on page")
-        elif has_address and not address_visible:
-            # Address in schema but hidden on page — could still be physical
-            # (e.g., virtual office, or just poorly designed page)
-            classification = "PHYSICAL_LOCATION"
-            score = 0.45
-            reasons.append("Schema address present but not visible on page")
+    classification, score, reasons = _schema_classification(
+        has_address,
+        address_visible,
+        has_sa_list,
+        schema_has_address,
+        schema_has_service_area,
+    )
 
     # Page content signals
     page_lower = page_text.lower()
     sa_keywords_found = [kw for kw in _SERVICE_AREA_KEYWORDS if kw in page_lower]
     physical_keywords_found = [kw for kw in _PHYSICAL_KEYWORDS if kw in page_lower]
 
-    if sa_keywords_found:
-        reasons.append(f"Page content indicates service area: {', '.join(sa_keywords_found[:3])}")
-        if classification in ("UNKNOWN", "PHYSICAL_LOCATION"):
-            if classification == "PHYSICAL_LOCATION" and physical_keywords_found:
-                # Conflicting signals → HYBRID
-                classification = "HYBRID"
-                score = max(score, 0.5)
-            else:
-                classification = "SERVICE_AREA"
-                score = max(score, 0.6)
-        elif classification == "SERVICE_AREA":
-            score = min(score + 0.1, 1.0)
-
-    if physical_keywords_found:
-        reasons.append(f"Page content indicates physical location: {', '.join(physical_keywords_found[:3])}")
-        if classification == "SERVICE_AREA" and not sa_keywords_found:
-            # Conflicting — override to HYBRID or PHYSICAL
-            classification = "PHYSICAL_LOCATION"
-            score = max(score, 0.55)
-        elif classification == "SERVICE_AREA":
-            classification = "HYBRID"
-            score = max(score, 0.5)
-        elif classification == "UNKNOWN":
-            classification = "PHYSICAL_LOCATION"
-            score = max(score, 0.4)
+    classification, score = _apply_service_area_keywords(
+        classification, score, reasons, sa_keywords_found, physical_keywords_found
+    )
+    classification, score = _apply_physical_keywords(
+        classification, score, reasons, sa_keywords_found, physical_keywords_found
+    )
 
     # Service area list without address → SERVICE_AREA
     if has_sa_list and not has_address and classification == "UNKNOWN":
@@ -207,6 +163,55 @@ def classify_service_area(
             "physical_keywords": physical_keywords_found,
         },
     )
+
+
+def _schema_classification(
+    has_address: bool,
+    address_visible: bool,
+    has_service_area_list: bool,
+    schema_has_address: bool,
+    schema_has_service_area: bool,
+) -> tuple[ServiceAreaClassification, float, list[str]]:
+    reasons: list[str] = []
+    if schema_has_service_area and (schema_has_address or (has_address and address_visible)):
+        return "HYBRID", 0.8, ["Service area plus a visible/schema physical address"]
+    if schema_has_service_area:
+        return "SERVICE_AREA", 0.85, ["Schema: serviceArea present, no physical address"]
+    if schema_has_address and not has_service_area_list and has_address:
+        score = 0.7 if address_visible else 0.45
+        reason = (
+            "Schema address present and visible on page"
+            if address_visible
+            else "Schema address present but not visible on page"
+        )
+        return "PHYSICAL_LOCATION", score, [reason]
+    return "UNKNOWN", 0.0, reasons
+
+
+def _apply_service_area_keywords(classification, score, reasons, service_keywords, physical_keywords):
+    if not service_keywords:
+        return classification, score
+    reasons.append(f"Page content indicates service area: {', '.join(service_keywords[:3])}")
+    if classification == "PHYSICAL_LOCATION" and physical_keywords:
+        return "HYBRID", max(score, 0.5)
+    if classification == "UNKNOWN" or classification == "PHYSICAL_LOCATION":
+        return "SERVICE_AREA", max(score, 0.6)
+    if classification == "SERVICE_AREA":
+        return classification, min(score + 0.1, 1.0)
+    return classification, score
+
+
+def _apply_physical_keywords(classification, score, reasons, service_keywords, physical_keywords):
+    if not physical_keywords:
+        return classification, score
+    reasons.append(f"Page content indicates physical location: {', '.join(physical_keywords[:3])}")
+    if classification == "SERVICE_AREA" and not service_keywords:
+        return "PHYSICAL_LOCATION", max(score, 0.55)
+    if classification == "SERVICE_AREA":
+        return "HYBRID", max(score, 0.5)
+    if classification == "UNKNOWN":
+        return "PHYSICAL_LOCATION", max(score, 0.4)
+    return classification, score
 
 
 def should_flag_missing_address(
@@ -254,5 +259,4 @@ def classify_business_type(
         schema_has_service_area=has_service_area_schema,
         service_areas=areas_served,
     )
-
 
