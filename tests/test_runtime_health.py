@@ -1,6 +1,6 @@
 """Tests for runtime health matrix."""
 
-from auditor_toolkit.runtime.health import check_health, HealthMatrix, CapabilityHealth
+from auditor_toolkit.runtime.health import CapabilityHealth, HealthMatrix, check_health
 
 
 def test_check_health_passes():
