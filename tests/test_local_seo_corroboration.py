@@ -1,64 +1,56 @@
 """Tests for external evidence corroboration."""
 
 from auditor_toolkit.local_seo.corroboration import (
-    create_external_evidence,
-    ExternalLocalEvidence,
     corroborate_record,
+    create_external_evidence,
 )
+from auditor_toolkit.local_seo.schema import ExternalLocalEvidence, LocalBusinessEntity
 
 
 def test_external_evidence_creation():
-    ev = ExternalLocalEvidence(
+    evidence = create_external_evidence(
         provider="nominatim",
-        retrieved_at="2026-01-01T00:00:00Z",
         query="ABC Plumbing Wellington",
+        raw_artifact={"name": "ABC Plumbing"},
         name="ABC Plumbing",
         address="17 High St, Wellington",
         source_confidence=0.7,
     )
-    assert ev.provider == "nominatim"
+    assert isinstance(evidence, ExternalLocalEvidence)
+    assert evidence.provider == "nominatim"
+    assert evidence.evidence_id
+    assert evidence.raw_artifact_hash
 
 
-def test_corroboration_score_increases():
-    from auditor_toolkit.local_seo.schema import LocalBusinessEntity
-
-    entity = LocalBusinessEntity(
-        business_id="biz_001",
-        canonical_name="ABC Plumbing",
-    )
-
-    score_before = corroborate_record(entity)
-
-    evidence = ExternalLocalEvidence(
+def test_corroboration_score_increases_with_matching_evidence():
+    before = corroborate_record(canonical_name="ABC Plumbing")
+    evidence = create_external_evidence(
         provider="nominatim",
-        retrieved_at="2026-01-01",
         query="test",
         name="ABC Plumbing",
         source_confidence=0.7,
     )
-    entity = create_external_evidence(entity, evidence)
+    after = corroborate_record(
+        canonical_name="ABC Plumbing",
+        external_records=[evidence],
+    )
+    assert after.overall_confidence > before.overall_confidence
+    assert len(after.matches) == 1
 
-    score_after = corroborate_record(entity)
-    assert score_after >= score_before
 
-
-def test_corroboration_no_overwrite():
-    """External evidence should not overwrite canonical values."""
-    from auditor_toolkit.local_seo.schema import LocalBusinessEntity
-
+def test_corroboration_does_not_overwrite_canonical_values():
     entity = LocalBusinessEntity(
         business_id="biz_001",
         canonical_name="ABC Plumbing",
     )
-
-    evidence = ExternalLocalEvidence(
+    evidence = create_external_evidence(
         provider="osm",
-        retrieved_at="2026-01-01",
         query="test",
         name="ABC Plumbing OSM Name",
         source_confidence=0.5,
     )
-    entity = create_external_evidence(entity, evidence)
-
-    # Canonical name should NOT be overwritten
+    corroborate_record(
+        canonical_name=entity.canonical_name,
+        external_records=[evidence],
+    )
     assert entity.canonical_name == "ABC Plumbing"
