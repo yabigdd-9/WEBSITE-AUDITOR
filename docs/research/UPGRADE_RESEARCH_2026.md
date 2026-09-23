@@ -871,7 +871,7 @@ Every candidate found, with the verdict you asked for. Sorted by pipeline stage.
  DATA: SQLite+WAL(+sqlite-vec) · run-ID artifacts · Gatus · GlitchTip (optional)
  AI:   qwen3:8b (tools) · qwen2.5-coder:7b (fixes) · qwen3:14b t0 (judge/proofer)
        qwen3-vl:8b (vision) · qwen3-embedding:0.6b (retrieval) · Groq/Gemini free failover
- AGENTS: Hermes / Goose / OpenCode via CLI-as-tool + scoped MCP · no mutation tools
+ AGENTS: Hermes / OpenCode via CLI-as-tool + scoped MCP · no mutation tools
 ```
 
 ---

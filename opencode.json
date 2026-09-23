@@ -1,0 +1,17 @@
+{
+  "mcp": {
+    "servers": {
+      "website-auditor": {
+        "type": "local",
+        "command": [
+          "/Users/dd/Documents/Codex/2026-09-24/referenced-chatgpt-conversation-this-is-an/work/WEBSITE-AUDITOR/integration-mcp"
+        ]
+      },
+      "notion": {
+        "type": "remote",
+        "url": "https://mcp.notion.com/mcp",
+        "disabled": true
+      }
+    }
+  }
+}

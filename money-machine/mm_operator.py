@@ -138,7 +138,7 @@ def doctor(d, profile='default'):
     import shutil
     import ast
     tools={}
-    for name in ('hermes','python3','git','node','npm','npx','goose','opencode','gh','docker','himalaya'):
+    for name in ('hermes','python3','git','node','npm','npx','opencode','gh','docker','himalaya'):
         p=shutil.which(name)
         tools[name]={'path':p,'status':'MISSING' if not p else 'EMPTY_STUB' if Path(p).stat().st_size==0 else 'PRESENT_NOT_EXECUTED'}
     broken=[]
