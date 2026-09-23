@@ -9,6 +9,7 @@ from __future__ import annotations
 import os
 import tempfile
 from datetime import datetime, timezone
+from html import escape
 
 from auditor_toolkit.proof.schema import (
     AfterState,
@@ -90,11 +91,21 @@ def generate_demo_html(
     # Helper to embed or reference images
     def _img_tag(path: str, label: str) -> str:
         if not path:
-            return f"<div class='placeholder'><p>{label}: no image</p></div>"
+            return f"<div class='placeholder'><p>{escape(label)}: no image</p></div>"
         # Use file path as src; the HTML can be opened locally
-        return f"<div class='panel'><h3>{label}</h3><img src='{path}' alt='{label}' /></div>"
+        safe_label = escape(label)
+        safe_path = escape(path, quote=True)
+        return f"<div class='panel'><h3>{safe_label}</h3><img src='{safe_path}' alt='{safe_label}' /></div>"
 
-    verdict_class = verdict.lower() if verdict else "unknown"
+    verdict_class = escape(verdict.lower() if verdict else "unknown", quote=True)
+    title = escape(title)
+    url = escape(url)
+    fix_type = escape(fix_type)
+    fix_description = escape(fix_description)
+    fix_original = escape(fix_original)
+    fix_proposed = escape(fix_proposed)
+    verdict = escape(verdict)
+    diff_summary = escape(diff_summary)
 
     html = f"""<!DOCTYPE html>
 <html lang="en">

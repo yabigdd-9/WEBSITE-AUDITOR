@@ -40,8 +40,10 @@ def generate_diff(
     output_dir = output_dir or tempfile.mkdtemp(prefix="website-auditor-proof-")
     os.makedirs(output_dir, exist_ok=True)
 
-    before_img = Image.open(before_path).convert("RGB")
-    after_img = Image.open(after_path).convert("RGB")
+    with Image.open(before_path) as source_before:
+        before_img = source_before.convert("RGB")
+    with Image.open(after_path) as source_after:
+        after_img = source_after.convert("RGB")
 
     # Resize after to match before dimensions if needed
     if before_img.size != after_img.size:
