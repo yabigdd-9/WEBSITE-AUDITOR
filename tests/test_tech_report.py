@@ -1,10 +1,12 @@
 """Tests for technology enrichment report generation."""
 
-import tempfile
-from pathlib import Path
-
 from auditor_toolkit.technology.report import generate_report, save_report
-from auditor_toolkit.technology.schema import TechEnrichmentResult, TechFingerprint, VersionInfo, VulnerabilityAdvisory
+from auditor_toolkit.technology.schema import (
+    TechEnrichmentResult,
+    TechFingerprint,
+    VersionInfo,
+    VulnerabilityAdvisory,
+)
 
 
 def _make_result(**kw):
