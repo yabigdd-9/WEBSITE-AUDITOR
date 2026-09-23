@@ -13,7 +13,6 @@ from auditor_toolkit.proof.adapters.v36_evaluator import (
 )
 from auditor_toolkit.proof.prototype import PrototypeManifest
 
-
 # ---------------------------------------------------------------------------
 # v36 evaluator
 # ---------------------------------------------------------------------------

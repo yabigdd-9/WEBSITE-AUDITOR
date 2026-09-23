@@ -10,7 +10,6 @@ from bs4 import BeautifulSoup
 
 from auditor_toolkit.checks import Finding
 
-
 VULN_DB: List[Tuple[str, str]] = [
     ("jQuery", "1.6.3"),
     ("jQuery", "1.6.2"),

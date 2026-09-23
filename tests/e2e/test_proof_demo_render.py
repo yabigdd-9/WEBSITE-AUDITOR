@@ -4,7 +4,6 @@ import os
 import time
 import urllib.request
 
-
 from auditor_toolkit.proof.adapters.local_renderer import (
     get_server_url,
     render_prototype,

@@ -3,7 +3,6 @@
 from auditor_toolkit.local_seo.phone import compare_phones, normalize_phone
 from auditor_toolkit.local_seo.schema import NormalizedPhone
 
-
 # Use valid NZ phone number formats
 _VALID_NZ_LANDLINE = "+64 3 379 5555"
 _VALID_NZ_LOCAL = "03 379 5555"

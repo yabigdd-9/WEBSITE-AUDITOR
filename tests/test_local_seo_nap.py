@@ -8,7 +8,6 @@ from auditor_toolkit.local_seo.nap import (
     normalize_name,
 )
 
-
 # --- Name normalization ---
 
 
