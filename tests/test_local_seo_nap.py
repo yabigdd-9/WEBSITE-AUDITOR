@@ -7,7 +7,6 @@ from auditor_toolkit.local_seo.nap import (
     names_equivalent,
     normalize_name,
 )
-from auditor_toolkit.local_seo.schema import ConsistencyStatus
 
 
 # --- Name normalization ---
