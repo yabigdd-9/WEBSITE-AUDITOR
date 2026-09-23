@@ -6,7 +6,6 @@ Tests the end-to-end flow:
 
 import json
 import os
-import tempfile
 
 from auditor_toolkit.proof.environment import ProofEnvironment
 from auditor_toolkit.proof.patches import (
@@ -17,7 +16,7 @@ from auditor_toolkit.proof.prototype import (
     Prototype,
     create_prototype,
 )
-from auditor_toolkit.proof.regions import IssueRegion, extract_issue_region
+from auditor_toolkit.proof.regions import extract_issue_region
 
 # Fixtures path
 _FIXTURES_DIR = os.path.join(
