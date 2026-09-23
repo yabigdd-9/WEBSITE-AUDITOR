@@ -153,7 +153,6 @@ class LocalSEOPipeline:
         scored, summary = self._score_all(
             consistency_findings,
             schema_data,
-            location_pages,
             geo_results,
         )
 
@@ -383,7 +382,6 @@ class LocalSEOPipeline:
         self,
         consistency_findings: list[dict[str, Any]],
         schema_data: dict[str, Any],
-        location_pages: list[dict[str, Any]],
         geo_results: list[dict[str, Any]],
     ) -> tuple:
         """Score all findings and build summary."""

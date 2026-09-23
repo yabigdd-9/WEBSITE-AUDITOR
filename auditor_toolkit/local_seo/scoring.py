@@ -189,9 +189,7 @@ def score_finding(
         defect_key=defect.key,
         title=defect.title,
         impact=defect.impact,
-        severity="high" if defect.impact == "HIGH" else (
-            "medium" if defect.impact in ("MEDIUM_HIGH", "MEDIUM") else "low"
-        ),
+        severity=_severity_for_impact(defect.impact),
         source_url=source_url,
         page_url=page_url,
         confidence=min(max(confidence, 0.0), 1.0),
@@ -199,6 +197,14 @@ def score_finding(
         detail=detail,
         review_required=defect.impact in ("HIGH", "MEDIUM_HIGH"),
     )
+
+
+def _severity_for_impact(impact: str) -> str:
+    if impact == "HIGH":
+        return "high"
+    if impact in ("MEDIUM_HIGH", "MEDIUM"):
+        return "medium"
+    return "low"
 
 
 def score_findings_batch(

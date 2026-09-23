@@ -217,9 +217,10 @@ def _best_phone_match(
         status = compare_phones(schema_phone, visible_phone)
         if status == "MATCH":
             return status, visible_phone
-        if status in ("EQUIVALENT_FORMAT", "PROBABLE_MATCH"):
-            best_status, best_phone = status, visible_phone
-        elif best_status == "INSUFFICIENT_EVIDENCE":
+        if (
+            status in ("EQUIVALENT_FORMAT", "PROBABLE_MATCH")
+            or best_status == "INSUFFICIENT_EVIDENCE"
+        ):
             best_status, best_phone = status, visible_phone
     return best_status, best_phone
 

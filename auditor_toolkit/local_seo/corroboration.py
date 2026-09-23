@@ -204,8 +204,16 @@ def _compare_external_name(
     equivalent, status = names_equivalent(external_name, canonical_name)
     if not equivalent:
         return 0.0, "CONTRADICTION", False
-    score = 1.0 if status == "MATCH" else (0.85 if status == "EQUIVALENT_FORMAT" else 0.7)
+    score = _name_match_score(status)
     return score, status, equivalent
+
+
+def _name_match_score(status: str) -> float:
+    if status == "MATCH":
+        return 1.0
+    if status == "EQUIVALENT_FORMAT":
+        return 0.85
+    return 0.7
 
 
 def _compare_external_address(

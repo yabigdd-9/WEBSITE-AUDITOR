@@ -145,14 +145,14 @@ def _raw_equivalent(a_raw: str, b_raw: str) -> bool:
     # Strip common NZ leading zero vs country code
     if len(a_digits) == len(b_digits) + 2 and a_digits.startswith("64"):
         # a has country code, b might be local
-        return a_digits[2:] == b_digits
+        return a_digits.endswith(b_digits)
     if len(b_digits) == len(a_digits) + 2 and b_digits.startswith("64"):
-        return b_digits[2:] == a_digits
+        return b_digits.endswith(a_digits)
 
     # Handle NZ 0-prefixed vs country code
     if a_digits.startswith("0") and b_digits.startswith("64"):
-        return a_digits[1:] == b_digits[2:]
+        return len(a_digits) - 1 == len(b_digits) - 2 and a_digits[1:].endswith(b_digits[2:])
     if b_digits.startswith("0") and a_digits.startswith("64"):
-        return b_digits[1:] == a_digits[2:]
+        return len(b_digits) - 1 == len(a_digits) - 2 and b_digits[1:].endswith(a_digits[2:])
 
     return False

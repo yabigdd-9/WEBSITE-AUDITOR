@@ -86,7 +86,12 @@ def _label_for_input(attrs: str, fallback_id: str) -> tuple[str, str]:
     placeholder = re.search(r'placeholder=["\']([^"\']+)["\']', attrs)
     name = re.search(r'name=["\']([^"\']+)["\']', attrs)
     input_id_match = re.search(r'id=["\']([^"\']+)["\']', attrs)
-    input_id = input_id_match.group(1) if input_id_match else (name.group(1) if name else fallback_id)
+    if input_id_match:
+        input_id = input_id_match.group(1)
+    elif name:
+        input_id = name.group(1)
+    else:
+        input_id = fallback_id
     label = placeholder.group(1) if placeholder else input_id.replace("-", " ").title()
     return input_id, label
 

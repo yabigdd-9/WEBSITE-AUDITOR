@@ -34,7 +34,7 @@ def check_browser_memory(pid: int | None = None) -> int:
 
 def check_disk_usage(path: Path | None = None) -> float:
     """Return disk usage percentage."""
-    total, used, free = shutil.disk_usage(str(path or Path.home()))
+    total, used, _ = shutil.disk_usage(str(path or Path.home()))
     return (used / total) * 100 if total > 0 else 0.0
 
 
