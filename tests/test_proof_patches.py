@@ -38,6 +38,17 @@ def test_patch_missing_form_label_uses_name_attr():
     assert "Email Field" in patched  # name attr converted to title case
 
 
+def test_patch_missing_form_label_uses_placeholder_from_selected_input():
+    html = (
+        '<input id="search" placeholder="Search">'
+        '<input id="contact-name" placeholder="Your name">'
+    )
+    finding = {"finding_id": "f003a", "selector": "#contact-name"}
+    patched, _ = patch_missing_form_label(html, finding)
+    assert '<label for="contact-name">Your name</label>' in patched
+    assert '<label for="contact-name">Search</label>' not in patched
+
+
 # ---------------------------------------------------------------------------
 # patch_horizontal_overflow
 # ---------------------------------------------------------------------------

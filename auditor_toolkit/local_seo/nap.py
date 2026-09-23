@@ -22,11 +22,12 @@ from .schema import (
 # ---------------------------------------------------------------------------
 
 # Common equivalence mappings
+_LIMITED = " limited "
 _NAME_EQUIVALENCES: list[tuple[str, str]] = [
     ("&", " and "),
     (" and ", " & "),
-    (" ltd ", " limited "),
-    (" limited ", " ltd "),
+    (" ltd ", _LIMITED),
+    (_LIMITED, " ltd "),
     (" ltd.", " limited "),
     (" inc ", " incorporated "),
     (" incorporated ", " inc "),

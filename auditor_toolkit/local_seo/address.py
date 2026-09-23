@@ -163,67 +163,32 @@ def compare_addresses(a: NormalizedAddress, b: NormalizedAddress) -> Consistency
     if a.normalized and b.normalized and a.normalized == b.normalized:
         return "MATCH"
 
-    # Component-level comparison
-    conflicts = 0
+    exact_components = (
+        (a.country, b.country, 2, lambda value: value.lower()),
+        (a.postal_code, b.postal_code, 2, lambda value: value.replace(" ", "").lower()),
+        (a.street_number, b.street_number, 3, lambda value: value.lower()),
+    )
     matches = 0
-
-    # Country — exact
-    if a.country and b.country:
-        if a.country.lower() == b.country.lower():
-            matches += 2
-        else:
-            conflicts += 3  # Country mismatch is strong
+    for value_a, value_b, weight, normalize in exact_components:
+        result = _compare_exact_component(value_a, value_b, weight, normalize)
+        if result is None:
+            continue
+        if result is False:
             return "CONTRADICTION"
+        matches += result
 
-    # Postal code — strong
-    if a.postal_code and b.postal_code:
-        if a.postal_code.replace(" ", "").lower() == b.postal_code.replace(" ", "").lower():
-            matches += 2
-        else:
-            conflicts += 2
-            return "CONTRADICTION"
-
-    # Street number — very strong
-    if a.street_number and b.street_number:
-        if a.street_number.lower() == b.street_number.lower():
-            matches += 3
-        else:
-            conflicts += 3
-            return "CONTRADICTION"
-
-    # Street name — strong
-    if a.street_name and b.street_name:
-        from rapidfuzz import fuzz
-
-        score = fuzz.ratio(a.street_name.lower(), b.street_name.lower())
-        if score >= 90:
-            matches += 2
-        elif score >= 70:
-            matches += 1  # Probable match
-        else:
-            conflicts += 2
-
-    # Locality — strong
-    if a.locality and b.locality:
-        from rapidfuzz import fuzz
-
-        score = fuzz.ratio(a.locality.lower(), b.locality.lower())
-        if score >= 90:
-            matches += 2
-        elif score >= 70:
-            matches += 1
-        else:
-            conflicts += 2
-
-    # Region
-    if a.region and b.region:
-        from rapidfuzz import fuzz
-
-        score = fuzz.ratio(a.region.lower(), b.region.lower())
-        if score >= 85:
-            matches += 1
-        elif score < 60:
-            conflicts += 1
+    fuzzy_components = (
+        (a.street_name, b.street_name, 90, 70, 2, 2, 1),
+        (a.locality, b.locality, 90, 70, 2, 2, 1),
+        (a.region, b.region, 85, 60, 1, 1, 0),
+    )
+    conflicts = 0
+    for value_a, value_b, match_at, partial_at, weight, conflict_weight, partial_weight in fuzzy_components:
+        component_matches, component_conflicts = _compare_fuzzy_component(
+            value_a, value_b, match_at, partial_at, weight, conflict_weight, partial_weight
+        )
+        matches += component_matches
+        conflicts += component_conflicts
 
     if conflicts >= 2:
         return "CONTRADICTION"
@@ -245,3 +210,35 @@ def compare_addresses(a: NormalizedAddress, b: NormalizedAddress) -> Consistency
         return "CONTRADICTION"
 
     return "INSUFFICIENT_EVIDENCE"
+
+
+def _compare_exact_component(value_a, value_b, weight, normalize):
+    """Compare an exact-match component; ``None`` means missing evidence."""
+    if not value_a or not value_b:
+        return None
+    if normalize(value_a) == normalize(value_b):
+        return weight
+    return False
+
+
+def _compare_fuzzy_component(
+    value_a: str,
+    value_b: str,
+    match_at: int,
+    partial_at: int,
+    match_weight: int,
+    conflict_weight: int,
+    partial_weight: int,
+) -> tuple[int, int]:
+    if not value_a or not value_b:
+        return 0, 0
+    from rapidfuzz import fuzz
+
+    score = fuzz.ratio(value_a.lower(), value_b.lower())
+    if score >= match_at:
+        return match_weight, 0
+    if score >= partial_at:
+        return partial_weight, 0
+    if score < 60 or conflict_weight == 2:
+        return 0, conflict_weight
+    return 0, 0

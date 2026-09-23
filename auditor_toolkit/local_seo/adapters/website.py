@@ -9,6 +9,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+_JSON_LD_GRAPH = "@graph"
+
 # ---------------------------------------------------------------------------
 # Result type
 # ---------------------------------------------------------------------------
@@ -116,8 +118,8 @@ def _extract_name(soup: Any, html: str) -> str:
             data = json.loads(script.string)
             if isinstance(data, dict) and data.get("name"):
                 return data["name"]
-            if isinstance(data, dict) and data.get("@graph"):
-                for item in data["@graph"]:
+            if isinstance(data, dict) and data.get(_JSON_LD_GRAPH):
+                for item in data[_JSON_LD_GRAPH]:
                     if isinstance(item, dict) and item.get("name"):
                         return item["name"]
         except (json.JSONDecodeError, KeyError):
@@ -281,8 +283,8 @@ def _extract_localbusiness_entities(
         types = _to_list(block.get("@type", []))
         if any(t in local_types for t in types):
             entities.append(block)
-        elif "@graph" in block:
-            for item in block["@graph"]:
+        elif _JSON_LD_GRAPH in block:
+            for item in block[_JSON_LD_GRAPH]:
                 item_types = _to_list(item.get("@type", []))
                 if any(t in local_types for t in item_types):
                     entities.append(item)

@@ -7,6 +7,7 @@ highlighting changed pixels.
 from __future__ import annotations
 
 import os
+import tempfile
 from datetime import datetime, timezone
 
 try:
@@ -19,7 +20,7 @@ except ImportError:
 def generate_diff(
     before_path: str,
     after_path: str,
-    output_dir: str = "/tmp/proof_capture",
+    output_dir: str | None = None,
     threshold: int = 30,
     highlight_color: tuple[int, int, int] = (255, 0, 0),
 ) -> dict[str, str | float]:
@@ -36,6 +37,7 @@ def generate_diff(
             "error": "Pillow not installed (pip install Pillow)",
         }
 
+    output_dir = output_dir or tempfile.mkdtemp(prefix="website-auditor-proof-")
     os.makedirs(output_dir, exist_ok=True)
 
     before_img = Image.open(before_path).convert("RGB")

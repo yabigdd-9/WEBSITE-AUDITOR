@@ -24,144 +24,111 @@ class Technology:
 
 def detect_technology(html: str, url: str, headers: dict) -> List[Technology]:
     """Detect technologies used by the website."""
-    technologies = []
     soup = BeautifulSoup(html, "html.parser")
+    technologies = [
+        technology
+        for technology in (
+            _detect_wordpress(soup),
+            _detect_woocommerce(headers),
+            _detect_shopify(soup, headers),
+            _detect_wix(soup),
+            _detect_squarespace(soup),
+            _detect_react(soup),
+            _detect_bootstrap(soup),
+            _detect_jquery(soup),
+            _detect_analytics(soup),
+        )
+        if technology is not None
+    ]
+    return technologies
 
-    # WordPress detection via meta generator
+
+def _technology(name: str, category: str, evidence: str, confidence: float) -> Technology:
+    return Technology(
+        technology=name,
+        category=category,
+        evidence=evidence,
+        confidence=confidence,
+    )
+
+
+def _detect_wordpress(soup: BeautifulSoup) -> Technology | None:
     generator = soup.find("meta", attrs={"name": "generator"})
     generator_content = generator.get("content") if generator else None
-    if isinstance(generator_content, str):
-        content = generator_content.lower()
-        if "wordpress" in content:
-            # Try to extract version
-            version_match = re.search(r"wordpress\s+([\d.]+)", content)
-            version = version_match.group(1) if version_match else None
-            tech = Technology(
-                technology="WordPress",
-                category="CMS",
-                version=version,
-                version_confidence=0.9 if version else 0.7,
-                evidence=f"meta generator: {content}",
-                confidence=0.9 if version else 0.7,
-            )
-            technologies.append(tech)
+    if not isinstance(generator_content, str) or "wordpress" not in generator_content.lower():
+        return None
 
-    # WooCommerce detection via WooCommerce cookie or header
-    # Check for WooCommerce in Set-Cookie header
-    set_cookie = headers.get("Set-Cookie", "")
-    if "woocommerce" in set_cookie.lower():
-        tech = Technology(
-            technology="WooCommerce",
-            category="Ecommerce",
-            version=None,
-            version_confidence=0.0,
-            evidence="WooCommerce cookie detected",
-            confidence=0.8,
-        )
-        technologies.append(tech)
+    content = generator_content.lower()
+    version_match = re.search(r"wordpress\s+([\d.]+)", content)
+    version = version_match.group(1) if version_match else None
+    return Technology(
+        technology="WordPress",
+        category="CMS",
+        version=version,
+        version_confidence=0.9 if version else 0.7,
+        evidence=f"meta generator: {content}",
+        confidence=0.9 if version else 0.7,
+    )
 
-    # Shopify detection via Shopify header or Shopify.myshopify.com in URLs
-    shopify_header = headers.get("X-Shopify-Stage")
-    if shopify_header:
-        tech = Technology(
-            technology="Shopify",
-            category="Ecommerce",
-            version=None,
-            version_confidence=0.0,
-            evidence=f"X-Shopify-Stage header: {shopify_header}",
-            confidence=0.9,
-        )
-        technologies.append(tech)
-    else:
-        # Check for Shopify in HTML (e.g., CDN links)
-        if soup.find("script", src=re.compile(r"cdn\.shopify\.com")):
-            tech = Technology(
-                technology="Shopify",
-                category="Ecommerce",
-                version=None,
-                version_confidence=0.0,
-                evidence="Shopify CDN script detected",
-                confidence=0.7,
-            )
-            technologies.append(tech)
 
-    # Wix detection via Wix.com in meta or HTML
-    wix_meta = soup.find("meta", attrs={"name": "generator", "content": re.compile(r"Wix\.com", re.I)})
-    if wix_meta:
-        tech = Technology(
-            technology="Wix",
-            category="CMS",
-            version=None,
-            version_confidence=0.0,
-            evidence=f"meta generator: {wix_meta.get('content')}",
-            confidence=0.8,
-        )
-        technologies.append(tech)
+def _detect_woocommerce(headers: dict) -> Technology | None:
+    cookie = headers.get("Set-Cookie", "")
+    if "woocommerce" in cookie.lower():
+        return _technology("WooCommerce", "Ecommerce", "WooCommerce cookie detected", 0.8)
+    return None
 
-    # Squarespace detection via Squarespace meta generator
-    squarespace_meta = soup.find("meta", attrs={"name": "generator", "content": re.compile(r"Squarespace", re.I)})
-    if squarespace_meta:
-        tech = Technology(
-            technology="Squarespace",
-            category="CMS",
-            version=None,
-            version_confidence=0.0,
-            evidence=f"meta generator: {squarespace_meta.get('content')}",
-            confidence=0.8,
-        )
-        technologies.append(tech)
 
-    # React detection via react-checksum or data-reactroot
+def _detect_shopify(soup: BeautifulSoup, headers: dict) -> Technology | None:
+    stage = headers.get("X-Shopify-Stage")
+    if stage:
+        return _technology("Shopify", "Ecommerce", f"X-Shopify-Stage header: {stage}", 0.9)
+    if soup.find("script", src=re.compile(r"cdn\.shopify\.com")):
+        return _technology("Shopify", "Ecommerce", "Shopify CDN script detected", 0.7)
+    return None
+
+
+def _detect_generator_cms(soup: BeautifulSoup, name: str, pattern: str) -> Technology | None:
+    tag = soup.find("meta", attrs={"name": "generator", "content": re.compile(pattern, re.I)})
+    if not tag:
+        return None
+    content = tag.get("content")
+    return _technology(name, "CMS", f"meta generator: {content}", 0.8)
+
+
+def _detect_wix(soup: BeautifulSoup) -> Technology | None:
+    return _detect_generator_cms(soup, "Wix", r"Wix\.com")
+
+
+def _detect_squarespace(soup: BeautifulSoup) -> Technology | None:
+    return _detect_generator_cms(soup, "Squarespace", "Squarespace")
+
+
+def _detect_react(soup: BeautifulSoup) -> Technology | None:
     if soup.find(attrs={"data-reactroot": True}) or soup.find("script", src=re.compile(r"react")):
-        tech = Technology(
-            technology="React",
-            category="JavaScript Framework",
-            version=None,
-            version_confidence=0.0,
-            evidence="React attributes or script detected",
-            confidence=0.6,
-        )
-        technologies.append(tech)
+        return _technology("React", "JavaScript Framework", "React attributes or script detected", 0.6)
+    return None
 
-    # Bootstrap detection via Bootstrap CSS or JS
-    if soup.find("link", href=re.compile(r"bootstrap")) or soup.find("script", src=re.compile(r"bootstrap")):
-        tech = Technology(
-            technology="Bootstrap",
-            category="CSS Framework",
-            version=None,
-            version_confidence=0.0,
-            evidence="Bootstrap CSS or JS detected",
-            confidence=0.6,
-        )
-        technologies.append(tech)
 
-    # jQuery detection via jQuery script
+def _detect_bootstrap(soup: BeautifulSoup) -> Technology | None:
+    if soup.find("link", href=re.compile(r"bootstrap")) or soup.find(
+        "script", src=re.compile(r"bootstrap")
+    ):
+        return _technology("Bootstrap", "CSS Framework", "Bootstrap CSS or JS detected", 0.6)
+    return None
+
+
+def _detect_jquery(soup: BeautifulSoup) -> Technology | None:
     if soup.find("script", src=re.compile(r"jquery")):
-        tech = Technology(
-            technology="jQuery",
-            category="JavaScript Library",
-            version=None,
-            version_confidence=0.0,
-            evidence="jQuery script detected",
-            confidence=0.6,
-        )
-        technologies.append(tech)
+        return _technology("jQuery", "JavaScript Library", "jQuery script detected", 0.6)
+    return None
 
-    # Google Analytics detection via GA script
+
+def _detect_analytics(soup: BeautifulSoup) -> Technology | None:
     if soup.find("script", src=re.compile(r"google-analytics")) or soup.find(
         string=re.compile(r"ga\(")
     ):
-        tech = Technology(
-            technology="Google Analytics",
-            category="Analytics",
-            version=None,
-            version_confidence=0.0,
-            evidence="Google Analytics script detected",
-            confidence=0.6,
-        )
-        technologies.append(tech)
-
-    return technologies
+        return _technology("Google Analytics", "Analytics", "Google Analytics script detected", 0.6)
+    return None
 
 
 def analyse_html(html: str, url: str, headers: dict) -> tuple[List[Finding], dict[str, Any]]:

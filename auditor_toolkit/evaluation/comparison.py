@@ -173,36 +173,7 @@ def _compute_deltas(
         b_val = float(base_dict.get(metric, 0))
         delta = c_val - b_val
 
-        # Determine direction based on whether higher is better
-        higher_is_better = metric in {
-            "finding_precision",
-            "finding_recall",
-            "evidence_precision",
-            "evidence_recall",
-            "golden_corpus_retention",
-            "correct_abstention_rate",
-            "completion_rate",
-        }
-        lower_is_better = metric in {
-            "unsupported_claim_rate",
-            "incorrect_abstention_rate",
-            "wrong_business_rate",
-            "high_confidence_fp_rate",
-            "browser_failure_rate",
-            "agent_failure_rate",
-            "replay_variance",
-            "avg_latency_ms",
-            "avg_cpu_ms",
-            "peak_memory_mb",
-            "estimated_api_cost",
-        }
-
-        if higher_is_better:
-            direction = "improved" if delta > 0 else ("regressed" if delta < 0 else "neutral")
-        elif lower_is_better:
-            direction = "improved" if delta < 0 else ("regressed" if delta > 0 else "neutral")
-        else:
-            direction = "neutral" if abs(delta) < 0.001 else ("improved" if delta < 0 else "regressed")
+        direction = _metric_direction(metric, delta)
 
         deltas.append(
             MetricDelta(
@@ -216,6 +187,39 @@ def _compute_deltas(
         )
 
     return deltas
+
+
+def _metric_direction(metric: str, delta: float) -> str:
+    """Classify whether a metric delta improves, regresses, or stays neutral."""
+    higher_is_better = {
+        "finding_precision",
+        "finding_recall",
+        "evidence_precision",
+        "evidence_recall",
+        "golden_corpus_retention",
+        "correct_abstention_rate",
+        "completion_rate",
+    }
+    lower_is_better = {
+        "unsupported_claim_rate",
+        "incorrect_abstention_rate",
+        "wrong_business_rate",
+        "high_confidence_fp_rate",
+        "browser_failure_rate",
+        "agent_failure_rate",
+        "replay_variance",
+        "avg_latency_ms",
+        "avg_cpu_ms",
+        "peak_memory_mb",
+        "estimated_api_cost",
+    }
+    if metric in higher_is_better:
+        return "improved" if delta > 0 else "regressed" if delta < 0 else "neutral"
+    if metric in lower_is_better:
+        return "improved" if delta < 0 else "regressed" if delta > 0 else "neutral"
+    if abs(delta) < 0.001:
+        return "neutral"
+    return "improved" if delta < 0 else "regressed"
 
 
 def _check_veto_rules(

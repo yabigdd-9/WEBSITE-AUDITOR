@@ -232,29 +232,9 @@ def classify_location_page(features: LocationPageFeatures) -> LocationPage:
 
     Returns a LocationPage with classification, confidence, and reasons.
     """
-    reasons: list[str] = []
-    score = 0.0
-    classification: PageClassification = "other"
-
-    # Check URL patterns
-    path = features.url.split("://", 1)[-1].split("/", 1)[-1] if "://" in features.url else ""
-    if not path.startswith("/"):
-        path = "/" + path
-
-    is_service_area_url = any(
-        re.search(pat, path, re.I) for pat in _SERVICE_AREA_PATTERNS
-    )
-    is_location_url = any(
-        re.search(pat, path, re.I) for pat in _LOCATION_PATH_PATTERNS
-    )
-    is_homepage = any(
-        re.search(pat, path, re.I) for pat in _HOMEPAGE_PATTERNS
-    )
-
-    if is_homepage:
-        classification = "homepage"
-        score = 0.9
-        reasons.append("URL matches homepage pattern")
+    path = _location_path(features.url)
+    classification, score, reasons = _classify_location_path(path)
+    if classification == "homepage":
         return LocationPage(
             url=features.url,
             classification=classification,
@@ -263,69 +243,24 @@ def classify_location_page(features: LocationPageFeatures) -> LocationPage:
             reasons=reasons,
         )
 
-    # Service area page
-    if is_service_area_url:
-        classification = "service_area"
-        score = 0.7
-        reasons.append("URL matches service-area pattern")
-
-    # Location page signals
-    if is_location_url:
-        classification = "location"
-        score = max(score, 0.75)
-        reasons.append("URL matches location pattern")
-
-    # Content signals boost location classification
-    if features.has_localbusiness_schema:
-        if classification in ("location", "service_area"):
-            score = min(score + 0.15, 1.0)
-        else:
-            classification = "location"
-            score = max(score, 0.6)
-        reasons.append("Has LocalBusiness schema")
-
-    if features.has_address_on_page:
-        if classification == "other":
-            classification = "location"
-            score = max(score, 0.5)
-        else:
-            score = min(score + 0.1, 1.0)
-        reasons.append("Has address on page")
-
-    if features.has_phone_on_page:
-        score = min(score + 0.05, 1.0)
-        reasons.append("Has phone on page")
-
-    # Breadcrumb signal
-    if features.has_breadcrumbs:
-        bc_lower = features.breadcrumb_text.lower()
-        if any(kw in bc_lower for kw in ("location", "branch", "office", "store")):
-            if classification == "other":
-                classification = "location"
-                score = max(score, 0.6)
-            reasons.append("Breadcrumb indicates location")
-
-    # Title / H1 signal
-    title_lower = (features.title + " " + features.h1).lower()
-    for word in _LOCATION_INDICATOR_WORDS:
-        if word in title_lower:
-            if classification == "other":
-                classification = "location"
-                score = max(score, 0.45)
-            score = min(score + 0.05, 1.0)
-            reasons.append(f"Title/H1 contains location indicator: {word}")
-            break
+    classification, score = _apply_schema_signal(
+        features, classification, score, reasons
+    )
+    classification, score = _apply_address_signal(
+        features, classification, score, reasons
+    )
+    score = _apply_phone_signal(features, score, reasons)
+    classification, score = _apply_breadcrumb_signal(
+        features, classification, score, reasons
+    )
+    classification, score = _apply_title_signal(
+        features, classification, score, reasons
+    )
 
     # Extract detected location name from URL
     location_name = _extract_location_name_from_url(features.url)
 
-    # Deep URL without strong signals = probably not a location page
-    if classification == "other" and features.url_path_depth > 1:
-        # Could still be a location page at a deep path
-        if features.has_address_on_page or features.has_localbusiness_schema:
-            classification = "location"
-            score = 0.55
-            reasons.append("Deep URL with location signals")
+    classification, score = _apply_depth_signal(features, classification, score, reasons)
 
     confidence = round(score, 2)
     return LocationPage(
@@ -336,6 +271,85 @@ def classify_location_page(features: LocationPageFeatures) -> LocationPage:
         detected_location_name=location_name,
         reasons=reasons,
     )
+
+
+def _location_path(url: str) -> str:
+    path = url.split("://", 1)[-1].split("/", 1)[-1] if "://" in url else ""
+    return path if path.startswith("/") else "/" + path
+
+
+def _classify_location_path(path: str) -> tuple[PageClassification, float, list[str]]:
+    if any(re.search(pattern, path, re.I) for pattern in _HOMEPAGE_PATTERNS):
+        return "homepage", 0.9, ["URL matches homepage pattern"]
+    classification: PageClassification = "other"
+    score = 0.0
+    reasons: list[str] = []
+    if any(re.search(pattern, path, re.I) for pattern in _SERVICE_AREA_PATTERNS):
+        classification, score = "service_area", 0.7
+        reasons.append("URL matches service-area pattern")
+    if any(re.search(pattern, path, re.I) for pattern in _LOCATION_PATH_PATTERNS):
+        classification, score = "location", max(score, 0.75)
+        reasons.append("URL matches location pattern")
+    return classification, score, reasons
+
+
+def _apply_schema_signal(features, classification, score, reasons):
+    if not features.has_localbusiness_schema:
+        return classification, score
+    if classification in ("location", "service_area"):
+        score = min(score + 0.15, 1.0)
+    else:
+        classification, score = "location", max(score, 0.6)
+    reasons.append("Has LocalBusiness schema")
+    return classification, score
+
+
+def _apply_address_signal(features, classification, score, reasons):
+    if not features.has_address_on_page:
+        return classification, score
+    if classification == "other":
+        classification, score = "location", max(score, 0.5)
+    else:
+        score = min(score + 0.1, 1.0)
+    reasons.append("Has address on page")
+    return classification, score
+
+
+def _apply_phone_signal(features, score, reasons):
+    if features.has_phone_on_page:
+        score = min(score + 0.05, 1.0)
+        reasons.append("Has phone on page")
+    return score
+
+
+def _apply_breadcrumb_signal(features, classification, score, reasons):
+    location_terms = ("location", "branch", "office", "store")
+    breadcrumb_text = features.breadcrumb_text.lower()
+    if features.has_breadcrumbs and any(term in breadcrumb_text for term in location_terms):
+        if classification == "other":
+            classification, score = "location", max(score, 0.6)
+        reasons.append("Breadcrumb indicates location")
+    return classification, score
+
+
+def _apply_title_signal(features, classification, score, reasons):
+    title = (features.title + " " + features.h1).lower()
+    for word in _LOCATION_INDICATOR_WORDS:
+        if word in title:
+            if classification == "other":
+                classification, score = "location", max(score, 0.45)
+            score = min(score + 0.05, 1.0)
+            reasons.append(f"Title/H1 contains location indicator: {word}")
+            break
+    return classification, score
+
+
+def _apply_depth_signal(features, classification, score, reasons):
+    has_location_evidence = features.has_address_on_page or features.has_localbusiness_schema
+    if classification == "other" and features.url_path_depth > 1 and has_location_evidence:
+        classification, score = "location", 0.55
+        reasons.append("Deep URL with location signals")
+    return classification, score
 
 
 def _extract_location_name_from_url(url: str) -> str:

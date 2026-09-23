@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import tempfile
 from datetime import datetime, timezone
 
 from auditor_toolkit.proof.schema import ProofPackage
@@ -15,12 +16,13 @@ from auditor_toolkit.proof.schema import ProofPackage
 
 def generate_markdown_report(
     package: ProofPackage,
-    output_dir: str = "/tmp/proof_capture",
+    output_dir: str | None = None,
 ) -> str:
     """Generate a Markdown report from a ProofPackage.
 
     Returns the path to the generated .md file.
     """
+    output_dir = output_dir or tempfile.mkdtemp(prefix="website-auditor-proof-")
     os.makedirs(output_dir, exist_ok=True)
 
     v = package.verification
@@ -135,13 +137,14 @@ def generate_markdown_report(
 
 def generate_json_report(
     package: ProofPackage,
-    output_dir: str = "/tmp/proof_capture",
+    output_dir: str | None = None,
     pretty: bool = True,
 ) -> str:
     """Generate a JSON report from a ProofPackage.
 
     Returns the path to the generated .json file.
     """
+    output_dir = output_dir or tempfile.mkdtemp(prefix="website-auditor-proof-")
     os.makedirs(output_dir, exist_ok=True)
 
     data = package.to_dict()

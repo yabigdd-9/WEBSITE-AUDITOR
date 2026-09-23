@@ -10,6 +10,8 @@ import re
 
 from .schema import OpeningHour
 
+_BY_APPOINTMENT = "By appointment"
+
 # ---------------------------------------------------------------------------
 # Day normalization
 # ---------------------------------------------------------------------------
@@ -101,7 +103,7 @@ def normalize_hours(
         "by appointment only",
     ):
         return [
-            OpeningHour(day=d, special_text="By appointment", source=source)
+            OpeningHour(day=d, special_text=_BY_APPOINTMENT, source=source)
             for d in _expand_day_range("Monday-Sunday")
         ]
 
@@ -284,40 +286,9 @@ def hours_match(
         return False, "INSUFFICIENT_EVIDENCE"
 
     for day in common_days:
-        ha = a_map[day]
-        hb = b_map[day]
-
-        # Both closed
-        if ha.closed and hb.closed:
-            matches += 1
-            continue
-
-        # Both special text
-        if ha.special_text and hb.special_text:
-            if ha.special_text == hb.special_text:
-                matches += 1
-            else:
-                conflicts += 1
-            continue
-
-        # One has special text, other doesn't
-        if (ha.special_text or ha.closed) != (hb.special_text or hb.closed):
-            # "By appointment" vs numeric hours is not a contradiction
-            if ha.special_text in ("By appointment",) or hb.special_text in ("By appointment",):
-                matches += 1
-                continue
-            conflicts += 1
-            continue
-
-        # Compare times
-        if ha.opens and hb.opens:
-            if ha.opens == hb.opens and ha.closes == hb.closes:
-                matches += 1
-            elif ha.opens == hb.opens or ha.closes == hb.closes:
-                # Partial match
-                matches += 0.5
-            else:
-                conflicts += 1
+        day_matches, day_conflicts = _compare_day_hours(a_map[day], b_map[day])
+        matches += day_matches
+        conflicts += day_conflicts
 
     total = len(common_days)
     if total == 0:
@@ -336,3 +307,26 @@ def hours_match(
         return True, "PROBABLE_MATCH"
 
     return False, "CONTRADICTION"
+
+
+def _compare_day_hours(a: OpeningHour, b: OpeningHour) -> tuple[float, int]:
+    """Return the match and conflict weights for one shared weekday."""
+    if a.closed and b.closed:
+        return 1, 0
+
+    if a.special_text and b.special_text:
+        return (1, 0) if a.special_text == b.special_text else (0, 1)
+
+    if (a.special_text or a.closed) != (b.special_text or b.closed):
+        if a.special_text == _BY_APPOINTMENT or b.special_text == _BY_APPOINTMENT:
+            return 1, 0
+        return 0, 1
+
+    if a.opens and b.opens:
+        if a.opens == b.opens and a.closes == b.closes:
+            return 1, 0
+        if a.opens == b.opens or a.closes == b.closes:
+            return 0.5, 0
+        return 0, 1
+
+    return 0, 0

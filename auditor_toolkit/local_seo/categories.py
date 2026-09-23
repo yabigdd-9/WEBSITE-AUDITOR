@@ -9,6 +9,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+_REAL_ESTATE_AGENCY = "Real Estate Agency"
+_AUTO_REPAIR = "Auto Repair"
+
 
 @dataclass(frozen=True)
 class BusinessCategory:
@@ -79,15 +82,15 @@ _CATEGORY_ALIASES: dict[str, str] = {
     "accountant": "Accountant",
     "accounting": "Accountant",
     "tax preparation": "Accountant",
-    "real estate agent": "Real Estate Agency",
-    "realty": "Real Estate Agency",
-    "property management": "Real Estate Agency",
+    "real estate agent": _REAL_ESTATE_AGENCY,
+    "realty": _REAL_ESTATE_AGENCY,
+    "property management": _REAL_ESTATE_AGENCY,
     "hair salon": "Hair Salon",
     "hairdresser": "Hair Salon",
     "barber": "Hair Salon",
-    "mechanic": "Auto Repair",
-    "auto repair": "Auto Repair",
-    "car repair": "Auto Repair",
+    "mechanic": _AUTO_REPAIR,
+    "auto repair": _AUTO_REPAIR,
+    "car repair": _AUTO_REPAIR,
     "gym": "Gym",
     "fitness center": "Gym",
     "fitness centre": "Gym",

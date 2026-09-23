@@ -14,6 +14,9 @@ from typing import Any
 
 from auditor_toolkit.proof.prototype import PrototypeManifest
 
+_OVERFLOW_HIDDEN = "overflow: hidden"
+_OVERFLOW_VISIBLE = "overflow: visible"
+
 
 def _content_id(*parts: str) -> str:
     raw = "|".join(parts)
@@ -62,48 +65,63 @@ def patch_missing_form_label(
     selector = finding.get("selector", "")
     input_id = selector.lstrip("#") if selector.startswith("#") else ""
 
-    # Try to extract the input tag to determine label text
-    id_match = re.search(rf'id=["\']({re.escape(input_id)})["\']', html) if input_id else None
-    placeholder_match = re.search(r'placeholder=["\']([^"\']+)["\']', html)
-    _ = re.search(r'name=["\']([^"\']+)["\']', html)  # noqa: F841
+    if input_id:
+        targeted = _patch_input_by_id(html, finding, input_id)
+        if targeted is not None:
+            return targeted
 
-    if id_match:
-        label_text = placeholder_match.group(1) if placeholder_match else input_id.replace("-", " ").title()
-        label_html = f'<label for="{input_id}">{label_text}</label>\n'
-        # Insert label before the input
-        pattern = rf'(<input[^>]*id=["\']{re.escape(input_id)}["\'][^>]*>)'
-        replacement = label_html + r"\1"
-        patched = re.sub(pattern, replacement, html, count=1)
-        if patched != html:
-            return patched, _make_manifest(
-                finding, "FORM_LABEL_PATCH", selector,
-                html[html.find(f'id="{input_id}"'):html.find(f'id="{input_id}"') + 50] if f'id="{input_id}"' in html else html,
-                label_html + html,
-                f"Added <label for='{input_id}'> for form accessibility.",
-            )
-
-    # Fallback: find any <input> without a preceding <label>
+    # Fallback: find an input in the page and derive the label from that input.
     input_match = re.search(r'<input([^>]*)>', html)
     if input_match:
-        attrs = input_match.group(1)
-        pid = re.search(r'id=["\']([^"\']+)["\']', attrs)
-        ph = re.search(r'placeholder=["\']([^"\']+)["\']', attrs)
-        pn = re.search(r'name=["\']([^"\']+)["\']', attrs)
-        inp_id = pid.group(1) if pid else (pn.group(1) if pn else "field")
-        label_text = ph.group(1) if ph else inp_id.replace("-", " ").title()
-        label_html = f'<label for="{inp_id}">{label_text}</label>\n'
-        patched = html[:input_match.start()] + label_html + html[input_match.start():]
-        return patched, _make_manifest(
-            finding, "FORM_LABEL_PATCH", selector or f"#{inp_id}",
-            input_match.group(0),
-            label_html + input_match.group(0),
-            f"Added <label for='{inp_id}'> for form accessibility.",
-        )
+        return _patch_first_input(html, finding, selector, input_match)
 
     return html, _make_manifest(
         finding, "FORM_LABEL_PATCH", selector,
         html, html,
         "No injectable <input> found; label patch not applicable.",
+    )
+
+
+def _label_for_input(attrs: str, fallback_id: str) -> tuple[str, str]:
+    placeholder = re.search(r'placeholder=["\']([^"\']+)["\']', attrs)
+    name = re.search(r'name=["\']([^"\']+)["\']', attrs)
+    input_id_match = re.search(r'id=["\']([^"\']+)["\']', attrs)
+    input_id = input_id_match.group(1) if input_id_match else (name.group(1) if name else fallback_id)
+    label = placeholder.group(1) if placeholder else input_id.replace("-", " ").title()
+    return input_id, label
+
+
+def _patch_input_by_id(html: str, finding: dict[str, Any], input_id: str):
+    pattern = rf'<input([^>]*\bid=["\']{re.escape(input_id)}["\'][^>]*)>'
+    match = re.search(pattern, html, re.I)
+    if not match:
+        return None
+    full_tag = match.group(0)
+    actual_id, label = _label_for_input(match.group(1), input_id)
+    label_html = f'<label for="{actual_id}">{label}</label>\n'
+    patched = html[:match.start()] + label_html + full_tag + html[match.end():]
+    return patched, _make_manifest(
+        finding,
+        "FORM_LABEL_PATCH",
+        finding.get("selector", ""),
+        full_tag,
+        label_html + full_tag,
+        f"Added <label for='{actual_id}'> for form accessibility.",
+    )
+
+
+def _patch_first_input(html: str, finding: dict[str, Any], selector: str, match: re.Match):
+    full_tag = match.group(0)
+    input_id, label = _label_for_input(match.group(1), "field")
+    label_html = f'<label for="{input_id}">{label}</label>\n'
+    patched = html[:match.start()] + label_html + html[match.start():]
+    return patched, _make_manifest(
+        finding,
+        "FORM_LABEL_PATCH",
+        selector or f"#{input_id}",
+        full_tag,
+        label_html + full_tag,
+        f"Added <label for='{input_id}'> for form accessibility.",
     )
 
 
@@ -120,9 +138,9 @@ def patch_horizontal_overflow(
     target_class = selector.lstrip(".") if selector.startswith(".") else selector
 
     # Inline style
-    before_inline = "overflow: hidden"
-    after_inline = "overflow: visible"
-    patched = html.replace("overflow: hidden", "overflow: visible", 1)
+    before_inline = _OVERFLOW_HIDDEN
+    after_inline = _OVERFLOW_VISIBLE
+    patched = html.replace(_OVERFLOW_HIDDEN, _OVERFLOW_VISIBLE, 1)
 
     if patched != html:
         return patched, _make_manifest(
@@ -140,7 +158,7 @@ def patch_horizontal_overflow(
         patched = html[:match.start()] + replacement + html[match.end():]
         return patched, _make_manifest(
             finding, "CSS_PATCH", selector,
-            "overflow: hidden", "overflow: visible",
+            _OVERFLOW_HIDDEN, _OVERFLOW_VISIBLE,
             "Changed overflow:hidden to overflow:visible in stylesheet.",
         )
 
