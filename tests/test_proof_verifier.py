@@ -1,12 +1,11 @@
 """Tests for proof verifier."""
 
+from auditor_toolkit.proof.schema import AfterState, BeforeState
 from auditor_toolkit.proof.verify.verifier import (
-    VerificationResult,
-    verify_fix,
     check_axe_violations,
     check_console_errors,
+    verify_fix,
 )
-from auditor_toolkit.proof.schema import BeforeState, AfterState
 
 
 def _make_before(**kw):
