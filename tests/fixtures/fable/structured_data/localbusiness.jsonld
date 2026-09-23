@@ -1,0 +1,14 @@
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "Example Business",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "123 Example St",
+    "addressLocality": "Auckland",
+    "postalCode": "1010",
+    "addressCountry": "NZ"
+  },
+  "telephone": "+64-9-123 4567",
+  "url": "https://example.co.nz"
+}

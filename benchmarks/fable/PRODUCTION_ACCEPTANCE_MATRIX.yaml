@@ -1,0 +1,31 @@
+# Production Acceptance Matrix for WEBSITE-AUDITOR intelligence
+# Dimensions and criteria for accepting new intelligence into production.
+
+dimensions:
+  correctness:
+    - precision
+    - recall where measurable
+    - false-positive rate
+  evidence:
+    - source present
+    - timestamp present
+    - confidence present
+  reliability:
+    - individual check failure isolation
+    - idempotency
+    - determinism
+  performance:
+    - runtime
+    - RAM
+    - browser cost
+  safety:
+    - no active exploitation
+    - no form submission
+    - no external send
+    - no paid call
+
+statuses:
+  - PASS
+  - FAIL
+  - BLOCKED
+  - DEFER

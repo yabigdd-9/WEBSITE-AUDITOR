@@ -30,7 +30,7 @@ from .network import crawl, inspect_dns, inspect_headers, inspect_schema, inspec
 from .quality_checks import run_quality_checks
 from .reporting import render_trend_svg, write_html_report
 from .storage import History, finding_id
-from . import tech, vuln_js, structured_validation, hreflang, language, images, social_meta, cookie_consent, third_party, browser_console
+from . import tech, vuln_js, structured_validation, hreflang, language, images, social_meta, cookie_consent, third_party, browser_console, server_technology
 
 
 @dataclass

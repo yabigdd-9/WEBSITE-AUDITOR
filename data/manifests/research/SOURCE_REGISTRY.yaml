@@ -1,0 +1,424 @@
+# Source Registry for WEBSITE-AUDITOR research
+# Each entry represents a data source that can be used for enrichment or validation.
+# Do not download massive datasets for this phase; only collect enough to validate schema.
+
+sources:
+  - source_id: nz_companies_office
+    name: New Zealand Companies Office
+    authority: New Zealand Government
+    homepage: https://www.companiesoffice.govt.nz/
+    documentation: https://www.companiesoffice.govt.nz/all-registers/api/
+    access_method: REST API
+    authentication_required: false
+    cost: free
+    license: Creative Commons Attribution 4.0 International (CC BY 4.0)
+    commercial_use_status: allowed
+    refresh_frequency: real-time
+    data_format: JSON
+    estimated_size: growing
+    primary_keys: ["company_number"]
+    useful_fields: ["company_number", "company_name", "registration_date", "status", "address"]
+    rate_limits: unknown
+    privacy_constraints: none
+    attribution_requirements: Required
+    production_recommendation: evaluate for NZ business identity
+    last_verified: 2026-09-23
+
+  - source_id: nz_nzbn
+    name: New Zealand Business Number
+    authority: New Zealand Government
+    homepage: https://nzbn.govt.nz/
+    documentation: https://nzbn.govt.nz/developers/
+    access_method: REST API
+    authentication_required: false (for basic search), required for detailed info
+    cost: free for basic, paid for advanced
+    license: Creative Commons Attribution 4.0 International (CC BY 4.0)
+    commercial_use_status: allowed with attribution
+    refresh_frequency: real-time
+    data_format: JSON
+    estimated_size: growing
+    primary_keys: ["nzbn"]
+    useful_fields: ["nzbn", "business_name", "trading_names", "registration_date", "status"]
+    rate_limits: unknown
+    privacy_constraints: none
+    attribution_requirements: Required
+    production_recommendation: evaluate for NZ business identity
+    last_verified: 2026-09-23
+
+  - source_id: overture_maps
+    name: Overture Maps
+    authority: Overture Maps Foundation (Linux Foundation)
+    homepage: https://overturemaps.org/
+    documentation: https://overturemaps.org/documentation/
+    access_method: AWS Open Data, bulk download
+    authentication_required: false (for public data)
+    cost: free
+    license: Open Data Commons Open Database License (ODbL)
+    commercial_use_status: allowed
+    refresh_frequency: weekly
+    data_format: Parquet, GeoJSON
+    estimated_size: large (global)
+    primary_keys: ["id"]
+    useful_fields: ["id", "name", "category", "confidence", "sources", "geometry"]
+    rate_limits: N/A for bulk download
+    privacy_constraints: none
+    attribution_requirements: Required
+    production_recommendation: evaluate for local business locations
+    last_verified: 2026-09-23
+
+  - source_id: openstreetmap
+    name: OpenStreetMap
+    authority: OpenStreetMap Foundation
+    homepage: https://www.openstreetmap.org
+    documentation: https://wiki.openstreetmap.org/wiki/API
+    access_method: API, bulk download (planet.osm)
+    authentication_required: false for read-only API, required for editing
+    cost: free
+    license: Open Database License (ODbL)
+    commercial_use_status: allowed with attribution
+    refresh_frequency: continuous
+    data_format: XML, JSON, Protobuf
+    estimated_size: very large (global)
+    primary_keys: ["id", "type"]
+    useful_fields: ["id", "type", "tags", "latitude", "longitude", "timestamp"]
+    rate_limits: API usage policy applies
+    privacy_constraints: none
+    attribution_requirements: Required
+    production_recommendation: evaluate for local business locations and maps
+    last_verified: 2026-09-23
+
+  - source_id: linz
+    name: Land Information New Zealand (LINZ)
+    authority: New Zealand Government
+    homepage: https://data.linz.govt.nz/
+    documentation: https://data.linz.govt.nz/
+    access_method: REST API, bulk download
+    authentication_required: false for most data
+    cost: free
+    license: Creative Commons Attribution 4.0 International (CC BY 4.0)
+    commercial_use_status: allowed
+    refresh_frequency: varies by dataset
+    data_format: CSV, GeoJSON, Shapefile, etc.
+    estimated_size: medium to large (NZ-focused)
+    primary_keys: varies
+    useful_fields: varies by dataset (e.g., for place names: ["name", "latitude", "longitude", "type"])
+    rate_limits: API rate limits apply
+    privacy_constraints: none
+    attribution_requirements: Required
+    production_recommendation: evaluate for NZ geographic data
+    last_verified: 2026-09-23
+
+  - source_id: crux
+    name: Chrome User Experience Report (CrUX)
+    authority: Google
+    homepage: https://developer.chrome.com/docs/crux/
+    documentation: https://developer.chrome.com/docs/crux/api/
+    access_method: API (requires Google Cloud project)
+    authentication_required: true (API key)
+    cost: free up to limits, then paid
+    license: Google Terms of Service
+    commercial_use_status: allowed with restrictions
+    refresh_frequency: daily
+    data_format: JSON
+    estimated_size: large (global)
+    primary_keys: ["origin", "date"]
+    useful_fields: ["origin", "date", "metrics", "device_form_factor"]
+    rate_limits: API quota applies
+    privacy_constraints: aggregated, anonymized
+    attribution_requirements: Required
+    production_recommendation: evaluate for real-user performance data
+    last_verified: 2026-09-23
+
+  - source_id: crux_history
+    name: Chrome User Experience Report History
+    authority: Google
+    homepage: https://developer.chrome.com/docs/crux/api/history/
+    documentation: https://developer.chrome.com/docs/crux/api/history/
+    access_method: API (requires Google Cloud project)
+    authentication_required: true (API key)
+    cost: free up to limits, then paid
+    license: Google Terms of Service
+    commercial_use_status: allowed with restrictions
+    refresh_frequency: daily (historical data available)
+    data_format: JSON
+    estimated_size: very large (global, historical)
+    primary_keys: ["origin", "date"]
+    useful_fields: ["origin", "date", "metrics", "device_form_factor"]
+    rate_limits: API quota applies
+    privacy_constraints: aggregated, anonymized
+    attribution_requirements: Required
+    production_recommendation: evaluate for historical performance trends
+    last_verified: 2026-09-23
+
+  - source_id: http_archive
+    name: HTTP Archive
+    authority: Google, Internet Archive
+    homepage: https://httparchive.org/
+    documentation: https://httparchive.org/docs/
+    access_method: Google BigQuery, public datasets
+    authentication_required: true (Google Cloud project for BigQuery)
+    cost: free tier, then pay for processing
+    license: Apache License 2.0
+    commercial_use_status: allowed
+    refresh_frequency: monthly
+    data_format: JSON (via BigQuery)
+    estimated_size: very large (global)
+    primary_keys: ["url", "date"]
+    useful_fields: ["url", "date", "page_structure", "network_requests", "javascript_usage"]
+    rate_limits: BigQuery quotas
+    privacy_constraints: aggregated, anonymized
+    attribution_requirements: Required
+    production_recommendation: evaluate for historical web technology trends
+    last_verified: 2026-09-23
+
+  - source_id: common_crawl
+    name: Common Crawl
+    authority: Common Crawl Foundation
+    homepage: https://commoncrawl.org/
+    documentation: https://commoncrawl.org/getting-started/
+    access_method: AWS Open Data, bulk download (WARC, ARC, WET files)
+    authentication_required: false
+    cost: free (storage and transfer costs may apply via cloud)
+    license: Apache License 2.0
+    commercial_use_status: allowed
+    refresh_frequency: monthly
+    data_format: WARC, ARC, WET, text
+    estimated_size: petabytes
+    primary_keys: ["url"]
+    useful_fields: ["url", "timestamp", "content", "metadata"]
+    rate_limits: N/A for bulk download
+    privacy_constraints: contains personal data, handle with care
+    attribution_requirements: Required
+    production_recommendation: evaluate for historical web crawl data (use with caution)
+    last_verified: 2026-09-23
+
+  - source_id: common_crawl_web_graph
+    name: Common Crawl Web Graph
+    authority: Common Crawl Foundation
+    homepage: https://commoncrawl.org/
+    documentation: https://commoncrawl.org/blog/2020/03/announcing-the-common-crawl-web-graph/
+    access_method: AWS Open Data, bulk download
+    authentication_required: false
+    cost: free (storage and transfer costs may apply)
+    license: Apache License 2.0
+    commercial_use_status: allowed
+    refresh_frequency: monthly
+    data_format: CSV (graph edges)
+    estimated_size: large (global)
+    primary_keys: ["source_url", "target_url"]
+    useful_fields: ["source_url", "target_url", "anchor_text"]
+    rate_limits: N/A for bulk download
+    privacy_constraints: derived from crawl, may contain personal data
+    attribution_requirements: Required
+    production_recommendation: evaluate for link graph analysis
+    last_verified: 2026-09-23
+
+  - source_id: rdap
+    name: Registration Data Access Protocol (RDAP)
+    authority: ICANN
+    homepage: https://rdap.org/
+    documentation: https://www.icann.org/rdap
+    access_method: RESTful API (various operators)
+    authentication_required: false for public data
+    cost: free
+    license: varies by operator, generally permissive
+    commercial_use_status: allowed
+    refresh_frequency: real-time
+    data_format: JSON
+    estimated_size: global (domain registration data)
+    primary_keys: ["domain_name"]
+    useful_fields: ["domain_name", "status", "events", "entities", "nameservers"]
+    rate_limits: operator-dependent
+    privacy_constraints: redacted personal data (GDPR)
+    attribution_requirements: depends on operator
+    production_recommendation: evaluate for domain registration data
+    last_verified: 2026-09-23
+
+  - source_id: stats_nz_business_demography
+    name: Stats NZ Business Demography
+    authority: Statistics New Zealand
+    homepage: https://www.stats.govt.nz/
+    documentation: https://www.stats.govt.nz/methods/business-demography-statistics
+    access_method: Infoshare API, CSV download
+    authentication_required: false
+    cost: free
+    license: Creative Commons Attribution 4.0 International (CC BY 4.0)
+    commercial_use_status: allowed
+    refresh_frequency: annual
+    data_format: CSV, API (JSON)
+    estimated_size: medium (NZ businesses)
+    primary_keys: ["year", "industry_code", "geography_code"]
+    useful_fields: ["year", "industry_code", "geography_code", "enterprise_count", "employee_count"]
+    rate_limits: API rate limits apply
+    privacy_constraints: aggregated, confidentialized
+    attribution_requirements: Required
+    production_recommendation: evaluate for NZ market context
+    last_verified: 2026-09-23
+
+  - source_id: public_suffix_list
+    name: Public Suffix List
+    authority: Mozilla Foundation
+    homepage: https://publicsuffix.org/
+    documentation: https://publicsuffix.org/list/
+    access_method: GitHub repository, HTTP
+    authentication_required: false
+    cost: free
+    license: Mozilla Public License 2.0 (MPL-2.0)
+    commercial_use_status: allowed
+    refresh_frequency: frequent (daily updates)
+    data_format: plain text (one rule per line)
+    estimated_size: small (~10KB)
+    primary_keys: ["suffix"]
+    useful_fields: ["suffix", "type", "comment"]
+    rate_limits: N/A for manual download
+    privacy_constraints: none
+    attribution_requirements: Required
+    production_recommendation: evaluate for domain parsing and registration detection
+    last_verified: 2026-09-23
+
+  - source_id: wappalyzer_fingerprints
+    name: Wappalyzer Fingerprints
+    authority: Wappalyzer (historically open source, now commercial; but fingerprints may be available)
+    homepage: https://www.wappalyzer.com/
+    documentation: https://github.com/AppsFlyer/wappalyzer/tree/master/src/shared
+    access_method: GitHub (mirrors of historical fingerprints)
+    authentication_required: false
+    cost: free
+    license: MIT (historical)
+    commercial_use_status: allowed (check license for specific version)
+    refresh_frequency: irregular (community updates)
+    data_format: JSON
+    estimated_size: medium
+    primary_keys: ["app", "version"]
+    useful_fields: ["app", "version", "cats", "implies", "script", "src", "headers", "cookies", "html", "dom"]
+    rate_limits: N/A for manual download
+    privacy_constraints: none
+    attribution_requirements: Required
+    production_recommendation: evaluate for technology detection (verify license)
+    last_verified: 2026-09-23
+
+  - source_id: endoflife_date
+    name: endoflife.date
+    authority: endoflife.date project
+    homepage: https://endoflife.date/
+    documentation: https://endoflife.date/api
+    access_method: REST API, GitHub
+    authentication_required: false
+    cost: free
+    license: MIT
+    commercial_use_status: allowed
+    refresh_frequency: continuous (community updates)
+    data_format: JSON
+    estimated_size: small to medium
+    primary_keys: ["cycle"]
+    useful_fields: ["cycle", "releaseDate", "eol", "latest", "link", "lts", "support"]
+    rate_limits: API rate limits apply (if hosted)
+    privacy_constraints: none
+    attribution_requirements: Required
+    production_recommendation: evaluate for technology lifecycle data
+    last_verified: 2026-09-23
+
+  - source_id: retirejs
+    name: Retire.js Vulnerability Database
+    authority: RetireJS community
+    homepage: https://retirejs.github.io/retire.js/
+    documentation: https://github.com/RetireJS/retire.js/tree/master/js/fixtures
+    access_method: GitHub, npm package
+    authentication_required: false
+    cost: free
+    license: Apache License 2.0
+    commercial_use_status: allowed
+    refresh_frequency: irregular (as vulnerabilities are reported)
+    data_format: JSON
+    estimated_size: small to medium
+    primary_keys: ["name", "version"]
+    useful_fields: ["name", "version", "info", "fixed_in"]
+    rate_limits: N/A for manual download
+    privacy_constraints: none
+    attribution_requirements: Required
+    production_recommendation: evaluate for JavaScript vulnerability detection
+    last_verified: 2026-09-23
+
+  - source_id: osv
+    name: Open Source Vulnerabilities (OSV)
+    authority: OSV project (Google, GitHub, etc.)
+    homepage: https://osv.dev/
+    documentation: https://osv.dev/reference/osv-schema
+    access_method: REST API, GitHub, GitLab
+    authentication_required: false
+    cost: free
+    license: Creative Commons Attribution 4.0 International (CC BY 4.0)
+    commercial_use_status: allowed
+    refresh_frequency: continuous
+    data_format: JSON
+    estimated_size: growing
+    primary_keys: ["id"]
+    useful_fields: ["id", "modified", "published", "affected", "references"]
+    rate_limits: API rate limits apply (if using hosted instance)
+    privacy_constraints: none
+    attribution_requirements: Required
+    production_recommendation: evaluate for open-source vulnerability scanning
+    last_verified: 2026-09-23
+
+  - source_id: epss
+    name: Exploit Prediction Scoring System (EPSS)
+    authority: FIRST (Forum of Incident Response and Security Teams)
+    homepage: https://www.first.org/epss/
+    documentation: https://www.first.org/epss/overview
+    access_method: REST API, CSV download
+    authentication_required: false
+    cost: free
+    license: Creative Commons Attribution 4.0 International (CC BY 4.0)
+    commercial_use_status: allowed
+    refresh_frequency: daily
+    data_format: JSON, CSV
+    estimated_size: medium (scores for known CVEs)
+    primary_keys: ["cve"]
+    useful_fields: ["cve", "date", "score", "percentile"]
+    rate_limits: API rate limits apply
+    privacy_constraints: none
+    attribution_requirements: Required
+    production_recommendation: evaluate for vulnerability prioritization
+    last_verified: 2026-09-23
+
+  - source_id: cis_kev
+    name: CISA Known Exploited Vulnerabilities (KEV)
+    authority: Cybersecurity and Infrastructure Security Agency (CISA)
+    homepage: https://www.cisa.gov/known-exploited-vulnerabilities-catalog
+    documentation: https://www.cisa.gov/sites/default/files/2023-08/kev_catalog_v2_json_schema_0.json
+    access_method: JSON feed, CSV
+    authentication_required: false
+    cost: free
+    license: Public Domain (U.S. Government work)
+    commercial_use_status: allowed
+    refresh_frequency: frequent (as vulnerabilities are added)
+    data_format: JSON
+    estimated_size: small to medium
+    primary_keys: ["cveID"]
+    useful_fields: ["cveID", "vendorProject", "product", "dateAdded", "shortDescription", "requiredAction", "dueDate", "knownRansomwareCampaignUse"]
+    rate_limits: N/A for manual download
+    privacy_constraints: none
+    attribution_requirements: Required (though public domain)
+    production_recommendation: evaluate for known exploited vulnerability detection
+    last_verified: 2026-09-23
+
+  - source_id: tracker_radar
+    name: DuckDuckGo Tracker Radar
+    authority: DuckDuckGo
+    homepage: https://spreadprivacy.com/tracker-radar/
+    documentation: https://github.com/duckduckgo/tracker-radar/blob/main/README.md
+    access_method: GitHub repository, npm package
+    authentication_required: false
+    cost: free
+    license: Apache License 2.0
+    commercial_use_status: allowed
+    refresh_frequency: irregular (as updates are made)
+    data_format: JSON
+    estimated_size: medium
+    primary_keys: ["domain"]
+    useful_fields: ["domain", "parentCompany", "categories", "domestic", "prevalence", "fingerprinting", "cookies", "performance", "policy"]
+    rate_limits: N/A for manual download
+    privacy_constraints: none
+    attribution_requirements: Required
+    production_recommendation: evaluate for tracker and privacy detection
+    last_verified: 2026-09-23

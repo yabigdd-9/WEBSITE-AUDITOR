@@ -76,11 +76,24 @@ def detect_js_vulnerabilities(html: str, url: str) -> List[Finding]:
                 if lib == vuln_lib and version == vuln_version:
                     findings.append(
                         Finding(
-                            defect_key=f"js_vulnerability_{lib.lower()}_{version.replace('.', '_')}",
+                    findings.append(
+                        Finding(
+                            defect_key=f"js_vulnerability_{lib.lower()}_{version.replace(".", "_")}",
+                            defect=f"Vulnerable JavaScript library detected: {lib} {version}",
+                            impact="HIGH",
+                            severity="high",
+                            source_url=url,
+                            check="js_vulnerability",
+                            selector="",
+                            confidence="observed",
+                            evidence_source=f"{lib} {version} detected via script src",
+                            observed=f"{lib} {version}",
+                            business_impact="Known vulnerable JavaScript library in use",
+                            remediation_action=f"Update {lib} to a non-vulnerable version",
+                            remediation_automation="HUMAN_REVIEW",
+                            effort_band="XS",
                         )
                     )
-                    break
-    return findings
 
 
 def analyse_html(html: str, url: str, headers: dict) -> tuple[List[Finding], dict[str, Any]]:

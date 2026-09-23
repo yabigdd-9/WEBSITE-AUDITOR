@@ -1,0 +1,100 @@
+# Scoring Feature Registry
+# Registry of scoring features with their metadata.
+
+features:
+  - id: technical_severity
+    name: Technical Severity
+    definition: The severity of the technical issue based on impact and urgency.
+    evidence_source: Auditor checks, CVSS scores, industry best practices.
+    range: 0-100
+    missing_data_behavior: neutral (50)
+    confidence: high
+    potential_correlation:
+      - false_positive_rate
+      - fixability
+    risk_of_double_counting: medium
+
+  - id: business_value
+    name: Business Value
+    definition: The estimated business impact of resolving the issue.
+    evidence_source: Conversion data, customer feedback, revenue models.
+    range: 0-100
+    missing_data_behavior: low (0)
+    confidence: medium
+    potential_correlation:
+      - technical_severity
+      - market_context
+    risk_of_double_counting: medium
+
+  - id: fixability
+    name: Fixability
+    definition: How easy it is to resolve the issue.
+    evidence_source: Implementation time, complexity analysis, developer surveys.
+    range: 0-100 (higher = easier to fix)
+    missing_data_behavior: medium (50)
+    confidence: medium
+    potential_correlation:
+      - technical_severity
+      - business_value
+    risk_of_double_counting: medium
+
+  - id: contactability
+    name: Contactability
+    definition: How easy it is to contact the business owner or decision-maker.
+    evidence_source: Public contact info, social media, domain registration.
+    range: 0-100
+    missing_data_behavior: low (0)
+    confidence: low
+    potential_correlation:
+      - identity_confidence
+      - market_context
+    risk_of_double_counting: low
+
+  - id: identity_confidence
+    name: Identity Confidence
+    definition: Confidence in the business identity and location.
+    evidence_source: NZBN, Companies Office, domain, address consistency.
+    range: 0-100
+    missing_data_behavior: low (0)
+    confidence: high
+    potential_correlation:
+      - contactability
+      - peer_gap
+    risk_of_double_counting: low
+
+  - id: peer_gap
+    name: Peer Gap
+    definition: How much the business lags behind peers in key metrics.
+    evidence_source: Competitor benchmarking, market averages.
+    range: 0-100 (higher = further behind)
+    missing_data_behavior: average (50)
+    confidence: medium
+    potential_correlation:
+      - identity_confidence
+      - market_context
+    risk_of_double_counting: medium
+
+  - id: market_context
+    name: Market Context
+    definition: The broader market conditions affecting the business opportunity.
+    evidence_source: Stats NZ, industry reports, economic indicators.
+    range: 0-100
+    missing_data_behavior: average (50)
+    confidence: low
+    potential_correlation:
+      - business_value
+      - peer_gap
+      - vertical_demand_context
+    risk_of_double_counting: medium
+
+  - id: delivery_effort
+    name: Delivery Effort
+    definition: The effort required to deliver the audit and remediation guidance.
+    evidence_source: Historical project data, task complexity, resource requirements.
+    range: 0-100 (higher = more effort)
+    missing_data_behavior: high (100)
+    confidence: medium
+    potential_correlation:
+      - technical_severity
+      - fixability
+    risk_of_double_counting: medium
