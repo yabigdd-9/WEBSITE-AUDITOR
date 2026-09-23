@@ -1,9 +1,6 @@
 """Tests for sandboxed prototype generation."""
 
-import hashlib
-
 from auditor_toolkit.proof.prototype import (
-    Prototype,
     PrototypeManifest,
     _content_id,
     create_prototype,
