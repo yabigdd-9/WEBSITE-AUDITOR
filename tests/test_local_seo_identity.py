@@ -5,7 +5,6 @@ from auditor_toolkit.local_seo.identity import (
     build_identity,
     merge_entities,
 )
-from auditor_toolkit.local_seo.schema import LocalBusinessEntity, NamedValue
 
 
 def test_build_identity_minimal():
