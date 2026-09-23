@@ -52,3 +52,7 @@ __pycache__/
 *.pyc
 *.db-wal
 state/
+
+# Runtime state
+state/
+*.db-wal

@@ -1,9 +1,0 @@
-{
-  "worker_id": "worker-identity",
-  "kind": "DISCOVERED,IDENTITY_PENDING",
-  "hostname": "YabigDDs-Air",
-  "pid": 26743,
-  "started_at": "2026-09-22T08:24:34.381365+00:00",
-  "heartbeat_at": "2026-09-22T08:29:16.391265+00:00",
-  "lease_seconds": 300
-}
