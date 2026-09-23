@@ -9,6 +9,18 @@ from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import urlparse
 
+from . import (
+    browser_console,
+    cookie_consent,
+    hreflang,
+    images,
+    language,
+    social_meta,
+    structured_validation,
+    tech,
+    third_party,
+    vuln_js,
+)
 from .browser import export_pdf, run_browser_checks
 from .checks import Finding, analyse_html, classify_response, dedupe_findings, score_findings
 from .common import Fetcher, atomic_write_json, atomic_write_text, validate_url
@@ -30,7 +42,6 @@ from .network import crawl, inspect_dns, inspect_headers, inspect_schema, inspec
 from .quality_checks import run_quality_checks
 from .reporting import render_trend_svg, write_html_report
 from .storage import History, finding_id
-from . import tech, vuln_js, structured_validation, hreflang, language, images, social_meta, cookie_consent, third_party, browser_console
 
 
 @dataclass
