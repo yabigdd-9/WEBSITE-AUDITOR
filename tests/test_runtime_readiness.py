@@ -3,7 +3,7 @@
 import tempfile
 from pathlib import Path
 
-from auditor_toolkit.runtime.readiness import run_preflight, PreflightCheck
+from auditor_toolkit.runtime.readiness import PreflightCheck, run_preflight
 
 
 def test_preflight_ready():
