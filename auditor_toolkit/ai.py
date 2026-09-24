@@ -5,7 +5,6 @@ import json
 import os
 from pathlib import Path
 from typing import Any, Optional
-from llama_cpp import Llama
 
 MODEL_PATH = Path("/Users/dd/llama-2-7b-chat.Q4_K_M.gguf")
 MODEL_SHA256 = "08a5566d61d7cb6b420c3e4387a39e0078e1f2fe5f055f3a03887385304d4bfa"
@@ -15,13 +14,14 @@ MODEL_SIZE = 4_081_004_224
 MODEL_N_CTX = 2048
 MODEL_N_GPU_LAYERS = -1  # -1 = use Metal GPU acceleration on Mac
 
-_llm_instance: Optional[Llama] = None
+_llm_instance: Optional[Any] = None
 
 
-def get_llm() -> Llama:
+def get_llm() -> Any:
     """Get or create the global Llama instance with Metal GPU acceleration."""
     global _llm_instance
     if _llm_instance is None:
+        from llama_cpp import Llama
         if not MODEL_PATH.exists():
             raise FileNotFoundError(f"Model not found at {MODEL_PATH}")
         _llm_instance = Llama(
