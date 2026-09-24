@@ -61,3 +61,27 @@ jobs:
           args: >
             -Dsonar.qualitygate.wait=true
             -Dsonar.qualitygate.timeout=300
+
+      - name: Report SonarCloud processing details
+        if: always()
+        continue-on-error: true
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          set -o pipefail
+          task_file=.scannerwork/report-task.txt
+          if [ ! -r "$task_file" ]; then
+            echo "SonarCloud task metadata is unavailable."
+            exit 0
+          fi
+
+          task_id="$(sed -n 's/^ceTaskId=//p' "$task_file" | head -n 1)"
+          if [ -z "$task_id" ]; then
+            echo "SonarCloud task ID is unavailable."
+            exit 0
+          fi
+
+          curl --fail --silent --show-error \
+            -u "${SONAR_TOKEN}:" \
+            "https://sonarcloud.io/api/ce/task?id=${task_id}" \
+            | jq '{task: (.task | {id, status, type, componentKey, analysisId, warningCount, errorMessage})}'
