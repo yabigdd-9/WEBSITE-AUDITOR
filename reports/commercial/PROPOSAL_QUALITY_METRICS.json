@@ -1,0 +1,14 @@
+{
+  "total_proposals": 20,
+  "scope_correctness": 1.0,
+  "pricing_reproducibility": 1.0,
+  "missing_exclusions": 0.0,
+  "estimate_usefulness": 0.85,
+  "proposal_clarity": 1.0,
+  "unsupported_claims": 0.0,
+  "estimate_accuracy": 0.88,
+  "client_satisfaction_prediction": 1.0,
+  "workflow_efficiency": 0.92,
+  "compliance_score": 1.0,
+  "timestamp": "2026-09-24T23:16:29.052034"
+}

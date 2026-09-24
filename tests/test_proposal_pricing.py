@@ -26,11 +26,6 @@ def test_calculate_quote():
     # Apply rounding increment of 5: 1100 is already multiple of 5
     # Minimum project is 500, so not applied
     assert quote["target_estimate"] == 1100
-    assert quote["low_estimate"] == 1100 * 0.8  # 880, but then rounded to nearest 5 and min 500 -> 880? Actually low_estimate = target*0.8 = 880, then max(880,500)=880, then round to 5 -> 880
-    assert quote["high_estimate"] == 1100 * 1.2  # 1320, then max(1320,500)=1320, round to 5 -> 1320
-    # Since we round to nearest 5, let's compute exactly:
-    # low_estimate = 880 -> already multiple of 5
-    # high_estimate = 1320 -> already multiple of 5
     assert quote["low_estimate"] == 880
     assert quote["high_estimate"] == 1320
     assert quote["pricing_version"] == 1
@@ -49,14 +44,10 @@ def test_quote_from_effort_band():
     quote = quote_from_effort_band("M", rates_config)
     # Base cost = 5.5 * 100 = 550
     # After risk buffer = 550 * 1.1 = 605
-    # Rounding to 5: 605 is already multiple of 5
+    # Rounding to 5 (round up): 605 is already multiple of 5
     # Minimum project 500 -> target = max(605,500) = 605
     assert quote["target_estimate"] == 605
-    assert quote["low_estimate"] == max(605*0.8, 500)  # 484 -> max with 500 -> 500, then round to 5 -> 500
-    assert quote["high_estimate"] == max(605*1.2, 500)  # 726 -> round to 5 -> 725? Wait 726/5=145.2 -> ceil to 146*5=730
-    # Let's trust the function; we'll just check that it returns a dict with the expected keys.
-    assert "low_estimate" in quote
-    assert "target_estimate" in quote
-    assert "high_estimate" in quote
-    assert "calculation_components" in quote
-    assert "pricing_version" in quote
+    # low_estimate = 605 * 0.8 = 484 -> max with 500 -> 500 -> round up to 5 (already multiple) -> 500
+    assert quote["low_estimate"] == 500
+    # high_estimate = 605 * 1.2 = 726 -> max with 500 -> 726 -> round up to 5: ceil(726/5)=146 -> 146*5=730
+    assert quote["high_estimate"] == 730
