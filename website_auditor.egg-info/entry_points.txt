@@ -1,2 +1,0 @@
-[console_scripts]
-wa = auditor_toolkit.cli:main

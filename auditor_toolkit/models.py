@@ -135,5 +135,16 @@ REGISTRY = {
             limitation="Manual keyboard, screen-reader and content review remains necessary.",
         ),
         CheckDefinition("pdf", "reporting", "rendered"),
+        CheckDefinition("technology", "technical"),
+        CheckDefinition("js_vulnerabilities", "security"),
+        CheckDefinition("structured_validation", "local"),
+        CheckDefinition("hreflang", "seo"),
+        CheckDefinition("language", "technical"),
+        CheckDefinition("images", "performance"),
+        CheckDefinition("social_meta", "technical"),
+        CheckDefinition("cookie_consent", "privacy", mode="rendered"),
+        CheckDefinition("third_party", "technical", mode="rendered"),
+        CheckDefinition("browser_console", "technical", mode="rendered"),
+        CheckDefinition("server_technology", "technical"),
     )
 }

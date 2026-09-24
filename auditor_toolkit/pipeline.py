@@ -9,6 +9,18 @@ from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import urlparse
 
+from . import (
+    browser_console,
+    cookie_consent,
+    hreflang,
+    images,
+    language,
+    social_meta,
+    structured_validation,
+    tech,
+    third_party,
+    vuln_js,
+)
 from .browser import export_pdf, run_browser_checks
 from .checks import Finding, analyse_html, classify_response, dedupe_findings, score_findings
 from .common import Fetcher, atomic_write_json, atomic_write_text, validate_url
@@ -174,6 +186,13 @@ def run_audit(url, options=None, fetcher=None):
                 ("page", lambda: analyse_html(response.text, final_url), True),
                 ("schema", lambda: inspect_schema(response.text, final_url, opts.profile), True),
                 ("headers", lambda: inspect_headers(response), True),
+                ("technology", lambda: tech.analyse_html(response.text, final_url, response.headers), True),
+                ("js_vulnerabilities", lambda: vuln_js.analyse_html(response.text, final_url, response.headers), True),
+                ("structured_validation", lambda: structured_validation.analyse_html(response.text, final_url, response.headers), True),
+                ("hreflang", lambda: hreflang.analyse_html(response.text, final_url, response.headers), True),
+                ("language", lambda: language.analyse_html(response.text, final_url, response.headers), True),
+                ("images", lambda: images.analyse_html(response.text, final_url, response.headers), True),
+                ("social_meta", lambda: social_meta.analyse_html(response.text, final_url, response.headers), True),
             ])
             def hygiene_checks():
                 robots_findings, robots_evidence = check_robots(client, final_url)
@@ -292,6 +311,10 @@ def run_audit(url, options=None, fetcher=None):
                     # Log warning but do not fail the audit
                     pass
             if opts.browser:
+                # Rendered checks
+                perform("cookie_consent", lambda: cookie_consent.analyse_html(response.text, final_url, response.headers))
+                perform("third_party", lambda: third_party.analyse_html(response.text, final_url, response.headers))
+                perform("browser_console", lambda: browser_console.analyse_html(response.text, final_url, response.headers))
                 axe = evidence["browser"].get("axe")
                 checks["axe"] = {
                     "status": "ok" if axe else "error",

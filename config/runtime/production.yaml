@@ -1,0 +1,20 @@
+# Production runtime configuration
+supervisor:
+  http_workers: 4
+  static_crawl_workers: 2
+  browser_workers: 1
+  performance_workers: 1
+  proof_workers: 1
+  technology_workers: 1
+
+host_policy:
+  default_concurrency: 1
+  minimum_delay_ms: 500
+  honor_retry_after: true
+  adaptive_backoff: true
+
+retention:
+  failed_job_traces_days: 14
+  successful_raw_traces_days: 3
+  verified_proof_artifacts: true
+  temporary_browser_profiles: true

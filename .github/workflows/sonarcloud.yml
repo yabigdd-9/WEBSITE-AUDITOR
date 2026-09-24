@@ -18,7 +18,7 @@ jobs:
   sonarcloud:
     name: SonarCloud analysis
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - name: Checkout repository
@@ -46,7 +46,12 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          python -m pytest toolkit_tests --cov-config=.coveragerc --cov=. --cov-report=xml:coverage.xml --cov-report=term-missing
+          python -m pytest toolkit_tests tests \
+            --cov-config=.coveragerc \
+            --cov=auditor_toolkit \
+            --cov=website_auditor \
+            --cov-report=xml:coverage.xml \
+            --cov-report=term-missing
 
       - name: Run SonarCloud scan
         uses: SonarSource/sonarcloud-github-action@383f7e52eae3ab0510c3cb0e7d9d150bbaeab838

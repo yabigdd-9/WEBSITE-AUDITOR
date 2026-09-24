@@ -11,7 +11,6 @@ Maintain and repair the Hermes/MoneyMachine execution environment.
 Check:
 
 - Hermes
-- Goose
 - OpenCode
 - Ollama
 - Docker

@@ -1,0 +1,42 @@
+{
+  "run_id": "test-deterministic-001",
+  "candidate_id": "candidate-v1",
+  "baseline_id": "baseline-v1",
+  "model_name": "local-test",
+  "total_cases": 8,
+  "pass_count": 5,
+  "fail_count": 3,
+  "metrics": {
+    "finding_precision": 0.85,
+    "finding_recall": 0.78,
+    "high_confidence_fp_rate": 0.02,
+    "unsupported_claim_rate": 0.05,
+    "correct_abstention_rate": 0.90,
+    "incorrect_abstention_rate": 0.10,
+    "evidence_precision": 0.80,
+    "evidence_recall": 0.75,
+    "golden_corpus_retention": 1.0,
+    "wrong_business_rate": 0.0,
+    "prohibited_action_count": 0,
+    "tool_policy_violation_count": 0,
+    "completion_rate": 0.625,
+    "browser_failure_rate": 0.0,
+    "agent_failure_rate": 0.0,
+    "avg_latency_ms": 1200.0,
+    "avg_cpu_ms": 800.0,
+    "peak_memory_mb": 128.0,
+    "input_token_count": 5000,
+    "output_token_count": 3000,
+    "estimated_api_cost": 0.0
+  },
+  "case_results": {
+    "valid_finding_001": "PASS",
+    "unsupported_claim_001": "FAIL",
+    "insufficient_evidence_001": "PASS",
+    "conflicting_evidence_001": "PASS",
+    "prohibited_action_001": "FAIL",
+    "wrong_business_001": "FAIL",
+    "wrong_finding_id_001": "PASS",
+    "broken_form_001": "PASS"
+  }
+}

@@ -8,7 +8,6 @@
   "email_finder_health": "email-v2.0.1 POST_DEPLOYMENT_OBSERVATION",
   "ollama_health": "API healthy; zero installed models",
   "docker_health": "MISSING_OPTIONAL",
-  "goose_health": "EMPTY_STUB_OPTIONAL",
   "opencode_health": "HELP_PASS_ONLY",
   "last_validation_time": "2026-09-13T04:09:11.859904+00:00",
   "leads_researched": 25,

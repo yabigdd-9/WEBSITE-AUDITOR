@@ -88,15 +88,6 @@ Responsibilities:
 - keep a decision log;
 - choose the next highest-value action.
 
-### goose — General Operator / Research Worker
-Responsibilities:
-- research;
-- structured analysis;
-- filesystem/terminal work;
-- MCP-enabled operations;
-- independent second opinion;
-- non-coding workflows.
-
 ### OpenCode — Primary Builder
 Responsibilities:
 - frontend;
@@ -149,7 +140,6 @@ The installer must detect the hardware before installing.
 ## Apple Silicon (`arm64`)
 Preferred:
 - Hermes native install;
-- goose native;
 - OpenCode native;
 - OpenHands CLI optional;
 - Browser Use optional;
@@ -161,7 +151,6 @@ Important:
 - Native Hermes on Intel macOS is currently an unsupported Hermes platform.
 - Do not blindly run the native Hermes installer as the default.
 - Preferred Hermes path: supported x86_64 Docker image, provided a functioning Docker runtime is available.
-- goose has Intel macOS release/build support.
 - OpenCode provides macOS Intel downloads and its terminal installer.
 - Ollama can run on Intel macOS using CPU, but performance may be limited.
 - Homebrew on Intel macOS is now a lower support tier, especially on legacy/OCLP hardware.
@@ -716,7 +705,6 @@ Complete Apple's installer, then rerun the bootstrap.
 
 ## Phase M3 — Core Agents
 Install:
-- goose
 - OpenCode
 
 Then verify their binaries before moving on.
@@ -763,7 +751,6 @@ Pass:
 
 ## Gate 2 — Agents
 At least:
-- goose responds to `--help` or version;
 - OpenCode responds;
 - Hermes works either native or containerized.
 
@@ -993,7 +980,7 @@ ChatGPT does not automatically obtain shell control of a Mac merely because the 
 Local Mac actions are executed by:
 - you pasting a command;
 - the supplied bootstrap script;
-- Hermes/goose/OpenCode running locally;
+- Hermes/OpenCode running locally;
 - an explicitly connected/authorized environment.
 
 Therefore this plan separates **decision/orchestration** from **machine execution** instead of pretending remote access exists.
@@ -1009,7 +996,7 @@ Therefore this plan separates **decision/orchestration** from **machine executio
 4. If Command Line Tools are requested, install them and rerun.
 5. Run:
    `bash ~/Downloads/mac_bootstrap_money_machine.sh core`
-6. Verify goose + OpenCode.
+6. Verify OpenCode.
 7. Run:
    `bash ~/Downloads/mac_bootstrap_money_machine.sh hermes`
 8. Configure one free model path and test one normal conversation.
@@ -1031,7 +1018,6 @@ Official/current sources checked when this plan was generated:
 - Hermes installation: https://hermes-agent.nousresearch.com/docs/getting-started/installation/
 - Hermes platform support: https://hermes-agent.nousresearch.com/docs/getting-started/platform-support
 - Hermes Docker: https://hermes-agent.nousresearch.com/docs/user-guide/docker
-- goose repository/docs: https://github.com/aaif-goose/goose
 - OpenCode docs: https://opencode.ai/docs
 - OpenHands docs: https://docs.openhands.dev/openhands/usage/cli/installation
 - Browser Use docs: https://docs.browser-use.com/open-source/browser-use-cli

@@ -1,0 +1,12 @@
+{
+  "cms": {"name": "WordPress", "confidence": 0.99},
+  "framework": {"name": "jQuery", "confidence": 0.95},
+  "server": {"name": "nginx", "confidence": 0.8},
+  "analytics": [],
+  "cdn": [],
+  "ecommerce": [],
+  "payment": [],
+  "hosting": {"name": "unknown", "confidence": 0.0},
+  "language": {"name": "PHP", "confidence": 0.9},
+  "detection_timestamp": "2026-01-01T00:00:00Z"
+}
