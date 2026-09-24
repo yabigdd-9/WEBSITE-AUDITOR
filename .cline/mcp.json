@@ -5,6 +5,12 @@
       "args": [],
       "disabled": false,
       "alwaysAllow": ["integration_status"]
+    },
+    "omniroute-readonly": {
+      "command": "/Users/dd/Documents/Codex/2026-09-24/referenced-chatgpt-conversation-this-is-an/work/WEBSITE-AUDITOR/integration-omniroute-mcp",
+      "args": [],
+      "disabled": false,
+      "alwaysAllow": ["omniroute_get_health", "omniroute_list_combos", "omniroute_get_combo_metrics", "omniroute_check_quota", "omniroute_cost_report", "omniroute_list_models_catalog"]
     }
   }
 }
