@@ -35,6 +35,31 @@ From the repository root:
 ./mm a2a-gateway
 ```
 
+On this Mac, the WEBSITE-AUDITOR A2A gateway is installed as the per-user
+LaunchAgent `ai.website-auditor.a2a-gateway`. It starts at login and restarts
+if it exits. The launcher reads its token from the macOS login Keychain and
+sets the gateway/free-routing opt-ins only for that process; the token is not
+stored in the plist. The local files are
+`/Users/dd/Library/LaunchAgents/ai.website-auditor.a2a-gateway.plist` and
+`scripts/run_a2a_gateway.sh`. Inspect it with:
+
+```sh
+launchctl print gui/$(id -u)/ai.website-auditor.a2a-gateway
+curl --fail http://127.0.0.1:8094/health
+tail -f /Users/dd/Library/Logs/website-auditor-a2a-gateway-error.log
+```
+
+To stop and disable automatic startup without deleting its Keychain token:
+
+```sh
+launchctl bootout gui/$(id -u) /Users/dd/Library/LaunchAgents/ai.website-auditor.a2a-gateway.plist
+```
+
+To enable it again, bootstrap that plist with `launchctl bootstrap gui/$(id -u)
+/Users/dd/Library/LaunchAgents/ai.website-auditor.a2a-gateway.plist`. This
+LaunchAgent is user-machine setup, not a shared service or a native OmniRoute
+A2A enablement. No provider task is sent just by starting the gateway.
+
 MCP uses stdio and starts on demand from each client. Do not run the stdio command in a terminal intended for normal operator output. Webhooks listen at `http://127.0.0.1:8093` by default; `GET /health` is the local liveness endpoint. Routes are `POST /webhooks/github`, `/webhooks/agent`, `/webhooks/audit`, `/webhooks/provider`, and `/events`. Payload size is capped at 256 KB. The receiver rejects non-loopback binds.
 
 | Service | Default endpoint | Use |
@@ -100,6 +125,6 @@ The free-role router now reads its canonical in-repo policy at `money-machine/co
 - Webhook `400`: check event type, timezone-aware timestamp, envelope field names, and schema version.
 - Duplicate event returns `200`: that event ID is already stored and was not applied twice.
 - FCC/Ollama unavailable: check their loopback service directly; integration status does not start them.
-- GitHub's official MCP binary is built locally at v1.12.2; Claude Desktop also has the remote GitHub MCP configured with `repos,issues,pull_requests,actions` and read-only enforced, but OAuth authorization remains pending. The selected Obsidian vault's plugin is live on loopback and its Claude stdio bridge completed initialization and tool discovery. OmniRoute is running at the discovered loopback URL, while its MCP and A2A services are disabled. No GitHub connection is claimed authenticated until OAuth is completed.
+- GitHub's official MCP binary is installed locally at v1.12.2. On this Mac, Claude Desktop's `github` entry invokes `/Users/dd/Library/Application Support/Claude/github-mcp-readonly.sh`, which obtains the existing `gh auth token` only in process memory and starts the server with `--read-only` and toolsets `repos,issues,pull_requests,actions`; no token is stored in the Claude config. A read-only search verified the authenticated connection. Restart Claude Desktop to load the updated config. The selected Obsidian vault's plugin is live on loopback; both the server endpoint and Claude's stdio bridge completed initialization and listed the same 12 tools. The vault remains read-mostly with only `AI-Review/**` writable. Ollama 0.34.3 is installed, but service startup is pending because the existing `~/.ollama` symlink points to an unmounted `/Volumes/LLM-USB`; do not replace it without choosing a storage location. OmniRoute is running at the discovered loopback URL, while its MCP and native A2A remain disabled.
 
 Runtime job/event history remains in SQLite. Obsidian mirrors operator summaries only and cannot authorize actions. Network audit fetches, if executed by the pre-existing workers, remain subject to their current network/politeness controls.

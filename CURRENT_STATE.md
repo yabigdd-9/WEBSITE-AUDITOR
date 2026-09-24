@@ -2,9 +2,10 @@
 
 ## Local MCP connectors (2026-09-24)
 
-- Obsidian Vault as MCP v1.2.0 is installed in vault `b5d58a08e16fab4e` (`/Users/dd/Downloads/CatalyxLabs_Master_Brain_V7`) and responded to MCP initialize on loopback port 8765 after restart.
+- Obsidian Vault as MCP v1.2.0 is installed in vault `b5d58a08e16fab4e` (`/Users/dd/Downloads/CatalyxLabs_Master_Brain_V7`); its loopback MCP endpoint on port 8765 currently responds to initialize and lists 12 tools.
 - Obsidian ACL is configured with forbidden `private/**` and `secrets.md`, read-only `archive/**` and `templates/**`, and the only writable path `AI-Review/**`. The empty `AI-Review/` folder was created. No note content was read or changed.
-- Claude Desktop has an Obsidian stdio bridge and GitHub remote MCP configured. GitHub is restricted to `repos,issues,pull_requests,actions` with read-only enforced; OAuth authorization has not been completed.
+- Claude Desktop retains the Obsidian stdio bridge and its config now points GitHub to the installed local MCP server through a wrapper that reads the existing GitHub CLI login at runtime (no token in config). The server is restricted to `repos,issues,pull_requests,actions` and `--read-only`; an authenticated read-only repository search succeeded. Claude Desktop must be restarted before it loads this updated config.
+- Ollama 0.34.3 is installed, but its server cannot start because `/Users/dd/.ollama` is a preserved symlink to `/Volumes/LLM-USB/...`, and that external volume is not mounted. No replacement path or model has been created; choose internal storage or reconnect the drive.
 
 _Last updated: 2026-09-21 · branch `upgrade/v32-canonical-execution` · master plan v32.0_
 
