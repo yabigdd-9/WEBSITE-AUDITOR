@@ -1,0 +1,15 @@
+# Approval contract definition
+approval_object:
+  required_fields:
+    - approval_id
+    - action
+    - target
+    - payload_hash
+    - approved_by
+    - approved_at
+    - expires_at
+    - policy_version
+  rules:
+    - changed_payload_invalidates_approval: true
+    - expiration_required: true
+    - approved_by_must_be_human: true  # or system but traceable

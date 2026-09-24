@@ -1,0 +1,13 @@
+{
+  "description": "Identity gold set for validation",
+  "version": "1.0.0",
+  "entries": [
+    {
+      "entity_id": "business-001",
+      "legal_name": "Example Business Ltd",
+      "nzbn": "9429039545678",
+      "domain": "example.co.nz",
+      "expected_tier": "T1"
+    }
+  ]
+}

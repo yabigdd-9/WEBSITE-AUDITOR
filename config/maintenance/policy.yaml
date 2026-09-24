@@ -1,0 +1,3 @@
+# Maintenance policy
+monitoring_cadence: monthly
+preventative_checks_enabled: true

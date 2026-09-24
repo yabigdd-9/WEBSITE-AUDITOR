@@ -1,0 +1,58 @@
+# Packages configuration
+# Defines pre-packaged bundles of scope items.
+
+packages:
+  - id: focused_fix
+    name: Focused Fix
+    description: Package for a single narrow problem with short implementation
+    included_scope:
+      - "broken_link_fix"
+      - "meta_tag_update"
+      - "small_content_edit"
+    excluded_scope:
+      - "sitewide_changes"
+      - "platform_migration"
+    effort_band: XS
+    estimate_band: "XS-S"  # 0.25-3 hours
+
+  - id: technical_upgrade
+    name: Technical Upgrade
+    description: Package for multiple related technical improvements
+    included_scope:
+      - "performance_optimization"
+      - "security_headers"
+      - "schema_implementation"
+      - "mobile_responsiveness"
+    excluded_scope:
+      - "content_strategy"
+      - "paid_advertising"
+    effort_band: M
+    estimate_band: "M-L"  # 3-24 hours
+
+  - id: conversion_upgrade
+    name: Conversion Upgrade
+    description: Package for CTA/form/booking improvements
+    included_scope:
+      - "cta_placement"
+      - "form_optimization"
+      - "booking_flow_fix"
+      - "trust_badges"
+    excluded_scope:
+      - "complete_redesign"
+      - "ecommerce_platform_change"
+    effort_band: M
+    estimate_band: "M-L"  # 3-24 hours
+
+  - id: modernization
+    name: Modernization
+    description: Package for larger front-end/site cleanup
+    included_scope:
+      - "theme_update"
+      - "responsive_design"
+      - "accessibility_improvements"
+      - "navigation_restructure"
+    excluded_scope:
+      - "custom_application_development"
+      - "database_migration"
+    effort_band: L
+    estimate_band: "L-XL"  # 8-40+ hours

@@ -1,0 +1,14 @@
+# Reply labels configuration
+labels:
+  - positive_interest
+  - question
+  - meeting_request
+  - proposal_request
+  - objection
+  - defer
+  - negative
+  - do_not_contact
+  - wrong_person
+  - bounce
+  - auto_reply
+  - unknown

@@ -1,0 +1,4 @@
+# Delivery deployment configuration
+deployment_requires_approval: true
+deployment_record_required: true
+rollback_plan_required: true

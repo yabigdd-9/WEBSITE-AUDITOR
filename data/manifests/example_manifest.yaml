@@ -1,0 +1,18 @@
+# Example source manifest
+source_id: nzbn
+version: "1.0"
+generated_at: "2026-09-24T00:00:00Z"
+expires_at: "2026-09-30T00:00:00Z"
+file_path: "data/raw/nzbn/entities.jsonl"
+record_count: 12345
+checksum: "sha256:abcdef1234567890..."
+schema:
+  - name: "entity_id"
+    type: "string"
+    required: true
+  - name: "legal_name"
+    type: "string"
+    required: true
+  - name: "registration_date"
+    type: "date"
+    required: false

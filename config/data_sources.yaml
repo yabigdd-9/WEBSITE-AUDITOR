@@ -1,0 +1,59 @@
+# Source Registry
+# Each entry follows the schema: source_id, publisher, authority, license, update_cadence, access_method, raw_format, normalization_version, freshness_rule, confidence_role
+
+- source_id: nzbn
+  publisher: "New Zealand Companies Office"
+  authority: "statutory"
+  license: "CC-BY-4.0"
+  update_cadence: "daily"
+  access_method: "API"
+  raw_format: "JSON"
+  normalization_version: "1.0"
+  freshness_rule: "must be <= 7 days old"
+  confidence_role: "identifier"
+
+- source_id: overture
+  publisher: "Overture Maps"
+  authority: "community"
+  license: "ODbL"
+  update_cadence: "monthly"
+  access_method: "Parquet download"
+  raw_format: "Parquet"
+  normalization_version: "1.0"
+  freshness_rule: "must be <= 30 days old"
+  confidence_role: "location"
+
+- source_id: public_suffix_list
+  publisher: "Public Suffix List"
+  authority: "community"
+  license: "MPL-2.0"
+  update_cadence: "weekly"
+  access_method: "download"
+  raw_format: "text"
+  normalization_version: "1.0"
+  freshness_rule: "must be <= 7 days old"
+  confidence_role: "domain"
+
+- source_id: nz_linz
+  publisher: "LINZ"
+  authority: "statutory"
+  license: "CC-BY-4.0"
+  update_cadence: "daily"
+  access_method: "API"
+  raw_format: "GeoJSON"
+  normalization_version: "1.0"
+  freshness_rule: "must be <= 1 day old"
+  confidence_role: "address"
+
+- source_id: stats_nz
+  publisher: "Stats NZ"
+  authority: "statutory"
+  license: "CC-BY-4.0"
+  update_cadence: "quarterly"
+  access_method: "API"
+  raw_format: "JSON"
+  normalization_version: "1.0"
+  freshness_rule: "must be <= 90 days old"
+  confidence_role: "context"
+
+# Add more sources as needed

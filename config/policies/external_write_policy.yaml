@@ -1,0 +1,5 @@
+# External-write policy: external writes require human approval
+side_effect_class:
+  EXTERNAL_WRITE: HUMAN_APPROVAL_REQUIRED
+  INTERNAL_WRITE: ALLOW
+  NO_WRITE: ALLOW

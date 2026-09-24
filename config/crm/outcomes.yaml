@@ -1,0 +1,20 @@
+# Outcomes configuration
+win_reasons:
+  - proof useful
+  - scope fit
+  - timing
+  - existing relationship
+  - technical need
+loss_reasons:
+  - price
+  - timing
+  - no need
+  - existing provider
+  - wrong target
+  - no budget
+  - unresponsive
+  - unknown
+outcome_confidence:
+  - CONFIRMED
+  - INFERRED
+  - UNKNOWN

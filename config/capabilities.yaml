@@ -1,0 +1,74 @@
+# Capability Registry
+# Each capability entry follows the schema defined in the plan.
+
+- capability_id: audit_toolkit
+  version: "1.0.0"
+  owner_domain: "website-auditor.internal"
+  implementation: "beth-toolkit/auditor.py"
+  input_contracts:
+    - "website_fetch"
+    - "dom_parsing"
+  output_contracts:
+    - "audit_findings"
+    - "technology_detection"
+  side_effect_class: "LOCAL_ANALYSIS"
+  cost_class: "FREE"
+  network_required: true
+  browser_required: false
+  retry_class: "RETRYABLE"
+  idempotent: true
+  policy_action: "AUDIT"
+  feature_state: "DEFAULT"
+  tests:
+    - "toolkit_tests/test_audit.py"
+    - "toolkit_tests/test_technology.py"
+  gold_set: "tests/gold/audit_set.json"
+  deprecated_by: null
+
+- capability_id: identity_intelligence
+  version: "1.0.0"
+  owner_domain: "website-auditor.internal"
+  implementation: "money-machine/mm_identity.py"
+  input_contracts:
+    - "nzbn_lookup"
+    - "domain_normalization"
+  output_contracts:
+    - "business_identity"
+    - "confidence_score"
+  side_effect_class: "LOCAL_ANALYSIS"
+  cost_class: "FREE"
+  network_required: false
+  browser_required: false
+  retry_class: "RETRYABLE"
+  idempotent: true
+  policy_action": "IDENTITY_RESOLUTION"
+  feature_state: "DEFAULT"
+  tests:
+    - "money-machine/test_identity.py"
+  gold_set: "tests/gold/identity_set.json"
+  deprecated_by: null
+
+- capability_id: opportunity_scoring
+  version: "1.0.0"
+  owner_domain: "website-auditor.internal"
+  implementation: "opportunity/scorer.py"
+  input_contracts:
+    - "audit_findings"
+    - "identity_confidence"
+  output_contracts:
+    - "opportunity_score"
+    - "priority_band"
+  side_effect_class: "LOCAL_ANALYSIS"
+  cost_class: "FREE"
+  network_required: false
+  browser_required: false
+  retry_class: "RETRYABLE"
+  idempotent: true
+  policy_action": "OPPORTUNITY_SCORING"
+  feature_state: "DEFAULT"
+  tests:
+    - "opportunity/test_scorer.py"
+  gold_set: "tests/gold/opportunity_set.json"
+  deprecated_by: null
+
+# Add more capabilities as needed...

@@ -1,0 +1,2 @@
+# Release
+Steps 114-127: Run contract suite, full unit suite, integration suite, browser suite, identity gold set, audit gold set, replay, performance baseline, security/policy negative tests, clean checkout, 24h soak, repair soak defects, 72h soak, generate final release package.

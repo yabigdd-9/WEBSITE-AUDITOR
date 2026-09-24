@@ -1,0 +1,5 @@
+# Privacy policy: data class restrictions
+data_class:
+  PUBLIC: ALLOW
+  CLIENT_PRIVATE: HUMAN_REVIEW  # requires human review for consequential actions
+  SECRET: DENY  # no consequential actions allowed on secret data

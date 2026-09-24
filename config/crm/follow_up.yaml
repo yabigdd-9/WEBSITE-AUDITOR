@@ -1,0 +1,7 @@
+# Follow-up policy configuration
+max_unanswered_outreach: 2
+after_positive_reply_follow_up_allowed: true
+after_positive_reply_human_review_required: true
+defer_reply_create_task: true
+do_not_contact_create_follow_up: false
+do_not_contact_suppression: PERMANENT

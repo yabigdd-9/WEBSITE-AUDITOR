@@ -1,0 +1,6 @@
+# Outreach policy configuration
+external_sends_enabled: false
+require_human_approval: true
+do_not_contact_respected: true
+frequency_caps_enabled: true
+suppression_enabled: true

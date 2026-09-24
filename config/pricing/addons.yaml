@@ -1,0 +1,23 @@
+# Add-ons configuration
+# Optional services that can be added to a proposal.
+
+addons:
+  - id: monitoring
+    name: Monthly Monitoring
+    description: Ongoing performance and security monitoring
+    condition: "client engagement context"
+
+  - id: maintenance
+    name: Quarterly Maintenance
+    description: Regular software updates and backups
+    condition: "ongoing recurring need"
+
+  - id: additional_pages
+    name: Additional Pages Optimization
+    description: Apply same improvements to other pages on the site
+    condition: "same verified issue exists elsewhere"
+
+  - id: training
+    name: Client Training
+    description: Training session for client team on website updates
+    condition: "client requests training"

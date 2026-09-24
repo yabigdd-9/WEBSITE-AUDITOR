@@ -1,0 +1,15 @@
+# Production policy: actions in production environment require stricter checks
+# For now, we assume environment field indicates production
+environment:
+  production:
+    EXTERNAL_SEND: HUMAN_APPROVAL_REQUIRED
+    PRODUCTION_WRITE: HUMAN_APPROVAL_REQUIRED
+    DEPLOY_PRODUCTION: HUMAN_APPROVAL_REQUIRED
+  staging:
+    EXTERNAL_SEND: HUMAN_REVIEW
+    PRODUCTION_WRITE: HUMAN_REVIEW
+    DEPLOY_PRODUCTION: HUMAN_REVIEW
+  development:
+    EXTERNAL_SEND: HUMAN_REVIEW
+    PRODUCTION_WRITE: ALLOW  # with caution
+    DEPLOY_PRODUCTION: DENY

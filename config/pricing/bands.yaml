@@ -1,0 +1,36 @@
+# Pricing bands configuration
+# Defines named packages or bundles of work.
+
+bands:
+  - id: focused_fix
+    name: Focused Fix
+    description: One narrow problem, short implementation
+    # Characteristics for guidance
+    characteristics:
+      - "one narrow problem"
+      - "short implementation"
+    # Typical effort range (in hours) for this band
+    effort_range_hours: [0.5, 4]
+
+  - id: technical_upgrade
+    name: Technical Upgrade
+    description: Multiple related technical improvements
+    characteristics:
+      - "multiple related technical improvements"
+    effort_range_hours: [4, 20]
+
+  - id: conversion_upgrade
+    name: Conversion Upgrade
+    description: CTA/form/booking improvements
+    characteristics:
+      - "CTA/form/booking improvements"
+      - "form usability"
+    effort_range_hours: [2, 15]
+
+  - id: modernization
+    name: Modernization
+    description: Larger front-end/site cleanup
+    characteristics:
+      - "larger front-end/site cleanup"
+      - "responsive modernization"
+    effort_range_hours: [10, 40]

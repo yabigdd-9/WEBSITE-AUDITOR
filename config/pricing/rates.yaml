@@ -1,0 +1,25 @@
+# Pricing rates configuration
+# This file defines the base rates and multipliers for quote calculations.
+
+enabled: true
+
+# Internal hourly rate in NZD
+internal_hourly_rate_nzd: 150
+
+# Minimum project fee in NZD
+minimum_project_nzd: 500
+
+# Complexity multiplier (applied to base hours)
+complexity_multiplier: 1.0
+
+# Risk buffer (percentage added to total cost)
+risk_buffer: 0.1
+
+# Rounding increment (e.g., 5 means round to nearest 5 NZD)
+rounding_increment: 5
+
+# Currency
+currency: NZD
+
+# Pricing version for this configuration
+pricing_version: 1

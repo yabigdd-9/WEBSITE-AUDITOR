@@ -1,0 +1,13 @@
+# Outreach channels configuration
+email:
+  enabled: true
+  requires_verification: true
+contact_form:
+  enabled: true
+  requires_human: true
+social_media:
+  enabled: true
+  requires_human: true
+phone:
+  enabled: true
+  requires_human: true

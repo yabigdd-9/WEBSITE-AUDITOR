@@ -1,0 +1,37 @@
+# Delivery milestones configuration
+milestones:
+  M1_ONBOARDING:
+    description: "Onboarding and access verification"
+    exit_criteria:
+      - "required access verified"
+      - "scope locked"
+  M2_BASELINE:
+    description: "Baseline capture and backup plan"
+    exit_criteria:
+      - "baseline captured"
+      - "backup plan confirmed"
+  M3_IMPLEMENTATION:
+    description: "Implementation of scope tasks"
+    exit_criteria:
+      - "scope tasks implemented"
+      - "local/unit checks pass"
+  M4_STAGING:
+    description: "Staging deployment and verification"
+    exit_criteria:
+      - "staging deployed"
+      - "acceptance checks pass"
+      - "no unacceptable regressions"
+  M5_PRODUCTION_APPROVAL:
+    description: "Production approval"
+    exit_criteria:
+      - "human approval recorded"
+  M6_PRODUCTION:
+    description: "Production deployment"
+    exit_criteria:
+      - "deployment complete"
+      - "production verification passes"
+  M7_HANDOVER:
+    description: "Client handover and monitoring setup"
+    exit_criteria:
+      - "client evidence package complete"
+      - "monitoring established"

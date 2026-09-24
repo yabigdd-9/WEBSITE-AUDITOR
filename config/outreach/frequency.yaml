@@ -1,0 +1,5 @@
+# Frequency caps configuration
+first_contact_allowed: true
+repeated_contact_min_gap_days: 14
+maximum_unanswered_attempts: 2
+after_two_no_response_action: STOP_AUTOMATIC_PREPARATION

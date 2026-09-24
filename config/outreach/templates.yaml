@@ -1,0 +1,13 @@
+# Outreach templates configuration
+proof_first:
+  enabled: true
+  max_words: 180
+technical_observation:
+  enabled: true
+  max_words: 180
+contact_form_short:
+  enabled: true
+  max_words: 120
+proposal_followup:
+  enabled: true
+  max_words: 180

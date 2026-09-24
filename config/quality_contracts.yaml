@@ -1,0 +1,64 @@
+# Quality Contracts
+# Define quality checks for different data types
+
+nzbn:
+  checks:
+    - schema
+    - required_fields
+    - identifier_uniqueness
+    - null_rates
+    - date_validity
+    - source_freshness
+  status_levels:
+    - PASS
+    - WARN
+    - BLOCK
+  block_on:
+    - schema_fail
+    - identifier_duplication
+    - source_freshness_exceeded
+
+overture:
+  checks:
+    - schema
+    - required_fields
+    - coordinate_ranges
+    - null_rates
+    - source_freshness
+  status_levels:
+    - PASS
+    - WARN
+    - BLOCK
+  block_on:
+    - schema_fail
+    - coordinate_out_of_range
+    - source_freshness_exceeded
+
+public_suffix_list:
+  checks:
+    - schema
+    - required_fields
+    - null_rates
+    - source_freshness
+  status_levels:
+    - PASS
+    - WARN
+    - BLOCK
+  block_on:
+    - schema_fail
+    - source_freshness_exceeded
+
+# Default quality contract for other sources
+default:
+  checks:
+    - schema
+    - required_fields
+    - null_rates
+    - source_freshness
+  status_levels:
+    - PASS
+    - WARN
+    - BLOCK
+  block_on:
+    - schema_fail
+    - source_freshness_exceeded

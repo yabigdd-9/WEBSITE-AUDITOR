@@ -1,0 +1,24 @@
+# Example policy file
+# This is a placeholder for actual policies.
+# Policies should define rules for action classes and decision logic.
+
+version: 1.0.0
+safe_auto:
+  - PUBLIC_READ
+  - LOCAL_ANALYSIS
+  - AUDIT
+  - GENERATE_INTERNAL_REPORT
+  - SANDBOX_TEST
+human_review:
+  - identity conflict
+  - low-confidence contact
+  - uncertain qualification
+human_approval:
+  - EXTERNAL_SEND
+  - PRODUCTION_WRITE
+  - BIND_PRICE
+  - DEPLOY_PRODUCTION
+  - PAYMENT
+  - REFUND
+  - CONTRACT
+  - PRIVATE_DATA_EXPORT

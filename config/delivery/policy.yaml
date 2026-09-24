@@ -1,0 +1,5 @@
+# Delivery policy configuration
+production_deployment_requires_approval: true
+backup_required_for_destructive_operations: true
+scope_lock_enforced: true
+rollback_plan_required: true

@@ -1,0 +1,6 @@
+# Cost policy: zero paid calls allowed
+cost_class:
+  FREE: ALLOW
+  PAID: DENY
+  # Paid fallback also denied
+  PAID_FALLBACK: DENY

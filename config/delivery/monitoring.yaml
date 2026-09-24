@@ -1,0 +1,7 @@
+# Delivery monitoring configuration
+immediate_window_minutes: 30
+short_window_hours: 24
+stabilization_window_days: 7
+monitor_availability: true
+monitor_browser_errors: true
+monitor_affected_functionality: true
