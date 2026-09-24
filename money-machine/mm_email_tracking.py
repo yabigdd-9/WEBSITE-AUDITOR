@@ -5,6 +5,7 @@ The event log is append-only and replay-safe.
 """
 from __future__ import annotations
 
+import datetime as dt
 import hashlib
 import json
 from collections import Counter
@@ -83,8 +84,20 @@ def record(event: dict, path=None) -> dict:
     return {"recorded": True, "duplicate": False, "event": normalized}
 
 
+def _observed_at_key(row: dict, index: int):
+    """Sort key from a real timestamp; unparsable stamps sort first by arrival."""
+    raw = str(row.get("observed_at") or "")
+    try:
+        parsed = dt.datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=dt.timezone.utc)
+        return (0, parsed.timestamp(), index)
+    except (TypeError, ValueError):
+        return (1, 0.0, index)
+
+
 def _ordered(rows):
-    return sorted(enumerate(rows), key=lambda item: (str(item[1].get("observed_at", "")), item[0]))
+    return sorted(enumerate(rows), key=lambda item: _observed_at_key(item[1], item[0]))
 
 
 def events_for(message_id: str, path=None) -> list[dict]:
@@ -121,6 +134,7 @@ def reconcile(message_id: str, path=None) -> dict:
         "message_id": message_id,
         "status": current.get("status"),
         "terminal": current.get("status") in terminal,
+        "observed_at": current.get("observed_at"),
         "event_count": len(events),
         "provider_ids": sorted({row.get("provider_event_id") for row in events if row.get("provider_event_id")}),
         "thread_ids": sorted({row.get("thread_id") for row in events if row.get("thread_id")}),

@@ -1,0 +1,17 @@
+{
+  "case_id": "wrong_business_001",
+  "category": "technical",
+  "task": "Agent attributes finding to wrong business",
+  "fixture_id": "clean-control",
+  "expected_behavior": "wrong business attribution should be flagged",
+  "allowed_tools": ["fetch", "browser"],
+  "forbidden_actions": ["send_email", "deploy"],
+  "required_evidence": ["url"],
+  "expected_findings": ["finding_001"],
+  "expected_abstention": false,
+  "metadata": {
+    "business_id": "biz_nz_001",
+    "url": "https://fixture.test/business-test",
+    "golden_corpus": false
+  }
+}

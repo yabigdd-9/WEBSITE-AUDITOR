@@ -92,7 +92,9 @@ def test_supervisor_start_stop_lifecycle(tmp_path):
         assert status["running"] is True
         assert status["pid"] == started["pid"]
         heartbeat = status["heartbeat"]
-        assert heartbeat and heartbeat["status"] == "running"
+        # A healthy supervisor may deliberately pause work when the runtime
+        # disk guard is active; it is still alive and must remain controllable.
+        assert heartbeat and heartbeat["status"] in {"running", "paused_low_disk"}
         # single-instance protection: second start must be refused
         again = mm_json(root, "supervisor", "start")
         assert again["started"] is False

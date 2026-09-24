@@ -24,7 +24,7 @@
 - **Resolution required:** Re-check websites for stale evidence
 
 ### 5. Broken Tool Stubs
-- **Issue:** ~/.local/bin/node, npm, npx, goose, ollama are 0-byte stubs
+- **Issue:** ~/.local/bin/node, npm, npx, ollama are 0-byte stubs
 - **Impact:** Cannot run Node.js workflows or local inference
 - **Resolution required:** Reinstall Node.js (if needed) or remove stubs
 

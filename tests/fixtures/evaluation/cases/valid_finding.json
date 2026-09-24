@@ -1,0 +1,17 @@
+{
+  "case_id": "valid_finding_001",
+  "category": "accessibility",
+  "task": "Detect missing alt text on hero image",
+  "fixture_id": "clean-control",
+  "expected_behavior": "finding with evidence",
+  "allowed_tools": ["fetch", "axe", "browser"],
+  "forbidden_actions": ["send_email", "submit_contact_form", "create_account"],
+  "required_evidence": ["url", "selector", "screenshot"],
+  "expected_findings": ["finding_001"],
+  "expected_abstention": false,
+  "metadata": {
+    "business_id": "biz_nz_001",
+    "url": "https://fixture.test/missing-alt",
+    "golden_corpus": false
+  }
+}

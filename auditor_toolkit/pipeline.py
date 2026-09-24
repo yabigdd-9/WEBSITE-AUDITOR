@@ -2,18 +2,32 @@ from __future__ import annotations
 
 import hashlib
 import time
-from concurrent.futures import ThreadPoolExecutor
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import urlparse
 
+from . import (
+    browser_console,
+    cookie_consent,
+    hreflang,
+    images,
+    language,
+    social_meta,
+    structured_validation,
+    tech,
+    third_party,
+    vuln_js,
+)
 from .browser import export_pdf, run_browser_checks
 from .checks import Finding, analyse_html, classify_response, dedupe_findings, score_findings
 from .common import Fetcher, atomic_write_json, atomic_write_text, validate_url
 from .external_tools import run_lighthouse, run_lychee
-from .faults import enrich as enrich_fault, group_root_causes, regression as fault_regression
+from .faults import enrich as enrich_fault
+from .faults import group_root_causes
+from .faults import regression as fault_regression
 from .hygiene import (
     check_mixed_content,
     check_robots,
@@ -25,9 +39,9 @@ from .hygiene import (
 )
 from .models import REGISTRY, SCHEMA_VERSION
 from .network import crawl, inspect_dns, inspect_headers, inspect_schema, inspect_tls
+from .quality_checks import run_quality_checks
 from .reporting import render_trend_svg, write_html_report
 from .storage import History, finding_id
-from .quality_checks import run_quality_checks
 
 
 @dataclass
@@ -113,21 +127,35 @@ def run_audit(url, options=None, fetcher=None):
         checks[name] = {"status": "skipped", "reason": reason, "required": required}
 
     def perform_parallel(specs):
-        """Run independent local checks concurrently; merge deterministically."""
-        started = {name: time.perf_counter() for name, _, _ in specs}
+        """Run independent local checks concurrently; merge deterministically.
+
+        Each worker times itself so a slow check never inflates the measured
+        elapsed time of faster checks that finish earlier.
+        """
+        def timed(fn):
+            started = time.perf_counter()
+            try:
+                found, data = fn()
+            except Exception:
+                raise
+            finally:
+                elapsed = time.perf_counter() - started
+            return found, data, elapsed
+
         with ThreadPoolExecutor(max_workers=min(4, len(specs))) as pool:
-            futures = {name: pool.submit(fn) for name, fn, _ in specs}
+            futures = {name: pool.submit(timed, fn) for name, fn, _ in specs}
             for name, fn, required in specs:
                 try:
-                    found, data = futures[name].result()
+                    found, data, elapsed = futures[name].result()
                     findings.extend(found)
                     evidence[name] = {"url": url, "observed_at": timestamp,
                                       "mode": REGISTRY[name].mode, "data": data,
                                       "check_version": REGISTRY[name].version}
-                    checks[name] = {"status": "ok", "required": required}
+                    checks[name] = {"status": "ok", "required": required,
+                                    "elapsed_ms": int(elapsed * 1000)}
                 except Exception as exc:
-                    checks[name] = {"status": "error", "reason": str(exc), "required": required}
-                checks[name]["elapsed_ms"] = int((time.perf_counter() - started[name]) * 1000)
+                    checks[name] = {"status": "error", "reason": str(exc),
+                                    "required": required, "elapsed_ms": 0}
 
     response = None
     try:
@@ -158,6 +186,13 @@ def run_audit(url, options=None, fetcher=None):
                 ("page", lambda: analyse_html(response.text, final_url), True),
                 ("schema", lambda: inspect_schema(response.text, final_url, opts.profile), True),
                 ("headers", lambda: inspect_headers(response), True),
+                ("technology", lambda: tech.analyse_html(response.text, final_url, response.headers), True),
+                ("js_vulnerabilities", lambda: vuln_js.analyse_html(response.text, final_url, response.headers), True),
+                ("structured_validation", lambda: structured_validation.analyse_html(response.text, final_url, response.headers), True),
+                ("hreflang", lambda: hreflang.analyse_html(response.text, final_url, response.headers), True),
+                ("language", lambda: language.analyse_html(response.text, final_url, response.headers), True),
+                ("images", lambda: images.analyse_html(response.text, final_url, response.headers), True),
+                ("social_meta", lambda: social_meta.analyse_html(response.text, final_url, response.headers), True),
             ])
             def hygiene_checks():
                 robots_findings, robots_evidence = check_robots(client, final_url)
@@ -276,6 +311,10 @@ def run_audit(url, options=None, fetcher=None):
                     # Log warning but do not fail the audit
                     pass
             if opts.browser:
+                # Rendered checks
+                perform("cookie_consent", lambda: cookie_consent.analyse_html(response.text, final_url, response.headers))
+                perform("third_party", lambda: third_party.analyse_html(response.text, final_url, response.headers))
+                perform("browser_console", lambda: browser_console.analyse_html(response.text, final_url, response.headers))
                 axe = evidence["browser"].get("axe")
                 checks["axe"] = {
                     "status": "ok" if axe else "error",

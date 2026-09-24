@@ -25,7 +25,7 @@ STATUSES = {
     "suppressed",
     "failed",
 }
-TERMINAL = {"dead_lettered", "provider_accepted", "delivered", "bounced", "replied", "suppressed"}
+TERMINAL = {"dead_lettered", "delivered", "bounced", "replied", "suppressed"}
 
 DDL = """
 CREATE TABLE IF NOT EXISTS email_delivery_intents(
@@ -183,12 +183,15 @@ def record_result(
     *,
     provider_message_id: str | None = None,
     error: str | None = None,
+    max_attempts: int | None = None,
     event_store=None,
 ) -> dict[str, Any]:
     """Record a provider-neutral outcome; retry/dead-letter is bounded and explicit."""
     status = str(status).strip().lower()
     if status not in STATUSES - {"planned", "retryable_failed", "dead_lettered"}:
         raise ValueError("unsupported delivery result")
+    if max_attempts is not None and not 1 <= max_attempts <= 10:
+        raise ValueError("max_attempts must be between 1 and 10")
     migrate(db)
     intent = _row(db, "SELECT * FROM email_delivery_intents WHERE idempotency_key=?", (idempotency_key,))
     if not intent:
@@ -208,7 +211,8 @@ def record_result(
     next_status = status
     if status in {"failed", "delayed"}:
         attempt_count += 1
-        next_status = "dead_lettered" if attempt_count >= intent["max_attempts"] else "retryable_failed"
+        bound = max_attempts if max_attempts is not None else intent["max_attempts"]
+        next_status = "dead_lettered" if attempt_count >= bound else "retryable_failed"
     timestamp = core.now()
     db.execute(
         """UPDATE email_delivery_intents SET status=?,attempt_count=?,provider_message_id=coalesce(?,provider_message_id),

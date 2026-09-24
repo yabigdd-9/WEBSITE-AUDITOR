@@ -18,7 +18,7 @@ jobs:
   sonarcloud:
     name: SonarCloud analysis
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - name: Checkout repository
@@ -46,7 +46,12 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          python -m pytest toolkit_tests --cov-config=.coveragerc --cov=. --cov-report=xml:coverage.xml --cov-report=term-missing
+          python -m pytest toolkit_tests tests \
+            --cov-config=.coveragerc \
+            --cov=auditor_toolkit \
+            --cov=website_auditor \
+            --cov-report=xml:coverage.xml \
+            --cov-report=term-missing
 
       - name: Run SonarCloud scan
         uses: SonarSource/sonarcloud-github-action@383f7e52eae3ab0510c3cb0e7d9d150bbaeab838
@@ -56,3 +61,27 @@ jobs:
           args: >
             -Dsonar.qualitygate.wait=true
             -Dsonar.qualitygate.timeout=300
+
+      - name: Report SonarCloud processing details
+        if: always()
+        continue-on-error: true
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          set -o pipefail
+          task_file=.scannerwork/report-task.txt
+          if [ ! -r "$task_file" ]; then
+            echo "SonarCloud task metadata is unavailable."
+            exit 0
+          fi
+
+          task_id="$(sed -n 's/^ceTaskId=//p' "$task_file" | head -n 1)"
+          if [ -z "$task_id" ]; then
+            echo "SonarCloud task ID is unavailable."
+            exit 0
+          fi
+
+          curl --fail --silent --show-error \
+            --header "Authorization: Basic $(printf '%s:' "$SONAR_TOKEN" | base64 --wrap=0)" \
+            "https://sonarcloud.io/api/ce/task?id=${task_id}" \
+            | jq '{task: (.task | {id, status, type, componentKey, analysisId, warningCount, errorMessage})}'

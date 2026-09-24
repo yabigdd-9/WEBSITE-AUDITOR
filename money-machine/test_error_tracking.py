@@ -120,5 +120,40 @@ class ErrorTracking(unittest.TestCase):
         self.assertEqual(rc['repeat_count'], 1)
 
 
+
+
+class TransientSQLiteClassification(unittest.TestCase):
+    """Lock contention must retry with backoff; schema faults stay permanent."""
+
+    def test_locked_database_is_retryable(self):
+        ex = p.classify_unexpected(sqlite3.OperationalError('database is locked'))
+        self.assertIsInstance(ex, p.RetryableError)
+
+    def test_busy_database_is_retryable(self):
+        ex = p.classify_unexpected(sqlite3.OperationalError('database table is busy'))
+        self.assertIsInstance(ex, p.RetryableError)
+
+    def test_disk_io_error_is_retryable(self):
+        ex = p.classify_unexpected(sqlite3.OperationalError('disk I/O error'))
+        self.assertIsInstance(ex, p.RetryableError)
+
+    def test_missing_table_remains_permanent(self):
+        ex = p.classify_unexpected(sqlite3.OperationalError('no such table: mm_demo_qa'))
+        self.assertIsInstance(ex, p.PermanentError)
+
+    def test_integrity_and_contract_faults_remain_permanent(self):
+        self.assertIsInstance(
+            p.classify_unexpected(sqlite3.IntegrityError('NOT NULL constraint failed')),
+            p.PermanentError)
+        self.assertIsInstance(
+            p.classify_unexpected(AttributeError("'sqlite3.Row' object has no attribute 'get'")),
+            p.PermanentError)
+
+    def test_unknown_fault_is_bounded_retryable_with_context(self):
+        ex = p.classify_unexpected(RuntimeError('boom'), 'completion rejected: ')
+        self.assertIsInstance(ex, p.RetryableError)
+        self.assertIn('completion rejected: ', str(ex))
+
+
 if __name__ == '__main__':
     unittest.main()

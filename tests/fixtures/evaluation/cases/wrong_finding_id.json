@@ -1,0 +1,17 @@
+{
+  "case_id": "wrong_finding_id_001",
+  "category": "accessibility",
+  "task": "Agent references a finding_id that does not exist in expected set",
+  "fixture_id": "clean-control",
+  "expected_behavior": "invalid finding_id should be flagged",
+  "allowed_tools": ["fetch", "axe"],
+  "forbidden_actions": ["send_email"],
+  "required_evidence": ["url", "selector"],
+  "expected_findings": ["finding_001", "finding_002"],
+  "expected_abstention": false,
+  "metadata": {
+    "business_id": "biz_nz_001",
+    "url": "https://fixture.test/finding-id-test",
+    "golden_corpus": false
+  }
+}

@@ -87,3 +87,44 @@ class BrainTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+    def _add_intent_table(self):
+        d = core.connect(self.db)
+        d.executescript("""
+            CREATE TABLE IF NOT EXISTS email_delivery_intents(
+              idempotency_key TEXT PRIMARY KEY, message_id INTEGER, business_id INTEGER,
+              recipient TEXT, content_hash TEXT, campaign TEXT, approval_id INTEGER,
+              transport TEXT, status TEXT, attempt_count INTEGER DEFAULT 0,
+              max_attempts INTEGER DEFAULT 3, provider_message_id TEXT, last_error TEXT,
+              created_at TEXT, updated_at TEXT);
+        """)
+        d.commit(); d.close()
+
+    def test_brain_surfaces_dead_lettered_email_intents(self):
+        self._add_intent_table()
+        d = core.connect(self.db)
+        d.execute(
+            "INSERT INTO email_delivery_intents(idempotency_key,message_id,business_id,recipient,"
+            "content_hash,campaign,approval_id,transport,status,attempt_count,max_attempts,"
+            "last_error,created_at,updated_at) VALUES('k1',9,1,'team@fixture.example','h','c',4,"
+            "'none','dead_lettered',3,3,'mailbox unavailable','t1','t2')"
+        )
+        d.commit(); d.close()
+        with core.connect(self.db, readonly=True) as d:
+            bottleneck = mm_brain.bottlenecks(d)
+            result = mm_brain.recommend(d)
+        self.assertEqual(bottleneck["primary"], "EMAIL_DEAD_LETTER")
+        self.assertEqual(bottleneck["severity"], "HIGH")
+        self.assertEqual(bottleneck["email_intents"]["dead_lettered"], 1)
+        self.assertEqual(result["highest_priority_action"]["action"], "review_dead_lettered_email")
+        self.assertEqual(result["highest_priority_action"]["action_class"], "HUMAN_REVIEW")
+        self.assertEqual(result["blocking_review_items"], 1)
+        self.assertFalse(result["safe_to_execute"])
+        self.assertEqual(result["safety"]["external_sends"], 0)
+
+    def test_brain_ignores_intent_table_when_clean(self):
+        self._add_intent_table()
+        with core.connect(self.db, readonly=True) as d:
+            bottleneck = mm_brain.bottlenecks(d)
+        self.assertEqual(bottleneck["email_intents"]["dead_lettered"], 0)
+        self.assertNotEqual(bottleneck["primary"], "EMAIL_DEAD_LETTER")

@@ -1,9 +1,7 @@
 import hashlib
-import json
 from pathlib import Path
 
 from .common import validate_url
-
 
 VIEWPORTS = {
     "desktop": {"width": 1366, "height": 900},
@@ -67,6 +65,7 @@ def run_browser_checks(url, output_dir, enabled=True, allow_private=False, axe_p
                 # Evidence-grade visual pack: fixed viewports, deterministic
                 # names, hashes, layout measurements, and targeted crops.
                 visual = {"viewports": {}, "crops": [], "limitations": "Lab captures; no field conversion claim."}
+                mobile_path = output_dir / "mobile.png"
                 for viewport_name, viewport in VIEWPORTS.items():
                     page.set_viewport_size(viewport)
                     path = output_dir / f"{viewport_name}.png"
@@ -126,12 +125,13 @@ def run_browser_checks(url, output_dir, enabled=True, allow_private=False, axe_p
                 evidence["mobile"] = page.evaluate(
                     "()=>({overflow:document.documentElement.scrollWidth>innerWidth,width:innerWidth})"
                 )
-                mobile = output_dir / "mobile.png"
-                # Keep the legacy artifact name while the visual pack uses
-                # the same hashed mobile capture.
-                page.screenshot(path=str(mobile), full_page=True, timeout=15000)
-                evidence["mobile_screenshot"] = str(mobile)
-                evidence["visual_pack"]["legacy_mobile_artifact"] = _artifact(mobile)
+                # Refresh the visual-pack mobile metadata so its sha256 always
+                # matches the final mobile.png contents written here.
+                page.screenshot(path=str(mobile_path), full_page=True, timeout=15000)
+                evidence["mobile_screenshot"] = str(mobile_path)
+                evidence["visual_pack"]["viewports"]["mobile"] = {
+                    "viewport": VIEWPORTS["mobile"], **_artifact(mobile_path)
+                }
             finally:
                 browser.close()
         return {"status": "ok", "evidence": evidence}
