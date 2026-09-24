@@ -82,6 +82,6 @@ jobs:
           fi
 
           curl --fail --silent --show-error \
-            -u "${SONAR_TOKEN}:" \
+            --header "Authorization: Basic $(printf '%s:' "$SONAR_TOKEN" | base64 --wrap=0)" \
             "https://sonarcloud.io/api/ce/task?id=${task_id}" \
             | jq '{task: (.task | {id, status, type, componentKey, analysisId, warningCount, errorMessage})}'
