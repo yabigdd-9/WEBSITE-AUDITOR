@@ -20,7 +20,7 @@ from auditor_toolkit.proof.prototype import (
 
 
 def test_content_id_stable():
-    assert _content_id("a", "b") == _content_id("a", "b")
+    assert _content_id("a", "b") == "0eab8a0a3380"
 
 
 def test_content_id_different():
