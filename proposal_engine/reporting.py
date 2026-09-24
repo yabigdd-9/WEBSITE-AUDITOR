@@ -12,7 +12,7 @@ def load_template(template_path: str) -> str:
     Load a template file from the given path.
     """
     with open(template_path, 'r') as f:
-        return f.render()
+        return f.read()
 
 
 def render_proposal(proposal: Proposal, template_str: str) -> str:

@@ -2,42 +2,71 @@
 Template selection for the WEBSITE-AUDITOR proposal engine.
 """
 
-from typing import List
-from .schema import ScopeItem
+import os
+from typing import Dict, Optional, Tuple
+from .schema import Proposal
+from .reporting import render_proposal
 
 
-def select_template(scope_items: List[ScopeItem], package_id: Optional[str] = None) -> str:
-    """
-    Select a template name based on the scope items or package ID.
-    Returns the template name (without extension) to be used with the reporting module.
-    """
-    if package_id:
-        # Map package_id to template name
-        package_to_template = {
-            "focused_fix": "quick_fix",
-            "technical_upgrade": "technical_upgrade",
-            "conversion_upgrade": "conversion_upgrade",
-            "modernization": "modernization",
-        }
-        return package_to_template.get(package_id, "quick_fix")
+class TemplateEngine:
+    def __init__(self, template_dir: str = "templates/proposals", default_template: str = "quick_fix"):
+        """
+        Initialize the template engine.
 
-    # If no package_id, infer from scope items
-    # For simplicity, we'll count the scope items and check effort bands
-    if len(scope_items) == 1:
-        # Single scope item -> quick fix
-        return "quick_fix"
-    elif len(scope_items) > 1:
-        # Multiple scope items -> check if they are all technical (placeholder)
-        # We'll just return technical_upgrade for now
-        return "technical_upgrade"
-    else:
-        # No scope items -> default to quick fix
-        return "quick_fix"
+        Args:
+            template_dir: Directory where template files are stored (relative to this file or absolute).
+            default_template: Template name to use when no match is found.
+        """
+        self.template_dir = template_dir
+        self.default_template = default_template
+        # Mapping from (business_type, tech_stack, audit_severity) to template name
+        self._template_map: Dict[Tuple[str, str, str], str] = {}
 
+    def register_template(self, business_type: str, tech_stack: str, audit_severity: str, template_name: str) -> None:
+        """
+        Register a template for a specific combination of business_type, tech_stack, and audit_severity.
 
-def get_template_path(template_name: str) -> str:
-    """
-    Get the file path for a given template name.
-    Assumes templates are in the templates/proposals/ directory.
-    """
-    return f"templates/proposals/{template_name}.md"
+        Args:
+            business_type: The type of business (e.g., 'ecommerce', 'saas').
+            tech_stack: The technology stack (e.g., 'wordpress', 'react', 'shopify').
+            audit_severity: The severity of the audit (e.g., 'low', 'medium', 'high').
+            template_name: The name of the template file (without extension) to use.
+        """
+        key = (business_type, tech_stack, audit_severity)
+        self._template_map[key] = template_name
+
+    def select_template(self, business_type: str, tech_stack: str, audit_severity: str) -> str:
+        """
+        Select a template name based on business_type, tech_stack, and audit_severity.
+
+        Args:
+            business_type: The type of business.
+            tech_stack: The technology stack.
+            audit_severity: The severity of the audit.
+
+        Returns:
+            The template name to use (without extension).
+        """
+        key = (business_type, tech_stack, audit_severity)
+        return self._template_map.get(key, self.default_template)
+
+    def render(self, template_name: str, proposal: Proposal) -> str:
+        """
+        Render a proposal using the specified template.
+
+        Args:
+            template_name: The name of the template file (without extension).
+            proposal: The proposal object to render.
+
+        Returns:
+            The rendered markdown string.
+
+        Raises:
+            FileNotFoundError: If the template file does not exist.
+        """
+        template_path = os.path.join(self.template_dir, f"{template_name}.md")
+        if not os.path.exists(template_path):
+            raise FileNotFoundError(f"Template not found: {template_path}")
+        with open(template_path, 'r') as f:
+            template_str = f.read()
+        return render_proposal(proposal, template_str)

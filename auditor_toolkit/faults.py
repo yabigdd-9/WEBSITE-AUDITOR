@@ -19,15 +19,18 @@ TAXONOMY = {
     "seo_content": {"page", "schema", "hygiene", "links", "metadata"},
 }
 
-ROOT_CAUSES = {
-    "browser_runtime": "client_runtime_failure",
-    "availability": "origin_or_delivery_failure",
-    "visual_layout": "responsive_or_layout_system_failure",
-    "accessibility": "accessible_interface_contract_failure",
-    "conversion": "journey_or_contact_friction",
-    "security_trust": "security_delivery_configuration_gap",
-    "seo_content": "content_discovery_configuration_gap",
+SEVERITY_IMPACT = {
+    "browser_runtime": 0.8,
+    "availability": 1.0,
+    "visual_layout": 0.3,
+    "accessibility": 0.4,
+    "conversion": 0.9,
+    "security_trust": 0.7,
+    "seo_content": 0.5,
 }
+
+def get_severity(taxonomy: str) -> float:
+    return SEVERITY_IMPACT.get(taxonomy, 0.5)
 
 
 def category(defect: dict[str, Any]) -> str:
@@ -70,16 +73,47 @@ def group_root_causes(defects: list[dict[str, Any]]) -> list[dict[str, Any]]:
     for root, members in sorted(groups.items()):
         ids = [str(member.get("finding_id") or fault_key(member)) for member in members]
         categories = sorted({category(member) for member in members})
+        # Calculate composite severity for the group
+        severities = [get_severity(cat) for cat in categories]
+        composite_severity = max(severities) if severities else 0.5
+        # Calculate weighted confidence
+        confidences = [confidence(member)["class"] for member in members]
+        conf_levels = {"PROVEN": 4, "STRONG": 3, "MODERATE": 2, "WEAK": 1, "UNKNOWN": 0}
+        avg_conf = sum(conf_levels.get(c, 0) for c in confidences) / len(confidences) if confidences else 0
+        if avg_conf >= 3.5:
+            group_conf = "PROVEN"
+        elif avg_conf >= 2.5:
+            group_conf = "STRONG"
+        elif avg_conf >= 1.5:
+            group_conf = "MODERATE"
+        elif avg_conf >= 0.5:
+            group_conf = "WEAK"
+        else:
+            group_conf = "UNKNOWN"
         result.append({
             "root_cause_id": root,
             "taxonomy": categories,
             "finding_ids": ids,
             "symptom_count": len(members),
+            "composite_severity": round(composite_severity, 2),
+            "severity_label": _severity_label(composite_severity),
             "likely": len(members) > 1,
-            "confidence": "MODERATE" if len(members) > 1 else confidence(members[0])["class"],
+            "confidence": group_conf,
             "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation.",
         })
     return result
+
+
+def _severity_label(score: float) -> str:
+    if score >= 0.8:
+        return "CRITICAL"
+    elif score >= 0.6:
+        return "HIGH"
+    elif score >= 0.4:
+        return "MEDIUM"
+    elif score >= 0.2:
+        return "LOW"
+    return "NEGLIGIBLE"
 
 
 def regression(current: list[dict[str, Any]], previous: list[dict[str, Any]]) -> dict[str, list[str]]:

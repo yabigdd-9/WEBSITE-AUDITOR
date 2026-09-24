@@ -90,27 +90,32 @@ def run_day(d,write=True):
     start=time.perf_counter();queue=[];blocked=[];stale=[]
     for b in d.execute('SELECT b.id,b.name,m.stage,m.next_action,m.due FROM businesses b JOIN mm_deals m ON m.business_id=b.id WHERE b.is_dummy=0'):
         bid=b['id'];name=b['name']
-        try:eligible(d,bid)
-        except ValueError as e:blocked.append({'id':bid,'name':name,'reason':str(e)});continue
-        s=d.execute('SELECT * FROM mm_scores WHERE business_id=?',(bid,)).fetchone();ev=0
-        if s:
-            inputs=json.loads(s['inputs_json']);computed=score(d,bid,s['evidence_id'],**inputs);ev=computed['ev_per_human_hour_nzd'][0]
-        replies=d.execute("SELECT m.id FROM mm_messages m JOIN mm_receipts r ON r.object_id=m.id AND r.business_id=m.business_id AND r.kind='reply' WHERE m.business_id=? AND m.reply IN ('positive','question','price_objection') AND m.sent_at IS NOT NULL LIMIT 1",(bid,)).fetchone()
-        if replies:queue.append({'priority':1,'id':bid,'name':name,'action':REPLY_ACTIONS[d.execute('SELECT reply FROM mm_messages WHERE id=?',(replies[0],)).fetchone()[0]],'ev_hour_low':ev});continue
-        p=d.execute('SELECT * FROM mm_proposals WHERE business_id=? AND sent_at IS NULL AND invalidated_reason IS NULL ORDER BY id DESC LIMIT 1',(bid,)).fetchone()
-        m=d.execute('SELECT * FROM mm_messages WHERE business_id=? AND sent_at IS NULL AND invalidated_reason IS NULL ORDER BY id DESC LIMIT 1',(bid,)).fetchone()
-        chosen=p or m
-        if chosen:
-            reasons=readiness(d,bid,chosen['evidence_id'],chosen['recipient'])
-            if not reasons:
-                priority=2 if p else (3 if m['kind']=='followup' and m['approved_hash'] else 4)
-                queue.append({'priority':priority,'id':bid,'name':name,'action':'Human review of exact proposal' if p else 'Human review of exact outreach; no automatic send','ev_hour_low':ev});continue
-            blocked.append({'id':bid,'name':name,'reason':'; '.join(reasons)})
-        e=d.execute('SELECT * FROM mm_evidence WHERE business_id=? ORDER BY julianday(checked_at) DESC,id DESC LIMIT 1',(bid,)).fetchone()
-        if not e or not fresh(e['checked_at']):stale.append({'id':bid,'name':name,'reason':'Missing' if not e else 'Expired'})
-        # Diagnosis beats further demo work where the sales premise was refuted.
-        priority=5 if bid==5 else 6 if e else 7
-        queue.append({'priority':priority,'id':bid,'name':name,'action':b['next_action'] if e else 'Capture current website evidence; verify a commercial problem before offering work','ev_hour_low':ev})
+        try:
+            eligible(d,bid)
+        except Exception as e:
+            blocked.append({'id':bid,'name':name,'reason':f"Eligibility check failed: {str(e)}"});continue
+
+        try:
+            s=d.execute('SELECT * FROM mm_scores WHERE business_id=?',(bid,)).fetchone();ev=0
+            if s:
+                inputs=json.loads(s['inputs_json']);computed=score(d,bid,s['evidence_id'],**inputs);ev=computed['ev_per_human_hour_nzd'][0]
+            replies=d.execute("SELECT m.id FROM mm_messages m JOIN mm_receipts r ON r.object_id=m.id AND r.business_id=m.business_id AND r.kind='reply' WHERE m.business_id=? AND m.reply IN ('positive','question','price_objection') AND m.sent_at IS NOT NULL LIMIT 1",(bid,)).fetchone()
+            if replies:queue.append({'priority':1,'id':bid,'name':name,'action':REPLY_ACTIONS[d.execute('SELECT reply FROM mm_messages WHERE id=?',(replies[0],)).fetchone()[0]],'ev_hour_low':ev});continue
+            p=d.execute('SELECT * FROM mm_proposals WHERE business_id=? AND sent_at IS NULL AND invalidated_reason IS NULL ORDER BY id DESC LIMIT 1',(bid,)).fetchone()
+            m=d.execute('SELECT * FROM mm_messages WHERE business_id=? AND sent_at IS NULL AND invalidated_reason IS NULL ORDER BY id DESC LIMIT 1',(bid,)).fetchone()
+            chosen=p or m
+            if chosen:
+                reasons=readiness(d,bid,chosen['evidence_id'],chosen['recipient'])
+                if not reasons:
+                    priority=2 if p else (3 if m['kind']=='followup' and m['approved_hash'] else 4)
+                    queue.append({'priority':priority,'id':bid,'name':name,'action':'Human review of exact proposal' if p else 'Human review of exact outreach; no automatic send','ev_hour_low':ev});continue
+                blocked.append({'id':bid,'name':name,'reason':'; '.join(reasons)})
+            e=d.execute('SELECT * FROM mm_evidence WHERE business_id=? ORDER BY julianday(checked_at) DESC,id DESC LIMIT 1',(bid,)).fetchone()
+            if not e or not fresh(e['checked_at']):stale.append({'id':bid,'name':name,'reason':'Missing' if not e else 'Expired'})
+            priority=5 if bid==5 else 6 if e else 7
+            queue.append({'priority':priority,'id':bid,'name':name,'action':b['next_action'] if e else 'Capture current website evidence; verify a commercial problem before offering work','ev_hour_low':ev})
+        except Exception as e:
+            blocked.append({'id':bid,'name':name,'reason':f"Queue processing failed: {str(e)}"})
     queue.sort(key=lambda x:(x['priority'],-x['ev_hour_low'],x['id']))
     email_contacts=[]
     if d.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='email_policy'").fetchone():

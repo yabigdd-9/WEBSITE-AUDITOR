@@ -1,6 +1,6 @@
 # Phase Closeout Report
 
-**Generated**: 2026-09-24 23:16:29
+**Generated**: 2026-09-25 00:55:10
 **Metrics Source**: reports/commercial/PROPOSAL_QUALITY_METRICS.json
 
 ## Quality Metrics
