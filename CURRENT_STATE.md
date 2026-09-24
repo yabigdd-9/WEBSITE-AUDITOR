@@ -1,5 +1,11 @@
 # WEBSITE-AUDITOR — Current State
 
+## Local MCP connectors (2026-09-24)
+
+- Obsidian Vault as MCP v1.2.0 is installed in vault `b5d58a08e16fab4e` (`/Users/dd/Downloads/CatalyxLabs_Master_Brain_V7`) and responded to MCP initialize on loopback port 8765 after restart.
+- Obsidian ACL is configured with forbidden `private/**` and `secrets.md`, read-only `archive/**` and `templates/**`, and the only writable path `AI-Review/**`. The empty `AI-Review/` folder was created. No note content was read or changed.
+- Claude Desktop has an Obsidian stdio bridge and GitHub remote MCP configured. GitHub is restricted to `repos,issues,pull_requests,actions` with read-only enforced; OAuth authorization has not been completed.
+
 _Last updated: 2026-09-21 · branch `upgrade/v32-canonical-execution` · master plan v32.0_
 
 ## Canonical direction
@@ -106,3 +112,11 @@ All agent-executable workpaths (P0–P8) are committed and gated on `upgrade/v32
 | Docs | scattered plans | `docs/RUNBOOK.md` (DLQ tree, quarantine, supervisor/cron, capabilities, backup) |
 
 Human review remains REQUIRED everywhere; `outreach_eligible` flips only via the existing approval path.
+
+## Repo-owned A2A free-route boundary (2026-09-24)
+
+- Added `integrations/a2a_gateway.py`, a loopback-only A2A JSON-RPC gateway that accepts explicit role requests and routes them through the checked `money-machine/scripts/free_role_router.py` policy only. SQLite idempotency stores request hashes/status only (not prompt/answer). It does not enable or call OmniRoute's native A2A server.
+- Gateway defaults off and requires `MM_A2A_GATEWAY_ENABLED=1`, `MM_A2A_FREE_ROUTING=1`, `MM_ALLOW_EXTERNAL_FREE_MODELS=1`, and a local `MM_A2A_GATEWAY_TOKEN`. Inputs must be public or synthetic; secret-like prompts are rejected, personal data/path patterns are redacted, and only catalog-confirmed `:free` models with all-zero price caps are eligible.
+- Added `./mm a2a-gateway` and a separate integration health entry on loopback port 8094. No provider calls were made during implementation/tests. Existing send-disabled, `paid_allowed=false`, `max_cost_usd=0` boundaries remain unchanged.
+- The router CLI now reads the canonical in-repo `money-machine/config/routing.yaml`; its tests no longer skip due to a nonexistent host-only config path.
+- Gateway remains intentionally disabled until an operator supplies a local bearer token and explicitly opts in to external free-model use. The native OmniRoute A2A feature remains separate and must remain disabled to prevent bypassing this repo-owned guardrail.

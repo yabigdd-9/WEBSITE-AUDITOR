@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "website-auditor": {
+      "command": "./mm",
+      "args": ["mcp-server"],
+      "env": {"MM_ROOT": "${workspaceFolder}"},
+      "disabled": false
+    },
+    "github": {"command": "github-mcp-server", "args": ["stdio", "--read-only", "--toolsets=repos,issues,pull_requests,actions"], "env": {"GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"}},
+    "obsidian": {"type": "streamableHttp", "url": "http://127.0.0.1:8765/mcp", "disabled": false}
+  }
+}

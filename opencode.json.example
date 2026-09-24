@@ -1,0 +1,13 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "website-auditor": {
+      "type": "local",
+      "command": ["./mm", "mcp-server"],
+      "enabled": true,
+      "environment": {"MM_ROOT": "${MM_ROOT}"}
+    },
+    "github": {"type": "local", "command": ["github-mcp-server", "stdio", "--read-only", "--toolsets=repos,issues,pull_requests,actions"], "enabled": true, "environment": {"GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"}},
+    "obsidian": {"type": "remote", "url": "http://127.0.0.1:8765/mcp", "enabled": true}
+  }
+}

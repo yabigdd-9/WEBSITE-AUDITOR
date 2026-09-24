@@ -160,7 +160,8 @@ def main():
     parser.add_argument("--image", type=Path, help="Synthetic/public PNG or JPEG only")
     parser.add_argument("--creator-model", help="For JUDGE/CRITIC independent-review checks")
     args = parser.parse_args()
-    config = yaml.safe_load((ROOT / "control-plane/config/routing.yaml").read_text())
+    config_path = Path(__file__).resolve().parents[1] / "config" / "routing.yaml"
+    config = yaml.safe_load(config_path.read_text())
     prompt = args.prompt_file.read_text()
     image_data = None
     if args.image:

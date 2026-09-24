@@ -254,6 +254,14 @@ def cmd_dead_letter_resolve(reason):
 def main(argv=None):
     p=argparse.ArgumentParser(description=__doc__);s=p.add_subparsers(dest='cmd',required=True)
     for cmd in ('daily','run-day','status','money','learn','backup','init','health','metrics','errors','queue','observability-snapshot'):s.add_parser(cmd)
+    q=s.add_parser('integrations',help='Show local agent, MCP, router, and service status')
+    q.add_argument('--json',action='store_true',dest='as_json',help='Print machine-readable JSON')
+    q=s.add_parser('webhook-server',help='Run the loopback-only local event receiver')
+    q.add_argument('--host',default=os.environ.get('MM_WEBHOOK_HOST','127.0.0.1'))
+    q.add_argument('--port',type=int,default=None)
+    q=s.add_parser('a2a-gateway',help='Run the loopback, free-role-only A2A gateway')
+    q.add_argument('--host',default=os.environ.get('MM_A2A_GATEWAY_HOST','127.0.0.1'))
+    q.add_argument('--port',type=int,default=None)
     # Add --root-causes flag to errors command
     errors_parser = s._name_parser_map['errors']
     errors_parser.add_argument('--root-causes', '--root-cases', dest='root_causes', action='store_true', help='Show root causes of recurring errors from pipeline')
@@ -366,6 +374,28 @@ def main(argv=None):
     if a.cmd=='health':
         import mm_observability
         result=mm_observability.health();print(json.dumps(result,indent=2,default=str));return 0
+    if a.cmd=='integrations':
+        repo_root=str(Path(__file__).resolve().parents[1])
+        if repo_root not in sys.path:
+            sys.path.insert(0,repo_root)
+        from integrations.registry import integrations_status, format_integrations_status
+        result=integrations_status()
+        print(json.dumps(result,indent=2,default=str) if a.as_json else format_integrations_status(result))
+        return 0
+    if a.cmd=='webhook-server':
+        repo_root=str(Path(__file__).resolve().parents[1])
+        if repo_root not in sys.path:
+            sys.path.insert(0,repo_root)
+        from integrations.webhooks import serve
+        serve(host=a.host,port=a.port)
+        return 0
+    if a.cmd=='a2a-gateway':
+        repo_root=str(Path(__file__).resolve().parents[1])
+        if repo_root not in sys.path:
+            sys.path.insert(0,repo_root)
+        from integrations.a2a_gateway import serve
+        serve(host=a.host,port=a.port)
+        return 0
     if a.cmd in ('health','metrics','errors','queue','dead-letter','observability-snapshot'):
         import mm_observability
         functions={
