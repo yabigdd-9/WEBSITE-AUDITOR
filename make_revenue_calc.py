@@ -1,8 +1,8 @@
 import pathlib
 
 # Create revenue module directory
-pathlib.Path("website_auditor/revenue").mkdir(parents=True, exist_ok=True)
-pathlib.Path("website_auditor/revenue/__init__.py").touch()
+pathlib.Path("auditor_toolkit/revenue").mkdir(parents=True, exist_ok=True)
+pathlib.Path("auditor_toolkit/revenue/__init__.py").touch()
 
 # ============================================
 # FILE 1: Defect-to-Dollar Value Mappings
@@ -113,7 +113,7 @@ def get_defect_value(defect_text):
     # Unknown defect: assign minimal default impact
     return 0.01, "low", "Unclassified defect. Minimal estimated impact."
 """
-pathlib.Path("website_auditor/revenue/defect_values.py").write_text(defect_values)
+pathlib.Path("auditor_toolkit/revenue/defect_values.py").write_text(defect_values)
 print("  [1/3] defect_values.py created")
 
 # ============================================
@@ -234,7 +234,7 @@ class RevenueCalculator:
         )
         return "\\n".join(lines)
 """
-pathlib.Path("website_auditor/revenue/calculator.py").write_text(calculator)
+pathlib.Path("auditor_toolkit/revenue/calculator.py").write_text(calculator)
 print("  [2/3] calculator.py created")
 
 # ============================================
@@ -262,7 +262,7 @@ def main():
         if arg == "--visitors" and i + 1 < len(args): visitors = int(args[i + 1])
         if arg == "--lead-value" and i + 1 < len(args): lead_value = float(args[i + 1])
 
-    from website_auditor.revenue.calculator import RevenueCalculator
+    from auditor_toolkit.revenue.calculator import RevenueCalculator
 
     rem_dir = Path("outputs/remediations")
     if not rem_dir.exists():

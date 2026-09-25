@@ -1,0 +1,1371 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+	<meta charset="UTF-8">
+<script>
+var gform;gform||(document.addEventListener("gform_main_scripts_loaded",function(){gform.scriptsLoaded=!0}),document.addEventListener("gform/theme/scripts_loaded",function(){gform.themeScriptsLoaded=!0}),window.addEventListener("DOMContentLoaded",function(){gform.domLoaded=!0}),gform={domLoaded:!1,scriptsLoaded:!1,themeScriptsLoaded:!1,isFormEditor:()=>"function"==typeof InitializeEditor,callIfLoaded:function(o){return!(!gform.domLoaded||!gform.scriptsLoaded||!gform.themeScriptsLoaded&&!gform.isFormEditor()||(gform.isFormEditor()&&console.warn("The use of gform.initializeOnLoaded() is deprecated in the form editor context and will be removed in Gravity Forms 3.1."),o(),0))},initializeOnLoaded:function(o){gform.callIfLoaded(o)||(document.addEventListener("gform_main_scripts_loaded",()=>{gform.scriptsLoaded=!0,gform.callIfLoaded(o)}),document.addEventListener("gform/theme/scripts_loaded",()=>{gform.themeScriptsLoaded=!0,gform.callIfLoaded(o)}),window.addEventListener("DOMContentLoaded",()=>{gform.domLoaded=!0,gform.callIfLoaded(o)}))},hooks:{action:{},filter:{}},addAction:function(o,r,e,t){gform.addHook("action",o,r,e,t)},addFilter:function(o,r,e,t){gform.addHook("filter",o,r,e,t)},doAction:function(o){gform.doHook("action",o,arguments)},applyFilters:function(o){return gform.doHook("filter",o,arguments)},removeAction:function(o,r){gform.removeHook("action",o,r)},removeFilter:function(o,r,e){gform.removeHook("filter",o,r,e)},addHook:function(o,r,e,t,n){null==gform.hooks[o][r]&&(gform.hooks[o][r]=[]);var d=gform.hooks[o][r];null==n&&(n=r+"_"+d.length),gform.hooks[o][r].push({tag:n,callable:e,priority:t=null==t?10:t})},doHook:function(r,o,e){var t;if(e=Array.prototype.slice.call(e,1),null!=gform.hooks[r][o]&&((o=gform.hooks[r][o]).sort(function(o,r){return o.priority-r.priority}),o.forEach(function(o){"function"!=typeof(t=o.callable)&&(t=window[t]),"action"==r?t.apply(null,e):e[0]=t.apply(null,e)})),"filter"==r)return e[0]},removeHook:function(o,r,t,n){var e;null!=gform.hooks[o][r]&&(e=(e=gform.hooks[o][r]).filter(function(o,r,e){return!!(null!=n&&n!=o.tag||null!=t&&t!=o.priority)}),gform.hooks[o][r]=e)}});
+</script>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="profile" href="https://gmpg.org/xfn/11">
+	<meta name='robots' content='index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' />
+
+<!-- Google Tag Manager for WordPress by gtm4wp.com -->
+<script data-cfasync="false" data-pagespeed-no-defer>
+	var gtm4wp_datalayer_name = "dataLayer";
+	var dataLayer = dataLayer || [];
+</script>
+<!-- End Google Tag Manager for WordPress by gtm4wp.com -->
+	<!-- This site is optimized with the Yoast SEO plugin v28.4 - https://yoast.com/product/yoast-seo-wordpress/ -->
+	<title>Contact Us - Urban Homes</title>
+	<meta name="description" content="Looking to build a new home? Start your journey with Urban Homes today. We take ownership of all our clients builds, treating them as if they were our very own masterpiece." />
+	<link rel="canonical" href="https://urban.co.nz/contact-us/" />
+	<meta property="og:locale" content="en_US" />
+	<meta property="og:type" content="article" />
+	<meta property="og:title" content="Contact Us - Urban Homes" />
+	<meta property="og:description" content="Looking to build a new home? Start your journey with Urban Homes today. We take ownership of all our clients builds, treating them as if they were our very own masterpiece." />
+	<meta property="og:url" content="https://urban.co.nz/contact-us/" />
+	<meta property="og:site_name" content="Urban Homes" />
+	<meta property="article:publisher" content="https://www.facebook.com/UrbanHomesNZ/" />
+	<meta property="article:modified_time" content="2026-08-20T00:20:35+00:00" />
+	<meta property="og:image" content="https://urban.co.nz/wp-content/uploads/2023/03/Urban-billboard-image1.jpg" />
+	<meta property="og:image:width" content="1920" />
+	<meta property="og:image:height" content="1080" />
+	<meta property="og:image:type" content="image/jpeg" />
+	<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https:\/\/schema.org","@graph":[{"@type":"WebPage","@id":"https:\/\/urban.co.nz\/contact-us\/","url":"https:\/\/urban.co.nz\/contact-us\/","name":"Contact Us - Urban Homes","isPartOf":{"@id":"https:\/\/urban.co.nz\/#website"},"datePublished":"2022-07-18T03:10:54+00:00","dateModified":"2026-08-20T00:20:35+00:00","description":"Looking to build a new home? Start your journey with Urban Homes today. We take ownership of all our clients builds, treating them as if they were our very own masterpiece.","breadcrumb":{"@id":"https:\/\/urban.co.nz\/contact-us\/#breadcrumb"},"inLanguage":"en-NZ","potentialAction":[{"@type":"ReadAction","target":["https:\/\/urban.co.nz\/contact-us\/"]}]},{"@type":"BreadcrumbList","@id":"https:\/\/urban.co.nz\/contact-us\/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https:\/\/urban.co.nz\/"},{"@type":"ListItem","position":2,"name":"Contact Us"}]},{"@type":"WebSite","@id":"https:\/\/urban.co.nz\/#website","url":"https:\/\/urban.co.nz\/","name":"Urban Homes","description":"Award winning Master Builders from Hamilton","publisher":{"@id":"https:\/\/urban.co.nz\/#organization"},"alternateName":"Urban Homes NZ Ltd","potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https:\/\/urban.co.nz\/?s={search_term_string}"},"query-input":{"@type":"PropertyValueSpecification","valueRequired":true,"valueName":"search_term_string"}}],"inLanguage":"en-NZ"},{"@type":"Organization","@id":"https:\/\/urban.co.nz\/#organization","name":"Urban Homes","url":"https:\/\/urban.co.nz\/","logo":{"@type":"ImageObject","inLanguage":"en-NZ","@id":"https:\/\/urban.co.nz\/#\/schema\/logo\/image\/","url":"https:\/\/urban.co.nz\/wp-content\/uploads\/2022\/07\/urban-logo.svg","contentUrl":"https:\/\/urban.co.nz\/wp-content\/uploads\/2022\/07\/urban-logo.svg","width":1,"height":1,"caption":"Urban Homes"},"image":{"@id":"https:\/\/urban.co.nz\/#\/schema\/logo\/image\/"},"sameAs":["https:\/\/www.facebook.com\/UrbanHomesNZ\/","https:\/\/www.instagram.com\/urbanhomes_nz\/","https:\/\/www.linkedin.com\/company\/urbanhomesnz\/"]}]}</script>
+	<!-- / Yoast SEO plugin. -->
+
+
+<link rel='dns-prefetch' href='//js.hs-scripts.com' />
+<link rel="alternate" type="application/rss+xml" title="Urban Homes &raquo; Feed" href="https://urban.co.nz/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Urban Homes &raquo; Comments Feed" href="https://urban.co.nz/comments/feed/" />
+<link rel="alternate" title="oEmbed (JSON)" type="application/json+oembed" href="https://urban.co.nz/wp-json/oembed/1.0/embed?url=https%3A%2F%2Furban.co.nz%2Fcontact-us%2F" />
+<link rel="alternate" title="oEmbed (XML)" type="text/xml+oembed" href="https://urban.co.nz/wp-json/oembed/1.0/embed?url=https%3A%2F%2Furban.co.nz%2Fcontact-us%2F&#038;format=xml" />
+<style id="wp-img-auto-sizes-contain-inline-css">
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+
+<style id="wp-emoji-styles-inline-css">
+
+	img.wp-smiley, img.emoji {
+		display: inline !important;
+		border: none !important;
+		box-shadow: none !important;
+		height: 1em !important;
+		width: 1em !important;
+		margin: 0 0.07em !important;
+		vertical-align: -0.1em !important;
+		background: none !important;
+		padding: 0 !important;
+	}
+/*# sourceURL=wp-emoji-styles-inline-css */
+</style>
+<style id="wp-block-library-inline-css">
+:root{--wp-block-synced-color:#7a00df;--wp-block-synced-color--rgb:122,0,223;--wp-bound-block-color:var(--wp-block-synced-color);--wp-editor-canvas-background:#ddd;--wp-admin-theme-color:#007cba;--wp-admin-theme-color--rgb:0,124,186;--wp-admin-theme-color-darker-10:#006ba1;--wp-admin-theme-color-darker-10--rgb:0,107,160.5;--wp-admin-theme-color-darker-20:#005a87;--wp-admin-theme-color-darker-20--rgb:0,90,135;--wp-admin-border-width-focus:2px}@media (min-resolution:192dpi){:root{--wp-admin-border-width-focus:1.5px}}.wp-element-button{cursor:pointer}:root .has-very-light-gray-background-color{background-color:#eee}:root .has-very-dark-gray-background-color{background-color:#313131}:root .has-very-light-gray-color{color:#eee}:root .has-very-dark-gray-color{color:#313131}:root .has-vivid-green-cyan-to-vivid-cyan-blue-gradient-background{background:linear-gradient(135deg,#00d084,#0693e3)}:root .has-purple-crush-gradient-background{background:linear-gradient(135deg,#34e2e4,#4721fb 50%,#ab1dfe)}:root .has-hazy-dawn-gradient-background{background:linear-gradient(135deg,#faaca8,#dad0ec)}:root .has-subdued-olive-gradient-background{background:linear-gradient(135deg,#fafae1,#67a671)}:root .has-atomic-cream-gradient-background{background:linear-gradient(135deg,#fdd79a,#004a59)}:root .has-nightshade-gradient-background{background:linear-gradient(135deg,#330968,#31cdcf)}:root .has-midnight-gradient-background{background:linear-gradient(135deg,#020381,#2874fc)}:root{--wp--preset--font-size--normal:16px;--wp--preset--font-size--huge:42px}.has-regular-font-size{font-size:1em}.has-larger-font-size{font-size:2.625em}.has-normal-font-size{font-size:var(--wp--preset--font-size--normal)}.has-huge-font-size{font-size:var(--wp--preset--font-size--huge)}:root .has-text-align-center{text-align:center}:root .has-text-align-left{text-align:left}:root .has-text-align-right{text-align:right}.has-fit-text{white-space:nowrap!important}#end-resizable-editor-section{display:none}.aligncenter{clear:both}.items-justified-left{justify-content:flex-start}.items-justified-center{justify-content:center}.items-justified-right{justify-content:flex-end}.items-justified-space-between{justify-content:space-between}.screen-reader-text{word-wrap:normal!important;border:0;clip-path:inset(50%);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px;word-break:normal!important}.screen-reader-text:focus{background-color:#ddd;clip-path:none;color:#444;display:block;font-size:1em;height:auto;left:5px;line-height:normal;padding:15px 23px 14px;text-decoration:none;top:5px;width:auto;z-index:100000}html :where(.has-border-color){border-style:solid}html :where([style^=border-color],[style*=";border-color"],[style*="; border-color"]){border-style:solid}html :where([style^=border-top-color],[style*=";border-top-color"],[style*="; border-top-color"]){border-top-style:solid}html :where([style^=border-right-color],[style*=";border-right-color"],[style*="; border-right-color"]){border-right-style:solid}html :where([style^=border-bottom-color],[style*=";border-bottom-color"],[style*="; border-bottom-color"]){border-bottom-style:solid}html :where([style^=border-left-color],[style*=";border-left-color"],[style*="; border-left-color"]){border-left-style:solid}html :where([style^=border-width],[style*=";border-width"],[style*="; border-width"]){border-style:solid}html :where([style^=border-top-width],[style*=";border-top-width"],[style*="; border-top-width"]){border-top-style:solid}html :where([style^=border-right-width],[style*=";border-right-width"],[style*="; border-right-width"]){border-right-style:solid}html :where([style^=border-bottom-width],[style*=";border-bottom-width"],[style*="; border-bottom-width"]){border-bottom-style:solid}html :where([style^=border-left-width],[style*=";border-left-width"],[style*="; border-left-width"]){border-left-style:solid}html :where(img[class*=wp-image-]){height:auto;max-width:100%}:where(figure){margin:0 0 1em}html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:var(--wp-admin--admin-bar--height,0px)}@media screen and (max-width:600px){html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:0px}}
+
+/*# sourceURL=/wp-includes/css/dist/block-library/common.min.css */
+</style>
+<style id="classic-theme-styles-inline-css">
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+/*# sourceURL=/wp-includes/css/classic-themes.min.css */
+</style>
+
+<style id="global-styles-inline-css">
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}.wp-block-button{--wp--preset--dimension--25: 25%;--wp--preset--dimension--50: 50%;--wp--preset--dimension--75: 75%;--wp--preset--dimension--100: 100%;}:where(body) { margin: 0; }:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}body{padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;}:root :where(.wp-element-button, .wp-block-button__link){background-color: #32373c;border-width: 0;color: #fff;font-family: inherit;font-size: inherit;font-style: inherit;font-weight: inherit;letter-spacing: inherit;line-height: inherit;padding-top: calc(0.667em + 2px);padding-right: calc(1.333em + 2px);padding-bottom: calc(0.667em + 2px);padding-left: calc(1.333em + 2px);text-decoration: none;text-transform: inherit;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<link rel='stylesheet' id='duoplus-popup-css' href='https://urban.co.nz/wp-content/plugins/Duoplus%20Popup%20Manager//assets/css/popup.css?ver=7.1' media='all' />
+<link rel='stylesheet' id='urban-style-css' href='https://urban.co.nz/wp-content/themes/urban/style.css?ver=7.1' media='all' />
+<link rel='stylesheet' id='magnific-popup-css' href='https://urban.co.nz/wp-content/themes/urban/assets/css/magnific-popup.css?ver=7.1' media='all' />
+<link rel='stylesheet' id='slick-slide-css' href='https://urban.co.nz/wp-content/themes/urban/assets/css/slick.css?ver=7.1' media='all' />
+<link rel='stylesheet' id='fontawesome-icon-css' href='https://urban.co.nz/wp-content/themes/urban/assets/css/fontawesome.min.css?ver=7.1' media='all' />
+<link rel='stylesheet' id='urban-slider-css' href='https://urban.co.nz/wp-content/themes/urban/assets/css/jquery-ui.css?ver=7.1' media='all' />
+<link rel='stylesheet' id='urban-slider-pips-css' href='https://urban.co.nz/wp-content/themes/urban/assets/css/jquery-ui-slider-pips.css?ver=7.1' media='all' />
+<link rel='stylesheet' id='urban-theame-style-css' href='https://urban.co.nz/wp-content/themes/urban/assets/css/style_urban.css?ver=7.1' media='all' />
+<link rel='stylesheet' id='urban-theame-responsive-css' href='https://urban.co.nz/wp-content/themes/urban/assets/css/responsive.css?ver=7.1' media='all' />
+<script id="jquery-core-js" src="https://urban.co.nz/wp-includes/js/jquery/jquery.min.js?ver=3.7.1"></script>
+<script id="jquery-migrate-js" src="https://urban.co.nz/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1"></script>
+<script id="generate-pdf-script-js-extra">
+var pa_vars = {"pa_nonce":"5ce4685d4e","post_id":"22257","ajaxurl":"https://urban.co.nz/wp-admin/admin-ajax.php"};
+//# sourceURL=generate-pdf-script-js-extra
+</script>
+<script id="generate-pdf-script-js" src="https://urban.co.nz/wp-content/plugins/urban-generate-pdf/js/generate-pdf.js?ver=7.1"></script>
+<link rel="https://api.w.org/" href="https://urban.co.nz/wp-json/" /><link rel="alternate" title="JSON" type="application/json" href="https://urban.co.nz/wp-json/wp/v2/pages/22257" /><link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://urban.co.nz/xmlrpc.php?rsd" />
+<link rel='shortlink' href='https://urban.co.nz/?p=22257' />
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-W939ZHX');</script>
+<!-- End Google Tag Manager -->
+<meta name="p:domain_verify" content="08d85b4599b351ae035a739aa88e7ca8"/>			<!-- DO NOT COPY THIS SNIPPET! Start of Page Analytics Tracking for HubSpot WordPress plugin v11.3.71-->
+			<script class="hsq-set-content-id" data-content-id="standard-page">
+				var _hsq = _hsq || [];
+				_hsq.push(["setContentType", "standard-page"]);
+			</script>
+			<!-- DO NOT COPY THIS SNIPPET! End of Page Analytics Tracking for HubSpot WordPress plugin -->
+			<!-- Stream WordPress user activity plugin v4.4.0 -->
+
+<!-- Google Tag Manager for WordPress by gtm4wp.com -->
+<!-- GTM Container placement set to off -->
+<script data-cfasync="false" data-pagespeed-no-defer>
+	var dataLayer_content = {"pagePostType":"page","pagePostType2":"single-page","pagePostAuthor":"Urban Homes"};
+	dataLayer.push( dataLayer_content );
+</script>
+<script data-cfasync="false" data-pagespeed-no-defer>
+	console.warn && console.warn("[GTM4WP] Google Tag Manager container code placement set to OFF !!!");
+	console.warn && console.warn("[GTM4WP] Data layer codes are active but GTM container must be loaded using custom coding !!!");
+</script>
+<!-- End Google Tag Manager for WordPress by gtm4wp.com --><link rel="icon" href="https://urban.co.nz/wp-content/uploads/2022/07/Urban_favicon_white.png" sizes="32x32" />
+<link rel="icon" href="https://urban.co.nz/wp-content/uploads/2022/07/Urban_favicon_white.png" sizes="192x192" />
+<link rel="apple-touch-icon" href="https://urban.co.nz/wp-content/uploads/2022/07/Urban_favicon_white.png" />
+<meta name="msapplication-TileImage" content="https://urban.co.nz/wp-content/uploads/2022/07/Urban_favicon_white.png" />
+<style id="wp-custom-css">
+.wp-caption-text {
+	line-height: 1.5em;
+	font-size: 16px;
+	text-align: left;
+}
+
+#field_16_6 {
+	width: 100%;
+	padding-right: 20px;
+}
+
+#field_32_2, #field_32_5 {
+	width: 100%;
+	padding-right: 0;
+}
+
+@media(max-width: 767px) {
+	#field_16_6 {
+	padding-right: 0;
+	}
+}
+
+#gform_submit_button_16 {
+	margin-right: 20px;
+}
+
+.gform_footer {
+	margin-bottom: 20px!important;
+}
+
+#bookappraisal {
+	overflow: hidden;
+}
+
+@media(max-width: 767px) {
+	.gform_footer .gform_button {
+		width: 100%!important;
+	}
+}
+
+@media(min-width: 767px) {
+	.request_form.site_appr_form .gform_legacy_markup_wrapper .gform_footer {
+		position: absolute;
+	}
+}
+
+.page-template-franchise video {
+	height: auto;
+	margin: auto;
+	padding: 10px;
+	position: relative;
+}
+
+@media(max-width: 1024px) {
+	.page-template-franchise video {
+		padding: 0;;
+	}
+}
+
+.project_bg_small {
+	cursor: pointer;
+}
+
+.no-vacancies {
+	text-align: center;
+}
+
+/* Vacancies */
+
+.careeer_wrap {
+	width: 100%;
+	margin: 40px 0
+}
+
+.career-card {
+	background: white;
+	padding: 30px;
+	border-top: solid 5px #003767;
+	max-width: 410px;
+}
+
+.career-grid {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	grid-gap: 20px;
+}
+
+.career-card__location,
+.career-card__expiry {
+  font-size: 16px;
+  line-height: 1.4;
+	font-weight: 500;
+  margin: 0 0 6px; /* tighten gap between location and date */
+}
+
+/* Optional: make location a bit more structured next to icon */
+.career-card__location {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Map pin icon */
+.career-card__icon--location {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0Z'/%3E%3Ccircle cx='12' cy='10' r='3'/%3E%3C/svg%3E");
+  opacity: 0.85;
+}
+
+.career-card__link {
+	margin-bottom: 0;
+	margin-top: 30px;
+}
+
+/* Layout */
+.career-primary-content {
+  padding: 60px 0;
+}
+
+@media(max-width: 767px) {
+	.career-primary-content {
+		padding: 40px 0;
+	}
+}
+
+.career-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  align-items: flex-start;
+}
+
+.career-main {
+  flex: 1 1 60%;
+  min-width: 0;
+	max-width: 100%;
+}
+
+.career-sidebar {
+  flex: 1 1 30%;
+	width: 100%;
+  min-width: 260px;
+}
+
+@media(min-width: 1024px) {
+	.career-sidebar {
+		position: sticky;
+		top: 120px;
+	}
+}
+
+/* Breadcrumb */
+.career-breadcrumb {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.career-breadcrumb a {
+  text-decoration: none;
+  color: #666;
+}
+
+.career-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+/* Meta row */
+.career-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.career-meta__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #555;
+}
+
+.career-meta__label {
+  font-weight: 600;
+}
+
+.career-meta__value {
+  font-weight: 400;
+}
+
+/* Map pin icon */
+.career-meta__icon--location {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0Z'/%3E%3Ccircle cx='12' cy='10' r='3'/%3E%3C/svg%3E");
+  opacity: 0.8;
+}
+
+/* Body content */
+.career-body {
+  background: #ffffff;
+  padding: 40px;
+  border-radius: 0;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
+}
+
+@media(max-width: 767px) {
+	.career-body {
+  	padding: 25px;
+		max-width: 100%;
+	}
+	
+	.career-body h2 {
+		font-size: 30px!important;;
+	}
+	
+	.gform-theme--foundation .gform_fields {
+		grid-template-columns: unset!important;
+	}
+}
+
+/* Sidebar summary card */
+.career-summary-card {
+  background: #ffffff;
+  border-radius: 0;
+  padding: 40px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+}
+
+@media(max-width: 767px) {
+	.career-summary-card { 
+		padding: 25px;
+	}
+}
+
+.career-summary-card__title {
+  font-size: 18px;
+  margin: 0 0 16px;
+}
+
+.career-summary-card__list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+}
+
+.career-summary-card__item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8px;
+}
+
+.career-summary-card__label {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #888;
+  margin-bottom: 2px;
+}
+
+.career-summary-card__value {
+  font-size: 15px;
+  font-weight: 600;
+  color: #222;
+}
+
+.career-summary-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.career-summary-card__back {
+  font-size: 14px;
+  color: #555;
+  text-decoration: none;
+}
+
+.career-summary-card__back:hover {
+  text-decoration: underline;
+}
+
+/* Apply block */
+.career-apply-block {
+  margin-top: 40px;
+  background: #ffffff;
+  padding: 40px;
+  border-radius: 0;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+}
+
+@media(max-width: 767px) {
+	.career-apply-block {
+		padding: 20px;
+		position: relative;
+	}
+	#gform_fields_34 {
+		grid-template-columns: unset;
+	}
+}
+
+.career-apply-block h2 {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.career-apply-intro {
+  margin-bottom: 20px;
+  font-size: 15px;
+  color: #555;
+}
+
+
+/* Responsive */
+@media (max-width: 991px) {
+  .career-layout {
+    flex-direction: column;
+  }
+
+  .career-sidebar {
+    order: -1;
+  }
+}
+
+.career-card__title {
+		font-size: 24px;
+	}
+
+@media(max-width: 767px) {
+	.career-card__title {
+		line-height: 1.2em;
+	}
+}
+
+.career-body h2 {
+	font-size: 50px;
+}
+
+@media(max-width: 767px) {
+.career-body h2 {
+	font-size: 40px;
+}
+}
+
+.gfield--input-type-fileupload .gfield_label {
+	display: block!important;
+}
+
+#gform_35 .gform_fields {
+	grid-gap: 25px!important;
+}
+
+.single-career .inner_banner_sec figure {
+	background: #003767;
+	background-image: unset!important;
+	min-height: 300px;
+}
+
+@media(min-width: 1024px) {
+	.single-career .inner_banner_sec .banner_text {
+	max-width: 1300px!important;
+	margin: 0 auto;
+}
+}
+
+@media(max-width: 1024px) {
+	.single-career .inner_banner_sec figure {
+	min-height: 200px;
+}
+}
+
+#gform_35 input:not(input[type="submit"]):not(input[type="file"]) {
+	  padding: 17px !important;
+    font-size: 14px !important;
+    color: #003767 !important;
+    font-family: 'Oxygen' !important;
+    border-radius: 0;
+    border: 1px solid #A7A9AC;
+    text-transform: uppercase;
+    letter-spacing: 1.4px !important;
+    width: 100% !important;
+		line-height: 1.5;
+		min-height: 50px;
+}
+
+#gform_submit_button_35 {
+	width: 160px;
+    font-size: 16px;
+    letter-spacing: 1px;
+    font-weight: 400;
+    padding: 20px;
+    text-transform: uppercase;
+    margin-right: 0;
+    border-radius: 0;
+    background-color: #88A3BA;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+	transition: ease .3s;
+}
+
+#gform_submit_button_35:hover {
+	background: #002C52;
+}
+
+.gform_required_legend {
+	display: none;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+
+.gfield input {
+	text-align: left;
+	line-height: 1.5em!important;
+	min-height: 55px!important;
+	font-size: 14px!important;
+	color: #003767 !important;
+  text-transform: uppercase!important;
+	border-radius: 0!important;
+  letter-spacing: 1.4px!important;
+	outline: none!important;
+}
+
+.gform_fields  {
+	grid-gap: 15px 12px!important;
+}
+
+.gform_button {
+    font-size: 16px!important;
+		border-radius: 0!important;
+    letter-spacing: 1px!important;
+    font-weight: 400!important;
+    padding: 20px!important;
+    text-transform: uppercase!important;
+    margin-right: 0;
+    border-radius: 0;
+    background-color: #88A3BA!important;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+}
+
+.gform-footer input {
+	min-width: 100%!important;
+}
+
+@media(min-width: 1024px) {
+	.my-popup .download_gallery_text {
+		padding: 20px 50px 50px 50px;
+	}
+}
+
+.gform-loader {
+	margin: 20px auto 0 auto!important;
+}
+
+/* Page Banner Style Overrides */
+
+.home .banner-sec-wrap {
+	flex-direction: column;
+	display: flex;
+	grid-gap: 10px;
+	justify-content: flex-end;
+	padding-bottom: 60px;
+}
+
+.home .banner-sec-wrap a {
+	max-width: fit-content;
+}
+
+.home .banner-sec-wrap .sec-btn:visited {
+	color: white;
+}
+
+.home .banner-sec-wrap .sec-btn:hover {
+	color: #002C52;
+}
+
+.sec-btn {
+	background: transparent;
+	color: white;
+}
+
+.white-btn {
+	transition: ease .2s!important;
+}
+
+.sec-btn:hover {
+	background: white;
+	color: #191970;
+}
+
+.gform-footer input {
+	min-width: 100%!important;
+}
+
+@media(min-width: 1024px) {
+	.my-popup .download_gallery_text {
+		padding: 20px 50px 50px 50px;
+	}
+}
+
+.gform-loader {
+	margin: 20px auto 0 auto!important;
+}
+
+#gform_ajax_spinner_36 {
+	display: none!important;
+}
+
+.my-popup .gform_submission_error, .my-popup .gfield_validation_message {
+	color: white!important;
+}
+
+.my-popup .gform_validation_errors .gform-icon {
+	background: white!important;
+}
+
+.gform_confirmation_message_36  {
+	font-size: 16px!important;
+}
+
+.request_form .gform_legacy_markup_wrapper ul.gform_fields {
+	gap: 0!important;
+}
+
+.urban-sold-overlay {
+	height: 13.7%!important;
+	font-size: 35px!important;
+	letter-spacing: 2px!important;
+}
+
+.video_bg_img {
+	background-position: center;
+}
+
+.inner_banner_slide-wrapper .banner_bg {
+	    background-position: center 80%;
+}
+
+.section_primary_content {
+	padding-top: 100px;
+}
+
+.section_primary_content h2 {
+	font-size: 35px;
+	margin-bottom: 30px!important;
+}
+@media(max-width: 767px) {
+	.section_primary_content {
+		padding-top: 50px;
+	}
+	.section_primary_content h2 {
+		font-size: 25px;
+	}
+}
+
+@media(min-width: 767px) {
+	.design_build_category .design_category_text {
+		padding-right: 60px;
+	}
+}
+
+.design_build_category figure, .design_build_category .col-6 {
+	align-items: center;
+	display: flex;
+	justify-content: flex-end;
+}
+
+.page-id-222 .design_category_sec > .container .design_build_category:first-child, .page-id-30803 .design_category_sec > .container .design_build_category:first-child {
+	background: #003767!important;
+	color: #ffffff!important
+}
+
+.page-id-222 .design_category_sec > .container .design_build_category:first-child h3, .page-id-30803 .design_category_sec > .container .design_build_category:first-child h3 {
+	color: white;
+}
+
+.page-id-222 .design_category_sec > .container .design_build_category:first-child .blue_btn, .page-id-30803 .design_category_sec > .container .design_build_category:first-child .blue_btn, .white_btn {
+	background: #ffffff!important;
+	color: #003767!important;
+	border: none!important;
+}
+
+
+.page-id-222 .design_category_sec > .container .design_build_category:first-child .blue_btn:hover, .page-id-30803 .design_category_sec > .container .design_build_category:first-child .blue_btn:hover, .white_btn:hover {
+	opacity: 0.7;
+}
+
+.inspired_reality_sec {
+	background-position: center;
+}
+
+.inspired_reality_sec .inspired_wrap {
+	width: 100%;
+}
+
+.inspired_reality_sec .inspired_wrap h3 {
+	max-width: 580px;
+}
+
+.footer_banner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 50px;
+}
+
+.footer_banner h3 {
+	font-size: 28px;
+}
+
+.celebrating-20-badge {
+	max-width: 100px;
+	margin-right: 75px;
+}
+
+section.plain_text_sec {
+	padding-top: 100px;
+	padding-bottom: 0;
+}
+
+@media(max-width: 767px) {
+	.celebrating-20-badge {
+		margin-right: unset;
+	}
+	
+	.logo_award_wrap {
+		flex-direction: column;
+		gap: 20px;
+	}
+	
+	section.plain_text_sec {
+		padding-top: 50px;
+	}
+}
+
+.footer_logo {
+	max-width: 190px;
+}
+
+/* Banner slider: mobile "Play Video" button.
+   Sits directly beneath the existing mobile button(s) in .title
+   and inherits size, padding and type from .button.white-btn.
+   Only the fill and border are changed to give the outlined look. */
+
+.banner_sec .title .play-video-btn {
+	display: flex;        /* block-level, so it drops onto its own line under the button above */
+	width: fit-content;   /* but only as wide as its content, same as the other button */
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	margin-top: 12px;     /* gap between buttons, tweak to taste */
+	background: transparent;
+	border: 1px solid #fff;
+	color: #fff;
+}
+
+.banner_sec .title .play-video-btn:hover,
+.banner_sec .title .play-video-btn:focus {
+	background: #fff;
+	color: #1c2b3a; /* match the site's dark text colour */
+}
+
+/* Small play triangle, CSS only */
+.banner_sec .title .play-video-btn .play-video-icon {
+	width: 0;
+	height: 0;
+	border-top: 5px solid transparent;
+	border-bottom: 5px solid transparent;
+	border-left: 8px solid currentColor;
+}
+
+/* Belt and braces: never let it show on desktop/tablet, even if a
+   generic .button rule sets display. Match the theme's mob-visible breakpoint. */
+@media (min-width: 768px) {
+	.banner_sec .title .play-video-btn {
+		display: none !important;
+	}
+}
+</style>
+<link rel='stylesheet' id='gforms_reset_css-css' href='https://urban.co.nz/wp-content/plugins/gravityforms/legacy/css/formreset.min.css?ver=3.1.1' media='all' />
+<link rel='stylesheet' id='gforms_formsmain_css-css' href='https://urban.co.nz/wp-content/plugins/gravityforms/legacy/css/formsmain.min.css?ver=3.1.1' media='all' />
+<link rel='stylesheet' id='gforms_ready_class_css-css' href='https://urban.co.nz/wp-content/plugins/gravityforms/legacy/css/readyclass.min.css?ver=3.1.1' media='all' />
+<link rel='stylesheet' id='gforms_browsers_css-css' href='https://urban.co.nz/wp-content/plugins/gravityforms/legacy/css/browsers.min.css?ver=3.1.1' media='all' />
+
+</head>
+
+<body class="wp-singular page-template page-template-templates page-template-contact-us page-template-templatescontact-us-php page page-id-22257 wp-theme-urban">
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W939ZHX"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->		<header id="masthead" class="site-header">
+		<div class="top-header-wrap main-navigation">
+		<div class="top_menu hidden-mobile">
+					<div class="menu-top-menu-container"><ul id="menu-top-menu" class="menu"><li id="menu-item-28934" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-28934"><a>News &#038; Updates</a>
+<ul class="sub-menu">
+	<li id="menu-item-29196" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-29196"><a href="https://urban.co.nz/newsletter-signup/">Join our newsletter</a></li>
+	<li id="menu-item-27" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-27"><a href="https://urban.co.nz/blog-listing/">Blog</a></li>
+	<li id="menu-item-29" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-29"><a href="https://urban.co.nz/our-urban-journeys/">Build Journeys</a></li>
+</ul>
+</li>
+<li id="menu-item-30" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-30"><a href="https://urban.co.nz/inspiration/">Inspiration</a>
+<ul class="sub-menu">
+	<li id="menu-item-29209" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-29209"><a href="https://urban.co.nz/inspiration/">Inspiration</a></li>
+	<li id="menu-item-28879" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-28879"><a href="https://urban.co.nz/the-look-book/">Look Book</a></li>
+	<li id="menu-item-30822" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-30822"><a href="https://urban.co.nz/plan-collection-brochures/">Plan Collection Brochures</a></li>
+	<li id="menu-item-28880" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-28880"><a href="https://urban.co.nz/the-onyx-collection/">The Onyx Collection</a></li>
+	<li id="menu-item-25313" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25313"><a href="https://urban.co.nz/studiou/">StudioU Design Centre</a></li>
+	<li id="menu-item-32" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-32"><a href="https://urban.co.nz/show-homes-and-display-homes-in-ar/">Augmented Reality</a></li>
+	<li id="menu-item-28881" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-28881"><a href="https://urban.co.nz/custom-design-and-build/">Design and Build</a></li>
+</ul>
+</li>
+<li id="menu-item-25414" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-25414"><a>Opportunities</a>
+<ul class="sub-menu">
+	<li id="menu-item-33" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-33"><a href="https://urban.co.nz/why-urban/join-urban-homes/">Careers</a></li>
+	<li id="menu-item-25410" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25410"><a href="https://urban.co.nz/franchise/">Franchise</a></li>
+</ul>
+</li>
+<li id="menu-item-22" class="nav-btn menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-22"><a>Locations</a>
+<ul class="sub-menu">
+	<li id="menu-item-25" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-25"><a href="https://urban.co.nz/locations/waikato/">Waikato</a></li>
+	<li id="menu-item-26" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-26"><a href="https://urban.co.nz/locations/thames-coromandel/">Thames Coromandel</a></li>
+	<li id="menu-item-29435" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-29435"><a href="https://urban.co.nz/locations/rotorua/">Rotorua</a></li>
+</ul>
+</li>
+<li id="menu-item-41" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-41"><a href="https://urban.co.nz/?s=">Search</a></li>
+</ul></div>				</div>
+		</div>
+		<div class="header-logo-wrap">
+		<div class="container-wrap">
+			<a href="tel:08006987226" title="Call Us" class="phone_icon"><img src="https://urban.co.nz/wp-content/uploads/2022/07/phone-icon.svg" alt="Call"/></a>			<a href="https://urban.co.nz" class="logo" title="Urban House">
+				<img src="https://urban.co.nz/wp-content/uploads/2026/09/Urban_Logo.png" alt=""/>
+			</a>
+						<button class="menu-toggle" aria-controls="primary-menu" aria-expanded="false"><span class="menu-box"><span></span><span></span><span></span> </span></button>
+			<nav id="site-navigation" class="main-navigation">
+				<div class="menu-main-menu-container"><ul id="primary-menu" class="menu"><li id="menu-item-10" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-10"><a href="https://urban.co.nz/show-homes/">Show Homes</a></li>
+<li id="menu-item-12" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-12"><a href="https://urban.co.nz/house-and-land-packages/">House &#038; Land</a>
+<ul class="sub-menu">
+	<li id="menu-item-29402" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-29402"><a href="https://urban.co.nz/view-house-and-land-packages/waikato/">Waikato</a></li>
+	<li id="menu-item-29403" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-29403"><a href="https://urban.co.nz/view-house-and-land-packages/thames-and-coromandel/">Thames Coromandel</a></li>
+	<li id="menu-item-29452" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-29452"><a href="https://urban.co.nz/view-house-and-land-packages/rotorua/">Rotorua</a></li>
+</ul>
+</li>
+<li id="menu-item-11" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-11"><a href="https://urban.co.nz/house-plans/">House Plans</a>
+<ul class="sub-menu">
+	<li id="menu-item-29194" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-29194"><a href="https://urban.co.nz/house-plans/">House Plans</a></li>
+	<li id="menu-item-28697" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-28697"><a href="https://urban.co.nz/custom-design-and-build/">Design and Build</a></li>
+	<li id="menu-item-30814" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-30814"><a href="https://urban.co.nz/plan-collection-brochures/">Plan Collection Brochures</a></li>
+	<li id="menu-item-28677" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-28677"><a href="https://urban.co.nz/the-onyx-collection/">Onyx Collection</a></li>
+</ul>
+</li>
+<li id="menu-item-13" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-13"><a href="https://urban.co.nz/custom-design-and-build/">Design &#038; Build</a>
+<ul class="sub-menu">
+	<li id="menu-item-29200" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-29200"><a href="https://urban.co.nz/custom-design-and-build/">Design &#038; Build</a></li>
+	<li id="menu-item-18" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-18"><a href="https://urban.co.nz/site-appraisal/">Site Appraisal</a></li>
+	<li id="menu-item-30815" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-30815"><a href="https://urban.co.nz/plan-collection-brochures/">Plan Collection Brochures</a></li>
+	<li id="menu-item-27104" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-27104"><a href="https://urban.co.nz/renovate/">Renovate</a></li>
+</ul>
+</li>
+<li id="menu-item-14" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-14"><a href="https://urban.co.nz/why-urban/">Why Urban</a>
+<ul class="sub-menu">
+	<li id="menu-item-29202" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-29202"><a href="https://urban.co.nz/why-urban/">Why Urban</a></li>
+	<li id="menu-item-20" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-20"><a href="https://urban.co.nz/why-urban/award-winning-master-builders-waikato/">Awards</a></li>
+	<li id="menu-item-28931" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-28931"><a href="https://urban.co.nz/faqs/">FAQs</a></li>
+</ul>
+</li>
+<li id="menu-item-15" class="menu-item menu-item-type-custom menu-item-object-custom current-menu-item current-menu-ancestor current-menu-parent menu-item-has-children menu-item-15"><a href="https://urban.co.nz/contact-us/" aria-current="page">Contact</a>
+<ul class="sub-menu">
+	<li id="menu-item-29205" class="menu-item menu-item-type-custom menu-item-object-custom current-menu-item menu-item-29205"><a href="https://urban.co.nz/contact-us/" aria-current="page">Contact</a></li>
+	<li id="menu-item-28756" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-28756"><a href="https://urban.co.nz/request-call-back/">Request a call back</a></li>
+</ul>
+</li>
+</ul></div>				<div class="top_menu ">
+					<div class="menu-top-menu-container"><ul id="menu-top-menu" class="menu"><li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-28934"><a>News &#038; Updates</a>
+<ul class="sub-menu">
+	<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-29196"><a href="https://urban.co.nz/newsletter-signup/">Join our newsletter</a></li>
+	<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-27"><a href="https://urban.co.nz/blog-listing/">Blog</a></li>
+	<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-29"><a href="https://urban.co.nz/our-urban-journeys/">Build Journeys</a></li>
+</ul>
+</li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-30"><a href="https://urban.co.nz/inspiration/">Inspiration</a>
+<ul class="sub-menu">
+	<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-29209"><a href="https://urban.co.nz/inspiration/">Inspiration</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-28879"><a href="https://urban.co.nz/the-look-book/">Look Book</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-30822"><a href="https://urban.co.nz/plan-collection-brochures/">Plan Collection Brochures</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-28880"><a href="https://urban.co.nz/the-onyx-collection/">The Onyx Collection</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25313"><a href="https://urban.co.nz/studiou/">StudioU Design Centre</a></li>
+	<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-32"><a href="https://urban.co.nz/show-homes-and-display-homes-in-ar/">Augmented Reality</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-28881"><a href="https://urban.co.nz/custom-design-and-build/">Design and Build</a></li>
+</ul>
+</li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-25414"><a>Opportunities</a>
+<ul class="sub-menu">
+	<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-33"><a href="https://urban.co.nz/why-urban/join-urban-homes/">Careers</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-25410"><a href="https://urban.co.nz/franchise/">Franchise</a></li>
+</ul>
+</li>
+<li class="nav-btn menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-22"><a>Locations</a>
+<ul class="sub-menu">
+	<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-25"><a href="https://urban.co.nz/locations/waikato/">Waikato</a></li>
+	<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-26"><a href="https://urban.co.nz/locations/thames-coromandel/">Thames Coromandel</a></li>
+	<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-29435"><a href="https://urban.co.nz/locations/rotorua/">Rotorua</a></li>
+</ul>
+</li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-41"><a href="https://urban.co.nz/?s=">Search</a></li>
+</ul></div>				</div>
+					
+
+					<div class="mobile_social_nav">
+					   	<ul>
+		                    <li>E. <a href="mailto:sales@urban.co.nz" title="Email Us">sales@urban.co.nz</a></li><li>P. <a href="tel:08006987226" title="Call Us"><span>0800 MY URBAN</span></a></li>						</ul>
+					   			                  	<ul class="social-icons">  
+		                      		                        <li>
+		                          <a href="https://www.facebook.com/UrbanHomesNZ/" title="facebook" target="_blank">
+		                              <i class="fab fa-facebook"></i>
+		                          </a>
+		                        </li>    
+		                      		                        <li>
+		                          <a href="https://www.instagram.com/urbanhomes_nz/" title="instagram" target="_blank">
+		                              <i class="fab fa-instagram"></i>
+		                          </a>
+		                        </li>    
+		                      		                        <li>
+		                          <a href="https://www.linkedin.com/company/urbanhomesnz/" title="linkedin" target="_blank">
+		                              <i class="fab fa-linkedin"></i>
+		                          </a>
+		                        </li>    
+		                      		                  	</ul>    
+                  							</div>
+					</div>
+			</nav><!-- #site-navigation -->
+		</div>
+	</header><!-- #masthead -->
+<div class="inner_banner_sec">
+    <div class="inner_banner_slider">
+                <div class="inner_banner_slide banner_sec  image">
+                <div class="inner_banner_slide-wrapper banner-shadow">
+                                        <div style="background-image: url('https://urban.co.nz/wp-content/uploads/2023/02/Urban.012_cropped.jpg')" class="banner_bg">
+                        
+                        <div class="container-lg banner_text">
+                            <h1>Contact Us</h1>                        </div>
+                        
+                    </div>
+                                    </div>
+
+                <!--banner bottom here-->
+                    
+                <!--banner bottom end-->
+
+                </div>
+            </div>
+            </div>
+
+    </div>
+
+<div id="next-sec"></div>
+<section class="section_primary_content" style="background-color: #fff;">
+	<div class="container">
+		<div class="title_sec text-center simple_content_area">
+			<h2>Let us help you today</h2>
+<p>If you’re looking to build a new home, city, country or coastal, start your journey with Urban Homes. Building beautiful homes is in our DNA. We take ownership of all our clients builds, treating them as if they were our very own masterpiece.</p>
+<div style="position: static !important;"></div>
+<div style="position: static !important;"></div>
+<div style="position: static !important;"></div>
+		</div>
+	</div>
+</section>
+<section class="setion_urban_process section-urban_contact text-center">
+	<div class="container">
+		<h2>Find your local Urban Homes office</h2>		<div class="accordian_wrapper">
+			<ul class="accordian accordian-contact">	
+		            		<li>
+		    		<a href="#" class="">WAIKATO</a>
+					<div class="accordian-content ">
+						<div class="location-acc">
+							<h2>Urban Homes Waikato (Head Office)</h2>
+<h3>Office and StudioU Design Centre<br />
+103 London Street, Hamilton</h3>
+<div style="position: static !important;"></div>
+<div style="position: static !important;"></div>
+<div style="position: static !important;"></div>
+							<div class="contact-columns">
+																<div class="contact-info-col">
+									<h5>PHONE</h5>									<p><a href="tel:08006987226">0800 698 7226</a></p>
+								</div>
+																<div class="contact-info-col">
+									<h5>Sales enquiries</h5>									<p><a href="mailto:sales@urban.co.nz">sales@urban.co.nz</a></p>
+								</div>
+																<div class="contact-info-col">
+									<h5>OFFICE enquiries</h5>									<p><a href="mailto:office@urban.co.nz">office@urban.co.nz</a>
+								</div>
+																<div class="contact-info-col">
+									<h5>OPEN HOURS</h5>									<p>Weekdays 8am – 5pm <br/>Closed weekends and public holidays</p>
+								</div>
+															</div>
+														<figure>
+								<img src="https://urban.co.nz/wp-content/uploads/2020/04/Urban-Office.jpg" alt="">
+							</figure>
+														<div class="accordian-btn">
+								<a href="https://urban.co.nz/locations/waikato/" class="btn blue_btn" target="_self" title="VIEW WAIKATO PAGE">VIEW WAIKATO PAGE</a>
+							</div>
+													</div>
+					</div>
+				</li>
+    		        		<li>
+		    		<a href="#" class="">THAMES COROMANDEL</a>
+					<div class="accordian-content ">
+						<div class="location-acc">
+							<h2>Urban Homes Thames Coromandel</h2>
+<h3>Office and Design Centre<br />
+Shop 6, 1 Blacksmith Lane, Whitianga</h3>
+<div style="position: static !important;"></div>
+<div style="position: static !important;"></div>
+<div style="position: static !important;"></div>
+							<div class="contact-columns">
+																<div class="contact-info-col">
+									<h5>PHONE</h5>									<p><a href="tel:078680502">07 868 0502</a></p>
+								</div>
+																<div class="contact-info-col">
+									<h5>Sales enquiries</h5>									<p><a href="mailto:coromandel@urban.co.nz">coromandel@urban.co.nz</a></p>
+								</div>
+																<div class="contact-info-col">
+									<h5>OFFICE enquiries</h5>									<p><a href="mailto:coromandel@urban.co.nz">coromandel@urban.co.nz</a>
+								</div>
+																<div class="contact-info-col">
+									<h5>OPEN HOURS</h5>									<p>Weekdays 9am – 4pm <br>Saturday 10am – 2pm <br>Sunday and Public Holidays by appointment</p>
+								</div>
+															</div>
+														<figure>
+								<img src="https://urban.co.nz/wp-content/uploads/2020/04/Coro-New-Signage_Exterior-updated.jpg" alt="">
+							</figure>
+														<div class="accordian-btn">
+								<a href="https://urban.co.nz/locations/thames-coromandel/" class="btn blue_btn" target="_self" title="VIEW THAMES COROMANDEL PAGE">VIEW THAMES COROMANDEL PAGE</a>
+							</div>
+													</div>
+					</div>
+				</li>
+    		        		<li>
+		    		<a href="#" class="">ROTORUA</a>
+					<div class="accordian-content ">
+						<div class="location-acc">
+							<h2>Urban Homes Rotorua</h2>
+<h3>Office and Show Home<br />
+25 Manawa Road, Redwood Park, Rotorua</h3>
+							<div class="contact-columns">
+																<div class="contact-info-col">
+									<h5>PHONE</h5>									<p><a href="tel:021502700">021 502 700</a></p>
+								</div>
+																<div class="contact-info-col">
+									<h5>Sales enquiries</h5>									<p><a href="mailto:rotorua@urban.co.nz">rotorua@urban.co.nz</a></p>
+								</div>
+																<div class="contact-info-col">
+									<h5>OFFICE enquiries</h5>									<p><a href="mailto:rotorua@urban.co.nz">rotorua@urban.co.nz</a>
+								</div>
+																<div class="contact-info-col">
+									<h5>OPEN HOURS</h5>									<p>Open weekdays 8am - 4pm <br>Show Home | Wed to Sun 12pm - 4pm</p>
+								</div>
+															</div>
+														<figure>
+								<img src="https://urban.co.nz/wp-content/uploads/2025/06/5-print-inHouse_AR5_7915-scaled.jpg" alt="">
+							</figure>
+														<div class="accordian-btn">
+								<a href="https://urban.co.nz/locations/rotorua/" class="btn blue_btn" target="_self" title="VIEW ROTORUA PAGE">VIEW ROTORUA PAGE</a>
+							</div>
+													</div>
+					</div>
+				</li>
+    				        <li>
+		    		<a href="#" class="">HEAD OFFICE TEAM</a>
+					<div class="accordian-content ">	
+		        		<div class="row team-accordian">
+												<div class="col-3">
+							<div class="team_box">
+																	<figure class="bg_set" style="background-image: url('https://urban.co.nz/wp-content/uploads/2020/04/Daniel-and-Bronwyn-scaled.jpg')"></figure>
+									
+								<div class="team_content">
+									<h4>Daniel &#038; Bronwyn <br>Klinkenberg</h4>		
+									<p>Founders</p>									<div class="team_contacts">
+										<ul>
+											<li><a href="mailto:daniel.klinkenberg@urban.co.nz"><i class="fas fa-envelope"></i></a></li><li><a href="https://www.linkedin.com/in/daniel-klinkenberg/" target="_blank"><i class="fab fa-linkedin"></i></a></li>										</ul>
+									</div>
+																	</div>
+							</div>
+						</div>
+												<div class="col-3">
+							<div class="team_box">
+																	<figure class="bg_set" style="background-image: url('https://urban.co.nz/wp-content/uploads/2024/08/Ollie-Barnett-Square.jpg')"></figure>
+									
+								<div class="team_content">
+									<h4>Ollie Barnett</h4>		
+									<p>Chief Financial Officer</p>									<div class="team_contacts">
+										<ul>
+											<li><a href="mailto:ollie.barnett@urban.co.nz"><i class="fas fa-envelope"></i></a></li>										</ul>
+									</div>
+																	</div>
+							</div>
+						</div>
+												<div class="col-3">
+							<div class="team_box">
+																	<figure class="bg_set" style="background-image: url('https://urban.co.nz/wp-content/uploads/2020/08/Vaughan-Pengelly-1-e1666302873143.jpg')"></figure>
+									
+								<div class="team_content">
+									<h4>VAUGHAN PENGELLY</h4>		
+									<p>Head of IT and Systems</p>									<div class="team_contacts">
+										<ul>
+											<li><a href="mailto:vaughan.pengelly@urban.co.nz"><i class="fas fa-envelope"></i></a></li>										</ul>
+									</div>
+																	</div>
+							</div>
+						</div>
+												</div>
+					</div>
+				</li>
+					    	</ul>
+	    </div>
+	</div>
+</section>
+<section class="request_section blue_bg" id="bookappraisal">
+	<div class="container">
+		<div class="row">
+						<div class="col-5">
+				<div class="request_content">
+					<h3>Request a call back</h3>
+<p>Still have a few questions? Fill out the form and we will give you a call. Alternatively, contact us today on 0800 MY URBAN.</p>
+				</div>
+			</div>
+						<div class="col-7">
+				<div class="request_form site_appr_form">
+					
+                <div class='gf_browser_unknown gform_wrapper gform_legacy_markup_wrapper gform-theme--no-framework' data-form-theme='legacy' data-form-index='0' id='gform_wrapper_16' ><style>#gform_wrapper_16[data-form-index="0"].gform-theme{--gf-color-primary: #204ce5;--gf-color-primary-rgb: 32, 76, 229;--gf-color-primary-contrast: #fff;--gf-color-primary-contrast-rgb: 255, 255, 255;--gf-color-primary-darker: #001AB3;--gf-color-primary-lighter: #527EFF;--gf-color-secondary: #fff;--gf-color-secondary-rgb: 255, 255, 255;--gf-color-secondary-contrast: #112337;--gf-color-secondary-contrast-rgb: 17, 35, 55;--gf-color-secondary-darker: #F5F5F5;--gf-color-secondary-lighter: #FFFFFF;--gf-color-out-ctrl-light: rgba(17, 35, 55, 0.1);--gf-color-out-ctrl-light-rgb: 17, 35, 55;--gf-color-out-ctrl-light-darker: rgba(104, 110, 119, 0.35);--gf-color-out-ctrl-light-lighter: #F5F5F5;--gf-color-out-ctrl-dark: #585e6a;--gf-color-out-ctrl-dark-rgb: 88, 94, 106;--gf-color-out-ctrl-dark-darker: #112337;--gf-color-out-ctrl-dark-lighter: rgba(17, 35, 55, 0.65);--gf-color-in-ctrl: #fff;--gf-color-in-ctrl-rgb: 255, 255, 255;--gf-color-in-ctrl-contrast: #112337;--gf-color-in-ctrl-contrast-rgb: 17, 35, 55;--gf-color-in-ctrl-darker: #F5F5F5;--gf-color-in-ctrl-lighter: #FFFFFF;--gf-color-in-ctrl-primary: #204ce5;--gf-color-in-ctrl-primary-rgb: 32, 76, 229;--gf-color-in-ctrl-primary-contrast: #fff;--gf-color-in-ctrl-primary-contrast-rgb: 255, 255, 255;--gf-color-in-ctrl-primary-darker: #001AB3;--gf-color-in-ctrl-primary-lighter: #527EFF;--gf-color-in-ctrl-light: rgba(17, 35, 55, 0.1);--gf-color-in-ctrl-light-rgb: 17, 35, 55;--gf-color-in-ctrl-light-darker: rgba(104, 110, 119, 0.35);--gf-color-in-ctrl-light-lighter: #F5F5F5;--gf-color-in-ctrl-dark: #585e6a;--gf-color-in-ctrl-dark-rgb: 88, 94, 106;--gf-color-in-ctrl-dark-darker: #112337;--gf-color-in-ctrl-dark-lighter: rgba(17, 35, 55, 0.65);--gf-radius: 3px;--gf-font-size-secondary: 14px;--gf-font-size-tertiary: 13px;--gf-icon-ctrl-number: url("data:image/svg+xml,%3Csvg width='8' height='14' viewBox='0 0 8 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M4 0C4.26522 5.96046e-08 4.51957 0.105357 4.70711 0.292893L7.70711 3.29289C8.09763 3.68342 8.09763 4.31658 7.70711 4.70711C7.31658 5.09763 6.68342 5.09763 6.29289 4.70711L4 2.41421L1.70711 4.70711C1.31658 5.09763 0.683417 5.09763 0.292893 4.70711C-0.0976311 4.31658 -0.097631 3.68342 0.292893 3.29289L3.29289 0.292893C3.48043 0.105357 3.73478 0 4 0ZM0.292893 9.29289C0.683417 8.90237 1.31658 8.90237 1.70711 9.29289L4 11.5858L6.29289 9.29289C6.68342 8.90237 7.31658 8.90237 7.70711 9.29289C8.09763 9.68342 8.09763 10.3166 7.70711 10.7071L4.70711 13.7071C4.31658 14.0976 3.68342 14.0976 3.29289 13.7071L0.292893 10.7071C-0.0976311 10.3166 -0.0976311 9.68342 0.292893 9.29289Z' fill='rgba(17, 35, 55, 0.65)'/%3E%3C/svg%3E");--gf-icon-ctrl-select: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M0.292893 0.292893C0.683417 -0.097631 1.31658 -0.097631 1.70711 0.292893L5 3.58579L8.29289 0.292893C8.68342 -0.0976311 9.31658 -0.0976311 9.70711 0.292893C10.0976 0.683417 10.0976 1.31658 9.70711 1.70711L5.70711 5.70711C5.31658 6.09763 4.68342 6.09763 4.29289 5.70711L0.292893 1.70711C-0.0976311 1.31658 -0.0976311 0.683418 0.292893 0.292893Z' fill='rgba(17, 35, 55, 0.65)'/%3E%3C/svg%3E");--gf-icon-ctrl-search: url("data:image/svg+xml,%3Csvg width='640' height='640' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M256 128c-70.692 0-128 57.308-128 128 0 70.691 57.308 128 128 128 70.691 0 128-57.309 128-128 0-70.692-57.309-128-128-128zM64 256c0-106.039 85.961-192 192-192s192 85.961 192 192c0 41.466-13.146 79.863-35.498 111.248l154.125 154.125c12.496 12.496 12.496 32.758 0 45.254s-32.758 12.496-45.254 0L367.248 412.502C335.862 434.854 297.467 448 256 448c-106.039 0-192-85.962-192-192z' fill='rgba(17, 35, 55, 0.65)'/%3E%3C/svg%3E");--gf-label-space-y-secondary: var(--gf-label-space-y-md-secondary);--gf-ctrl-border-color: #686e77;--gf-ctrl-size: var(--gf-ctrl-size-md);--gf-ctrl-label-color-primary: #112337;--gf-ctrl-label-color-secondary: #112337;--gf-ctrl-choice-size: var(--gf-ctrl-choice-size-md);--gf-ctrl-checkbox-check-size: var(--gf-ctrl-checkbox-check-size-md);--gf-ctrl-radio-check-size: var(--gf-ctrl-radio-check-size-md);--gf-ctrl-btn-font-size: var(--gf-ctrl-btn-font-size-md);--gf-ctrl-btn-padding-x: var(--gf-ctrl-btn-padding-x-md);--gf-ctrl-btn-size: var(--gf-ctrl-btn-size-md);--gf-ctrl-btn-border-color-secondary: #686e77;--gf-ctrl-btn-bg-color-hover-tertiary: #EBEBEB;--gf-field-img-choice-size: var(--gf-field-img-choice-size-md);--gf-field-img-choice-card-space: var(--gf-field-img-choice-card-space-md);--gf-field-img-choice-check-ind-size: var(--gf-field-img-choice-check-ind-size-md);--gf-field-img-choice-check-ind-icon-size: var(--gf-field-img-choice-check-ind-icon-size-md);--gf-field-pg-steps-number-color: rgba(17, 35, 55, 0.8);}</style><div id='gf_16' class='gform_anchor' tabindex='-1'></div><form method='post' enctype='multipart/form-data' target='gform_ajax_frame_16' id='gform_16'  action='/contact-us/#gf_16' data-formid='16' novalidate>
+                        <div class='gform-body gform_body'><ul id='gform_fields_16' class='gform_fields top_label form_sublabel_below description_below validation_below'><li id="field_16_8" class="gfield gfield--type-honeypot gform_validation_container field_sublabel_below gfield--has-description field_description_below field_validation_below gfield_visibility_visible"  ><label class='gfield_label gform-field-label' for='input_16_8'><span class='gform-field-label__text'>LinkedIn</span></label><div class='ginput_container'><input name='input_8' id='input_16_8' type='text' value='' autocomplete='new-password'/></div><div class='gfield_description' id='gfield_description_16_8'>This field is for validation purposes and should be left unchanged.</div></li><li id="field_16_1" class="gfield gfield--type-text gfield--input-type-text col-6 gfield_contains_required field_sublabel_below gfield--no-description field_description_below field_validation_below gfield_visibility_visible"  ><label class='gfield_label gform-field-label screen-reader-text' for='input_16_1'><span class='gform-field-label__text'>First Name *</span><span class="gfield_required"><span class="gfield_required gfield_required_asterisk">*</span></span></label><div class='ginput_container ginput_container_text'><input name='input_1' id='input_16_1' type='text' value='' class='large'    placeholder='First Name *' aria-required="true" aria-invalid="false"   /></div></li><li id="field_16_2" class="gfield gfield--type-text gfield--input-type-text gfield--width-full col-6 gfield_contains_required field_sublabel_below gfield--no-description field_description_below field_validation_below gfield_visibility_visible"  ><label class='gfield_label gform-field-label screen-reader-text' for='input_16_2'><span class='gform-field-label__text'>Last Name *</span><span class="gfield_required"><span class="gfield_required gfield_required_asterisk">*</span></span></label><div class='ginput_container ginput_container_text'><input name='input_2' id='input_16_2' type='text' value='' class='large'    placeholder='Last Name *' aria-required="true" aria-invalid="false"   /></div></li><li id="field_16_5" class="gfield gfield--type-email gfield--input-type-email gfield--width-full col-6 gfield_contains_required field_sublabel_below gfield--no-description field_description_below field_validation_below gfield_visibility_visible"  ><label class='gfield_label gform-field-label screen-reader-text' for='input_16_5'><span class='gform-field-label__text'>Email *</span><span class="gfield_required"><span class="gfield_required gfield_required_asterisk">*</span></span></label><div class='ginput_container ginput_container_email'>
+                            <input name='input_5' id='input_16_5' type='email' value='' class='large'   placeholder='Email *' aria-required="true" aria-invalid="false"  />
+                        </div></li><li id="field_16_4" class="gfield gfield--type-text gfield--input-type-text gfield--width-full phone-number col-6 gfield_contains_required field_sublabel_below gfield--no-description field_description_below field_validation_below gfield_visibility_visible"  ><label class='gfield_label gform-field-label screen-reader-text' for='input_16_4'><span class='gform-field-label__text'>Phone Number *</span><span class="gfield_required"><span class="gfield_required gfield_required_asterisk">*</span></span></label><div class='ginput_container ginput_container_text'><input name='input_4' id='input_16_4' type='text' value='' class='large'    placeholder='Phone Number *' aria-required="true" aria-invalid="false"   /></div></li><li id="field_16_6" class="gfield gfield--type-select gfield--input-type-select gfield--width-full gfield_contains_required field_sublabel_below gfield--no-description field_description_below field_validation_below gfield_visibility_visible"  ><label class='gfield_label gform-field-label' for='input_16_6'><span class='gform-field-label__text'>Please select your build location</span><span class="gfield_required"><span class="gfield_required gfield_required_asterisk">*</span></span></label><div class='ginput_container ginput_container_select'><select name='input_6' id='input_16_6' class='large gfield_select'    aria-required="true" aria-invalid="false" ><option value='' selected='selected' class='gf_placeholder'>Please select your build location</option><option value='Waikato' >Waikato</option><option value='Thames/Coromandel' >Thames/Coromandel</option><option value='Rotorua' >Rotorua</option><option value='Tauranga/Bay of Plenty' >Tauranga/Bay of Plenty</option><option value='Taupo' >Taupo</option><option value='Papakura/Franklin' >Papakura/Franklin</option><option value='Auckland' >Auckland</option><option value='Central Auckland' >Central Auckland</option></select></div></li><li id="field_16_7" class="gfield gfield--type-turnstile gfield--input-type-turnstile gfield--width-full field_sublabel_below gfield--no-description field_description_below field_validation_below gfield_visibility_visible"  ><div class='ginput_container ginput_container_turnstile'><div class="cf-turnstile" id="cf-turnstile_16" data-js-turnstile data-response-field-name="cf-turnstile-response_16" data-theme="light" data-size="" data-sitekey="0x4AAAAAAB8U7gHKwKJtX_Fb"></div></div></li></ul></div>
+        <div class='gform-footer gform_footer top_label'> <button type='submit' id='gform_submit_button_16' class='gform_button button' onclick='gform.submission.handleButtonClick(this);' data-submission-type='submit' >Call Me</button> <input type='hidden' name='gform_ajax' value='form_id=16&amp;title=&amp;description=&amp;tabindex=0&amp;theme=legacy&amp;styles=[]&amp;hash=20106dfbc0ad44cfe350cf253ed07d84' />
+            <input type='hidden' class='gform_hidden' name='gform_submission_method' data-js='gform_submission_method_16' value='iframe' />
+            <input type='hidden' class='gform_hidden' name='gform_theme' data-js='gform_theme_16' id='gform_theme_16' value='legacy' />
+            <input type='hidden' class='gform_hidden' name='gform_style_settings' data-js='gform_style_settings_16' id='gform_style_settings_16' value='[]' />
+            <input type='hidden' class='gform_hidden' name='is_submit_16' value='1' />
+            <input type='hidden' class='gform_hidden' name='gform_submit' value='16' />
+            
+            <input type='hidden' class='gform_hidden' name='gform_currency' data-currency='NZD' value='2h1hUV1Y9stHQyQRPIm0SkdXVf+BUHTmkDzsoiXdjlzOsg9rS/S8ioSKoFTX5VomLc2lsaouoW+ga/uy2RDOdKyx0ZlCugCSOa8OUtYtqpl+l8g=' />
+            <input type='hidden' class='gform_hidden' name='gform_unique_id' value='' />
+            <input type='hidden' class='gform_hidden' name='state_16' value='WyJ7XCI2XCI6W1wiMTg2NjQ4NGU1ZjMwZWJhMTRhYTk5MGJhMWU5YzhjZjFcIixcIjFhYzljZmExYzg3MGQwZDkxNGJlOWMxNTUxNWQ2MmExXCIsXCIyODI4NDEwNDE4MGM1OTk0M2JkYjNkMDMwYjQwMzYyOFwiLFwiN2QzYmVmYjJiNjcyMjU1N2RkZTM4YmQ0N2QwNTcwOGZcIixcIjhjYmY3NmM1ODkwNDRjMDRmODQ4ZWY3NTUyNDkyNDAxXCIsXCI1NzM4NDM4ZTZiZmYyZmJjYzljOGNlMzAzNDlmYWI2YVwiLFwiNjRkNmJlY2I2MDU1OTg4MGJkMjQyZmUyZmIxMGVjMGNcIixcIjUwMDQ1MjhkY2Q0YzA4MGQ5ZWM4N2JjOWY5MmJlNDZkXCJdLFwiZ2Zvcm1fc3VibWlzc2lvbl9tZXRob2RcIjpbXCIyZGQxMjU5ZmU3NGQ2YzZkN2NmYWJmNWYzNTJlODg2NVwiLFwiZjI0OGU1YmYxNmIwY2FiMWUxMDllZDVlMzQ1ODJjOGZcIixcIjM3NmExMmNhNmRmN2Y0MWE3NDBhOTk0YzllYmMzNTRjXCJdLFwiZ2Zvcm1fdGhlbWVcIjpcIjEzNzUxMDQ0YTQ2NGM0MjFhZTc1ZTI3MGY5OTBhNWMwXCIsXCJnZm9ybV9zdHlsZV9zZXR0aW5nc1wiOlwiNWEyYmRlMDBhYTJmMjJiODNlNzdhMzVlMTA3ZWYxNjNcIixcImZvcm1faWRcIjpcImRiMjMzNzBhZTRkMzJiMTIxYjQ0MDMzZTY3YzA0YmUwXCIsXCJ1cmxcIjpcIjIxZmM2YzlhN2IxYzRlZmNlYjI4NjViMGY3NGRkNWM0XCIsXCJzdGF0ZV90aW1lc3RhbXBcIjpcImFmOWJmYjQ0OWQ1MjkxMDZmMjUyNmE1MWFjZjU5ZTZhXCJ9IiwiNDc5MjY2MGM0NGRkMmY4N2E3MjZiMzY3OTUyZDA0OGYiLDE3ODg4NjU5NjJd' />
+            <input type='hidden' autocomplete='off' class='gform_hidden' name='gform_target_page_number_16' id='gform_target_page_number_16' value='0' />
+            <input type='hidden' autocomplete='off' class='gform_hidden' name='gform_source_page_number_16' id='gform_source_page_number_16' value='1' />
+            <input type='hidden' name='gform_field_values' value='' />
+            
+        </div>
+                        </form>
+                        </div>
+		                <iframe style='display:none;width:0px;height:0px;' src='about:blank' name='gform_ajax_frame_16' id='gform_ajax_frame_16' title='This iframe contains the logic required to handle Ajax powered Gravity Forms.'></iframe>
+		                <script>
+gform.initializeOnLoaded( function() {jQuery('#gform_ajax_frame_16').on('load',function(){var contents = jQuery(this).contents().find('*').html();var is_postback = contents.indexOf('GF_AJAX_POSTBACK') >= 0;if(!is_postback){return;}var form_content = jQuery(this).contents().find('#gform_wrapper_16');var is_confirmation = jQuery(this).contents().find('#gform_confirmation_wrapper_16').length > 0;var is_redirect = contents.indexOf('gformRedirect(){') >= 0;var is_form = form_content.length > 0 && ! is_redirect && ! is_confirmation;var mt = parseInt(jQuery('html').css('margin-top'), 10) + parseInt(jQuery('body').css('margin-top'), 10) + 100;if(is_form){jQuery('#gform_wrapper_16').html(form_content.html());if(form_content.hasClass('gform_validation_error')){jQuery('#gform_wrapper_16').addClass('gform_validation_error');} else {jQuery('#gform_wrapper_16').removeClass('gform_validation_error');}setTimeout( function() { /* delay the scroll by 50 milliseconds to fix a bug in chrome */ jQuery(document).scrollTop(jQuery('#gform_wrapper_16').offset().top - mt); }, 50 );var current_page = jQuery('#gform_source_page_number_16').val();jQuery(document).trigger('gform_page_loaded', [16, current_page]);window['gf_submitting_16'] = false;}else if(!is_redirect){var confirmation_content = jQuery(this).contents().find('.GF_AJAX_POSTBACK').html();if(!confirmation_content){confirmation_content = contents;}jQuery('#gform_wrapper_16').replaceWith(confirmation_content);jQuery(document).scrollTop(jQuery('#gf_16').offset().top - mt);jQuery(document).trigger('gform_confirmation_loaded', [16]);window['gf_submitting_16'] = false;wp.a11y.speak(jQuery('#gform_confirmation_message_16').text());}else{jQuery('#gform_16').append(contents);if(window['gformRedirect']) {gformRedirect();}}jQuery(document).trigger("gform_pre_post_render", [{ formId: "16", currentPage: "current_page", abort: function() { this.preventDefault(); } }]);        if (event && event.defaultPrevented) {                return;        }        const gformWrapperDiv = document.getElementById( "gform_wrapper_16" );        if ( gformWrapperDiv ) {            const visibilitySpan = document.createElement( "span" );            visibilitySpan.id = "gform_visibility_test_16";            gformWrapperDiv.insertAdjacentElement( "afterend", visibilitySpan );        }        const visibilityTestDiv = document.getElementById( "gform_visibility_test_16" );        let postRenderFired = false;        function triggerPostRender() {            if ( postRenderFired ) {                return;            }            postRenderFired = true;            gform.core.triggerPostRenderEvents( 16, current_page );            if ( visibilityTestDiv ) {                visibilityTestDiv.parentNode.removeChild( visibilityTestDiv );            }        }        function debounce( func, wait, immediate ) {            var timeout;            return function() {                var context = this, args = arguments;                var later = function() {                    timeout = null;                    if ( !immediate ) func.apply( context, args );                };                var callNow = immediate && !timeout;                clearTimeout( timeout );                timeout = setTimeout( later, wait );                if ( callNow ) func.apply( context, args );            };        }        const debouncedTriggerPostRender = debounce( function() {            triggerPostRender();        }, 200 );        if ( visibilityTestDiv && visibilityTestDiv.offsetParent === null ) {            const observer = new MutationObserver( ( mutations ) => {                mutations.forEach( ( mutation ) => {                    if ( mutation.type === 'attributes' && visibilityTestDiv.offsetParent !== null ) {                        debouncedTriggerPostRender();                        observer.disconnect();                    }                });            });            observer.observe( document.body, {                attributes: true,                childList: false,                subtree: true,                attributeFilter: [ 'style', 'class' ],            });        } else {            triggerPostRender();        }    } );} );
+</script>
+
+				</div>
+			</div>
+					</div>
+	</div>
+</section>
+<footer class="site_footer">
+  <div class="container">
+	            <div class="logo_award_wrap">
+                        <a href="https://urban.co.nz" class="footer_logo" title="Urban House">
+              <img src="https://urban.co.nz/wp-content/uploads/2022/07/urban-logo.svg" alt="urban-homes-logo"/>
+            </a>
+                      <div class="awrard_wrap">
+              <a href="https://urban.co.nz/why-urban/award-winning-master-builders-waikato/" class="award_link" target="_self" title="Award">
+                   <img src="https://urban.co.nz/wp-content/uploads/2022/11/Urban_awards-logos_2022_Deloitte-5.png" alt="urban-awards-deloitte-fast-50"/>
+              </a>
+           </div>
+                </div>
+              <div class="row footer_row">
+          <div class="col-4">
+              <div class="address_wrap">
+                <address>Head Office & StudioU Design Centre<br />
+103 London Street, Hamilton<br />
+Open weekdays 8am - 5pm<br />
+PO Box 1044<br />
+Hamilton 3204</address>                <ul>
+                    <li>E. <a href="mailto:sales@urban.co.nz" title="Email Us">sales@urban.co.nz</a></li><li>P. <a href="tel:08006987226" title="Call Us"><span>0800 698 7226</span></a></li>                </ul>
+                                <ul class="social-icons">  
+                                            <li>
+                            <a href="https://www.facebook.com/UrbanHomesNZ/" title="facebook" target="_blank">
+                                <i class="fab fa-facebook"></i>
+                            </a>
+                        </li>    
+                                            <li>
+                            <a href="https://www.instagram.com/urbanhomes_nz/" title="instagram" target="_blank">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        </li>    
+                                            <li>
+                            <a href="https://www.linkedin.com/company/urbanhomesnz/" title="linkedin" target="_blank">
+                                <i class="fab fa-linkedin"></i>
+                            </a>
+                        </li>    
+                                    </ul>    
+                            </div>
+          </div>
+          <div class="col-6">
+              <div class="quick_links">
+                  <h4>Quicklinks</h4>
+                  <div class="link_wrap">
+                    <ul id="menu-quick-links-1" class="menu"><li id="menu-item-79" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-79"><a href="https://urban.co.nz/show-homes/">Show homes</a></li>
+<li id="menu-item-80" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-80"><a href="https://urban.co.nz/house-plans/">House Plans</a></li>
+<li id="menu-item-81" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-81"><a href="https://urban.co.nz/house-and-land-packages/">House &#038; Land</a></li>
+<li id="menu-item-82" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-82"><a href="https://urban.co.nz/custom-design-and-build/">Design &#038; build</a></li>
+<li id="menu-item-83" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-83"><a href="https://urban.co.nz/why-urban/">Why urban</a></li>
+<li id="menu-item-84" class="menu-item menu-item-type-custom menu-item-object-custom current-menu-item menu-item-84"><a href="https://urban.co.nz/contact-us/" aria-current="page">Contact Us</a></li>
+</ul><ul id="menu-quick-links-2" class="menu"><li id="menu-item-85" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-85"><a href="https://urban.co.nz/blog-listing/">Stories</a></li>
+<li id="menu-item-86" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-86"><a href="https://urban.co.nz/inspiration/">Inspiration</a></li>
+<li id="menu-item-87" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-87"><a href="https://urban.co.nz/why-urban/join-urban-homes/">Careers</a></li>
+<li id="menu-item-28927" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-28927"><a href="https://urban.co.nz/newsletter-signup/">Join our Newsletter</a></li>
+<li id="menu-item-29238" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-29238"><a href="https://urban.co.nz/privacy-policy/">Privacy Policy</a></li>
+</ul>                  </div>
+              </div>
+              <div class="location_wrap">
+                  <h4>Locations</h4>
+                  <ul id="menu-locations" class="menu"><li id="menu-item-90" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-90"><a href="https://urban.co.nz/locations/waikato/">Waikato</a></li>
+<li id="menu-item-91" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-91"><a href="https://urban.co.nz/locations/thames-coromandel/">Thames Coromandel</a></li>
+<li id="menu-item-29437" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-29437"><a href="https://urban.co.nz/locations/rotorua/">Rotorua</a></li>
+</ul>              </div>
+          </div>
+                    <div class="col-2">
+               <div class="support_partner">
+                  <p>We proudly support</p>                  <img src="https://urban.co.nz/wp-content/uploads/2022/07/TC_logo_final-01.png" alt=""/>
+               </div>
+          </div>
+                 </div>
+  </div>
+
+</footer>
+<div class="copyright_sec">
+  <div class="container text-center">
+      © 2026 Urban Homes. All Rights Reserved.   </div>
+</div>
+<!-- #page -->
+
+<script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/urban/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+<script id="duoplus-popup-js" src="https://urban.co.nz/wp-content/plugins/Duoplus%20Popup%20Manager//assets/js/popup.js?ver=7.1"></script>
+<script id="leadin-script-loader-js-js-extra">
+var leadin_wordpress = {"userRole":"visitor","pageType":"page","leadinPluginVersion":"11.3.71"};
+//# sourceURL=leadin-script-loader-js-js-extra
+</script>
+<script async defer id='hs-script-loader' src="https://js.hs-scripts.com/19515902.js?integration=WordPress&#038;ver=11.3.71"></script>
+<script id="jquery-ui-core-js-before">
+jQuery.uiBackCompat = true;
+//# sourceURL=jquery-ui-core-js-before
+</script>
+<script id="jquery-ui-core-js" src="https://urban.co.nz/wp-includes/js/jquery/ui/core.min.js?ver=1.14.2"></script>
+<script id="jquery-ui-menu-js" src="https://urban.co.nz/wp-includes/js/jquery/ui/menu.min.js?ver=1.14.2"></script>
+<script id="wp-dom-ready-js" src="https://urban.co.nz/wp-includes/js/dist/dom-ready.min.js?ver=3fe927cab37bf38d6a23"></script>
+<script id="wp-hooks-js" src="https://urban.co.nz/wp-includes/js/dist/hooks.min.js?ver=f0f188028580e8dc1255"></script>
+<script id="wp-i18n-js" src="https://urban.co.nz/wp-includes/js/dist/i18n.min.js?ver=1dfe7db3940c23ea9216"></script>
+<script id="wp-i18n-js-after">
+wp.i18n.setLocaleData( { 'text direction\u0004ltr': [ 'ltr' ] } );
+//# sourceURL=wp-i18n-js-after
+</script>
+<script id="wp-a11y-js-translations">
+( function( domain, translations ) {
+	var localeData = translations.locale_data[ domain ] || translations.locale_data.messages;
+	localeData[""].domain = domain;
+	wp.i18n.setLocaleData( localeData, domain );
+} )( "default", {"translation-revision-date":"2026-07-09 14:24:58+0000","generator":"GlotPress\/4.0.3","domain":"messages","locale_data":{"messages":{"":{"domain":"messages","plural-forms":"nplurals=2; plural=n != 1;","lang":"en_NZ"},"Notifications":["Notifications"]}},"comment":{"reference":"wp-includes\/js\/dist\/a11y.js"}} );
+//# sourceURL=wp-a11y-js-translations
+</script>
+<script id="wp-a11y-js" src="https://urban.co.nz/wp-includes/js/dist/a11y.min.js?ver=31c6cec5a4ff7aff483d"></script>
+<script id="jquery-ui-autocomplete-js" src="https://urban.co.nz/wp-includes/js/jquery/ui/autocomplete.min.js?ver=1.14.2"></script>
+<script id="urban-navigation-js" src="https://urban.co.nz/wp-content/themes/urban/js/navigation.js?ver=1.0.0"></script>
+<script id="jquery-magnific-popup-js" src="https://urban.co.nz/wp-content/themes/urban/assets/js/jquery.magnific-popup.js?ver=1.0.0"></script>
+<script id="jquery-swipe-js" src="https://urban.co.nz/wp-content/themes/urban/assets/js/jquery.touchSwipe.min.js?ver=1.0.0"></script>
+<script id="jquery-slick-js" src="https://urban.co.nz/wp-content/themes/urban/assets/js/slick.min.js?ver=1.0.0"></script>
+<script id="jquery-slider-js" src="https://urban.co.nz/wp-content/themes/urban/assets/js/jquery-ui.js?ver=1.0.0"></script>
+<script id="jquery-slider-pips-js" src="https://urban.co.nz/wp-content/themes/urban/assets/js/jquery-ui-slider-pips.min.js?ver=1.0.0"></script>
+<script id="custom-slider-js" src="https://urban.co.nz/wp-content/themes/urban/assets/js/slider.js?ver=1.0.0"></script>
+<script id="TweenMax-js" src="https://urban.co.nz/wp-content/themes/urban/assets/js/TweenMax.min.js?ver=1.0.0"></script>
+<script id="video-plugin-js" src="https://urban.co.nz/wp-content/themes/urban/assets/js/jquery.youtube-background.min.js?ver=1.0.0"></script>
+<script id="general-js-extra">
+var urban_var = {"admin_ajax":"https://urban.co.nz/wp-admin/admin-ajax.php","site_url":"https://urban.co.nz/wp-admin/admin-ajax.php"};
+var propertyTitles = [{"label":"Appleton 215","value":"Appleton 215","url":"https://urban.co.nz/house-plan/appleton215/"},{"label":"Ashton 299","value":"Ashton 299","url":"https://urban.co.nz/house-plan/ashton299/"},{"label":"Ashwood 378","value":"Ashwood 378","url":"https://urban.co.nz/house-plan/ashwood-378/"},{"label":"Aurora 159","value":"Aurora 159","url":"https://urban.co.nz/house-plan/aurora159/"},{"label":"Awatea 225","value":"Awatea 225","url":"https://urban.co.nz/house-plan/awatea225/"},{"label":"Belmont 257","value":"Belmont 257","url":"https://urban.co.nz/house-plan/belmont257/"},{"label":"Blackbridge 352","value":"Blackbridge 352","url":"https://urban.co.nz/house-plan/blackbridge-352/"},{"label":"Bournbrook 164","value":"Bournbrook 164","url":"https://urban.co.nz/house-plan/bournbrook164/"},{"label":"Coulston 377","value":"Coulston 377","url":"https://urban.co.nz/house-plan/coulston-377/"},{"label":"Denvar 161","value":"Denvar 161","url":"https://urban.co.nz/house-plan/denvar161/"},{"label":"Dulverton 235","value":"Dulverton 235","url":"https://urban.co.nz/house-plan/dulverton235/"},{"label":"Elite 313","value":"Elite 313","url":"https://urban.co.nz/house-plan/elite313/"},{"label":"Eminence 297","value":"Eminence 297","url":"https://urban.co.nz/house-plan/eminence297/"},{"label":"Fendalton 252","value":"Fendalton 252","url":"https://urban.co.nz/house-plan/fendalton252/"},{"label":"Fendalton 286 ONYX","value":"Fendalton 286 ONYX","url":"https://urban.co.nz/house-plan/fendalton286-onyx/"},{"label":"Fendalton 291","value":"Fendalton 291","url":"https://urban.co.nz/house-plan/fendalton291/"},{"label":"Fendalton 315","value":"Fendalton 315","url":"https://urban.co.nz/house-plan/fendalton-315/"},{"label":"Fernando 464","value":"Fernando 464","url":"https://urban.co.nz/house-plan/fernando-464/"},{"label":"Fitzroy 248","value":"Fitzroy 248","url":"https://urban.co.nz/house-plan/fitzroy248/"},{"label":"Fusion 253","value":"Fusion 253","url":"https://urban.co.nz/house-plan/fusion253/"},{"label":"Fusion 287","value":"Fusion 287","url":"https://urban.co.nz/house-plan/fusion287/"},{"label":"Gleeson 259","value":"Gleeson 259","url":"https://urban.co.nz/house-plan/gleeson259/"},{"label":"Harper 206","value":"Harper 206","url":"https://urban.co.nz/house-plan/harper206/"},{"label":"Hinuera 267","value":"Hinuera 267","url":"https://urban.co.nz/house-plan/hinuera-267/"},{"label":"Horizon 445","value":"Horizon 445","url":"https://urban.co.nz/house-plan/horizon-445/"},{"label":"Inspire 313","value":"Inspire 313","url":"https://urban.co.nz/house-plan/inspire313/"},{"label":"Kahu 199","value":"Kahu 199","url":"https://urban.co.nz/house-plan/kahu-199/"},{"label":"Kaimai 365","value":"Kaimai 365","url":"https://urban.co.nz/house-plan/kaimai365/"},{"label":"Karaka 375","value":"Karaka 375","url":"https://urban.co.nz/house-plan/karaka-375/"},{"label":"Karapiro 176","value":"Karapiro 176","url":"https://urban.co.nz/house-plan/karapiro176/"},{"label":"Kea 205","value":"Kea 205","url":"https://urban.co.nz/house-plan/kea-205/"},{"label":"Kingston 247","value":"Kingston 247","url":"https://urban.co.nz/house-plan/kingston247/"},{"label":"Kotare 169","value":"Kotare 169","url":"https://urban.co.nz/house-plan/kotare-169/"},{"label":"Kowhai 225","value":"Kowhai 225","url":"https://urban.co.nz/house-plan/kowhai225/"},{"label":"Landon 406","value":"Landon 406","url":"https://urban.co.nz/house-plan/landon-406/"},{"label":"Leamington 235","value":"Leamington 235","url":"https://urban.co.nz/house-plan/leamington-235/"},{"label":"Livingstone 232","value":"Livingstone 232","url":"https://urban.co.nz/house-plan/livingstone232/"},{"label":"Manor 198","value":"Manor 198","url":"https://urban.co.nz/house-plan/manor198/"},{"label":"Manowai 333","value":"Manowai 333","url":"https://urban.co.nz/house-plan/manowai-333/"},{"label":"Manowai 342","value":"Manowai 342","url":"https://urban.co.nz/house-plan/manowai-342/"},{"label":"Meadowfield 275","value":"Meadowfield 275","url":"https://urban.co.nz/house-plan/meadowfield-275/"},{"label":"Meadows 255","value":"Meadows 255","url":"https://urban.co.nz/house-plan/meadows-255/"},{"label":"Milbrook 250","value":"Milbrook 250","url":"https://urban.co.nz/house-plan/milbrook250/"},{"label":"Milton 224","value":"Milton 224","url":"https://urban.co.nz/house-plan/milton224/"},{"label":"Northridge 171","value":"Northridge 171","url":"https://urban.co.nz/house-plan/northridge171/"},{"label":"Onemana 158","value":"Onemana 158","url":"https://urban.co.nz/house-plan/onemana-158/"},{"label":"Opito 115","value":"Opito 115","url":"https://urban.co.nz/house-plan/opito-115/"},{"label":"Otama 130","value":"Otama 130","url":"https://urban.co.nz/house-plan/otama-130/"},{"label":"Parker 83","value":"Parker 83","url":"https://urban.co.nz/house-plan/parker83/"},{"label":"Parkview 253","value":"Parkview 253","url":"https://urban.co.nz/house-plan/parkview253/"},{"label":"Pauanui 368","value":"Pauanui 368","url":"https://urban.co.nz/house-plan/pauanui-368/"},{"label":"Piopio 198","value":"Piopio 198","url":"https://urban.co.nz/house-plan/piopio-198/"},{"label":"Pirongia 291","value":"Pirongia 291","url":"https://urban.co.nz/house-plan/pirongia291/"},{"label":"Prestige 324","value":"Prestige 324","url":"https://urban.co.nz/house-plan/prestige324/"},{"label":"Pukeko 211","value":"Pukeko 211","url":"https://urban.co.nz/house-plan/pukeko-211/"},{"label":"Pukekura 316","value":"Pukekura 316","url":"https://urban.co.nz/house-plan/pukekura316/"},{"label":"Pukekura 329 ONYX","value":"Pukekura 329 ONYX","url":"https://urban.co.nz/house-plan/pukekura329-onyx/"},{"label":"Rangitahi 337","value":"Rangitahi 337","url":"https://urban.co.nz/house-plan/rangitahi-337/"},{"label":"Rata 194","value":"Rata 194","url":"https://urban.co.nz/house-plan/rata194/"},{"label":"Redwood 300","value":"Redwood 300","url":"https://urban.co.nz/house-plan/redwood-300/"},{"label":"Richmond 232 Deluxe","value":"Richmond 232 Deluxe","url":"https://urban.co.nz/house-plan/richmond-232-deluxe/"},{"label":"Richmond 233","value":"Richmond 233","url":"https://urban.co.nz/house-plan/richmond233/"},{"label":"Ridgeview 617","value":"Ridgeview 617","url":"https://urban.co.nz/house-plan/ridgeview-617/"},{"label":"Rivercove 274 ONYX","value":"Rivercove 274 ONYX","url":"https://urban.co.nz/house-plan/rivercove274-onyx/"},{"label":"Rivercove 278","value":"Rivercove 278","url":"https://urban.co.nz/house-plan/rivercove278/"},{"label":"Riverpoint 254 ONYX","value":"Riverpoint 254 ONYX","url":"https://urban.co.nz/house-plan/riverpoint254-onyx/"},{"label":"Riverpoint 256","value":"Riverpoint 256","url":"https://urban.co.nz/house-plan/riverpoint256/"},{"label":"Riverton 300","value":"Riverton 300","url":"https://urban.co.nz/house-plan/riverton-300/"},{"label":"Rotokauri 170","value":"Rotokauri 170","url":"https://urban.co.nz/house-plan/rotokauri170/"},{"label":"Ruru 202","value":"Ruru 202","url":"https://urban.co.nz/house-plan/ruru-202/"},{"label":"Serrano 236","value":"Serrano 236","url":"https://urban.co.nz/house-plan/serrano236/"},{"label":"Serrano 282","value":"Serrano 282","url":"https://urban.co.nz/house-plan/serrano282/"},{"label":"Stonebridge 484","value":"Stonebridge 484","url":"https://urban.co.nz/house-plan/stonebridge-484/"},{"label":"Takahe 168","value":"Takahe 168","url":"https://urban.co.nz/house-plan/takahe-168/"},{"label":"Te Miro 200 ONYX","value":"Te Miro 200 ONYX","url":"https://urban.co.nz/house-plan/te-miro200-onyx/"},{"label":"Te Miro 203","value":"Te Miro 203","url":"https://urban.co.nz/house-plan/te-miro203/"},{"label":"Virtue 325","value":"Virtue 325","url":"https://urban.co.nz/house-plan/virtue325/"},{"label":"Vision 176","value":"Vision 176","url":"https://urban.co.nz/house-plan/vision176/"},{"label":"Waipa 205","value":"Waipa 205","url":"https://urban.co.nz/house-plan/waipa205/"},{"label":"Wairere 215","value":"Wairere 215","url":"https://urban.co.nz/house-plan/wairere215/"},{"label":"Wanaka 255 ONYX","value":"Wanaka 255 ONYX","url":"https://urban.co.nz/house-plan/wanaka255-onyx/"},{"label":"Wanaka 258","value":"Wanaka 258","url":"https://urban.co.nz/house-plan/wanaka258/"},{"label":"Wanaka 287","value":"Wanaka 287","url":"https://urban.co.nz/house-plan/wanaka-287/"},{"label":"Weka 202","value":"Weka 202","url":"https://urban.co.nz/house-plan/weka202/"}];
+//# sourceURL=general-js-extra
+</script>
+<script id="general-js" src="https://urban.co.nz/wp-content/themes/urban/assets/js/general.js?ver=1.0.0"></script>
+<script id="gform_json-js" defer='defer' src="https://urban.co.nz/wp-content/plugins/gravityforms/js/jquery.json.min.js?ver=3.1.1"></script>
+<script id="gform_gravityforms-js-extra">
+var gform_i18n = {"datepicker":{"wdOffset":1,"helpTextShort":"Press F1 for help","helpText":"Press the arrow keys to navigate by day, PageUp and PageDown to navigate by month, Alt+PageUp and Alt+PageDown to navigate by year, or Escape to cancel.","openOnFocusHelpText":"Press Down arrow to browse the calendar, or Escape to close.","tooltipTxt":"Press Escape to cancel","disabledTxt":"Disabled","markedTxt":"Selected","prevTxt":"Previous","nextTxt":"Next","monthTxt":"Month","yearTxt":"Year","months":["January","February","March","April","May","June","July","August","September","October","November","December"],"days":[{"s":"S","l":"Sunday"},{"s":"M","l":"Monday"},{"s":"T","l":"Tuesday"},{"s":"W","l":"Wednesday"},{"s":"T","l":"Thursday"},{"s":"F","l":"Friday"},{"s":"S","l":"Saturday"}]}};
+var gf_legacy_multi = [];
+var gform_gravityforms = {"strings":{"invalid_file_extension":"This type of file is not allowed. Must be one of the following:","file_uploaded":"File uploaded","delete_file":"Delete this file","in_progress":"in progress","file_exceeds_limit":"File exceeds size limit","illegal_extension":"This type of file is not allowed.","max_reached":"Maximum number of files reached","unknown_error":"There was a problem while saving the file on the server","currently_uploading":"Please wait for the uploading to complete","cancel":"Cancel","cancel_upload":"Cancel this upload","cancelled":"Cancelled","error":"Error","message":"Message"},"vars":{"images_url":"https://urban.co.nz/wp-content/plugins/gravityforms/images"}};
+var gf_global = {"gf_currency_config":{"name":"New Zealand Dollar","symbol_left":"$","symbol_right":"","symbol_padding":" ","thousand_separator":",","decimal_separator":".","decimals":2,"code":"NZD"},"base_url":"https://urban.co.nz/wp-content/plugins/gravityforms","number_formats":[],"version_hash":"d88df1e11d3c46afacbb58a1593b4f9a","countries":{"AF":"Afghanistan","AX":"\u00c5land Islands","AL":"Albania","DZ":"Algeria","AS":"American Samoa","AD":"Andorra","AO":"Angola","AI":"Anguilla","AQ":"Antarctica","AG":"Antigua and Barbuda","AR":"Argentina","AM":"Armenia","AW":"Aruba","AU":"Australia","AT":"Austria","AZ":"Azerbaijan","BS":"Bahamas","BH":"Bahrain","BD":"Bangladesh","BB":"Barbados","BY":"Belarus","BE":"Belgium","BZ":"Belize","BJ":"Benin","BM":"Bermuda","BT":"Bhutan","BO":"Bolivia","BQ":"Bonaire, Sint Eustatius and Saba","BA":"Bosnia and Herzegovina","BW":"Botswana","BV":"Bouvet Island","BR":"Brazil","IO":"British Indian Ocean Territory","BN":"Brunei Darussalam","BG":"Bulgaria","BF":"Burkina Faso","BI":"Burundi","CV":"Cabo Verde","KH":"Cambodia","CM":"Cameroon","CA":"Canada","KY":"Cayman Islands","CF":"Central African Republic","TD":"Chad","CL":"Chile","CN":"China","CX":"Christmas Island","CC":"Cocos Islands","CO":"Colombia","KM":"Comoros","CD":"Congo, Democratic Republic of the","CG":"Congo","CK":"Cook Islands","CR":"Costa Rica","CI":"C\u00f4te d'Ivoire","HR":"Croatia","CU":"Cuba","CW":"Cura\u00e7ao","CY":"Cyprus","CZ":"Czechia","DK":"Denmark","DJ":"Djibouti","DM":"Dominica","DO":"Dominican Republic","EC":"Ecuador","EG":"Egypt","SV":"El Salvador","GQ":"Equatorial Guinea","ER":"Eritrea","EE":"Estonia","SZ":"Eswatini","ET":"Ethiopia","FK":"Falkland Islands","FO":"Faroe Islands","FJ":"Fiji","FI":"Finland","FR":"France","GF":"French Guiana","PF":"French Polynesia","TF":"French Southern Territories","GA":"Gabon","GM":"Gambia","GE":"Georgia","DE":"Germany","GH":"Ghana","GI":"Gibraltar","GR":"Greece","GL":"Greenland","GD":"Grenada","GP":"Guadeloupe","GU":"Guam","GT":"Guatemala","GG":"Guernsey","GN":"Guinea","GW":"Guinea-Bissau","GY":"Guyana","HT":"Haiti","HM":"Heard Island and McDonald Islands","VA":"Holy See","HN":"Honduras","HK":"Hong Kong","HU":"Hungary","IS":"Iceland","IN":"India","ID":"Indonesia","IR":"Iran","IQ":"Iraq","IE":"Ireland","IM":"Isle of Man","IL":"Israel","IT":"Italy","JM":"Jamaica","JP":"Japan","JE":"Jersey","JO":"Jordan","KZ":"Kazakhstan","KE":"Kenya","KI":"Kiribati","KP":"Korea, Democratic People's Republic of","KR":"Korea, Republic of","KW":"Kuwait","KG":"Kyrgyzstan","LA":"Lao People's Democratic Republic","LV":"Latvia","LB":"Lebanon","LS":"Lesotho","LR":"Liberia","LY":"Libya","LI":"Liechtenstein","LT":"Lithuania","LU":"Luxembourg","MO":"Macao","MG":"Madagascar","MW":"Malawi","MY":"Malaysia","MV":"Maldives","ML":"Mali","MT":"Malta","MH":"Marshall Islands","MQ":"Martinique","MR":"Mauritania","MU":"Mauritius","YT":"Mayotte","MX":"Mexico","FM":"Micronesia","MD":"Moldova","MC":"Monaco","MN":"Mongolia","ME":"Montenegro","MS":"Montserrat","MA":"Morocco","MZ":"Mozambique","MM":"Myanmar","NA":"Namibia","NR":"Nauru","NP":"Nepal","NL":"Netherlands","NC":"New Caledonia","NZ":"New Zealand","NI":"Nicaragua","NE":"Niger","NG":"Nigeria","NU":"Niue","NF":"Norfolk Island","MK":"North Macedonia","MP":"Northern Mariana Islands","NO":"Norway","OM":"Oman","PK":"Pakistan","PW":"Palau","PS":"Palestine, State of","PA":"Panama","PG":"Papua New Guinea","PY":"Paraguay","PE":"Peru","PH":"Philippines","PN":"Pitcairn","PL":"Poland","PT":"Portugal","PR":"Puerto Rico","QA":"Qatar","RE":"R\u00e9union","RO":"Romania","RU":"Russian Federation","RW":"Rwanda","BL":"Saint Barth\u00e9lemy","SH":"Saint Helena, Ascension and Tristan da Cunha","KN":"Saint Kitts and Nevis","LC":"Saint Lucia","MF":"Saint Martin","PM":"Saint Pierre and Miquelon","VC":"Saint Vincent and the Grenadines","WS":"Samoa","SM":"San Marino","ST":"Sao Tome and Principe","SA":"Saudi Arabia","SN":"Senegal","RS":"Serbia","SC":"Seychelles","SL":"Sierra Leone","SG":"Singapore","SX":"Sint Maarten","SK":"Slovakia","SI":"Slovenia","SB":"Solomon Islands","SO":"Somalia","ZA":"South Africa","GS":"South Georgia and the South Sandwich Islands","SS":"South Sudan","ES":"Spain","LK":"Sri Lanka","SD":"Sudan","SR":"Suriname","SJ":"Svalbard and Jan Mayen","SE":"Sweden","CH":"Switzerland","SY":"Syria Arab Republic","TW":"Taiwan","TJ":"Tajikistan","TZ":"Tanzania, the United Republic of","TH":"Thailand","TL":"Timor-Leste","TG":"Togo","TK":"Tokelau","TO":"Tonga","TT":"Trinidad and Tobago","TN":"Tunisia","TR":"T\u00fcrkiye","TM":"Turkmenistan","TC":"Turks and Caicos Islands","TV":"Tuvalu","UG":"Uganda","UA":"Ukraine","AE":"United Arab Emirates","GB":"United Kingdom","US":"United States","UY":"Uruguay","UM":"US Minor Outlying Islands","UZ":"Uzbekistan","VU":"Vanuatu","VE":"Venezuela","VN":"Viet Nam","VG":"Virgin Islands, British","VI":"Virgin Islands, U.S.","WF":"Wallis and Futuna","EH":"Western Sahara","YE":"Yemen","ZM":"Zambia","ZW":"Zimbabwe"},"strings":{"newRowAdded":"New row added.","rowRemoved":"Row removed","formSaved":"The form has been saved.  The content contains the link to return and complete the form."}};
+//# sourceURL=gform_gravityforms-js-extra
+</script>
+<script id="gform_gravityforms-js" defer='defer' src="https://urban.co.nz/wp-content/plugins/gravityforms/js/gravityforms.min.js?ver=3.1.1"></script>
+<script id="gform_placeholder-js" defer='defer' src="https://urban.co.nz/wp-content/plugins/gravityforms/js/placeholders.jquery.min.js?ver=3.1.1"></script>
+<script id="gform_gravityforms_utils-js" defer='defer' src="https://urban.co.nz/wp-content/plugins/gravityforms/assets/js/dist/utils.min.js?ver=69a9db57304a9f86c3d1a0bea5fd2cf9"></script>
+<script id="gform_gravityforms_theme_vendors-js" defer='defer' src="https://urban.co.nz/wp-content/plugins/gravityforms/assets/js/dist/vendor-theme.min.js?ver=0c901cb641ce64b99c20ea1a4d208cc9"></script>
+<script id="gform_gravityforms_theme-js-extra">
+var gform_theme_config = {"common":{"form":{"honeypot":{"version_hash":"d88df1e11d3c46afacbb58a1593b4f9a"},"ajax":{"ajaxurl":"https://urban.co.nz/wp-admin/admin-ajax.php","ajax_submission_nonce":"18e71b5e81","i18n":{"step_announcement":"Step %1$s of %2$s, %3$s","unknown_error":"There was an unknown error processing your request. Please try again.","error_403":"The request was blocked (403 error) for unknown security reasons. Remove any code-like text (scripts or DB queries) and try again."}}}},"hmr_dev":"","public_path":"https://urban.co.nz/wp-content/plugins/gravityforms/assets/js/dist/","config_nonce":"fcc61d14af"};
+//# sourceURL=gform_gravityforms_theme-js-extra
+</script>
+<script id="gform_gravityforms_theme-js" defer='defer' src="https://urban.co.nz/wp-content/plugins/gravityforms/assets/js/dist/scripts-theme.min.js?ver=e27d9712159624c99129c8c208f022ad"></script>
+<script id="gform_turnstile_vendor_theme-js" defer='defer' src="https://urban.co.nz/wp-content/plugins/gravityformsturnstile/assets/js/dist/vendor-theme.min.js?ver=1.5.0"></script>
+<script id="gform_turnstile_vendor_script-js" defer='defer' src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&#038;ver=7.1"></script>
+<script id="gform_turnstile_theme-js" defer='defer' src="https://urban.co.nz/wp-content/plugins/gravityformsturnstile/assets/js/dist/scripts-theme.min.js?ver=1.5.0"></script>
+<script id="wp-emoji-settings" type="application/json">
+{"baseUrl":"https://s.w.org/images/core/emoji/17.0.2/72x72/","ext":".png","svgUrl":"https://s.w.org/images/core/emoji/17.0.2/svg/","svgExt":".svg","source":{"concatemoji":"https://urban.co.nz/wp-includes/js/wp-emoji-release.min.js?ver=7.1"}}
+</script>
+<script type="module">
+/*! This file is auto-generated */
+var e="script#wp-emoji-settings",t=document.querySelector(e);if(!(t instanceof HTMLScriptElement))throw new Error("Element missing: "+e);const r=JSON.parse(t.text),s=(window._wpemojiSettings=r,"wpEmojiSettingsSupports"),o=["flag","emoji"];function i(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(s,JSON.stringify(t))}catch(e){}}function c(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0);const r=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);return t.every((e,t)=>e===r[t])}function p(e,t){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var n=e.getImageData(16,16,1,1);for(let e=0;e<n.data.length;e++)if(0!==n.data[e])return!1;return!0}function u(e,t,n,r){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\udde8\ud83c\uddf6","\ud83c\udde8\u200b\ud83c\uddf6")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!r(e,"\ud83e\u1fac8")}return!1}function f(e,t,n,r){let a;const s=(a="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):document.createElement("canvas")).getContext("2d",{willReadFrequently:!0}),o=(s.textBaseline="top",s.font="600 32px Arial",{});return e.forEach(e=>{o[e]=t(s,e,n,r)}),o}function a(e){var t=document.createElement("script");t.src=e,t.defer=!0,document.head.appendChild(t)}r.supports={everything:!0,everythingExceptFlag:!0},new Promise(t=>{let n=function(){try{var e=JSON.parse(sessionStorage.getItem(s));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(o),u.toString(),c.toString(),p.toString()].join(",")+"));",r=new Blob([e],{type:"text/javascript"});const a=new Worker(URL.createObjectURL(r),{name:"wpTestEmojiSupports"});return void(a.onmessage=e=>{i(n=e.data),a.terminate(),t(n)})}catch(e){}i(n=f(o,u,c,p))}t(n)}).then(e=>{for(const n in e)r.supports[n]=e[n],r.supports.everything=r.supports.everything&&r.supports[n],"flag"!==n&&(r.supports.everythingExceptFlag=r.supports.everythingExceptFlag&&r.supports[n]);var t;r.supports.everythingExceptFlag=r.supports.everythingExceptFlag&&!r.supports.flag,r.supports.everything||((t=r.source||{}).concatemoji?a(t.concatemoji):t.wpemoji&&t.twemoji&&(a(t.twemoji),a(t.wpemoji)))});
+//# sourceURL=https://urban.co.nz/wp-includes/js/wp-emoji-loader.min.js
+</script>
+<script>
+gform.initializeOnLoaded( function() { jQuery(document).on('gform_post_render', function(event, formId, currentPage){if(formId == 16) {if(typeof Placeholders != 'undefined'){
+                        Placeholders.enable();
+                    }} } );jQuery(document).on('gform_post_conditional_logic', function(event, formId, fields, isInit){} ) } );
+</script>
+<script>
+gform.initializeOnLoaded( function() {jQuery(document).trigger("gform_pre_post_render", [{ formId: "16", currentPage: "1", abort: function() { this.preventDefault(); } }]);        if (event && event.defaultPrevented) {                return;        }        const gformWrapperDiv = document.getElementById( "gform_wrapper_16" );        if ( gformWrapperDiv ) {            const visibilitySpan = document.createElement( "span" );            visibilitySpan.id = "gform_visibility_test_16";            gformWrapperDiv.insertAdjacentElement( "afterend", visibilitySpan );        }        const visibilityTestDiv = document.getElementById( "gform_visibility_test_16" );        let postRenderFired = false;        function triggerPostRender() {            if ( postRenderFired ) {                return;            }            postRenderFired = true;            gform.core.triggerPostRenderEvents( 16, 1 );            if ( visibilityTestDiv ) {                visibilityTestDiv.parentNode.removeChild( visibilityTestDiv );            }        }        function debounce( func, wait, immediate ) {            var timeout;            return function() {                var context = this, args = arguments;                var later = function() {                    timeout = null;                    if ( !immediate ) func.apply( context, args );                };                var callNow = immediate && !timeout;                clearTimeout( timeout );                timeout = setTimeout( later, wait );                if ( callNow ) func.apply( context, args );            };        }        const debouncedTriggerPostRender = debounce( function() {            triggerPostRender();        }, 200 );        if ( visibilityTestDiv && visibilityTestDiv.offsetParent === null ) {            const observer = new MutationObserver( ( mutations ) => {                mutations.forEach( ( mutation ) => {                    if ( mutation.type === 'attributes' && visibilityTestDiv.offsetParent !== null ) {                        debouncedTriggerPostRender();                        observer.disconnect();                    }                });            });            observer.observe( document.body, {                attributes: true,                childList: false,                subtree: true,                attributeFilter: [ 'style', 'class' ],            });        } else {            triggerPostRender();        }    } );
+</script>
+
+</body>
+</html>
+
+
+<!-- Page cached by LiteSpeed Cache 7.9.1 on 2026-09-08 23:12:42 -->

@@ -27,7 +27,7 @@ n8n is **not** part of the default stack. SearXNG may run as an optional Docker 
 
 1. **P0 Repository reconciliation** — preserve the canonical repo and selectively port only reviewed experimental improvements.
 2. **P1 Green baseline** — Python 3.11, one dependency source, full tests, gitleaks, strict dependency audit, clean working tree.
-3. **P2 Consolidation** — one audit engine, one operator CLI, archived legacy paths.
+3. **P2 Consolidation** — one audit engine, one operator CLI, archived legacy paths (COMPLETED 2026-09-26).
 4. **P3 Continuous control plane** — leased SQLite queue, PID/single-instance protection, graceful shutdown, heartbeats, stale recovery, retries/backoff/jitter, circuit breakers, DLQ, log rotation, disk/network guards, crash recovery.
 5. **P4 Audit engine** — deterministic checks plus efficient HTTP/lightweight/Playwright fetch chain, Lighthouse, Lychee, schema/TLS/mobile checks.
 6. **P5 Evidence-first findings** — evidence before scoring; every score deduction traces to a finding.

@@ -19,18 +19,18 @@ else
     echo "   ✅ SSL fix already in ~/.zshrc"
 fi
 
-# Fix 2: Create project structure
+# Fix 2: Create project structure (Legacy directories preserved for backward compatibility if required, but new work belongs in auditor_toolkit/)
 echo ""
 echo "📁 Creating project structure..."
-mkdir -p website_auditor/actions website_auditor/connectors website_auditor/ai \
-         website_auditor/portal website_auditor/outreach website_auditor/monitoring \
+mkdir -p auditor_toolkit/actions auditor_toolkit/connectors auditor_toolkit/ai \
+         auditor_toolkit/portal auditor_toolkit/outreach auditor_toolkit/monitoring \
          config outputs/actions outputs/patches outputs/snapshots outputs/outreach \
          outputs/remediations outputs/reports
 
-touch website_auditor/__init__.py website_auditor/actions/__init__.py \
-      website_auditor/connectors/__init__.py website_auditor/ai/__init__.py \
-      website_auditor/portal/__init__.py website_auditor/outreach/__init__.py \
-      website_auditor/monitoring/__init__.py
+touch auditor_toolkit/__init__.py auditor_toolkit/actions/__init__.py \
+      auditor_toolkit/connectors/__init__.py auditor_toolkit/ai/__init__.py \
+      auditor_toolkit/portal/__init__.py auditor_toolkit/outreach/__init__.py \
+      auditor_toolkit/monitoring/__init__.py
 
 echo "   ✅ All folders and modules created"
 
@@ -77,6 +77,6 @@ echo "╔═══════════════════════�
 echo "║   ✅ SETUP COMPLETE                     ║"
 echo "╠══════════════════════════════════════════╣"
 echo "║   Run:  python3 run_all.py <url>        ║"
-echo "║   Portal: python3 -m website_auditor.portal.server ║"
+echo "║   Portal: python3 -m auditor_toolkit.portal.server ║"
 echo "║   CLI:  python3 wa.py status            ║"
 echo "╚══════════════════════════════════════════╝"

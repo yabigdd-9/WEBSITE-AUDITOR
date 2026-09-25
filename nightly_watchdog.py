@@ -31,14 +31,14 @@ def run_nightly():
         print(f"\n🔍 Scanning: {clean_domain}")
         
         # 1. Run Audit (Silent)
-        subprocess.run([sys.executable, "website_auditor.py", url], capture_output=True)
-        
+        subprocess.run([sys.executable, "wa.py", "audit", url], capture_output=True)
+
         # 2. Run Remediation to get JSON
         subprocess.run([sys.executable, "remediation-engine.py", "--domain", clean_domain, "--output-dir", "outputs/remediations"], capture_output=True)
         
         # 3. Load defects and run Watchdog
         try:
-            from website_auditor.monitoring.watchdog import Watchdog
+            from auditor_toolkit.monitoring.watchdog import Watchdog
             wd = Watchdog()
             
             rem_file = Path(f"outputs/remediations/{clean_domain}-remediation.json")

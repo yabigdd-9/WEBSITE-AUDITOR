@@ -106,3 +106,9 @@ All agent-executable workpaths (P0–P8) are committed and gated on `upgrade/v32
 | Docs | scattered plans | `docs/RUNBOOK.md` (DLQ tree, quarantine, supervisor/cron, capabilities, backup) |
 
 Human review remains REQUIRED everywhere; `outreach_eligible` flips only via the existing approval path.
+
+## Phase Completion (2026-09-26)
+- Package consolidation: legacy `website_auditor` shim removed.
+- Canonical import audit: all modules updated to `auditor_toolkit`.
+- `Action` model serialization fix: implemented `Action.to_dict` to handle `RiskValue` enum correctly.
+- Test integrity: Full `toolkit_tests/` suite passing (148 passed, 2 skipped).

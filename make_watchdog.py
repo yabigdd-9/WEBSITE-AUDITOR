@@ -1,7 +1,7 @@
 import pathlib
 
-pathlib.Path("website_auditor/monitoring").mkdir(parents=True, exist_ok=True)
-pathlib.Path("website_auditor/monitoring/__init__.py").touch()
+pathlib.Path("auditor_toolkit/monitoring").mkdir(parents=True, exist_ok=True)
+pathlib.Path("auditor_toolkit/monitoring/__init__.py").touch()
 
 code = """
 import json, os, urllib.request
@@ -88,5 +88,5 @@ class Watchdog:
         return result
 """
 
-pathlib.Path("website_auditor/monitoring/watchdog.py").write_text(code)
+pathlib.Path("auditor_toolkit/monitoring/watchdog.py").write_text(code)
 print("✅ watchdog.py created successfully!")

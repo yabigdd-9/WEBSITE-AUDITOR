@@ -1,7 +1,7 @@
 import pathlib
 
-pathlib.Path("website_auditor/portal").mkdir(parents=True, exist_ok=True)
-pathlib.Path("website_auditor/portal/__init__.py").touch()
+pathlib.Path("auditor_toolkit/portal").mkdir(parents=True, exist_ok=True)
+pathlib.Path("auditor_toolkit/portal/__init__.py").touch()
 
 code = """
 import json, http.server
@@ -80,7 +80,7 @@ class PortalHandler(http.server.SimpleHTTPRequestHandler):
                 except Exception: continue
         
         try:
-            from website_auditor.ai.summarizer import AISummarizer
+            from auditor_toolkit.ai.summarizer import AISummarizer
             ai = AISummarizer()
             summary_data = ai.generate_summary(domain, defects, score)
             summary = summary_data["summary"]
@@ -114,5 +114,5 @@ if __name__ == "__main__":
     start_portal()
 """
 
-pathlib.Path("website_auditor/portal/server.py").write_text(code)
+pathlib.Path("auditor_toolkit/portal/server.py").write_text(code)
 print("✅ server.py created successfully!")

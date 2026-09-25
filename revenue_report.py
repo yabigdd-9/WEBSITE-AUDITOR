@@ -58,7 +58,7 @@ def main():
         if arg == "--visitors" and i + 1 < len(args): visitors = int(args[i + 1])
         if arg == "--lead-value" and i + 1 < len(args): lead_value = float(args[i + 1])
 
-    from website_auditor.revenue.calculator import RevenueCalculator
+    from auditor_toolkit.revenue.calculator import RevenueCalculator
 
     rem_dir = Path("outputs/remediations")
     if not rem_dir.exists():

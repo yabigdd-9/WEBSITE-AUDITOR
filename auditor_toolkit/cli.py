@@ -8,7 +8,7 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from website_auditor.monitoring.watchdog import Watchdog
+from auditor_toolkit.monitoring.watchdog import Watchdog
 
 from .agency_cli import add_commands, run_command
 from .ai import generate_drafts, verify_model
