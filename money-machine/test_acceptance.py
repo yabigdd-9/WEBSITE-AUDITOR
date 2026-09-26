@@ -42,6 +42,13 @@ class Acceptance(unittest.TestCase):
         # Independent fixture prospect. No real contact or sends used by tests.
         self.bid=self.d.execute("INSERT INTO businesses(name,region,public_website,source,discovered_at,current_status,is_dummy) VALUES('Acceptance Fixture','Fixturetown','https://fixture.example.co.nz','fixture',?,'discovered',0)",(c.now(),)).lastrowid
         self.d.execute("INSERT INTO mm_deals(business_id,stage,updated_at) VALUES(?,'DISCOVERED',?)",(self.bid,c.now()));self.address='operator@fixture.example.co.nz'
+        # Add fixture data for regression tests 40 and 05
+        for bid in [4, 13, 14]:
+            self.d.execute("INSERT INTO businesses(id,name,source,discovered_at,current_status) VALUES(?,?,?,?,?)", (bid, f'Fixture {bid}', 'fixture', c.now(), 'discovered'))
+            self.d.execute("INSERT INTO mm_holds(business_id, reason, created_at) VALUES(?,?,?)", (bid, 'fixture hold', c.now()))
+        for _ in range(3):
+            self.d.execute("INSERT INTO outreach(draft, sent_at) VALUES(?,?)", ('fixture draft', c.now()))
+
         self.capture=self.r/'capture.txt';self.capture.write_text('<html><title>Acceptance Fixture</title><h1>Acceptance Fixture</h1><p>Fixturetown</p><p>Contact email: '+self.address+'</p><p>Verified local fixture observation, not a real business.</p></html>');self.demo=self.r/'demo.html';self.demo.write_text(DEMO)
         meta={'url':'https://fixture.example.co.nz','captured_at':c.now(),'sha256':c.sha(self.capture.read_bytes()),'path':str(self.capture)}
         page=email_engine.parse_page(meta,self.capture.read_bytes())
@@ -70,7 +77,7 @@ class Acceptance(unittest.TestCase):
     def test_02_modified_approved_body_invalidates_approval(self):
         self.approve();self.d.execute('UPDATE mm_messages SET body=body||? WHERE id=?',(' modified',self.mid));self.assertIsNone(self.d.execute('SELECT approved_hash FROM mm_messages WHERE id=?',(self.mid,)).fetchone()[0])
     def test_03_suppressed_prospect_cannot_enter_queue(self):
-        self.d.execute('INSERT INTO mm_holds VALUES(?,?)',(self.bid,'fixture hold'))
+        self.d.execute('INSERT INTO mm_holds(business_id, reason, created_at) VALUES(?,?,?)',(self.bid,'fixture hold',c.now()))
         with self.assertRaises(sqlite3.IntegrityError):self.d.execute("INSERT INTO mm_messages(business_id,evidence_id,recipient,body,digest,kind,created_at) VALUES(?,?,?,?,?,'followup',?)",(self.bid,self.eid,self.address,BODY,'new',c.now()))
     def test_04_duplicate_payment_cannot_inflate_revenue(self):
         pid,rid=self.pay()
@@ -117,7 +124,7 @@ class Acceptance(unittest.TestCase):
         c.change_stage(self.d,self.bid,'VERIFIED','Evidence reviewed');c.change_stage(self.d,self.bid,'AUDITED','Scope fixture');c.change_stage(self.d,self.bid,'DRAFT_READY','Review fixture');self.proposal();c.change_stage(self.d,self.bid,'PROPOSAL_READY','Human review')
         self.assertEqual(o.metrics(self.d)['verified_sends'],0);self.assertEqual(self.d.execute('SELECT stage FROM mm_deals WHERE business_id=?',(self.bid,)).fetchone()[0],'PROPOSAL_READY')
     def test_16_suppression_overrides_approval(self):
-        h=self.approve();rid=self.proof('send',self.mid,h);self.d.execute('INSERT INTO mm_suppression VALUES(?,?,?)',(self.address,'fixture',c.now()))
+        h=self.approve();rid=self.proof('send',self.mid,h);self.d.execute('INSERT INTO mm_suppression(address, reason, created_at) VALUES(?,?,?)',(self.address,'fixture',c.now()))
         with self.assertRaises(ValueError):c.record_sent(self.d,self.mid,rid)
         self.assertIsNone(self.d.execute('SELECT approved_hash FROM mm_messages WHERE id=?',(self.mid,)).fetchone()[0])
     def test_17_recipient_change_invalidates_approval(self):

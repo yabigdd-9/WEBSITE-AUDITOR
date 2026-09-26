@@ -115,7 +115,7 @@ def record_reply(d,mid,classification,rid):
     receipt(d,rid,'reply',m['business_id'],mid)
     d.execute('UPDATE mm_messages SET reply=? WHERE id=?',(classification,mid))
     stop=classification in ('not_interested','unsubscribe','hostile','bounce')
-    if stop:d.execute('INSERT OR IGNORE INTO mm_suppression VALUES(?,?,?)',(m['recipient'],classification,now()))
+    if stop:d.execute('INSERT OR IGNORE INTO mm_suppression(address, reason, created_at) VALUES(?,?,?)',(m['recipient'],classification,now()))
     change_stage(d,m['business_id'],'SUPPRESSED' if stop else 'REPLIED',REPLY_ACTIONS[classification])
     event(d,'verified_reply',m['business_id'],classification)
 

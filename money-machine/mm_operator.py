@@ -586,7 +586,7 @@ def main(argv=None):
             elif a.cmd=='cash':cash(d,a.id,a.cents,a.receipt);result=metrics(d)
             elif a.cmd=='refund':refund(d,a.id,a.cents,a.receipt);result=metrics(d)
             elif a.cmd=='reply':record_reply(d,a.id,a.classification,a.receipt);result={'action':REPLY_ACTIONS[a.classification]}
-            elif a.cmd=='suppress':d.execute('INSERT OR IGNORE INTO mm_suppression VALUES(?,?,?)',(a.address.strip().lower(),a.reason,now()));event(d,'suppress',None,a.address.strip().lower());result={'suppressed':True}
+            elif a.cmd=='suppress':d.execute('INSERT OR IGNORE INTO mm_suppression(address, reason, created_at) VALUES(?,?,?)',(a.address.strip().lower(),a.reason,now()));event(d,'suppress',None,a.address.strip().lower());result={'suppressed':True}
             elif a.cmd=='stage':change_stage(d,a.id,a.stage,a.next_action,a.due);result={'stage':a.stage}
             elif a.cmd=='quote':result={'proposal_id':create_proposal(d,a.id,a.recipient,Path(a.body_file).read_text(),a.price_nzd*100)}
             elif a.cmd=='score':result=save_score(d,a.id,latest_evidence(d,a.id),**json.loads(Path(a.inputs).read_text()))
