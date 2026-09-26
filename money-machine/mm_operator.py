@@ -34,13 +34,27 @@ class OperationalError(OperatorError):
     pass
 
 
+def validate_environment():
+    """Fail-fast environment validation for runtime operations.
+
+    Skipped for commands that do not touch the MoneyMachine database
+    (e.g. ``supervisor stop``, ``init`` which creates the DB).
+    """
+    r = root()
+    if not r.exists():
+        raise OperationalError(f"MM_ROOT directory does not exist: {r}")
+    if not (r / 'database').exists():
+        raise OperationalError("Database directory missing")
+
+
 class DemoParser(HTMLParser):
+
     def __init__(self):super().__init__();self.tags=[]
     def handle_starttag(self,tag,attrs):self.tags.append((tag,dict(attrs)))
 
 def demo_qa(d,bid,path):
     business(d,bid);p=Path(path).resolve()
-    if not p.is_file() or not p.stat().st_size:raise ValueError('Nonempty demo file required')
+    if not p.is_file() or not p.stat().st_size:raise ValidationError('Nonempty demo file required')
     text=p.read_text();a=DemoParser();a.feed(text);tags=a.tags
     labels={attrs.get('for') for tag,attrs in tags if tag=='label'}
     fields=[x for t,x in tags if t in ('input','select','textarea')]
@@ -210,7 +224,7 @@ def cmd_dead_letter_resolve(reason):
             )
 
             if cur.rowcount != 1:
-                raise RuntimeError(
+                raise OperationalError(
                     f"Failed to resolve business_id={business_id}; "
                     "state changed during operation"
                 )
@@ -584,9 +598,10 @@ def main(argv=None):
         with contextlib.closing(connect()) as d,d:migrate(d,b)
         print('Migration checked; backup '+str(b));return 0
     if a.cmd=='price':
-        if (a.hours_low is None)!=(a.hours_high is None):raise ValueError('Both hour bounds required')
+        if (a.hours_low is None)!=(a.hours_high is None):raise ValidationError('Both hour bounds required')
         result=pricing(a.problem,[a.hours_low,a.hours_high] if a.hours_low is not None else None)
     else:
+        validate_environment()
         with contextlib.closing(connect()) as d,d:
             if a.cmd in ('daily','run-day','status'):result=run_day(d,write=a.cmd!='status')
             elif a.cmd=='money':result=run_day(d,False)['next_revenue_action']
@@ -597,7 +612,7 @@ def main(argv=None):
                 host=public_url(a.url);public_url(a.source)
                 for b in d.execute('SELECT id,name,public_website FROM businesses WHERE is_dummy=0'):
                     if b['name'].strip().casefold()==a.name.strip().casefold():
-                        raise ValueError('Duplicate prospect '+str(b['id']))
+                        raise ValidationError('Duplicate prospect '+str(b['id']))
                     # Historical records may contain malformed or now-disallowed URLs.
                     # They must not prevent a duplicate-name check or invalidate a
                     # separate, valid intake request.
@@ -605,7 +620,7 @@ def main(argv=None):
                         existing_host=public_url(b['public_website']) if b['public_website'] else None
                     except ValueError:
                         existing_host=None
-                    if existing_host==host:raise ValueError('Duplicate prospect '+str(b['id']))
+                    if existing_host==host:raise ValidationError('Duplicate prospect '+str(b['id']))
                 c=d.execute("INSERT INTO businesses(name,region,public_website,source,discovered_at,current_status,is_dummy) VALUES(?,?,?,?,?,'discovered',0)",(a.name.strip(),a.region,a.url,a.source,now()));bid=c.lastrowid
                 d.execute("INSERT INTO mm_deals(business_id,stage,updated_at) VALUES(?,'DISCOVERED',?)",(bid,now()));event(d,'intake',bid,a.source);result={'business_id':bid}
             elif a.cmd=='audit':result={'evidence_id':record_evidence(d,a.id,a.url,a.observation,a.limitation,a.capture,a.status,a.method,a.confidence,a.claim_type)}

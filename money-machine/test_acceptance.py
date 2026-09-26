@@ -21,6 +21,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parent/'scripts'))
 import mm_core as c
 import mm_intelligence as i
 import mm_operator as o
+from mm_operator import ValidationError
 import mm_email as email_engine
 import mm_email_store as email_store
 SOURCE=Path(os.environ.get('MM_TEST_SOURCE',str(Path(__file__).resolve().parents[1]/'database/money_machine.db')))
@@ -113,7 +114,7 @@ class Acceptance(unittest.TestCase):
             # stub remains, it must explicitly fail closed.
             if p.exists():self.assertIn('BLOCKED',run.stderr+run.stdout)
         self.demo.write_text('')
-        with self.assertRaises(ValueError):o.demo_qa(self.d,self.bid,self.demo)
+        with self.assertRaises(ValidationError):o.demo_qa(self.d,self.bid,self.demo)
     def test_13_migration_requires_verified_restorable_backup(self):
         with self.assertRaises(ValueError):c.migrate(self.d,self.r/'missing')
         backupdb=self.backup/'money_machine.db'
@@ -159,7 +160,7 @@ class Acceptance(unittest.TestCase):
         self.d.execute("UPDATE mm_jobs SET attempts=3,lease_until='2000-01-01' WHERE job_key='resume'")
         with self.assertRaises(ValueError):i.claim_job(self.d,'resume','status')
     def test_27_duplicate_prospect_is_flagged(self):
-        with self.assertRaisesRegex(ValueError,'Duplicate'):
+        with self.assertRaisesRegex(ValidationError,'Duplicate'):
             o.main(['intake','--name','Acceptance Fixture','--url','https://fixture.example.invalid','--region','fixture','--source','https://fixture.example.invalid'])
     def test_28_budget_cannot_record_positive_paid_cost(self):
         with self.assertRaises(sqlite3.IntegrityError):self.d.execute("INSERT INTO mm_model_invocations(run_key,model,provider,purpose_hash,status,cost_usd,created_at) VALUES('x','paid','nous','x','started',1,?)",(c.now(),))
