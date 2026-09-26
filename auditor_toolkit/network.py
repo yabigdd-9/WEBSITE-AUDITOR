@@ -4,6 +4,8 @@ import json
 import socket
 import ssl
 import xml.etree.ElementTree as ET
+import logging
+import traceback
 from datetime import UTC, datetime
 from http.cookies import SimpleCookie
 from urllib.parse import urljoin, urlparse
@@ -13,6 +15,8 @@ from bs4 import BeautifulSoup
 
 from .checks import Finding, analyse_html, classify_response
 from .common import public_headers
+
+logger = logging.getLogger(__name__)
 
 
 def inspect_headers(response):
@@ -46,7 +50,8 @@ def inspect_headers(response):
         parsed = SimpleCookie()
         try:
             parsed.load(raw)
-        except Exception:
+        except Exception as exc:
+            logger.warning(f"Failed to parse cookie '{raw[:50]}...': {exc}")
             continue
         for name, cookie in parsed.items():
             attrs = {
@@ -124,6 +129,7 @@ def inspect_dns(url, timeout):
         except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
             result[key] = {"status": "absent", "records": []}
         except dns.exception.DNSException as exc:
+            logger.error(f"DNS unavailable for {key}: {exc}\n{traceback.format_exc()}")
             raise RuntimeError(f"DNS unavailable for {key}: {exc}") from exc
     result["limitations"] = (
         "DKIM needs a supplied selector; absent email records do not prove a website defect."
@@ -149,7 +155,9 @@ def inspect_schema(html, url, profile):
         try:
             visit(json.loads(script.string or script.get_text()))
         except (ValueError, TypeError) as exc:
-            errors.append(str(exc))
+            error_msg = str(exc)
+            logger.debug(f"JSON-LD parsing error in script tag: {error_msg}")
+            errors.append(error_msg)
     findings = [
         Finding(
             "invalid-jsonld",

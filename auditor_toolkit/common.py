@@ -11,6 +11,9 @@ from pathlib import Path
 from urllib.parse import urljoin, urlparse, urlunparse
 
 import httpx
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def _is_private_host(host):
@@ -24,7 +27,9 @@ def _is_private_host(host):
 
 
 def validate_url(url, allow_private=False):
+    """Validate and sanitize a URL for use in the audit pipeline."""
     if any(ord(c) < 32 for c in url):
+        logger.error(f"URL contains control characters: {url!r}")
         raise ValueError("Control characters are not allowed in URLs")
     parts = urlparse(url)
     if (
@@ -33,17 +38,21 @@ def validate_url(url, allow_private=False):
         or parts.username
         or parts.password
     ):
+        logger.error(f"Invalid URL scheme or malformed URL: {url!r}")
         raise ValueError("Only absolute HTTP(S) URLs without credentials are supported")
     host = parts.hostname
     port = parts.port or (443 if parts.scheme == "https" else 80)
     if not allow_private:
         if _is_private_host(host):
+            logger.warning(f"Private/non-global URL requested and blocked: {url!r}")
             raise ValueError("Private and non-global URLs are disabled")
         try:
             infos = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
         except socket.gaierror as exc:
+            logger.error(f"DNS resolution failed for {host}: {exc}")
             raise ValueError(f"Could not resolve host: {host}") from exc
         if not infos or any(_is_private_host(info[4][0]) for info in infos):
+            logger.warning(f"URL resolves to non-global address: {url!r}")
             raise ValueError("URL resolves to a non-global address")
     return urlunparse(parts._replace(fragment=""))
 
@@ -205,6 +214,9 @@ def atomic_write_bytes(path, data):
         with os.fdopen(fd, "wb") as handle:
             handle.write(data)
         os.replace(tmp_name, path)
+    except Exception as exc:
+        logger.error(f"Atomic write to {path} failed: {exc}\n{traceback.format_exc()}")
+        raise
     finally:
         if os.path.exists(tmp_name):
             os.unlink(tmp_name)
@@ -217,6 +229,9 @@ def atomic_write_text(path, text):
         with os.fdopen(fd, "w", encoding="utf-8") as handle:
             handle.write(text)
         os.replace(tmp_name, path)
+    except Exception as exc:
+        logger.error(f"Atomic write to {path} failed: {exc}\n{traceback.format_exc()}")
+        raise
     finally:
         if os.path.exists(tmp_name):
             os.unlink(tmp_name)

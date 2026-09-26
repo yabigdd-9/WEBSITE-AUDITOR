@@ -3,9 +3,12 @@
 import hashlib
 import json
 import sqlite3
+import logging
 from contextlib import contextmanager
 from pathlib import Path
 from datetime import datetime, timezone, timedelta
+
+logger = logging.getLogger(__name__)
 
 STATES = {
     "detected",
@@ -21,13 +24,15 @@ STATES = {
 
 
 def finding_id(finding):
+    """Generate a deterministic identifier for a finding record."""
     key = [
         finding.get("check"),
         finding.get("defect_key"),
         finding.get("source_url"),
         finding.get("selector", ""),
     ]
-    return hashlib.sha256(json.dumps(key).encode()).hexdigest()[:24]
+    # Ensure keys are sorted for deterministic hash generation
+    return hashlib.sha256(json.dumps(key, sort_keys=True).encode()).hexdigest()[:24]
 
 
 class History:
