@@ -4,6 +4,7 @@ Implements self-modifying architecture with genetic encoding, expression regulat
 import json
 import sqlite3
 import hashlib
+import contextlib
 import math
 from datetime import datetime, timezone
 from mm_core import now, connect, sha
@@ -237,9 +238,9 @@ def track_genetic_fitness(
             UPDATE mm_learning
             SET actual = ?,
                 evidence_ref = ?,
-                confidence = ?,
-                created_at = ?
+                confidence = ?
             WHERE pattern = ? AND actual LIKE ?
+              AND id = (SELECT MAX(id) FROM mm_learning WHERE pattern = ? AND actual LIKE ?)
         ''', (
             json.dumps({
                 "genetic_hash": genetic_hash,
