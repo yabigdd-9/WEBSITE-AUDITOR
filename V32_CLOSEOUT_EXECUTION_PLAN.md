@@ -127,17 +127,79 @@ Phase E (24h Soak) -------+
 
 ### Phase D: Branch Review & Promotion (Agent Workpath)
 
-| Priority | Branch | Action | Agent Type |
-|----------|--------|--------|------------|
-| High | `refactor/toolkit-best-standards` | Merge (3 files, +31/-3) | general-purpose |
-| High | `wa/v32-isolation-79c9dacd` | Review promotion | general-purpose |
-| Medium | `integration/vnext-full-convergence` | Review (223 files) | general-purpose |
-| Medium | `upgrade/v42-local-audit-intelligence` | Review (200 files) | general-purpose |
-| Medium | `commercial/proposal-quote-intelligence` | Review (187 files) | general-purpose |
-| Medium | `intelligence/discovery-entity-resolution` | Review (5 commits) | general-purpose |
-| High | `integration/v41-release-candidate` | Promote to merge | general-purpose |
-| Medium | `upgrade/v41-production-readiness` | Review (145 files) | general-purpose |
-| Medium | `upgrade/v40-tech-vuln` | Review (125 files) | general-purpose |
+| Priority | Branch | Action | Agent Type | Status |
+|----------|--------|--------|------------|--------|
+| High | `refactor/toolkit-best-standards` | Merge (3 files, +31/-3) | general-purpose | **COMPLETED** — Verdict: MERGE. 150 passed, 2 skipped. Additive logging + deterministic hash. No regressions. |
+| High | `wa/v32-isolation-79c9dacd` | Review promotion | general-purpose | **COMPLETED** — Zero unique commits vs v32. Based on commit `79c9dacd`. **Archive** (superseded). |
+| Medium | `integration/vnext-full-convergence` | Review (223 files) | general-purpose | **REVIEW** — 10+ commits, +26584/-89 |
+| Medium | `upgrade/v42-local-audit-intelligence` | Review (200 files) | general-purpose | **REVIEW** — 10+ commits, +25631/-89 |
+| Medium | `commercial/proposal-quote-intelligence` | Review (187 files) | general-purpose | **REVIEW** — 10+ commits, +24490/-87 |
+| Medium | `intelligence/discovery-entity-resolution` | Review (5 commits) | general-purpose | **REVIEW** — 5 commits, large binary diffs |
+| High | `integration/v41-release-candidate` | Promote to merge | general-purpose | **REVIEW** — 187 files, release candidate |
+| Medium | `upgrade/v41-production-readiness` | Review (145 files) | general-purpose | **REVIEW** — 145 files, +15226/-87 |
+| Medium | `upgrade/v40-tech-vuln` | Review (125 files) | general-purpose | **REVIEW** — 125 files, +14039/-87 |
+
+#### Branch Review Results
+
+**`refactor/toolkit-best-standards` — VERDICT: MERGE**
+
+Single commit (`00411f55`), 3 files, +31/-3 lines. Test results: **150 passed, 2 skipped** (identical to baseline). The changes add structured logging to URL validation and atomic write operations, following the established pattern from `auditor_toolkit/pipeline.py`. The `sort_keys=True` change in `finding_id()` is a defensive correctness improvement. No safety boundaries weakened. Should be merged into `upgrade/v32-canonical-execution` (not directly to `master`).
+
+**`wa/v32-isolation-79c9dacd` — VERDICT: ARCHIVE**
+
+Confirmed as a direct ancestor at commit `79c9dacd` with zero unique commits versus `origin/upgrade/v32-canonical-execution`. Fully superseded by v32 canonical execution. Safe to archive/delete.
+
+#### Code Review Findings from Agent Reviews
+
+The following findings were identified during branch reviews and code audits. Severity levels: LOW (advisory), MEDIUM (should fix), CRITICAL (must fix before merge/promotion).
+
+**`money-machine/mm_observability.py`**
+- MEDIUM (security): Silent exception handling in business info enrichment (`except Exception: pass` at line 157) — recommend debug-level logging
+- MEDIUM (performance): `dead_letter()` fetches 1000 rows then filters in Python — recommend SQL WHERE filtering
+- MEDIUM (performance): `errors()` reads entire log files into memory — recommend line-by-line processing
+- LOW (performance): `write_snapshots()` opens multiple DB connections — recommend connection reuse
+- LOW (correctness): Confusing error message when error tracking columns not migrated
+
+**`money-machine/scripts/fcc-bridge.py`**
+- CRITICAL (architectural): Default model set to paid NVIDIA NIM model (`nvidia_nim/nvidia/nemotron-3-super-120b-a12b` at line 237) — **violates `paid_allowed=false` principle**. Must change default to a free/local model.
+- MEDIUM (security): FCC_HOST/FCC_PORT from env without validation (SSRF risk, line 31)
+- MEDIUM (security): ANTHROPIC_AUTH_TOKEN sent to FCC API in Authorization header (line 248) — potential secret leakage
+- MEDIUM (correctness): Auto-setting ANTHROPIC_AUTH_TOKEN to generated value may override legitimate tokens (line 80)
+- LOW (correctness): Silently swallowed exceptions in server startup/stop loops (lines 140, 156)
+
+**`money-machine/mm_transport.py`**
+- MEDIUM (security): Potential path traversal in `load_config()` — path parameter used without validation (line 16)
+- LOW (performance): Config file read on every call — recommend caching
+
+**`money-machine/mm_runtime_guards.py`**
+- MEDIUM (security): `_cache_path` uses cache_path parameter without validation (path traversal, line 91)
+- MEDIUM (security): `network_guard` accepts arbitrary hosts/ports for probing (SSRF/port scanning risk, line 110)
+- LOW (correctness): Bare `except Exception:` in `_read_cache` could hide errors (line 95)
+- LOW (correctness): `float()` on unvalidated cache data could raise TypeError (line 194)
+- LOW (correctness): Hardcoded zeros for `paid_calls`/`external_sends` in snapshot (line 227)
+
+**`money-machine/mm_model_router.py`**
+- MEDIUM (correctness): Bare except clause catches all exceptions without logging (line 143)
+- MEDIUM (correctness): Truthiness check for model lookup may not handle all valid return values (line 275)
+
+**`money-machine/mm_module_registry.py`**
+- LOW (performance): Module imports performed on every `status()` call without caching (line 33)
+
+**`money-machine/mm_unified_field.py`**
+- MEDIUM (correctness): Silent exception swallowing across 9+ functions — bare `except Exception: return []` or `return {...zeros...}` without logging (line 445). Recommend debug-level logging and narrowing to `sqlite3.Error`/`ValueError`.
+- LOW (performance): O(n²) complexity in seasonality detection — precompute constant denominator
+- LOW (performance): O(n²) nested loops in `detect_emergent_behaviors` — acceptable for <20 metrics, document complexity
+
+**`money-machine/mm_predictive_wisdom.py`**
+- MEDIUM (performance): O(n²) in `_detect_seasonality_autocorrelation` — denominator recomputed per period
+- LOW (correctness): Silent exception swallowing in `_get_historical_metric_data` and `_get_historical_defective_data`
+
+**`money-machine/test_discovery.py`**
+- MEDIUM (correctness): `test_searxng_must_be_loopback` incorrectly expects both loopback and non-loopback endpoints to raise ValueError — should only expect non-loopback to raise. Loopback endpoints should be accepted.
+
+**`auditor_toolkit/connectors/git_connector.py`**
+- MEDIUM (security): Path traversal risk via unvalidated `output_dir` parameter (line 11)
+- LOW (correctness): `atomic_write_text` not wrapped in exception handling (line 17)
 
 ### Phase E: 24-Hour Soak Validation
 
@@ -170,7 +232,8 @@ Phase E (24h Soak) -------+
 - [ ] Real monthly browser/PDF/portal test: passed (requires host)
 - [x] `./mm doctor --profile research-only`: database integrity OK (verified in sandbox)
 - [ ] Local SearXNG discovery: validated (requires host with SearXNG)
-- [ ] 24+ hour unattended soak: no duplicates, DLQ visible, $0 cost, 0 external sends
+- [ ] 24+ hour unattended soak: running (cron active, monitoring Phase E)
+- [x] Branch review Phase D: toolkit-standards (MERGE), wa-isolation (ARCHIVE), v41-rc (stopped/killed — agent stopped), remaining branches pending (vnext-convergence, v42-local-audit, proposal-quote, discovery-entity, v41-production-readiness, v40-tech-vuln)
 - [ ] PR #36: updated with host evidence, draft removed, integrator-only merge
 - [ ] Post-merge cleanup: stray files removed, deprecated scripts archived
 
