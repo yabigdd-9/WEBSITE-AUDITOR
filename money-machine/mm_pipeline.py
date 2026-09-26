@@ -735,9 +735,12 @@ def run_pipelineloop_cli(argv=None):
     args = p.parse_known_args(argv)[0]
     from mm_workers import WORKERS
     names = set(args.workers) if args.workers else set(WORKERS)
-    workers = [p.Worker('w-' + n, *WORKERS[n]) for n in sorted(names)]
-    return run_pipelineloop(d, workers, sleep_seconds=args.sleep,
-                            max_cycles=args.cycles, report_every=args.report_every)
+    from mm_core import connect
+    import contextlib
+    workers = [Worker('w-' + n, *WORKERS[n]) for n in sorted(names)]
+    with contextlib.closing(connect()) as d:
+        return run_pipelineloop(d, workers, sleep_seconds=args.sleep,
+                                max_cycles=args.cycles, report_every=args.report_every)
 
 
 def drain_expired_leases(d):

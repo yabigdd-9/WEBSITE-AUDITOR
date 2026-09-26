@@ -8,8 +8,7 @@ import math
 import logging
 from datetime import datetime, timezone
 from mm_core import now, connect
-
-logger = logging.getLogger(__name__)
+from mm_pipeline import log as structured_log
 from typing import Dict, List, Any, Optional, Tuple
 
 def measure_cross_component_coherence(
@@ -107,7 +106,7 @@ def measure_cross_component_coherence(
         }
 
     except Exception as e:
-        logger.error("Failed to measure cross-component coherence: %s", e)
+        structured_log({"kind": "cross_component_coherence_error", "error": str(e)})
         return {
             "status": "error",
             "message": f"Failed to measure cross-component coherence: {str(e)}",
@@ -254,7 +253,7 @@ def detect_emergent_behaviors(
         }
 
     except Exception as e:
-        logger.error("Failed to detect emergent behaviors: %s", e)
+        structured_log({"kind": "emergent_behavior_detection_error", "error": str(e)})
         return {
             "status": "error",
             "message": f"Failed to detect emergent behaviors: {str(e)}",
