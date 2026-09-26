@@ -21,7 +21,7 @@ This file is the human-readable canonical companion to `MASTER_PLAN.yaml`.
 
 `auditor_toolkit` is the canonical audit engine. `./mm` is the canonical operator interface. SQLite plus state files are authoritative for durable state and the leased queue. launchd + `./mm supervisor` own runtime supervision. Hermes orchestrates agents. Obsidian is the human-facing master brain and review workspace, but it is never the runtime database, queue, pricing authority, or send authority.
 
-n8n is **not** part of the default stack. SearXNG may run as an optional Docker service.
+n8n is **not** part of the default stack. SearXNG may run as an optional service (Docker removed from plan).
 
 ## Execution phases
 

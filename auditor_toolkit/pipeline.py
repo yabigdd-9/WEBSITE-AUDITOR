@@ -2,6 +2,10 @@ from __future__ import annotations
 
 import hashlib
 import time
+import logging
+import traceback
+
+logger = logging.getLogger(__name__)
 from concurrent.futures import ThreadPoolExecutor
 import uuid
 from dataclasses import asdict, dataclass, replace
@@ -73,6 +77,29 @@ class AuditOptions:
             raise ValueError("Unknown profile")
 
 
+def _execute_check(name, fn, required, url, timestamp, findings, evidence, checks):
+    """Unified helper to execute, time, and record checks."""
+    started = time.perf_counter()
+    try:
+        found, data = fn()
+        findings.extend(found)
+        evidence[name] = {
+            "url": url,
+            "observed_at": timestamp,
+            "mode": REGISTRY[name].mode,
+            "data": data,
+            "check_version": REGISTRY[name].version,
+        }
+        checks[name] = {"status": "ok", "required": required}
+        return data
+    except Exception as exc:
+        logger.error(f"Check '{name}' failed: {exc}\n{traceback.format_exc()}")
+        checks[name] = {"status": "error", "reason": str(exc), "required": required}
+        return None
+    finally:
+        elapsed = int((time.perf_counter() - started) * 1000)
+        checks[name]["elapsed_ms"] = checks[name].get("elapsed_ms", 0) + elapsed
+
 def run_audit(url, options=None, fetcher=None):
     opts = options or AuditOptions()
     started_at = time.perf_counter()
@@ -90,44 +117,27 @@ def run_audit(url, options=None, fetcher=None):
     )
 
     def perform(name, fn, required=True):
-        started = time.perf_counter()
-        try:
-            found, data = fn()
-            findings.extend(found)
-            evidence[name] = {
-                "url": url,
-                "observed_at": timestamp,
-                "mode": REGISTRY[name].mode,
-                "data": data,
-                "check_version": REGISTRY[name].version,
-            }
-            checks[name] = {"status": "ok", "required": required}
-            return data
-        except Exception as exc:
-            checks[name] = {"status": "error", "reason": str(exc), "required": required}
-            return None
-        finally:
-            checks[name]["elapsed_ms"] = int((time.perf_counter() - started) * 1000)
+        return _execute_check(name, fn, required, url, timestamp, findings, evidence, checks)
 
     def skip(name, reason, required=False):
         checks[name] = {"status": "skipped", "reason": reason, "required": required}
 
     def perform_parallel(specs):
         """Run independent local checks concurrently; merge deterministically."""
-        started = {name: time.perf_counter() for name, _, _ in specs}
         with ThreadPoolExecutor(max_workers=min(4, len(specs))) as pool:
-            futures = {name: pool.submit(fn) for name, fn, _ in specs}
-            for name, fn, required in specs:
-                try:
-                    found, data = futures[name].result()
-                    findings.extend(found)
-                    evidence[name] = {"url": url, "observed_at": timestamp,
-                                      "mode": REGISTRY[name].mode, "data": data,
-                                      "check_version": REGISTRY[name].version}
-                    checks[name] = {"status": "ok", "required": required}
-                except Exception as exc:
-                    checks[name] = {"status": "error", "reason": str(exc), "required": required}
-                checks[name]["elapsed_ms"] = int((time.perf_counter() - started[name]) * 1000)
+            # Each check runs through the unified _execute_check helper,
+            # ensuring consistent logging, timing, and error handling.
+            futures = [
+                pool.submit(
+                    _execute_check,
+                    name, fn, required, url, timestamp,
+                    findings, evidence, checks,
+                )
+                for name, fn, required in specs
+            ]
+            # Wait for all checks to complete.
+            for future in futures:
+                future.result()
 
     response = None
     try:
@@ -221,6 +231,18 @@ def run_audit(url, options=None, fetcher=None):
                 )
             except Exception as exc:
                 result = {"status": "error", "reason": str(exc), "evidence": {}}
+            try:
+                if result["status"] != "skipped":
+                    flow_result = run_flow_probe(final_url, run_dir / "artifacts", enabled=True, allow_private=opts.allow_private)
+                    flow_evidence = flow_result.get("evidence", {})
+                    final_url_ev = result.get("final_url", final_url)
+                    if flow_result["status"] in ("ok", "error"):
+                        flow_evidence.setdefault("reason", flow_result.get("reason", ""))
+                        flow_findings_list, flow_summary = flow_findings(flow_evidence, final_url_ev, flow_result["status"])
+                        findings.extend(replace(f, source_url=final_url_ev) for f in flow_findings_list)
+                        flow_evidence["summary"] = flow_summary
+            except Exception as exc:
+                pass # Flow probe error is handled in flow_findings
             checks["browser"] = {
                 "status": result["status"],
                 "reason": result.get("reason", ""),

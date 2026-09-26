@@ -69,20 +69,15 @@ BUSINESS_OPERATIONAL_COLUMNS = (
 )
 
 
-def ensure_business_columns(d):
-    """Idempotently add v32 operational columns to businesses.
+def ensure_message_columns(d):
+    """Idempotently add approval_status to messages/proposals."""
+    cols = {r[1] for r in d.execute('PRAGMA table_info(mm_messages)')}
+    if 'approval_status' not in cols:
+        d.execute('ALTER TABLE mm_messages ADD COLUMN approval_status TEXT DEFAULT "DRAFT"')
 
-    Returns the list of columns added by this call (empty when already applied).
-    Safe to call before any migration or bulk data change path; callers remain
-    responsible for their own backup policy.
-    """
-    cols = {r[1] for r in d.execute('PRAGMA table_info(businesses)')}
-    added = []
-    for name, decl in BUSINESS_OPERATIONAL_COLUMNS:
-        if name not in cols:
-            d.execute('ALTER TABLE businesses ADD COLUMN %s %s' % (name, decl))
-            added.append(name)
-    return added
+    cols = {r[1] for r in d.execute('PRAGMA table_info(mm_proposals)')}
+    if 'approval_status' not in cols:
+        d.execute('ALTER TABLE mm_proposals ADD COLUMN approval_status TEXT DEFAULT "DRAFT"')
 
 def backup(r=None):
     r=Path(r or root());folder=r/'backups'/('mm-v2-'+dt.datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ')+'-'+uuid.uuid4().hex[:6]);folder.mkdir(parents=True,mode=0o700)
@@ -162,7 +157,18 @@ CREATE TABLE IF NOT EXISTS mm_scores(business_id INTEGER PRIMARY KEY REFERENCES 
 CREATE TABLE IF NOT EXISTS mm_jobs(job_key TEXT PRIMARY KEY,kind TEXT NOT NULL,business_id INTEGER REFERENCES businesses(id),state TEXT NOT NULL CHECK(state IN ('pending','running','failed','completed')),checkpoint TEXT NOT NULL DEFAULT '{}',attempts INTEGER NOT NULL DEFAULT 0 CHECK(attempts BETWEEN 0 AND 3),lease_until TEXT,updated_at TEXT NOT NULL,error TEXT);
 CREATE TABLE IF NOT EXISTS mm_model_invocations(id INTEGER PRIMARY KEY,run_key TEXT NOT NULL UNIQUE,model TEXT NOT NULL,provider TEXT NOT NULL,purpose_hash TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('blocked','started','failed','completed')),model_calls INTEGER NOT NULL DEFAULT 0 CHECK(model_calls>=0),input_tokens INTEGER,output_tokens INTEGER,cost_usd REAL NOT NULL DEFAULT 0 CHECK(cost_usd=0),created_at TEXT NOT NULL,finished_at TEXT,error TEXT);
 CREATE TABLE IF NOT EXISTS mm_experiments(id INTEGER PRIMARY KEY,business_id INTEGER NOT NULL REFERENCES businesses(id),message_id INTEGER NOT NULL UNIQUE REFERENCES mm_messages(id),industry TEXT NOT NULL,problem TEXT NOT NULL,offer TEXT NOT NULL,price_band TEXT NOT NULL,style TEXT NOT NULL,demo_type TEXT NOT NULL,variant TEXT NOT NULL,created_at TEXT NOT NULL);
-CREATE TABLE IF NOT EXISTS mm_learning(id INTEGER PRIMARY KEY,pattern TEXT NOT NULL,expected TEXT NOT NULL,actual TEXT NOT NULL,evidence_ref TEXT NOT NULL,confidence REAL NOT NULL CHECK(confidence BETWEEN 0 AND 1),recommended_change TEXT NOT NULL,created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS mm_email_drafts(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  message_id INTEGER NOT NULL REFERENCES mm_messages(id),
+  business_id INTEGER NOT NULL REFERENCES businesses(id),
+  recipient TEXT NOT NULL,
+  draft_body TEXT NOT NULL,
+  status TEXT NOT NULL CHECK(status IN ('DRAFT_READY', 'APPROVED', 'INVALIDATED')),
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS mm_email_drafts_message ON mm_email_drafts(message_id);
+
 
 CREATE INDEX IF NOT EXISTS mm_evidence_business_date ON mm_evidence(business_id,checked_at DESC);
 CREATE INDEX IF NOT EXISTS mm_message_business ON mm_messages(business_id,kind,sent_at);

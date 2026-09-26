@@ -18,6 +18,21 @@ from mm_intelligence import *
 # retained for the legacy operator helpers, but command registration must not
 # depend on it exposing a validation constant.
 from mm_core import CLAIM_TYPES
+import mm_drafts
+
+
+class OperatorError(Exception):
+    """Base exception for mm_operator."""
+    pass
+
+class ValidationError(OperatorError):
+    """Raised for input/data validation failures."""
+    pass
+
+class OperationalError(OperatorError):
+    """Raised for runtime/operational failures."""
+    pass
+
 
 class DemoParser(HTMLParser):
     def __init__(self):super().__init__();self.tags=[]
@@ -138,7 +153,7 @@ def doctor(d, profile='default'):
     import shutil
     import ast
     tools={}
-    for name in ('hermes','python3','git','node','npm','npx','goose','opencode','gh','docker','himalaya'):
+    for name in ('hermes','python3','git','node','npm','npx','opencode','gh','himalaya'):
         p=shutil.which(name)
         tools[name]={'path':p,'status':'MISSING' if not p else 'EMPTY_STUB' if Path(p).stat().st_size==0 else 'PRESENT_NOT_EXECUTED'}
     broken=[]
@@ -280,8 +295,10 @@ def main(argv=None):
     q=s.add_parser('outreach-preflight');q.add_argument('id',type=int)
     q=s.add_parser('outreach-dsn');q.add_argument('--eml',required=True);q.add_argument('--recipient',required=True);q.add_argument('--original-message-id',required=True)
     s.add_parser('outreach-health')
+    q=s.add_parser('smart-reply');q.add_argument('id',type=int)
     s.add_parser('transport-status')
     q=s.add_parser('transport-preflight');q.add_argument('--packet',required=True)
+    q=s.add_parser('transport-send');q.add_argument('--packet',required=True);q.add_argument('--execute',action='store_true')
     s.add_parser('outcomes')
     q=s.add_parser('outcome-record');q.add_argument('id',type=int);q.add_argument('--outcome',required=True);q.add_argument('--evidence',required=True);q.add_argument('--sha256',required=True);q.add_argument('--actor',required=True);q.add_argument('--note',default='')
     q=s.add_parser('email-migrate');q.add_argument('--backup',required=True)
@@ -306,6 +323,8 @@ def main(argv=None):
     q=s.add_parser('audit');q.add_argument('id',type=int);q.add_argument('--url',required=True);q.add_argument('--observation',required=True);q.add_argument('--limitation',required=True);q.add_argument('--capture',required=True);q.add_argument('--status',choices=['verified','partial','refuted','unverified'],required=True);q.add_argument('--method',required=True);q.add_argument('--confidence',type=float,required=True);q.add_argument('--claim-type',choices=CLAIM_TYPES,default='observed_fact')
     q=s.add_parser('contact');q.add_argument('id',type=int);q.add_argument('--recipient',required=True);q.add_argument('--url',required=True);q.add_argument('--capture',required=True);q.add_argument('--relevance',required=True)
     q=s.add_parser('draft');q.add_argument('id',type=int);q.add_argument('--recipient',required=True);q.add_argument('--body-file',required=True);q.add_argument('--parent',type=int)
+    q=s.add_parser('draft-review');q.add_argument('id',type=int)
+    q=s.add_parser('draft-approve');q.add_argument('id',type=int);q.add_argument('--actor',required=True);q.add_argument('--approval-receipt',type=int,required=True)
     q=s.add_parser('review');q.add_argument('id',type=int);q.add_argument('--body-file',required=True);q.add_argument('--human',required=True);q.add_argument('--approval-receipt',type=int,required=True);q.add_argument('--proposal',action='store_true')
     q=s.add_parser('record-sent');q.add_argument('id',type=int);q.add_argument('--receipt',type=int,required=True);q.add_argument('--proposal',action='store_true')
     q=s.add_parser('receipt-import');q.add_argument('--envelope',required=True)
@@ -388,9 +407,21 @@ def main(argv=None):
         import mm_obsidian
         result=mm_obsidian.sync() if a.cmd=='obsidian-sync' else mm_obsidian.status()
         print(json.dumps(result,indent=2,default=str));return 0
-    if a.cmd in ('transport-status','transport-preflight'):
+    if a.cmd == 'smart-reply':
+        import mm_smart_reply
+        with contextlib.closing(connect()) as d, d:
+            result = mm_smart_reply.assistant_response(a.id, d)
+        print(json.dumps(result,indent=2,default=str));return 0
+    if a.cmd in ('transport-status','transport-preflight','transport-send'):
         import mm_transport
-        result=mm_transport.status() if a.cmd=='transport-status' else mm_transport.preflight_packet(json.loads(Path(a.packet).read_text()))
+        if a.cmd == 'transport-send':
+            if not a.execute:
+                result = {"status": "DRY_RUN", "note": "Pass --execute to trigger mock transport."}
+            else:
+                with contextlib.closing(connect()) as d, d:
+                    result = mm_transport.send_approved(d, int(a.packet))
+        else:
+            result=mm_transport.status() if a.cmd=='transport-status' else mm_transport.preflight_packet(json.loads(Path(a.packet).read_text()))
         print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd in ('outcomes','outcome-record'):
         import mm_outcomes
@@ -580,6 +611,11 @@ def main(argv=None):
             elif a.cmd=='audit':result={'evidence_id':record_evidence(d,a.id,a.url,a.observation,a.limitation,a.capture,a.status,a.method,a.confidence,a.claim_type)}
             elif a.cmd=='contact':record_contact(d,a.id,a.recipient,a.url,a.capture,a.relevance);result={'contact_source':'captured','permission':'Human review required'}
             elif a.cmd=='draft':result={'draft_id':create_draft(d,a.id,a.recipient,Path(a.body_file).read_text(),a.parent)}
+            elif a.cmd=='draft-review':import mm_drafts;result=mm_drafts.review_draft(d,a.id)
+            elif a.cmd=='draft-approve':
+                import mm_drafts
+                with contextlib.closing(connect()) as _dd, _dd:
+                    result = mm_drafts.approve_draft(_dd, a.id, a.actor, a.approval_receipt)
             elif a.cmd=='review':approve(d,a.id,Path(a.body_file).read_text(),a.human,a.approval_receipt,a.proposal);result={'approval':'Recorded from evidence'}
             elif a.cmd=='record-sent':record_sent(d,a.id,a.receipt,a.proposal);result={'recorded':True,'sent_by_this_command':False}
             elif a.cmd=='receipt-import':result={'receipt_id':import_receipt(d,a.envelope),'verification':'Human attestation; no live provider query'}
@@ -671,4 +707,5 @@ def cmd_data_quarantine(source):
 
 if __name__=='__main__':
     try:sys.exit(main())
+    except OperatorError as e:print('BLOCKED: '+str(e),file=sys.stderr);sys.exit(2)
     except (ValueError,sqlite3.Error,OSError,KeyError) as e:print('BLOCKED: '+str(e),file=sys.stderr);sys.exit(2)
