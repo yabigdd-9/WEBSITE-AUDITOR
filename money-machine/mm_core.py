@@ -141,8 +141,9 @@ def ensure_business_columns(d):
 
 
 def ensure_message_columns(d):
-    """Idempotently add review status and channel fields to legacy packet tables."""
+    """Idempotently add current safety fields to legacy packet tables."""
     definitions = (
+        ('invalidated_reason', 'TEXT'),
         ('approval_status', "TEXT NOT NULL DEFAULT 'DRAFT'"),
         ('approved_channel', "TEXT NOT NULL DEFAULT 'draft_only'"),
     )
@@ -273,7 +274,7 @@ def migrate(d, backup_path):
     ).fetchone()
     for table, columns in (
         ('businesses', BUSINESS_OPERATIONAL_COLUMNS),
-        ('mm_messages', (('approval_status', "TEXT NOT NULL DEFAULT 'DRAFT'"), ('approved_channel', "TEXT NOT NULL DEFAULT 'draft_only'"))),
+        ('mm_messages', (('invalidated_reason', 'TEXT'), ('approval_status', "TEXT NOT NULL DEFAULT 'DRAFT'"), ('approved_channel', "TEXT NOT NULL DEFAULT 'draft_only'"))),
         ('mm_proposals', (('approval_status', "TEXT NOT NULL DEFAULT 'DRAFT'"), ('approved_channel', "TEXT NOT NULL DEFAULT 'draft_only'"))),
     ):
         if table not in tables:

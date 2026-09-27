@@ -217,6 +217,7 @@ CREATE TABLE mm_messages (
   permission_basis TEXT,
   sent_at TEXT,
   send_receipt TEXT,
+  invalidated_reason TEXT,
   reply TEXT,
   UNIQUE(parent_id)
 );
