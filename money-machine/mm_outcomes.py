@@ -45,12 +45,53 @@ END;
 """
 
 
-def migrate(d):
+def migrate(d, backup_path=None):
+    required_objects = {
+        ("table", "prospect_outcomes"),
+        ("index", "prospect_outcomes_business"),
+        ("trigger", "prospect_outcomes_no_update"),
+        ("trigger", "prospect_outcomes_no_delete"),
+    }
+    present_objects = {
+        (row[0], row[1])
+        for row in d.execute(
+            "SELECT type,name FROM sqlite_master WHERE type IN ('table','index','trigger')"
+        )
+    }
+    if required_objects <= present_objects:
+        return False
+    if backup_path is None:
+        backup_path = core.backup()
+    manifest = Path(backup_path) / "manifest.json"
+    if not manifest.is_file():
+        raise ValueError("Verified backup required before outcome schema migration")
+    doc = json.loads(manifest.read_text())
+    database = Path(d.execute("PRAGMA database_list").fetchone()[2]).resolve()
+    database_backup_found = False
+    for item in doc.get("items", []):
+        path = Path(item.get("path", ""))
+        if not path.is_file() or core.sha(path.read_bytes()) != item.get("sha256"):
+            raise ValueError("Outcome schema backup checksum mismatch")
+        if Path(item.get("source", "")).resolve() == database:
+            database_backup_found = True
+    if not database_backup_found:
+        raise ValueError("Backup manifest does not contain this outcome database")
     d.executescript(DDL)
+    return True
 
 
-def record(d, business_id, outcome, evidence_path, evidence_hash, actor, note="", observed_at=None):
-    migrate(d)
+def record(
+    d,
+    business_id,
+    outcome,
+    evidence_path,
+    evidence_hash,
+    actor,
+    note="",
+    observed_at=None,
+    backup_path=None,
+):
+    migrate(d, backup_path)
     core.business(d, business_id)
     outcome = str(outcome or "").upper()
     if outcome not in OUTCOMES:

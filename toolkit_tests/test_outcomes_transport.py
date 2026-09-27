@@ -22,6 +22,7 @@ def load(name):
 
 outcomes = load("mm_outcomes")
 transport = load("mm_transport")
+operator = load("mm_operator")
 
 
 def db(path):
@@ -56,6 +57,7 @@ def test_outcome_tracking_is_evidence_backed_and_append_only(tmp_path, monkeypat
     evidence = root / "evidence.txt"
     evidence.write_text("Customer replied yes", encoding="utf-8")
     digest = outcomes.core.sha(evidence.read_bytes())
+    backup = outcomes.core.backup(root)
 
     result = outcomes.record(
         d,
@@ -65,6 +67,7 @@ def test_outcome_tracking_is_evidence_backed_and_append_only(tmp_path, monkeypat
         digest,
         actor="human-fixture",
         note="Synthetic evidence",
+        backup_path=backup,
     )
     d.commit()
     assert result["outcome"] == "REPLIED"
@@ -86,10 +89,19 @@ def test_outcome_rejects_missing_or_external_evidence(tmp_path, monkeypatch):
     d = db(root / "database" / "money_machine.db")
     outside = tmp_path / "outside.txt"
     outside.write_text("outside", encoding="utf-8")
+    backup = outcomes.core.backup(root)
     with pytest.raises(ValueError, match="canonical workspace"):
-        outcomes.record(d, 1, "WON", outside, outcomes.core.sha(outside.read_bytes()), "human")
+        outcomes.record(
+            d,
+            1,
+            "WON",
+            outside,
+            outcomes.core.sha(outside.read_bytes()),
+            "human",
+            backup_path=backup,
+        )
     with pytest.raises(ValueError, match="Unknown outcome"):
-        outcomes.record(d, 1, "MAGIC", root / "missing", "bad", "human")
+        outcomes.record(d, 1, "MAGIC", root / "missing", "bad", "human", backup_path=backup)
     d.close()
 
 
@@ -136,3 +148,89 @@ def test_outcome_summary_is_read_only_when_uninitialised(tmp_path):
     assert result["status"] == "uninitialised"
     assert result["total"] == 0
     assert before == after
+
+
+def test_outcome_schema_migration_requires_verified_backup(tmp_path, monkeypatch):
+    root = tmp_path / "repo"
+    root.mkdir()
+    (root / "database").mkdir()
+    monkeypatch.setenv("MM_ROOT", str(root))
+    d = db(root / "database" / "money_machine.db")
+
+    with pytest.raises(ValueError, match="Verified backup required"):
+        outcomes.migrate(d, root / "missing-backup")
+    assert d.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='prospect_outcomes'"
+    ).fetchone() is None
+
+    original_backup = outcomes.core.backup
+
+    def unavailable_backup():
+        raise OSError("synthetic backup failure")
+
+    monkeypatch.setattr(outcomes.core, "backup", unavailable_backup)
+    with pytest.raises(OSError, match="synthetic backup failure"):
+        outcomes.migrate(d)
+    assert d.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='prospect_outcomes'"
+    ).fetchone() is None
+    monkeypatch.setattr(outcomes.core, "backup", original_backup)
+
+    other_root = tmp_path / "other-repo"
+    other_root.mkdir()
+    (other_root / "database").mkdir()
+    other_db = db(other_root / "database" / "money_machine.db")
+    other_backup = outcomes.core.backup(other_root)
+    with pytest.raises(ValueError, match="does not contain this outcome database"):
+        outcomes.migrate(d, other_backup)
+    other_db.close()
+
+    backup = outcomes.core.backup(root)
+    outcomes.migrate(d, backup)
+    assert d.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='prospect_outcomes'"
+    ).fetchone() is not None
+    d.close()
+
+
+def test_outcome_record_cli_backs_up_before_schema_change(tmp_path, monkeypatch, capsys):
+    root = tmp_path / "repo"
+    root.mkdir()
+    (root / "database").mkdir()
+    monkeypatch.setenv("MM_ROOT", str(root))
+    database_path = root / "database" / "money_machine.db"
+    d = db(database_path)
+    d.close()
+    evidence = root / "reply.txt"
+    evidence.write_text("Synthetic reply", encoding="utf-8")
+    digest = outcomes.core.sha(evidence.read_bytes())
+    backups = []
+    real_backup = outcomes.core.backup
+
+    def tracked_backup(_root=None):
+        path = real_backup(root)
+        backups.append(path)
+        return path
+
+    monkeypatch.setattr(outcomes.core, "backup", tracked_backup)
+    result = operator.main(
+        [
+            "outcome-record",
+            "1",
+            "--outcome",
+            "REPLIED",
+            "--evidence",
+            str(evidence),
+            "--sha256",
+            digest,
+            "--actor",
+            "synthetic-operator",
+        ]
+    )
+    output = json.loads(capsys.readouterr().out)
+
+    assert result == 0
+    assert len(backups) == 1
+    assert output["outcome"] == "REPLIED"
+    with sqlite3.connect(database_path) as d:
+        assert d.execute("SELECT count(*) FROM prospect_outcomes").fetchone()[0] == 1
