@@ -407,7 +407,7 @@ final_acceptance:
 
 latest_execution_checkpoint:
   as_of_local_date: "2026-09-28"
-  workspace: "Canonical-plan branch codex/canonical-plan-execution is clean and pushed; its latest code change adds Lighthouse lab metrics, with subsequent commits updating plan evidence. Catalyx implementation branch codex/catalyx-rebuild-phase1-5 is at pushed commit 5fd497f3. Its tracked security and browser-check changes passed verification and were pushed; the unrelated untracked experiments/cloudflare-workers-probe/ directory was preserved. No active process had this Catalyx worktree open during review. No branch was merged to master and no deployment occurred."
+  workspace: "Canonical-plan branch codex/canonical-plan-execution is clean and pushed through 675e2609. Recent changes add SQLite schema migration backups, use the supervisor's Python for audit subprocesses, preserve dead-letter error details, and fall back to the failure event ledger for older DLQ rows. Catalyx implementation branch codex/catalyx-rebuild-phase1-5 remains at pushed commit 5fd497f3; its unrelated experiments/cloudflare-workers-probe/ directory was preserved. No branch was merged to master and no deployment occurred."
   branch: "codex/canonical-plan-execution"
   user_reported:
     reliability_soak: "Completed in Claude per owner report on 2026-09-28; no Codex rerun requested. Claude run artifacts and tested SHA were not inspected in this workspace."
@@ -427,7 +427,7 @@ latest_execution_checkpoint:
     diff_check: "Passed."
     ruff_ci: "Fresh configured CI scope `ruff check auditor_toolkit toolkit_tests` now passes after fixing all 60 previously reported baseline findings; the new mm_golden_current.py also passes scoped Ruff. No Ruff suppressions or rule weakening were added."
     fixture_manifest: "49 captured pages checked; 23 sanitized; all hashes and source-hash metadata validate."
-    feature_branch: "Pushed to origin/codex/canonical-plan-execution; working tree clean and synchronized after the latest plan update."
+    feature_branch: "Pushed to origin/codex/canonical-plan-execution through 675e2609; working tree clean and synchronized."
     catalyx_rebuild_local_verification: "In the separate implementation worktree based on 0348b3f9, uv installed the editable package with web, portal, and dev extras from cache using --offline; tests ran with synthetic accounts and temporary databases. Earlier full toolkit suite passed 241 tests with 5 opt-in skips; follow-up at 1ef9e96d passed 250 tests, then 5fd497f3 passed 251 tests with 5 opt-in skips and 2 upstream warnings. Focused mail/web tests passed 89 at 1ef9e96d; latest focused web suite passed 61. The opt-in synthetic Catalyx customer/admin browser walkthrough passed 1; Ruff, uv lock --check --offline, diff check, and staged Gitleaks passed. uv build --offline produced wheel and sdist; wheel inspection confirmed the TOTP key-rotation guard and console entry point. No .env file was sourced. Commit 5fd497f3 is pushed on codex/catalyx-rebuild-phase1-5; no master merge, deployment, external email, or soak rerun occurred."
     catalyx_pipeline_review: "The local app has its own authorization/audit state machine and imports auditor_toolkit check modules. Source review found no Money Machine FSM integration; Phase 5 remains incomplete. Local worker stays disabled by default."
     transport_safety: "Channel-bound approval, at-most-once attempt reservation, runtime kill switch and receipt reconciliation covered with mocked provider. No real send attempted."
