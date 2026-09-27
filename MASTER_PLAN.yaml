@@ -233,7 +233,7 @@ catalyxlabs_rebuild:
     intended_worktree_head: "0c8041da4051d6ac341814d62f04be58fc97be63"
     intended_worktree_plan_status: "Untracked user-created MASTER_EXECUTION_PLAN.md; preserve as-is. This worktree is not based on the requested implementation SHA."
     implementation_worktree: "/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild"
-    implementation_worktree_status: "Branch codex/catalyx-rebuild-phase1-5 at 2c3b4f08 (pushed to origin). Recent follow-ups atomically reserve account login attempts and cap verification/reset email at five per normalized account per hour; the full local toolkit suite passes 243 tests with 5 explicit browser skips. The unrelated experiments/ directory remains untracked and was excluded. No master merge or deployment occurred."
+    implementation_worktree_status: "Branch codex/catalyx-rebuild-phase1-5 at 5519c4da (pushed to origin); latest code change is 47a35243. Recent follow-ups atomically reserve account login attempts and cap verification/reset email at five per normalized account per hour; the full local toolkit suite passes 243 tests with 5 explicit browser skips. A privacy-safe FSM mapping proposal is published for owner review. The unrelated experiments/ directory remains untracked and was excluded. No master merge or deployment occurred."
     branch_from_sha: "0348b3f9"
   safety_gates:
     external_send_allowed: false
@@ -269,10 +269,10 @@ catalyxlabs_rebuild:
       gate: "Owner review of UI and assets."
     phase_3:
       name: "Integration"
-      status: "IMPLEMENTED_LOCALLY_MAPPING_REVIEW_PENDING"
+      status: "IMPLEMENTED_LOCALLY_MAPPING_PROPOSAL_READY_FOR_OWNER_REVIEW"
       actions:
         - "catalyx_web/customer_audit.py imports selected auditor_toolkit check modules; mocked local tests exercise the fixed audit profile. The app route does not start audits automatically; the customer-facing worker remains disabled."
-        - "Money Machine FSM mapping is not implemented; keep customer-app state isolated pending an owner-approved mapping."
+        - "The reviewable proposal at docs/catalyx-platform/money-machine-fsm-mapping-proposal.md defines an idempotent, privacy-minimizing event bridge; no FSM integration or customer-data transfer is implemented."
       gate: "Owner review of engine mapping."
     phase_4:
       name: "Hardening"
@@ -284,9 +284,9 @@ catalyxlabs_rebuild:
       gate: "Automated security audit."
     phase_5:
       name: "Pipeline"
-      status: "INCOMPLETE_OWNER_MAPPING_DECISION_PENDING"
+      status: "MAPPING_PROPOSAL_READY_IMPLEMENTATION_PENDING_OWNER_DECISIONS"
       actions:
-        - "Money Machine FSM is not connected to Catalyx workflow triggers; a human-reviewed mapping decision is pending."
+        - "Money Machine FSM is not connected to Catalyx workflow triggers. Review docs/catalyx-platform/money-machine-fsm-mapping-proposal.md and approve or revise its authority split, event fields, retention/deletion behavior, and quality_review/released mapping before implementation."
         - "The customer app has no model-router or approval-engine integration in the inspected source; add regression coverage for the intended hard-disabled boundary as part of the approved mapping work."
       gate: "Automated integration test."
   phases_6_to_9: "The source plan lists phases 6-9 as not done but supplies no names, actions, or gates; scope is insufficient to implement or verify them."
@@ -407,7 +407,7 @@ final_acceptance:
 
 latest_execution_checkpoint:
   as_of_local_date: "2026-09-28"
-  workspace: "Canonical-plan changes are committed and pushed on their isolated feature branch. Catalyx web implementation is committed and pushed on codex/catalyx-rebuild-phase1-5 through 2c3b4f08; only the preserved untracked experiments/ directory remains there. Neither branch was merged to master and no deployment occurred."
+  workspace: "Canonical-plan changes are committed and pushed on their isolated feature branch. Catalyx web implementation and FSM mapping proposal are committed and pushed on codex/catalyx-rebuild-phase1-5 through 5519c4da; only the preserved untracked experiments/ directory remains there. Neither branch was merged to master and no deployment occurred."
   branch: "codex/canonical-plan-execution"
   user_reported:
     reliability_soak: "Completed in Claude per owner report on 2026-09-28; no Codex rerun requested. Claude run artifacts and tested SHA were not inspected in this workspace."
@@ -416,6 +416,7 @@ latest_execution_checkpoint:
     toolkit_tests: "177 passed, 4 skipped, 2 dependency deprecation warnings (fresh full run after P18 challenger-gate and P5 false-positive evidence-gate hardening)."
     money_machine_tests: "326 passed, 4 skipped, 83 subtests passed in a fresh Money Machine checkout run with Python 3.11 and a disposable SQLite fixture. The fixture was created from database/schema.sql and omitted only the legacy sent-row insert trigger so the test setup could represent pre-guard historical sends; no user database was read or changed. Two Hermes/provider integration cases and two tests requiring the absent legacy Hermes source DB were skipped explicitly."
     catalyx_security_followup: "Commit 2c3b4f08 is pushed on codex/catalyx-rebuild-phase1-5. The latest full toolkit run records 243 passed, 5 opt-in browser tests skipped, and 2 upstream deprecation warnings; the focused cross-IP email-limit test passed, Ruff and diff check passed, and scoped Gitleaks scans of changed app/test/docs files reported no leaks. Earlier opt-in Chromium customer/admin journey passed against disposable local data. The account-lockout finding and owner approval of provisional auth thresholds remain open; no SMTP credentials, production config, or soak test were used."
+    catalyx_fsm_mapping_proposal: "The reviewable proposal at docs/catalyx-platform/money-machine-fsm-mapping-proposal.md is pushed in commit 5519c4da. It defines an idempotent outbox and minimal event fields but makes no code integration or customer-data transfer. Diff check and scoped Gitleaks passed; owner decisions on authority, retention/deletion, and quality_review versus released semantics remain open."
     strict_dependency_audits: "Project dependencies and money-machine/requirements-email.txt: no known vulnerabilities found."
     gitleaks_working_tree: "A completed repository-config scan reported 0 findings before later corrections; the repeated whole-worktree scan was interrupted. A fresh scoped scan covered 14 changed code/documentation/plan files: 13 had zero findings, and three redacted sourcegraph-access-token matches in MASTER_PLAN.yaml were each confirmed by git cat-file -t to be commit objects, not credentials. No values were printed. The initial captured-page matches were sanitized, fixture SHA-256 values refreshed, and source hashes retained in the manifest; the separate historical scan candidates remain owner-review items."
     gitleaks_history: "A fresh --all scan covered 478 commits currently reachable from local refs and reported 103 candidates across 4 commits and 31 paths: 76 captured email-fixture matches, 21 proposed_actions.jsonl matches, 3 generated HTML-cache matches, 2 workflow matches, and 1 security-example-doc match. A redacted follow-up pinned all 76 fixture matches to 26 historical money-machine/fixtures/email_captures/*.html files (33 generic-api-key, 11 generic-api-key-assignment, 5 google-api-key, 3 gcp-api-key, and 24 sourcegraph-access-token rule matches); 20 distinct candidate strings had no obvious placeholder markers. Current fixture files were sanitized and their hashes refreshed, but the historical contents remain in Git history; candidate activity/ownership is not known, so owner review is required before declaring them harmless or deciding on history rewriting. Metadata-only review classified the 21 proposed-action matches as generated idempotency IDs (stable_id values truncated from SHA-256), the two workflow matches as references to GitHub Actions secrets rather than literal credentials, and the security-example-doc match as a sk_test_ placeholder example. Three generated HTML-cache candidates remain unclassified. The prior backup commit 48bd89da82e3 is no longer referenced by a branch but remains in the local object database; an explicit redacted scan reported 69 candidates, including repeated .env/.env.fcc copies. Metadata-only review found 54 nonempty, non-placeholder assignments across those two files, with copies under a pre-merge backup; treat them as potentially valid credentials pending owner verification and rotation. The commit is not an ancestor of origin/master or origin/upgrade/v32-canonical-execution. No secret values were printed, used, rotated, or history-rewritten."
@@ -443,7 +444,7 @@ latest_execution_checkpoint:
   acceptance_open:
     - "Owner must privately verify and rotate any valid credentials among the 54 nonempty historical .env/.env.fcc assignments. Do not share their values. Then decide whether to rewrite or retain the unreferenced local commit; it is not reachable from current remote release branches."
     - "Owner must assess whether secret-shaped values embedded in 26 historical captured-page fixtures were active/restricted third-party credentials; current fixture contents are sanitized, but historical blobs remain. Classify the three generated HTML-cache candidates too. Workflow secret references, generated idempotency IDs, and the Stripe test-key documentation example were reviewed and identified as non-credential matches. The historical scan is not clean even though current scoped source scans are."
-    - "Catalyx rebuild Phase 5 still needs an approved, privacy-safe Money Machine FSM mapping. The local app currently has a separate workflow state machine; do not copy customer data into the Money Machine database without an explicit mapping and review."
+    - "Catalyx rebuild Phase 5 has a reviewable FSM mapping proposal at docs/catalyx-platform/money-machine-fsm-mapping-proposal.md, but implementation still needs owner approval of the authority split, event fields, retention/deletion behavior, and quality_review/released semantics. Do not copy customer data into the Money Machine database before approval."
     - "Hosting/provider, region, mail delivery, retention/deletion, legal wording, initial administrator accounts, and production worker isolation remain owner decisions/release blockers in docs/catalyx-platform/release-readiness.md."
     - "Benchmark heavier optional infrastructure only after core acceptance passes; defer while historical secret candidates and the Catalyx pipeline/release gates remain unresolved."
     - "P3/P17 live runtime remains degraded in its cached guard state: at 17:44Z there were 30 queue rows with recorded qualification rejections, no active lease, and no current DLQ item. The cached probe remains degraded; the health command did not probe the network. The branch now has multi-host fallback, but the live process has not loaded that code. Confirm the rejection outcomes and service ownership before claiming healthy unattended operation; do not requeue them automatically."
