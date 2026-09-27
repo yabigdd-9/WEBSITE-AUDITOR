@@ -289,8 +289,28 @@ catalyxlabs_rebuild:
         - "Money Machine FSM is not connected to Catalyx workflow triggers. Review docs/catalyx-platform/money-machine-fsm-mapping-proposal.md and approve or revise its authority split, event fields, retention/deletion behavior, and quality_review/released mapping before implementation."
         - "The customer app has no model-router or approval-engine integration in the inspected source; add regression coverage for the intended hard-disabled boundary as part of the approved mapping work."
       gate: "Automated integration test."
-  phases_6_to_9: "The source plan lists phases 6-9 as not done but supplies no names, actions, or gates; scope is insufficient to implement or verify them."
-  scope_note: "Phases 1-5 are defined in the user-created source plan. Phases 6-9 remain undefined and require the source owner to provide scope."
+  phases_6_to_9:
+    status: "PROPOSED_SCOPE_PENDING_OWNER_RATIFICATION"
+    source: "/Users/dd/WEBSITE-AUDITOR/.claude/worktrees/phase1-rebuild/MASTER_EXECUTION_PLAN.md"
+    phases:
+      phase_6:
+        name: "Product and quality acceptance"
+        actions: ["Synthetic end-to-end customer/reviewer journeys", "Accessibility and local Lighthouse/Lychee evidence", "Verify privacy, evidence, redaction, and disabled-action boundaries"]
+        gate: "Automated acceptance using synthetic data; material defects and false positives recorded."
+      phase_7:
+        name: "Hosting and data architecture"
+        actions: ["Select provider, region, persistence, retention/deletion, mail, and support model", "Implement only the owner-approved $0 architecture", "Keep customer scans disabled until authorization and worker egress controls are proven"]
+        gate: "Owner and privacy/legal approval of hosting, cost, data map, retention, terms, and mail policy."
+      phase_8:
+        name: "Isolated staging and recovery rehearsal"
+        actions: ["Deploy to isolated staging with synthetic accounts/sites", "Verify migrations, backup/restore, rollback, worker isolation, quotas, and observability"]
+        gate: "Security review and verified restore/rollback; no production customer data."
+      phase_9:
+        name: "Controlled release"
+        actions: ["Confirm domain/routing, legal copy, support ownership, rollback, and reviewed artifact", "Keep outreach disabled by default and exclude .shop assets/config/data"]
+        gate: "Explicit owner release approval after all acceptance criteria pass."
+    note: "Proposed continuation only. It clarifies the missing phase scope but does not grant production, data-transfer, or external-send approval."
+  scope_note: "The user-created plan originally defined phases 1-5 only. Phases 6-9 now have a proposed execution sequence recorded for owner ratification; implementation gates remain closed until required approvals and evidence exist."
 
 historical_verified_baseline:
   as_of: "2026-09-22"
