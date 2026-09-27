@@ -36,6 +36,7 @@ def test_full_happy_path_reaches_form_but_not_submission():
     findings, summary = flow_findings(evidence, "http://example.test/")
     assert findings == []  # a healthy reachable form raises no finding
     assert summary["states_reached"] == 6
+    assert summary["conversion_path_health"] >= 90
     assert summary["outcome"]["reason"] == "safe_test_not_authorized"
 
 
