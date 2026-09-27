@@ -22,21 +22,41 @@ def _email_prediction(case: dict) -> tuple[str, dict]:
 
     inputs = case["input"]
     catch_all_case = inputs.get("mx") is True and inputs.get("catch_all") is True
+    observed_case = inputs.get("first_party_observation") is True
     domain = "example.co.nz"
     identity = {
-        "status": "HIGH" if catch_all_case else "LOW",
+        "status": "HIGH" if catch_all_case or observed_case else "LOW",
         "evidence_urls": [],
-        "accepted_roots": [domain] if catch_all_case else [],
+        "accepted_roots": [domain] if catch_all_case or observed_case else [],
         "proposed_root_domain": domain,
     }
+    observations = []
+    if observed_case:
+        identity["evidence_urls"] = [
+            "https://example.co.nz/contact",
+            "https://example.co.nz/about",
+        ]
+        for page in identity["evidence_urls"]:
+            observations.append(
+                {
+                    "email": "info@example.co.nz",
+                    "method": "mailto",
+                    "source_url": page,
+                    "observed_at": FIXED_AT.isoformat(),
+                    "capture_hash": "synthetic-golden-capture",
+                    "capture_path": "fixtures/synthetic/contact.html",
+                    "role": "company general",
+                    "context": "Contact the Example company team.",
+                }
+            )
     candidate = {
-        "email": "info@example.co.nz" if catch_all_case else "jane.doe@example.co.nz",
-        "observations": [],
-        "method": "observed" if catch_all_case else "CANDIDATE_PATTERN_DERIVED",
+        "email": "info@example.co.nz" if catch_all_case or observed_case else "jane.doe@example.co.nz",
+        "observations": observations,
+        "method": "observed" if catch_all_case or observed_case else "CANDIDATE_PATTERN_DERIVED",
     }
     dns = None
     smtp = None
-    if inputs.get("catch_all") is True:
+    if inputs.get("catch_all") is True or observed_case:
         stamp = FIXED_AT.isoformat()
         dns = {
             "mx_present": True,
@@ -45,12 +65,19 @@ def _email_prediction(case: dict) -> tuple[str, dict]:
             "mx_hosts": ["mx.example.co.nz"],
             "checked_at": stamp,
         }
-        smtp = {"result": "accepted", "catch_all_status": "yes", "checked_at": stamp}
+        smtp = {
+            "result": "accepted",
+            "catch_all_status": "yes" if inputs.get("catch_all") is True else "no",
+            "checked_at": stamp,
+        }
     result = mm_email.verification(candidate, identity, dns=dns, smtp=smtp, at=FIXED_AT)
     if result["catch_all_status"] == "yes":
         return "CATCH_ALL", {"send_enabled": False, "paid_cost_usd": 0}
+    if inputs.get("suppressed") is True:
+        result = mm_email.verification(candidate, identity, dns=dns, smtp=smtp, suppressed=True, at=FIXED_AT)
+        return result["confidence_label"], {"send_enabled": False, "paid_cost_usd": 0}
     if result["confidence_label"] == "VERIFIED_HIGH":
-        return "VERIFIED", {"send_enabled": False, "paid_cost_usd": 0}
+        return "VERIFIED_HIGH", {"send_enabled": False, "paid_cost_usd": 0}
     return "NO_VERIFIED_EMAIL", {"send_enabled": False, "paid_cost_usd": 0}
 
 
@@ -68,6 +95,8 @@ def _predict(case: dict) -> dict:
             "nzbn": "nzbn_match",
             "email_domain": "email_domain_match",
             "region": "region_match",
+            "address": "address_match",
+            "phone": "phone_match",
         }
         signals = {target: inputs[source] for source, target in mapping.items() if source in inputs}
         result = identity_confidence(signals)
@@ -82,7 +111,11 @@ def _predict(case: dict) -> dict:
         report = {
             "run_id": "synthetic-golden-remediation",
             "url": "https://example.co.nz",
-            "defects": [{"defect_key": inputs["defect_key"]}],
+            "defects": [{
+                "defect_key": inputs["defect_key"],
+                **({"remediation_automation": inputs["remediation_automation"]}
+                   if inputs.get("remediation_automation") else {}),
+            }],
         }
         with tempfile.TemporaryDirectory(prefix="wa-golden-remediation-") as output_dir:
             manifest = build_remediation(report, output_dir)

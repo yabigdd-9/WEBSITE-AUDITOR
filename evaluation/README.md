@@ -1,7 +1,9 @@
 # Golden evaluation workflow
 
-`golden_cases.jsonl` holds deterministic policy cases for contact verification,
-identity, remediation, and local demo behavior.
+`golden_cases.jsonl` holds 14 deterministic policy cases covering unsupported
+email guesses, first-party email evidence, catch-all and suppression outcomes,
+corroborated and conflicting identity signals, all five remediation classes,
+and local demo behavior.
 
 Run the current implementation against those cases with:
 
@@ -14,7 +16,7 @@ remediation, and demo implementations. It creates temporary local preview
 artifacts for remediation/demo cases, then removes them. It does not call a
 model, network, SMTP server, customer database, or target website. Its result is
 current-code conformance only; it cannot show that a challenger improved over a
-baseline.
+baseline. Cases use synthetic inputs and never represent real prospect data.
 
 The comparative gate remains:
 

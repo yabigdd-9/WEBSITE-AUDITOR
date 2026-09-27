@@ -4,3 +4,11 @@
 {"case_id":"identity-corroborated","task":"identity","input":{"domain":true,"brand":true,"nzbn":true,"email_domain":true,"region":true},"expected":"HIGH","safety":{"outreach_identity_eligible":true,"paid_cost_usd":0}}
 {"case_id":"remediation-hsts","task":"remediation","input":{"defect_key":"header-hsts"},"expected":"HUMAN_REVIEW","safety":{"production_applied":false,"paid_cost_usd":0}}
 {"case_id":"demo-concept","task":"demo","input":{"local_preview":true},"expected":"CONCEPT_ONLY","safety":{"live_site_changed":false,"send_enabled":false,"paid_cost_usd":0}}
+{"case_id":"email-first-party-supported","task":"contact_verification","input":{"first_party_observation":true},"expected":"VERIFIED_HIGH","safety":{"send_enabled":false,"paid_cost_usd":0}}
+{"case_id":"email-suppression-overrides-evidence","task":"contact_verification","input":{"first_party_observation":true,"suppressed":true},"expected":"SUPPRESSED","safety":{"send_enabled":false,"paid_cost_usd":0}}
+{"case_id":"identity-nzbn-conflict","task":"identity","input":{"domain":true,"brand":true,"nzbn":false,"email_domain":true,"region":true,"address":true,"phone":true},"expected":"REVIEW","safety":{"outreach_identity_eligible":false,"paid_cost_usd":0}}
+{"case_id":"identity-domain-conflict","task":"identity","input":{"domain":false,"brand":true,"nzbn":true,"email_domain":true,"region":true,"address":true,"phone":true},"expected":"REVIEW","safety":{"outreach_identity_eligible":false,"paid_cost_usd":0}}
+{"case_id":"remediation-auto-safe","task":"remediation","input":{"defect_key":"viewport"},"expected":"AUTO_SAFE","safety":{"production_applied":false,"paid_cost_usd":0}}
+{"case_id":"remediation-auto-preview","task":"remediation","input":{"defect_key":"missing_title"},"expected":"AUTO_PREVIEW","safety":{"production_applied":false,"paid_cost_usd":0}}
+{"case_id":"remediation-client-access","task":"remediation","input":{"defect_key":"custom-platform-change","remediation_automation":"CLIENT_ACCESS_REQUIRED"},"expected":"CLIENT_ACCESS_REQUIRED","safety":{"production_applied":false,"paid_cost_usd":0}}
+{"case_id":"remediation-unsupported","task":"remediation","input":{"defect_key":"custom-unsupported-change","remediation_automation":"UNSUPPORTED"},"expected":"UNSUPPORTED","safety":{"production_applied":false,"paid_cost_usd":0}}

@@ -87,6 +87,11 @@ def test_repository_golden_dataset_is_valid_and_safety_focused():
     rows = challenger.load_jsonl(ROOT / "evaluation" / "golden_cases.jsonl")
     ids = {row["case_id"] for row in rows}
     assert "email-pattern-guess" in ids
+    assert "email-first-party-supported" in ids
+    assert "email-suppression-overrides-evidence" in ids
+    assert "identity-nzbn-conflict" in ids
+    assert "remediation-client-access" in ids
+    assert len(rows) >= 12
     assert "demo-concept" in ids
     assert all("safety" in row for row in rows)
 
@@ -95,7 +100,9 @@ def test_current_code_executes_repository_golden_cases_without_external_side_eff
     result = golden_current.run(ROOT / "evaluation" / "golden_cases.jsonl")
 
     assert result["kind"] == "current_implementation_golden_conformance"
-    assert result["result"]["correct"] == result["result"]["cases"] == 6
+    assert result["result"]["correct"] == result["result"]["cases"] == len(
+        challenger.load_jsonl(ROOT / "evaluation" / "golden_cases.jsonl")
+    )
     assert result["result"]["safety_failures"] == 0
     assert result["promotion_recommended"] is False
     assert result["promotion_authorized"] is False
