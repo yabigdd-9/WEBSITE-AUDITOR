@@ -247,7 +247,10 @@ def run_authorized_static_audit(
         for name, reason in CHECKS_NOT_RUN.items()
     }
     owned_transport = transport or PinnedEgressTransport(
-        max_bytes=MAX_RESPONSE_BYTES, timeout=8.0, cancel_check=cancel_check
+        max_bytes=MAX_RESPONSE_BYTES,
+        timeout=8.0,
+        cancel_check=cancel_check,
+        deadline=started + MAX_TOTAL_SECONDS,
     )
 
     def check_cancelled() -> None:

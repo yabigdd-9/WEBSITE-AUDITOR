@@ -779,3 +779,152 @@ dedicated Catalyx browser journey passed (**1 passed** in 11.67 seconds).
 `git diff --check` passed after fixing three existing Ruff findings in two
 test files. Tests used synthetic accounts and local SQLite; hosted PostgreSQL
 and edge/provider behavior remain unverified. No soak test was run.
+
+## Phase F continuation — refreshed source security scan (2026-09-28)
+
+Codex Security Standard scan `0163e31e-d6e5-41bb-bf96-87589ed4e3c8` completed
+against the scoped `catalyx_web` source snapshot
+`codex-security-snapshot/v1:sha256:de7940b5d7132e59fdc33bbc469a162e61179983c091d699c16b8bdd015ef55d`.
+All 14 in-scope files were reviewed. The scan recorded complete source coverage,
+four high-confidence findings (three medium, one low), and explicit exclusions
+for production runtime/provider configuration/customer data and soak testing.
+
+Findings:
+
+- **Medium — worker execution can exceed the audit deadline.** DNS answers are
+  attempted serially with a fresh connection timeout; the overall profile
+  deadline is checked between requests. The manual worker's lease is 60 seconds.
+  The web app disables this worker, so production reachability was not established.
+- **Medium — open registration has no shared verification-mail budget.** A
+  per-address limit does not cap messages to distinct destinations. The path
+  requires open registration and explicitly enabled SMTP; hosted email remains
+  disabled by default.
+- **Medium — distributed login traffic can cause repeated PBKDF2 work.** The
+  per-account failure limit is applied after the password hash operation; the
+  pre-hash limit is keyed by source address. Production edge controls were not
+  reviewed.
+- **Low — public recovery requests can temporarily exhaust a target email's
+  request quota.** Reset and resend handlers consume the target-address bucket
+  before account lookup. This delays recovery only and cannot change credentials.
+
+The scan found no current TOTP replay issue: the committed source consumes the
+matched counter atomically per membership. The source review also found no
+tenant/report authorization issue in the reviewed paths. This is a static code
+review; it does not close runtime, PostgreSQL, isolated-worker, legal/privacy,
+mail-provider, or accessibility signoff gates. The repository HEAD advanced to
+`5fd497f3` during the scan; its immutable source digest is retained in the
+report, and the TOTP source change is included in that reviewed snapshot.
+
+No soak test was run. No external email, paid resource, provider/domain change,
+customer data import, deployment, or production cutover occurred. Keep hosted
+mail disabled and release no-go until the owner decisions and mitigations listed
+in the security report are resolved.
+
+## Phase F continuation — egress deadline mitigation (2026-09-28)
+
+After the scan, the local worker transport was changed to share the fixed
+profile's absolute monotonic deadline across DNS, connect, TLS, and response
+operations. DNS results are rejected when more than four public addresses are
+returned, and an already-expired deadline prevents DNS/socket work. The browser
+app still keeps the worker disabled; this source change does not authorize
+worker execution or production scanning.
+
+Focused regression coverage passed (**3 passed, 60 deselected**), including
+answer-count rejection, expired-deadline rejection, and normal pinned transport
+behavior. Ruff and `git diff --check` passed. The sealed scan predates this
+local patch, so it continues to report the source finding against its immutable
+snapshot. A current-source review remains required before any release.
+
+No soak test, network target, production runtime, customer data, provider, or
+domain configuration was accessed.
+
+## Refreshed current-source review and deadline fix (2026-09-28)
+
+Codex Security Standard scan `d85dfc47-f85a-4bc6-9e2c-1aa1d1a15569` reviewed
+all 14 files in `catalyx_web` at immutable snapshot
+`codex-security-snapshot/v1:sha256:690ac9d1ab6e1cb5a60b9f400fbeaf62881177346614d6fdb62bc74fab3445b5`.
+It completed with five validated findings: two medium (distributed login
+PBKDF2 work; unbounded verification-mail volume if registration and SMTP are
+enabled) and three low (slow-drip response headers exceed the audit deadline;
+registration response enumeration; recovery requests consume a target address
+quota before account lookup). Hosted registration and mail remain closed or
+disabled by default. Tenant/report authorization and atomic TOTP replay
+prevention had no additional validated finding. The sealed report is
+`/Users/dd/.codex/state/plugins/codex-security/scans/catalyx-auditor-rebuild/5fd497f3f78562d498d90af7a56b78dc56c6f681_20260927T194449Z_jq9s2b_4/report.md`.
+
+The scan's formal coverage is **partial**: all 14 source files were reviewed
+and all six surfaces were dispositioned, but one duplicate registration
+enumeration candidate remained deferred and the hosted mail/login/recovery
+policy question remains open. The findings apply to the recorded snapshot,
+which was captured before the following parser change.
+
+The pinned transport now parses response status and headers through a reader
+that checks cancellation and the remaining monotonic deadline before every
+socket read. It also enforces a 32 KiB aggregate status/header bound while
+bytes arrive. This closes the slow-drip header gap in current local source;
+the sealed report remains unchanged. Regression tests cover one-byte
+slow-drip reads against a finite deadline and an oversized header rejected
+during reading.
+
+Current finite verification: focused transport checks **22 passed**; full
+`toolkit_tests` **255 passed, 5 opt-in browser tests skipped, 2 upstream
+deprecation warnings** in 46.88 seconds; Ruff and `git diff --check` passed.
+The skipped browser checks were not soak tests. No soak test was run, per the
+owner's instruction. This does not verify real socket behavior against a
+deployed worker, PostgreSQL, provider settings, or production egress controls.
+
+The login work budget, registration email quotas, recovery quota design, and
+remaining A1–A10 decisions are still open. Production and `.com` cutover remain
+no-go; worker execution and external mail remain disabled pending their gates.
+
+## Egress diff review and final parser refinement (2026-09-28)
+
+Codex Security diff scan `47a4e2f4-4709-4287-88b6-33c7bc480d7a` reviewed the
+working-tree diff snapshot
+`codex-security-snapshot/v1:sha256:c22ee604622143d4d570dba60aa390eddb020b37cd76e2cd78af2f7ea6248ffa`.
+It found no new issue in the two changed `catalyx_web` source files and their
+related regression test. Coverage is formally partial because the inventory
+also contained 279 untracked user-owned files under `experiments/`; their
+contents were not opened. The sealed report is
+`/Users/dd/.codex/state/plugins/codex-security/scans/catalyx-auditor-rebuild/5fd497f3f78562d498d90af7a56b78dc56c6f681_20260927T200957Z_lht8yfzz/report.md`.
+
+After that snapshot, the local reader was refined to continue enforcing the
+header bound after interim `100 Continue` responses. A regression test covers
+an oversized final header following an interim response. Final finite checks
+passed: **22 focused transport tests** and **255 full toolkit tests**, with 5
+opt-in browser checks skipped and 2 upstream deprecation warnings; Ruff and
+`git diff --check` passed. The sealed diff scan does not include that small
+post-snapshot refinement.
+
+No soak test was run. The worker remains disabled in the web app and local-only
+in the CLI. Production, provider/DNS, customer-data, and real worker-network
+behavior remain outside the evidence. Production and `.com` cutover remain
+no-go pending the remaining security findings and A1–A10 owner decisions.
+
+## Registration response enumeration follow-up (2026-09-28)
+
+The registration handler now returns the same generic page and HTTP 200 status
+after either successful account creation or a duplicate-address conflict. A
+regression test asserts byte-for-byte response-body equality, one verification
+message for the first registration only, and successful verification using
+that original link. The full toolkit suite passed (**256 passed, 5 opt-in
+browser checks skipped, 2 deprecation warnings** in 48.85 seconds); the focused
+regression passed. The dedicated local Chromium customer-to-admin walkthrough
+also passed (**1 passed** in 10.46 seconds) after its registration-page
+assertion was updated for the generic response. Ruff and `git diff --check`
+passed.
+
+An independent source review confirmed visible response parity and identified
+a residual timing channel: the new-account path creates a token and saves or
+sends mail before responding, while the duplicate path returns after the
+database conflict. The change closes the response-content disclosure; it does
+not establish timing indistinguishability. Registration and external mail
+remain closed/disabled by default, and recipient/global mail quotas and
+owner-approved abuse thresholds remain open. No soak test, external mail,
+deployment, provider/domain change, worker run, or customer-data access
+occurred.
+
+The Chromium walkthrough checks keyboard traversal, labels, structure, text
+contrast, and narrow/reflow layouts against disposable synthetic data. It is
+not a screen-reader session or a human WCAG conformance sign-off; those
+accessibility gates remain open.

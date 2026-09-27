@@ -945,6 +945,7 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
             return _form_page("A clearer view starts here", "Create a customer account to register a site for review.", "<p class=\"form-error\" role=\"alert\" aria-atomic=\"true\">Enter a valid email address.</p>" + register_form(request), request=request, status=400)
         if password != form.get("password_confirm"):
             return _form_page("A clearer view starts here", "Create a customer account to register a site for review.", "<p class=\"form-error\" role=\"alert\" aria-atomic=\"true\">The passwords do not match.</p>" + register_form(request), request=request, status=400)
+        confirmation_body = '<section class="auth-wrap"><p class="eyebrow">EMAIL VERIFICATION</p><h1>Check your email</h1><p class="lead narrow">If the address can be registered, verification instructions will be provided. Follow them before adding a site or requesting an audit.</p><a class="button primary" href="/login">Continue to sign in</a></section>'
         try:
             password_hash = hash_password(password)
             user_id, _ = database.create_customer(email, password_hash)
@@ -952,7 +953,7 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
             return _form_page("A clearer view starts here", "Create a customer account to register a site for review.", "<p class=\"form-error\" role=\"alert\" aria-atomic=\"true\">" + _e(exc) + "</p>" + register_form(request), request=request, status=400)
         except DatabaseIntegrityError:
             # Keep the response neutral to avoid disclosing registered addresses.
-            return _form_page("Check your email", "If the address can be registered, a verification link will be sent.", '<p class="callout-text">Follow the verification instructions, then sign in.</p><a class="button primary" href="/login">Continue to sign in</a>', request=request)
+            return _page("Check your email", confirmation_body)
         verify_token = new_token()
         verify_expires_at = int(time.time()) + 3600
         with database.connect() as db:
@@ -972,8 +973,7 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
                 await asyncio.to_thread(send_account_link, email, "email_verification", verification_url)
             except MailDeliveryError:
                 logger.warning("Account verification email could not be delivered")
-        body = '<section class="auth-wrap"><p class="eyebrow">EMAIL VERIFICATION</p><h1>Check your inbox</h1><p class="lead narrow">A verification link is required before you can add a site or request an audit.</p><a class="button primary" href="/login">Continue to sign in</a><p class="auth-switch">Didn’t receive a message? <a href="/resend-verification">Request another verification link</a></p></section>'
-        return _page("Check your email", body, notice="Account created. Verify your email to continue.")
+        return _page("Check your email", confirmation_body)
 
     @app.get("/resend-verification", response_class=HTMLResponse)
     def resend_verification_page(request: Request):

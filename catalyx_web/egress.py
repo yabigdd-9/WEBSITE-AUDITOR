@@ -8,6 +8,7 @@ release gate that currently keeps customer scanning disabled.
 from __future__ import annotations
 
 import http.client
+import io
 import ipaddress
 import socket
 import ssl
@@ -33,6 +34,73 @@ class EgressCancelledError(RuntimeError):
     """The active audit was cancelled or lost its queue lease."""
 
 
+MAX_RESOLVED_ADDRESSES = 4
+MAX_RESPONSE_HEADER_BYTES = 32_768
+
+
+class _DeadlineSocketReader(io.RawIOBase):
+    """Read response bytes while enforcing cancellation and the total deadline."""
+
+    def __init__(self, connection, *, timeout: float, remaining_deadline, cancel_check):
+        self.connection = connection
+        self.timeout = timeout
+        self.remaining_deadline = remaining_deadline
+        self.cancel_check = cancel_check
+        self.header_bytes = bytearray()
+        self.headers_complete = False
+
+    def readable(self) -> bool:
+        return True
+
+    def readinto(self, buffer) -> int:
+        if self.cancel_check():
+            raise EgressCancelledError("The audit is no longer active")
+        remaining = self.remaining_deadline()
+        if remaining <= 0:
+            raise EgressPolicyError("Audit exceeded the overall time limit")
+        self.connection.settimeout(min(self.timeout, remaining))
+        count = self.connection.recv_into(buffer)
+        if count and not self.headers_complete:
+            received = memoryview(buffer)[:count].tobytes()
+            while received and not self.headers_complete:
+                end = received.find(b"\r\n\r\n")
+                if end < 0:
+                    self.header_bytes.extend(received)
+                    if len(self.header_bytes) > MAX_RESPONSE_HEADER_BYTES:
+                        raise EgressPolicyError("Response headers exceed the allowed size")
+                    break
+                block = self.header_bytes + received[: end + 4]
+                if len(block) > MAX_RESPONSE_HEADER_BYTES:
+                    raise EgressPolicyError("Response headers exceed the allowed size")
+                status_line = block.split(b"\r\n", 1)[0].split()
+                is_continue = len(status_line) > 1 and status_line[1] == b"100"
+                self.header_bytes.clear()
+                received = received[end + 4 :]
+                self.headers_complete = not is_continue
+        return count
+
+
+class _DeadlineSocket:
+    """Minimal socket interface consumed by ``http.client.HTTPResponse``."""
+
+    def __init__(self, connection, *, timeout: float, remaining_deadline, cancel_check):
+        self.connection = connection
+        self.timeout = timeout
+        self.remaining_deadline = remaining_deadline
+        self.cancel_check = cancel_check
+
+    def makefile(self, mode: str):
+        if mode != "rb":
+            raise ValueError("Response reader requires binary read mode")
+        raw = _DeadlineSocketReader(
+            self.connection,
+            timeout=self.timeout,
+            remaining_deadline=self.remaining_deadline,
+            cancel_check=self.cancel_check,
+        )
+        return io.BufferedReader(raw)
+
+
 class PinnedEgressTransport(httpx.BaseTransport):
     """Resolve, vet, and connect to the same public IP for one HTTP request."""
 
@@ -44,13 +112,23 @@ class PinnedEgressTransport(httpx.BaseTransport):
         dns_timeout: float = 2.0,
         resolver: dns.resolver.Resolver | None = None,
         cancel_check: Callable[[], bool] | None = None,
+        deadline: float | None = None,
     ):
         self.max_bytes = max_bytes
         self.timeout = timeout
         self.dns_timeout = dns_timeout
         self.cancel_check = cancel_check or (lambda: False)
+        self.deadline = deadline
         self._resolver = resolver or dns.resolver.Resolver(configure=True)
         self._ssl_context = ssl.create_default_context()
+
+    def _remaining_deadline(self) -> float:
+        if self.deadline is None:
+            return self.timeout
+        remaining = self.deadline - time.monotonic()
+        if remaining <= 0:
+            raise EgressPolicyError("Audit exceeded the overall time limit")
+        return min(self.timeout, remaining)
 
     def handle_request(self, request: httpx.Request) -> httpx.Response:
         self._raise_if_cancelled()
@@ -69,19 +147,22 @@ class PinnedEgressTransport(httpx.BaseTransport):
         target = request.url.raw_path.decode("ascii", errors="strict")
         if not target.startswith("/") or "\r" in target or "\n" in target:
             raise EgressPolicyError("Target path is invalid")
+        self._remaining_deadline()
         addresses = self._resolve_public(host, port)
         self._raise_if_cancelled()
         last_error = None
         for family, socktype, proto, sockaddr in addresses:
+            self._raise_if_cancelled()
+            connect_timeout = self._remaining_deadline()
             raw_socket = socket.socket(family, socktype, proto)
             try:
-                raw_socket.settimeout(self.timeout)
+                raw_socket.settimeout(connect_timeout)
                 raw_socket.connect(sockaddr)
-                raw_socket.settimeout(self.timeout)
+                raw_socket.settimeout(self._remaining_deadline())
                 connection = raw_socket
                 if request.url.scheme == "https":
                     connection = self._ssl_context.wrap_socket(raw_socket, server_hostname=host)
-                    connection.settimeout(self.timeout)
+                    connection.settimeout(self._remaining_deadline())
                 try:
                     return self._send_and_read(request, connection, host, port, target)
                 finally:
@@ -103,6 +184,8 @@ class PinnedEgressTransport(httpx.BaseTransport):
         except ValueError:
             name = host.rstrip(".") + "."
             deadline = time.monotonic() + self.dns_timeout
+            if self.deadline is not None:
+                deadline = min(deadline, self.deadline)
             results = []
             try:
                 for record_type, family in (("A", socket.AF_INET), ("AAAA", socket.AF_INET6)):
@@ -123,6 +206,12 @@ class PinnedEgressTransport(httpx.BaseTransport):
                             else (str(address), port)
                         )
                         results.append((family, socket.SOCK_STREAM, socket.IPPROTO_TCP, sockaddr))
+                        if len(results) > MAX_RESOLVED_ADDRESSES:
+                            raise EgressPolicyError(
+                                "Target resolved to too many public addresses"
+                            )
+            except EgressPolicyError:
+                raise
             except (dns.exception.DNSException, OSError, ValueError):
                 raise EgressTransportError("Target name could not be resolved") from None
         if not results:
@@ -154,10 +243,19 @@ class PinnedEgressTransport(httpx.BaseTransport):
             "Connection: close\r\n\r\n"
         ).encode("ascii")
         self._raise_if_cancelled()
+        connection.settimeout(self._remaining_deadline())
         connection.sendall(wire)
-        response = http.client.HTTPResponse(connection, method="GET")
+        response_socket = _DeadlineSocket(
+            connection,
+            timeout=self.timeout,
+            remaining_deadline=self._remaining_deadline,
+            cancel_check=self._raise_if_cancelled,
+        )
+        response = http.client.HTTPResponse(response_socket, method="GET")
         response.begin()
+        self._remaining_deadline()
         raw_headers = response.getheaders()
+        self._remaining_deadline()
         if len(raw_headers) > 100 or sum(len(key) + len(value) for key, value in raw_headers) > 32_768:
             raise EgressPolicyError("Response headers exceed the allowed size")
         headers = httpx.Headers(raw_headers)
@@ -181,7 +279,10 @@ class PinnedEgressTransport(httpx.BaseTransport):
         body = bytearray()
         while True:
             self._raise_if_cancelled()
-            remaining = self.timeout - (time.monotonic() - started)
+            remaining = min(
+                self.timeout - (time.monotonic() - started),
+                self._remaining_deadline(),
+            )
             if remaining <= 0:
                 raise EgressPolicyError("Response exceeded the configured time limit")
             connection.settimeout(min(self.timeout, remaining))
@@ -193,6 +294,7 @@ class PinnedEgressTransport(httpx.BaseTransport):
                 raise EgressPolicyError("Response exceeds the configured byte limit")
         if time.monotonic() - started > self.timeout:
             raise EgressPolicyError("Response exceeded the configured time limit")
+        self._remaining_deadline()
         self._raise_if_cancelled()
         response.close()
         return httpx.Response(response.status, headers=headers, content=bytes(body), request=request)

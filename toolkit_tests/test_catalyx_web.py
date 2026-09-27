@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import base64
 import hashlib
-import io
 import json
 import re
 import socket
@@ -788,6 +787,45 @@ def test_verification_and_reset_email_limits_apply_across_client_ips(tmp_path):
     assert reset_email not in " ".join(subjects)
 
 
+def test_registration_response_does_not_disclose_duplicate_email(tmp_path):
+    mailbox_path = tmp_path / "mailbox.json"
+    app = create_app(tmp_path / "app.sqlite3", mailbox_path)
+    client = TestClient(app)
+    email = "registration-enumeration@example.invalid"
+    password = "a-long-local-password-123"
+
+    first_page = client.get("/register")
+    first_response = client.post(
+        "/register",
+        data={
+            "csrf": form_token(first_page),
+            "email": email,
+            "password": password,
+            "password_confirm": password,
+        },
+    )
+    assert first_response.status_code == 200
+
+    second_page = client.get("/register")
+    duplicate_response = client.post(
+        "/register",
+        data={
+            "csrf": form_token(second_page),
+            "email": email,
+            "password": password,
+            "password_confirm": password,
+        },
+    )
+    assert duplicate_response.status_code == first_response.status_code
+    assert duplicate_response.text == first_response.text
+
+    messages = [message for message in app.state.local_mailbox if message["email"] == email]
+    assert len(messages) == 1
+    verification_link = urlparse(messages[0]["verification_url"])
+    assert client.get(verification_link.path).status_code == 200
+    assert client.post("/verify", data={"token": verification_link.fragment}).status_code == 200
+
+
 def test_recovery_ip_denials_and_invalid_emails_do_not_create_account_buckets(tmp_path):
     db_path = tmp_path / "app.sqlite3"
     mailbox_path = tmp_path / "mailbox.json"
@@ -1401,6 +1439,32 @@ def test_dns_pinning_rejects_mixed_public_and_private_answers():
         PinnedEgressTransport(resolver=resolver)._resolve_public("example.com", 443)
 
 
+def test_dns_pinning_rejects_excessive_public_answers():
+    resolver = FakeAddressResolver(
+        {"A": ["93.184.216.34", "1.1.1.1", "8.8.8.8", "9.9.9.9", "4.2.2.2"]}
+    )
+    with pytest.raises(EgressPolicyError, match="too many public addresses"):
+        PinnedEgressTransport(resolver=resolver)._resolve_public("example.com", 443)
+
+
+def test_transport_rejects_an_expired_audit_deadline(monkeypatch):
+    created = False
+
+    def make_socket(*_args, **_kwargs):
+        nonlocal created
+        created = True
+        raise AssertionError("an expired deadline must not open a socket")
+
+    monkeypatch.setattr(socket, "socket", make_socket)
+    transport = PinnedEgressTransport(
+        resolver=FakeAddressResolver({"A": ["93.184.216.34"]}),
+        deadline=time.monotonic() - 1,
+    )
+    with pytest.raises(EgressPolicyError, match="overall time limit"):
+        transport.handle_request(httpx.Request("GET", "http://example.com/"))
+    assert not created
+
+
 @pytest.mark.parametrize(
     ("family", "address"),
     [
@@ -1443,6 +1507,10 @@ def test_pinned_transport_connects_to_the_vetted_address(monkeypatch):
     sockets = []
 
     class FakeSocket:
+        response = bytearray(
+            b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 2\r\n\r\nOK"
+        )
+
         def settimeout(self, value):
             self.timeout = value
 
@@ -1452,8 +1520,11 @@ def test_pinned_transport_connects_to_the_vetted_address(monkeypatch):
         def sendall(self, data):
             self.request = data
 
-        def makefile(self, mode):
-            return io.BytesIO(b"HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 2\r\n\r\nOK")
+        def recv_into(self, buffer):
+            count = min(len(buffer), len(self.response))
+            buffer[:count] = self.response[:count]
+            del self.response[:count]
+            return count
 
         def close(self):
             pass
@@ -1478,6 +1549,10 @@ def test_pinned_transport_connects_to_the_vetted_address(monkeypatch):
 
 def test_pinned_transport_checks_cancellation_while_reading_response(monkeypatch):
     class FakeSocket:
+        response = bytearray(
+            b"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 2\r\n\r\nOK"
+        )
+
         def settimeout(self, _value):
             pass
 
@@ -1487,10 +1562,11 @@ def test_pinned_transport_checks_cancellation_while_reading_response(monkeypatch
         def sendall(self, _data):
             pass
 
-        def makefile(self, _mode):
-            return io.BytesIO(
-                b"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 2\r\n\r\nOK"
-            )
+        def recv_into(self, buffer):
+            count = min(len(buffer), len(self.response))
+            buffer[:count] = self.response[:count]
+            del self.response[:count]
+            return count
 
         def close(self):
             pass
@@ -1508,6 +1584,82 @@ def test_pinned_transport_checks_cancellation_while_reading_response(monkeypatch
         cancel_check=cancel_after_body_chunk,
     )
     with pytest.raises(EgressCancelledError):
+        transport.handle_request(httpx.Request("GET", "http://example.com/"))
+
+
+def test_pinned_transport_enforces_deadline_between_slow_header_reads(monkeypatch):
+    class SlowHeaderSocket:
+        def __init__(self):
+            self.response = bytearray(
+                b"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
+            )
+
+        def settimeout(self, value):
+            self.timeout = value
+
+        def connect(self, _address):
+            pass
+
+        def sendall(self, _data):
+            pass
+
+        def recv_into(self, buffer):
+            time.sleep(0.01)
+            if not self.response:
+                return 0
+            buffer[0] = self.response.pop(0)
+            return 1
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(socket, "socket", lambda *_args, **_kwargs: SlowHeaderSocket())
+    transport = PinnedEgressTransport(
+        timeout=1,
+        resolver=FakeAddressResolver({"A": ["93.184.216.34"]}),
+        deadline=time.monotonic() + 0.06,
+    )
+    started = time.monotonic()
+    with pytest.raises(EgressPolicyError, match="overall time limit"):
+        transport.handle_request(httpx.Request("GET", "http://example.com/"))
+    assert time.monotonic() - started < 0.3
+
+
+def test_pinned_transport_rejects_oversized_headers_during_read(monkeypatch):
+    class OversizedHeaderSocket:
+        def __init__(self):
+            self.response = bytearray(
+                b"HTTP/1.1 100 Continue\r\n\r\n"
+                b"HTTP/1.1 200 OK\r\nX-Large: "
+                + b"a" * 33_000
+                + b"\r\n\r\nbody"
+            )
+
+        def settimeout(self, _value):
+            pass
+
+        def connect(self, _address):
+            pass
+
+        def sendall(self, _data):
+            pass
+
+        def recv_into(self, buffer):
+            count = min(len(buffer), len(self.response))
+            buffer[:count] = self.response[:count]
+            del self.response[:count]
+            return count
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(
+        socket, "socket", lambda *_args, **_kwargs: OversizedHeaderSocket()
+    )
+    transport = PinnedEgressTransport(
+        resolver=FakeAddressResolver({"A": ["93.184.216.34"]})
+    )
+    with pytest.raises(EgressPolicyError, match="headers exceed the allowed size"):
         transport.handle_request(httpx.Request("GET", "http://example.com/"))
 
 

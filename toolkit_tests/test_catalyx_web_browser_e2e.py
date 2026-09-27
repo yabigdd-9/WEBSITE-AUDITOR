@@ -257,7 +257,12 @@ def test_customer_registration_site_request_and_admin_review(tmp_path, monkeypat
                 page.locator('input[name="password"]').fill("local-customer-password-123")
                 page.get_by_label("Confirm password").fill("local-customer-password-123")
                 page.get_by_role("button", name="Create account").click()
-                expect(page.get_by_role("heading", name="Check your inbox")).to_be_visible()
+                expect(page.get_by_role("heading", name="Check your email")).to_be_visible()
+                expect(
+                    page.get_by_text(
+                        "If the address can be registered, verification instructions will be provided."
+                    )
+                ).to_be_visible()
                 messages = json.loads(mailbox_path.read_text(encoding="utf-8"))
                 verification_url = next(
                     message["verification_url"]
