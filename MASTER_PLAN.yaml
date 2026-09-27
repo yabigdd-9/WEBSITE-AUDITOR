@@ -68,6 +68,7 @@ phases:
   P0:
     name: "Repository reconciliation"
     priority: CRITICAL
+    status: "PARTIAL_HISTORICAL_SECRET_REVIEW_OPEN"
     goal: "One trustworthy canonical codebase."
     gate:
       - "Canonical repo preserved."
@@ -77,6 +78,7 @@ phases:
   P1:
     name: "Reproducible green baseline"
     priority: CRITICAL
+    status: "TESTED_BASELINE_HISTORY_SECRET_GATE_OPEN"
     python: "3.11"
     actions:
       - "Standardize dependency source."
@@ -100,6 +102,7 @@ phases:
   P3:
     name: "Continuous control plane"
     priority: CRITICAL
+    status: "IMPLEMENTED_LIVE_RUNTIME_DEGRADED_QUEUE_IDLE"
     queue: "SQLite leased work queue"
     required_cli:
       - "./mm supervisor start"
@@ -123,6 +126,7 @@ phases:
   P4:
     name: "Audit engine"
     priority: HIGH
+    status: "IMPLEMENTED_OPTIONAL_LIGHTHOUSE_LYCHEE_BINARIES_NOT_INSTALLED"
     keep: ["Playwright", "axe-core", "BeautifulSoup", "trafilatura", "HTTP checks"]
     finish:
       - "Lighthouse/Core Web Vitals"
@@ -136,47 +140,57 @@ phases:
   P5:
     name: "Evidence-first findings"
     priority: CRITICAL
+    status: "IMPLEMENTED_TESTED"
     rule: "Scores are derived from findings; material findings require evidence."
   P6:
     name: "NZ business discovery"
     priority: HIGH
+    status: "IMPLEMENTED_MULTI_SOURCE_DISCOVERY_TESTED"
     lanes: ["NZBN", "SearXNG", "industry directories", "public business directories", "public websites", "search engines", "permitted OSM-derived sources", "existing DB"]
     rule: "Deduplicate before expensive audit stages."
   P7:
     name: "Identity resolution"
     priority: HIGH
+    status: "IMPLEMENTED_WEIGHTED_IDENTITY_TESTED"
     rule: "Use weighted evidence/confidence across NZBN, legal/trading name, domain, website, email domain and region."
   P8:
     name: "Email Finder V2"
     priority: CRITICAL
+    status: "IMPLEMENTED_PROVENANCE_AND_GOLDEN_TESTED"
     states: ["VERIFIED", "STRONG_EVIDENCE", "CATCH_ALL", "UNVERIFIED", "NO_VERIFIED_EMAIL", "INVALID"]
     rule: "Every eligible email has provenance; pattern/MX/catch-all alone never equals verified."
   P9:
     name: "Opportunity scoring"
     priority: HIGH
+    status: "IMPLEMENTED_SEPARATE_TECHNICAL_AND_COMMERCIAL_SCORES_TESTED"
     formula: "need * business_value * contactability * fixability * confidence / delivery_effort"
     rule: "Deterministic and replayable from stored inputs."
   P10:
     name: "Remediation engine"
     priority: HIGH
+    status: "IMPLEMENTED_REVIEW_CLASSIFICATION_TESTED"
     classes: ["AUTO_SAFE", "AUTO_PREVIEW", "HUMAN_REVIEW", "CLIENT_ACCESS_REQUIRED", "UNSUPPORTED"]
     external_send_authorization: "Mandated human-gated review workflow only."
     human_required_for: ["customer messages", "pricing commitments", "deployments"]
   P11:
     name: "Demo factory"
     priority: HIGH
+    status: "IMPLEMENTED_LOCAL_PROOF_FLOW_TESTED"
     flow: ["audit", "select", "create patch/reconstruction", "test", "render", "before screenshot", "after screenshot", "compare"]
   P12:
     name: "Quote engine"
     priority: HIGH
+    status: "IMPLEMENTED_DETERMINISTIC_VERSIONED_RULES_TESTED"
     rule: "Versioned deterministic pricing rules; LLM may explain but never determine price."
   P13:
     name: "Prospect packet"
     priority: HIGH
+    status: "IMPLEMENTED_PROVENANCE_AND_DRAFT_QA_TESTED"
     gate: "No prospect reaches outreach without a complete reviewable packet."
   P14:
     name: "Outreach engine"
     priority: HIGH
+    status: "IMPLEMENTED_CONFIGURABLE_TRANSPORT_SEND_DISABLED_TESTED"
     transport_enabled: true
     send_enabled: false
     external_send_authorization: "Mandated human-gated review workflow only."
@@ -184,6 +198,7 @@ phases:
   P15:
     name: "Free model router"
     priority: HIGH
+    status: "IMPLEMENTED_ZERO_COST_ROUTING_TESTED"
     route: ["DETERMINISTIC_CODE", "LOCAL_FREE_MODEL", "FREE_EXTERNAL_ROUTE_1", "FREE_EXTERNAL_ROUTE_2", "DEFER"]
     max_cost_usd: 0
     max_large_local_models_concurrent: 0
@@ -191,17 +206,20 @@ phases:
   P16:
     name: "Agent team"
     priority: HIGH
+    status: "ROLE_POLICY_PRESENT_HERMES_RUNTIME_INTEGRATION_UNVERIFIED"
     orchestrator: "Hermes"
     roles: ["RESEARCHER", "CODER", "OPERATOR", "JUDGE", "PROOFER", "INTEGRATOR"]
     rule: "One branch/worktree per coding agent; no shared-file concurrent writes."
   P17:
     name: "Observability"
     priority: MEDIUM
+    status: "IMPLEMENTED_READ_ONLY_HEALTH_METRICS_QUEUE_AND_DLQ"
     start_with: ["state/health.json", "state/metrics.jsonl", "state/errors.jsonl", "state/worker-heartbeats/", "state/dead-letter/"]
     defer: ["Prometheus", "Grafana", "Loki", "Langfuse"]
   P18:
     name: "Self improvement"
     priority: MEDIUM
+    status: "GOLDEN_CHALLENGER_FRAMEWORK_PRESENT_SHADOW_PROMOTION_EVIDENCE_OPEN"
     flow: ["propose", "branch", "test", "evaluate", "shadow run", "compare metrics", "judge", "merge or reject"]
     rule: "No direct autonomous modification of production."
 
@@ -412,10 +430,13 @@ latest_execution_checkpoint:
     prospect_packet: "CLI accepts an Email Finder V2 status export; verified contacts are included only with matching first-party capture provenance. Packet provenance excludes local capture paths and raw page context."
     draft_qa: "Prospect drafts receive deterministic claim, evidence-reference, quote-band and scope-caveat checks; human review remains required and send authority stays disabled."
     score_separation: "Queue qualification preserves independent commercial and technical scores and qualification basis; blended cross-axis ranking was removed. Regression coverage passes."
-    canonical_runtime_snapshot: "Read-only check at 2026-09-27T12:27Z: health reports PID 22813 with a fresh heartbeat, but launchctl reports the registered LaunchAgent state as not running and the process is reparented to PID 1. Queue has 20 REJECTED items, 0 active leases and 0 current DLQ items; cumulative counters show 16 retry-scheduled and 16 dead-lettered events. DB integrity/foreign keys pass; transport remains DRAFT_ONLY, external sends 0, model_cost_usd 0.0."
+    canonical_runtime_snapshot: "Fresh read-only check at 2026-09-27T16:39:41Z: supervisor status reports PID 51155 running with a heartbeat at 16:39:38Z. ps reports PPID 1 and elapsed process time 03:07:24; launchctl print gui/501/ai.website-auditor.supervisor returns 'Could not find service'. Pipeline contains 30 REJECTED items, 0 active leases and 0 current dead-letter items. Network guard is degraded since 2026-09-27T12:45:41Z; disk guard is healthy with 20,219 MB free; paid_calls=0, external_sends=0, alerts=[]. The supervisor process is live but not owned by the expected LaunchAgent, and productive queue processing and the owner-reported soak artifacts are not verified by this snapshot."
   acceptance_open:
     - "Owner must privately verify and rotate any valid credentials among the 54 nonempty historical .env/.env.fcc assignments. Do not share their values. Then decide whether to rewrite or retain the unreferenced local commit; it is not reachable from current remote release branches."
     - "Owner must assess whether secret-shaped values embedded in 26 historical captured-page fixtures were active/restricted third-party credentials; current fixture contents are sanitized, but historical blobs remain. Classify the three generated HTML-cache candidates too. Workflow secret references, generated idempotency IDs, and the Stripe test-key documentation example were reviewed and identified as non-credential matches. The historical scan is not clean even though current scoped source scans are."
     - "Catalyx rebuild Phase 5 still needs an approved, privacy-safe Money Machine FSM mapping. The local app currently has a separate workflow state machine; do not copy customer data into the Money Machine database without an explicit mapping and review."
     - "Hosting/provider, region, mail delivery, retention/deletion, legal wording, initial administrator accounts, and production worker isolation remain owner decisions/release blockers in docs/catalyx-platform/release-readiness.md."
     - "Benchmark heavier optional infrastructure only after core acceptance passes; defer while historical secret candidates and the Catalyx pipeline/release gates remain unresolved."
+    - "P3/P17 current runtime is live but degraded: 30 queue rows are REJECTED, no lease is active, and the network guard is degraded. Resolve the cause and triage these rows before claiming healthy unattended operation; do not requeue without confirming scope."
+    - "The live supervisor is an orphaned PID-1 child and the expected LaunchAgent label is not registered. Recover launchd ownership without starting a duplicate worker or changing customer work until the current process/queue state has been reviewed."
+    - "P16 Hermes runtime orchestration and P18 a real measured shadow/challenger promotion run are not evidenced by the inspected workspace."
