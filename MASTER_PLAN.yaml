@@ -414,7 +414,7 @@ final_acceptance:
 
 latest_execution_checkpoint:
   as_of_local_date: "2026-09-28"
-  workspace: "Canonical-plan branch codex/canonical-plan-execution is clean and pushed through 5fe899db. Recent changes add SQLite migration backups, use the supervisor's Python for audit subprocesses, preserve dead-letter error details, and record current Catalyx verification. Catalyx implementation branch codex/catalyx-rebuild-phase1-5 is pushed through b1bf406e; the unrelated untracked experiments/ directory remains preserved. No branch was merged to master and no deployment occurred."
+  workspace: "Canonical-plan branch codex/canonical-plan-execution is clean and pushed through becd1a5e. Catalyx implementation branch codex/catalyx-rebuild-phase1-5 is pushed through b1bf406e; three local documentation files are modified and the untracked experiments/ directory remains preserved. No branch was merged to master and no deployment occurred."
   branch: "codex/canonical-plan-execution"
   user_reported:
     reliability_soak: "Completed in Claude per owner report on 2026-09-28; no Codex rerun requested. Claude run artifacts and tested SHA were not inspected in this workspace."
