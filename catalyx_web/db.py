@@ -213,11 +213,13 @@ class Database:
                     current,
                 ),
             ).fetchone()
-            if current % 64 == 0:
-                db.execute(
-                    "DELETE FROM auth_rate_limits WHERE updated_at<?",
-                    (current - max(86_400, window_seconds * 24),),
-                )
+            # A subject bucket has no security value after its rate window has
+            # elapsed. Prune expired subjects for this scope on every attempt
+            # so a stream of one-off identities cannot retain rows for a day.
+            db.execute(
+                "DELETE FROM auth_rate_limits WHERE scope=? AND updated_at<=?",
+                (scope, current - window_seconds),
+            )
         return row["hits"] <= limit
 
     def rate_attempt_available(

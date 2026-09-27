@@ -441,11 +441,13 @@ def test_auth_rate_limits_persist_between_database_instances_and_hash_subjects(t
     assert not restarted.allow_rate_attempt("login", "203.0.113.12", 2, 60, now=1002)
     assert restarted.allow_rate_attempt("login", "203.0.113.13", 2, 60, now=1002)
     assert restarted.allow_rate_attempt("login", "203.0.113.12", 2, 60, now=1060)
+    assert restarted.allow_rate_attempt("login", "203.0.113.14", 2, 60, now=1121)
 
     with restarted.connect() as db:
-        stored = [row["subject_hash"] for row in db.execute("SELECT subject_hash FROM auth_rate_limits")]
-    assert "203.0.113.12" not in stored
-    assert all(len(value) == 64 for value in stored)
+        stored = list(db.execute("SELECT scope,subject_hash FROM auth_rate_limits"))
+    assert len(stored) == 1
+    assert stored[0]["scope"] == "login"
+    assert len(stored[0]["subject_hash"]) == 64
 
 
 def test_auth_rate_limit_attempt_reservations_are_atomic_across_connections(tmp_path):

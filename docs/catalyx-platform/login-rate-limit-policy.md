@@ -24,3 +24,8 @@ replace trusted client-address handling at the selected hosting edge.
 Verification-resend and password-reset email limits remain separate. Hosted
 mail and live external sends remain disabled by default and require their
 existing explicit gates.
+
+Expired subject buckets are pruned from the active scope as requests arrive.
+Their hashes and hit counts are retained only while they can affect the
+configured rate window; this bounds stale-row retention without clearing an
+active subject's limit early.
