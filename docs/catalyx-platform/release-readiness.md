@@ -2,12 +2,13 @@
 
 - **Status date:** 2026-09-28
 - **Implementation base:** `f9e0694582c4cada39a08c91f86a4adaf083feff`
-- **Current repository revision:** `47a35243c4cd242f9361466487a3fbcb3469e9fc` on
+- **Latest implementation revision:** `47a35243c4cd242f9361466487a3fbcb3469e9fc` on
   `codex/catalyx-rebuild-phase1-5` (checked 2026-09-28)
 - **Original app implementation revision:** `ed182a76daab33622a27665596fc7654342b16ef`
 - **Worktree follow-up:** atomic login and account-recovery email rate limits,
-  cross-IP regression coverage, and threat-model/readiness updates are committed
-  through `47a35243`; untracked `experiments/` is preserved.
+  cross-IP regression coverage, and readiness inventory updates are committed
+  through `2c3b4f08`; the FSM mapping proposal is documented below; untracked
+  `experiments/` is preserved.
 - **Worktree:** `/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild`
 
 ## Built in this local slice
@@ -445,6 +446,17 @@ manual screen-reader review, legal/support ownership, staging and rollback,
 and fresh Vercel/Cloudflare/domain evidence remain release gates. No production
 or DNS change was made; `.shop` remains outside the cutover scope.
 
+## Money Machine FSM mapping proposal (2026-09-28 NZDT)
+
+A privacy-minimizing, reviewable Phase 5 mapping proposal is in
+[`money-machine-fsm-mapping-proposal.md`](money-machine-fsm-mapping-proposal.md).
+It keeps customer authorization, release, and deletion authority in Catalyx;
+proposes an idempotent event outbox into the separate Money Machine queue; and
+blocks any automatic transition into commercial qualification or outreach.
+The bridge remains unimplemented and disabled pending owner approval of the
+authority split, event fields, retention/deletion, and `quality_review` versus
+`released` mapping. It requires a synthetic dry run before customer data is used.
+
 ## Public domain spot check (2026-09-28 NZDT)
 
 Read-only requests to `https://catalyxlabs.com/` and
@@ -494,8 +506,8 @@ The inspected READY production deployment for `website_auditor`
 (`dpl_FxGvWB8iPMWwzgKfjBT9nFysKHMn`) is based on the older
 `WEBSITE-AUDITOR` `master` commit `9c4d30e3`; its deployment aliases are only
 Vercel hostnames, with no `.com` alias. A newer READY preview deployment
-(`dpl_EthVqWjyS2sHHAGt5UfeaSmEYQC5`) is built from current branch commit
-`6d147eba` and has only Vercel hostnames. The deployment overview labels its
+(`dpl_22uDe8Xpwo8HFgq2L3onwNpTFvWV`) is built from current branch commit
+`2c3b4f08` and has only Vercel hostnames. The deployment overview labels its
 environment `Preview` and says custom-domain assignment was skipped. These
 deployments do not put the current rebuild on `.com`.
 The inspected READY production deployments report runtime region `iad1`; this
@@ -533,3 +545,14 @@ passed, 5 opt-in browser tests skipped, and 2 upstream deprecation warnings**
 in 58.31 seconds. The focused abuse-control regression passed; Ruff and
 `git diff --check` passed. No environment file or SMTP credentials were loaded,
 and no message was sent outside the private local mailbox. No soak test was run.
+
+## Finite verification refresh at current branch tip (2026-09-28 NZDT)
+
+At `2c3b4f08`, a fresh full `toolkit_tests` run completed with **243 passed,
+5 opt-in browser tests skipped, and 2 upstream deprecation warnings** in 50.33
+seconds. Ruff passed for `catalyx_web` and `toolkit_tests/test_catalyx_web.py`;
+`uv lock --check --offline` passed. The dedicated Catalyx customer/admin
+Chromium journey then passed (**1 passed** in 13.12 seconds) against disposable
+local data. `git diff --check` passed. The Vercel branch preview is READY but
+still SSO-protected, so these local results do not verify its app routes or
+production-like configuration. No soak test was run.
