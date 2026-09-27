@@ -129,6 +129,12 @@ REGISTRY = {
             limitation="Laboratory observations, not field Core Web Vitals.",
         ),
         CheckDefinition(
+            "flow",
+            "conversion",
+            "rendered",
+            limitation="Read-only CTA/form traversal; no submission, payment, checkout, or cross-origin requests.",
+        ),
+        CheckDefinition(
             "axe",
             "accessibility",
             "rendered",
