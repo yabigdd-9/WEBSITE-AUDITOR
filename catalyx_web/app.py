@@ -94,7 +94,18 @@ def _home_path_for_role(role: str) -> str:
     return "/app"
 
 
-def _page(title: str, body: str, *, user=None, active="", notice="", status=200) -> HTMLResponse:
+def _page(
+    title: str,
+    body: str,
+    *,
+    user=None,
+    active="",
+    notice="",
+    status=200,
+    stylesheet="site.css",
+) -> HTMLResponse:
+    if stylesheet not in {"site.css", "public-draft.css"}:
+        raise ValueError("unknown Catalyx stylesheet")
     identity = ""
     if user:
         identity = (
@@ -164,7 +175,7 @@ def _page(title: str, body: str, *, user=None, active="", notice="", status=200)
         + _e("Website Auditor by CatalyxLabs: clear, evidence-led website reviews.")
         + '"><title>' + _e(title) + ' · CatalyxLabs Auditor</title>'
         '<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">'
-        '<link rel="stylesheet" href="/static/site.css"></head><body>'
+        '<link rel="stylesheet" href="/static/' + stylesheet + '"></head><body>'
         '<a class="skip-link" href="#main">Skip to content</a>'
         '<header class="site-header"><a class="brand" href="/" aria-label="CatalyxLabs Auditor home">'
         '<span class="brand-mark" aria-hidden="true">C</span><span>Catalyx<span class="brand-light">Labs</span>'
@@ -956,7 +967,7 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
 
     def _public_draft(title: str, kind: str):
         body = '<section class="page-hero wrap"><p class="eyebrow">OWNER REVIEW REQUIRED</p><h1>' + _e(title) + '</h1><p class="lead">This page is a staging placeholder. CatalyxLabs must approve the final wording and business details before public launch.</p></section><section class="wrap callout"><p>No legal entity, postal address, support email, or retention promise has been invented for this preview.</p></section>'
-        return _page(title + " draft", body)
+        return _page(title + " draft", body, stylesheet="public-draft.css")
 
     @app.get("/privacy", response_class=HTMLResponse)
     def privacy_draft():

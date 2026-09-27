@@ -115,6 +115,14 @@ def test_public_pages_and_readiness_are_truthful(tmp_path):
     assert client.get("/api/health/ready").json() == {"status": "ready", "database": "ok", "queue": "ok", "scan_worker": "disabled"}
     assert "ILLUSTRATIVE ONLY" in client.get("/sample-report").text
     assert client.get("/what-we-check").status_code == 200
+    for path in ("/privacy", "/terms"):
+        draft = client.get(path)
+        assert draft.status_code == 200
+        assert 'href="/static/public-draft.css"' in draft.text
+    full_stylesheet = client.get("/static/site.css")
+    draft_stylesheet = client.get("/static/public-draft.css")
+    assert full_stylesheet.status_code == draft_stylesheet.status_code == 200
+    assert len(draft_stylesheet.content) < len(full_stylesheet.content) * 0.4
     assert stat.S_IMODE(db_path.stat().st_mode) == 0o600
 
 

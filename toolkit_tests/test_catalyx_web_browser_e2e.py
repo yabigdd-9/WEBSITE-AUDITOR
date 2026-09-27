@@ -232,6 +232,7 @@ def test_customer_registration_site_request_and_admin_review(tmp_path, monkeypat
                 for path in (
                     "/", "/register", "/login", "/forgot-password",
                     "/resend-verification", "/reset-password", "/sample-report",
+                    "/privacy", "/terms",
                 ):
                     page.goto(base_url + path)
                     assert_accessible_structure(page)
