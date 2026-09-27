@@ -226,6 +226,50 @@ def test_registered_artifact_cannot_escape_or_change(tmp_path):
         history.artifact(report["run_id"], "html")
 
 
+def test_false_positive_transition_requires_attributed_evidence(tmp_path):
+    report = fixture_audit(tmp_path, '<h1>Broken</h1><img src="a"><img src="b">')
+    clean_report = fixture_audit(tmp_path)
+    history = History(tmp_path)
+    identity = report["defects"][0]["finding_id"]
+    with pytest.raises(ValueError, match="requires a reviewer"):
+        history.transition(identity, "false_positive")
+    with pytest.raises(ValueError, match="evidence run does not exist"):
+        history.transition(
+            identity,
+            "false_positive",
+            {"reviewed_by": "operator", "rationale": "Reviewed", "evidence_run": "missing"},
+        )
+    with pytest.raises(ValueError, match="complete run containing the finding"):
+        history.transition(
+            identity,
+            "false_positive",
+            {
+                "reviewed_by": "operator",
+                "rationale": "Reviewed",
+                "evidence_run": clean_report["run_id"],
+            },
+        )
+
+    history.transition(
+        identity,
+        "false_positive",
+        {
+            "reviewed_by": "operator",
+            "rationale": "The captured markup is an intentional, non-actionable pattern.",
+            "evidence_run": report["run_id"],
+        },
+    )
+    with history.connect() as db:
+        event = json.loads(
+            db.execute(
+                "SELECT payload FROM events WHERE kind='remediation' ORDER BY id DESC LIMIT 1"
+            ).fetchone()[0]
+        )
+    assert event["state"] == "false_positive"
+    assert event["reviewed_by"] == "operator"
+    assert event["evidence_run"] == report["run_id"]
+
+
 def test_previews_are_idempotent_and_never_execute(tmp_path, monkeypatch):
     report = fixture_audit(tmp_path)
     monkeypatch.setattr(

@@ -4,8 +4,8 @@ import hashlib
 import json
 import sqlite3
 from contextlib import contextmanager
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from datetime import datetime, timezone, timedelta
 
 STATES = {
     "detected",
@@ -145,6 +145,34 @@ class History:
         if state not in STATES:
             raise ValueError("Unknown remediation state")
         metadata = metadata or {}
+        if not isinstance(metadata, dict):
+            raise ValueError("Remediation metadata must be an object")
+        if state == "false_positive":
+            reviewed_by = str(metadata.get("reviewed_by", "")).strip()
+            rationale = str(metadata.get("rationale", "")).strip()
+            evidence_run = str(metadata.get("evidence_run", "")).strip()
+            if not reviewed_by or len(reviewed_by) > 200:
+                raise ValueError("False-positive review requires a reviewer (1-200 characters)")
+            if not rationale or len(rationale) > 1000:
+                raise ValueError("False-positive review requires a rationale (1-1000 characters)")
+            if not evidence_run:
+                raise ValueError("False-positive review requires an evidence run")
+            try:
+                reviewed_report = self.get(evidence_run)
+            except KeyError:
+                raise ValueError("False-positive evidence run does not exist") from None
+            if reviewed_report.get("status") != "complete" or not any(
+                d.get("finding_id") == identity for d in reviewed_report.get("defects", [])
+            ):
+                raise ValueError(
+                    "False-positive evidence must be a complete run containing the finding"
+                )
+            metadata = {
+                **metadata,
+                "reviewed_by": reviewed_by,
+                "rationale": rationale,
+                "evidence_run": evidence_run,
+            }
         if state == "verified":
             run = self.get(metadata.get("verification_run", ""))
             if run["status"] != "complete" or any(
