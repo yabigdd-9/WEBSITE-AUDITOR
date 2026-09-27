@@ -7,6 +7,7 @@ import json
 import re
 import socket
 import stat
+import sys
 import time
 from types import SimpleNamespace
 from urllib.parse import urlparse
@@ -17,7 +18,7 @@ import httpx
 import pytest
 from fastapi.testclient import TestClient
 
-from catalyx_web.app import create_app
+from catalyx_web.app import create_app, create_runtime_app
 from catalyx_web.customer_audit import _robots_can_fetch, run_authorized_static_audit
 from catalyx_web.db import Database, DatabaseError, _postgres_row_factory, _PostgresConnection
 from catalyx_web.egress import (
@@ -115,6 +116,17 @@ def test_public_pages_and_readiness_are_truthful(tmp_path):
     assert "ILLUSTRATIVE ONLY" in client.get("/sample-report").text
     assert client.get("/what-we-check").status_code == 200
     assert stat.S_IMODE(db_path.stat().st_mode) == 0o600
+
+
+@pytest.mark.parametrize("module_name", ["mm_transport", "mm_model_router", "mm_approval"])
+def test_app_startup_blocks_money_machine_authority_modules(tmp_path, monkeypatch, module_name):
+    database_path = tmp_path / "must-not-be-created.sqlite3"
+    monkeypatch.setitem(sys.modules, module_name, object())
+
+    with pytest.raises(RuntimeError, match="cannot load Money Machine"):
+        create_runtime_app(database_path, tmp_path / "mailbox.json")
+
+    assert not database_path.exists()
 
 
 def test_accessibility_error_announcement_and_current_page_state(tmp_path):

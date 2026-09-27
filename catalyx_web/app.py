@@ -25,6 +25,7 @@ from .mailer import MailConfigurationError, MailDeliveryError, send_account_link
 from .security import (
     CONSENT_TEXT,
     CONSENT_VERSION,
+    assert_money_machine_integrations_disabled,
     digest_token,
     hash_password,
     new_token,
@@ -1881,6 +1882,15 @@ def bootstrap_admin(db_path: str, email: str) -> None:
     print(f"Provisioning URI: otpauth://totp/CatalyxLabs:{quote(email)}?secret={secret}&issuer=CatalyxLabs&digits=6&period=30")
 
 
+def create_runtime_app(
+    db_path: str | Path | None = None,
+    local_mailbox_path: str | Path | None = None,
+) -> FastAPI:
+    """Construct the ASGI app only when Money Machine authority is absent."""
+    assert_money_machine_integrations_disabled()
+    return create_app(db_path, local_mailbox_path)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="CatalyxLabs Website Auditor web application")
     parser.add_argument("--db", default=os.getenv("CATALYX_DATABASE_URL") or os.getenv("CATALYX_DB_PATH", "state/catalyx-app.sqlite3"))
@@ -1907,7 +1917,7 @@ def main() -> None:
     print("Run the staging server with: uvicorn catalyx_web.app:app --host 127.0.0.1 --port 4174")
 
 
-app = create_app()
+app = create_runtime_app()
 
 if __name__ == "__main__":
     main()

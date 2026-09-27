@@ -2,7 +2,10 @@
 
 - **Status date:** 2026-09-28
 - **Implementation base:** `0348b3f9c06b62d29d51414ffdee7594cb6ecbf5`
-- **Worktree:** detached local implementation at `work/catalyx-auditor-rebuild`
+- **Current repository revision:** `ccbc36af64c68109ff65c526184c8a902c5d157d` on
+  `codex/catalyx-rebuild-phase1-5` (checked 2026-09-28)
+- **App implementation revision:** `ed182a76daab33622a27665596fc7654342b16ef`
+- **Worktree:** `/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild`
 
 ## Built in this local slice
 
@@ -378,3 +381,26 @@ build still succeeds. A follow-up regression test confirms that a missing local
 database path is rejected before the rotation command creates a file. No soak
 test was run. The wheel was rebuilt after that safeguard; inspection confirmed
 the missing-file guard and console entry point are present in the wheel.
+
+## Phase 4 continuation — Money Machine runtime isolation (2026-09-28)
+
+The ASGI runtime factory now fails before app/database initialization if the
+process has already loaded `mm_transport`, `mm_model_router`, or `mm_approval`.
+The general `create_app` factory remains available for isolated test fixtures;
+the module-level ASGI app uses the guarded runtime factory. A parameterized
+regression test injects each forbidden module name and confirms startup fails
+before the database file is created. This is an in-process startup assertion,
+not an OS/container boundary, and it does not replace independent worker
+isolation or egress controls.
+
+Verification after the guard: full `toolkit_tests` completed with **241 passed,
+5 opt-in browser tests skipped, and 2 upstream deprecation warnings** in 68.33
+seconds. The opt-in Catalyx customer/admin browser walkthrough passed (**1
+passed**); Ruff and `uv lock --check --offline` passed. The three startup-guard
+regressions passed with the public readiness test (**4 passed**). No soak test
+was run.
+
+An additional full-suite rerun against the current checkout completed with **241
+passed, 5 opt-in browser tests skipped, and 2 upstream deprecation warnings** in
+58.64 seconds. Ruff passed for the changed app/security/test files, and
+`git diff --check` passed. No soak test was run.

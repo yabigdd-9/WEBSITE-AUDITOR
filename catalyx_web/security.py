@@ -9,6 +9,7 @@ import os
 import re
 import secrets
 import struct
+import sys
 import time
 from urllib.parse import urlsplit, urlunsplit
 
@@ -24,6 +25,22 @@ CONSENT_TEXT = (
     "I own this website or have permission from its owner to request an audit. "
     "I understand this preview records the request for review and does not scan the site."
 )
+_DISABLED_MONEY_MACHINE_MODULES = frozenset(
+    {"mm_transport", "mm_model_router", "mm_approval"}
+)
+
+
+def assert_money_machine_integrations_disabled() -> None:
+    """Fail before startup if this app process loaded Money Machine authority."""
+    loaded = sorted(
+        module_name
+        for module_name in sys.modules
+        if module_name.rsplit(".", 1)[-1] in _DISABLED_MONEY_MACHINE_MODULES
+    )
+    if loaded:
+        raise RuntimeError(
+            "Catalyx web runtime cannot load Money Machine transport, model, or approval modules."
+        )
 
 
 def hash_password(password: str) -> str:
