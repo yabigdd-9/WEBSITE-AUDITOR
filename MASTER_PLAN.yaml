@@ -233,7 +233,7 @@ catalyxlabs_rebuild:
     intended_worktree_head: "0c8041da4051d6ac341814d62f04be58fc97be63"
     intended_worktree_plan_status: "User-created MASTER_EXECUTION_PLAN.md remains untracked in the phase1-rebuild worktree at 0c8041da; an additive execution-status section now records Phases 1-9, evidence, safety posture, and owner gates. The worktree still is not based on the requested implementation SHA, so the implementation remains in the separate branch based on 0348b3f9. The original scope and phase descriptions were retained."
     implementation_worktree: "/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild"
-    implementation_worktree_status: "Branch codex/catalyx-rebuild-phase1-5 is pushed through b1bf406e, based on 0348b3f9. Four tracked files covering shared SMTP budgets, login cost control, local mailbox hardening, regression tests, and release notes are committed; only the unrelated untracked experiments/ tree remains preserved. Fresh full toolkit_tests: 259 passed, 5 opt-in browser skips, 3 dependency deprecation warnings; focused Catalyx mail/web suites: 98 passed. Ruff and git diff --check pass, and staged-content Gitleaks found no leaks. A fresh independent read-only review confirmed signup cannot consume password-reset capacity and found no bypass or token-lifecycle regression; each purpose budget can still be exhausted independently. Earlier Codex Security scan results apply only to the prior immutable snapshot, not this commit. No soak test, master merge, or deployment occurred."
+    implementation_worktree_status: "Branch codex/catalyx-rebuild-phase1-5 is pushed through documentation-only commit f0f90090; application source remains at b1bf406e, based on 0348b3f9. The pushed acceptance record adds focused evidence without including three separate modified local documentation files or the preserved untracked experiments/ tree. Fresh at b1bf406e: toolkit_tests/test_catalyx_web.py 68 passed with one upstream deprecation warning; opt-in synthetic Chromium customer/admin and accessibility journey 1 passed in 15.79 seconds. Earlier full suite at b1bf406e: 259 passed, 5 opt-in browser skips, 3 dependency deprecation warnings; focused Catalyx mail/web suites: 98 passed. Ruff, diff check, and staged-content Gitleaks passed in the earlier code change. Review confirms signup cannot consume reset capacity, while purpose-level SMTP exhaustion and login lockout remain open. Human screen-reader/WCAG sign-off, Lighthouse/Lychee checks against this app, PostgreSQL/provider behavior, and release decisions remain unverified. No soak test, master merge, or deployment occurred."
     branch_from_sha: "0348b3f9"
   safety_gates:
     external_send_allowed: false
@@ -295,7 +295,9 @@ catalyxlabs_rebuild:
     phases:
       phase_6:
         name: "Product and quality acceptance"
+        status: "LOCAL_WEB_AND_BROWSER_ACCEPTANCE_PASS_LIGHTHOUSE_LYCHEE_AND_OWNER_SCOPE_OPEN"
         actions: ["Synthetic end-to-end customer/reviewer journeys", "Accessibility and local Lighthouse/Lychee evidence", "Verify privacy, evidence, redaction, and disabled-action boundaries"]
+        evidence: "At b1bf406e, toolkit_tests/test_catalyx_web.py: 68 passed, one upstream deprecation warning; WA_CATALYX_WEB_BROWSER_E2E=1 toolkit_tests/test_catalyx_web_browser_e2e.py: 1 passed. Browser checks cover accessible structure/names, keyboard focus, text contrast, 320px reflow and enlarged text. Human screen-reader/WCAG sign-off and local Lighthouse/Lychee evidence for this app remain open. Details: docs/catalyx-platform/phase-6-acceptance.md."
         gate: "Automated acceptance using synthetic data; material defects and false positives recorded."
       phase_7:
         name: "Hosting and data architecture"
@@ -442,7 +444,7 @@ final_acceptance:
 
 latest_execution_checkpoint:
   as_of_local_date: "2026-09-28"
-  workspace: "Canonical-plan branch codex/canonical-plan-execution is clean and pushed; it now records complete acceptance criteria and a proposed, owner-ratification-pending Catalyx Phase 6-9 sequence. Catalyx implementation branch codex/catalyx-rebuild-phase1-5 is pushed through b1bf406e; three local documentation files are modified and the untracked experiments/ directory remains preserved. No branch was merged to master and no deployment occurred."
+  workspace: "Canonical-plan branch codex/canonical-plan-execution is clean and pushed; it records feature-level acceptance criteria, the proposed Catalyx Phase 6-9 sequence, and Phase 6 local web/browser evidence. Catalyx implementation branch codex/catalyx-rebuild-phase1-5 has documentation-only commit f0f90090 over application source b1bf406e; three other local documentation files are modified and the untracked experiments/ directory remains preserved. No branch was merged to master and no deployment occurred."
   branch: "codex/canonical-plan-execution"
   user_reported:
     reliability_soak: "Completed in Claude per owner report on 2026-09-28; no Codex rerun requested. Claude run artifacts and tested SHA were not inspected in this workspace."
