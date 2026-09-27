@@ -387,12 +387,19 @@ final_acceptance:
     - "Every material finding has evidence."
     - "Scores derive from findings."
     - "False positives tracked."
+    - "Lighthouse reports lab performance/accessibility/SEO evidence, and Lychee reports broken-link evidence when the tools are installed; unavailable optional tools defer explicitly."
   lead_quality:
+    - "NZ discovery supports multiple configured sources and deduplicates candidates before expensive audits."
     - "Businesses deduplicated."
     - "Identity confidence explicit."
-    - "Eligible emails have provenance."
+    - "Email Finder V2 keeps verified, strong-evidence, catch-all, unverified and invalid states distinct; eligible emails include provenance."
+  scoring:
+    - "Technical website quality and commercial opportunity scores remain separate and replayable from stored evidence and inputs."
   commercial_output:
-    - "Qualified prospects can produce demo, before/after proof, quote band and draft."
+    - "Qualified prospects can produce a classified remediation proposal, local demo, before/after screenshots, deterministic versioned quote band, complete prospect packet, and QA-reviewed draft."
+  outreach:
+    - "Transport is configurable, but live sending is disabled by default and requires the mandated human-gated review workflow."
+  outcome_tracking:
     - "Prospect outcomes can be recorded and reviewed against immutable evidence without silently changing production scores or policy."
   evaluation:
     - "Golden evaluation data covers audit findings, identity, email provenance and safety behavior."
@@ -400,6 +407,7 @@ final_acceptance:
   cost:
     - "Paid model/API spend remains $0."
     - "No silent paid inference path."
+    - "Deterministic logic runs first, then an available local/free route; work defers when those routes are unavailable."
   safety:
     - "Live outreach disabled by default."
     - "High-risk changes require review."
