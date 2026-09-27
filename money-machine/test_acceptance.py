@@ -43,8 +43,10 @@ class Acceptance(unittest.TestCase):
         self.bid=self.d.execute("INSERT INTO businesses(name,region,public_website,source,discovered_at,current_status,is_dummy) VALUES('Acceptance Fixture','Fixturetown','https://fixture.example.co.nz','fixture',?,'discovered',0)",(c.now(),)).lastrowid
         self.d.execute("INSERT INTO mm_deals(business_id,stage,updated_at) VALUES(?,'DISCOVERED',?)",(self.bid,c.now()));self.address='operator@fixture.example.co.nz'
         # Independent suppressed businesses; avoid depending on live customer IDs.
-        for bid in (204, 213, 214):
-            self.d.execute("INSERT INTO businesses(id,name,source,discovered_at,current_status) VALUES(?,?,?,?,?)", (bid, f'Fixture {bid}', 'fixture', c.now(), 'discovered'))
+        self.suppressed_ids=[]
+        for index in range(3):
+            bid=self.d.execute("INSERT INTO businesses(name,source,discovered_at,current_status) VALUES(?,?,?,?)", (f'Fixture suppressed {index + 1}', 'fixture', c.now(), 'discovered')).lastrowid
+            self.suppressed_ids.append(bid)
             self.d.execute("INSERT INTO mm_holds(business_id, reason, created_at) VALUES(?,?,?)", (bid, 'fixture hold', c.now()))
         self.capture=self.r/'capture.txt';self.capture.write_text('<html><title>Acceptance Fixture</title><h1>Acceptance Fixture</h1><p>Fixturetown</p><p>Contact email: '+self.address+'</p><p>Verified local fixture observation, not a real business.</p></html>');self.demo=self.r/'demo.html';self.demo.write_text(DEMO)
         meta={'url':'https://fixture.example.co.nz','captured_at':c.now(),'sha256':c.sha(self.capture.read_bytes()),'path':str(self.capture)}
@@ -203,9 +205,9 @@ class Acceptance(unittest.TestCase):
     def test_39_payment_receipt_file_tampering_excluded(self):
         pid,rid=self.pay();r=self.d.execute('SELECT * FROM mm_receipts WHERE id=?',(rid,)).fetchone();Path(r['artifact_path']).write_text('tampered');self.assertEqual(o.metrics(self.d)['net_received_nzd'],0)
     def test_40_live_suppressed_businesses_stay_suppressed(self):
-        for bid in (204, 213, 214):
+        for bid in self.suppressed_ids:
             with self.assertRaises(ValueError):c.change_stage(self.d,bid,'DISCOVERED','Attempt')
-        self.assertEqual(self.d.execute('SELECT count(*) FROM mm_holds WHERE business_id IN (204,213,214)').fetchone()[0],3)
+            self.assertEqual(self.d.execute('SELECT count(*) FROM mm_holds WHERE business_id=?',(bid,)).fetchone()[0],1)
     def test_41_receiptless_direct_sent_stage_blocked(self):
         with self.assertRaises(sqlite3.IntegrityError):self.d.execute("UPDATE mm_deals SET stage='SENT' WHERE business_id=?",(self.bid,))
     def test_42_revenue_legacy_table_cannot_bypass_cash_proof(self):
