@@ -105,7 +105,7 @@ def main():
     
     # ─── 6. Codex CLI ──────────────────────────────────
     print("\n[6] Codex CLI")
-    codex_bin = Path("/Users/dd/.local/bin/codex")
+    codex_bin = Path("/usr/local/bin/codex")
     check("Codex CLI installed", codex_bin.exists(), str(codex_bin))
     
     if codex_bin.exists():

@@ -30,6 +30,7 @@ from .hygiene import (
 from .models import REGISTRY, SCHEMA_VERSION
 from .network import crawl, inspect_dns, inspect_headers, inspect_schema, inspect_tls
 from .reporting import render_trend_svg, write_html_report
+from .flows import run_flow_probe, flow_findings
 from .storage import History, finding_id
 from .quality_checks import run_quality_checks
 
@@ -242,7 +243,7 @@ def run_audit(url, options=None, fetcher=None):
                         findings.extend(replace(f, source_url=final_url_ev) for f in flow_findings_list)
                         flow_evidence["summary"] = flow_summary
             except Exception as exc:
-                pass # Flow probe error is handled in flow_findings
+                logger.debug(f"Flow probe failed for {final_url}: {exc}")
             checks["browser"] = {
                 "status": result["status"],
                 "reason": result.get("reason", ""),

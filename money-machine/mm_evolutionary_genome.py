@@ -6,6 +6,7 @@ import sqlite3
 import hashlib
 import contextlib
 import math
+import contextlib
 from datetime import datetime, timezone
 from mm_core import now, connect, sha
 from typing import Dict, List, Any, Optional, Tuple
@@ -72,7 +73,7 @@ def encode_architectural_genes(
             "timestamp": now()
         }
 
-    except Exception as e:
+    except (json.JSONDecodeError, sqlite3.Error, ValueError, TypeError) as e:
         return {
             "status": "error",
             "message": f"Failed to encode architectural genes for {architectural_pattern}: {str(e)}",
@@ -170,7 +171,7 @@ def express_genotype(
             "timestamp": now()
         }
 
-    except Exception as e:
+    except (json.JSONDecodeError, sqlite3.Error, ValueError, TypeError) as e:
         return {
             "status": "error",
             "message": f"Failed to express genotype {genetic_hash}: {str(e)}",
@@ -268,7 +269,7 @@ def track_genetic_fitness(
             "timestamp": now()
         }
 
-    except Exception as e:
+    except (json.JSONDecodeError, sqlite3.Error, ValueError, TypeError) as e:
         return {
             "status": "error",
             "message": f"Failed to track fitness for genotype {genetic_hash}: {str(e)}",
@@ -324,7 +325,7 @@ def _calculate_expression_fitness(
         # Ensure fitness stays in valid range
         return max(0.0, min(1.0, fitness))
 
-    except Exception:
+    except (KeyError, TypeError, ValueError):
         return 0.5  # Return neutral fitness on error
 
 def _calculate_fitness_score(
@@ -362,7 +363,7 @@ def _calculate_fitness_score(
 
         return max(0.0, min(1.0, fitness))
 
-    except Exception:
+    except (KeyError, TypeError, ValueError, ZeroDivisionError):
         return 0.5  # Return neutral fitness on error
 
 def get_genetic_diversity_metrics() -> Dict[str, Any]:
@@ -421,7 +422,7 @@ def get_genetic_diversity_metrics() -> Dict[str, Any]:
                 "timestamp": now()
             }
 
-    except Exception as e:
+    except (sqlite3.Error, json.JSONDecodeError, ValueError, TypeError) as e:
         return {
             "error": f"Failed to get genetic diversity metrics: {str(e)}",
             "total_genetic_encodings": 0,

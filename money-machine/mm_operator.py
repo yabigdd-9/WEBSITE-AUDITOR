@@ -357,6 +357,7 @@ def main(argv=None):
     q=s.add_parser('pipeline-run');q.add_argument('--worker',action='append');q.add_argument('--limit',type=int,default=1)
     s.add_parser('pipeline-status')
     q=s.add_parser('pipeline-enqueue');q.add_argument('id',type=int);q.add_argument('--state',default='DISCOVERED')
+    q=s.add_parser('pipeline-requeue');q.add_argument('id',type=int);q.add_argument('--reason',required=True);q.add_argument('--actor',default='operator')
     q=s.add_parser('pipeline-transition');q.add_argument('id',type=int);q.add_argument('--to',required=True);q.add_argument('--actor',required=True);q.add_argument('--reason',required=True)
     s.add_parser('pipeline-health')
     q=s.add_parser('approval-check');q.add_argument('id',type=int)
@@ -565,7 +566,7 @@ def main(argv=None):
             a.min_improvement,
         )
         print(json.dumps(result,indent=2));return 0
-    if a.cmd in ('pipeline-run','pipeline-status','pipeline-enqueue','pipeline-transition','pipeline-health','approval-check','approval-decide','model-plan','deploy-check'):
+    if a.cmd in ('pipeline-run','pipeline-status','pipeline-enqueue','pipeline-requeue','pipeline-transition','pipeline-health','approval-check','approval-decide','model-plan','deploy-check'):
         import mm_pipeline, mm_approval, mm_model_router, mm_workers
         readonly=a.cmd in ('approval-check',)
         with contextlib.closing(connect(readonly=readonly)) as d, d:
@@ -573,6 +574,7 @@ def main(argv=None):
             if a.cmd=='pipeline-status':result=mm_pipeline.health(d)
             elif a.cmd=='pipeline-health':result=mm_pipeline.health(d)
             elif a.cmd=='pipeline-enqueue':result=dict(mm_pipeline.enqueue(d,a.id,a.state))
+            elif a.cmd=='pipeline-requeue':result=dict(mm_pipeline.requeue_permanent_failure(d,a.id,a.reason,a.actor))
             elif a.cmd=='pipeline-transition':result=dict(mm_pipeline.transition(d,a.id,a.to,a.actor,a.reason))
             elif a.cmd=='approval-check':result=mm_approval.evaluate(d,a.id)
             elif a.cmd=='approval-decide':result=mm_approval.decide(d,a.approval_id,a.actor,a.reason)

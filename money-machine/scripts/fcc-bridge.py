@@ -34,6 +34,30 @@ FCC_URL = f"http://{FCC_HOST}:{FCC_PORT}"
 ADMIN_URL = f"{FCC_URL}/admin"
 API_URL = f"{FCC_URL}/v1"
 
+# Validate FCC_HOST to prevent SSRF attacks
+def validate_host(host):
+    """Validate host to prevent SSRF attacks.
+
+    Allows only localhost, private IPs, or explicitly allowed internal ranges.
+    """
+    allowed_hosts = ["localhost", "127.0.0.1", "::1", "0.0.0.0", "::"]
+    allowed_prefixes = ["10.", "172.16.", "172.17.", "172.18.", "172.19.",
+                       "172.20.", "172.21.", "172.22.", "172.23.", "172.24.",
+                       "172.25.", "172.26.", "172.27.", "172.28.", "172.29.",
+                       "172.30.", "172.31.", "192.168."]
+
+    if host in allowed_hosts:
+        return True
+    for prefix in allowed_prefixes:
+        if host.startswith(prefix):
+            return True
+    return False
+
+# Validate FCC_HOST on startup
+if not validate_host(FCC_HOST):
+    raise ValueError(f"FCC_HOST '{FCC_HOST}' is not in the allowed SSRF-safe list "
+                     f"(localhost, private IPs only). Refusing to start.")
+
 # Colors
 RED = "\033[0;31m"
 GREEN = "\033[0;32m"
@@ -56,7 +80,7 @@ def log_error(msg):
 def load_env():
     """Load .env and .env.fcc into environment"""
     log_info("Loading environment...")
-    
+
     env_file = PROJECT_DIR / ".env"
     if env_file.exists():
         for line in env_file.read_text().splitlines():
@@ -65,7 +89,7 @@ def load_env():
                 key, val = line.split("=", 1)
                 os.environ[key.strip()] = val.strip()
         log_ok(f"Loaded {env_file}")
-    
+
     fcc_env = PROJECT_DIR / ".env.fcc"
     if fcc_env.exists():
         for line in fcc_env.read_text().splitlines():
@@ -74,11 +98,14 @@ def load_env():
                 key, val = line.split("=", 1)
                 os.environ[key.strip()] = val.strip()
         log_ok(f"Loaded {fcc_env}")
-    
-    # Ensure required vars
+
+    # Only set default token for FCC bridge usage if explicitly intended
+    # Don't override user-provided tokens to respect user configuration
     if "ANTHROPIC_AUTH_TOKEN" not in os.environ:
-        os.environ["ANTHROPIC_AUTH_TOKEN"] = f"fcc-{int(time.time())}"
-    
+        # Only set a default if this is explicitly for FCC bridge usage
+        # Otherwise, leave it unset to avoid overriding legitimate tokens
+        pass  # Leave unset - user must provide token if needed
+
     log_ok("Environment loaded")
 
 def check_process(name, pattern):
@@ -115,8 +142,8 @@ def start_fcc_server():
             log_warn(f"Port {FCC_PORT} already in use (FCC desktop may be running)")
             log_info("Using existing FCC desktop instance")
             return True
-    except Exception:
-        pass
+    except Exception as e:
+        log_info(f"Port check failed: {e}")
     
     # Start FCC server
     try:
@@ -154,8 +181,8 @@ def stop_fcc_server():
         for pid in pids:
             try:
                 os.kill(int(pid), signal.SIGTERM)
-            except Exception:
-                pass
+            except Exception as e:
+                log_error(f"Failed to stop FCC server process {pid}: {e}")
         log_ok("FCC server stopped")
     else:
         log_warn("FCC server not running")
@@ -202,14 +229,14 @@ def run_codex(prompt):
     """Run a prompt through Codex CLI"""
     log_info(f"Running Codex: {prompt[:50]}...")
     
-    codex_path = Path("/Users/dd/.local/bin/codex")
+    codex_path = Path("/usr/local/bin/codex")
     if not codex_path.exists():
         log_error("Codex CLI not found")
         return False
     
     try:
         result = subprocess.run(
-            [str(codex_path), "exec", "--no-interactive", prompt],
+            [str(codex_path), "exec", prompt],
             capture_output=True,
             text=True,
             timeout=300,
@@ -227,33 +254,45 @@ def run_codex(prompt):
         return False
 
 def send_to_fcc(prompt):
-    """Send a request to FCC API"""
+    """Send a request to FCC API (Anthropic Messages format)"""
     log_info(f"Sending to FCC: {prompt[:50]}...")
-    
+
+    # Get model from environment, default to a free FCC model
+    model = os.environ.get("MODEL", "claude-fable-5")
+
     try:
-        # Use FCC's API to generate a response
-        # This is a simplified approach - in production you'd use the proper API
+        # FCC uses Anthropic-style /v1/messages, not OpenAI /v1/chat/completions
         data = json.dumps({
-            "model": os.environ.get("MODEL", "nvidia_nim/nvidia/nemotron-3-super-120b-a12b"),
-            "messages": [{"role": "user", "content": prompt}],
+            "model": model,
             "max_tokens": 4000,
-            "temperature": 0.7,
+            "messages": [{"role": "user", "content": prompt}],
         }).encode()
-        
+
         req = urllib.request.Request(
-            f"{API_URL}/chat/completions",
+            f"{FCC_URL}/v1/messages",
             data=data,
             headers={
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {os.environ.get('ANTHROPIC_AUTH_TOKEN', '')}"
             },
             method="POST"
         )
-        
+
         with urllib.request.urlopen(req, timeout=60) as resp:
             result = json.load(resp)
-            content = result.get("choices", [{}])[0].get("message", {}).get("content", "")
-            print(content)
+            # FCC returns Anthropic-style content array — find first text block
+            content_blocks = result.get("content") or []
+            content = ""
+            for block in content_blocks:
+                if block.get("type") == "text":
+                    content = block.get("text", "")
+                    break
+            if not content:
+                # Try the old chat/completions shape as fallback
+                content = result.get("choices", [{}])[0].get("message", {}).get("content", "")
+            if content:
+                print(content)
+            else:
+                log_warn("FCC returned empty content")
             return True
     except Exception as e:
         log_error(f"FCC API request failed: {e}")
@@ -281,7 +320,7 @@ def show_status():
     # CLI tools
     tools = {
         "Claude CLI": "/Users/dd/.local/bin/claude",
-        "Codex CLI": "/Users/dd/.local/bin/codex",
+        "Codex CLI": "/usr/local/bin/codex",
         "FCC-server": "fcc-server",
         "FCC-desktop": "/Applications/Free Claude Code.app/Contents/MacOS/fcc-desktop",
     }
