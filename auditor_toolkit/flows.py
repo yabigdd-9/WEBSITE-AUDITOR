@@ -128,10 +128,10 @@ def run_flow_probe(url, output_dir, enabled=True, allow_private=False):
                 # anything not GET/HEAD/OPTIONS is aborted before it leaves.
                 def guard(route):
                     try:
-                        validate_url(route.request.url, allow_private)
                         reason = _request_policy_reason(url, route.request.url, route.request.method)
                         if reason:
                             raise ValueError(reason)
+                        validate_url(route.request.url, allow_private)
                         route.continue_()
                     except Exception as exc:
                         evidence.setdefault("blocked_requests", []).append(
