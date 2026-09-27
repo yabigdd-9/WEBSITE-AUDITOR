@@ -58,6 +58,9 @@ def smtp_configuration(environ=None) -> dict[str, str | int]:
 
 def send_account_link(recipient: str, kind: str, link: str, *, environ=None) -> None:
     """Send a single account security link using authenticated TLS SMTP."""
+    values = os.environ if environ is None else environ
+    if values.get("CATALYX_EXTERNAL_SEND_ALLOWED", "false").strip().lower() != "true":
+        raise MailConfigurationError("External account email delivery is disabled.")
     if kind == "email_verification":
         subject = "Confirm your CatalyxLabs Website Auditor email"
         explanation = "Use this one-time link to confirm your email address:"
@@ -71,7 +74,7 @@ def send_account_link(recipient: str, kind: str, link: str, *, environ=None) -> 
     if not valid_email_address(recipient) or "\r" in link or "\n" in link:
         raise ValueError("Account message data is invalid.")
 
-    settings = smtp_configuration(os.environ if environ is None else environ)
+    settings = smtp_configuration(values)
     message = EmailMessage()
     message["From"] = settings["sender"]
     message["To"] = recipient

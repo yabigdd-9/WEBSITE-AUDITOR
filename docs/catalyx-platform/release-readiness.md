@@ -555,3 +555,19 @@ Chromium journey then passed (**1 passed** in 13.12 seconds) against disposable
 local data. `git diff --check` passed. The Vercel branch preview is READY but
 still SSO-protected, so these local results do not verify its app routes or
 production-like configuration. No soak test was run.
+
+## Hosted account-mail default and explicit send gate (2026-09-28 NZDT)
+
+Hosted runtime now defaults account mail to `disabled`. SMTP startup and the
+direct mailer both require `CATALYX_EXTERNAL_SEND_ALLOWED=true` in addition to
+`CATALYX_MAIL_MODE=smtp`; open registration is rejected when mail is disabled.
+The example environment sets the send flag to false. Local mailbox mode remains
+available for development and staging. No SMTP credentials were loaded and no
+external message was sent.
+
+Verification at the implementation branch tip: full `toolkit_tests` completed
+with **247 passed, 5 opt-in browser tests skipped, and 2 upstream deprecation
+warnings** in 45.10 seconds. Focused mail and web tests passed (**86 passed**);
+Ruff, offline lock validation, `git diff --check`, and scoped Gitleaks scans of
+application, tests, and Catalyx platform documentation passed. No soak test
+was run.

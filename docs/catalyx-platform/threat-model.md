@@ -68,8 +68,10 @@ No customer scan starts from the public app. The manual scanner is not a safe
 production worker until OS-level isolation and independent egress restrictions
 are operating and tested. Billing, model calls, customer site changes,
 deployment actions, hard deletion, scheduled retention, and backups are not
-enabled. The app can send verification and password-reset messages when hosted
-SMTP is configured; no runtime provider configuration was reviewed. The app
+enabled. The app defaults to disabled mail. Verification and password-reset
+messages can be sent only when SMTP mode and
+`CATALYX_EXTERNAL_SEND_ALLOWED=true` are both configured; no runtime provider
+configuration was reviewed. The app
 also implements customer export after an administrator-approved privacy
 request, so export is available in source even though production policy and
 data lifecycle approval remain open. Privacy requests are recorded and

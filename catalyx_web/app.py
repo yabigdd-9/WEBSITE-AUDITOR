@@ -298,9 +298,19 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
     ).strip().lower()
     if registration_mode not in {"closed", "open"}:
         raise RuntimeError("CATALYX_REGISTRATION_MODE must be closed or open.")
-    mail_mode = os.getenv("CATALYX_MAIL_MODE", "smtp" if hosted else "local_mailbox").strip().lower()
-    if mail_mode not in {"smtp", "local_mailbox"}:
-        raise RuntimeError("CATALYX_MAIL_MODE must be smtp or local_mailbox.")
+    mail_mode = os.getenv("CATALYX_MAIL_MODE", "disabled" if hosted else "local_mailbox").strip().lower()
+    if mail_mode not in {"disabled", "smtp", "local_mailbox"}:
+        raise RuntimeError("CATALYX_MAIL_MODE must be disabled, smtp, or local_mailbox.")
+    external_send_setting = os.getenv("CATALYX_EXTERNAL_SEND_ALLOWED", "false").strip().lower()
+    if external_send_setting not in {"true", "false"}:
+        raise RuntimeError("CATALYX_EXTERNAL_SEND_ALLOWED must be true or false.")
+    external_send_allowed = external_send_setting == "true"
+    if mail_mode == "smtp" and not external_send_allowed:
+        raise RuntimeError("SMTP mode requires CATALYX_EXTERNAL_SEND_ALLOWED=true.")
+    if external_send_allowed and mail_mode != "smtp":
+        raise RuntimeError("CATALYX_EXTERNAL_SEND_ALLOWED=true requires CATALYX_MAIL_MODE=smtp.")
+    if registration_mode == "open" and mail_mode == "disabled":
+        raise RuntimeError("Open registration requires an enabled account email delivery mode.")
     if hosted:
         required = []
         database_url = os.getenv("CATALYX_DATABASE_URL", "").strip()
@@ -324,9 +334,9 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
                 or public_parts.fragment
             ):
                 required.append("CATALYX_PUBLIC_BASE_URL must contain only an HTTPS origin.")
-        if mail_mode != "smtp":
-            required.append("CATALYX_MAIL_MODE must be smtp.")
-        else:
+        if mail_mode == "local_mailbox":
+            required.append("CATALYX_MAIL_MODE=local_mailbox is not supported in hosted mode.")
+        elif mail_mode == "smtp":
             try:
                 smtp_configuration()
             except MailConfigurationError as exc:
@@ -349,6 +359,8 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
     app.state.database = database
     app.state.registration_mode = registration_mode
+    app.state.mail_mode = mail_mode
+    app.state.external_send_allowed = external_send_allowed
     app.state.local_mailbox_path = mailbox_path
     app.state.local_mailbox = []
     app.state.scan_worker_enabled = False
@@ -908,11 +920,12 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
     def register_page(request: Request):
         if app.state.registration_mode != "open":
             raise HTTPException(404, "Account registration is not open.")
-        mail_note = (
-            "A one-time verification link will be sent to your email address."
-            if mail_mode == "smtp"
-            else "A one-time verification link is saved to the private local staging mailbox."
-        )
+        if mail_mode == "smtp" and external_send_allowed:
+            mail_note = "A one-time verification link will be sent to your email address."
+        elif mail_mode == "local_mailbox":
+            mail_note = "A one-time verification link is saved to the private local staging mailbox."
+        else:
+            mail_note = "Account email delivery is disabled in this environment."
         form = '<form method="post" action="/register" class="form-stack">' + _form_csrf(request=request) + '<label>Email address<input type="email" name="email" autocomplete="email" required maxlength="254"></label><label>Password<input type="password" name="password" autocomplete="new-password" minlength="12" required><small>Use at least 12 characters.</small></label><label>Confirm password<input type="password" name="password_confirm" autocomplete="new-password" minlength="12" required></label><p class="form-note">' + _e(mail_note) + '</p>' + _button("Create account") + '</form><p class="auth-switch">Already registered? <a href="/login">Sign in</a></p>'
         return _form_page("A clearer view starts here", "Create a customer account to register a site for review.", form, request=request)
 
@@ -954,7 +967,7 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
             # referrer headers never receive it. verify.js moves it to a POST body.
             _save_local_message(email, "email_verification", verification_url, verify_expires_at)
             logger.info("Local email verification saved to the private staging mailbox")
-        else:
+        elif mail_mode == "smtp" and external_send_allowed:
             try:
                 await asyncio.to_thread(send_account_link, email, "email_verification", verification_url)
             except MailDeliveryError:
@@ -965,7 +978,7 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
     @app.get("/resend-verification", response_class=HTMLResponse)
     def resend_verification_page(request: Request):
         form = '<form method="post" action="/resend-verification" class="form-stack">' + _form_csrf(request=request) + '<label>Email address<input type="email" name="email" autocomplete="email" required maxlength="254"></label>' + _button("Send verification link") + '</form><p class="auth-switch"><a href="/login">Back to sign in</a></p>'
-        return _form_page("Resend verification", "If the account needs verification, we will send a new one-time link.", form, request=request)
+        return _form_page("Resend verification", "If email delivery is enabled and the account needs verification, a new one-time link will be provided.", form, request=request)
 
     @app.post("/resend-verification")
     async def resend_verification(request: Request):
@@ -979,7 +992,7 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
         account_allowed = database.allow_rate_attempt(
             "verification_resend_account", email, 5, 3600
         )
-        if ip_allowed and account_allowed:
+        if ip_allowed and account_allowed and mail_mode != "disabled":
             with database.connect() as db:
                 row = db.execute(
                     "SELECT id FROM users WHERE email=? AND email_verified_at IS NULL AND disabled_at IS NULL",
@@ -1003,7 +1016,7 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
                 _save_local_message(
                     resend_message[0], "email_verification", resend_message[1], resend_message[2]
                 )
-            else:
+            elif mail_mode == "smtp" and external_send_allowed:
                 try:
                     await asyncio.to_thread(send_account_link, resend_message[0], "email_verification", resend_message[1])
                 except MailDeliveryError:
@@ -1099,7 +1112,7 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
     @app.get("/forgot-password", response_class=HTMLResponse)
     def forgot_password_page(request: Request):
         form = '<form method="post" action="/forgot-password" class="form-stack">' + _form_csrf(request=request) + '<label>Email address<input type="email" name="email" autocomplete="email" required maxlength="254"></label>' + _button("Send reset link") + '</form><p class="auth-switch"><a href="/login">Back to sign in</a></p>'
-        return _form_page("Reset your password", "Enter your sign-in email. If it can be reset, we will send a one-time link.", form, request=request)
+        return _form_page("Reset your password", "Enter your sign-in email. If email delivery is enabled and the address can be reset, a one-time link will be provided.", form, request=request)
 
     @app.post("/forgot-password")
     async def request_password_reset(request: Request):
@@ -1113,7 +1126,7 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
             "password_reset_request_account", email, 5, 3600
         )
         reset_message = None
-        if allowed and account_allowed:
+        if allowed and account_allowed and mail_mode != "disabled":
             with database.connect() as db:
                 row = db.execute("SELECT id FROM users WHERE email=? AND email_verified_at IS NOT NULL AND disabled_at IS NULL", (email,)).fetchone()
                 if row:
@@ -1132,7 +1145,7 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
                     reset_message[0], "password_reset", reset_message[1], reset_message[2]
                 )
                 logger.info("Local password reset message saved to the private staging mailbox")
-            else:
+            elif mail_mode == "smtp" and external_send_allowed:
                 try:
                     await asyncio.to_thread(send_account_link, reset_message[0], "password_reset", reset_message[1])
                 except MailDeliveryError:
@@ -1851,11 +1864,14 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
 
 
 def register_form(request: Request) -> str:
-    note = (
-        "A one-time verification link will be sent to your email address."
-        if os.getenv("CATALYX_MAIL_MODE", "smtp" if production_mode() else "local_mailbox") == "smtp"
-        else "A one-time verification link is saved to the private local staging mailbox."
-    )
+    mail_mode = os.getenv("CATALYX_MAIL_MODE", "disabled" if production_mode() else "local_mailbox")
+    send_allowed = os.getenv("CATALYX_EXTERNAL_SEND_ALLOWED", "false").strip().lower() == "true"
+    if mail_mode == "smtp" and send_allowed:
+        note = "A one-time verification link will be sent to your email address."
+    elif mail_mode == "local_mailbox":
+        note = "A one-time verification link is saved to the private local staging mailbox."
+    else:
+        note = "Account email delivery is disabled in this environment."
     return '<form method="post" action="/register" class="form-stack">' + _form_csrf(request=request) + '<label>Email address<input type="email" name="email" autocomplete="email" required maxlength="254"></label><label>Password<input type="password" name="password" autocomplete="new-password" minlength="12" required><small>Use at least 12 characters.</small></label><label>Confirm password<input type="password" name="password_confirm" autocomplete="new-password" minlength="12" required></label><p class="form-note">' + _e(note) + '</p><button class="button primary" type="submit">Create account</button></form><p class="auth-switch">Already registered? <a href="/login">Sign in</a></p>'
 
 

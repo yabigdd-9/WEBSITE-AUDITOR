@@ -14,6 +14,7 @@ from catalyx_web.app import create_app
 from catalyx_web.security import production_deployment, valid_email_address
 
 SMTP_ENV = {
+    "CATALYX_EXTERNAL_SEND_ALLOWED": "true",
     "CATALYX_SMTP_HOST": "smtp.example.invalid",
     "CATALYX_SMTP_PORT": "587",
     "CATALYX_SMTP_USERNAME": "auditor@example.invalid",
@@ -91,6 +92,22 @@ def test_smtp_configuration_rejects_unsafe_or_incomplete_values(changes):
         mailer.smtp_configuration({**SMTP_ENV, **changes})
 
 
+def test_smtp_delivery_requires_explicit_external_send_flag(monkeypatch):
+    monkeypatch.setattr(
+        mailer.smtplib,
+        "SMTP",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError("SMTP must not be called")),
+    )
+    disabled = {key: value for key, value in SMTP_ENV.items() if key != "CATALYX_EXTERNAL_SEND_ALLOWED"}
+    with pytest.raises(mailer.MailConfigurationError, match="delivery is disabled"):
+        mailer.send_account_link(
+            "customer@example.invalid",
+            "password_reset",
+            "https://example.invalid/reset#token",
+            environ=disabled,
+        )
+
+
 def test_smtp_failure_hides_provider_details(monkeypatch):
     def fail(*_args, **_kwargs):
         raise OSError("private provider detail")
@@ -141,6 +158,7 @@ def test_vercel_preview_requires_isolated_hosted_configuration(monkeypatch):
         "CATALYX_DATABASE_URL",
         "CATALYX_PUBLIC_BASE_URL",
         "CATALYX_TOTP_ENCRYPTION_KEY",
+        "CATALYX_EXTERNAL_SEND_ALLOWED",
         "CATALYX_SMTP_HOST",
         "CATALYX_SMTP_PORT",
         "CATALYX_SMTP_USERNAME",
@@ -175,6 +193,62 @@ def test_vercel_preview_requires_isolated_hosted_configuration(monkeypatch):
     assert explicitly_open_client.get("/register").status_code == 200
 
 
+def test_hosted_account_email_is_disabled_by_default(monkeypatch):
+    monkeypatch.setenv("VERCEL", "1")
+    monkeypatch.setenv("VERCEL_ENV", "preview")
+    monkeypatch.setenv("CATALYX_ENV", "staging")
+    monkeypatch.setenv("CATALYX_DATABASE_URL", "postgresql://auditor:secret@db.example.invalid/preview")
+    monkeypatch.setenv("CATALYX_PUBLIC_BASE_URL", "https://preview.example.invalid")
+    monkeypatch.setenv("CATALYX_TOTP_ENCRYPTION_KEY", base64.urlsafe_b64encode(bytes(range(32))).decode())
+    monkeypatch.delenv("CATALYX_MAIL_MODE", raising=False)
+    monkeypatch.delenv("CATALYX_EXTERNAL_SEND_ALLOWED", raising=False)
+    for name in (
+        "CATALYX_SMTP_HOST",
+        "CATALYX_SMTP_PORT",
+        "CATALYX_SMTP_USERNAME",
+        "CATALYX_SMTP_PASSWORD",
+        "CATALYX_SMTP_FROM",
+    ):
+        monkeypatch.delenv(name, raising=False)
+
+    app = create_app()
+
+    assert app.state.mail_mode == "disabled"
+    assert app.state.external_send_allowed is False
+
+
+def test_hosted_smtp_requires_explicit_send_enablement(monkeypatch):
+    monkeypatch.setenv("VERCEL", "1")
+    monkeypatch.setenv("VERCEL_ENV", "preview")
+    monkeypatch.setenv("CATALYX_ENV", "staging")
+    monkeypatch.setenv("CATALYX_DATABASE_URL", "postgresql://auditor:secret@db.example.invalid/preview")
+    monkeypatch.setenv("CATALYX_PUBLIC_BASE_URL", "https://preview.example.invalid")
+    monkeypatch.setenv("CATALYX_TOTP_ENCRYPTION_KEY", base64.urlsafe_b64encode(bytes(range(32))).decode())
+    monkeypatch.setenv("CATALYX_MAIL_MODE", "smtp")
+    monkeypatch.delenv("CATALYX_EXTERNAL_SEND_ALLOWED", raising=False)
+    for name, value in SMTP_ENV.items():
+        if name != "CATALYX_EXTERNAL_SEND_ALLOWED":
+            monkeypatch.setenv(name, value)
+
+    with pytest.raises(RuntimeError, match="CATALYX_EXTERNAL_SEND_ALLOWED=true"):
+        create_app()
+
+
+def test_open_registration_is_rejected_when_mail_delivery_is_disabled(monkeypatch):
+    monkeypatch.setenv("VERCEL", "1")
+    monkeypatch.setenv("VERCEL_ENV", "preview")
+    monkeypatch.setenv("CATALYX_ENV", "staging")
+    monkeypatch.setenv("CATALYX_DATABASE_URL", "postgresql://auditor:secret@db.example.invalid/preview")
+    monkeypatch.setenv("CATALYX_PUBLIC_BASE_URL", "https://preview.example.invalid")
+    monkeypatch.setenv("CATALYX_TOTP_ENCRYPTION_KEY", base64.urlsafe_b64encode(bytes(range(32))).decode())
+    monkeypatch.setenv("CATALYX_REGISTRATION_MODE", "open")
+    monkeypatch.setenv("CATALYX_MAIL_MODE", "disabled")
+    monkeypatch.delenv("CATALYX_EXTERNAL_SEND_ALLOWED", raising=False)
+
+    with pytest.raises(RuntimeError, match="Open registration requires"):
+        create_app()
+
+
 def test_vercel_production_environment_overrides_stale_staging_label(monkeypatch):
     monkeypatch.setenv("VERCEL", "1")
     monkeypatch.setenv("VERCEL_ENV", "production")
@@ -191,6 +265,7 @@ def test_hosted_preview_does_not_fall_back_to_ephemeral_sqlite_or_mailbox(monkey
         "CATALYX_DATABASE_URL",
         "CATALYX_PUBLIC_BASE_URL",
         "CATALYX_TOTP_ENCRYPTION_KEY",
+        "CATALYX_EXTERNAL_SEND_ALLOWED",
         "CATALYX_SMTP_HOST",
         "CATALYX_SMTP_PORT",
         "CATALYX_SMTP_USERNAME",
@@ -211,6 +286,7 @@ def test_hosted_startup_requires_explicit_runtime_configuration(monkeypatch):
         "CATALYX_DATABASE_URL",
         "CATALYX_PUBLIC_BASE_URL",
         "CATALYX_TOTP_ENCRYPTION_KEY",
+        "CATALYX_EXTERNAL_SEND_ALLOWED",
         "CATALYX_SMTP_HOST",
         "CATALYX_SMTP_PORT",
         "CATALYX_SMTP_USERNAME",
@@ -250,12 +326,15 @@ def test_hosted_startup_rejects_local_mailbox_and_non_origin_public_url(monkeypa
     monkeypatch.setenv("CATALYX_MAIL_MODE", "local_mailbox")
     for name, value in SMTP_ENV.items():
         monkeypatch.setenv(name, value)
+    monkeypatch.setenv("CATALYX_EXTERNAL_SEND_ALLOWED", "false")
 
     with pytest.raises(RuntimeError, match="HTTPS origin|must be smtp"):
         create_app()
 
 
 def test_smtp_registration_and_resend_use_one_time_links_without_real_delivery(monkeypatch, tmp_path):
+    for name, value in SMTP_ENV.items():
+        monkeypatch.setenv(name, value)
     monkeypatch.setenv("CATALYX_MAIL_MODE", "smtp")
     sent = []
     monkeypatch.setattr(app_module, "send_account_link", lambda *args: sent.append(args))

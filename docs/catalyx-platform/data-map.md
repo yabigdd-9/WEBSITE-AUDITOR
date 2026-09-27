@@ -36,10 +36,10 @@ flowchart LR
 ```
 
 The browser and worker paths above describe the local implementation. The
-manual worker is opt-in and not an isolated production service. The dotted
-SMTP connection means hosted startup requires the sender configuration, but no
-provider or credentials are selected; it is not a planned data transfer
-approval.
+manual worker is opt-in and not an isolated production service. Hosted mail
+defaults to disabled. SMTP requires explicit SMTP mode and
+`CATALYX_EXTERNAL_SEND_ALLOWED=true`; no provider or credentials are selected,
+and this is not a planned data transfer approval.
 
 ## Application database records
 
@@ -80,8 +80,9 @@ approval.
   verification or password-reset links when explicitly configured; no provider
   or credentials are selected in this worktree.
 - No hosted provider configuration or deployment is verified. The source can
-  start in hosted mode only after its PostgreSQL, fixed-origin, TOTP-key, and
-  SMTP settings pass validation; that check does not prove provider
+  start in hosted mode only after its PostgreSQL, fixed-origin, and TOTP-key
+  settings pass validation. SMTP settings are required only after explicit
+  send opt-in; validation does not prove provider
   connectivity, migration, or deliverability. No customer data has been routed
   to Vercel, Cloudflare, a remote database/object store/queue, model provider,
   or analytics service by the current local staging setup.

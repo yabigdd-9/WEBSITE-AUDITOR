@@ -17,9 +17,10 @@ fi
 uv run --frozen uvicorn catalyx_web.app:app --host 127.0.0.1 --port 4174
 ```
 
-Keep `.env.local` owner-only and untracked. When it selects SMTP mode, account
-verification or password-recovery requests can send email; do not trigger those
-routes unless you intend to send a real message.
+Keep `.env.local` owner-only and untracked. External mail is disabled by
+default. Sending account verification or password-recovery messages requires
+both `CATALYX_MAIL_MODE=smtp` and `CATALYX_EXTERNAL_SEND_ALLOWED=true`; only
+configure these after approval and when a real message is intended.
 
 `uv.lock` pins the project resolution. `requirements-catalyx-web.lock` is the
 hash-pinned dependency export for the selected web runtime and the scope of the
@@ -55,7 +56,7 @@ does not establish provider secret-manager behavior, live PostgreSQL locking,
 backup recovery, coordinated deployment across multiple app instances, or
 owner approval of key retention and recovery.
 
-Local registration writes verification links to the mode-0600 `state/catalyx-local-mailbox.json` file; view it explicitly with `catalyx-web --show-local-mailbox`. The one-time links are kept out of server logs. This mailbox is local staging only. Hosted startup now requires a PostgreSQL URL, a fixed HTTPS public origin, an explicit TOTP encryption key, and authenticated SMTP over TLS; it does not run database migrations automatically. A PostgreSQL adapter is available through `CATALYX_DATABASE_URL`, and `catalyx-db-migrate` explicitly initializes/upgrades its schema. No live PostgreSQL integration has been completed; do not use this adapter with customer data yet.
+Local registration writes verification links to the mode-0600 `state/catalyx-local-mailbox.json` file; view it explicitly with `catalyx-web --show-local-mailbox`. The one-time links are kept out of server logs. This mailbox is local staging only. Hosted startup requires a PostgreSQL URL, a fixed HTTPS public origin, and an explicit TOTP encryption key; it does not run database migrations automatically. Mail defaults to disabled. To opt into transactional SMTP, set `CATALYX_MAIL_MODE=smtp` and `CATALYX_EXTERNAL_SEND_ALLOWED=true`, then provide the authenticated SMTP settings below. A PostgreSQL adapter is available through `CATALYX_DATABASE_URL`, and `catalyx-db-migrate` explicitly initializes/upgrades its schema. No live PostgreSQL integration has been completed; do not use this adapter with customer data yet.
 
 Public registration is disabled by default on hosted preview and production. Set
 `CATALYX_REGISTRATION_MODE=open` only after the owner approves that onboarding
@@ -64,7 +65,7 @@ omitted; the example environment file sets it to `closed` as a safer copy
 starting point. Invitation-only or administrator-reviewed onboarding is not
 implemented by this flag and still needs its own reviewed flow if selected.
 
-The built-in SMTP sender supports implicit TLS on port 465 or STARTTLS on port 587. Set `CATALYX_MAIL_MODE=smtp`, `CATALYX_SMTP_HOST`, `CATALYX_SMTP_PORT`, `CATALYX_SMTP_USERNAME`, `CATALYX_SMTP_PASSWORD`, and `CATALYX_SMTP_FROM` only after an owner-approved email provider is available. No SMTP credentials are stored in the repository. Hosted startup validates the presence and shape of these settings but does not prove provider connectivity or deliverability. Failed verification delivery can be retried from `/resend-verification`; password-reset requests can be repeated.
+The built-in SMTP sender supports implicit TLS on port 465 or STARTTLS on port 587. Set `CATALYX_MAIL_MODE=smtp`, `CATALYX_EXTERNAL_SEND_ALLOWED=true`, `CATALYX_SMTP_HOST`, `CATALYX_SMTP_PORT`, `CATALYX_SMTP_USERNAME`, `CATALYX_SMTP_PASSWORD`, and `CATALYX_SMTP_FROM` only after an owner-approved email provider is available. No SMTP credentials are stored in the repository. Hosted startup validates the presence and shape of these settings but does not prove provider connectivity or deliverability. Failed verification delivery can be retried from `/resend-verification`; password-reset requests can be repeated.
 
 The server-rendered screens and the versioned customer/admin JSON API use the same tenant and role checks. The API endpoints and request examples are in [api-v1.md](api-v1.md). API mutations require the signed-in session's `X-CSRF-Token`; audit submissions also require an idempotency key.
 
@@ -86,5 +87,5 @@ The command prompts for a password and prints a one-time TOTP setup secret and p
 - Failed requests stay visible on the reviewer jobs page with their attempt count and last outcome. A reviewer can retry a failure below the local two-attempt cap, with a recorded reason; exhausted failures remain failed. This is a local recovery view, not a provider dead-letter service, and the cap is not a production limit approval.
 - That harness uses a fixed one-page profile, checks `robots.txt`, pins public DNS answers to the TCP connection, limits redirects/requests/bytes/time, and stores a sanitized report for human review. It is still not an OS-isolated production worker; do not expose it to the public service.
 - Only reports that pass manual administrator review are visible to the owning customer. Release and withhold decisions require a reason and are recorded.
-- Billing, model calls, site edits, and deployment actions are disabled. Account verification and password-reset email are sent only when the hosted SMTP settings are explicitly configured; no provider or credentials are selected in this repository.
+- Billing, model calls, site edits, and deployment actions are disabled. Transactional email is disabled by default and requires explicit SMTP mode plus `CATALYX_EXTERNAL_SEND_ALLOWED=true`; no provider or credentials are selected in this repository.
 - The local app is a staging implementation, not a production-ready service. Provider, data region, email, retention, backup/restore, support ownership, and legal copy remain owner decisions.
