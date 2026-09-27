@@ -233,7 +233,7 @@ catalyxlabs_rebuild:
     intended_worktree_head: "0c8041da4051d6ac341814d62f04be58fc97be63"
     intended_worktree_plan_status: "Untracked user-created MASTER_EXECUTION_PLAN.md; preserve as-is. This worktree is not based on the requested implementation SHA."
     implementation_worktree: "/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild"
-    implementation_worktree_status: "Branch codex/catalyx-rebuild-phase1-5 at 5519c4da (pushed to origin); latest code change is 47a35243. Recent follow-ups atomically reserve account login attempts and cap verification/reset email at five per normalized account per hour; the full local toolkit suite passes 243 tests with 5 explicit browser skips. A privacy-safe FSM mapping proposal is published for owner review. The unrelated experiments/ directory remains untracked and was excluded. No master merge or deployment occurred."
+    implementation_worktree_status: "Branch codex/catalyx-rebuild-phase1-5 at e5d2019c (pushed to origin); latest code change is 47a35243. Recent follow-ups atomically reserve account login attempts and cap verification/reset email at five per normalized account per hour; the full local toolkit suite passes 243 tests with 5 explicit browser skips. A privacy-safe FSM mapping proposal is published for owner review. The unrelated experiments/ directory remains untracked and was excluded. No master merge or deployment occurred."
     branch_from_sha: "0348b3f9"
   safety_gates:
     external_send_allowed: false
@@ -407,7 +407,7 @@ final_acceptance:
 
 latest_execution_checkpoint:
   as_of_local_date: "2026-09-28"
-  workspace: "Canonical-plan changes are committed and pushed on their isolated feature branch. Catalyx web implementation and FSM mapping proposal are committed and pushed on codex/catalyx-rebuild-phase1-5 through 5519c4da; only the preserved untracked experiments/ directory remains there. Neither branch was merged to master and no deployment occurred."
+  workspace: "Canonical-plan changes are committed and pushed on their isolated feature branch. Catalyx web implementation and FSM mapping proposal are committed and pushed on codex/catalyx-rebuild-phase1-5 through e5d2019c; only the preserved untracked experiments/ directory remains there. Neither branch was merged to master and no deployment occurred."
   branch: "codex/canonical-plan-execution"
   user_reported:
     reliability_soak: "Completed in Claude per owner report on 2026-09-28; no Codex rerun requested. Claude run artifacts and tested SHA were not inspected in this workspace."
