@@ -46,6 +46,10 @@ wa audit https://example.co.nz --profile nz --external-tools
 ```
 
 Those tools are never downloaded automatically by the audit process.
+Lighthouse also needs a local Chrome/Chromium installation. If Lighthouse cannot
+find the browser automatically, set `CHROME_PATH` to its executable before
+running the audit. The audit records Lighthouse lab measurements; they are not
+field Core Web Vitals.
 
 ## Canonical workflow
 
@@ -180,7 +184,7 @@ The experimental DeepSeek Harness lane remains under `integrations/deepseek-harn
 
 ## Validation
 
-CI covers the packaged toolkit plus the portable synthetic MoneyMachine state-machine, discovery, email verification, bridge-policy, lead-qualification and packet-polish suites. Host-specific acceptance still includes current-Mac `./mm doctor`, launchd restart/crash recovery, Chromium E2E, optional Lighthouse/Lychee, local SearXNG when used, actual Obsidian sync, and the required 24+ hour unattended soak.
+CI covers the packaged toolkit plus the portable synthetic MoneyMachine state-machine, discovery, email verification, bridge-policy, lead-qualification and packet-polish suites. Host-specific acceptance still includes current-Mac `./mm doctor`, launchd restart/crash recovery, Chromium E2E, optional Lighthouse/Lychee, local SearXNG when used, and actual Obsidian sync. The owner reports the 24+ hour unattended soak was completed in Claude on 2026-09-28; Codex does not rerun it, and the tested SHA and artifacts have not been independently inspected here.
 
 See `CURRENT_STATE.md`, `MASTER_PLAN.md`, and `MASTER_PLAN.yaml` for the current canonical execution state.
 
