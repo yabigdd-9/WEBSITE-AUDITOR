@@ -215,7 +215,7 @@ catalyxlabs_rebuild:
     intended_worktree_head: "0c8041da4051d6ac341814d62f04be58fc97be63"
     intended_worktree_plan_status: "Untracked user-created MASTER_EXECUTION_PLAN.md; preserve as-is. This worktree is not based on the requested implementation SHA."
     implementation_worktree: "/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild"
-    implementation_worktree_status: "Branch codex/catalyx-rebuild-phase1-5 at ccbc36af64c68109ff65c526184c8a902c5d157d was pushed to origin. Application/tests were committed at ed182a76; a follow-up wheel-verification doc was committed at ccbc36af. The unrelated experiments/cloudflare-workers-probe/ remains untracked and was excluded. No master merge or deployment occurred."
+    implementation_worktree_status: "Branch codex/catalyx-rebuild-phase1-5 at f9e0694582c4cada39a08c91f86a4adaf083feff was pushed to origin. Application/tests were committed at ed182a76; follow-up wheel/isolation evidence was committed in later commits. The unrelated experiments/cloudflare-workers-probe/ remains untracked and was excluded. No master merge or deployment occurred."
     branch_from_sha: "0348b3f9"
   safety_gates:
     external_send_allowed: false
@@ -258,10 +258,10 @@ catalyxlabs_rebuild:
       gate: "Owner review of engine mapping."
     phase_4:
       name: "Hardening"
-      status: "PARTIALLY_IMPLEMENTED_AUTOMATED_AND_EXTERNAL_GATES_OPEN"
+      status: "IMPLEMENTED_LOCAL_AUTOMATED_CHECKS_PASS_EXTERNAL_REVIEW_OPEN"
       actions:
         - "The customer audit DTO emits a site host and bounded check evidence rather than local filesystem paths; tests cover the fixed profile and egress boundary."
-        - "The Catalyx web app has no mm_transport.py integration, model router, or approval-engine import in the inspected route surface. An explicit runtime assertion/gate test for this isolation was not found."
+        - "The ASGI runtime factory rejects startup if mm_transport, mm_model_router, or mm_approval is already loaded; regression tests prove startup stops before database initialization. The app has no such integration imports."
         - "Full independent security review and production worker isolation remain release gates."
       gate: "Automated security audit."
     phase_5:
@@ -404,7 +404,7 @@ latest_execution_checkpoint:
     diff_check: "Passed."
     fixture_manifest: "49 captured pages checked; 23 sanitized; all hashes and source-hash metadata validate."
     feature_branch: "Pushed to origin/codex/canonical-plan-execution; clean and synchronized at the latest checkpoint."
-    catalyx_rebuild_local_verification: "In the separate implementation worktree based on 0348b3f9, uv installed the editable package with web, portal, and dev extras from cache using --offline; tests ran with an empty process environment and no .env values were loaded or used. The fresh full toolkit suite passed 237 tests with 5 opt-in skips; the opt-in Catalyx customer/admin browser walkthrough passed 1; Ruff passed; uv lock --check --offline passed; uv build --offline produced wheel and sdist (with a setuptools license-table deprecation warning). Wheel inspection confirmed the TOTP key-rotation guard and console entry point are packaged. Redacted Gitleaks scans of catalyx_web, docs/catalyx-platform, and the application staged commit each reported 0 findings. The application/tests/docs are committed and pushed on codex/catalyx-rebuild-phase1-5 at ed182a76, with a follow-up documentation commit at ccbc36af; no master merge or deployment occurred."
+    catalyx_rebuild_local_verification: "In the separate implementation worktree based on 0348b3f9, uv installed the editable package with web, portal, and dev extras from cache using --offline; tests ran with an empty process environment and no .env values were loaded or used. The fresh full toolkit suite passed 241 tests with 5 opt-in skips; the opt-in Catalyx customer/admin browser walkthrough passed 1; the three startup-guard regressions passed; Ruff passed; uv lock --check --offline passed; uv build --offline produced wheel and sdist (with a setuptools license-table deprecation warning). Wheel inspection confirmed the TOTP key-rotation guard and console entry point are packaged. Redacted Gitleaks scans of catalyx_web, docs/catalyx-platform, and both staged application commits each reported 0 findings. The application/tests/docs are committed and pushed on codex/catalyx-rebuild-phase1-5 at f9e0694582c4cada39a08c91f86a4adaf083feff; no master merge or deployment occurred."
     catalyx_pipeline_review: "The local app has its own authorization/audit state machine and imports auditor_toolkit check modules. Source review found no Money Machine FSM integration; Phase 5 remains incomplete. Local worker stays disabled by default."
     transport_safety: "Channel-bound approval, at-most-once attempt reservation, runtime kill switch and receipt reconciliation covered with mocked provider. No real send attempted."
     default_cost_and_send: "Paid routes remain blocked at $0; default transport remains disabled."
