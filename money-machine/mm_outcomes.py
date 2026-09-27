@@ -130,6 +130,40 @@ def summary(d):
         )
     }
     total = sum(by_outcome.values())
+    replied = by_outcome.get("REPLIED", 0) + by_outcome.get("CALL_OR_DISCOVERY", 0)
+    decided = by_outcome.get("WON", 0) + by_outcome.get("LOST", 0)
+    rates = {
+        "response_rate": round(replied / total, 4) if total else 0.0,
+        "win_rate_among_decided": round(by_outcome.get("WON", 0) / decided, 4) if decided else 0.0,
+        "bounce_rate": round(by_outcome.get("BOUNCED", 0) / total, 4) if total else 0.0,
+        "unsubscribe_rate": round(by_outcome.get("UNSUBSCRIBED", 0) / total, 4) if total else 0.0,
+    }
+
+    business_columns = {
+        row[1] for row in d.execute("PRAGMA table_info(businesses)").fetchall()
+    }
+    by_region = {}
+    if "region" in business_columns:
+        for row in d.execute(
+            "SELECT coalesce(b.region,'UNKNOWN') region,o.outcome,count(*) n "
+            "FROM prospect_outcomes o JOIN businesses b ON b.id=o.business_id "
+            "GROUP BY coalesce(b.region,'UNKNOWN'),o.outcome"
+        ):
+            by_region.setdefault(row[0], {})[row[1]] = row[2]
+
+    by_industry = {}
+    has_industries = d.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='industries'"
+    ).fetchone()
+    if has_industries and "industry_id" in business_columns:
+        for row in d.execute(
+            "SELECT coalesce(i.name,'UNKNOWN') industry,o.outcome,count(*) n "
+            "FROM prospect_outcomes o JOIN businesses b ON b.id=o.business_id "
+            "LEFT JOIN industries i ON i.id=b.industry_id "
+            "GROUP BY coalesce(i.name,'UNKNOWN'),o.outcome"
+        ):
+            by_industry.setdefault(row[0], {})[row[1]] = row[2]
+
     latest = [
         dict(r)
         for r in d.execute(
@@ -141,8 +175,13 @@ def summary(d):
         "generated_at": core.now(),
         "total": total,
         "by_outcome": by_outcome,
+        "rates": rates,
+        "by_region": by_region,
+        "by_industry": by_industry,
         "latest": latest,
         "status": "ready",
+        "learning_mode": "report_only",
+        "automatic_weight_changes": False,
         "automatic_learning_applied": False,
         "promotion_requires_p18_evaluation": True,
     }
