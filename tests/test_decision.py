@@ -87,3 +87,69 @@ def test_legacy_six_component_score_is_centralized():
     assert result["score"] == 100
     assert result["is_shortlist"] is True
     assert result["formula_version"] == "legacy-six-component-v1"
+
+
+
+def test_decision_routes_flow_review_before_contact():
+    result = priority_decision(
+        technical_opportunity=0.8,
+        commercial_opportunity=0.8,
+        identity_confidence=0.9,
+        evidence_confidence=0.9,
+        evidence_freshness=0.9,
+        contactability=0.2,
+        conversion_path_health=0.2,
+        estimated_effort=0.2,
+    )
+    assert "CONVERSION_PATH_WEAK" in result["reason_codes"]
+    assert "CONVERSION_PATH_NEEDS_REVIEW" in result["blockers"]
+    assert result["next_action"] == "INVESTIGATE_FLOW"
+
+
+def test_decision_can_route_to_human_review():
+    result = priority_decision(
+        technical_opportunity=0.5,
+        commercial_opportunity=0.5,
+        identity_confidence=0.7,
+        evidence_confidence=0.7,
+        evidence_freshness=0.7,
+        contactability=0.7,
+        conversion_path_health=0.7,
+        estimated_effort=0.5,
+    )
+    assert 40 <= result["priority_score"] < 65
+    assert result["next_action"] == "HUMAN_REVIEW"
+
+
+def test_decision_can_hold_low_value_supported_case():
+    result = priority_decision(
+        technical_opportunity=0.1,
+        commercial_opportunity=0.1,
+        identity_confidence=0.7,
+        evidence_confidence=0.7,
+        evidence_freshness=0.7,
+        contactability=0.5,
+        conversion_path_health=0.7,
+        estimated_effort=0.9,
+    )
+    assert result["priority_score"] < 40
+    assert result["next_action"] == "HOLD"
+
+
+def test_decision_rejects_boolean_and_non_numeric_inputs():
+    common = dict(
+        commercial_opportunity=0.5,
+        identity_confidence=0.5,
+        evidence_confidence=0.5,
+        evidence_freshness=0.5,
+        contactability=0.5,
+        conversion_path_health=0.5,
+        estimated_effort=0.5,
+    )
+    for bad in (True, object()):
+        try:
+            priority_decision(technical_opportunity=bad, **common)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError("invalid score type should fail closed")
