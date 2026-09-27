@@ -1,9 +1,9 @@
 import sys, json, httpx
 from pathlib import Path
-from website_auditor.advanced.nz_dominator import check_macrons, check_fair_trading
-from website_auditor.advanced.tech_fingerprint import fingerprint
-from website_auditor.advanced.playwright_engine import run_browser_audit
-from website_auditor.advanced.portfolio_db import init_portfolio_db, ingest_remediation_to_db
+from auditor_toolkit.advanced.nz_dominator import check_macrons, check_fair_trading
+from auditor_toolkit.advanced.tech_fingerprint import fingerprint
+from auditor_toolkit.advanced.playwright_engine import run_browser_audit
+from auditor_toolkit.advanced.portfolio_db import init_portfolio_db, ingest_remediation_to_db
 
 url = sys.argv[1] if len(sys.argv) > 1 else "https://clyne-bennie.co.nz"
 print(f"\n🚀 RUNNING MASTERCLASS AUDIT: {url}\n")

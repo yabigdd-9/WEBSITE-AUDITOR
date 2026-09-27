@@ -230,7 +230,7 @@ def test_no_network_delivery_even_with_credentials(tmp_path, monkeypatch):
     monkeypatch.setattr(
         smtplib, "SMTP", lambda *a, **k: (_ for _ in ()).throw(AssertionError("Must not send"))
     )
-    from website_auditor.reporting.email_sender import send_report_email
+    from auditor_toolkit.reporting.email_sender import send_report_email
 
     result = send_report_email(
         "client@example.com",

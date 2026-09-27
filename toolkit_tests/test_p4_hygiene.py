@@ -43,7 +43,7 @@ def make_fetcher(routes: dict, monkeypatch) -> Fetcher:
         status, body = routes.get(path, (200, PAGE))
         return httpx.Response(status, text=body, request=request)
 
-    return Fetcher(transport=httpx.MockTransport(handler))
+    return Fetcher(transport=httpx.MockTransport(handler), allow_private=True)
 
 
 def assert_evidence_complete(findings, keys):

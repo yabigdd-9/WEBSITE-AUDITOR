@@ -72,3 +72,4 @@ state/deployments.jsonl
 state/HERMES_EXECUTION_STATE.yaml
 reports/acceptance-results.json
 state/
+.vscode/

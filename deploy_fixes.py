@@ -1,8 +1,8 @@
 
 import json, sys, os
 from pathlib import Path
-from website_auditor.connectors.github_connector import GitHubConnector
-from website_auditor.models import Action
+from auditor_toolkit.connectors.github_connector import GitHubConnector
+from auditor_toolkit.models import Action
 
 def main():
     push_mode = "--push" in sys.argv

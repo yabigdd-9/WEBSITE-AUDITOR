@@ -124,7 +124,7 @@ class Acceptance(unittest.TestCase):
             self.assertNotEqual(run.returncode,0,f'archived script did not fail closed: {name}')
             self.assertIn('BLOCKED',run.stderr+run.stdout,f'archived script lacks BLOCKED diagnostic: {name}')
         self.demo.write_text('')
-        with self.assertRaises(ValueError):o.demo_qa(self.d,self.bid,self.demo)
+        with self.assertRaises(o.ValidationError):o.demo_qa(self.d,self.bid,self.demo)
     def test_13_migration_requires_verified_restorable_backup(self):
         with self.assertRaises(ValueError):c.migrate(self.d,self.r/'missing')
         backupdb=self.backup/'money_machine.db'

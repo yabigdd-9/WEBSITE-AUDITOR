@@ -136,11 +136,10 @@ codex exec "Refactor this function"
 
 ### Query FCC Directly
 ```bash
-curl -X POST http://0.0.0.0:8082/v1/chat/completions \
+curl -X POST http://0.0.0.0:8082/v1/messages \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $ANTHROPIC_AUTH_TOKEN" \
   -d '{
-    "model": "nvidia_nim/nvidia/nemotron-3-super-120b-a12b",
+    "model": "claude-fable-5",
     "messages": [{"role": "user", "content": "Hello!"}],
     "max_tokens": 1000
   }'

@@ -26,7 +26,7 @@ def query_logs(
             val, unit = int(match.group(1)), match.group(2)
             delta = {'h': timedelta(hours=val), 'd': timedelta(days=val),
                        'w': timedelta(weeks=val), 'm': timedelta(days=30*val)}[unit]
-            since_dt = datetime.now() - timedelta(days=0)  # placeholder
+            since_dt = datetime.now() - delta
 
     results = []
     log_dir = root() / 'state' / 'worker-logs'

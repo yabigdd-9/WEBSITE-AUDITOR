@@ -82,6 +82,26 @@ class StateMachine(unittest.TestCase):
         with self.assertRaises(ValueError):
             p.transition(self.d, self.bid, 'DISCOVERED', 'w-test', 'revive')
 
+    def test_permanent_failure_requeue_requires_reason_and_records_recovery(self):
+        p.enqueue(self.d, self.bid)
+        p.transition(self.d, self.bid, 'PERMANENT_FAILURE', 'w-test', 'bad runtime')
+        self.d.execute('UPDATE pipeline_items SET attempts=2 WHERE business_id=?',
+                       (self.bid,))
+        with self.assertRaises(ValueError):
+            p.requeue_permanent_failure(self.d, self.bid, '')
+        row = p.requeue_permanent_failure(
+            self.d, self.bid, 'Runtime dependency/contract fault fixed', 'operator-test')
+        self.assertEqual(row['state'], 'AUDIT_PENDING')
+        self.assertEqual(row['attempts'], 2)
+        event = self.d.execute(
+            "SELECT * FROM pipeline_events WHERE business_id=? ORDER BY id DESC LIMIT 1",
+            (self.bid,)).fetchone()
+        self.assertEqual((event['from_state'], event['to_state'], event['actor']),
+                         ('PERMANENT_FAILURE', 'AUDIT_PENDING', 'operator-test'))
+        self.assertEqual(json.loads(event['evidence'])['previous_attempts_preserved'], 2)
+        with self.assertRaises(ValueError):
+            p.requeue_permanent_failure(self.d, self.bid, 'duplicate replay')
+
     def test_enqueue_idempotent(self):
         p.enqueue(self.d, self.bid, payload={'a': 1})
         p.enqueue(self.d, self.bid, payload={'b': 2})

@@ -273,6 +273,34 @@ def enqueue(d, business_id, state='DISCOVERED', payload=None, max_attempts=5):
     return item(d, business_id)
 
 
+def requeue_permanent_failure(d, business_id, reason, actor='operator'):
+    """Audited operator recovery for a corrected, previously dead-lettered item.
+
+    This explicit recovery edge keeps ordinary state transitions terminal while
+    preserving the original failure event and attempt count for audit.
+    """
+    reason = str(reason or '').strip()
+    if not reason:
+        raise ValueError('A recovery reason is required')
+    current = item(d, business_id)
+    if current['state'] != 'PERMANENT_FAILURE':
+        raise ValueError('Only PERMANENT_FAILURE items can be requeued')
+    if current['lease_owner'] or current['lease_until']:
+        raise ValueError('Cannot requeue an item with a lease')
+    prior_attempts = current['attempts']
+    ts = now()
+    d.execute("""UPDATE pipeline_items SET state='AUDIT_PENDING',next_retry_at=NULL,
+                 lease_owner=NULL,lease_until=NULL,last_error=NULL,updated_at=?
+                 WHERE business_id=? AND state='PERMANENT_FAILURE'""",
+              (ts, business_id))
+    if d.execute('SELECT changes()').fetchone()[0] != 1:
+        raise ValueError('Item state changed during recovery')
+    _record(d, business_id, 'PERMANENT_FAILURE', 'AUDIT_PENDING', actor,
+            reason, {'recovery': 'operator_requeue',
+                     'previous_attempts_preserved': prior_attempts})
+    return item(d, business_id)
+
+
 # ---------------------------------------------------------------------------
 # Leases + heartbeats
 # ---------------------------------------------------------------------------
@@ -735,9 +763,12 @@ def run_pipelineloop_cli(argv=None):
     args = p.parse_known_args(argv)[0]
     from mm_workers import WORKERS
     names = set(args.workers) if args.workers else set(WORKERS)
-    workers = [p.Worker('w-' + n, *WORKERS[n]) for n in sorted(names)]
-    return run_pipelineloop(d, workers, sleep_seconds=args.sleep,
-                            max_cycles=args.cycles, report_every=args.report_every)
+    from mm_core import connect
+    import contextlib
+    workers = [Worker('w-' + n, *WORKERS[n]) for n in sorted(names)]
+    with contextlib.closing(connect()) as d:
+        return run_pipelineloop(d, workers, sleep_seconds=args.sleep,
+                                max_cycles=args.cycles, report_every=args.report_every)
 
 
 def drain_expired_leases(d):

@@ -59,7 +59,11 @@ def main(argv=None):
         doc['smoke_executed']=False
     raw=json.dumps(doc,indent=2)
     if a.output:
-        a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_text(raw+'\n')
+        resolved = a.output.resolve()
+        if resolved != a.output and resolved.parent != a.output.parent.resolve():
+            doc = result('FAILED', 'Output path resolves to an unexpected location')
+            print(json.dumps(doc, indent=2)); return 2
+        a.output.parent.mkdir(parents=True, exist_ok=True); a.output.write_text(raw + '\n')
     print(raw)
     return 0 if doc['status']=='PASS' else 2
 

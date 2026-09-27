@@ -28,6 +28,7 @@ from .external_tools import run_lighthouse, run_lychee
 from .faults import enrich as enrich_fault
 from .faults import group_root_causes
 from .faults import regression as fault_regression
+from .flows import flow_findings, run_flow_probe
 from .hygiene import (
     check_mixed_content,
     check_robots,
@@ -262,6 +263,51 @@ def run_audit(url, options=None, fetcher=None):
                 "required": opts.browser,
             }
             evidence["browser"] = result.get("evidence", {})
+            if opts.browser and result.get("status") == "ok":
+                flow_started = time.perf_counter()
+                flow_url = result.get("final_url", final_url)
+                try:
+                    flow_result = run_flow_probe(
+                        flow_url,
+                        run_dir / "artifacts",
+                        enabled=True,
+                        allow_private=opts.allow_private,
+                    )
+                    flow_data = flow_result.get("evidence", {})
+                    flow_items, flow_summary = flow_findings(
+                        flow_data, flow_url, flow_result.get("status", "error")
+                    )
+                    flow_data["summary"] = flow_summary
+                    findings.extend(replace(f, source_url=flow_url) for f in flow_items)
+                    checks["flow"] = {
+                        "status": flow_result.get("status", "error"),
+                        "reason": flow_result.get("reason", ""),
+                        "required": False,
+                        "elapsed_ms": int((time.perf_counter() - flow_started) * 1000),
+                    }
+                    evidence["flow"] = {
+                        "url": flow_url,
+                        "observed_at": timestamp,
+                        "mode": "lab",
+                        "data": flow_data,
+                        "check_version": "transaction-flow-v1",
+                    }
+                except Exception as exc:
+                    checks["flow"] = {
+                        "status": "error",
+                        "reason": str(exc)[:500],
+                        "required": False,
+                        "elapsed_ms": int((time.perf_counter() - flow_started) * 1000),
+                    }
+                    evidence["flow"] = {
+                        "url": flow_url,
+                        "observed_at": timestamp,
+                        "mode": "lab",
+                        "data": {"error": str(exc)[:500]},
+                        "check_version": "transaction-flow-v1",
+                    }
+            else:
+                skip("flow", "Enable browser checks to inspect conversion flow")
             if opts.screenshot_diff and result.get("status") == "ok":
                 try:
                     history = History(opts.output_root)

@@ -18,14 +18,43 @@ from mm_intelligence import *
 # retained for the legacy operator helpers, but command registration must not
 # depend on it exposing a validation constant.
 from mm_core import CLAIM_TYPES
+import mm_drafts
+
+
+class OperatorError(Exception):
+    """Base exception for mm_operator."""
+    pass
+
+class ValidationError(OperatorError):
+    """Raised for input/data validation failures."""
+    pass
+
+class OperationalError(OperatorError):
+    """Raised for runtime/operational failures."""
+    pass
+
+
+def validate_environment():
+    """Fail-fast environment validation for runtime operations.
+
+    Skipped for commands that do not touch the MoneyMachine database
+    (e.g. ``supervisor stop``, ``init`` which creates the DB).
+    """
+    r = root()
+    if not r.exists():
+        raise OperationalError(f"MM_ROOT directory does not exist: {r}")
+    if not (r / 'database').exists():
+        raise OperationalError("Database directory missing")
+
 
 class DemoParser(HTMLParser):
+
     def __init__(self):super().__init__();self.tags=[]
     def handle_starttag(self,tag,attrs):self.tags.append((tag,dict(attrs)))
 
 def demo_qa(d,bid,path):
     business(d,bid);p=Path(path).resolve()
-    if not p.is_file() or not p.stat().st_size:raise ValueError('Nonempty demo file required')
+    if not p.is_file() or not p.stat().st_size:raise ValidationError('Nonempty demo file required')
     text=p.read_text();a=DemoParser();a.feed(text);tags=a.tags
     labels={attrs.get('for') for tag,attrs in tags if tag=='label'}
     fields=[x for t,x in tags if t in ('input','select','textarea')]
@@ -195,7 +224,7 @@ def cmd_dead_letter_resolve(reason):
             )
 
             if cur.rowcount != 1:
-                raise RuntimeError(
+                raise OperationalError(
                     f"Failed to resolve business_id={business_id}; "
                     "state changed during operation"
                 )
@@ -280,8 +309,10 @@ def main(argv=None):
     q=s.add_parser('outreach-preflight');q.add_argument('id',type=int)
     q=s.add_parser('outreach-dsn');q.add_argument('--eml',required=True);q.add_argument('--recipient',required=True);q.add_argument('--original-message-id',required=True)
     s.add_parser('outreach-health')
+    q=s.add_parser('smart-reply');q.add_argument('id',type=int)
     s.add_parser('transport-status')
     q=s.add_parser('transport-preflight');q.add_argument('--packet',required=True)
+    q=s.add_parser('transport-send');q.add_argument('--packet',required=True);q.add_argument('--execute',action='store_true')
     s.add_parser('outcomes')
     q=s.add_parser('outcome-record');q.add_argument('id',type=int);q.add_argument('--outcome',required=True);q.add_argument('--evidence',required=True);q.add_argument('--sha256',required=True);q.add_argument('--actor',required=True);q.add_argument('--note',default='')
     q=s.add_parser('email-migrate');q.add_argument('--backup',required=True)
@@ -292,7 +323,7 @@ def main(argv=None):
     q=s.add_parser('email-track');q.add_argument('--store')
     q=s.add_parser('email-reconcile');q.add_argument('message_id');q.add_argument('--store')
     q=s.add_parser('email-intent');q.add_argument('message_id',type=int);q.add_argument('--campaign',required=True);q.add_argument('--max-attempts',type=int,default=3);q.add_argument('--store')
-    q=s.add_parser('email-intent-result');q.add_argument('idempotency_key');q.add_argument('--status',required=True);q.add_argument('--provider-message-id');q.add_argument('--error');q.add_argument('--max-attempts',type=int);q.add_argument('--store')
+    q=s.add_parser('email-intent-result');q.add_argument('idempotency_key');q.add_argument('--status',required=True);q.add_argument('--provider-message-id');q.add_argument('--error');q.add_argument('--store')
     q=s.add_parser('email-lifecycle');q.add_argument('message_id',type=int);q.add_argument('--store')
     s.add_parser('email-duplicates')
     q=s.add_parser('email-v1');q.add_argument('id',type=int)
@@ -306,6 +337,8 @@ def main(argv=None):
     q=s.add_parser('audit');q.add_argument('id',type=int);q.add_argument('--url',required=True);q.add_argument('--observation',required=True);q.add_argument('--limitation',required=True);q.add_argument('--capture',required=True);q.add_argument('--status',choices=['verified','partial','refuted','unverified'],required=True);q.add_argument('--method',required=True);q.add_argument('--confidence',type=float,required=True);q.add_argument('--claim-type',choices=CLAIM_TYPES,default='observed_fact')
     q=s.add_parser('contact');q.add_argument('id',type=int);q.add_argument('--recipient',required=True);q.add_argument('--url',required=True);q.add_argument('--capture',required=True);q.add_argument('--relevance',required=True)
     q=s.add_parser('draft');q.add_argument('id',type=int);q.add_argument('--recipient',required=True);q.add_argument('--body-file',required=True);q.add_argument('--parent',type=int)
+    q=s.add_parser('draft-review');q.add_argument('id',type=int)
+    q=s.add_parser('draft-approve');q.add_argument('id',type=int);q.add_argument('--actor',required=True);q.add_argument('--approval-receipt',type=int,required=True)
     q=s.add_parser('review');q.add_argument('id',type=int);q.add_argument('--body-file',required=True);q.add_argument('--human',required=True);q.add_argument('--approval-receipt',type=int,required=True);q.add_argument('--proposal',action='store_true')
     q=s.add_parser('record-sent');q.add_argument('id',type=int);q.add_argument('--receipt',type=int,required=True);q.add_argument('--proposal',action='store_true')
     q=s.add_parser('receipt-import');q.add_argument('--envelope',required=True)
@@ -324,6 +357,7 @@ def main(argv=None):
     q=s.add_parser('pipeline-run');q.add_argument('--worker',action='append');q.add_argument('--limit',type=int,default=1)
     s.add_parser('pipeline-status')
     q=s.add_parser('pipeline-enqueue');q.add_argument('id',type=int);q.add_argument('--state',default='DISCOVERED')
+    q=s.add_parser('pipeline-requeue');q.add_argument('id',type=int);q.add_argument('--reason',required=True);q.add_argument('--actor',default='operator')
     q=s.add_parser('pipeline-transition');q.add_argument('id',type=int);q.add_argument('--to',required=True);q.add_argument('--actor',required=True);q.add_argument('--reason',required=True)
     s.add_parser('pipeline-health')
     q=s.add_parser('approval-check');q.add_argument('id',type=int)
@@ -388,9 +422,21 @@ def main(argv=None):
         import mm_obsidian
         result=mm_obsidian.sync() if a.cmd=='obsidian-sync' else mm_obsidian.status()
         print(json.dumps(result,indent=2,default=str));return 0
-    if a.cmd in ('transport-status','transport-preflight'):
+    if a.cmd == 'smart-reply':
+        import mm_smart_reply
+        with contextlib.closing(connect()) as d, d:
+            result = mm_smart_reply.assistant_response(a.id, d)
+        print(json.dumps(result,indent=2,default=str));return 0
+    if a.cmd in ('transport-status','transport-preflight','transport-send'):
         import mm_transport
-        result=mm_transport.status() if a.cmd=='transport-status' else mm_transport.preflight_packet(json.loads(Path(a.packet).read_text()))
+        if a.cmd == 'transport-send':
+            if not a.execute:
+                result = {"status": "DRY_RUN", "note": "Pass --execute to trigger mock transport."}
+            else:
+                with contextlib.closing(connect()) as d, d:
+                    result = mm_transport.send_approved(d, int(a.packet))
+        else:
+            result=mm_transport.status() if a.cmd=='transport-status' else mm_transport.preflight_packet(json.loads(Path(a.packet).read_text()))
         print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd in ('outcomes','outcome-record'):
         import mm_outcomes
@@ -432,7 +478,7 @@ def main(argv=None):
                 if a.cmd == 'email-intent':
                     result = lifecycle.create_intent(d, a.message_id, a.campaign, max_attempts=a.max_attempts, event_store=a.store)
                 elif a.cmd == 'email-intent-result':
-                    result = lifecycle.record_result(d, a.idempotency_key, a.status, provider_message_id=a.provider_message_id, error=a.error, event_store=a.store, max_attempts=a.max_attempts)
+                    result = lifecycle.record_result(d, a.idempotency_key, a.status, provider_message_id=a.provider_message_id, error=a.error, event_store=a.store)
                 else:
                     result = lifecycle.reconstruct(d, a.message_id, event_store=a.store)
         print(json.dumps(result, indent=2, default=str)); return 0
@@ -520,7 +566,7 @@ def main(argv=None):
             a.min_improvement,
         )
         print(json.dumps(result,indent=2));return 0
-    if a.cmd in ('pipeline-run','pipeline-status','pipeline-enqueue','pipeline-transition','pipeline-health','approval-check','approval-decide','model-plan','deploy-check'):
+    if a.cmd in ('pipeline-run','pipeline-status','pipeline-enqueue','pipeline-requeue','pipeline-transition','pipeline-health','approval-check','approval-decide','model-plan','deploy-check'):
         import mm_pipeline, mm_approval, mm_model_router, mm_workers
         readonly=a.cmd in ('approval-check',)
         with contextlib.closing(connect(readonly=readonly)) as d, d:
@@ -528,6 +574,7 @@ def main(argv=None):
             if a.cmd=='pipeline-status':result=mm_pipeline.health(d)
             elif a.cmd=='pipeline-health':result=mm_pipeline.health(d)
             elif a.cmd=='pipeline-enqueue':result=dict(mm_pipeline.enqueue(d,a.id,a.state))
+            elif a.cmd=='pipeline-requeue':result=dict(mm_pipeline.requeue_permanent_failure(d,a.id,a.reason,a.actor))
             elif a.cmd=='pipeline-transition':result=dict(mm_pipeline.transition(d,a.id,a.to,a.actor,a.reason))
             elif a.cmd=='approval-check':result=mm_approval.evaluate(d,a.id)
             elif a.cmd=='approval-decide':result=mm_approval.decide(d,a.approval_id,a.actor,a.reason)
@@ -553,9 +600,10 @@ def main(argv=None):
         with contextlib.closing(connect()) as d,d:migrate(d,b)
         print('Migration checked; backup '+str(b));return 0
     if a.cmd=='price':
-        if (a.hours_low is None)!=(a.hours_high is None):raise ValueError('Both hour bounds required')
+        if (a.hours_low is None)!=(a.hours_high is None):raise ValidationError('Both hour bounds required')
         result=pricing(a.problem,[a.hours_low,a.hours_high] if a.hours_low is not None else None)
     else:
+        validate_environment()
         with contextlib.closing(connect()) as d,d:
             if a.cmd in ('daily','run-day','status'):result=run_day(d,write=a.cmd!='status')
             elif a.cmd=='money':result=run_day(d,False)['next_revenue_action']
@@ -566,7 +614,7 @@ def main(argv=None):
                 host=public_url(a.url);public_url(a.source)
                 for b in d.execute('SELECT id,name,public_website FROM businesses WHERE is_dummy=0'):
                     if b['name'].strip().casefold()==a.name.strip().casefold():
-                        raise ValueError('Duplicate prospect '+str(b['id']))
+                        raise ValidationError('Duplicate prospect '+str(b['id']))
                     # Historical records may contain malformed or now-disallowed URLs.
                     # They must not prevent a duplicate-name check or invalidate a
                     # separate, valid intake request.
@@ -574,19 +622,24 @@ def main(argv=None):
                         existing_host=public_url(b['public_website']) if b['public_website'] else None
                     except ValueError:
                         existing_host=None
-                    if existing_host==host:raise ValueError('Duplicate prospect '+str(b['id']))
+                    if existing_host==host:raise ValidationError('Duplicate prospect '+str(b['id']))
                 c=d.execute("INSERT INTO businesses(name,region,public_website,source,discovered_at,current_status,is_dummy) VALUES(?,?,?,?,?,'discovered',0)",(a.name.strip(),a.region,a.url,a.source,now()));bid=c.lastrowid
                 d.execute("INSERT INTO mm_deals(business_id,stage,updated_at) VALUES(?,'DISCOVERED',?)",(bid,now()));event(d,'intake',bid,a.source);result={'business_id':bid}
             elif a.cmd=='audit':result={'evidence_id':record_evidence(d,a.id,a.url,a.observation,a.limitation,a.capture,a.status,a.method,a.confidence,a.claim_type)}
             elif a.cmd=='contact':record_contact(d,a.id,a.recipient,a.url,a.capture,a.relevance);result={'contact_source':'captured','permission':'Human review required'}
             elif a.cmd=='draft':result={'draft_id':create_draft(d,a.id,a.recipient,Path(a.body_file).read_text(),a.parent)}
+            elif a.cmd=='draft-review':import mm_drafts;result=mm_drafts.review_draft(d,a.id)
+            elif a.cmd=='draft-approve':
+                import mm_drafts
+                with contextlib.closing(connect()) as _dd, _dd:
+                    result = mm_drafts.approve_draft(_dd, a.id, a.actor, a.approval_receipt)
             elif a.cmd=='review':approve(d,a.id,Path(a.body_file).read_text(),a.human,a.approval_receipt,a.proposal);result={'approval':'Recorded from evidence'}
             elif a.cmd=='record-sent':record_sent(d,a.id,a.receipt,a.proposal);result={'recorded':True,'sent_by_this_command':False}
             elif a.cmd=='receipt-import':result={'receipt_id':import_receipt(d,a.envelope),'verification':'Human attestation; no live provider query'}
             elif a.cmd=='cash':cash(d,a.id,a.cents,a.receipt);result=metrics(d)
             elif a.cmd=='refund':refund(d,a.id,a.cents,a.receipt);result=metrics(d)
             elif a.cmd=='reply':record_reply(d,a.id,a.classification,a.receipt);result={'action':REPLY_ACTIONS[a.classification]}
-            elif a.cmd=='suppress':d.execute('INSERT OR IGNORE INTO mm_suppression VALUES(?,?,?)',(a.address.strip().lower(),a.reason,now()));event(d,'suppress',None,a.address.strip().lower());result={'suppressed':True}
+            elif a.cmd=='suppress':d.execute('INSERT OR IGNORE INTO mm_suppression(address, reason, created_at) VALUES(?,?,?)',(a.address.strip().lower(),a.reason,now()));event(d,'suppress',None,a.address.strip().lower());result={'suppressed':True}
             elif a.cmd=='stage':change_stage(d,a.id,a.stage,a.next_action,a.due);result={'stage':a.stage}
             elif a.cmd=='quote':result={'proposal_id':create_proposal(d,a.id,a.recipient,Path(a.body_file).read_text(),a.price_nzd*100)}
             elif a.cmd=='score':result=save_score(d,a.id,latest_evidence(d,a.id),**json.loads(Path(a.inputs).read_text()))
@@ -671,4 +724,5 @@ def cmd_data_quarantine(source):
 
 if __name__=='__main__':
     try:sys.exit(main())
+    except OperatorError as e:print('BLOCKED: '+str(e),file=sys.stderr);sys.exit(2)
     except (ValueError,sqlite3.Error,OSError,KeyError) as e:print('BLOCKED: '+str(e),file=sys.stderr);sys.exit(2)

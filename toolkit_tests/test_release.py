@@ -237,7 +237,7 @@ def test_previews_are_idempotent_and_never_execute(tmp_path, monkeypatch):
     preview_report(report, output)
     preview_report(report, output)
     assert len(json.loads((output / "events.json").read_text())) == 1
-    from website_auditor.connectors.git_connector import GitConnector
+    from auditor_toolkit.connectors.git_connector import GitConnector
 
     action = SimpleNamespace(action_id="../escape", name="test", payload={})
     result = GitConnector(output).execute_local_patch(action)

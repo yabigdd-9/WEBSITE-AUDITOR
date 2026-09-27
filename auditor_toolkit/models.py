@@ -1,10 +1,74 @@
 """Versioned audit records. A completed check can contain defects."""
 
 from dataclasses import asdict, dataclass, field
+from enum import Enum
 from typing import Any, Literal
 
 SCHEMA_VERSION = 2
 Status = Literal["ok", "error", "skipped"]
+
+
+class RiskValue(Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+@dataclass(frozen=True)
+class Risk:
+    value: RiskValue
+    score: int
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"value": self.value.value, "score": self.score}
+
+
+@dataclass
+class Action:
+    action_id: str
+    name: str
+    category: str
+    risk: Risk
+    connector: str
+    domain: str
+    environment: str
+    requires_approval: bool = False
+    requires_authorization: bool = False
+    payload: dict[str, Any] = field(default_factory=dict)
+    idempotency_key: str = ""
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> 'Action':
+        return cls(
+            action_id=data.get("action_id", ""),
+            name=data.get("name", ""),
+            category=data["category"],
+            environment=data["environment"],
+            risk=Risk(RiskValue(data["risk"]["value"]), data["risk"]["score"]),
+            connector=data.get("connector", "local"),
+            domain=data.get("domain", ""),
+            requires_approval=data.get("requires_approval", False),
+            requires_authorization=data.get("requires_authorization", False),
+            payload=data.get("payload", {}),
+            idempotency_key=data.get("idempotency_key", ""),
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "action_id": self.action_id,
+            "name": self.name,
+            "category": self.category,
+            "risk": self.risk.to_dict(),
+            "connector": self.connector,
+            "domain": self.domain,
+            "environment": self.environment,
+            "requires_approval": self.requires_approval,
+            "requires_authorization": self.requires_authorization,
+            "payload": self.payload,
+            "idempotency_key": self.idempotency_key,
+        }
+
 
 
 @dataclass(frozen=True)
@@ -109,8 +173,6 @@ REGISTRY = {
         CheckDefinition("tls", "security"),
         CheckDefinition("dns", "technical"),
         CheckDefinition("crawl", "technical"),
-        CheckDefinition("hygiene", "technical"),
-        CheckDefinition("links", "technical"),
         CheckDefinition(
             "lychee",
             "technical",
