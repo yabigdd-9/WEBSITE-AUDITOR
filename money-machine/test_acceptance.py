@@ -119,7 +119,9 @@ class Acceptance(unittest.TestCase):
         for name in ('seed_data.py','fix_contacts.py','mark_sent.py','dispatch_judges.py'):
             archived=archive/name
             self.assertTrue(archived.is_file(),f'missing archived script: {name}')
-            self.assertIn('BLOCKED',archived.read_text())
+            run=subprocess.run([sys.executable,str(archived)],capture_output=True,text=True,timeout=10)
+            self.assertNotEqual(run.returncode,0,f'archived script did not fail closed: {name}')
+            self.assertIn('BLOCKED',run.stderr+run.stdout,f'archived script lacks BLOCKED diagnostic: {name}')
         self.demo.write_text('')
         with self.assertRaises(ValueError):o.demo_qa(self.d,self.bid,self.demo)
     def test_13_migration_requires_verified_restorable_backup(self):
