@@ -503,7 +503,13 @@ def test_login_failure_limit_is_account_scoped_and_persistent(tmp_path):
         "login_account", "customer@example.invalid", 12, 3600, now=10**10
     )
 
-    # An account's failed-attempt cap must not block that account's valid login.
+    # The account bucket is reserved before PBKDF2, so a valid login must wait
+    # for the provisional account window to expire after it is exhausted.
+    with Database(db_path).connect() as db:
+        db.execute(
+            "UPDATE auth_rate_limits SET window_started=? WHERE scope='login_account'",
+            (int(time.time()) - 3600,),
+        )
     valid_client = TestClient(restarted_app, client=("203.0.113.101", 8000))
     login_page = valid_client.get("/login")
     accepted = valid_client.post(
@@ -548,7 +554,40 @@ def test_login_failure_limit_is_account_scoped_and_persistent(tmp_path):
         ).fetchone() is None
 
 
-def test_admin_valid_mfa_bypasses_failure_cap_and_rejects_replay(tmp_path, monkeypatch):
+def test_login_rejects_overlong_password_before_password_verification(tmp_path, monkeypatch):
+    import catalyx_web.app as app_module
+
+    client = TestClient(create_app(tmp_path / "app.sqlite3", tmp_path / "mailbox.json"))
+    login_page = client.get("/login")
+    called = False
+
+    def unexpected_verify(_password, _encoded):
+        nonlocal called
+        called = True
+        return False
+
+    monkeypatch.setattr(app_module, "verify_password", unexpected_verify)
+    response = client.post(
+        "/login",
+        data={"csrf": form_token(login_page), "email": "nobody@example.invalid", "password": "x" * 1025},
+    )
+    assert response.status_code == 400
+    assert not called
+
+
+def test_local_mailbox_refuses_a_preexisting_symlink(tmp_path):
+    target = tmp_path / "protected.txt"
+    target.write_text("preserve this file\n", encoding="utf-8")
+    mailbox = tmp_path / "mailbox.json"
+    mailbox.symlink_to(target)
+
+    with pytest.raises(OSError):
+        create_app(tmp_path / "app.sqlite3", mailbox)
+
+    assert target.read_text(encoding="utf-8") == "preserve this file\n"
+
+
+def test_admin_valid_mfa_clears_attempts_and_rejects_replay(tmp_path, monkeypatch):
     db_path = tmp_path / "admin-rate-limit.sqlite3"
     database = Database(db_path)
     email = "owner@example.invalid"
@@ -557,7 +596,7 @@ def test_admin_valid_mfa_bypasses_failure_cap_and_rejects_replay(tmp_path, monke
     timestamp = 1_800_000_000
     monkeypatch.setattr("catalyx_web.app.time.time", lambda: timestamp)
     database.create_admin(email, hash_password(password), secret)
-    for _ in range(12):
+    for _ in range(11):
         assert database.allow_rate_attempt("login_account", email, 12, 3600)
 
     client = TestClient(

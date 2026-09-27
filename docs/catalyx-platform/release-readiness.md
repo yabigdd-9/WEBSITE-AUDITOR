@@ -928,3 +928,48 @@ The Chromium walkthrough checks keyboard traversal, labels, structure, text
 contrast, and narrow/reflow layouts against disposable synthetic data. It is
 not a screen-reader session or a human WCAG conformance sign-off; those
 accessibility gates remain open.
+
+## Login cost and local mailbox hardening (2026-09-28)
+
+The refreshed baseline identified two source issues in its immutable snapshot:
+login performed PBKDF2 before consuming the shared account bucket, and the
+local mailbox followed a pre-existing symlink. The local working tree now
+reserves the per-account login attempt before password verification, rejects
+passwords over the existing 1,024-character account-creation limit before
+PBKDF2, and uses no-follow file operations for the mailbox. Mailbox reads and
+writes require a regular file owned by the current user; reads are capped at
+1 MB and writes set mode `0600` before truncating or writing.
+
+Targeted regression checks passed (**98 passed** across the Catalyx mail and
+web suites): exhausted account throttling, rejection of an overlong password
+before the verifier, preservation of a symlink target, and SMTP budget
+partitioning. The first run used system Python and could not collect because
+its dependencies were incomplete; the repository Python 3.11 environment
+supplied the successful run.
+
+The account bucket protects repeated attempts against one normalized address,
+but a distributed attacker can vary addresses. Exhausting the bucket can
+temporarily block its legitimate owner until expiry. Overall authentication
+budget, thresholds, client-IP policy, and lockout behavior remain owner
+decisions. These changes postdate the immutable security-scan snapshot and do
+not alter its findings. Mailbox hardening does not establish safety for
+untrusted parent-directory permissions on every host platform.
+
+The current worktree adds persistent SMTP hourly budgets by purpose: 30
+registrations, 30 verification resends, and 40 password resets. Separate
+scopes reserve recovery capacity if signup traffic spikes; the combined maximum
+is 100 SMTP attempts per hour. Each purpose can still be exhausted within its
+own window, and final production thresholds remain a release configuration
+decision. These limits apply only when SMTP and the explicit external-send flag
+are both enabled; local mailbox and disabled-mail modes do not consume them.
+The independent security review found no bypass or token-lifecycle regression.
+It confirmed that a caller can still exhaust a single purpose budget and defer
+that purpose's legitimate delivery until the next hour; this residual limit is
+an explicit consequence of bounded delivery.
+
+The complete finite `toolkit_tests` suite passed (**259 passed, 5 opt-in
+browser skips, 3 upstream deprecation warnings**) on 2026-09-28. Scoped Ruff
+and `git diff --check` passed. No soak test was run.
+
+No soak test was run. No worker, live mail, customer data, provider, DNS, or
+production environment was accessed.

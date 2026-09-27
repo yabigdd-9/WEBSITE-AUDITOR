@@ -9,6 +9,7 @@ import json
 import logging
 import os
 import secrets
+import stat
 import time
 import uuid
 from datetime import UTC, datetime
@@ -38,6 +39,11 @@ from .security import (
 )
 
 logger = logging.getLogger("catalyx_web")
+AUTH_EMAIL_LIMITS_PER_HOUR = {
+    "registration": 30,
+    "verification_resend": 30,
+    "password_reset": 40,
+}
 PRIVILEGED_ROLES = {"owner", "admin", "reviewer", "support"}
 REVIEW_ROLES = {"owner", "admin", "reviewer"}
 APP_DIR = Path(__file__).parent
@@ -350,7 +356,11 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
     else:
         path = db_path or os.getenv("CATALYX_DATABASE_URL") or os.getenv("CATALYX_DB_PATH", "state/catalyx-app.sqlite3")
     database = Database(path, initialize=not hosted)
-    mailbox_path = Path(local_mailbox_path or os.getenv("CATALYX_LOCAL_MAILBOX", "state/catalyx-local-mailbox.json")).expanduser().resolve()
+    mailbox_path = Path(
+        os.path.abspath(
+            Path(local_mailbox_path or os.getenv("CATALYX_LOCAL_MAILBOX", "state/catalyx-local-mailbox.json")).expanduser()
+        )
+    )
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
     app.add_middleware(
         TrustedHostMiddleware,
@@ -367,9 +377,41 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
     app.state.runtime_environment = "production" if deployed else "staging"
     app.state.dummy_password_hash = hash_password(new_token())
 
-    def _read_local_messages() -> list[dict]:
+    async def _send_external_account_link(
+        email: str, kind: str, link: str, budget: str
+    ) -> bool:
+        # Per-IP and per-account limits do not bound delivery to many distinct
+        # addresses. Separate persistent budgets cap total SMTP attempts while
+        # reserving capacity for account recovery if signup traffic spikes.
+        if not database.allow_rate_attempt(
+            "auth_email_" + budget,
+            "smtp",
+            AUTH_EMAIL_LIMITS_PER_HOUR[budget],
+            3600,
+        ):
+            logger.warning("Account email delivery deferred by global hourly limit")
+            return False
         try:
-            messages = json.loads(mailbox_path.read_text(encoding="utf-8")) if mailbox_path.exists() else []
+            await asyncio.to_thread(send_account_link, email, kind, link)
+        except MailDeliveryError:
+            logger.warning("Account email could not be delivered")
+            return False
+        return True
+
+    def _read_local_messages() -> list[dict]:
+        if not mailbox_path.exists():
+            return []
+        try:
+            descriptor = os.open(mailbox_path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+            with os.fdopen(descriptor, "r", encoding="utf-8") as mailbox_file:
+                metadata = os.fstat(mailbox_file.fileno())
+                if (
+                    not stat.S_ISREG(metadata.st_mode)
+                    or metadata.st_uid != os.geteuid()
+                    or metadata.st_size > 1_000_000
+                ):
+                    return []
+                messages = json.load(mailbox_file)
         except (json.JSONDecodeError, OSError):
             messages = []
         if not isinstance(messages, list):
@@ -387,8 +429,16 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
     def _write_local_messages(messages: list[dict]) -> None:
         mailbox_path.parent.mkdir(parents=True, exist_ok=True)
         saved = messages[-50:]
-        mailbox_path.write_text(json.dumps(saved, indent=2) + "\n", encoding="utf-8")
-        mailbox_path.chmod(0o600)
+        flags = os.O_WRONLY | os.O_CREAT | getattr(os, "O_NOFOLLOW", 0)
+        descriptor = os.open(mailbox_path, flags, 0o600)
+        with os.fdopen(descriptor, "w", encoding="utf-8") as mailbox_file:
+            metadata = os.fstat(mailbox_file.fileno())
+            if not stat.S_ISREG(metadata.st_mode) or metadata.st_uid != os.geteuid():
+                raise OSError("The local mailbox must be a regular file owned by this user")
+            os.fchmod(mailbox_file.fileno(), 0o600)
+            mailbox_file.truncate(0)
+            json.dump(saved, mailbox_file, indent=2)
+            mailbox_file.write("\n")
 
     def _prune_local_messages(consumed_token: str | None = None) -> list[dict]:
         messages = _read_local_messages()
@@ -969,10 +1019,9 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
             _save_local_message(email, "email_verification", verification_url, verify_expires_at)
             logger.info("Local email verification saved to the private staging mailbox")
         elif mail_mode == "smtp" and external_send_allowed:
-            try:
-                await asyncio.to_thread(send_account_link, email, "email_verification", verification_url)
-            except MailDeliveryError:
-                logger.warning("Account verification email could not be delivered")
+            await _send_external_account_link(
+                email, "email_verification", verification_url, "registration"
+            )
         return _page("Check your email", confirmation_body)
 
     @app.get("/resend-verification", response_class=HTMLResponse)
@@ -1022,11 +1071,9 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
                 )
                 delivered = True
             elif mail_mode == "smtp" and external_send_allowed:
-                try:
-                    await asyncio.to_thread(send_account_link, resend_message[0], "email_verification", resend_message[1])
-                    delivered = True
-                except MailDeliveryError:
-                    logger.warning("Verification resend email could not be delivered")
+                delivered = await _send_external_account_link(
+                    resend_message[0], "email_verification", resend_message[1], "verification_resend"
+                )
             if delivered:
                 with database.connect() as db:
                     db.execute(
@@ -1078,6 +1125,14 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
         if not database.allow_rate_attempt("login", address, 8, 60):
             raise HTTPException(429, "Too many sign-in attempts. Try again in one minute.")
         email = form.get("email", "").strip().lower()
+        password = form.get("password", "")
+        if len(password) > 1024:
+            raise HTTPException(400, "Sign-in unavailable. Check your details and try again.")
+        # Reserve before PBKDF2 so distributed callers cannot multiply the
+        # expensive verification work. Successful authentication clears this
+        # bucket; the threshold remains an owner-approved launch decision.
+        if not database.allow_rate_attempt("login_account", email, 12, 3600):
+            raise HTTPException(429, "Too many sign-in attempts. Try again later.")
         with database.connect() as db:
             row = db.execute(
                 "SELECT u.id,u.email,u.password_hash,u.email_verified_at,u.disabled_at,m.workspace_id,m.role,m.totp_secret "
@@ -1085,7 +1140,7 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
                 (email,),
             ).fetchone()
         password_hash = row["password_hash"] if row else app.state.dummy_password_hash
-        password_valid = verify_password(form.get("password", ""), password_hash)
+        password_valid = verify_password(password, password_hash)
         valid = bool(row and not row["disabled_at"] and row["email_verified_at"] and password_valid)
         needs_otp = bool(valid and row["role"] in PRIVILEGED_ROLES)
         if needs_otp:
@@ -1100,11 +1155,6 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
             ):
                 valid = False
         if not valid:
-            # Keep a per-account failed-attempt cap, but do not let an
-            # unauthenticated caller lock out someone who has valid
-            # credentials. Valid sign-ins bypass this cap and clear it below.
-            if not database.allow_rate_attempt("login_account", email, 12, 3600):
-                raise HTTPException(429, "Too many sign-in attempts. Try again later.")
             if needs_otp:
                 message = '<p class="form-error" role="alert" aria-atomic="true">Sign-in unavailable. Check your authenticator code and try again.</p>'
                 response = _form_page("Welcome back", "Sign in to continue to your private workspace.", message + login_form(request, require_otp=True), request=request, status=401)
@@ -1171,11 +1221,9 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
                 logger.info("Local password reset message saved to the private staging mailbox")
                 delivered = True
             elif mail_mode == "smtp" and external_send_allowed:
-                try:
-                    await asyncio.to_thread(send_account_link, reset_message[0], "password_reset", reset_message[1])
-                    delivered = True
-                except MailDeliveryError:
-                    logger.warning("Password reset email could not be delivered")
+                delivered = await _send_external_account_link(
+                    reset_message[0], "password_reset", reset_message[1], "password_reset"
+                )
             if delivered:
                 with database.connect() as db:
                     db.execute(

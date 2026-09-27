@@ -366,6 +366,100 @@ def test_smtp_registration_and_resend_use_one_time_links_without_real_delivery(m
     assert not (tmp_path / "mailbox.json").exists()
 
 
+def test_smtp_account_email_budgets_are_shared_per_route_and_reserve_recovery(monkeypatch, tmp_path):
+    for name, value in SMTP_ENV.items():
+        monkeypatch.setenv(name, value)
+    monkeypatch.setenv("CATALYX_MAIL_MODE", "smtp")
+    monkeypatch.setattr(
+        app_module,
+        "AUTH_EMAIL_LIMITS_PER_HOUR",
+        {"registration": 2, "verification_resend": 2, "password_reset": 2},
+    )
+    sent = []
+    monkeypatch.setattr(app_module, "send_account_link", lambda *args: sent.append(args))
+    app = create_app(tmp_path / "app.sqlite3", tmp_path / "mailbox.json")
+
+    first = TestClient(app, client=("198.51.100.10", 8000))
+    registration_page = first.get("/register")
+    password = "a-long-account-password-456"
+    response = first.post(
+        "/register",
+        data={
+            "csrf": re.search(r'name="csrf" value="([^"]+)"', registration_page.text).group(1),
+            "email": "first-cap@example.invalid",
+            "password": password,
+            "password_confirm": password,
+        },
+    )
+    assert response.status_code == 200
+    assert len(sent) == 1
+
+    resend_page = first.get("/resend-verification")
+    response = first.post(
+        "/resend-verification",
+        data={
+            "csrf": re.search(r'name="csrf" value="([^"]+)"', resend_page.text).group(1),
+            "email": "first-cap@example.invalid",
+        },
+    )
+    assert response.status_code == 200
+    assert len(sent) == 2
+
+    distributed = TestClient(app, client=("198.51.100.11", 8000))
+    registration_page = distributed.get("/register")
+    response = distributed.post(
+        "/register",
+        data={
+            "csrf": re.search(r'name="csrf" value="([^"]+)"', registration_page.text).group(1),
+            "email": "second-cap@example.invalid",
+            "password": password,
+            "password_confirm": password,
+        },
+    )
+    assert response.status_code == 200
+    assert len(sent) == 3
+
+    # Signup and resend traffic cannot spend the separately reserved reset
+    # budget. Verify a real account locally without sending a verification link.
+    from catalyx_web.security import hash_password
+
+    reset_email = "reset-cap@example.invalid"
+    reset_user_id, _ = app.state.database.create_customer(reset_email, hash_password(password))
+    with app.state.database.connect() as db:
+        db.execute(
+            "UPDATE users SET email_verified_at=? WHERE id=?",
+            ("2026-09-28T00:00:00+00:00", reset_user_id),
+        )
+    reset_client = TestClient(app, client=("198.51.100.12", 8000))
+    reset_page = reset_client.get("/forgot-password")
+    response = reset_client.post(
+        "/forgot-password",
+        data={
+            "csrf": re.search(r'name="csrf" value="([^"]+)"', reset_page.text).group(1),
+            "email": reset_email,
+        },
+    )
+    assert response.status_code == 200
+    assert len(sent) == 4
+
+    # The registration budget is now exhausted across distinct IPs, but its
+    # failure remains neutral and does not consume another route's allowance.
+    third = TestClient(app, client=("198.51.100.13", 8000))
+    registration_page = third.get("/register")
+    response = third.post(
+        "/register",
+        data={
+            "csrf": re.search(r'name="csrf" value="([^"]+)"', registration_page.text).group(1),
+            "email": "third-cap@example.invalid",
+            "password": password,
+            "password_confirm": password,
+        },
+    )
+    assert response.status_code == 200
+    assert len(sent) == 4
+    assert "If the address can be registered" in response.text
+
+
 def test_existing_recovery_links_survive_replacement_delivery_failure(monkeypatch, tmp_path):
     for name, value in SMTP_ENV.items():
         monkeypatch.setenv(name, value)
