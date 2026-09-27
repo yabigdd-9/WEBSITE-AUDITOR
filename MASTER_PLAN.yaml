@@ -242,7 +242,12 @@ catalyxlabs_rebuild:
       status: "IMPLEMENTED_LOCALLY_OWNER_REVIEW_PENDING"
       actions:
         - "A server-rendered landing page, responsive navigation, sample report and static stylesheet are present. The stylesheet is catalyx_web/static/site.css rather than assets/brand_tokens.css."
-        - "Owner review of UI and assets remains open; browser coverage is local/synthetic."
+        - "Desktop homepage, desktop synthetic sample report and mobile homepage screenshots were rendered from the local staging app for owner review; browser coverage uses synthetic data and local routes."
+        - "Owner review of UI and assets remains open."
+      review_artifacts:
+        - "outputs/catalyx-homepage-desktop.png"
+        - "outputs/catalyx-sample-report-desktop.png"
+        - "outputs/catalyx-homepage-mobile.png"
       gate: "Owner review of UI and assets."
     phase_3:
       name: "Integration"
