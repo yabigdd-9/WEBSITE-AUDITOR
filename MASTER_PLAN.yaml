@@ -215,7 +215,7 @@ catalyxlabs_rebuild:
     intended_worktree_head: "0c8041da4051d6ac341814d62f04be58fc97be63"
     intended_worktree_plan_status: "Untracked user-created MASTER_EXECUTION_PLAN.md; preserve as-is. This worktree is not based on the requested implementation SHA."
     implementation_worktree: "/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild"
-    implementation_worktree_status: "Detached at 0348b3f9c06b62d29d51414ffdee7594cb6ecbf5 with pre-existing uncommitted implementation changes; not promoted or pushed."
+    implementation_worktree_status: "Branch codex/catalyx-rebuild-phase1-5 at ccbc36af64c68109ff65c526184c8a902c5d157d was pushed to origin. Application/tests were committed at ed182a76; a follow-up wheel-verification doc was committed at ccbc36af. The unrelated experiments/cloudflare-workers-probe/ remains untracked and was excluded. No master merge or deployment occurred."
     branch_from_sha: "0348b3f9"
   safety_gates:
     external_send_allowed: false
@@ -399,7 +399,7 @@ latest_execution_checkpoint:
     diff_check: "Passed."
     fixture_manifest: "49 captured pages checked; 23 sanitized; all hashes and source-hash metadata validate."
     feature_branch: "Pushed to origin/codex/canonical-plan-execution; clean and synchronized at the latest checkpoint."
-    catalyx_rebuild_local_verification: "In the separate detached implementation worktree based on 0348b3f9, uv installed the editable package with web, portal, and dev extras from cache using --offline; no .env file or values were used. The worktree's full toolkit suite passed 233 tests with 5 opt-in skips, focused Catalyx web/mailer tests passed 72, its local browser walkthrough passed 1, Ruff passed, and a scoped web-source Gitleaks scan reported 0. These checks cover the existing uncommitted worktree, not a promoted branch."
+    catalyx_rebuild_local_verification: "In the separate implementation worktree based on 0348b3f9, uv installed the editable package with web, portal, and dev extras from cache using --offline; tests ran with an empty process environment and no .env values were loaded or used. The fresh full toolkit suite passed 237 tests with 5 opt-in skips; the opt-in Catalyx customer/admin browser walkthrough passed 1; Ruff passed; uv lock --check --offline passed; uv build --offline produced wheel and sdist (with a setuptools license-table deprecation warning). Wheel inspection confirmed the TOTP key-rotation guard and console entry point are packaged. Redacted Gitleaks scans of catalyx_web, docs/catalyx-platform, and the application staged commit each reported 0 findings. The application/tests/docs are committed and pushed on codex/catalyx-rebuild-phase1-5 at ed182a76, with a follow-up documentation commit at ccbc36af; no master merge or deployment occurred."
     catalyx_pipeline_review: "The local app has its own authorization/audit state machine and imports auditor_toolkit check modules. Source review found no Money Machine FSM integration; Phase 5 remains incomplete. Local worker stays disabled by default."
     transport_safety: "Channel-bound approval, at-most-once attempt reservation, runtime kill switch and receipt reconciliation covered with mocked provider. No real send attempted."
     default_cost_and_send: "Paid routes remain blocked at $0; default transport remains disabled."
