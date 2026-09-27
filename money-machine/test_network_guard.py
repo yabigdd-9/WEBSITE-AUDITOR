@@ -67,6 +67,12 @@ class MultiProbeGuard(unittest.TestCase):
             parsed = guards._parse_probe_hosts()
         self.assertEqual(parsed, [("x.example", 443), ("y.example", 8443)])
 
+    def test_default_probe_uses_independent_public_hosts(self):
+        parsed = guards._parse_probe_hosts()
+        self.assertGreaterEqual(len(parsed), 3)
+        self.assertEqual(len({host for host, _ in parsed}), len(parsed))
+        self.assertTrue(all(port == 443 for _, port in parsed))
+
 
 class GuardCacheAndDedupe(unittest.TestCase):
     def setUp(self):

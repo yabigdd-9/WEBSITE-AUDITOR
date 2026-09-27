@@ -22,7 +22,11 @@ import mm_core as core
 
 PROBE_TTL_SECONDS = int(os.environ.get("MM_NETWORK_PROBE_TTL", "60"))
 LOG_DEDUP_SECONDS = int(os.environ.get("MM_NETWORK_LOG_DEDUP", "3600"))
-DEFAULT_PROBE_HOSTS = "example.com:443"
+DEFAULT_PROBE_HOSTS = (
+    "example.com:443",
+    "cloudflare.com:443",
+    "www.python.org:443",
+)
 
 
 def disk_guard(root=None, min_free_mb=None):
@@ -54,7 +58,7 @@ def _parse_probe_hosts(hosts=None, host=None, port=443):
             raw = [part.strip() for part in env.split(",") if part.strip()]
         else:
             legacy = os.environ.get("MM_NETWORK_PROBE_HOST")
-            raw = ["%s:%s" % (legacy, port)] if legacy else [DEFAULT_PROBE_HOSTS]
+            raw = ["%s:%s" % (legacy, port)] if legacy else list(DEFAULT_PROBE_HOSTS)
     parsed = []
     for entry in raw:
         if isinstance(entry, (tuple, list)):
