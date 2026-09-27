@@ -2,11 +2,12 @@
 
 - **Status date:** 2026-09-28
 - **Implementation base:** `f9e0694582c4cada39a08c91f86a4adaf083feff`
-- **Current repository revision:** `f9e0694582c4cada39a08c91f86a4adaf083feff` on
+- **Current repository revision:** `6d147eba4bb8350849b74086f980d4370bce3b80` on
   `codex/catalyx-rebuild-phase1-5` (checked 2026-09-28)
 - **Original app implementation revision:** `ed182a76daab33622a27665596fc7654342b16ef`
 - **Worktree follow-up:** login rate reservation, its regression test, and threat-model
-  wording are modified but uncommitted; untracked `experiments/` is preserved.
+  correction are committed in `6d147eba`; this readiness document has local
+  edits; untracked `experiments/` is preserved.
 - **Worktree:** `/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild`
 
 ## Built in this local slice
@@ -47,8 +48,10 @@
   for preview and production, then keeps the scan worker disabled. Migrations
   remain an explicit command; configuration validation does not establish
   provider reachability or email deliverability. A synthetic Vercel-preview
-  test covers the configuration gate; no hosted preview or production
-  configuration has been deployed or exercised.
+  test covers the configuration gate. A READY Vercel branch preview now exists
+  for the current commit, but Vercel SSO intercepted unauthenticated route
+  checks; the preview app/runtime and its environment configuration remain
+  unverified. It is not an isolated staging rehearsal or production deployment.
 - Public account registration is now closed by default in hosted environments;
   the registration page, submission route, and public signup calls to action
   stay hidden or unavailable until `CATALYX_REGISTRATION_MODE=open` is set.
@@ -273,9 +276,10 @@ continuity still need owner/legal review. See
    named administrator/reviewer accounts, audience and onboarding decisions.
 6. Complete full role/tenant, SSRF/resource-abuse, accessibility, dependency,
    load, migration, backup/restore, and staging rollback verification.
-7. Refresh provider console, DNS, current release, and rollback evidence. The
-   plan's Vercel assignment details remain historical inventory, not a fresh
-   provider-console check.
+7. Refresh provider console, DNS, current release, and rollback evidence. A
+   read-only Vercel project/deployment inventory and public DNS/HTTP spot check
+   are now recorded below; project settings, billing/environment details,
+   Cloudflare zone settings, and rollback configuration remain unverified.
 
 ## Domain boundary
 
@@ -415,11 +419,12 @@ Codex Security completed an offline Standard review of all 14 files in
 and one low finding. The low finding was the non-atomic account login rate
 check/increment sequence. The working tree now reserves the hashed account
 attempt atomically before credential verification and clears the bucket after
-successful login. The medium findings remain open: distributed login failures
-can trigger the configured one-hour account lockout, and distributed resend/
-reset requests can bypass per-IP limits to cause repeated email/token churn
-when hosted SMTP is enabled. Owner approval is still needed for lockout and
-email-delivery thresholds and recovery behavior. The report marks coverage
+successful login. The account-lockout finding remains open: distributed login
+failures can trigger the configured one-hour account lockout. The email-churn
+finding is mitigated in source by hashed account-level five-per-hour caps for
+verification resend and reset email, in addition to per-IP limits. The
+thresholds and recovery behavior still need owner approval before hosted SMTP
+is enabled. The report marks coverage
 partial because runtime and deployment behavior are unverified; its
 historical deferred-candidate rows are stale after final validation.
 
@@ -433,8 +438,9 @@ customer/admin flow, keyboard focus order, text contrast, narrow viewport
 layout, and simulated 200% text sizing. It is not a screen-reader test or a
 human WCAG 2.2 AA assessment. No soak test was run.
 
-The two medium findings, hosted PostgreSQL behavior, independent worker
-isolation, production provider configuration, privacy/retention/backup/restore,
+The account-lockout finding, approval of provisional auth-email thresholds,
+hosted PostgreSQL behavior, independent worker isolation, production provider
+configuration, privacy/retention/backup/restore,
 manual screen-reader review, legal/support ownership, staging and rollback,
 and fresh Vercel/Cloudflare/domain evidence remain release gates. No production
 or DNS change was made; `.shop` remains outside the cutover scope.
@@ -446,10 +452,10 @@ Read-only requests to `https://catalyxlabs.com/` and
 to the same Cloudflare anycast A records at the check time; both responses
 identified Cloudflare, and the apex response carried a Vercel `syd1` request
 identifier. The rendered homepage is still the Grow OS site, not the Auditor.
-This confirms the current public route only. It does not identify the assigned
-Vercel project, prove current Cloudflare dashboard settings, or verify TLS and
-rollback configuration in either provider console. No configuration was
-changed, and `.shop` was not queried.
+This confirms the current public response only. Provider deployment aliases
+are recorded in the inventory section below; Cloudflare dashboard settings and
+rollback configuration remain unverified. No configuration was changed, and
+`.shop` was not queried by the public HTTP check.
 
 At 05:24 NZDT, the local preview health endpoint returned `200` with
 `environment=staging` and `scan_worker=disabled`; an unauthenticated request
@@ -471,3 +477,59 @@ NZDT: **1 passed** in 11.86 seconds against disposable local data. This refreshe
 the browser-flow evidence for the current worktree; it is not a deployed
 staging, screen-reader, or production accessibility assessment. No soak test
 was run.
+
+## Provider inventory refresh (2026-09-28 NZDT, read-only)
+
+The connected Vercel account lists a `website_auditor` project and a separate
+`catalyx-labs-grow-os` project. The latest inspected READY production
+deployment for Grow OS (`dpl_91P8UftmD6puNa1D779wPvQmJWFb`) carries aliases for
+`catalyxlabs.com`, `www.catalyxlabs.com`, `catalyxlabs.shop`, and
+`www.catalyxlabs.shop`. This matches the public Grow OS homepage and confirms
+the current `.com` and `.shop` aliases remain on the Grow OS deployment.
+The newest observed production-target Grow OS deployment attempt, created
+2026-08-25 from `main`, is `BLOCKED` with a Vercel account-configuration error;
+the older READY deployment still carries the live aliases.
+
+The inspected READY production deployment for `website_auditor`
+(`dpl_FxGvWB8iPMWwzgKfjBT9nFysKHMn`) is based on the older
+`WEBSITE-AUDITOR` `master` commit `9c4d30e3`; its deployment aliases are only
+Vercel hostnames, with no `.com` alias. A newer READY preview deployment
+(`dpl_EthVqWjyS2sHHAGt5UfeaSmEYQC5`) is built from current branch commit
+`6d147eba` and has only Vercel hostnames. The deployment overview labels its
+environment `Preview` and says custom-domain assignment was skipped. These
+deployments do not put the current rebuild on `.com`.
+The inspected READY production deployments report runtime region `iad1`; this
+does not select or prove the region of any future Auditor customer database.
+
+The Vercel dashboard labels the account `Hobby`. Direct unauthenticated HTTP
+requests to the preview's `/` and `/api/health` returned `302` redirects to
+Vercel SSO; browser visits to its deployment and branch hostnames returned
+Vercel `404 NOT_FOUND`. Therefore the READY state proves build/deployment
+creation only, not app-route correctness or runtime health. The preview remains
+unverified without an authorized SSO access path.
+
+Cloudflare read-only inventory found one Worker in one accessible account and
+none in the other; neither account lists a D1 database. The Worker inventory
+does not establish whether that existing Worker is relevant to another
+application. The available connector did not expose DNS-zone settings, and its
+project-detail lookup rejected the documented parameter shape. Therefore
+Vercel project environment details and Cloudflare zone, plan, security, and
+rollback settings remain open. No project, Worker, database,
+environment variable, DNS, deployment, or `.shop` setting was changed.
+
+## Authentication email abuse control (2026-09-28 NZDT)
+
+The independent review's email-churn finding is mitigated in source by
+account-scoped hashed limits on verification-resend and password-reset email
+requests. Each request consumes both the per-client limit and a five-per-hour
+account bucket, so rotating client addresses cannot bypass the account cap.
+Responses remain neutral for unknown and throttled accounts. A regression test
+submits each operation through six distinct client IPs and confirms only five
+messages and one current token are retained per account. The five-per-hour
+values are provisional and require owner approval before hosted SMTP is enabled.
+
+Verification after this change: full `toolkit_tests` completed with **243
+passed, 5 opt-in browser tests skipped, and 2 upstream deprecation warnings**
+in 58.31 seconds. The focused abuse-control regression passed; Ruff and
+`git diff --check` passed. No environment file or SMTP credentials were loaded,
+and no message was sent outside the private local mailbox. No soak test was run.

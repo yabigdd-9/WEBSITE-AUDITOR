@@ -20,7 +20,7 @@
 
 | Boundary and attacker-controlled values | Abuse case | Staging controls | Remaining release gate |
 | --- | --- | --- | --- |
-| Browser to HTML/API: forms, JSON, identifiers, Origin, Host | CSRF, injection, oversized input, account probing, cross-tenant ID guessing | Request body cap; URL/form validation; parameterized SQLite; escaped output; CSP and security headers; same-site HTTP-only sessions; CSRF and optional Origin checks on ordinary mutations; one-time bearer tokens for verification/reset POSTs; neutral responses; tenant ID in customer queries; database-backed rate limits by client address and hashed normalized login address | Owner must approve thresholds and lockout behavior; verification/reset mail still has only per-IP rate limits and needs account-level delivery controls before hosted SMTP is enabled; verify client-IP handling behind selected host; external auth review, fixed public base URL, dependency/security review |
+| Browser to HTML/API: forms, JSON, identifiers, Origin, Host | CSRF, injection, oversized input, account probing, cross-tenant ID guessing | Request body cap; URL/form validation; parameterized SQLite; escaped output; CSP and security headers; same-site HTTP-only sessions; CSRF and optional Origin checks on ordinary mutations; one-time bearer tokens for verification/reset POSTs; neutral responses; tenant ID in customer queries; database-backed rate limits by client address and hashed normalized login address, plus hashed account buckets for verification-resend and password-reset email requests | Owner must approve thresholds and lockout behavior; the five-per-hour account email caps are provisional; verify client-IP handling behind selected host; external auth review, fixed public base URL, dependency/security review |
 | Customer site submission to database | Register an internal/private target or leak paths/query credentials | Standard-port HTTP(S) only; userinfo and scoped IPv6 rejected; alternate numeric IP forms, malformed DNS labels, and non-global/reserved/multicast literals rejected; only normalized origin stored | Domain ownership/authorization proof and abuse operations remain product decisions |
 | Admin browser to review state | Unauthorized approval, report release, customer lockout, or repudiation | Named role; admin sign-in requires TOTP; seeds use versioned AES-GCM encryption bound to workspace and user; role check on each route; CSRF; reasoned decisions; transactional activity record; synthetic SQLite key-rotation command | Production key delivery and coordinated rotation/backup rehearsal; lost-key recovery; admin recovery process, role provisioning lifecycle, alerts and tamper-evident log storage |
 | Approved request to manual worker | DNS rebinding, private redirect, oversized response, crawling beyond scope, or stale worker publishing after reclaim/cancellation | Worker is opt-in manual only; fixed single-page profile; bounded A/AAAA resolution and public-unicast validation at connection time; vetted IP pinned to TCP; bounded method/ports/headers/body/time/request count; redirects rechecked; robots policy; sanitized report; schema v5 claim fencing; cooperative customer cancellation checked between response chunks; no automatic browser path | Separate process/container, independently enforced egress policy, quotas, concurrency control, durable queue and dead-letter operations, restore and abuse rehearsal. Customer web worker remains disabled. |
@@ -52,8 +52,12 @@
   verification; a successful login clears it. The account threshold remains a
   provisional 12 attempts per normalized address per hour, alongside the
   8-per-minute client-address threshold. Distributed failures can still
-  temporarily block a legitimate customer; owner-approved thresholds, live
-  PostgreSQL behavior, and hosted client-IP handling remain unverified.
+  temporarily block a legitimate customer. Verification-resend and reset-email
+  requests also use a hashed account bucket capped at five per hour, in addition
+  to five-per-IP hourly caps. A cross-IP regression verifies that no more than
+  five emails are produced for one account in an hour. The email thresholds
+  remain provisional until owner approval. Live PostgreSQL behavior and hosted
+  client-IP handling remain unverified.
 - **Elevation of privilege:** customer, support, reviewer, admin and owner
   permissions are checked server-side. Role changes are not exposed in the
   customer application; initial admin creation is a local CLI operation.

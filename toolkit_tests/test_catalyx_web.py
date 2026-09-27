@@ -616,6 +616,77 @@ def test_password_reset_is_neutral_one_time_and_revokes_sessions(tmp_path):
     assert new_password.status_code == 303
 
 
+def test_verification_and_reset_email_limits_apply_across_client_ips(tmp_path):
+    db_path = tmp_path / "app.sqlite3"
+    mailbox_path = tmp_path / "mailbox.json"
+    app = create_app(db_path, mailbox_path)
+    initial_client = TestClient(app)
+    verification_email = "verify-limit@example.invalid"
+    register_page = initial_client.get("/register")
+    registered = initial_client.post(
+        "/register",
+        data={
+            "csrf": form_token(register_page),
+            "email": verification_email,
+            "password": "a-long-local-password-123",
+            "password_confirm": "a-long-local-password-123",
+        },
+    )
+    assert registered.status_code == 200
+
+    for index in range(6):
+        client = TestClient(app, client=(f"198.51.100.{index + 1}", 8000))
+        page = client.get("/resend-verification")
+        response = client.post(
+            "/resend-verification",
+            data={"csrf": form_token(page), "email": verification_email},
+        )
+        assert response.status_code == 200
+        assert "If the account needs verification" in response.text
+
+    register_and_login(initial_client, "reset-limit@example.invalid")
+    reset_email = "reset-limit@example.invalid"
+    for index in range(6):
+        client = TestClient(app, client=(f"203.0.113.{index + 1}", 8000))
+        page = client.get("/forgot-password")
+        response = client.post(
+            "/forgot-password",
+            data={"csrf": form_token(page), "email": reset_email},
+        )
+        assert response.status_code == 200
+        assert "If the address can be reset" in response.text
+
+    messages = json.loads(mailbox_path.read_text())
+    assert sum(
+        item["kind"] == "email_verification" and item["email"] == verification_email
+        for item in messages
+    ) == 6  # One registration link plus five resends.
+    assert sum(
+        item["kind"] == "password_reset" and item["email"] == reset_email
+        for item in messages
+    ) == 5
+    with Database(db_path).connect() as db:
+        assert db.execute(
+            "SELECT count(*) FROM verification_tokens WHERE user_id=(SELECT id FROM users WHERE email=?)",
+            (verification_email,),
+        ).fetchone()[0] == 1
+        assert db.execute(
+            "SELECT count(*) FROM password_reset_tokens WHERE user_id=(SELECT id FROM users WHERE email=?)",
+            (reset_email,),
+        ).fetchone()[0] == 1
+        subjects = {
+            row[0]
+            for row in db.execute(
+                "SELECT subject_hash FROM auth_rate_limits WHERE scope IN (?,?)",
+                ("verification_resend_account", "password_reset_request_account"),
+            )
+        }
+    assert hashlib.sha256(verification_email.encode()).hexdigest() in subjects
+    assert hashlib.sha256(reset_email.encode()).hexdigest() in subjects
+    assert verification_email not in " ".join(subjects)
+    assert reset_email not in " ".join(subjects)
+
+
 def test_local_mailbox_prunes_expired_bearer_links_on_startup(tmp_path):
     db_path = tmp_path / "app.sqlite3"
     mailbox_path = tmp_path / "mailbox.json"

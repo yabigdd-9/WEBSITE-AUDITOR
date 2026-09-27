@@ -975,7 +975,11 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
         address = request.client.host if request.client else "unknown"
         email = form.get("email", "").strip().lower()
         resend_message = None
-        if database.allow_rate_attempt("verification_resend", address, 5, 3600):
+        ip_allowed = database.allow_rate_attempt("verification_resend", address, 5, 3600)
+        account_allowed = database.allow_rate_attempt(
+            "verification_resend_account", email, 5, 3600
+        )
+        if ip_allowed and account_allowed:
             with database.connect() as db:
                 row = db.execute(
                     "SELECT id FROM users WHERE email=? AND email_verified_at IS NULL AND disabled_at IS NULL",
@@ -1105,8 +1109,11 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
         address = request.client.host if request.client else "unknown"
         allowed = database.allow_rate_attempt("password_reset_request", address, 5, 3600)
         email = form.get("email", "").strip().lower()
+        account_allowed = database.allow_rate_attempt(
+            "password_reset_request_account", email, 5, 3600
+        )
         reset_message = None
-        if allowed:
+        if allowed and account_allowed:
             with database.connect() as db:
                 row = db.execute("SELECT id FROM users WHERE email=? AND email_verified_at IS NOT NULL AND disabled_at IS NULL", (email,)).fetchone()
                 if row:
