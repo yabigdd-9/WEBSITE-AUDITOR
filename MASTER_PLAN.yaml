@@ -263,9 +263,9 @@ catalyxlabs_rebuild:
         - "Desktop homepage, desktop synthetic sample report and mobile homepage screenshots were rendered from the local staging app for owner review; browser coverage uses synthetic data and local routes."
         - "Owner review of UI and assets remains open."
       review_artifacts:
-        - "outputs/catalyx-homepage-desktop.png"
-        - "outputs/catalyx-sample-report-desktop.png"
-        - "outputs/catalyx-homepage-mobile.png"
+        - "/Users/dd/Documents/Codex/2026-09-27/i-ll-generate-the-master-execution/outputs/catalyx-homepage-desktop.png"
+        - "/Users/dd/Documents/Codex/2026-09-27/i-ll-generate-the-master-execution/outputs/catalyx-sample-report-desktop.png"
+        - "/Users/dd/Documents/Codex/2026-09-27/i-ll-generate-the-master-execution/outputs/catalyx-homepage-mobile.png"
       gate: "Owner review of UI and assets."
     phase_3:
       name: "Integration"
