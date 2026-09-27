@@ -1,4 +1,4 @@
-from auditor_toolkit.decision import priority_decision
+from auditor_toolkit.decision import priority_decision, six_component_opportunity
 
 
 def test_strong_supported_opportunity_builds_demo():
@@ -80,3 +80,10 @@ def test_invalid_input_fails_closed():
         pass
     else:
         raise AssertionError("out-of-range score should fail closed")
+
+
+def test_legacy_six_component_score_is_centralized():
+    result = six_component_opportunity(1, 1, 1, 1, 1, 1)
+    assert result["score"] == 100
+    assert result["is_shortlist"] is True
+    assert result["formula_version"] == "legacy-six-component-v1"
