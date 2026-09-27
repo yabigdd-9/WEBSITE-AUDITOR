@@ -26,7 +26,7 @@ def fresh_db(tmp):
         public_website TEXT, region TEXT, source TEXT, discovered_at TEXT,
         current_status TEXT, is_dummy INTEGER DEFAULT 0);
     """)
-    p.migrate(d)
+    p.migrate(d, c.backup(r=tmp, database_path=path))
     return d
 
 

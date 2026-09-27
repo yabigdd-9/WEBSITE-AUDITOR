@@ -15,6 +15,7 @@ import datetime as dt
 import json
 import re
 
+import mm_core
 from mm_core import now, digest, timestamp
 from mm_pipeline import transition, item, rate_ok, log
 
@@ -61,8 +62,15 @@ SECRET_PATTERNS = [
 ]
 
 
-def migrate(d):
+def migrate(d, backup_path=None):
+    tables = {
+        row[0] for row in d.execute("SELECT name FROM sqlite_master WHERE type='table'")
+    }
+    if {"approval_records", "outreach_send_ledger"} <= tables:
+        return None
+    backup_path = mm_core.backup_for_migration(d, backup_path)
     d.executescript(DDL)
+    return backup_path
 
 
 def contains_secret(text):

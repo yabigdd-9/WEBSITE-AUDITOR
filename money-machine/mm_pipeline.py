@@ -172,13 +172,61 @@ EVENTS_DDL = """CREATE TABLE IF NOT EXISTS pipeline_events(
 """
 
 
-def migrate(d):
+def migrate(d, backup_path=None):
     """Idempotent DDL apply; safe to call on every worker start.
 
     Also repairs schema drift: a legacy pipeline_events shape (business_id,
     stage, event_at, detail) is rebuilt into the current shape with every row
     preserved, because the event trail is append-only history.
     """
+    required_tables = {
+        "pipeline_items": {
+            "business_id", "state", "payload", "attempts", "max_attempts",
+            "next_retry_at", "lease_owner", "lease_until", "heartbeat_at",
+            "last_error", "error_fingerprint", "repeat_count", "component",
+            "origin", "classification", "first_seen", "last_seen", "created_at",
+            "updated_at",
+        },
+        "pipeline_events": {
+            "id", "business_id", "from_state", "to_state", "actor", "reason",
+            "evidence", "event_at",
+        },
+        "worker_registry": {
+            "worker_id", "kind", "hostname", "pid", "started_at", "heartbeat_at",
+            "lease_seconds",
+        },
+        "circuit_breakers": {
+            "service", "state", "consecutive_failures", "opened_at", "cooldown_until",
+            "failure_threshold", "cooldown_seconds",
+        },
+        "rate_buckets": {"bucket", "window_start", "window_seconds", "count", "cap"},
+        "mm_metrics": {"name", "value", "updated_at"},
+    }
+    existing_tables = {
+        row[0] for row in d.execute("SELECT name FROM sqlite_master WHERE type='table'")
+    }
+    schema_change_needed = False
+    for table, required_columns in required_tables.items():
+        if table not in existing_tables:
+            schema_change_needed = True
+            break
+        columns = {row[1] for row in d.execute(f"PRAGMA table_info({table})")}
+        if not required_columns <= columns:
+            schema_change_needed = True
+            break
+    if not schema_change_needed:
+        indexes = {
+            row[0] for row in d.execute("SELECT name FROM sqlite_master WHERE type='index'")
+        }
+        schema_change_needed = not {
+            "idx_pipeline_items_state", "idx_pipeline_events_business"
+        } <= indexes
+    if not schema_change_needed:
+        return None
+
+    import mm_core
+
+    backup_path = mm_core.backup_for_migration(d, backup_path)
     d.executescript(DDL)
 
     # Handle schema drift for pipeline_items - add new error tracking columns if they don't exist
@@ -216,6 +264,7 @@ def migrate(d):
         d.commit()
         log({'kind': 'schema_drift_repaired', 'table': 'pipeline_events',
              'rows_preserved': kept})
+    return backup_path
 
 
 class RetryableError(Exception):

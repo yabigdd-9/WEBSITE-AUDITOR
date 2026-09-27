@@ -181,7 +181,7 @@ def test_outcome_schema_migration_requires_verified_backup(tmp_path, monkeypatch
     (other_root / "database").mkdir()
     other_db = db(other_root / "database" / "money_machine.db")
     other_backup = outcomes.core.backup(other_root)
-    with pytest.raises(ValueError, match="does not contain this outcome database"):
+    with pytest.raises(ValueError, match="does not contain this database"):
         outcomes.migrate(d, other_backup)
     other_db.close()
 

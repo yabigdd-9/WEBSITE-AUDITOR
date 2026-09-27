@@ -41,8 +41,9 @@ def fresh_db(tmp):
         output_tokens INTEGER, cost_usd REAL DEFAULT 0 CHECK(cost_usd=0),
         created_at TEXT, finished_at TEXT, error TEXT);
     """)
-    p.migrate(d)
-    appr.migrate(d)
+    backup = c.backup(r=tmp, database_path=path)
+    p.migrate(d, backup)
+    appr.migrate(d, backup)
     return d
 
 
@@ -348,6 +349,24 @@ class AdvanceSemantics(unittest.TestCase):
         p.advance(self.d, self.bid, 'NEEDS_REVIEW', 'w', 'needs a human')
         self.assertEqual(p.item(self.d, self.bid)['state'], 'NEEDS_REVIEW')
 
+    def test_noncanonical_schema_migration_requires_verified_backup(self):
+        path = Path(self.tmp.name) / 'unmigrated.db'
+        sqlite3.connect(path).close()
+        d = c.connect(path)
+        try:
+            with self.assertRaisesRegex(ValueError, 'verified backup'):
+                p.migrate(d)
+            self.assertIsNone(d.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='pipeline_items'"
+            ).fetchone())
+            backup = c.backup(r=self.tmp.name, database_path=path)
+            self.assertEqual(p.migrate(d, backup), backup)
+            self.assertIsNotNone(d.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='pipeline_items'"
+            ).fetchone())
+        finally:
+            d.close()
+
     def test_legacy_events_table_is_widened_and_rows_preserved(self):
         """Database consistency: schema drift is repaired, history is kept."""
         self.d.execute("DROP TABLE pipeline_events")
@@ -357,7 +376,8 @@ class AdvanceSemantics(unittest.TestCase):
         self.d.execute("INSERT INTO pipeline_events(business_id,stage,event_at,"
                        "detail) VALUES(?,?,?,?)",
                        (self.bid, 'DISCOVERED', c.now(), 'legacy intake row'))
-        p.migrate(self.d)
+        backup = c.backup(r=self.tmp.name, database_path=c.sqlite_database_path(self.d))
+        p.migrate(self.d, backup)
         cols = {r[1] for r in self.d.execute('PRAGMA table_info(pipeline_events)')}
         self.assertTrue({'from_state', 'to_state', 'actor', 'reason'} <= cols)
         row = self.d.execute("SELECT * FROM pipeline_events WHERE business_id=?",

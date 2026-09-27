@@ -60,22 +60,7 @@ def migrate(d, backup_path=None):
     }
     if required_objects <= present_objects:
         return False
-    if backup_path is None:
-        backup_path = core.backup()
-    manifest = Path(backup_path) / "manifest.json"
-    if not manifest.is_file():
-        raise ValueError("Verified backup required before outcome schema migration")
-    doc = json.loads(manifest.read_text())
-    database = Path(d.execute("PRAGMA database_list").fetchone()[2]).resolve()
-    database_backup_found = False
-    for item in doc.get("items", []):
-        path = Path(item.get("path", ""))
-        if not path.is_file() or core.sha(path.read_bytes()) != item.get("sha256"):
-            raise ValueError("Outcome schema backup checksum mismatch")
-        if Path(item.get("source", "")).resolve() == database:
-            database_backup_found = True
-    if not database_backup_found:
-        raise ValueError("Backup manifest does not contain this outcome database")
+    backup_path = core.backup_for_migration(d, backup_path)
     d.executescript(DDL)
     return True
 

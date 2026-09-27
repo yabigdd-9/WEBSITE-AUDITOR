@@ -153,7 +153,7 @@ def ensure_message_columns(d):
             if name not in cols:
                 d.execute(f'ALTER TABLE {table} ADD COLUMN {name} {sql_type}')
 
-def backup(r=None):
+def backup(r=None, database_path=None):
     r=Path(r or root());folder=r/'backups'/('mm-v2-'+dt.datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ')+'-'+uuid.uuid4().hex[:6]);folder.mkdir(parents=True,mode=0o700)
     items=[]
     preserve = (
@@ -172,7 +172,7 @@ def backup(r=None):
         with tarfile.open(p, 'w:gz') as t:
             t.add(source, arcname=str(relative))
         items.append({'source':str(source),'path':str(p),'sha256':sha(p.read_bytes())})
-    src=r/'database/money_machine.db';dest=folder/'money_machine.db'
+    src=Path(database_path or (r/'database/money_machine.db')).resolve();dest=folder/'money_machine.db'
     # A read-only open of a WAL-mode database can fail transiently under
     # concurrent access ("unable to open database file"). Retry with bounded
     # backoff, and fall back to an rw open purely so WAL recovery can run; the
@@ -190,6 +190,49 @@ def backup(r=None):
     items.append({'source':str(src),'path':str(dest),'sha256':sha(dest.read_bytes())})
     (folder/'manifest.json').write_text(json.dumps({'created_at':now(),'items':items},indent=2))
     return folder
+
+def sqlite_database_path(d):
+    row=d.execute("PRAGMA database_list").fetchone()
+    if row is None or not row[2]:
+        raise ValueError("A file-backed SQLite database is required for migration")
+    return Path(row[2]).resolve()
+
+def verify_backup(backup_path, database_path):
+    backup_root=Path(backup_path).resolve()
+    manifest=backup_root/'manifest.json'
+    if not manifest.is_file():
+        raise ValueError('Verified backup required before migration')
+    doc=json.loads(manifest.read_text())
+    expected=Path(database_path).resolve()
+    found=False
+    for item in doc.get('items',[]):
+        path=Path(item.get('path','')).resolve()
+        if not path.is_relative_to(backup_root):
+            raise ValueError('Backup artifact escapes backup directory')
+        if not path.is_file() or sha(path.read_bytes())!=item.get('sha256'):
+            raise ValueError('Backup checksum mismatch')
+        if Path(item.get('source','')).resolve()==expected:
+            try:
+                with sqlite3.connect(path.as_uri()+'?mode=ro',uri=True) as snapshot:
+                    integrity=snapshot.execute('PRAGMA integrity_check').fetchone()[0]
+            except sqlite3.DatabaseError as exc:
+                raise ValueError('Database backup is not readable SQLite') from exc
+            if integrity!='ok':
+                raise ValueError('Database backup failed integrity check')
+            found=True
+    if not found:
+        raise ValueError('Backup manifest does not contain this database')
+    return Path(backup_path)
+
+def backup_for_migration(d, backup_path=None):
+    database=sqlite_database_path(d)
+    if backup_path is not None:
+        return verify_backup(backup_path,database)
+    canonical=(root()/'database'/'money_machine.db').resolve()
+    if database!=canonical:
+        raise ValueError('Pass a verified backup for noncanonical SQLite databases')
+    path=backup()
+    return verify_backup(path,database)
 
 SCHEMA = '''
 CREATE TABLE IF NOT EXISTS industries(id INTEGER PRIMARY KEY,name TEXT NOT NULL UNIQUE,region TEXT,market_notes TEXT,pain_score REAL DEFAULT 0,ability_to_pay_score REAL DEFAULT 0,recurring_revenue_score REAL DEFAULT 0,total_score REAL DEFAULT 0,evidence TEXT,last_reviewed TEXT,frontend_weakness_score REAL DEFAULT 0,backend_pain_score REAL DEFAULT 0,competition_score REAL DEFAULT 0,build_ease_score REAL DEFAULT 0);

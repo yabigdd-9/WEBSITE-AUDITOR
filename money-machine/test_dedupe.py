@@ -27,7 +27,7 @@ def fresh_db(tmp):
     CREATE TABLE IF NOT EXISTS mm_deals(business_id INTEGER, stage TEXT,
         updated_at TEXT);
     """)
-    p.migrate(d)
+    p.migrate(d, c.backup(r=tmp, database_path=path))
     c.ensure_business_columns(d)
     d.commit()
     return d

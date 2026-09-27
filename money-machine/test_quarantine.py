@@ -26,7 +26,7 @@ def fresh_db(tmp):
     CREATE TABLE IF NOT EXISTS mm_events(event_at TEXT, action TEXT,
         business_id INTEGER, detail TEXT);
     """)
-    p.migrate(d)
+    p.migrate(d, c.backup(r=tmp, database_path=path))
     c.ensure_business_columns(d)
     d.commit()
     return d

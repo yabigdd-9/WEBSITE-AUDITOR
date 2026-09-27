@@ -18,8 +18,9 @@ discovery = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(discovery)
 
 
-def db():
-    d = sqlite3.connect(":memory:")
+def db(tmp_path):
+    path = tmp_path / "discovery.db"
+    d = sqlite3.connect(path)
     d.row_factory = sqlite3.Row
     d.executescript(
         """
@@ -48,7 +49,8 @@ def db():
           detail TEXT);
         """
     )
-    discovery.mm_pipeline.migrate(d)
+    backup = discovery.core.backup(r=tmp_path, database_path=path)
+    discovery.mm_pipeline.migrate(d, backup)
     return d
 
 
@@ -80,8 +82,8 @@ def test_candidate_rejects_private_or_non_http_urls(url):
         discovery.root_url(url)
 
 
-def test_ingest_enqueues_only_discovered_and_dedupes():
-    d = db()
+def test_ingest_enqueues_only_discovered_and_dedupes(tmp_path):
+    d = db(tmp_path)
     first = discovery.ingest(
         d,
         [
@@ -106,8 +108,8 @@ def test_ingest_enqueues_only_discovered_and_dedupes():
     assert second["counts"]["duplicates"] == 1
 
 
-def test_dry_run_does_not_write():
-    d = db()
+def test_dry_run_does_not_write(tmp_path):
+    d = db(tmp_path)
     result = discovery.ingest(
         d,
         [{"name": "Alpha", "website": "alpha.example", "region": "Canterbury"}],
@@ -118,8 +120,8 @@ def test_dry_run_does_not_write():
     assert d.execute("SELECT count(*) FROM businesses").fetchone()[0] == 0
 
 
-def test_ingest_adds_legacy_business_metadata_columns_idempotently():
-    d = db()
+def test_ingest_adds_legacy_business_metadata_columns_idempotently(tmp_path):
+    d = db(tmp_path)
     columns = discovery.core.ensure_business_columns(d)
     assert {"suppression_reason", "canonical_host", "normalized_name"} <= columns
     assert discovery.core.ensure_business_columns(d) == columns
@@ -191,8 +193,8 @@ def test_nzbn_and_osm_exports_preserve_source_provenance(tmp_path):
     assert rows[0]["provenance"]["record_id"] == "123"
 
 
-def test_discovery_event_and_queue_payload_retain_provenance():
-    d = db()
+def test_discovery_event_and_queue_payload_retain_provenance(tmp_path):
+    d = db(tmp_path)
     result = discovery.ingest(
         d,
         [
