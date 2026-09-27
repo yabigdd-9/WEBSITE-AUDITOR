@@ -56,6 +56,25 @@ def test_lighthouse_scores_create_evidence_backed_findings(executable):
             "best-practices": {"score": 0.75},
             "seo": {"score": 0.99},
         },
+        "audits": {
+            "largest-contentful-paint": {
+                "numericValue": 3100,
+                "numericUnit": "millisecond",
+                "displayValue": "3.1 s",
+                "score": 0.2,
+            },
+            "cumulative-layout-shift": {
+                "numericValue": 0.14,
+                "displayValue": "0.14",
+                "score": 0.6,
+            },
+            "total-blocking-time": {
+                "numericValue": 420,
+                "numericUnit": "millisecond",
+                "displayValue": "420 ms",
+                "score": 0.4,
+            },
+        },
     }
     result = SimpleNamespace(returncode=0, stdout=json.dumps(payload), stderr="")
     with patch("auditor_toolkit.external_tools.shutil.which", return_value=executable), patch(
@@ -66,6 +85,15 @@ def test_lighthouse_scores_create_evidence_backed_findings(executable):
     assert keys == {"lighthouse-performance-low", "lighthouse-best-practices-low"}
     assert evidence["categories"]["performance"] == 42.0
     assert evidence["categories"]["accessibility"] == 91.0
+    assert evidence["lab_metrics"]["largest-contentful-paint"] == {
+        "value": 3100.0,
+        "unit": "millisecond",
+        "display_value": "3.1 s",
+        "score": 0.2,
+    }
+    assert evidence["lab_metrics"]["cumulative-layout-shift"]["value"] == 0.14
+    assert evidence["lab_metrics"]["total-blocking-time"]["value"] == 420.0
+    assert "not Interaction to Next Paint" in evidence["limitation"]
 
 
 def test_external_tools_missing_fails_closed_when_requested():

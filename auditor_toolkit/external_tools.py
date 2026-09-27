@@ -165,11 +165,40 @@ def run_lighthouse(url: str, timeout: float = 180.0):
                     effort_band="M",
                 )
             )
+    # Keep the raw lab measurements alongside category scores. Lighthouse does
+    # not provide field Core Web Vitals; in particular, TBT is only a lab
+    # responsiveness diagnostic and must not be presented as INP.
+    audits = report.get("audits") or {}
+    metric_ids = (
+        "largest-contentful-paint",
+        "cumulative-layout-shift",
+        "total-blocking-time",
+    )
+    metrics = {}
+    for audit_id in metric_ids:
+        audit = audits.get(audit_id)
+        if not isinstance(audit, dict) or audit.get("numericValue") is None:
+            continue
+        try:
+            numeric_value = float(audit["numericValue"])
+        except (TypeError, ValueError):
+            continue
+        metrics[audit_id] = {
+            "value": numeric_value,
+            "unit": str(audit.get("numericUnit") or "unitless"),
+            "display_value": str(audit.get("displayValue") or "")[:160],
+            "score": audit.get("score"),
+        }
+
     evidence = {
         "tool": "lighthouse",
         "version": report.get("lighthouseVersion"),
         "fetch_time": report.get("fetchTime"),
         "categories": scores,
-        "limitation": "Laboratory scores vary by machine/run and are not field Core Web Vitals.",
+        "lab_metrics": metrics,
+        "limitation": (
+            "Laboratory measurements vary by machine/run and are not field Core Web Vitals. "
+            "Total Blocking Time is a lab diagnostic, not Interaction to Next Paint."
+        ),
     }
     return findings, evidence
