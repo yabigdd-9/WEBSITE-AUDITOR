@@ -2,7 +2,9 @@
 from auditor_toolkit.flows import (
     ACTION_POLICY,
     FLOW_STATES,
+    _request_policy_reason,
     flow_findings,
+    run_flow_probe,
 )
 
 
@@ -112,3 +114,31 @@ def test_fsm_state_order_documented():
     assert FLOW_STATES[0] == "LANDING"
     assert FLOW_STATES[-1] == "SUCCESS_OR_CONFIRMATION_STATE"
     assert "SUBMISSION_SAFE_TEST_AVAILABLE" in FLOW_STATES
+
+
+
+def test_disabled_probe_is_typed_skip(tmp_path):
+    result = run_flow_probe("https://example.test", tmp_path, enabled=False)
+    assert result == {
+        "status": "skipped",
+        "reason": "Disabled in selected audit profile",
+        "evidence": {},
+    }
+
+
+def test_request_policy_blocks_writes_and_cross_origin():
+    audited = "https://example.co.nz/contact"
+    assert _request_policy_reason(audited, "https://example.co.nz/form", "GET") is None
+    assert "write" in _request_policy_reason(audited, "https://example.co.nz/form", "POST")
+    assert "cross-origin" in _request_policy_reason(
+        audited, "https://cdn.example.net/widget.js", "GET"
+    )
+
+
+def test_request_policy_normalizes_default_ports():
+    assert _request_policy_reason(
+        "https://example.co.nz", "https://example.co.nz:443/contact", "GET"
+    ) is None
+    assert _request_policy_reason(
+        "http://example.co.nz", "http://example.co.nz:80/contact", "HEAD"
+    ) is None
