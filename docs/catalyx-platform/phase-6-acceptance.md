@@ -68,3 +68,7 @@ load the smaller bundle. No soak test was run.
 The proposed Phase 6 scope remains pending owner ratification; phases 7–9
 remain gated by provider, privacy/legal, hosting, and release decisions. No
 soak test was run in this check.
+
+### `/terms` post-change performance follow-up
+
+The `/terms` mobile lab run with the compact bundle scored performance **94**, accessibility **100**, best practices **100**, and SEO **100**; LCP was 0.8 s, CLS 0, and TBT 290 ms. The CSS resource was 4,958 bytes with 160 ms estimated render-blocking savings and no unused CSS. This is lower than the earlier `/terms` baseline and remains an unresolved lab regression; it is not attributed to run variance. A serial rerun could not be completed because Lighthouse could not locate Chrome in this environment. The available run is preserved at `/Users/dd/Documents/Codex/2026-09-27/i-ll-generate-the-master-execution/outputs/catalyx-phase6-lighthouse-terms-compact-css.json` (SHA-256 `3eaae80252c4a07fd501cf181b077241c11e83188ed7ea681168348e1da588c9`). Re-run this route with the pinned Chrome for Testing runtime before closing the performance follow-up.
