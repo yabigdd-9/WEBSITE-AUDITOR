@@ -105,6 +105,15 @@ class Acceptance(unittest.TestCase):
             # A retired entrypoint is safe when it is absent; if a compatibility
             # stub remains, it must explicitly fail closed.
             if p.exists():self.assertIn('BLOCKED',run.stderr+run.stdout)
+        mm_root=Path(__file__).resolve().parent
+        retired_paths=('seed_data.py','fix_contacts.py','mark_sent.py','PROMPTS/dispatch_judges.py')
+        for relative in retired_paths:
+            self.assertFalse((mm_root/relative).exists(),f'retired entrypoint still active: {relative}')
+        archive=mm_root/'archive/retired-scripts'
+        for name in ('seed_data.py','fix_contacts.py','mark_sent.py','dispatch_judges.py'):
+            archived=archive/name
+            self.assertTrue(archived.is_file(),f'missing archived script: {name}')
+            self.assertIn('BLOCKED',archived.read_text())
         self.demo.write_text('')
         with self.assertRaises(ValueError):o.demo_qa(self.d,self.bid,self.demo)
     def test_13_migration_requires_verified_restorable_backup(self):
