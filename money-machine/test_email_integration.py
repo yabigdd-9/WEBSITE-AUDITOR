@@ -89,7 +89,7 @@ class EmailIntegration(unittest.TestCase):
                          "BLOCKED_FIXTURE: migrations/003_email_finder_v2_rollback.sql not present in this environment")
     def test_safe_rollback_switch_retains_history_and_holds_approval(self):
         counts={t:self.d.execute('SELECT count(*) FROM '+t).fetchone()[0] for t in ('email_candidates','email_evidence','email_verifications')}
-        self.d.executescript((ROOT/'migrations/003_email_finder_v2_rollback.sql').read_text())
+        self.d.executescript((ROOT/'003_email_finder_v2_rollback.sql').read_text())
         with self.assertRaises(ValueError):s.require_email(self.d,self.bid,self.address)
         with self.assertRaises(ValueError):self.approve()
         self.assertEqual(counts,{t:self.d.execute('SELECT count(*) FROM '+t).fetchone()[0] for t in counts})

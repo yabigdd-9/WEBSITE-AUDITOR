@@ -6,10 +6,12 @@ import sqlite3
 import unittest
 from unittest.mock import patch
 import test_acceptance as legacy
-from test_email_finder import page, good_dns, ROOT
+from test_email_finder import page, good_dns
 import mm_email as e
 import mm_email_store as store
 import mm_email_cli as cli
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def frozen_case(cid):
@@ -20,8 +22,7 @@ def frozen_case(cid):
     at=dt.datetime.fromisoformat(doc['result']['results'][0]['checked_at'])
     return doc,e.evaluate(doc['case']['business'],pages,doc['dns'],at=at)
 
-# Frozen real-observation cases are a host-only evidence corpus. When absent
-# (sandbox checkout), skip explicitly instead of erroring — Master Plan P4.
+# Frozen, tracked real-observation cases are read-only evidence fixtures.
 from mm_test_capabilities import HAS_EMAIL_CASE_FIXTURES
 _CASES_ABSENT=("BLOCKED_FIXTURE: reports/email-observation-evidence/cases corpus "
                "not present in this environment")

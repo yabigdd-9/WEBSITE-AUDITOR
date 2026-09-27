@@ -61,8 +61,8 @@ HAS_SOCKET = _probe_socket()
 HAS_DNS = _probe_dns()
 HAS_PLAYWRIGHT = _probe_playwright()
 HAS_CONTROL_PLANE = (MM_DIR / "config" / "routing.yaml").is_file()
-HAS_EMAIL_CASE_FIXTURES = (MM_DIR / "reports" / "email-observation-evidence" / "cases").is_dir()
-HAS_EMAIL_MIGRATION_SQL = (MM_DIR / "migrations" / "003_email_finder_v2_rollback.sql").is_file()
+HAS_EMAIL_CASE_FIXTURES = (REPO / "reports" / "email-observation-evidence" / "cases").is_dir()
+HAS_EMAIL_MIGRATION_SQL = (MM_DIR / "003_email_finder_v2_rollback.sql").is_file()
 HAS_HERMES_SOURCE_DB = Path(
     "/Users/dd/agent-trials/hermes/database/money_machine.db").is_file()
 
