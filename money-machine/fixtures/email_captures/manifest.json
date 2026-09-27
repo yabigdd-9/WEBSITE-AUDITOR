@@ -32,10 +32,12 @@
         "redirects": [],
         "content_type": "text/html; charset=UTF-8",
         "captured_at": "2026-09-08T02:47:17.463870+00:00",
-        "sha256": "dfed0cb62704904a3c978bf2acbd20fe646da84e001fe0cbe810c9d4d68a3796",
+        "sha256": "a86744ca536aa2bee6697efc3f3810c7c08c98ff54f555fff1eea3a51d750085",
         "requested_url": "https://blizzard.co.nz/contact-us/",
         "path": "tests/fixtures/email_captures/2-1.html",
-        "title": "Contact Blizzard HVAC & Electrical Wellington"
+        "title": "Contact Blizzard HVAC & Electrical Wellington",
+        "source_sha256": "dfed0cb62704904a3c978bf2acbd20fe646da84e001fe0cbe810c9d4d68a3796",
+        "fixture_sanitized": true
       },
       {
         "url": "https://blizzard.co.nz/about-us/",
@@ -63,30 +65,36 @@
         "redirects": [],
         "content_type": "text/html; charset=utf-8",
         "captured_at": "2026-09-08T02:47:20.011204+00:00",
-        "sha256": "e8c894eda737475849f34f3bcdba61546ae5f7560b00345bc91e5d803e25ec0e",
+        "sha256": "263913680c00b3cbe33fc3016abe93b113eaa97c172d262cf93d630ef275945a",
         "requested_url": "https://trident.nz/heat-pumps",
         "path": "tests/fixtures/email_captures/3-0.html",
-        "title": "Heat Pumps Auckland | Trident Electrical & Air Conditioning"
+        "title": "Heat Pumps Auckland | Trident Electrical & Air Conditioning",
+        "source_sha256": "e8c894eda737475849f34f3bcdba61546ae5f7560b00345bc91e5d803e25ec0e",
+        "fixture_sanitized": true
       },
       {
         "url": "https://trident.nz/contact",
         "redirects": [],
         "content_type": "text/html; charset=utf-8",
         "captured_at": "2026-09-08T02:47:20.806501+00:00",
-        "sha256": "2f3dae4839ace222078594093f8e4d6e1f5aad1f085fa267117e88b2d8aac856",
+        "sha256": "57d2f1eab1e976e947d70d0db9c4a2e0a2b44a01e5dce6315f44cce7774732d8",
         "requested_url": "https://trident.nz/contact",
         "path": "tests/fixtures/email_captures/3-1.html",
-        "title": "Contact Trident Electrical & Air Conditioning | Auckland"
+        "title": "Contact Trident Electrical & Air Conditioning | Auckland",
+        "source_sha256": "2f3dae4839ace222078594093f8e4d6e1f5aad1f085fa267117e88b2d8aac856",
+        "fixture_sanitized": true
       },
       {
         "url": "https://trident.nz/about",
         "redirects": [],
         "content_type": "text/html; charset=utf-8",
         "captured_at": "2026-09-08T02:47:21.577371+00:00",
-        "sha256": "c0cb1de19e049595da56e918eceaaa49b413c182a59c49603bbe92ade71cbc3e",
+        "sha256": "5a6423e1e035adaf4b82ac46b7821ffa4bd3376dbbf484f423fec51eee56738b",
         "requested_url": "https://trident.nz/about",
         "path": "tests/fixtures/email_captures/3-2.html",
-        "title": "About Us | Trident Electrical & Air Conditioning"
+        "title": "About Us | Trident Electrical & Air Conditioning",
+        "source_sha256": "c0cb1de19e049595da56e918eceaaa49b413c182a59c49603bbe92ade71cbc3e",
+        "fixture_sanitized": true
       }
     ],
     "errors": []
@@ -280,20 +288,24 @@
         "redirects": [],
         "content_type": "text/html; charset=utf-8",
         "captured_at": "2026-09-08T02:47:55.307462+00:00",
-        "sha256": "4cb092768ccd42e980ffe92edd03c6448ae1da00b1830142450da5e614ae4652",
+        "sha256": "e68c7e97cb0013aaa4187677067bdbaf65e0590e90ea325c490f5323ae08b7d3",
         "requested_url": "https://www.simpsoncc.co.nz/",
         "path": "tests/fixtures/email_captures/8-0.html",
-        "title": "Heat Pumps Auckland | Supply & Install | Simpson CC"
+        "title": "Heat Pumps Auckland | Supply & Install | Simpson CC",
+        "source_sha256": "4cb092768ccd42e980ffe92edd03c6448ae1da00b1830142450da5e614ae4652",
+        "fixture_sanitized": true
       },
       {
         "url": "https://www.simpsoncc.co.nz/about",
         "redirects": [],
         "content_type": "text/html; charset=utf-8",
         "captured_at": "2026-09-08T02:47:56.142704+00:00",
-        "sha256": "6a4e622f4d29bc38dc89358f164821c08f56b96f16f2f9d64b54f2cc9311ca4a",
+        "sha256": "f7a7d5b2211be95eaacf004a408bfb6cb8fc8abe86ac0604d8969f0a6443b6b7",
         "requested_url": "https://www.simpsoncc.co.nz/about",
         "path": "tests/fixtures/email_captures/8-1.html",
-        "title": "About Simpson Climate Control | Auckland Heat Pumps"
+        "title": "About Simpson Climate Control | Auckland Heat Pumps",
+        "source_sha256": "6a4e622f4d29bc38dc89358f164821c08f56b96f16f2f9d64b54f2cc9311ca4a",
+        "fixture_sanitized": true
       }
     ],
     "errors": []
@@ -311,30 +323,36 @@
         "redirects": [],
         "content_type": "text/html; charset=UTF-8",
         "captured_at": "2026-09-08T02:47:57.957580+00:00",
-        "sha256": "483ba8816ebf7808ffc0398f4032f30a0ef4766fbe34bca4be92f764ed863a92",
+        "sha256": "06d58e0dfa99016671f2d0055b0a8eb4aa39a07473587f4a38368cf72a07be40",
         "requested_url": "https://kiwiheatpumps.co.nz/",
         "path": "tests/fixtures/email_captures/9-0.html",
-        "title": "Kiwi Heat Pumps | Air Conditioning Installers And Servicing"
+        "title": "Kiwi Heat Pumps | Air Conditioning Installers And Servicing",
+        "source_sha256": "483ba8816ebf7808ffc0398f4032f30a0ef4766fbe34bca4be92f764ed863a92",
+        "fixture_sanitized": true
       },
       {
         "url": "https://kiwiheatpumps.co.nz/contact_us/",
         "redirects": [],
         "content_type": "text/html; charset=UTF-8",
         "captured_at": "2026-09-08T02:47:59.052952+00:00",
-        "sha256": "b1842000fe59e3a9e22c8cf0a5844fcaf131318fd99502377f1840cfa34609fb",
+        "sha256": "9449a1caf2d9ad8066b786393491aa6d0d8e1419773334d001e1649b71ae6de4",
         "requested_url": "https://kiwiheatpumps.co.nz/contact_us/",
         "path": "tests/fixtures/email_captures/9-1.html",
-        "title": "Contact Us | Kiwi Heat Pumps"
+        "title": "Contact Us | Kiwi Heat Pumps",
+        "source_sha256": "b1842000fe59e3a9e22c8cf0a5844fcaf131318fd99502377f1840cfa34609fb",
+        "fixture_sanitized": true
       },
       {
         "url": "https://kiwiheatpumps.co.nz/about-us-ezp-22/",
         "redirects": [],
         "content_type": "text/html; charset=UTF-8",
         "captured_at": "2026-09-08T02:48:00.501821+00:00",
-        "sha256": "7963b6387fb5a68cebc4dea9e8e7f3d1d036d6786aea67d5653b9db16474fd0e",
+        "sha256": "26aed147dec4cec0ea065aca2180c2376bda78a0f8a735d1ece027b66866ace9",
         "requested_url": "https://kiwiheatpumps.co.nz/about-us-ezp-22/",
         "path": "tests/fixtures/email_captures/9-2.html",
-        "title": "About Us | Kiwi Heat Pumps"
+        "title": "About Us | Kiwi Heat Pumps",
+        "source_sha256": "7963b6387fb5a68cebc4dea9e8e7f3d1d036d6786aea67d5653b9db16474fd0e",
+        "fixture_sanitized": true
       }
     ],
     "errors": []
@@ -393,30 +411,36 @@
         "redirects": [],
         "content_type": "text/html; charset=UTF-8",
         "captured_at": "2026-09-08T02:48:12.843386+00:00",
-        "sha256": "270556e81d9c94753f4684639b6a35fc27e1257112613f9305df5a3facfd8721",
+        "sha256": "52b8556e23c90aba1968ea577d85d1fd502bb69b72d78d4d1cd453fc259978f7",
         "requested_url": "https://newzealandheatpumps.co.nz/",
         "path": "tests/fixtures/email_captures/11-0.html",
-        "title": "Affordable Heat Pump Prices | New Zealand Heat Pumps"
+        "title": "Affordable Heat Pump Prices | New Zealand Heat Pumps",
+        "source_sha256": "270556e81d9c94753f4684639b6a35fc27e1257112613f9305df5a3facfd8721",
+        "fixture_sanitized": true
       },
       {
         "url": "https://newzealandheatpumps.co.nz/contact/",
         "redirects": [],
         "content_type": "text/html; charset=UTF-8",
         "captured_at": "2026-09-08T02:48:20.374589+00:00",
-        "sha256": "9ebe77912cf36f6c933b6d3d3eb03f3ca972976d773cfb2b2162ee6ef8f3be9f",
+        "sha256": "2413d2bbdc277181f7020ea5c3407354724ac6a30b33354b0358e4827f0db8e1",
         "requested_url": "https://newzealandheatpumps.co.nz/contact/",
         "path": "tests/fixtures/email_captures/11-1.html",
-        "title": "Contact New Zealand Heat Pumps - New Zealand Heat Pumps"
+        "title": "Contact New Zealand Heat Pumps - New Zealand Heat Pumps",
+        "source_sha256": "9ebe77912cf36f6c933b6d3d3eb03f3ca972976d773cfb2b2162ee6ef8f3be9f",
+        "fixture_sanitized": true
       },
       {
         "url": "https://newzealandheatpumps.co.nz/about-us/",
         "redirects": [],
         "content_type": "text/html; charset=UTF-8",
         "captured_at": "2026-09-08T02:48:20.980709+00:00",
-        "sha256": "d193f68fb60b17d60c4f7f1318b0b2d576e37f83aefa0c5a17861c3a4e294733",
+        "sha256": "8c5ae95d23534fe4371f2d79d07e2cfec6173c7f265cdd0f693c5f41c2d12f2c",
         "requested_url": "https://newzealandheatpumps.co.nz/about-us/",
         "path": "tests/fixtures/email_captures/11-2.html",
-        "title": "About New Zealand Heat Pumps | New Zealand Heat Pumps"
+        "title": "About New Zealand Heat Pumps | New Zealand Heat Pumps",
+        "source_sha256": "d193f68fb60b17d60c4f7f1318b0b2d576e37f83aefa0c5a17861c3a4e294733",
+        "fixture_sanitized": true
       }
     ],
     "errors": []
@@ -434,30 +458,36 @@
         "redirects": [],
         "content_type": "text/html; charset=UTF-8",
         "captured_at": "2026-09-08T02:48:21.940406+00:00",
-        "sha256": "d3ebcd8bebfed790840f4492922e2f537e111cf6c8f9f077b5d6d1171cfe06fa",
+        "sha256": "9d111051762868d34c5e05490cf45bfd2c58944900c00c6a804ac2eb6e4841d0",
         "requested_url": "https://superiorrenovations.co.nz/",
         "path": "tests/fixtures/email_captures/12-0.html",
-        "title": "Superior Renovations: Auckland House Renovations & Kitchens"
+        "title": "Superior Renovations: Auckland House Renovations & Kitchens",
+        "source_sha256": "d3ebcd8bebfed790840f4492922e2f537e111cf6c8f9f077b5d6d1171cfe06fa",
+        "fixture_sanitized": true
       },
       {
         "url": "https://superiorrenovations.co.nz/contact-us/",
         "redirects": [],
         "content_type": "text/html; charset=UTF-8",
         "captured_at": "2026-09-08T02:48:22.613798+00:00",
-        "sha256": "4f2060896f7d931951701d0761bec8dc0064d205571541842d6953a87b6bd02f",
+        "sha256": "c68d3810081860d9f0a6c36cf267c9a1d8010110a7db81d1bc718c6862531424",
         "requested_url": "https://superiorrenovations.co.nz/contact-us/",
         "path": "tests/fixtures/email_captures/12-1.html",
-        "title": "Contact us - Superior Renovations"
+        "title": "Contact us - Superior Renovations",
+        "source_sha256": "4f2060896f7d931951701d0761bec8dc0064d205571541842d6953a87b6bd02f",
+        "fixture_sanitized": true
       },
       {
         "url": "https://superiorrenovations.co.nz/about-us/",
         "redirects": [],
         "content_type": "text/html; charset=UTF-8",
         "captured_at": "2026-09-08T02:48:23.221749+00:00",
-        "sha256": "ae20cea2ce47294135fe01d0825183ecaab1a783da3c65c455d44b3589e03fd7",
+        "sha256": "0928bf2f428fa8ef4e201801255b8438a87934ca8cc927738cdb2c5d6e568390",
         "requested_url": "https://superiorrenovations.co.nz/about-us/",
         "path": "tests/fixtures/email_captures/12-2.html",
-        "title": "Our Story: Auckland Home Renovation Experts"
+        "title": "Our Story: Auckland Home Renovation Experts",
+        "source_sha256": "ae20cea2ce47294135fe01d0825183ecaab1a783da3c65c455d44b3589e03fd7",
+        "fixture_sanitized": true
       }
     ],
     "errors": []
@@ -475,30 +505,36 @@
         "redirects": [],
         "content_type": "text/html;charset=utf-8",
         "captured_at": "2026-09-08T02:48:26.823986+00:00",
-        "sha256": "4fac23628d76b6ab36a58603944b4be4b6a821c2a0a74f79fb351b008910e09a",
+        "sha256": "da96ea0ece7b7963177f9a30f898cc098c103e6e6072b2a20ede14fb3efe6160",
         "requested_url": "https://www.chchrenovations.nz/",
         "path": "tests/fixtures/email_captures/13-0.html",
-        "title": "Christchurch Renovations - Kitchen, Bathroom, and Home Renovations"
+        "title": "Christchurch Renovations - Kitchen, Bathroom, and Home Renovations",
+        "source_sha256": "4fac23628d76b6ab36a58603944b4be4b6a821c2a0a74f79fb351b008910e09a",
+        "fixture_sanitized": true
       },
       {
         "url": "https://www.chchrenovations.nz/contact",
         "redirects": [],
         "content_type": "text/html;charset=utf-8",
         "captured_at": "2026-09-08T02:48:29.380318+00:00",
-        "sha256": "a190dcd83a12f6084fa368dcbec04ce718b6cd19e5daff6d08e6d67da03ef213",
+        "sha256": "45c55669a7428cda08fe5b47320c7a421b5366c560467bac1beb3211e109e5b6",
         "requested_url": "https://www.chchrenovations.nz/contact",
         "path": "tests/fixtures/email_captures/13-1.html",
-        "title": "Contact Christchurch Renovations | Get Your Renovation Quote Today \u2014 Christchurch Renovations"
+        "title": "Contact Christchurch Renovations | Get Your Renovation Quote Today — Christchurch Renovations",
+        "source_sha256": "a190dcd83a12f6084fa368dcbec04ce718b6cd19e5daff6d08e6d67da03ef213",
+        "fixture_sanitized": true
       },
       {
         "url": "https://www.chchrenovations.nz/about",
         "redirects": [],
         "content_type": "text/html;charset=utf-8",
         "captured_at": "2026-09-08T02:48:31.783828+00:00",
-        "sha256": "2431894a51954d22f0453a638341286db72a6d5dffc5d5cc7da94a65fca6bb91",
+        "sha256": "68e7df113b872f31048a68297213c8d041987bd0f2906106a08c436599af4b79",
         "requested_url": "https://www.chchrenovations.nz/about",
         "path": "tests/fixtures/email_captures/13-2.html",
-        "title": "About \u2014 Christchurch Renovations"
+        "title": "About — Christchurch Renovations",
+        "source_sha256": "2431894a51954d22f0453a638341286db72a6d5dffc5d5cc7da94a65fca6bb91",
+        "fixture_sanitized": true
       }
     ],
     "errors": []
@@ -516,10 +552,12 @@
         "redirects": [],
         "content_type": "text/html; charset=UTF-8",
         "captured_at": "2026-09-08T02:48:33.787202+00:00",
-        "sha256": "879688af31cd7b742cdfbc4680573720f47eb485bc759a8fdfa9a830f21729e5",
+        "sha256": "0c8a5f35acbca3f26948aef19b2b80145002e21a87983c0a3ea33d07b3d8b35c",
         "requested_url": "https://www.butterfieldbathrooms.co.nz/",
         "path": "tests/fixtures/email_captures/14-0.html",
-        "title": "Bathroom Renovations Christchurch | Butterfield Bathrooms"
+        "title": "Bathroom Renovations Christchurch | Butterfield Bathrooms",
+        "source_sha256": "879688af31cd7b742cdfbc4680573720f47eb485bc759a8fdfa9a830f21729e5",
+        "fixture_sanitized": true
       },
       {
         "url": "https://www.butterfieldbathrooms.co.nz/contact-us/",
@@ -532,10 +570,12 @@
         ],
         "content_type": "text/html; charset=UTF-8",
         "captured_at": "2026-09-08T02:48:36.106982+00:00",
-        "sha256": "e0b9f80a559a58f7a5accd53708b054a5f5c1798dabf8682564cb1260092d2df",
+        "sha256": "ce75ef5107f7c22d34603aced420f3c416382ae20ed3a8f3007e9250f88260c9",
         "requested_url": "https://www.butterfieldbathrooms.co.nz/contact-us",
         "path": "tests/fixtures/email_captures/14-1.html",
-        "title": "Contact | Butterfield Bathrooms"
+        "title": "Contact | Butterfield Bathrooms",
+        "source_sha256": "e0b9f80a559a58f7a5accd53708b054a5f5c1798dabf8682564cb1260092d2df",
+        "fixture_sanitized": true
       },
       {
         "url": "https://www.butterfieldbathrooms.co.nz/about-us/",
@@ -615,10 +655,12 @@
         ],
         "content_type": "text/html; charset=utf-8",
         "captured_at": "2026-09-08T02:48:50.566696+00:00",
-        "sha256": "d89a30bd0627cb748508552996c78f4a17c38f475fa0cfe535927b007a9568b5",
+        "sha256": "6a278120e35547107f68a70980efc4208482380187a0b33bb4dc82af69073f37",
         "requested_url": "https://kitchenstudio.co.nz",
         "path": "tests/fixtures/email_captures/17-0.html",
-        "title": "NZ's Most Trusted Kitchen Brand | 10 Years Running"
+        "title": "NZ's Most Trusted Kitchen Brand | 10 Years Running",
+        "source_sha256": "d89a30bd0627cb748508552996c78f4a17c38f475fa0cfe535927b007a9568b5",
+        "fixture_sanitized": true
       },
       {
         "url": "https://www.kitchenstudio.co.nz/our-showrooms/christchurch-north",
@@ -636,10 +678,12 @@
         ],
         "content_type": "text/html; charset=utf-8",
         "captured_at": "2026-09-08T02:49:59.411884+00:00",
-        "sha256": "f2d32f12964f870ad47f1fcb68a0ae1c4bb39c68afa28fdc2186c66e0f57d00a",
+        "sha256": "7c4c06928491ed43b4e3f8be290b0b229fec3c0aacb1e9fb51211d86e67fe93c",
         "requested_url": "https://www.kitchenstudio.co.nz/showroom/christchurch-north",
         "path": "tests/fixtures/email_captures/17-1.html",
-        "title": "Christchurch North | Our Showrooms - Kitchen Studio"
+        "title": "Christchurch North | Our Showrooms - Kitchen Studio",
+        "source_sha256": "f2d32f12964f870ad47f1fcb68a0ae1c4bb39c68afa28fdc2186c66e0f57d00a",
+        "fixture_sanitized": true
       },
       {
         "url": "https://www.kitchenstudio.co.nz/our-showrooms/christchurch-south",
@@ -657,10 +701,12 @@
         ],
         "content_type": "text/html; charset=utf-8",
         "captured_at": "2026-09-08T02:50:00.903629+00:00",
-        "sha256": "61f1c7e9ff9babb5ca96749ad5b1afd8494688973769e26658898080394b8f34",
+        "sha256": "f65c1c1d31d29fc93f5c106cb6126838d4b22ce536a57067cdd07aa28d240211",
         "requested_url": "https://www.kitchenstudio.co.nz/showroom/christchurch-south",
         "path": "tests/fixtures/email_captures/17-2.html",
-        "title": "Christchurch South | Our Showrooms - Kitchen Studio"
+        "title": "Christchurch South | Our Showrooms - Kitchen Studio",
+        "source_sha256": "61f1c7e9ff9babb5ca96749ad5b1afd8494688973769e26658898080394b8f34",
+        "fixture_sanitized": true
       }
     ],
     "errors": []
