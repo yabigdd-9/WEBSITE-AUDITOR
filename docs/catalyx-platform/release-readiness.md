@@ -376,4 +376,5 @@ wheel contains the rotation module and `catalyx-totp-key-rotate` console entry
 point. Setuptools reports the existing deprecated TOML license metadata; the
 build still succeeds. A follow-up regression test confirms that a missing local
 database path is rejected before the rotation command creates a file. No soak
-test was run.
+test was run. The wheel was rebuilt after that safeguard; inspection confirmed
+the missing-file guard and console entry point are present in the wheel.
