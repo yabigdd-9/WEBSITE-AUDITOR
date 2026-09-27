@@ -208,10 +208,14 @@ phases:
 catalyxlabs_rebuild:
   name: "Catalyx Labs website rebuild"
   site: "catalyxlabs.com"
-  status: "PLANNED"
-  source_document: "MASTER_EXECUTION_PLAN.md"
+  status: "LOCAL_IMPLEMENTATION_PRESENT_RELEASE_GATES_OPEN"
+  source_document: "/Users/dd/WEBSITE-AUDITOR/.claude/worktrees/phase1-rebuild/MASTER_EXECUTION_PLAN.md"
   execution_workspace:
-    isolation: "phase1-rebuild worktree"
+    intended_worktree: "/Users/dd/WEBSITE-AUDITOR/.claude/worktrees/phase1-rebuild"
+    intended_worktree_head: "0c8041da4051d6ac341814d62f04be58fc97be63"
+    intended_worktree_plan_status: "Untracked user-created MASTER_EXECUTION_PLAN.md; preserve as-is. This worktree is not based on the requested implementation SHA."
+    implementation_worktree: "/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild"
+    implementation_worktree_status: "Detached at 0348b3f9c06b62d29d51414ffdee7594cb6ecbf5 with pre-existing uncommitted implementation changes; not promoted or pushed."
     branch_from_sha: "0348b3f9"
   safety_gates:
     external_send_allowed: false
@@ -224,48 +228,46 @@ catalyxlabs_rebuild:
   phases:
     phase_1:
       name: "Environment"
-      status: "NOT_COMPLETE"
+      status: "PARTIALLY_IMPLEMENTED_OWNER_REVIEW_PENDING"
       actions:
-        - "Initialize a Python virtual environment and install the audit engine in editable mode."
-        - "Create the project structure: src/, pages/, public/ and lib/."
-        - "Configure build scripts and linting; deployment is out of scope."
+        - "Python 3.11 local virtual environment and editable audit-engine installation were verified using cached packages in offline mode; no .env file or values were needed."
+        - "A local Catalyx app package, static assets, tests and docs exist; the source uses catalyx_web/ rather than the requested src/, pages/, public/ and lib/ structure. Owner review of this structure remains open."
+        - "Build scripts, lockfile and Ruff linting are present and locally verified; deployment remains out of scope."
       gate: "Owner review of the environment."
       prior_setup_attempt:
-        status: "BLOCKED_REPORTED"
-        reason: "A prior sandboxed pip install could not reach pypi.org for dependency resolution."
-        recovery_options:
-          - "Use a verified pre-existing local environment."
-          - "Use a local vendor directory or pre-built wheel index."
-          - "Recheck network policy before using a network-enabled environment."
+        status: "RESOLVED_WITH_OFFLINE_CACHED_DEPENDENCIES"
+        reason: "uv installed the editable package and requested extras from the local cache. No package-registry access or .env file was needed."
     phase_2:
       name: "Skeleton"
-      status: "NOT_STARTED"
+      status: "IMPLEMENTED_LOCALLY_OWNER_REVIEW_PENDING"
       actions:
-        - "Create the landing page layout with consolidated brand tokens in assets/brand_tokens.css."
-        - "Implement responsive navigation and a demo preview."
+        - "A server-rendered landing page, responsive navigation, sample report and static stylesheet are present. The stylesheet is catalyx_web/static/site.css rather than assets/brand_tokens.css."
+        - "Owner review of UI and assets remains open; browser coverage is local/synthetic."
       gate: "Owner review of UI and assets."
     phase_3:
       name: "Integration"
-      status: "NOT_STARTED"
+      status: "IMPLEMENTED_LOCALLY_MAPPING_REVIEW_PENDING"
       actions:
-        - "Link the auditor_toolkit package without executing audits."
-        - "Create a dry-run mock to validate module connectivity."
+        - "catalyx_web/customer_audit.py imports selected auditor_toolkit check modules; mocked local tests exercise the fixed audit profile. The app route does not start audits automatically; the customer-facing worker remains disabled."
+        - "Money Machine FSM mapping is not implemented; keep customer-app state isolated pending an owner-approved mapping."
       gate: "Owner review of engine mapping."
     phase_4:
       name: "Hardening"
-      status: "NOT_STARTED"
+      status: "PARTIALLY_IMPLEMENTED_AUTOMATED_AND_EXTERNAL_GATES_OPEN"
       actions:
-        - "Replace absolute paths in report DTOs with relative or redacted aliases."
-        - "Add runtime assertions that block transport/config access from mm_transport.py."
+        - "The customer audit DTO emits a site host and bounded check evidence rather than local filesystem paths; tests cover the fixed profile and egress boundary."
+        - "The Catalyx web app has no mm_transport.py integration, model router, or approval-engine import in the inspected route surface. An explicit runtime assertion/gate test for this isolation was not found."
+        - "Full independent security review and production worker isolation remain release gates."
       gate: "Automated security audit."
     phase_5:
       name: "Pipeline"
-      status: "NOT_STARTED"
+      status: "INCOMPLETE_OWNER_MAPPING_DECISION_PENDING"
       actions:
-        - "Integrate the Money Machine FSM into workflow triggers."
-        - "Hard-disable the model router and approval engine in local mode."
+        - "Money Machine FSM is not connected to Catalyx workflow triggers; a human-reviewed mapping decision is pending."
+        - "The customer app has no model-router or approval-engine integration in the inspected source; add regression coverage for the intended hard-disabled boundary as part of the approved mapping work."
       gate: "Automated integration test."
-  scope_note: "The source marks phases 6-9 not done but does not define their scope."
+  phases_6_to_9: "The source plan lists phases 6-9 as not done but supplies no names, actions, or gates; scope is insufficient to implement or verify them."
+  scope_note: "Phases 1-5 are defined in the user-created source plan. Phases 6-9 remain undefined and require the source owner to provide scope."
 
 historical_verified_baseline:
   as_of: "2026-09-22"
