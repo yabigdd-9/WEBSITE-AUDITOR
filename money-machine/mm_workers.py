@@ -13,9 +13,9 @@ import sys
 from pathlib import Path
 from urllib.parse import urlparse
 
-from mm_core import root, public_url
+from mm_core import public_url
 from mm_management_worker import management_worker_handler
-from mm_pipeline import RetryableError, PermanentError, BlockedCost
+from mm_pipeline import PermanentError, RetryableError
 from mm_preparation_worker import preparation_worker_handler
 from mm_understanding_worker import understanding_worker_handler
 
@@ -64,7 +64,7 @@ def audit_handler(d, it, worker):
     # No recent audit found, run new detection
     try:
         r = subprocess.run(
-            ['python3', str(REPO / 'engines' / 'detect.py'), url],
+            [sys.executable, str(REPO / 'engines' / 'detect.py'), url],
             capture_output=True, text=True, timeout=AUDIT_TIMEOUT)
     except subprocess.TimeoutExpired:
         raise RetryableError('audit timed out')
@@ -96,11 +96,7 @@ def qualification_handler(d, it, worker):
         audit_payload = {}
     audit_score = audit_payload.get('score', 0)  # defect score from audit (higher = more defects)
     defect_count = audit_payload.get('defect_count', 0)
-    has_audit_evidence = defect_count > 0  # Consider as evidence if we found defects
-
     # Calculate commercial relevance score from business signals
-    ev = d.execute("SELECT id FROM mm_evidence WHERE business_id=? "
-                   "ORDER BY id DESC LIMIT 1", (b['id'],)).fetchone()
     keys = b.keys() if hasattr(b, 'keys') else []
     text = ' '.join(str(v) for v in (b['name'],
                                      b['region'] if 'region' in keys else ''))

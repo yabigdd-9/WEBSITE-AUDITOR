@@ -444,6 +444,24 @@ class WorkerHandlers(unittest.TestCase):
         self.assertEqual(evidence['tier'], 'TECHNICAL_ONLY')
         self.assertEqual(evidence['qualification_basis'], ['technical_need'])
 
+    def test_audit_worker_uses_supervisor_python_environment(self):
+        import mm_workers as workers
+        bid = self._enqueue('AUDIT_PENDING')
+        completed = type('Completed', (), {
+            'returncode': 0,
+            'stdout': '{"defects": [], "score": 0}',
+            'stderr': '',
+        })()
+        with patch('auditor_toolkit.storage.History') as history, \
+                patch.object(workers.sys, 'executable', '/fixture/venv/bin/python'), \
+                patch.object(workers.subprocess, 'run', return_value=completed) as run:
+            history.return_value.get_latest_valid_audit.return_value = None
+            state, _, evidence = workers.audit_handler(
+                self.d, {'business_id': bid}, None)
+        self.assertEqual(state, 'AUDITED')
+        self.assertEqual(evidence['defect_count'], 0)
+        self.assertEqual(run.call_args.args[0][0], '/fixture/venv/bin/python')
+
     def test_handler_targets_are_reachable_from_declared_inputs(self):
         """Regression: earlier handlers returned states the machine rejected."""
         import mm_workers as workers
