@@ -120,6 +120,17 @@ class StateMachine(unittest.TestCase):
         self.assertEqual([e['to_state'] for e in evs],
                          ['DISCOVERED', 'IDENTITY_PENDING', 'IDENTITY_RESOLVED'])
 
+    def test_transition_preserves_invalid_payload_and_fails_closed(self):
+        p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
+        self.d.execute("UPDATE pipeline_items SET payload=? WHERE business_id=?",
+                       ('not-json', self.bid))
+        with self.assertRaisesRegex(ValueError, 'not valid JSON'):
+            p.transition(self.d, self.bid, 'AUDITED', 'w-test', 'forward',
+                         {'host': 'fixture.example.co.nz'})
+        row = p.item(self.d, self.bid)
+        self.assertEqual(row['state'], 'AUDIT_PENDING')
+        self.assertEqual(row['payload'], 'not-json')
+
 
 class WorkerBehaviour(unittest.TestCase):
     def setUp(self):
@@ -137,6 +148,32 @@ class WorkerBehaviour(unittest.TestCase):
         self.assertEqual(w.run_once(self.d), 1)
         self.assertEqual(p.item(self.d, bid)['state'], 'IDENTITY_PENDING')
         self.assertEqual(w.run_once(self.d), 0)  # nothing left in DISCOVERED
+
+    def test_audit_evidence_is_persisted_and_used_for_qualification(self):
+        from mm_workers import qualification_handler
+
+        bid = add_business(self.d)
+        p.enqueue(self.d, bid, state='AUDIT_PENDING',
+                  payload={'discovery_provenance': {'source': 'synthetic'}})
+        audit = p.Worker(
+            'w-audit-fixture', ('AUDIT_PENDING',),
+            lambda d, it, worker: ('AUDITED', 'synthetic audit',
+                                   {'defect_count': 4, 'score': 55}),
+        )
+
+        self.assertEqual(audit.run_once(self.d), 1)
+        audited_item = p.item(self.d, bid)
+        payload = json.loads(audited_item['payload'])
+        self.assertEqual(payload['discovery_provenance'], {'source': 'synthetic'})
+        self.assertEqual(
+            payload['_stage_evidence']['AUDITED'],
+            [{'defect_count': 4, 'score': 55}],
+        )
+
+        next_state, _, qualification = qualification_handler(self.d, audited_item, None)
+        self.assertEqual(next_state, 'CONTACT_PENDING')
+        self.assertEqual(qualification['technical_score'], 55)
+        self.assertEqual(qualification['defect_count'], 4)
 
     def test_retryable_failure_schedules_backoff(self):
         bid = add_business(self.d)
