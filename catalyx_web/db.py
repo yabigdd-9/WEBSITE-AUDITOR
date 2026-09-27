@@ -252,6 +252,18 @@ class Database:
                 (scope, subject_hash),
             )
 
+    def consume_totp_step(self, workspace_id: str, user_id: str, step: int) -> bool:
+        """Atomically reject a privileged TOTP step that was already accepted."""
+        with self.connect() as db:
+            row = db.execute(
+                "UPDATE memberships SET totp_last_step=? "
+                "WHERE workspace_id=? AND user_id=? AND active=1 "
+                "AND (totp_last_step IS NULL OR totp_last_step<?) "
+                "RETURNING user_id",
+                (step, workspace_id, user_id, step),
+            ).fetchone()
+        return row is not None
+
     def initialize(self) -> None:
         if self.database_url:
             self._initialize_postgres()
@@ -259,7 +271,7 @@ class Database:
             return
         with self.connect() as db:
             version = db.execute("PRAGMA user_version").fetchone()[0]
-            if version > 5:
+            if version > 6:
                 raise RuntimeError("Catalyx application database is newer than this version")
             db.executescript(
                 """
@@ -282,6 +294,7 @@ class Database:
                     role TEXT NOT NULL CHECK(role IN ('owner','admin','reviewer','support','customer')),
                     active INTEGER NOT NULL DEFAULT 1,
                     totp_secret TEXT,
+                    totp_last_step INTEGER,
                     created_at TEXT NOT NULL,
                     PRIMARY KEY(workspace_id, user_id)
                 );
@@ -409,7 +422,10 @@ class Database:
                 db.execute("ALTER TABLE audit_requests ADD COLUMN worker_lease_until INTEGER")
             if "worker_lease_token" not in columns:
                 db.execute("ALTER TABLE audit_requests ADD COLUMN worker_lease_token TEXT")
-            db.execute("PRAGMA user_version=5")
+            membership_columns = {row["name"] for row in db.execute("PRAGMA table_info(memberships)")}
+            if "totp_last_step" not in membership_columns:
+                db.execute("ALTER TABLE memberships ADD COLUMN totp_last_step INTEGER")
+            db.execute("PRAGMA user_version=6")
         self._protect_totp_secrets()
 
     def _load_totp_encryption_key(self) -> bytes:
@@ -591,7 +607,7 @@ class Database:
             db.execute("SELECT pg_advisory_xact_lock(hashtext('catalyx_web_schema'))")
             db.execute("INSERT INTO catalyx_schema_version(singleton,version) VALUES(TRUE,0) ON CONFLICT(singleton) DO NOTHING")
             version = db.execute("SELECT version FROM catalyx_schema_version WHERE singleton=TRUE").fetchone()["version"]
-            if version > 5:
+            if version > 6:
                 raise DatabaseError("Catalyx application database is newer than this version")
             db.executescript(
                 """
@@ -614,6 +630,7 @@ class Database:
                     role TEXT NOT NULL CHECK(role IN ('owner','admin','reviewer','support','customer')),
                     active INTEGER NOT NULL DEFAULT 1,
                     totp_secret TEXT,
+                    totp_last_step BIGINT,
                     created_at TEXT NOT NULL,
                     PRIMARY KEY(workspace_id, user_id)
                 );
@@ -737,7 +754,8 @@ class Database:
             db.execute("ALTER TABLE audit_requests ADD COLUMN IF NOT EXISTS attempt_count INTEGER NOT NULL DEFAULT 0")
             db.execute("ALTER TABLE audit_requests ADD COLUMN IF NOT EXISTS worker_lease_until INTEGER")
             db.execute("ALTER TABLE audit_requests ADD COLUMN IF NOT EXISTS worker_lease_token TEXT")
-            db.execute("UPDATE catalyx_schema_version SET version=5 WHERE singleton=TRUE")
+            db.execute("ALTER TABLE memberships ADD COLUMN IF NOT EXISTS totp_last_step BIGINT")
+            db.execute("UPDATE catalyx_schema_version SET version=6 WHERE singleton=TRUE")
 
     def create_customer(self, email: str, password_hash: str) -> tuple[str, str]:
         user_id, workspace_id = str(uuid.uuid4()), str(uuid.uuid4())

@@ -120,6 +120,64 @@ def assert_rendered_text_contrast(page):
     assert not failures, f"rendered text contrast below WCAG AA thresholds: {failures}"
 
 
+def assert_accessible_structure(page):
+    findings = page.evaluate(
+        """() => {
+            const visible = (element) => element.getClientRects().length > 0
+                && getComputedStyle(element).visibility !== 'hidden'
+                && !element.closest('[hidden],[aria-hidden="true"]');
+            const text = (element) => element.textContent.replace(/\\s+/g, ' ').trim();
+            const name = (element) => {
+                const labelledBy = element.getAttribute('aria-labelledby');
+                if (labelledBy) {
+                    const value = labelledBy.split(/\\s+/)
+                        .map((id) => document.getElementById(id))
+                        .filter(Boolean).map(text).join(' ').trim();
+                    if (value) return value;
+                }
+                const ariaLabel = element.getAttribute('aria-label');
+                if (ariaLabel?.trim()) return ariaLabel.trim();
+                if (element.labels?.length) {
+                    const value = [...element.labels].map(text).join(' ').trim();
+                    if (value) return value;
+                }
+                if (element.matches('input[type="submit"],input[type="button"],input[type="reset"]'))
+                    return element.value.trim();
+                return text(element);
+            };
+            const controls = [...document.querySelectorAll(
+                'a[href],button,input:not([type="hidden"]),select,textarea,[role="button"],[role="link"]'
+            )].filter(visible);
+            const headings = [...document.querySelectorAll('h1,h2,h3,h4,h5,h6')]
+                .filter(visible).map((element) => Number(element.tagName.slice(1)));
+            const headingJumps = [];
+            for (let index = 1; index < headings.length; index++) {
+                if (headings[index] - headings[index - 1] > 1)
+                    headingJumps.push([headings[index - 1], headings[index]]);
+            }
+            return {
+                pageTitle: document.title,
+                language: document.documentElement.lang,
+                mainCount: document.querySelectorAll('main').length,
+                visibleH1Count: [...document.querySelectorAll('h1')].filter(visible).length,
+                headingJumps,
+                unnamedControls: controls.filter((element) => !name(element))
+                    .map((element) => ({tag: element.tagName, type: element.type || '', html: element.outerHTML.slice(0, 120)})),
+                imagesWithoutAlt: [...document.querySelectorAll('img')]
+                    .filter((element) => visible(element) && !element.hasAttribute('alt'))
+                    .map((element) => element.outerHTML.slice(0, 120)),
+            };
+        }"""
+    )
+    assert findings["pageTitle"], findings
+    assert findings["language"] == "en-NZ", findings
+    assert findings["mainCount"] == 1, findings
+    assert findings["visibleH1Count"] == 1, findings
+    assert not findings["headingJumps"], findings
+    assert not findings["unnamedControls"], findings
+    assert not findings["imagesWithoutAlt"], findings
+
+
 def test_customer_registration_site_request_and_admin_review(tmp_path, monkeypatch):
     import uvicorn
     from playwright.sync_api import expect, sync_playwright
@@ -171,8 +229,12 @@ def test_customer_registration_site_request_and_admin_review(tmp_path, monkeypat
                 ) == "rgb(113, 136, 50)"
                 page.set_viewport_size({"width": 320, "height": 800})
                 assert page.evaluate("() => document.documentElement.scrollWidth <= window.innerWidth")
-                for path in ("/", "/register", "/login", "/forgot-password", "/sample-report"):
+                for path in (
+                    "/", "/register", "/login", "/forgot-password",
+                    "/resend-verification", "/reset-password", "/sample-report",
+                ):
                     page.goto(base_url + path)
+                    assert_accessible_structure(page)
                     assert_keyboard_focus_order(page)
                     assert_rendered_text_contrast(page)
                     page.evaluate("""() => {
@@ -212,22 +274,26 @@ def test_customer_registration_site_request_and_admin_review(tmp_path, monkeypat
                 page.get_by_label("Password").fill("local-customer-password-123")
                 page.get_by_role("button", name="Sign in").click()
                 expect(page).to_have_url(re.compile(r"/app$"))
+                assert_accessible_structure(page)
                 assert page.evaluate("() => document.documentElement.scrollWidth <= window.innerWidth")
                 assert_keyboard_focus_order(page)
                 assert_rendered_text_contrast(page)
                 page.get_by_role("link", name="Sites").click()
+                assert_accessible_structure(page)
                 assert_keyboard_focus_order(page)
                 assert_rendered_text_contrast(page)
                 page.get_by_label("Website URL").fill("https://example.invalid")
                 page.get_by_label("Short name").fill("Browser fixture site")
                 page.get_by_role("button", name="Add website").click()
                 page.get_by_role("link", name="Browser fixture site").click()
+                assert_accessible_structure(page)
                 assert_keyboard_focus_order(page)
                 assert_rendered_text_contrast(page)
                 page.get_by_role("checkbox").check()
                 page.get_by_role("button", name="Submit for review").click()
                 expect(page.get_by_text("Waiting for authorization review")).to_be_visible()
                 audit_id = urlsplit(page.url).path.rsplit("/", 1)[-1]
+                assert_accessible_structure(page)
 
                 # Named administrator signs in with TOTP and approves only into the queue.
                 page.get_by_role("button", name="Sign out").click()
@@ -241,6 +307,7 @@ def test_customer_registration_site_request_and_admin_review(tmp_path, monkeypat
                 page.get_by_role("button", name="Sign in").click()
                 expect(page.get_by_role("heading", name="Review desk")).to_be_visible()
                 expect(page.get_by_role("heading", name="Launch gates")).to_be_visible()
+                assert_accessible_structure(page)
                 assert_keyboard_focus_order(page)
                 assert_rendered_text_contrast(page)
                 expect(page.locator('nav[aria-label="Administrator"] a[aria-current="page"]')).to_have_text("Operations")
@@ -251,6 +318,7 @@ def test_customer_registration_site_request_and_admin_review(tmp_path, monkeypat
 
                 page.goto(f"{base_url}/admin/audits/{audit_id}")
                 expect(page.get_by_role("heading", name="example.invalid")).to_be_visible()
+                assert_accessible_structure(page)
                 assert_keyboard_focus_order(page)
                 assert_rendered_text_contrast(page)
                 page.get_by_label("Reason for the decision").fill("Synthetic browser acceptance review.")

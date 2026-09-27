@@ -700,6 +700,64 @@ Login rate thresholds/production abuse policy and A1–A10 owner decisions
 remain open.
 No soak test was run; staging, deployment, and `.com` cutover remain no-go.
 
+## Current security continuation (2026-09-28)
+
+A further Codex Security Standard scan (`539d2990-1d7b-4d3f-ab92-40d9e6e4f2f8`)
+reviewed the 14-file `catalyx_web` source snapshot with digest
+`codex-security-snapshot/v1:sha256:038d5ae07ab56f77bfe866b52be1145fc523e34ec7d15676f5d826bfabd973b4`.
+It confirmed two findings: **medium, accepted privileged TOTP codes can be
+replayed within the verifier's ±1-step window**, and **low, unauthenticated
+callers can exhaust the target email's five-per-hour password-reset or
+verification quota before account lookup**. The latter remains open. Keep
+hosted mail disabled until the owner approves the provider and a recovery flow
+that does not let unauthenticated callers lock the account holder out.
+
+The TOTP replay finding has since been mitigated in the current local source.
+The verifier now returns its matched time-step counter; login atomically stores
+and rejects already accepted counters per membership; SQLite and PostgreSQL
+schema migration adds `totp_last_step` as schema version 6. This update is
+uncommitted and postdates the scan, so it is not part of that sealed report and
+has not received a new independent scan. PostgreSQL migration execution remains
+unverified.
+
+Finite verification after this change: full `toolkit_tests` **251 passed, 5
+opt-in browser tests skipped, 2 upstream deprecation warnings** in 48.65
+seconds; focused TOTP/schema tests **4 passed**; Catalyx Chromium journey **1
+passed** in 10.67 seconds; Ruff, offline lock check, and `git diff --check`
+passed. No soak test was run.
+
+The scan report is available, but its formal coverage is marked **partial**:
+the workbench rejected six supplemental receipt references because they were
+outside the scan directory and changed those coverage surfaces to
+`needs_follow_up`. The scan progress had all 14 files closed, and the source
+inventory lists all 14, but the sealed coverage record should be treated as
+partial. The repository HEAD also changed during the scan; results are bound
+to the snapshot digest above and not asserted as a scan of the current modified
+checkout.
+
+Phase F remains open because the target-email recovery quotas need a safe
+owner-approved delivery design and the current post-scan TOTP mitigation needs
+independent review. A1–A10, deployed staging, operations rehearsal, and all
+production/cutover gates remain unresolved. `.com` and `.shop` were not changed;
+no production mail or customer data was used.
+
+## Phase G continuation — semantic accessibility sweep (2026-09-28)
+
+Extended the opt-in Chromium walkthrough with a rendered-DOM structural check
+for page title and language, a single main landmark and H1, skipped heading
+levels, accessible names on visible links/buttons/form controls, and missing
+image alternatives. It covers the public registration/sign-in/recovery/sample
+pages plus the synthetic customer request and administrator decision/status
+pages. The same walkthrough checks tab order, skip-link behavior, text
+contrast, and 320px reflow with doubled computed text; the updated pass was
+**1 passed** in 13.80 seconds. Ruff and `git diff --check` also passed.
+
+This is a project-local browser check, not a full WCAG audit or human
+screen-reader session. No local axe-core or Lighthouse executable was
+available. Actual browser zoom, assistive-technology operation, target-size
+exceptions, and non-text contrast still need review. Do not claim WCAG 2.2 AA
+conformance from this evidence. No soak test was run.
+
 ## Login lockout mitigation and current finite verification (2026-09-28)
 
 The account-keyed login bucket now counts failed credential attempts after

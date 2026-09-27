@@ -28,13 +28,13 @@ from .security import (
     assert_money_machine_integrations_disabled,
     digest_token,
     hash_password,
+    matching_totp_step,
     new_token,
     normalize_site,
     production_deployment,
     production_mode,
     valid_email_address,
     verify_password,
-    verify_totp,
 )
 
 logger = logging.getLogger("catalyx_web")
@@ -1094,7 +1094,10 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
                 if row["totp_secret"]
                 else ""
             )
-            if not totp_secret or not verify_totp(totp_secret, form.get("otp", "")):
+            accepted_step = matching_totp_step(totp_secret, form.get("otp", "")) if totp_secret else None
+            if accepted_step is None or not database.consume_totp_step(
+                row["workspace_id"], row["id"], accepted_step
+            ):
                 valid = False
         if not valid:
             # Keep a per-account failed-attempt cap, but do not let an

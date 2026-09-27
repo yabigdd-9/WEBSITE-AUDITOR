@@ -549,12 +549,14 @@ def test_login_failure_limit_is_account_scoped_and_persistent(tmp_path):
         ).fetchone() is None
 
 
-def test_admin_with_valid_mfa_can_sign_in_after_account_failure_cap(tmp_path):
+def test_admin_valid_mfa_bypasses_failure_cap_and_rejects_replay(tmp_path, monkeypatch):
     db_path = tmp_path / "admin-rate-limit.sqlite3"
     database = Database(db_path)
     email = "owner@example.invalid"
     password = "a-long-admin-password-456"
     secret = "JBSWY3DPEHPK3PXP"
+    timestamp = 1_800_000_000
+    monkeypatch.setattr("catalyx_web.app.time.time", lambda: timestamp)
     database.create_admin(email, hash_password(password), secret)
     for _ in range(12):
         assert database.allow_rate_attempt("login_account", email, 12, 3600)
@@ -570,7 +572,7 @@ def test_admin_with_valid_mfa_can_sign_in_after_account_failure_cap(tmp_path):
             "csrf": form_token(login_page),
             "email": email,
             "password": password,
-            "otp": totp_code(secret),
+            "otp": totp_code(secret, at_time=timestamp),
         },
         follow_redirects=False,
     )
@@ -581,20 +583,67 @@ def test_admin_with_valid_mfa_can_sign_in_after_account_failure_cap(tmp_path):
             (hashlib.sha256(email.encode()).hexdigest(),),
         ).fetchone() is None
 
+    replay_client = TestClient(
+        client.app,
+        client=("203.0.113.223", 8000),
+    )
+    replay_page = replay_client.get("/login")
+    replay = replay_client.post(
+        "/login",
+        data={
+            "csrf": form_token(replay_page),
+            "email": email,
+            "password": password,
+            "otp": totp_code(secret, at_time=timestamp),
+        },
+        follow_redirects=False,
+    )
+    assert replay.status_code == 401
+
 
 def test_schema_v3_database_migrates_to_persistent_auth_rate_limits(tmp_path):
     database_path = tmp_path / "upgrade.sqlite3"
     old_database = Database(database_path)
     with old_database.connect() as db:
         db.execute("DROP TABLE auth_rate_limits")
+        db.execute("ALTER TABLE memberships DROP COLUMN totp_last_step")
         db.execute("PRAGMA user_version=3")
 
     upgraded = Database(database_path)
     assert upgraded.allow_rate_attempt("login", "192.0.2.4", 2, 60, now=2000)
     with upgraded.connect() as db:
-        assert db.execute("PRAGMA user_version").fetchone()[0] == 5
+        assert db.execute("PRAGMA user_version").fetchone()[0] == 6
         columns = {row["name"] for row in db.execute("PRAGMA table_info(audit_requests)")}
         assert "worker_lease_token" in columns
+        membership_columns = {row["name"] for row in db.execute("PRAGMA table_info(memberships)")}
+        assert "totp_last_step" in membership_columns
+
+
+def test_totp_step_can_only_be_consumed_once(tmp_path):
+    database = Database(tmp_path / "totp-replay.sqlite3")
+    user_id = database.create_admin(
+        "totp-replay@example.invalid",
+        hash_password("a-long-admin-password-456"),
+        "JBSWY3DPEHPK3PXP",
+    )
+    with database.connect() as db:
+        membership = db.execute(
+            "SELECT workspace_id FROM memberships WHERE user_id=?", (user_id,)
+        ).fetchone()
+
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        accepted = list(
+            pool.map(
+                lambda _: database.consume_totp_step(
+                    membership["workspace_id"], user_id, 12345
+                ),
+                range(8),
+            )
+        )
+    assert accepted.count(True) == 1
+    assert accepted.count(False) == 7
+    assert database.consume_totp_step(membership["workspace_id"], user_id, 12346)
+    assert not database.consume_totp_step(membership["workspace_id"], user_id, 12345)
 
 
 def test_password_reset_is_neutral_one_time_and_revokes_sessions(tmp_path):

@@ -167,14 +167,20 @@ def totp_code(secret: str, at_time: float | None = None) -> str:
     return f"{value % 1_000_000:06d}"
 
 
-def verify_totp(secret: str, submitted: str, at_time: float | None = None) -> bool:
+def matching_totp_step(secret: str, submitted: str, at_time: float | None = None) -> int | None:
     if len(submitted) != 6 or not submitted.isdigit():
-        return False
+        return None
     now = at_time if at_time is not None else time.time()
-    return any(
-        hmac.compare_digest(totp_code(secret, now + offset * 30), submitted)
+    matches = [
+        int((now + offset * 30) // 30)
         for offset in (-1, 0, 1)
-    )
+        if hmac.compare_digest(totp_code(secret, now + offset * 30), submitted)
+    ]
+    return max(matches) if matches else None
+
+
+def verify_totp(secret: str, submitted: str, at_time: float | None = None) -> bool:
+    return matching_totp_step(secret, submitted, at_time) is not None
 
 
 def normalize_site(value: str) -> tuple[str, str]:
