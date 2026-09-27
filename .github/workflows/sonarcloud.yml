@@ -59,12 +59,15 @@ jobs:
         run: |
           python -m pip install -e '.[browser]'
           python -m playwright install --with-deps chromium
-          python -m pytest toolkit_tests/test_flow_e2e.py \
+          python -m pytest \
+            toolkit_tests/test_browser_e2e.py \
+            toolkit_tests/test_flow_e2e.py \
             --cov-config=.coveragerc \
             --cov=auditor_toolkit \
             --cov=website_auditor \
             --cov-append \
             --cov-report=xml:coverage.xml \
+            --cov-report=term-missing \
             -q
 
       - name: Run SonarCloud scan
