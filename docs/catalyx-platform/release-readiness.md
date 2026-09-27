@@ -6,9 +6,8 @@
   `codex/catalyx-rebuild-phase1-5` (checked 2026-09-28)
 - **Original app implementation revision:** `ed182a76daab33622a27665596fc7654342b16ef`
 - **Worktree follow-up:** atomic login and account-recovery email rate limits,
-  cross-IP regression coverage, and readiness inventory updates are committed
-  through `2c3b4f08`; the FSM mapping proposal is documented below; untracked
-  `experiments/` is preserved.
+  cross-IP regression coverage, readiness inventory, and the FSM mapping
+  proposal are committed; untracked `experiments/` is preserved.
 - **Worktree:** `/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild`
 
 ## Built in this local slice
