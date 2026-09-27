@@ -134,3 +134,36 @@ def priority_decision(
         "human_review_required": True,
         "side_effects": "none",
     }
+
+
+def six_component_opportunity(
+    supported_problem: float,
+    evidence_to_solution_fit: float,
+    business_and_campaign_fit: float,
+    bounded_delivery_feasibility: float,
+    evidence_quality_freshness: float,
+    supported_reason_to_act_now: float,
+) -> dict:
+    """Compatibility implementation for the established MoneyMachine P9 score.
+
+    Kept here so the formula exists in one place while callers migrate to
+    priority_decision(). The return shape intentionally matches the legacy API.
+    """
+    components = {
+        "supported_problem": (_unit("supported_problem", supported_problem), 25),
+        "evidence_to_solution_fit": (_unit("evidence_to_solution_fit", evidence_to_solution_fit), 20),
+        "business_and_campaign_fit": (_unit("business_and_campaign_fit", business_and_campaign_fit), 20),
+        "bounded_delivery_feasibility": (_unit("bounded_delivery_feasibility", bounded_delivery_feasibility), 15),
+        "evidence_quality_freshness": (_unit("evidence_quality_freshness", evidence_quality_freshness), 10),
+        "supported_reason_to_act_now": (_unit("supported_reason_to_act_now", supported_reason_to_act_now), 10),
+    }
+    breakdown = {name: round(value * weight, 2) for name, (value, weight) in components.items()}
+    score_value = round(sum(breakdown.values()), 2)
+    return {
+        "score": score_value,
+        "is_shortlist": score_value >= 65,
+        "components": breakdown,
+        "threshold": 65,
+        "basis": "Deterministic score; human review remains required.",
+        "formula_version": "legacy-six-component-v1",
+    }
