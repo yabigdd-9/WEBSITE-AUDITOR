@@ -379,7 +379,7 @@ exact_execution_order:
 
 final_acceptance:
   reliability:
-    - "24+ hour unattended run."
+    - "24+ hour unattended run; owner reported completion in Claude on 2026-09-28, so Codex must not repeat the soak. The tested SHA and artifacts were not independently inspected."
     - "Crash/restart recovery."
     - "No duplicate restart work."
     - "Visible dead-letter triage."
@@ -393,6 +393,10 @@ final_acceptance:
     - "Eligible emails have provenance."
   commercial_output:
     - "Qualified prospects can produce demo, before/after proof, quote band and draft."
+    - "Prospect outcomes can be recorded and reviewed against immutable evidence without silently changing production scores or policy."
+  evaluation:
+    - "Golden evaluation data covers audit findings, identity, email provenance and safety behavior."
+    - "Challenger changes are compared against a baseline; promotion requires measured improvement and human review."
   cost:
     - "Paid model/API spend remains $0."
     - "No silent paid inference path."
@@ -404,6 +408,9 @@ final_acceptance:
     - "One canonical repo/auditor/control plane/master plan."
     - "Obsidian is human-facing only."
     - "n8n is not required by the default stack."
+  optional_infrastructure:
+    - "Heavier optional infrastructure is benchmarked only after core acceptance passes."
+    - "Optional infrastructure is not required to satisfy the default local-first stack."
 
 latest_execution_checkpoint:
   as_of_local_date: "2026-09-28"
