@@ -629,8 +629,26 @@ def transition(d, business_id, to_state, actor, reason, evidence=None):
         raise ValueError('Terminal state %s has no outgoing transitions' % frm)
     if to_state not in TRANSITIONS.get(frm, ()):  # fail closed on illegal edge
         raise ValueError('Illegal transition %s -> %s' % (frm, to_state))
-    d.execute("UPDATE pipeline_items SET state=?,last_error=NULL,updated_at=? "
-              "WHERE business_id=?", (to_state, now(), business_id))
+    payload_text = r['payload']
+    if to_state == 'AUDITED' and evidence is not None:
+        try:
+            payload = json.loads(payload_text or '{}')
+        except (TypeError, ValueError) as ex:
+            raise ValueError('pipeline item payload is not valid JSON') from ex
+        if not isinstance(payload, dict):
+            raise ValueError('pipeline item payload must be a JSON object')
+        stage_evidence = payload.get('_stage_evidence', {})
+        if not isinstance(stage_evidence, dict):
+            raise ValueError('pipeline stage evidence must be a JSON object')
+        entries = stage_evidence.get(to_state, [])
+        if not isinstance(entries, list):
+            raise ValueError('pipeline stage evidence history must be a JSON array')
+        entries.append(evidence)
+        stage_evidence[to_state] = entries
+        payload['_stage_evidence'] = stage_evidence
+        payload_text = json.dumps(payload, sort_keys=True)
+    d.execute("UPDATE pipeline_items SET state=?,payload=?,last_error=NULL,updated_at=? "
+              "WHERE business_id=?", (to_state, payload_text, now(), business_id))
     _record(d, business_id, frm, to_state, actor, reason, evidence)
     return item(d, business_id)
 

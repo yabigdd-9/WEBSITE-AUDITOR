@@ -87,11 +87,18 @@ def qualification_handler(d, it, worker):
     import mm_lead_qualifier as lq
     b = _business(d, it['business_id'])
 
-    # Pipeline items are sqlite3.Row values; decode their JSON payload before
-    # reading fields. sqlite3.Row supports indexing but not dict.get().
+    # Audit evidence is persisted by pipeline state transitions so subsequent
+    # handlers can score from the completed audit rather than an empty payload.
     try:
-        audit_payload = json.loads(it['payload'] or '{}')
+        payload = json.loads(it['payload'] or '{}')
     except (KeyError, TypeError, ValueError):
+        payload = {}
+    if not isinstance(payload, dict):
+        payload = {}
+    state_evidence = payload.get('_stage_evidence', {})
+    audit_entries = state_evidence.get('AUDITED', []) if isinstance(state_evidence, dict) else []
+    audit_payload = audit_entries[-1] if isinstance(audit_entries, list) and audit_entries else payload
+    if not isinstance(audit_payload, dict):
         audit_payload = {}
     audit_score = audit_payload.get('score', 0)  # defect score from audit (higher = more defects)
     defect_count = audit_payload.get('defect_count', 0)
