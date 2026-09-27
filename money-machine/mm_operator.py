@@ -339,7 +339,8 @@ def main(argv=None):
     q=s.add_parser('draft');q.add_argument('id',type=int);q.add_argument('--recipient',required=True);q.add_argument('--body-file',required=True);q.add_argument('--parent',type=int)
     q=s.add_parser('draft-review');q.add_argument('id',type=int)
     q=s.add_parser('draft-approve');q.add_argument('id',type=int);q.add_argument('--actor',required=True);q.add_argument('--approval-receipt',type=int,required=True)
-    q=s.add_parser('review');q.add_argument('id',type=int);q.add_argument('--body-file',required=True);q.add_argument('--human',required=True);q.add_argument('--approval-receipt',type=int,required=True);q.add_argument('--proposal',action='store_true')
+    q=s.add_parser('review');q.add_argument('id',type=int);q.add_argument('--body-file',required=True);q.add_argument('--human',required=True);q.add_argument('--approval-receipt',type=int,required=True);q.add_argument('--proposal',action='store_true');q.add_argument('--channel',default='draft_only',help='Exact approved delivery channel; use the transport account and sender for external mail')
+    q=s.add_parser('approval-hash');q.add_argument('id',type=int);q.add_argument('--channel',default='draft_only');q.add_argument('--proposal',action='store_true')
     q=s.add_parser('record-sent');q.add_argument('id',type=int);q.add_argument('--receipt',type=int,required=True);q.add_argument('--proposal',action='store_true')
     q=s.add_parser('receipt-import');q.add_argument('--envelope',required=True)
     q=s.add_parser('cash');q.add_argument('id',type=int);q.add_argument('--cents',type=int,required=True);q.add_argument('--receipt',type=int,required=True)
@@ -431,12 +432,15 @@ def main(argv=None):
         import mm_transport
         if a.cmd == 'transport-send':
             if not a.execute:
-                result = {"status": "DRY_RUN", "note": "Pass --execute to trigger mock transport."}
+                result = {"status": "DRY_RUN", "note": "Pass --execute only after transport configuration, exact channel approval, and receipt review are ready."}
             else:
                 with contextlib.closing(connect()) as d, d:
                     result = mm_transport.send_approved(d, int(a.packet))
+        elif a.cmd == 'transport-status':
+            with contextlib.closing(connect(readonly=True)) as d:
+                result=mm_transport.status(d=d)
         else:
-            result=mm_transport.status() if a.cmd=='transport-status' else mm_transport.preflight_packet(json.loads(Path(a.packet).read_text()))
+            result=mm_transport.preflight_packet(json.loads(Path(a.packet).read_text()))
         print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd in ('outcomes','outcome-record'):
         import mm_outcomes
@@ -633,7 +637,8 @@ def main(argv=None):
                 import mm_drafts
                 with contextlib.closing(connect()) as _dd, _dd:
                     result = mm_drafts.approve_draft(_dd, a.id, a.actor, a.approval_receipt)
-            elif a.cmd=='review':approve(d,a.id,Path(a.body_file).read_text(),a.human,a.approval_receipt,a.proposal);result={'approval':'Recorded from evidence'}
+            elif a.cmd=='approval-hash':result=packet_approval_hash(d,a.id,a.proposal,a.channel)
+            elif a.cmd=='review':result=approve(d,a.id,Path(a.body_file).read_text(),a.human,a.approval_receipt,a.proposal,a.channel)
             elif a.cmd=='record-sent':record_sent(d,a.id,a.receipt,a.proposal);result={'recorded':True,'sent_by_this_command':False}
             elif a.cmd=='receipt-import':result={'receipt_id':import_receipt(d,a.envelope),'verification':'Human attestation; no live provider query'}
             elif a.cmd=='cash':cash(d,a.id,a.cents,a.receipt);result=metrics(d)

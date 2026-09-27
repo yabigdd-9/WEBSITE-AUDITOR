@@ -24,6 +24,7 @@ import mm_operator as o
 from mm_operator import ValidationError
 import mm_email as email_engine
 import mm_email_store as email_store
+import mm_transport
 SOURCE=Path(os.environ.get('MM_TEST_SOURCE',str(Path(__file__).resolve().parents[1]/'database/money_machine.db')))
 PACKAGE=Path(__file__).resolve().parents[1]
 OPERATOR=PACKAGE/'money-machine/mm_operator.py'
@@ -63,10 +64,10 @@ class Acceptance(unittest.TestCase):
     def proof(self,kind,oid=None,h=None,cents=None):
         p=self.r/('receipt-'+str(time.time_ns())+'.txt');p.write_text('SYNTHETIC TEST ONLY '+kind+' '+str(time.time_ns()))
         return self.d.execute('INSERT INTO mm_receipts(kind,business_id,object_id,source_system,external_id,artifact_path,artifact_hash,content_hash,amount_cents,currency,verified_by,verified_at,occurred_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)',(kind,self.bid,oid,'fixture-provider',str(time.time_ns()),str(p),c.sha(p.read_bytes()),h,cents,'NZD','Human Fixture',c.now(),c.now())).lastrowid
-    def approve(self,proposal=False,oid=None):
+    def approve(self,proposal=False,oid=None,channel='draft_only'):
         oid=oid or self.mid;table='mm_proposals' if proposal else 'mm_messages';m=self.d.execute(f'SELECT * FROM {table} WHERE id=?',(oid,)).fetchone()
-        h=c.proposal_digest(m['recipient'],m['body'],m['price_cents']) if proposal else c.digest(m['recipient'],m['body']);rid=self.proof('approval',oid,h)
-        c.approve(self.d,oid,m['body'],'Human Fixture',rid,proposal);return h
+        h=c.proposal_delivery_digest(m['recipient'],m['body'],m['price_cents'],channel) if proposal else c.delivery_digest(m['recipient'],m['body'],channel);rid=self.proof('approval',oid,h)
+        c.approve(self.d,oid,m['body'],'Human Fixture',rid,proposal,channel);return h
     def sent(self):
         h=self.approve();rid=self.proof('send',self.mid,h);c.record_sent(self.d,self.mid,rid);return rid
     def proposal(self):return c.create_proposal(self.d,self.bid,self.address,BODY,75000)
@@ -262,6 +263,63 @@ class Acceptance(unittest.TestCase):
     def test_58_raw_approval_update_requires_fresh_evidence(self):
         h=self.approve();rid=self.proof('approval',self.mid,h);self.d.execute("UPDATE mm_evidence SET checked_at='2000-01-01' WHERE id=?",(self.eid,))
         with self.assertRaises(sqlite3.IntegrityError):self.d.execute('UPDATE mm_messages SET approved_hash=?,approval_ref=?,approved_by=? WHERE id=?',(h,str(rid),'Human Fixture',self.mid))
+
+    def test_59_transport_default_and_kill_switch_fail_before_database_or_provider(self):
+        class NoQuery:
+            def execute(self,*_args,**_kwargs):raise AssertionError('database must not be touched')
+        disabled={'version':1,'enabled':False,'provider':'none','daily_cap':0,'requires_exact_approval':True,'requires_verified_recipient':True,'requires_suppression_check':True,'external_send_allowed':False}
+        enabled={**disabled,'enabled':True,'provider':'himalaya','daily_cap':1,'external_send_allowed':True}
+        with patch.object(mm_transport,'load_config',return_value=disabled),patch.object(mm_transport.subprocess,'run') as send:
+            with self.assertRaisesRegex(ValueError,'not explicitly enabled'):mm_transport.send_approved(NoQuery(),self.mid)
+            send.assert_not_called()
+        with patch.object(mm_transport,'load_config',return_value=enabled),patch.dict(os.environ,{'MM_EXTERNAL_SEND_DISABLED':'1'}),patch.object(mm_transport.subprocess,'run') as send:
+            with self.assertRaisesRegex(ValueError,'MM_EXTERNAL_SEND_DISABLED'):mm_transport.send_approved(NoQuery(),self.mid)
+            send.assert_not_called()
+
+    def test_60_mocked_himalaya_dispatch_is_idempotent_and_requires_receipt_reconciliation(self):
+        channel='himalaya|fixture-account|sender@fixture.example.invalid'
+        h=self.approve(channel=channel)
+        self.d.commit()
+        config={'version':1,'enabled':True,'provider':'himalaya','daily_cap':1,'requires_exact_approval':True,'requires_verified_recipient':True,'requires_suppression_check':True,'external_send_allowed':True}
+        response=subprocess.CompletedProcess(['himalaya'],0,stdout=b'{"message_id":"fixture-provider-id"}',stderr=b'')
+        with patch.object(mm_transport,'load_config',return_value=config),patch.object(mm_transport.shutil,'which',return_value='/fixture/himalaya'),patch.object(mm_transport.subprocess,'run',return_value=response) as send,patch.dict(os.environ,{'MM_EXTERNAL_SEND_DISABLED':'0','HIMALAYA_ACCOUNT':'fixture-account','HIMALAYA_FROM_ADDRESS':'sender@fixture.example.invalid'}):
+            result=mm_transport.send_approved(self.d,self.mid)
+            self.assertEqual(result['status'],'PROVIDER_ACCEPTED_PENDING_HUMAN_RECEIPT')
+            self.assertEqual(result['provider_message_id'],'fixture-provider-id')
+            self.assertEqual(result['external_sends'],1)
+            self.assertIn(b'To: operator@fixture.example.co.nz',send.call_args.kwargs['input'])
+            self.assertIn(b'Subject: A verified narrow improvement',send.call_args.kwargs['input'])
+            with self.assertRaisesRegex(ValueError,'already has a transport attempt'):
+                mm_transport.send_approved(self.d,self.mid)
+            self.assertEqual(send.call_count,1)
+        attempt=self.d.execute('SELECT status FROM mm_transport_attempts WHERE message_id=?',(self.mid,)).fetchone()[0]
+        self.assertEqual(attempt,'PROVIDER_ACCEPTED')
+        self.assertIsNone(self.d.execute('SELECT sent_at FROM mm_messages WHERE id=?',(self.mid,)).fetchone()[0])
+        with self.assertRaises(sqlite3.IntegrityError):
+            self.d.execute('UPDATE mm_messages SET body=body||? WHERE id=?',(' tampered',self.mid))
+        with self.assertRaises(sqlite3.IntegrityError):
+            self.d.execute("UPDATE mm_transport_attempts SET status='DISPATCHING' WHERE message_id=?",(self.mid,))
+        receipt_id=self.proof('send',self.mid,h)
+        c.record_sent(self.d,self.mid,receipt_id)
+        self.assertEqual(self.d.execute('SELECT status FROM mm_transport_attempts WHERE message_id=?',(self.mid,)).fetchone()[0],'RECONCILED')
+
+    def test_61_idempotent_migration_preserves_channel_approval(self):
+        channel='himalaya|fixture-account|sender@fixture.example.invalid'
+        approval_hash=self.approve(channel=channel)
+        self.d.commit()
+        c.migrate(self.d,self.backup)
+        packet=self.d.execute('SELECT approval_status,approved_channel,approved_hash FROM mm_messages WHERE id=?',(self.mid,)).fetchone()
+        self.assertEqual(tuple(packet),('APPROVED',channel,approval_hash))
+
+    def test_62_cli_exposes_exact_channel_bound_approval_hash(self):
+        channel='himalaya|fixture-account|sender@fixture.example.invalid'
+        output=io.StringIO()
+        with contextlib.redirect_stdout(output):
+            rc=o.main(['approval-hash',str(self.mid),'--channel',channel])
+        result=json.loads(output.getvalue())
+        self.assertEqual(rc,0)
+        self.assertEqual(result['channel'],channel)
+        self.assertEqual(result['approval_hash'],c.delivery_digest(self.address,BODY,channel))
 
 class JsonResult(unittest.TextTestResult):
     def __init__(self,*a,**k):super().__init__(*a,**k);self.records=[]

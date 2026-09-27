@@ -7,7 +7,8 @@ import mm_email_lifecycle as lifecycle
 import mm_email_tracking as tracking
 
 
-def database(tmp_path):
+def database(tmp_path, monkeypatch):
+    monkeypatch.setattr(core, "root", lambda: tmp_path)
     db = sqlite3.connect(":memory:")
     db.row_factory = sqlite3.Row
     db.executescript(
@@ -42,8 +43,8 @@ def database(tmp_path):
     return db
 
 
-def test_intent_requires_exact_human_approval(tmp_path):
-    db = database(tmp_path)
+def test_intent_requires_exact_human_approval(tmp_path, monkeypatch):
+    db = database(tmp_path, monkeypatch)
     event_path = tmp_path / "events.jsonl"
     db.execute("UPDATE approval_records SET content_hash='wrong'")
     with pytest.raises(ValueError, match="exact human approval"):
@@ -51,8 +52,8 @@ def test_intent_requires_exact_human_approval(tmp_path):
     assert db.execute("SELECT count(*) FROM email_delivery_intents").fetchone()[0] == 0
 
 
-def test_intent_is_idempotent_and_records_no_send(tmp_path):
-    db = database(tmp_path)
+def test_intent_is_idempotent_and_records_no_send(tmp_path, monkeypatch):
+    db = database(tmp_path, monkeypatch)
     event_path = tmp_path / "events.jsonl"
     first = lifecycle.create_intent(db, 7, "fixture", event_store=event_path)
     second = lifecycle.create_intent(db, 7, "fixture", event_store=event_path)
@@ -66,8 +67,8 @@ def test_intent_is_idempotent_and_records_no_send(tmp_path):
     assert first["external_sends"] == 0
 
 
-def test_suppression_blocks_intent_without_mutating_suppression(tmp_path):
-    db = database(tmp_path)
+def test_suppression_blocks_intent_without_mutating_suppression(tmp_path, monkeypatch):
+    db = database(tmp_path, monkeypatch)
     event_path = tmp_path / "events.jsonl"
     db.execute("INSERT INTO mm_suppression VALUES('team@fixture.example', 'human unsubscribe')")
     with pytest.raises(ValueError, match="suppressed"):
@@ -76,8 +77,8 @@ def test_suppression_blocks_intent_without_mutating_suppression(tmp_path):
     assert db.execute("SELECT count(*) FROM mm_suppression").fetchone()[0] == 1
 
 
-def test_failures_are_bounded_and_dead_lettered(tmp_path):
-    db = database(tmp_path)
+def test_failures_are_bounded_and_dead_lettered(tmp_path, monkeypatch):
+    db = database(tmp_path, monkeypatch)
     event_path = tmp_path / "events.jsonl"
     intent = lifecycle.create_intent(db, 7, "fixture", max_attempts=2, event_store=event_path)
     retry = lifecycle.record_result(db, intent["idempotency_key"], "failed", error="temporary", event_store=event_path)
@@ -91,8 +92,8 @@ def test_failures_are_bounded_and_dead_lettered(tmp_path):
         lifecycle.record_result(db, intent["idempotency_key"], "delivered", event_store=event_path)
 
 
-def test_reconstruction_contains_message_approval_intent_and_events(tmp_path):
-    db = database(tmp_path)
+def test_reconstruction_contains_message_approval_intent_and_events(tmp_path, monkeypatch):
+    db = database(tmp_path, monkeypatch)
     event_path = tmp_path / "events.jsonl"
     intent = lifecycle.create_intent(db, 7, "fixture", event_store=event_path)
     lifecycle.record_result(db, intent["idempotency_key"], "provider_accepted", provider_message_id="fixture-provider-id", event_store=event_path)
@@ -106,8 +107,8 @@ def test_reconstruction_contains_message_approval_intent_and_events(tmp_path):
     assert result["paid_calls"] == 0
 
 
-def test_draft_change_after_intent_is_blocked(tmp_path):
-    db = database(tmp_path)
+def test_draft_change_after_intent_is_blocked(tmp_path, monkeypatch):
+    db = database(tmp_path, monkeypatch)
     event_path = tmp_path / "events.jsonl"
     intent = lifecycle.create_intent(db, 7, "fixture", event_store=event_path)
     db.execute("UPDATE mm_messages SET body=body || ' changed' WHERE id=7")

@@ -134,6 +134,11 @@ def main(argv=None):
     packet_cmd.add_argument("demo", type=Path)
     packet_cmd.add_argument("quote", type=Path)
     packet_cmd.add_argument("--output-dir", type=Path, required=True)
+    packet_cmd.add_argument(
+        "--contact",
+        type=Path,
+        help="Optional JSON export from the Email Finder V2 status command",
+    )
     actions = sub.add_parser("actions")
     actions.add_argument("operation", choices=["preview", "cancel"])
     actions.add_argument("report", type=Path)
@@ -191,7 +196,11 @@ def main(argv=None):
         remediation = json.loads(remediation_path.read_text())
         demo = json.loads(demo_path.read_text())
         quote = json.loads(quote_path.read_text())
-        result = build_packet(report, remediation, demo, quote, output_dir)
+        contact = None
+        if args.contact:
+            contact_path = workspace_path(args.contact, must_exist=True, file_only=True)
+            contact = json.loads(contact_path.read_text())
+        result = build_packet(report, remediation, demo, quote, output_dir, contact=contact)
         print(json.dumps(result, indent=2))
         return 0
     if args.command == "doctor":

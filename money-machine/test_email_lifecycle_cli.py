@@ -70,7 +70,7 @@ def test_full_lifecycle_through_real_cli(tmp_path):
     database(tmp_path)
 
     # 1. Create intent
-    intent = run_json(["email-intent", "9", "--campaign", "cli-verify"], tmp_path)
+    intent = run_json(["email-intent", "9", "--campaign", "cli-verify", "--max-attempts", "2"], tmp_path)
     assert intent["status"] == "planned"
     assert intent["transport"] == "none"
     assert intent["transport_send_performed"] is False
@@ -86,7 +86,7 @@ def test_full_lifecycle_through_real_cli(tmp_path):
     # 3. Bounded failures: max_attempts=2 -> first retryable, second dead-lettered
     first = run_json(
         ["email-intent-result", key, "--status", "failed", "--error", "transient outage",
-         "--max-attempts", "2"],
+        ],
         tmp_path,
     )
     assert first["status"] == "retryable_failed"
@@ -94,7 +94,7 @@ def test_full_lifecycle_through_real_cli(tmp_path):
 
     dead = run_json(
         ["email-intent-result", key, "--status", "failed", "--error", "still down",
-         "--max-attempts", "2"],
+        ],
         tmp_path,
     )
     assert dead["status"] == "dead_lettered"
@@ -154,9 +154,10 @@ def test_unapproved_draft_cannot_get_intent_through_cli(tmp_path):
     assert "exact human approval required" in result.stderr
 
 
-def test_out_of_order_events_reconcile_by_timestamp(tmp_path):
+def test_out_of_order_events_reconcile_by_timestamp(tmp_path, monkeypatch):
     """A late-arriving historical event must not regress the reported status."""
     database(tmp_path)
+    monkeypatch.setenv("MM_ROOT", str(tmp_path))
     store = event_store(tmp_path)
     store.parent.mkdir(parents=True, exist_ok=True)
 

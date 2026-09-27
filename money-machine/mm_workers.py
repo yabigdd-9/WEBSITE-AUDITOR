@@ -111,36 +111,39 @@ def qualification_handler(d, it, worker):
     # We'll use the defect score directly as technical opportunity score
     technical_opportunity_score = min(100, audit_score)  # Cap at 100
 
-    # Qualification logic:
-    # A prospect is qualified if they have either:
-    # 1. Sufficient commercial relevance (business signals indicate ability to pay/ready to buy)
-    # 2. Sufficient technical opportunity (website has issues we can fix)
-    # 3. Or both (ideal prospect)
-    if commercial_score >= 30 or technical_opportunity_score >= 40:
-        # Determine tier based on combined strength
-        combined_score = (commercial_score * 0.4) + (technical_opportunity_score * 0.6)
-        if combined_score >= 80:
-            tier = "HOT"
-        elif combined_score >= 55:
-            tier = "WARM"
-        else:
-            tier = "QUALIFIED"
+    # Keep the two dimensions independent. Either may qualify a prospect for
+    # review, but neither is averaged into the other or used to rewrite its tier.
+    commercial_qualified = commercial_score >= 30
+    technical_qualified = technical_opportunity_score >= 40
+    qualification_basis = []
+    if commercial_qualified:
+        qualification_basis.append('commercial_relevance')
+    if technical_qualified:
+        qualification_basis.append('technical_need')
 
-        return ('CONTACT_PENDING', f'qualified: commercial={commercial_score}, technical={technical_opportunity_score}',
+    if qualification_basis:
+        # Preserve the legacy tier field as the commercial tier only. A
+        # technically qualified lead with weak commercial signals is labeled
+        # explicitly, rather than receiving a blended HOT/WARM classification.
+        tier = commercial_lead['tier'] if commercial_qualified else 'TECHNICAL_ONLY'
+        return ('CONTACT_PENDING', 'qualified on: ' + ', '.join(qualification_basis),
                 {
                     'commercial_score': commercial_score,
                     'technical_score': technical_opportunity_score,
                     'defect_count': defect_count,
                     'tier': tier,
                     'commercial_tier': commercial_lead['tier'],
-                    'qualification_reasons': commercial_lead['reasons']
+                    'qualification_basis': qualification_basis,
+                    'qualification_reasons': commercial_lead['reasons'],
                 })
     else:
         return ('REJECTED', f' insufficient commercial ({commercial_score}) and technical ({technical_opportunity_score}) scores',
                 {
                     'commercial_score': commercial_score,
                     'technical_score': technical_opportunity_score,
-                    'defect_count': defect_count
+                    'defect_count': defect_count,
+                    'commercial_tier': commercial_lead['tier'],
+                    'qualification_basis': [],
                 })
 
 

@@ -146,12 +146,14 @@ class SendImpossible(ReportingBase):
         self.assertEqual(status['daily_cap'], 0)
         self.assertFalse(status['network_send_implementation'])
         # Tampering with the config fails closed, never partially enables.
-        bad = Path(self.tmp.name) / 'transport.json'
         doc = json.loads((Path(transport.__file__).parent / 'config' / 'transport.json').read_text())
-        doc['daily_cap'] = 5
-        bad.write_text(json.dumps(doc))
-        with self.assertRaisesRegex(ValueError, 'daily_cap'):
-            transport.load_config(bad)
+        doc['daily_cap'] = -1
+        config_dir = Path(transport.__file__).parent / 'config'
+        with tempfile.TemporaryDirectory(dir=config_dir) as temp_config_dir:
+            bad = Path(temp_config_dir) / 'transport.json'
+            bad.write_text(json.dumps(doc))
+            with self.assertRaisesRegex(ValueError, 'daily_cap'):
+                transport.load_config(bad)
 
 
 if __name__ == '__main__':

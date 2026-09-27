@@ -112,9 +112,46 @@ def test_p11_demo_and_p13_packet_never_claim_live_change_or_send(tmp_path):
     assert packet["paid_ai_cost_usd"] == 0
     assert packet["contact"] is None
     assert packet["email_confidence"] == "NO_VERIFIED_EMAIL"
+    assert packet["contact_provenance"] is None
     assert len(packet["evidence"]) == 4
     assert Path(packet["draft_message_path"]).is_file()
-    assert "not measured or guaranteed" in Path(packet["draft_message_path"]).read_text()
+    assert "No change in traffic, enquiries, sales or revenue has been measured" in Path(packet["draft_message_path"]).read_text()
+    assert packet["qa_status"] == "PASS_HUMAN_REVIEW_REQUIRED"
+    assert packet["draft_qa"]["passed"] is True
+
+
+def test_packet_rejects_verified_label_without_first_party_provenance(tmp_path):
+    r = report()
+    remediation = build_remediation(r, tmp_path / "remediation")
+    demo = build_demo(r, remediation, tmp_path / "demo")
+    quote = calculate_quote(r, 150)
+    packet = build_packet(
+        r,
+        remediation,
+        demo,
+        quote,
+        tmp_path / "packet",
+        contact={
+            "email": "hello@example.co.nz",
+            "selected": {"email": "hello@example.co.nz", "confidence_label": "VERIFIED_HIGH"},
+        },
+    )
+    assert packet["contact"] is None
+    assert packet["email_confidence"] == "UNVERIFIED_MISSING_PROVENANCE"
+    assert packet["contact_provenance"] is None
+    assert packet["outreach_eligible"] is False
+
+
+def test_packet_draft_qa_blocks_unsupported_claims(tmp_path):
+    r = report()
+    r["defects"][0]["defect"] = "Guaranteed to double sales"
+    remediation = build_remediation(r, tmp_path / "remediation")
+    demo = build_demo(r, remediation, tmp_path / "demo")
+    quote = calculate_quote(r, 150)
+    packet = build_packet(r, remediation, demo, quote, tmp_path / "packet")
+    assert packet["draft_qa"]["passed"] is False
+    assert packet["qa_status"] == "FAIL_HUMAN_REVIEW_REQUIRED"
+    assert packet["send_enabled"] is False
 
 
 def test_packet_rejects_fake_after_claim(tmp_path):

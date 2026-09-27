@@ -133,7 +133,8 @@ def cmd_health(args) -> dict:
     db_path = root() / "database" / "money_machine.db"
     if not db_path.is_file():
         return {"supervisor": cmd_status(args),
-                "pipeline": {"initialised": False, "note": "database not created yet"}}
+                "pipeline": {"initialised": False, "note": "database not created yet"},
+                "network": network_status()}
     with contextlib.closing(connect(readonly=True)) as d:
         try:
             tables = {r[0] for r in d.execute(

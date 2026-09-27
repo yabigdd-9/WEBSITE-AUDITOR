@@ -31,7 +31,10 @@ def db():
           source TEXT,
           discovered_at TEXT,
           current_status TEXT,
-          is_dummy INTEGER DEFAULT 0);
+          is_dummy INTEGER DEFAULT 0,
+          suppression_reason TEXT,
+          canonical_host TEXT,
+          normalized_name TEXT);
         CREATE TABLE mm_deals(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           business_id INTEGER NOT NULL,

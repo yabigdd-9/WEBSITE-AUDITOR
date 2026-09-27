@@ -379,3 +379,29 @@ final_acceptance:
     - "One canonical repo/auditor/control plane/master plan."
     - "Obsidian is human-facing only."
     - "n8n is not required by the default stack."
+
+latest_execution_checkpoint:
+  as_of_local_date: "2026-09-28"
+  workspace: "Isolated worktree; changes remain uncommitted and unpromoted."
+  branch: "codex/canonical-plan-execution"
+  user_reported:
+    reliability_soak: "Completed in Claude per owner report on 2026-09-28; no Codex rerun requested. Claude run artifacts and tested SHA were not inspected in this workspace."
+  verified:
+    python: "3.11.16"
+    toolkit_tests: "171 passed, 4 skipped, 3 dependency deprecation warnings."
+    money_machine_tests: "302 passed, 23 skipped, 77 subtests passed; executed with a fresh empty SQLite source fixture and the verified Python 3.11 runtime."
+    strict_dependency_audits: "Project dependencies and money-machine/requirements-email.txt: no known vulnerabilities found."
+    gitleaks_working_tree: "Gitleaks 8.30.1 with the repository config reports 0 findings. The initial 52 candidates were confined to 23 captured HTML fixture pages; candidate strings were redacted, fixture SHA-256 values refreshed, and original source hashes retained in the manifest."
+    gitleaks_history: "A complete scan covered all 451 commits across local refs and found 172 candidates in 35 paths across 5 commits. A targeted review traced 42 generic-api-key matches in proposed_actions.jsonl to generated idempotency_key hashes (SHA-256). Twenty-two candidates in .env/.env.fcc came from commit 48bd89da on the local-only backup/discovery-before-secret-cleanup branch; values were nonempty and remain unverified, so treat them as potentially valid credentials. That branch is not advertised by origin and the commit is not an ancestor of the remote master or upgrade branch. Other historical candidates remain unclassified; no values were printed, rotated, or history-rewritten."
+    master_plan_yaml: "Parses successfully."
+    diff_check: "Passed."
+    transport_safety: "Channel-bound approval, at-most-once attempt reservation, runtime kill switch and receipt reconciliation covered with mocked provider. No real send attempted."
+    default_cost_and_send: "Paid routes remain blocked at $0; default transport remains disabled."
+    lighthouse_lychee: "Optional integrations and evidence-backed findings are implemented and covered by mocked tests; local binaries are not installed."
+    prospect_packet: "CLI accepts an Email Finder V2 status export; verified contacts are included only with matching first-party capture provenance. Packet provenance excludes local capture paths and raw page context."
+    draft_qa: "Prospect drafts receive deterministic claim, evidence-reference, quote-band and scope-caveat checks; human review remains required and send authority stays disabled."
+    score_separation: "Queue qualification preserves independent commercial and technical scores and qualification basis; blended cross-axis ranking was removed. Regression coverage passes."
+    canonical_runtime_snapshot: "Read-only check at 2026-09-27T12:27Z: health reports PID 22813 with a fresh heartbeat, but launchctl reports the registered LaunchAgent state as not running and the process is reparented to PID 1. Queue has 20 REJECTED items, 0 active leases and 0 current DLQ items; cumulative counters show 16 retry-scheduled and 16 dead-lettered events. DB integrity/foreign keys pass; transport remains DRAFT_ONLY, external sends 0, model_cost_usd 0.0."
+  acceptance_open:
+    - "The current worktree Gitleaks scan is clean, but historical candidates remain unclassified. Determine whether the nonempty .env/.env.fcc values in the local-only backup branch are valid, whether any owner-controlled credential needs rotation, and how to handle the remaining all-ref history findings without exposing values."
+    - "Keep heavier optional infrastructure benchmarks deferred until core acceptance passes."

@@ -66,6 +66,25 @@ workspace_path = safe_path
 def sha(data): return hashlib.sha256(data if isinstance(data, bytes) else data.encode()).hexdigest()
 def digest(recipient, body): return sha(recipient.strip().lower()+'\n'+body)
 def proposal_digest(recipient, body, price): return sha(json.dumps([recipient.strip().lower(),body,price],separators=(',',':')))
+
+
+def delivery_digest(recipient, body, channel="draft_only"):
+    """Bind exact message approval to a delivery channel while keeping old drafts valid."""
+    base = digest(recipient, body)
+    channel = str(channel or "draft_only").strip()
+    if channel == "draft_only":
+        return base
+    return sha(json.dumps(["delivery-v1", base, channel], separators=(",", ":")))
+
+
+def proposal_delivery_digest(recipient, body, price_cents, channel="draft_only"):
+    base = proposal_digest(recipient, body, price_cents)
+    channel = str(channel or "draft_only").strip()
+    if channel == "draft_only":
+        return base
+    return sha(json.dumps(["proposal-delivery-v1", base, channel], separators=(",", ":")))
+
+
 def timestamp(value):
     # Legacy SQLite CURRENT_TIMESTAMP is UTC without an offset. Retain raw source.
     t = dt.datetime.fromisoformat(value.replace('Z','+00:00'))
@@ -91,6 +110,8 @@ def connect(path=None, readonly=False):
     d.create_function('mm_digest',2,digest,deterministic=True)
     d.create_function('mm_artifact_valid',2,artifact_valid)
     d.create_function('mm_proposal_digest',3,proposal_digest,deterministic=True)
+    d.create_function('mm_delivery_digest',3,delivery_digest,deterministic=True)
+    d.create_function('mm_proposal_delivery_digest',4,proposal_delivery_digest,deterministic=True)
     return d
 
 def event(d, action, bid, detail):
@@ -107,24 +128,27 @@ BUSINESS_OPERATIONAL_COLUMNS = (
 
 
 def ensure_business_columns(d):
-    """Add v32 business metadata columns to legacy databases, idempotently."""
+    """Add the operational business columns inside a verified migration."""
     columns = {row[1] for row in d.execute('PRAGMA table_info(businesses)')}
+    if not columns:
+        raise sqlite3.OperationalError('businesses table is missing')
     for name, sql_type in BUSINESS_OPERATIONAL_COLUMNS:
         if name not in columns:
+            # Names and types come from the fixed tuple above, never user input.
             d.execute(f'ALTER TABLE businesses ADD COLUMN {name} {sql_type}')
-            columns.add(name)
-    return columns
 
 
 def ensure_message_columns(d):
-    """Idempotently add approval_status to messages/proposals."""
-    cols = {r[1] for r in d.execute('PRAGMA table_info(mm_messages)')}
-    if 'approval_status' not in cols:
-        d.execute('ALTER TABLE mm_messages ADD COLUMN approval_status TEXT DEFAULT "DRAFT"')
-
-    cols = {r[1] for r in d.execute('PRAGMA table_info(mm_proposals)')}
-    if 'approval_status' not in cols:
-        d.execute('ALTER TABLE mm_proposals ADD COLUMN approval_status TEXT DEFAULT "DRAFT"')
+    """Idempotently add review status and channel fields to legacy packet tables."""
+    definitions = (
+        ('approval_status', "TEXT NOT NULL DEFAULT 'DRAFT'"),
+        ('approved_channel', "TEXT NOT NULL DEFAULT 'draft_only'"),
+    )
+    for table in ('mm_messages', 'mm_proposals'):
+        cols = {r[1] for r in d.execute(f'PRAGMA table_info({table})')}
+        for name, sql_type in definitions:
+            if name not in cols:
+                d.execute(f'ALTER TABLE {table} ADD COLUMN {name} {sql_type}')
 
 def backup(r=None):
     r=Path(r or root());folder=r/'backups'/('mm-v2-'+dt.datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ')+'-'+uuid.uuid4().hex[:6]);folder.mkdir(parents=True,mode=0o700)
@@ -166,7 +190,7 @@ def backup(r=None):
 
 SCHEMA = '''
 CREATE TABLE IF NOT EXISTS industries(id INTEGER PRIMARY KEY,name TEXT NOT NULL UNIQUE,region TEXT,market_notes TEXT,pain_score REAL DEFAULT 0,ability_to_pay_score REAL DEFAULT 0,recurring_revenue_score REAL DEFAULT 0,total_score REAL DEFAULT 0,evidence TEXT,last_reviewed TEXT,frontend_weakness_score REAL DEFAULT 0,backend_pain_score REAL DEFAULT 0,competition_score REAL DEFAULT 0,build_ease_score REAL DEFAULT 0);
-CREATE TABLE IF NOT EXISTS businesses(id INTEGER PRIMARY KEY,name TEXT NOT NULL,industry_id INTEGER REFERENCES industries(id),region TEXT,public_website TEXT,source TEXT NOT NULL,discovered_at TEXT NOT NULL,current_status TEXT NOT NULL,is_dummy INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE IF NOT EXISTS businesses(id INTEGER PRIMARY KEY,name TEXT NOT NULL,industry_id INTEGER REFERENCES industries(id),region TEXT,public_website TEXT,source TEXT NOT NULL,discovered_at TEXT NOT NULL,current_status TEXT NOT NULL,is_dummy INTEGER NOT NULL DEFAULT 0,suppression_reason TEXT,canonical_host TEXT,normalized_name TEXT);
 CREATE TABLE IF NOT EXISTS audits(id INTEGER PRIMARY KEY,business_id INTEGER NOT NULL REFERENCES businesses(id),mobile_quality REAL,conversion_quality REAL,quote_flow REAL,booking_flow REAL,seo_basics REAL,trust_signals REAL,page_speed REAL,accessibility REAL,broken_paths TEXT,follow_up_quality REAL,crm_signal REAL,automation_opportunities TEXT,evidence TEXT NOT NULL,opportunity_score REAL,created_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS experiments(id INTEGER PRIMARY KEY,hypothesis TEXT NOT NULL,target_segment TEXT,variable TEXT,expected_result TEXT,actual_result TEXT,decision TEXT,lesson TEXT,created_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS projects(id INTEGER PRIMARY KEY,client_business_id INTEGER REFERENCES businesses(id),scope TEXT NOT NULL,repository TEXT,status TEXT NOT NULL,estimated_hours REAL,actual_hours REAL,delivery_date TEXT,qa_status TEXT,rollback_plan TEXT);
@@ -193,11 +217,12 @@ CREATE TABLE IF NOT EXISTS mm_deals(business_id INTEGER PRIMARY KEY REFERENCES b
 CREATE TABLE IF NOT EXISTS mm_cash(id INTEGER PRIMARY KEY,business_id INTEGER NOT NULL REFERENCES businesses(id),amount_cents INTEGER NOT NULL,receipt TEXT NOT NULL UNIQUE,received_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS mm_holds(business_id INTEGER PRIMARY KEY REFERENCES businesses(id),reason TEXT NOT NULL,created_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS mm_suppression(id INTEGER PRIMARY KEY,address TEXT NOT NULL,reason TEXT NOT NULL,created_at TEXT NOT NULL,UNIQUE(address));
-CREATE TABLE IF NOT EXISTS mm_messages(id INTEGER PRIMARY KEY,business_id INTEGER NOT NULL REFERENCES businesses(id),evidence_id INTEGER NOT NULL REFERENCES mm_evidence(id),recipient TEXT NOT NULL,body TEXT NOT NULL,digest TEXT NOT NULL,kind TEXT NOT NULL CHECK(kind IN ('initial','followup')),parent_id INTEGER REFERENCES mm_messages(id),created_at TEXT NOT NULL,approved_hash TEXT,approved_by TEXT,approval_ref TEXT,permission_basis TEXT,sent_at TEXT,send_receipt TEXT,invalidated_reason TEXT,reply TEXT);
+CREATE TABLE IF NOT EXISTS mm_messages(id INTEGER PRIMARY KEY,business_id INTEGER NOT NULL REFERENCES businesses(id),evidence_id INTEGER NOT NULL REFERENCES mm_evidence(id),recipient TEXT NOT NULL,body TEXT NOT NULL,digest TEXT NOT NULL,kind TEXT NOT NULL CHECK(kind IN ('initial','followup')),parent_id INTEGER REFERENCES mm_messages(id),created_at TEXT NOT NULL,approved_hash TEXT,approved_by TEXT,approval_ref TEXT,permission_basis TEXT,sent_at TEXT,send_receipt TEXT,invalidated_reason TEXT,reply TEXT,approval_status TEXT NOT NULL DEFAULT 'DRAFT',approved_channel TEXT NOT NULL DEFAULT 'draft_only');
 CREATE TABLE IF NOT EXISTS mm_evidence_meta(evidence_id INTEGER PRIMARY KEY REFERENCES mm_evidence(id),status TEXT NOT NULL CHECK(status IN ('verified','refuted','partial','unverified')),method TEXT NOT NULL,confidence REAL NOT NULL CHECK(confidence BETWEEN 0 AND 1),claim_type TEXT NOT NULL,commercial_relevance TEXT NOT NULL,expires_at TEXT NOT NULL,capture_path TEXT NOT NULL,capture_hash TEXT NOT NULL,verified_by TEXT NOT NULL,verification_count INTEGER NOT NULL CHECK(verification_count>0));
 CREATE TABLE IF NOT EXISTS mm_contact_evidence(id INTEGER PRIMARY KEY,business_id INTEGER NOT NULL REFERENCES businesses(id),recipient TEXT NOT NULL,source_url TEXT NOT NULL,checked_at TEXT NOT NULL,relevance TEXT NOT NULL,permission_basis TEXT NOT NULL,permission_verified_by TEXT,unsubscribe_state TEXT NOT NULL CHECK(unsubscribe_state IN ('none_recorded','unsubscribed','unknown')),confidence REAL NOT NULL CHECK(confidence BETWEEN 0 AND 1),capture_path TEXT NOT NULL,capture_hash TEXT NOT NULL,UNIQUE(business_id,recipient));
 CREATE TABLE IF NOT EXISTS mm_demo_qa(business_id INTEGER PRIMARY KEY REFERENCES businesses(id),path TEXT NOT NULL,file_hash TEXT NOT NULL,score INTEGER NOT NULL CHECK(score BETWEEN 0 AND 100),checks_json TEXT NOT NULL,passed INTEGER NOT NULL CHECK(passed IN (0,1)),checked_at TEXT NOT NULL);
-CREATE TABLE IF NOT EXISTS mm_proposals(id INTEGER PRIMARY KEY,business_id INTEGER NOT NULL REFERENCES businesses(id),evidence_id INTEGER NOT NULL REFERENCES mm_evidence(id),recipient TEXT NOT NULL,body TEXT NOT NULL,price_cents INTEGER NOT NULL CHECK(price_cents>0),digest TEXT NOT NULL UNIQUE,created_at TEXT NOT NULL,approved_hash TEXT,approved_by TEXT,approval_ref TEXT,permission_basis TEXT,sent_at TEXT,send_receipt TEXT,invalidated_reason TEXT);
+CREATE TABLE IF NOT EXISTS mm_proposals(id INTEGER PRIMARY KEY,business_id INTEGER NOT NULL REFERENCES businesses(id),evidence_id INTEGER NOT NULL REFERENCES mm_evidence(id),recipient TEXT NOT NULL,body TEXT NOT NULL,price_cents INTEGER NOT NULL CHECK(price_cents>0),digest TEXT NOT NULL UNIQUE,created_at TEXT NOT NULL,approved_hash TEXT,approved_by TEXT,approval_ref TEXT,permission_basis TEXT,sent_at TEXT,send_receipt TEXT,invalidated_reason TEXT,approval_status TEXT NOT NULL DEFAULT 'DRAFT',approved_channel TEXT NOT NULL DEFAULT 'draft_only');
+CREATE TABLE IF NOT EXISTS mm_transport_attempts(id INTEGER PRIMARY KEY,message_id INTEGER NOT NULL UNIQUE REFERENCES mm_messages(id),idempotency_key TEXT NOT NULL UNIQUE,provider TEXT NOT NULL CHECK(provider='himalaya'),approval_hash TEXT NOT NULL,approved_channel TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('DISPATCHING','PROVIDER_ACCEPTED','OUTCOME_UNKNOWN','RECONCILED')),provider_message_id TEXT,started_at TEXT NOT NULL,updated_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS mm_receipts(id INTEGER PRIMARY KEY,kind TEXT NOT NULL CHECK(kind IN ('send','proposal_send','payment','refund','reply','approval')),business_id INTEGER NOT NULL REFERENCES businesses(id),object_id INTEGER,source_system TEXT NOT NULL,external_id TEXT NOT NULL,artifact_path TEXT NOT NULL,artifact_hash TEXT NOT NULL,content_hash TEXT,amount_cents INTEGER,currency TEXT NOT NULL DEFAULT 'NZD',verified_by TEXT NOT NULL,verified_at TEXT NOT NULL,occurred_at TEXT NOT NULL,UNIQUE(source_system,external_id),UNIQUE(artifact_hash,kind));
 CREATE TABLE IF NOT EXISTS mm_refunds(id INTEGER PRIMARY KEY,payment_id INTEGER NOT NULL REFERENCES mm_cash(id),amount_cents INTEGER NOT NULL CHECK(amount_cents>0),receipt TEXT NOT NULL UNIQUE,created_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS mm_scores(business_id INTEGER PRIMARY KEY REFERENCES businesses(id),evidence_id INTEGER NOT NULL REFERENCES mm_evidence(id),inputs_json TEXT NOT NULL,computed_json TEXT NOT NULL,calculated_at TEXT NOT NULL);
@@ -225,6 +250,7 @@ CREATE INDEX IF NOT EXISTS mm_deal_queue ON mm_deals(stage,due);
 CREATE UNIQUE INDEX IF NOT EXISTS mm_one_initial ON mm_messages(business_id) WHERE kind='initial';
 CREATE UNIQUE INDEX IF NOT EXISTS mm_unique_send_receipt ON mm_messages(send_receipt) WHERE send_receipt IS NOT NULL;
 CREATE UNIQUE INDEX IF NOT EXISTS mm_unique_proposal_receipt ON mm_proposals(send_receipt) WHERE send_receipt IS NOT NULL;
+CREATE INDEX IF NOT EXISTS mm_transport_attempts_started ON mm_transport_attempts(provider,started_at);
 '''
 
 def migrate(d, backup_path):
@@ -234,12 +260,50 @@ def migrate(d, backup_path):
     for item in doc['items']:
         p=Path(item.get('path',item.get('backup','')))
         if not p.is_file() or sha(p.read_bytes())!=item['sha256']:raise ValueError('Backup checksum mismatch')
-    # executescript begins its own explicit transaction; no half-applied migration.
-    sql='BEGIN IMMEDIATE;\n'+SCHEMA
+    # Upgrade legacy columns between base DDL and trigger creation, inside the
+    # same verified-backup transaction. Trigger bodies can then rely on them.
+    tables = {r[0] for r in d.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    upgrades = []
+    approval_status_upgrade = not d.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='mm_migrations'"
+    ).fetchone() or not d.execute(
+        "SELECT 1 FROM mm_migrations WHERE version=3"
+    ).fetchone()
+    for table, columns in (
+        ('businesses', BUSINESS_OPERATIONAL_COLUMNS),
+        ('mm_messages', (('approval_status', "TEXT NOT NULL DEFAULT 'DRAFT'"), ('approved_channel', "TEXT NOT NULL DEFAULT 'draft_only'"))),
+        ('mm_proposals', (('approval_status', "TEXT NOT NULL DEFAULT 'DRAFT'"), ('approved_channel', "TEXT NOT NULL DEFAULT 'draft_only'"))),
+    ):
+        if table not in tables:
+            continue
+        current = {r[1] for r in d.execute(f'PRAGMA table_info({table})')}
+        upgrades.extend(
+            f'ALTER TABLE {table} ADD COLUMN {name} {sql_type};'
+            for name, sql_type in columns
+            if name not in current
+        )
+    sql='BEGIN IMMEDIATE;\n'+SCHEMA+'\n'+'\n'.join(upgrades)+'\n'
+    if approval_status_upgrade:
+        # Remove the prior definitions before the one-time backfill. Recreate
+        # them below so idempotent migration runs never rewrite live approval
+        # state underneath its guards.
+        sql += """
+DROP TRIGGER IF EXISTS mm_message_approval_status_guard;
+DROP TRIGGER IF EXISTS mm_proposal_approval_status_guard;
+DROP TRIGGER IF EXISTS mm_message_channel_guard;
+DROP TRIGGER IF EXISTS mm_proposal_channel_guard;
+"""
+        sql += """
+UPDATE mm_messages SET approval_status=CASE WHEN sent_at IS NOT NULL THEN 'SENT' WHEN approved_hash IS NOT NULL THEN 'APPROVED' ELSE 'DRAFT' END;
+UPDATE mm_proposals SET approval_status=CASE WHEN sent_at IS NOT NULL THEN 'SENT' WHEN approved_hash IS NOT NULL THEN 'APPROVED' ELSE 'DRAFT' END;
+"""
     sql+=TRIGGERS
     try:
         d.executescript(sql)
+        ensure_business_columns(d)
+        ensure_message_columns(d)
         d.execute('INSERT OR IGNORE INTO mm_migrations VALUES(2,?,?)',(now(),str(backup_path)))
+        d.execute('INSERT OR IGNORE INTO mm_migrations VALUES(3,?,?)',(now(),str(backup_path)))
         d.commit()
     except Exception:d.rollback();raise
 
@@ -247,9 +311,27 @@ def migrate(d, backup_path):
 # Hash UDFs intentionally fail closed on unregistered SQLite connections.
 TRIGGERS = '''
 DROP TRIGGER IF EXISTS prevent_unapproved_mm_messages_send;
+DROP TRIGGER IF EXISTS mm_message_edit;
+DROP TRIGGER IF EXISTS mm_proposal_edit;
+DROP TRIGGER IF EXISTS mm_proposal_send;
+DROP TRIGGER IF EXISTS mm_message_approval_proof;
+DROP TRIGGER IF EXISTS mm_proposal_approval_proof;
+DROP TRIGGER IF EXISTS mm_suppression_revoke;
+DROP TRIGGER IF EXISTS mm_evidence_change_revoke;
+DROP TRIGGER IF EXISTS mm_evidence_meta_change_revoke;
+DROP TRIGGER IF EXISTS mm_contact_change_revoke;
+DROP TRIGGER IF EXISTS mm_message_approval_status_guard;
+DROP TRIGGER IF EXISTS mm_proposal_approval_status_guard;
+DROP TRIGGER IF EXISTS mm_message_channel_guard;
+DROP TRIGGER IF EXISTS mm_proposal_channel_guard;
+DROP TRIGGER IF EXISTS mm_transport_attempt_state_guard;
+DROP TRIGGER IF EXISTS mm_transport_attempt_immutable;
+DROP TRIGGER IF EXISTS mm_transport_attempt_no_delete;
+DROP TRIGGER IF EXISTS mm_transport_attempt_approval_guard;
+DROP TRIGGER IF EXISTS mm_message_transport_attempt_content_immutable;
 CREATE TRIGGER prevent_unapproved_mm_messages_send BEFORE UPDATE OF sent_at,send_receipt ON mm_messages
 WHEN NEW.sent_at IS NOT NULL BEGIN
- SELECT CASE WHEN OLD.sent_at IS NOT NULL OR OLD.approved_hash IS NULL OR OLD.approved_hash IS NOT mm_digest(NEW.recipient,NEW.body) OR OLD.approval_ref IS NULL OR NEW.invalidated_reason IS NOT NULL THEN RAISE(ABORT,'send blocked: exact current approval required') END;
+ SELECT CASE WHEN OLD.sent_at IS NOT NULL OR OLD.approval_status!='APPROVED' OR OLD.approved_hash IS NULL OR OLD.approved_hash IS NOT mm_delivery_digest(NEW.recipient,NEW.body,OLD.approved_channel) OR OLD.approval_ref IS NULL OR NEW.invalidated_reason IS NOT NULL THEN RAISE(ABORT,'send blocked: exact current approval required') END;
  SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM mm_receipts r WHERE cast(r.id AS TEXT)=NEW.send_receipt AND r.kind='send' AND r.business_id=NEW.business_id AND r.object_id=NEW.id AND r.content_hash=OLD.approved_hash) THEN RAISE(ABORT,'send blocked: verified external receipt required') END;
  SELECT CASE WHEN EXISTS(SELECT 1 FROM mm_holds WHERE business_id=NEW.business_id) OR EXISTS(SELECT 1 FROM mm_deals WHERE business_id=NEW.business_id AND stage='SUPPRESSED') OR EXISTS(SELECT 1 FROM mm_suppression WHERE lower(trim(address))=lower(trim(NEW.recipient))) OR EXISTS(SELECT 1 FROM contacts WHERE lower(trim(address_or_channel))=lower(trim(NEW.recipient)) AND do_not_contact=1) THEN RAISE(ABORT,'suppression overrides approval') END;
 END;
@@ -258,14 +340,14 @@ CREATE TRIGGER IF NOT EXISTS mm_message_queue_guard BEFORE INSERT ON mm_messages
  SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM mm_evidence WHERE id=NEW.evidence_id AND business_id=NEW.business_id) THEN RAISE(ABORT,'evidence belongs to different prospect') END;
 END;
 CREATE TRIGGER IF NOT EXISTS mm_message_edit AFTER UPDATE OF body,recipient,evidence_id,digest,kind,parent_id,business_id,invalidated_reason ON mm_messages
-WHEN NEW.body IS NOT OLD.body OR NEW.recipient IS NOT OLD.recipient OR NEW.evidence_id IS NOT OLD.evidence_id OR NEW.digest IS NOT OLD.digest OR NEW.kind IS NOT OLD.kind OR NEW.parent_id IS NOT OLD.parent_id OR NEW.business_id IS NOT OLD.business_id OR NEW.invalidated_reason IS NOT OLD.invalidated_reason BEGIN
- UPDATE mm_messages SET approved_hash=NULL,approved_by=NULL,approval_ref=NULL,permission_basis=NULL WHERE id=NEW.id;
+WHEN OLD.sent_at IS NULL AND (NEW.body IS NOT OLD.body OR NEW.recipient IS NOT OLD.recipient OR NEW.evidence_id IS NOT OLD.evidence_id OR NEW.digest IS NOT OLD.digest OR NEW.kind IS NOT OLD.kind OR NEW.parent_id IS NOT OLD.parent_id OR NEW.business_id IS NOT OLD.business_id OR NEW.invalidated_reason IS NOT OLD.invalidated_reason) BEGIN
+ UPDATE mm_messages SET approved_hash=NULL,approved_by=NULL,approval_ref=NULL,permission_basis=NULL,approval_status='DRAFT',approved_channel='draft_only' WHERE id=NEW.id;
 END;
 CREATE TRIGGER IF NOT EXISTS mm_sent_immutable BEFORE UPDATE OF body,recipient,evidence_id,digest,kind,parent_id,business_id ON mm_messages WHEN OLD.sent_at IS NOT NULL BEGIN SELECT RAISE(ABORT,'sent content is immutable');END;
-CREATE TRIGGER IF NOT EXISTS mm_proposal_edit AFTER UPDATE OF recipient,body,price_cents,evidence_id,digest,invalidated_reason ON mm_proposals WHEN NEW.recipient IS NOT OLD.recipient OR NEW.body IS NOT OLD.body OR NEW.price_cents IS NOT OLD.price_cents OR NEW.evidence_id IS NOT OLD.evidence_id OR NEW.digest IS NOT OLD.digest OR NEW.invalidated_reason IS NOT OLD.invalidated_reason BEGIN UPDATE mm_proposals SET approved_hash=NULL,approved_by=NULL,approval_ref=NULL,permission_basis=NULL WHERE id=NEW.id;END;
+CREATE TRIGGER IF NOT EXISTS mm_proposal_edit AFTER UPDATE OF recipient,body,price_cents,evidence_id,digest,invalidated_reason ON mm_proposals WHEN OLD.sent_at IS NULL AND (NEW.recipient IS NOT OLD.recipient OR NEW.body IS NOT OLD.body OR NEW.price_cents IS NOT OLD.price_cents OR NEW.evidence_id IS NOT OLD.evidence_id OR NEW.digest IS NOT OLD.digest OR NEW.invalidated_reason IS NOT OLD.invalidated_reason) BEGIN UPDATE mm_proposals SET approved_hash=NULL,approved_by=NULL,approval_ref=NULL,permission_basis=NULL,approval_status='DRAFT',approved_channel='draft_only' WHERE id=NEW.id;END;
 CREATE TRIGGER IF NOT EXISTS mm_proposal_insert BEFORE INSERT ON mm_proposals WHEN NEW.sent_at IS NOT NULL BEGIN SELECT RAISE(ABORT,'proposal requires draft and human approval');END;
 CREATE TRIGGER IF NOT EXISTS mm_proposal_send BEFORE UPDATE OF sent_at,send_receipt ON mm_proposals WHEN NEW.sent_at IS NOT NULL BEGIN
- SELECT CASE WHEN OLD.sent_at IS NOT NULL OR OLD.approved_hash IS NULL OR OLD.approved_hash IS NOT mm_proposal_digest(NEW.recipient,NEW.body,NEW.price_cents) OR OLD.approval_ref IS NULL OR NEW.invalidated_reason IS NOT NULL THEN RAISE(ABORT,'proposal requires exact price and content approval') END;
+ SELECT CASE WHEN OLD.sent_at IS NOT NULL OR OLD.approval_status!='APPROVED' OR OLD.approved_hash IS NULL OR OLD.approved_hash IS NOT mm_proposal_delivery_digest(NEW.recipient,NEW.body,NEW.price_cents,OLD.approved_channel) OR OLD.approval_ref IS NULL OR NEW.invalidated_reason IS NOT NULL THEN RAISE(ABORT,'proposal requires exact price and content approval') END;
  SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM mm_receipts WHERE cast(id AS TEXT)=NEW.send_receipt AND kind='proposal_send' AND business_id=NEW.business_id AND object_id=NEW.id AND content_hash=OLD.approved_hash) THEN RAISE(ABORT,'proposal receipt required') END;
  SELECT CASE WHEN EXISTS(SELECT 1 FROM mm_holds WHERE business_id=NEW.business_id) OR EXISTS(SELECT 1 FROM mm_deals WHERE business_id=NEW.business_id AND stage='SUPPRESSED') OR EXISTS(SELECT 1 FROM mm_suppression WHERE lower(trim(address))=lower(trim(NEW.recipient))) THEN RAISE(ABORT,'suppression overrides proposal approval') END;
 END;
@@ -285,8 +367,8 @@ CREATE TRIGGER IF NOT EXISTS mm_receipt_no_delete BEFORE DELETE ON mm_receipts B
 CREATE TRIGGER IF NOT EXISTS mm_hold_no_delete BEFORE DELETE ON mm_holds BEGIN SELECT RAISE(ABORT,'manual reconciliation required; no unsuppression path');END;
 CREATE TRIGGER IF NOT EXISTS mm_suppression_no_delete BEFORE DELETE ON mm_suppression BEGIN SELECT RAISE(ABORT,'no unsuppression path');END;
 CREATE TRIGGER IF NOT EXISTS mm_suppression_revoke AFTER INSERT ON mm_suppression BEGIN
- UPDATE mm_messages SET approved_hash=NULL,approval_ref=NULL WHERE lower(trim(recipient))=lower(trim(NEW.address));
- UPDATE mm_proposals SET approved_hash=NULL,approval_ref=NULL WHERE lower(trim(recipient))=lower(trim(NEW.address));
+ UPDATE mm_messages SET approved_hash=NULL,approved_by=NULL,approval_ref=NULL,permission_basis=NULL,approval_status='DRAFT',approved_channel='draft_only' WHERE lower(trim(recipient))=lower(trim(NEW.address)) AND sent_at IS NULL;
+ UPDATE mm_proposals SET approved_hash=NULL,approved_by=NULL,approval_ref=NULL,permission_basis=NULL,approval_status='DRAFT',approved_channel='draft_only' WHERE lower(trim(recipient))=lower(trim(NEW.address)) AND sent_at IS NULL;
  UPDATE mm_deals SET stage='SUPPRESSED',next_action='Do not contact',updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE business_id IN(SELECT business_id FROM mm_messages WHERE lower(trim(recipient))=lower(trim(NEW.address)) UNION SELECT business_id FROM contacts WHERE lower(trim(address_or_channel))=lower(trim(NEW.address)));
 END;
 CREATE TRIGGER IF NOT EXISTS mm_stage_guard BEFORE UPDATE OF stage ON mm_deals BEGIN
@@ -305,8 +387,30 @@ CREATE TRIGGER IF NOT EXISTS mm_legacy_revenue_update BEFORE UPDATE OF collected
 '''
 
 TRIGGERS += '''
-CREATE TRIGGER IF NOT EXISTS mm_message_approval_proof BEFORE UPDATE OF approved_hash ON mm_messages WHEN NEW.approved_hash IS NOT NULL BEGIN
- SELECT CASE WHEN NEW.invalidated_reason IS NOT NULL OR NOT EXISTS(SELECT 1 FROM mm_receipts WHERE cast(id AS TEXT)=NEW.approval_ref AND kind='approval' AND business_id=NEW.business_id AND object_id=NEW.id AND content_hash=NEW.approved_hash AND verified_by=NEW.approved_by AND mm_artifact_valid(artifact_path,artifact_hash)=1) THEN RAISE(ABORT,'approval evidence artifact required') END;
+CREATE TRIGGER IF NOT EXISTS mm_message_approval_status_guard BEFORE UPDATE OF approved_hash,approved_channel,approval_status ON mm_messages
+WHEN NEW.approval_status IN ('APPROVED','SENT') OR NEW.approved_hash IS NOT NULL BEGIN
+ SELECT CASE WHEN NEW.approval_status='APPROVED' AND (NEW.approved_hash IS NULL OR NEW.approved_hash IS NOT mm_delivery_digest(NEW.recipient,NEW.body,NEW.approved_channel) OR NEW.approved_by IS NULL OR NEW.approval_ref IS NULL OR NEW.invalidated_reason IS NOT NULL OR NEW.sent_at IS NOT NULL) THEN RAISE(ABORT,'approval must bind exact content and channel') END;
+ SELECT CASE WHEN NEW.approval_status='SENT' AND (NEW.approved_hash IS NULL OR NEW.approved_hash IS NOT mm_delivery_digest(NEW.recipient,NEW.body,NEW.approved_channel) OR NEW.sent_at IS NULL OR NEW.send_receipt IS NULL OR NOT EXISTS(SELECT 1 FROM mm_receipts WHERE cast(id AS TEXT)=NEW.approval_ref AND kind='approval' AND business_id=NEW.business_id AND object_id=NEW.id AND content_hash=NEW.approved_hash AND verified_by=NEW.approved_by AND mm_artifact_valid(artifact_path,artifact_hash)=1) OR NOT EXISTS(SELECT 1 FROM mm_receipts WHERE cast(id AS TEXT)=NEW.send_receipt AND kind='send' AND business_id=NEW.business_id AND object_id=NEW.id AND content_hash=NEW.approved_hash)) THEN RAISE(ABORT,'sent state requires exact approval and verified receipt') END;
+ SELECT CASE WHEN NEW.approval_status NOT IN ('APPROVED','SENT') AND NEW.approved_hash IS NOT NULL THEN RAISE(ABORT,'draft packet cannot retain approval hash') END;
+END;
+CREATE TRIGGER IF NOT EXISTS mm_proposal_approval_status_guard BEFORE UPDATE OF approved_hash,approved_channel,approval_status ON mm_proposals
+WHEN NEW.approval_status IN ('APPROVED','SENT') OR NEW.approved_hash IS NOT NULL BEGIN
+ SELECT CASE WHEN NEW.approval_status='APPROVED' AND (NEW.approved_hash IS NULL OR NEW.approved_hash IS NOT mm_proposal_delivery_digest(NEW.recipient,NEW.body,NEW.price_cents,NEW.approved_channel) OR NEW.approved_by IS NULL OR NEW.approval_ref IS NULL OR NEW.invalidated_reason IS NOT NULL OR NEW.sent_at IS NOT NULL) THEN RAISE(ABORT,'proposal approval must bind exact content, price and channel') END;
+ SELECT CASE WHEN NEW.approval_status='SENT' AND (NEW.approved_hash IS NULL OR NEW.approved_hash IS NOT mm_proposal_delivery_digest(NEW.recipient,NEW.body,NEW.price_cents,NEW.approved_channel) OR NEW.sent_at IS NULL OR NEW.send_receipt IS NULL OR NOT EXISTS(SELECT 1 FROM mm_receipts WHERE cast(id AS TEXT)=NEW.approval_ref AND kind='approval' AND business_id=NEW.business_id AND object_id=NEW.id AND content_hash=NEW.approved_hash AND verified_by=NEW.approved_by AND mm_artifact_valid(artifact_path,artifact_hash)=1) OR NOT EXISTS(SELECT 1 FROM mm_receipts WHERE cast(id AS TEXT)=NEW.send_receipt AND kind='proposal_send' AND business_id=NEW.business_id AND object_id=NEW.id AND content_hash=NEW.approved_hash)) THEN RAISE(ABORT,'sent proposal requires exact approval and verified receipt') END;
+ SELECT CASE WHEN NEW.approval_status NOT IN ('APPROVED','SENT') AND NEW.approved_hash IS NOT NULL THEN RAISE(ABORT,'draft proposal cannot retain approval hash') END;
+END;
+
+CREATE TRIGGER IF NOT EXISTS mm_message_channel_guard BEFORE UPDATE OF approved_channel ON mm_messages WHEN NEW.approved_channel IS NOT OLD.approved_channel AND NEW.approved_hash IS NOT NULL BEGIN
+ SELECT CASE WHEN NEW.approval_status!='APPROVED' OR NEW.approved_hash IS NOT mm_delivery_digest(NEW.recipient,NEW.body,NEW.approved_channel) THEN RAISE(ABORT,'message channel change requires new exact approval') END;
+END;
+CREATE TRIGGER IF NOT EXISTS mm_proposal_channel_guard BEFORE UPDATE OF approved_channel ON mm_proposals WHEN NEW.approved_channel IS NOT OLD.approved_channel AND NEW.approved_hash IS NOT NULL BEGIN
+ SELECT CASE WHEN NEW.approval_status!='APPROVED' OR NEW.approved_hash IS NOT mm_proposal_delivery_digest(NEW.recipient,NEW.body,NEW.price_cents,NEW.approved_channel) THEN RAISE(ABORT,'proposal channel change requires new exact approval') END;
+END;
+CREATE TRIGGER IF NOT EXISTS mm_message_sent_approval_immutable BEFORE UPDATE OF approved_hash,approved_by,approval_ref,approved_channel,approval_status ON mm_messages WHEN OLD.sent_at IS NOT NULL AND (NEW.approved_hash IS NOT OLD.approved_hash OR NEW.approved_by IS NOT OLD.approved_by OR NEW.approval_ref IS NOT OLD.approval_ref OR NEW.approved_channel IS NOT OLD.approved_channel OR NEW.approval_status IS NOT OLD.approval_status) BEGIN SELECT RAISE(ABORT,'sent approval record is immutable');END;
+CREATE TRIGGER IF NOT EXISTS mm_proposal_sent_approval_immutable BEFORE UPDATE OF approved_hash,approved_by,approval_ref,approved_channel,approval_status ON mm_proposals WHEN OLD.sent_at IS NOT NULL AND (NEW.approved_hash IS NOT OLD.approved_hash OR NEW.approved_by IS NOT OLD.approved_by OR NEW.approval_ref IS NOT OLD.approval_ref OR NEW.approved_channel IS NOT OLD.approved_channel OR NEW.approval_status IS NOT OLD.approval_status) BEGIN SELECT RAISE(ABORT,'sent proposal approval record is immutable');END;
+
+CREATE TRIGGER IF NOT EXISTS mm_message_approval_proof BEFORE UPDATE OF approved_hash,approved_channel,approval_status ON mm_messages WHEN NEW.approval_status='APPROVED' BEGIN
+ SELECT CASE WHEN NEW.invalidated_reason IS NOT NULL OR NEW.approved_hash IS NOT mm_delivery_digest(NEW.recipient,NEW.body,NEW.approved_channel) OR NOT EXISTS(SELECT 1 FROM mm_receipts WHERE cast(id AS TEXT)=NEW.approval_ref AND kind='approval' AND business_id=NEW.business_id AND object_id=NEW.id AND content_hash=NEW.approved_hash AND verified_by=NEW.approved_by AND mm_artifact_valid(artifact_path,artifact_hash)=1) THEN RAISE(ABORT,'approval evidence artifact required for exact channel') END;
 END;
 CREATE TRIGGER IF NOT EXISTS mm_message_readiness_guard BEFORE UPDATE OF approved_hash,sent_at ON mm_messages WHEN NEW.approved_hash IS NOT NULL OR (NEW.sent_at IS NOT OLD.sent_at AND NEW.sent_at IS NOT NULL) BEGIN
  SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM mm_evidence e JOIN mm_evidence_meta m ON m.evidence_id=e.id WHERE e.id=NEW.evidence_id AND e.business_id=NEW.business_id AND m.status='verified' AND m.confidence>=0.7 AND julianday(e.checked_at) BETWEEN julianday('now','-7 days') AND julianday('now') AND julianday(m.expires_at)>=julianday('now') AND mm_artifact_valid(m.capture_path,m.capture_hash)=1) THEN RAISE(ABORT,'current verified captured evidence required') END;
@@ -317,8 +421,8 @@ END;
 CREATE TRIGGER IF NOT EXISTS mm_message_sent_record_immutable BEFORE UPDATE OF sent_at,send_receipt ON mm_messages WHEN OLD.sent_at IS NOT NULL AND (NEW.sent_at IS NOT OLD.sent_at OR NEW.send_receipt IS NOT OLD.send_receipt) BEGIN SELECT RAISE(ABORT,'recorded send is immutable');END;
 CREATE TRIGGER IF NOT EXISTS mm_message_approval_insert BEFORE INSERT ON mm_messages WHEN NEW.approved_hash IS NOT NULL BEGIN SELECT RAISE(ABORT,'create draft before recording exact human approval');END;
 
-CREATE TRIGGER IF NOT EXISTS mm_proposal_approval_proof BEFORE UPDATE OF approved_hash ON mm_proposals WHEN NEW.approved_hash IS NOT NULL BEGIN
- SELECT CASE WHEN NEW.invalidated_reason IS NOT NULL OR NOT EXISTS(SELECT 1 FROM mm_receipts WHERE cast(id AS TEXT)=NEW.approval_ref AND kind='approval' AND business_id=NEW.business_id AND object_id=NEW.id AND content_hash=NEW.approved_hash AND verified_by=NEW.approved_by AND mm_artifact_valid(artifact_path,artifact_hash)=1) THEN RAISE(ABORT,'approval evidence artifact required') END;
+CREATE TRIGGER IF NOT EXISTS mm_proposal_approval_proof BEFORE UPDATE OF approved_hash,approved_channel,approval_status ON mm_proposals WHEN NEW.approval_status='APPROVED' BEGIN
+ SELECT CASE WHEN NEW.invalidated_reason IS NOT NULL OR NEW.approved_hash IS NOT mm_proposal_delivery_digest(NEW.recipient,NEW.body,NEW.price_cents,NEW.approved_channel) OR NOT EXISTS(SELECT 1 FROM mm_receipts WHERE cast(id AS TEXT)=NEW.approval_ref AND kind='approval' AND business_id=NEW.business_id AND object_id=NEW.id AND content_hash=NEW.approved_hash AND verified_by=NEW.approved_by AND mm_artifact_valid(artifact_path,artifact_hash)=1) THEN RAISE(ABORT,'proposal approval evidence artifact required for exact channel and price') END;
 END;
 CREATE TRIGGER IF NOT EXISTS mm_proposal_readiness_guard BEFORE UPDATE OF approved_hash,sent_at ON mm_proposals WHEN NEW.approved_hash IS NOT NULL OR (NEW.sent_at IS NOT OLD.sent_at AND NEW.sent_at IS NOT NULL) BEGIN
  SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM mm_evidence e JOIN mm_evidence_meta m ON m.evidence_id=e.id WHERE e.id=NEW.evidence_id AND e.business_id=NEW.business_id AND m.status='verified' AND m.confidence>=0.7 AND julianday(e.checked_at) BETWEEN julianday('now','-7 days') AND julianday('now') AND julianday(m.expires_at)>=julianday('now') AND mm_artifact_valid(m.capture_path,m.capture_hash)=1) THEN RAISE(ABORT,'current verified captured evidence required') END;
@@ -331,16 +435,35 @@ CREATE TRIGGER IF NOT EXISTS mm_proposal_approval_insert BEFORE INSERT ON mm_pro
 
 CREATE TRIGGER IF NOT EXISTS mm_proposal_sent_content_immutable BEFORE UPDATE OF recipient,body,price_cents,evidence_id,digest,business_id ON mm_proposals WHEN OLD.sent_at IS NOT NULL BEGIN SELECT RAISE(ABORT,'sent proposal immutable');END;
 CREATE TRIGGER IF NOT EXISTS mm_evidence_change_revoke AFTER UPDATE ON mm_evidence BEGIN
- UPDATE mm_messages SET approved_hash=NULL,approval_ref=NULL WHERE evidence_id=NEW.id;
- UPDATE mm_proposals SET approved_hash=NULL,approval_ref=NULL WHERE evidence_id=NEW.id;
+ UPDATE mm_messages SET approved_hash=NULL,approved_by=NULL,approval_ref=NULL,permission_basis=NULL,approval_status='DRAFT',approved_channel='draft_only' WHERE evidence_id=NEW.id AND sent_at IS NULL;
+ UPDATE mm_proposals SET approved_hash=NULL,approved_by=NULL,approval_ref=NULL,permission_basis=NULL,approval_status='DRAFT',approved_channel='draft_only' WHERE evidence_id=NEW.id AND sent_at IS NULL;
 END;
 CREATE TRIGGER IF NOT EXISTS mm_evidence_meta_change_revoke AFTER UPDATE ON mm_evidence_meta BEGIN
- UPDATE mm_messages SET approved_hash=NULL,approval_ref=NULL WHERE evidence_id=NEW.evidence_id;
- UPDATE mm_proposals SET approved_hash=NULL,approval_ref=NULL WHERE evidence_id=NEW.evidence_id;
+ UPDATE mm_messages SET approved_hash=NULL,approved_by=NULL,approval_ref=NULL,permission_basis=NULL,approval_status='DRAFT',approved_channel='draft_only' WHERE evidence_id=NEW.evidence_id AND sent_at IS NULL;
+ UPDATE mm_proposals SET approved_hash=NULL,approved_by=NULL,approval_ref=NULL,permission_basis=NULL,approval_status='DRAFT',approved_channel='draft_only' WHERE evidence_id=NEW.evidence_id AND sent_at IS NULL;
 END;
 CREATE TRIGGER IF NOT EXISTS mm_contact_change_revoke AFTER UPDATE ON mm_contact_evidence BEGIN
- UPDATE mm_messages SET approved_hash=NULL,approval_ref=NULL WHERE business_id=NEW.business_id;
- UPDATE mm_proposals SET approved_hash=NULL,approval_ref=NULL WHERE business_id=NEW.business_id;
+ UPDATE mm_messages SET approved_hash=NULL,approved_by=NULL,approval_ref=NULL,permission_basis=NULL,approval_status='DRAFT',approved_channel='draft_only' WHERE business_id=NEW.business_id AND sent_at IS NULL;
+ UPDATE mm_proposals SET approved_hash=NULL,approved_by=NULL,approval_ref=NULL,permission_basis=NULL,approval_status='DRAFT',approved_channel='draft_only' WHERE business_id=NEW.business_id AND sent_at IS NULL;
+END;
+
+CREATE TRIGGER IF NOT EXISTS mm_transport_attempt_state_guard BEFORE UPDATE OF status ON mm_transport_attempts
+WHEN NEW.status IS NOT OLD.status AND NOT ((OLD.status='DISPATCHING' AND NEW.status IN ('PROVIDER_ACCEPTED','OUTCOME_UNKNOWN','RECONCILED')) OR (OLD.status IN ('PROVIDER_ACCEPTED','OUTCOME_UNKNOWN') AND NEW.status='RECONCILED')) BEGIN
+ SELECT RAISE(ABORT,'invalid transport attempt state transition');
+END;
+CREATE TRIGGER IF NOT EXISTS mm_transport_attempt_approval_guard BEFORE INSERT ON mm_transport_attempts BEGIN
+ SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM mm_messages m WHERE m.id=NEW.message_id AND m.approval_status='APPROVED' AND m.approved_hash=NEW.approval_hash AND m.approved_channel=NEW.approved_channel AND NEW.approval_hash=mm_delivery_digest(m.recipient,m.body,m.approved_channel) AND m.sent_at IS NULL AND m.invalidated_reason IS NULL) THEN RAISE(ABORT,'transport attempt requires current exact channel approval') END;
+END;
+CREATE TRIGGER IF NOT EXISTS mm_message_transport_attempt_content_immutable BEFORE UPDATE OF body,recipient,evidence_id,digest,kind,parent_id,business_id,invalidated_reason ON mm_messages
+WHEN EXISTS(SELECT 1 FROM mm_transport_attempts WHERE message_id=OLD.id) AND (NEW.body IS NOT OLD.body OR NEW.recipient IS NOT OLD.recipient OR NEW.evidence_id IS NOT OLD.evidence_id OR NEW.digest IS NOT OLD.digest OR NEW.kind IS NOT OLD.kind OR NEW.parent_id IS NOT OLD.parent_id OR NEW.business_id IS NOT OLD.business_id OR NEW.invalidated_reason IS NOT OLD.invalidated_reason) BEGIN
+ SELECT RAISE(ABORT,'message content is immutable after transport attempt reservation');
+END;
+CREATE TRIGGER IF NOT EXISTS mm_transport_attempt_immutable BEFORE UPDATE ON mm_transport_attempts
+WHEN NEW.message_id IS NOT OLD.message_id OR NEW.idempotency_key IS NOT OLD.idempotency_key OR NEW.provider IS NOT OLD.provider OR NEW.approval_hash IS NOT OLD.approval_hash OR NEW.approved_channel IS NOT OLD.approved_channel OR NEW.started_at IS NOT OLD.started_at BEGIN
+ SELECT RAISE(ABORT,'transport attempt identity is immutable');
+END;
+CREATE TRIGGER IF NOT EXISTS mm_transport_attempt_no_delete BEFORE DELETE ON mm_transport_attempts BEGIN
+ SELECT RAISE(ABORT,'transport attempt audit record is immutable');
 END;
 '''
 
@@ -444,8 +567,8 @@ def record_evidence(d,bid,url,observation,limitation,path,status,method,confiden
     c=d.execute('INSERT INTO mm_evidence(business_id,url,observation,limitation,checked_at) VALUES(?,?,?,?,?)',(bid,url,observation,limitation,now()));eid=c.lastrowid
     d.execute('INSERT INTO mm_evidence_meta VALUES(?,?,?,?,?,?,?,?,?,?,?)',(eid,status,method,confidence,claim_type,relevance,(dt.datetime.now(UTC)+dt.timedelta(days=days)).isoformat(),str(p),sha(p.read_bytes()),verifier,1))
     # New checks invalidate old approvals; packets must bind to latest evidence.
-    d.execute('UPDATE mm_messages SET approved_hash=NULL,approval_ref=NULL WHERE business_id=?',(bid,))
-    d.execute('UPDATE mm_proposals SET approved_hash=NULL,approval_ref=NULL WHERE business_id=?',(bid,))
+    d.execute("UPDATE mm_messages SET approved_hash=NULL,approved_by=NULL,approval_ref=NULL,permission_basis=NULL,approval_status='DRAFT',approved_channel='draft_only' WHERE business_id=? AND sent_at IS NULL",(bid,))
+    d.execute("UPDATE mm_proposals SET approved_hash=NULL,approved_by=NULL,approval_ref=NULL,permission_basis=NULL,approval_status='DRAFT',approved_channel='draft_only' WHERE business_id=? AND sent_at IS NULL",(bid,))
     event(d,'evidence_recorded',bid,json.dumps({'id':eid,'status':status,'method':method}));return eid
 
 def record_contact(d,bid,address,url,path,relevance,permission_basis='Unconfirmed',permission_verified_by=None):
@@ -458,7 +581,7 @@ def record_contact(d,bid,address,url,path,relevance,permission_basis='Unconfirme
     if existing and existing[0]=='unsubscribed':raise ValueError('Unsubscribed contact cannot be reset by discovery')
     confidence=d.execute('SELECT confidence_score FROM email_verifications WHERE id=?',(selected['verification_id'],)).fetchone()[0]/100
     d.execute('INSERT INTO mm_contact_evidence(business_id,recipient,source_url,checked_at,relevance,permission_basis,permission_verified_by,unsubscribe_state,confidence,capture_path,capture_hash) VALUES(?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(business_id,recipient) DO UPDATE SET source_url=excluded.source_url,checked_at=excluded.checked_at,relevance=excluded.relevance,permission_basis=excluded.permission_basis,permission_verified_by=excluded.permission_verified_by,confidence=excluded.confidence,capture_path=excluded.capture_path,capture_hash=excluded.capture_hash',(bid,address,url,now(),relevance,permission_basis,permission_verified_by,'none_recorded',confidence,str(p),sha(p.read_bytes())))
-    d.execute('UPDATE mm_messages SET approved_hash=NULL,approval_ref=NULL WHERE business_id=?',(bid,));d.execute('UPDATE mm_proposals SET approved_hash=NULL,approval_ref=NULL WHERE business_id=?',(bid,))
+    d.execute("UPDATE mm_messages SET approved_hash=NULL,approved_by=NULL,approval_ref=NULL,permission_basis=NULL,approval_status='DRAFT',approved_channel='draft_only' WHERE business_id=? AND sent_at IS NULL",(bid,));d.execute("UPDATE mm_proposals SET approved_hash=NULL,approved_by=NULL,approval_ref=NULL,permission_basis=NULL,approval_status='DRAFT',approved_channel='draft_only' WHERE business_id=? AND sent_at IS NULL",(bid,))
     event(d,'contact_source_recorded',bid,url)
 
 def change_stage(d,bid,stage,action,due=None):
@@ -499,7 +622,18 @@ def create_proposal(d,bid,address,body,price_cents):
     if type(price_cents)!=int or price_cents<=0:raise ValueError('Positive whole cents required')
     c=d.execute('INSERT INTO mm_proposals(business_id,evidence_id,recipient,body,price_cents,digest,created_at) VALUES(?,?,?,?,?,?,?)',(bid,eid,address,body,price_cents,proposal_digest(address,body,price_cents),now()));event(d,'proposal_draft',bid,str(c.lastrowid));return c.lastrowid
 
-def approve(d,oid,body,by,approval_receipt,proposal=False):
+def packet_approval_hash(d,oid,proposal=False,channel='draft_only'):
+    """Return the exact packet hash an approval receipt must attest to."""
+    if not isinstance(channel,str) or not channel or len(channel)>256 or any(ord(c)<32 or ord(c)==127 for c in channel):
+        raise ValueError('A printable approval channel of at most 256 characters is required')
+    channel=channel.strip()
+    if not channel:raise ValueError('A nonempty approval channel is required')
+    table='mm_proposals' if proposal else 'mm_messages';m=d.execute(f'SELECT * FROM {table} WHERE id=?',(oid,)).fetchone()
+    if not m or m['invalidated_reason']:raise ValueError('Valid packet required')
+    h=proposal_delivery_digest(m['recipient'],m['body'],m['price_cents'],channel) if proposal else delivery_digest(m['recipient'],m['body'],channel)
+    return {'packet_id':oid,'proposal':bool(proposal),'channel':channel,'approval_hash':h}
+
+def approve(d,oid,body,by,approval_receipt,proposal=False,channel='draft_only'):
     table='mm_proposals' if proposal else 'mm_messages';m=d.execute(f'SELECT * FROM {table} WHERE id=?',(oid,)).fetchone()
     if not m or m['sent_at'] or m['invalidated_reason']:raise ValueError('Valid unsent packet required')
     if m['body']!=body:raise ValueError('Revise draft separately; approval must match exact stored body')
@@ -508,10 +642,11 @@ def approve(d,oid,body,by,approval_receipt,proposal=False):
     reasons=readiness(d,m['business_id'],m['evidence_id'],m['recipient'])
     if reasons:raise ValueError('; '.join(reasons))
     if len(by.strip())<2 or '[' in body or 'reply' not in body.lower() or not any(s in body.lower() for s in ('no thanks','unsubscribe')):raise ValueError('Complete human identity and opt-out required')
-    h=proposal_digest(m['recipient'],body,m['price_cents']) if proposal else digest(m['recipient'],body)
+    proof=packet_approval_hash(d,oid,proposal,channel);channel=proof['channel'];h=proof['approval_hash']
     r=receipt(d,approval_receipt,'approval',m['business_id'],oid,h)
     if r['verified_by']!=by:raise ValueError('Approval evidence approver mismatch')
-    d.execute(f'UPDATE {table} SET approved_hash=?,approved_by=?,approval_ref=?,permission_basis=? WHERE id=?',(h,by,str(approval_receipt),'See verified contact evidence',oid));event(d,'human_approval_recorded',m['business_id'],str(approval_receipt))
+    d.execute(f"UPDATE {table} SET approved_hash=?,approved_by=?,approval_ref=?,permission_basis=?,approved_channel=?,approval_status='APPROVED' WHERE id=?",(h,by,str(approval_receipt),'See verified contact evidence',channel,oid));event(d,'human_approval_recorded',m['business_id'],str(approval_receipt))
+    return proof
 
 def receipt(d,rid,kind,bid,oid=None,content_hash=None):
     r=d.execute('SELECT * FROM mm_receipts WHERE id=?',(rid,)).fetchone()
@@ -539,11 +674,13 @@ def record_sent(d,oid,rid,proposal=False):
     require_copy(m['body'],initial=not proposal and m['kind']=='initial')
     reasons=readiness(d,m['business_id'],m['evidence_id'],m['recipient'])
     if reasons:raise ValueError('; '.join(reasons))
-    h=proposal_digest(m['recipient'],m['body'],m['price_cents']) if proposal else digest(m['recipient'],m['body'])
-    if m['approved_hash']!=h:raise ValueError('Exact approval required')
+    h=proposal_delivery_digest(m['recipient'],m['body'],m['price_cents'],m['approved_channel']) if proposal else delivery_digest(m['recipient'],m['body'],m['approved_channel'])
+    if m['approval_status']!='APPROVED' or m['approved_hash']!=h:raise ValueError('Exact content and channel approval required')
     receipt(d,m['approval_ref'],'approval',m['business_id'],oid,h)
     r=receipt(d,rid,'proposal_send' if proposal else 'send',m['business_id'],oid,h)
-    d.execute(f'UPDATE {table} SET sent_at=?,send_receipt=? WHERE id=?',(r['occurred_at'],str(rid),oid))
+    d.execute(f"UPDATE {table} SET sent_at=?,send_receipt=?,approval_status='SENT' WHERE id=?",(r['occurred_at'],str(rid),oid))
+    if not proposal:
+        d.execute("UPDATE mm_transport_attempts SET status='RECONCILED',updated_at=? WHERE message_id=? AND status IN ('DISPATCHING','PROVIDER_ACCEPTED','OUTCOME_UNKNOWN')",(now(),oid))
     change_stage(d,m['business_id'],'PROPOSAL_SENT' if proposal else 'SENT','Review actual reply; no automatic follow-up')
     event(d,'verified_send_recorded',m['business_id'],str(rid))
 

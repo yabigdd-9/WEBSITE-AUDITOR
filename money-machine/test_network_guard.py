@@ -71,9 +71,12 @@ class MultiProbeGuard(unittest.TestCase):
 class GuardCacheAndDedupe(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
+        self._cache_base_patch = mock.patch.object(guards, "_CACHE_BASE", Path(self.tmp.name).resolve())
+        self._cache_base_patch.start()
         self.cache = Path(self.tmp.name) / "network_guard.json"
 
     def tearDown(self):
+        self._cache_base_patch.stop()
         self.tmp.cleanup()
 
     def _always_fail(self, host, port, timeout, resolver=None, connector=None):

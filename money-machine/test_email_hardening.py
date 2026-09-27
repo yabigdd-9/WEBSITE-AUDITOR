@@ -14,7 +14,9 @@ import mm_email_cli as cli
 
 def frozen_case(cid):
     doc=json.loads((ROOT/'reports/email-observation-evidence/cases'/f'{cid}.json').read_text())
-    pages=[e.parse_page(p,(ROOT/p['path']).read_bytes()) for p in doc['pages']]
+    # Fixture metadata is untrusted input: reject absolute paths and traversal
+    # before reading a capture from the checkout.
+    pages=[e.parse_page(p,legacy.c.safe_path(p['path'],base=ROOT).read_bytes()) for p in doc['pages']]
     at=dt.datetime.fromisoformat(doc['result']['results'][0]['checked_at'])
     return doc,e.evaluate(doc['case']['business'],pages,doc['dns'],at=at)
 
@@ -26,6 +28,10 @@ _CASES_ABSENT=("BLOCKED_FIXTURE: reports/email-observation-evidence/cases corpus
 
 @unittest.skipUnless(HAS_EMAIL_CASE_FIXTURES,_CASES_ABSENT)
 class HardeningEvidence(unittest.TestCase):
+    def test_frozen_page_path_cannot_escape_fixture_root(self):
+        with self.assertRaises(ValueError):
+            legacy.c.safe_path('../outside.capture',base=ROOT)
+
     def test_real_privacy_only_admin_rejected_legitimate_office_retained(self):
         _,r=frozen_case('new-039');v={v['email']:v for v in r['results']}
         self.assertEqual(v['admin@skilledelectrical.co.nz']['confidence_label'],'REJECTED')
@@ -94,6 +100,10 @@ class HardeningDatabase(unittest.TestCase):
         self.d.execute('UPDATE mm_scores SET computed_json=? WHERE business_id=?',
                        ('{"score":2}',self.bid))
         score = self.d.execute('SELECT * FROM mm_score_history ORDER BY id LIMIT 1').fetchone()
+        if score is None:
+            self.d.execute('INSERT INTO mm_score_history(business_id,evidence_id,inputs_json,computed_json,calculated_at) VALUES(?,?,?,?,?)',
+                           (self.bid,self.eid,'{}','{"score":1}',e.utcnow()))
+            score = self.d.execute('SELECT * FROM mm_score_history ORDER BY id LIMIT 1').fetchone()
         with self.assertRaisesRegex(sqlite3.IntegrityError,'replacement blocked'):
             self.d.execute('INSERT OR REPLACE INTO mm_score_history VALUES(?,?,?,?,?,?,?)',
                            (score['id'],self.bid,self.eid,'{}','{}',e.utcnow(),e.utcnow()))

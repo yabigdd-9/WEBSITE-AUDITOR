@@ -10,6 +10,7 @@ from pathlib import Path
 import sqlite3
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import mm_core as c
 import mm_pipeline as p
@@ -386,6 +387,42 @@ class WorkerHandlers(unittest.TestCase):
         bid = add_business(self.d, site=site)
         p.enqueue(self.d, bid, state=state)
         return bid
+
+    def test_qualification_keeps_commercial_and_technical_scores_separate(self):
+        import mm_workers as workers
+        bid = self._enqueue('QUALIFICATION_PENDING')
+        it = {'business_id': bid, 'payload': {'score': 40, 'defect_count': 2}}
+        commercial = {
+            'qualification_score': 80,
+            'tier': 'HOT',
+            'reasons': ['commercial evidence fixture'],
+        }
+        with patch('mm_lead_qualifier.qualify_lead', return_value=commercial):
+            state, _, evidence = workers.qualification_handler(self.d, it, None)
+            self.assertEqual(state, 'CONTACT_PENDING')
+            self.assertEqual(evidence['commercial_score'], 80)
+            self.assertEqual(evidence['technical_score'], 40)
+            self.assertEqual(evidence['tier'], 'HOT')
+            self.assertEqual(evidence['qualification_basis'], ['commercial_relevance', 'technical_need'])
+            self.assertNotIn('combined_score', evidence)
+
+            it['payload']['score'] = 0
+            state, _, lower_technical = workers.qualification_handler(self.d, it, None)
+            self.assertEqual(state, 'CONTACT_PENDING')
+            self.assertEqual(lower_technical['commercial_score'], 80)
+            self.assertEqual(lower_technical['technical_score'], 0)
+            self.assertEqual(lower_technical['tier'], 'HOT')
+            self.assertEqual(lower_technical['qualification_basis'], ['commercial_relevance'])
+
+        technical_only = {**commercial, 'qualification_score': 10, 'tier': 'COLD'}
+        it['payload']['score'] = 60
+        with patch('mm_lead_qualifier.qualify_lead', return_value=technical_only):
+            state, _, evidence = workers.qualification_handler(self.d, it, None)
+        self.assertEqual(state, 'CONTACT_PENDING')
+        self.assertEqual(evidence['commercial_score'], 10)
+        self.assertEqual(evidence['technical_score'], 60)
+        self.assertEqual(evidence['tier'], 'TECHNICAL_ONLY')
+        self.assertEqual(evidence['qualification_basis'], ['technical_need'])
 
     def test_handler_targets_are_reachable_from_declared_inputs(self):
         """Regression: earlier handlers returned states the machine rejected."""

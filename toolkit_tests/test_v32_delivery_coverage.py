@@ -130,7 +130,22 @@ def test_packet_verified_contact_and_manifest_binding_do_not_follow_paths(tmp_pa
     demo["demo_html"] = "/etc/passwd"
     contact = {
         "email": "hello@example.co.nz",
-        "selected": {"confidence_label": "VERIFIED_HIGH"},
+        "selected": {
+            "email": "hello@example.co.nz",
+            "confidence_label": "VERIFIED_HIGH",
+            "confidence_score": 95,
+            "first_party_observed": True,
+            "verifier_version": "email-v2-test",
+            "checked_at": "2026-09-28T00:00:00+00:00",
+            "evidence": [{
+                "email": "hello@example.co.nz",
+                "method": "mailto",
+                "source_url": "https://example.co.nz/contact?token=must-not-copy#mail",
+                "observed_at": "2026-09-28T00:00:00+00:00",
+                "capture_path": "/private/local/capture.html",
+                "capture_hash": "a" * 64,
+            }],
+        },
     }
     packet = build_packet(
         report,
@@ -142,6 +157,11 @@ def test_packet_verified_contact_and_manifest_binding_do_not_follow_paths(tmp_pa
     )
     assert packet["contact"] == "hello@example.co.nz"
     assert packet["email_confidence"] == "VERIFIED_HIGH"
+    assert packet["contact_provenance"]["status"] == "VERIFIED_WITH_FIRST_PARTY_PROVENANCE"
+    assert packet["contact_provenance"]["sources"][0]["source_url"] == "https://example.co.nz/contact"
+    assert "/private/local/capture.html" not in json.dumps(packet)
+    assert "must-not-copy" not in json.dumps(packet)
+    assert packet["qa_status"] == "PASS_HUMAN_REVIEW_REQUIRED"
     assert all("file_sha256" not in item for item in packet["evidence"])
 
 
@@ -185,6 +205,24 @@ def test_delivery_cli_commands_end_to_end(tmp_path, capsys, monkeypatch):
     )
     assert quote_json.is_file()
 
+    contact_json = tmp_path / "email-status.json"
+    contact_json.write_text(json.dumps({
+        "email": "hello@example.co.nz",
+        "selected": {
+            "email": "hello@example.co.nz",
+            "confidence_label": "VERIFIED_HIGH",
+            "first_party_observed": True,
+            "evidence": [{
+                "email": "hello@example.co.nz",
+                "method": "visible_text",
+                "source_url": "https://example.co.nz/contact",
+                "observed_at": "2026-09-28T00:00:00+00:00",
+                "capture_path": "/private/capture.html",
+                "capture_hash": "b" * 64,
+            }],
+        },
+    }), encoding="utf-8")
+
     packet_dir = tmp_path / "cli-packet"
     assert (
         cli.main(
@@ -196,6 +234,8 @@ def test_delivery_cli_commands_end_to_end(tmp_path, capsys, monkeypatch):
                 str(quote_json),
                 "--output-dir",
                 str(packet_dir),
+                "--contact",
+                str(contact_json),
             ]
         )
         == 0
@@ -203,6 +243,9 @@ def test_delivery_cli_commands_end_to_end(tmp_path, capsys, monkeypatch):
     packet = json.loads((packet_dir / "packet.json").read_text())
     assert packet["send_enabled"] is False
     assert packet["approval_status"] == "HUMAN_APPROVAL_REQUIRED"
+    assert packet["contact"] == "hello@example.co.nz"
+    assert packet["contact_provenance"]["sources"][0]["source_url"] == "https://example.co.nz/contact"
+    assert "/private/capture.html" not in json.dumps(packet)
     assert "prospect_packet" in capsys.readouterr().out
 
 

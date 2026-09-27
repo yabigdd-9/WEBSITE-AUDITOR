@@ -16,7 +16,8 @@ def event(status="provider_accepted", kind="provider_accepted", event_id="evt-1"
     }
 
 
-def test_tracking_is_idempotent_and_does_not_send(tmp_path):
+def test_tracking_is_idempotent_and_does_not_send(tmp_path, monkeypatch):
+    monkeypatch.setattr(tracking.core, "root", lambda: tmp_path)
     path = tmp_path / "events.jsonl"
     first = tracking.record(event(), path)
     second = tracking.record(event(), path)
@@ -26,7 +27,8 @@ def test_tracking_is_idempotent_and_does_not_send(tmp_path):
     assert tracking.summary(path)["external_sends_by_this_module"] == 0
 
 
-def test_tracking_reconciles_terminal_reply_without_open_tracking(tmp_path):
+def test_tracking_reconciles_terminal_reply_without_open_tracking(tmp_path, monkeypatch):
+    monkeypatch.setattr(tracking.core, "root", lambda: tmp_path)
     path = tmp_path / "events.jsonl"
     tracking.record(event(status="provider_accepted", event_id="evt-1"), path)
     tracking.record(event(status="replied", kind="reply", event_id="evt-2"), path)

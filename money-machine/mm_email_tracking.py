@@ -83,7 +83,7 @@ def record(event: dict, path=None) -> dict:
     target = _path(path)
     # Atomic check-then-append: hold an exclusive lock across the read+write
     # so concurrent processes cannot interleave and produce duplicates (H-17).
-    with target.open("a", encoding="utf-8") as handle:
+    with target.open("a+", encoding="utf-8") as handle:
         fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
         try:
             handle.seek(0)

@@ -255,7 +255,6 @@ def ingest(d, candidates, actor="discovery-v2", dry_run=False):
             ),
         )
         business_id = cursor.lastrowid
-        core.ensure_business_columns(d)
         d.execute(
             "UPDATE businesses SET canonical_host=?, normalized_name=? WHERE id=?",
             (host, candidate["name"].strip().casefold(), business_id),

@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import urljoin, urlparse, urlunparse
 
+import httpcore
 import httpx
 
 
@@ -23,7 +24,7 @@ def _is_private_host(host):
         return False
 
 
-def validate_url(url, allow_private=False):
+def _validate_url_and_resolve(url, allow_private=False):
     """Validate a URL's scheme and host, returning the URL and (if pinned) the
     resolved IP address to connect to.  When allow_private is False the host is
     resolved immediately and every resolved address is checked — this closes the
@@ -58,6 +59,59 @@ def validate_url(url, allow_private=False):
         # be redirected to a different IP by a malicious DNS response later.
         pinned_ip = infos[0][4][0]
     return urlunparse(parts._replace(fragment="")), pinned_ip
+
+
+def validate_url(url, allow_private=False):
+    """Validate and normalize an HTTP(S) URL, preserving the public string API."""
+    normalized, _pinned_ip = _validate_url_and_resolve(url, allow_private)
+    return normalized
+
+
+class _PinnedSyncBackend(httpcore.SyncBackend):
+    """Connect to a previously validated IP while keeping the URL hostname.
+
+    httpcore uses the URL hostname for the Host header and TLS SNI/certificate
+    validation. Overriding only the socket destination prevents DNS from being
+    resolved a second time after validation.
+    """
+
+    def __init__(self, pinned_ip):
+        address = ipaddress.ip_address(pinned_ip)
+        if not address.is_global:
+            raise ValueError("Pinned address must be globally routable")
+        self.pinned_ip = str(address)
+
+    def connect_tcp(
+        self,
+        host,
+        port,
+        timeout=None,
+        local_address=None,
+        socket_options=None,
+    ):
+        return super().connect_tcp(
+            host=self.pinned_ip,
+            port=port,
+            timeout=timeout,
+            local_address=local_address,
+            socket_options=socket_options,
+        )
+
+
+class _PinnedHTTPTransport(httpx.HTTPTransport):
+    """HTTPX transport whose sockets use one validated destination address."""
+
+    def __init__(self, pinned_ip):
+        import httpcore
+
+        super().__init__(trust_env=False, retries=0)
+        self._pool.close()
+        self._pool = httpcore.ConnectionPool(
+            network_backend=_PinnedSyncBackend(pinned_ip),
+            max_connections=1,
+            max_keepalive_connections=0,
+            retries=0,
+        )
 
 
 
@@ -109,6 +163,7 @@ class Fetcher:
         cache_namespace="",
     ):
         self.allow_private = allow_private
+        self._custom_transport = transport is not None
         self.max_bytes = max_bytes
         self.timeout = timeout
         self.cache_dir = Path(cache_dir) if cache_dir else None
@@ -126,45 +181,24 @@ class Fetcher:
     def close(self):
         self.client.close()
 
-    def _build_pinned_client(self, url, pinned_ip):
-        transport = self._build_pinned_transport(pinned_ip)
+    def _build_pinned_client(self, pinned_ip):
+        if self._custom_transport or pinned_ip is None:
+            return self.client
         return httpx.Client(
             timeout=self.client.timeout,
             follow_redirects=False,
             trust_env=False,
             headers=self.client.headers,
-            transport=transport,
+            transport=_PinnedHTTPTransport(pinned_ip),
         )
-
-    def _build_pinned_transport(self, pinned_ip):
-        # Connect to pinned_ip while preserving the original Host header.
-        # We can achieve this by overriding the request's URL to use the IP
-        # and ensuring the 'Host' header is set to the original hostname.
-        class PinnedTransport(httpx.HTTPTransport):
-            def handle_request(self, request: httpx.Request) -> httpx.Response:
-                # Store original hostname
-                original_host = request.headers.get("Host")
-                if not original_host:
-                    original_host = request.url.host
-
-                # Replace host with pinned_ip
-                request.url = request.url.copy_with(host=pinned_ip)
-
-                # Ensure original host is in Host header
-                request.headers["Host"] = original_host
-
-                return super().handle_request(request)
-
-        return PinnedTransport()
 
     def get(self, url):
         import hashlib
 
-        current, pinned_ip = validate_url(url, self.allow_private)
+        current, pinned_ip = _validate_url_and_resolve(url, self.allow_private)
         chain = []
-        # Build a client that connects to the pinned IP (DNS rebinding defense)
-        pinned_client = self._build_pinned_client(current, pinned_ip) if pinned_ip else self.client
         for _ in range(6):
+            request_client = self._build_pinned_client(pinned_ip)
             host = urlparse(current).netloc
             delay = self.min_interval - (time.monotonic() - self.last_request.get(host, 0))
             if delay > 0:
@@ -187,26 +221,32 @@ class Fetcher:
                         if cached["headers"].get(key):
                             headers[conditional] = cached["headers"][key]
             started = time.monotonic()
-            with self.client.stream("GET", current, headers=headers) as response:
-                chunks, size = [], 0
-                for chunk in response.iter_bytes():
-                    size += len(chunk)
-                    if size > self.max_bytes or time.monotonic() - started > self.timeout:
-                        raise ValueError("Response exceeded configured byte/time limit")
-                    chunks.append(chunk)
-                body = b"".join(chunks)
-                result = httpx.Response(
-                    response.status_code,
-                    headers=response.headers,
-                    content=body,
-                    request=response.request,
-                )
+            try:
+                with request_client.stream("GET", current, headers=headers) as response:
+                    chunks, size = [], 0
+                    for chunk in response.iter_bytes():
+                        size += len(chunk)
+                        if size > self.max_bytes or time.monotonic() - started > self.timeout:
+                            raise ValueError("Response exceeded configured byte/time limit")
+                        chunks.append(chunk)
+                    body = b"".join(chunks)
+                    result = httpx.Response(
+                        response.status_code,
+                        headers=response.headers,
+                        content=body,
+                        request=response.request,
+                    )
+            finally:
+                if request_client is not self.client:
+                    request_client.close()
             if result.status_code in (301, 302, 303, 307, 308):
                 location = result.headers.get("location")
                 if not location:
                     raise ValueError("Redirect missing location")
                 chain.append({"url": current, "status": result.status_code})
-                current = validate_url(urljoin(current, location), self.allow_private)
+                current, pinned_ip = _validate_url_and_resolve(
+                    urljoin(current, location), self.allow_private
+                )
                 continue
             observed = datetime.now(UTC).isoformat()
             if result.status_code == 304 and cached:
