@@ -81,7 +81,18 @@ jobs:
             exit 0
           fi
 
-          curl --fail --silent --show-error \
-            --header "Authorization: Basic $(printf '%s:' "$SONAR_TOKEN" | base64 --wrap=0)" \
-            "https://sonarcloud.io/api/ce/task?id=${task_id}" \
+          auth="Basic $(printf '%s:' "$SONAR_TOKEN" | base64 --wrap=0)"
+          task_json="$(curl --fail --silent --show-error \
+            --header "Authorization: ${auth}" \
+            "https://sonarcloud.io/api/ce/task?id=${task_id}")"
+
+          echo "$task_json" \
             | jq '{task: (.task | {id, status, type, componentKey, analysisId, warningCount, errorMessage})}'
+
+          analysis_id="$(echo "$task_json" | jq -r '.task.analysisId // empty')"
+          if [ -n "$analysis_id" ]; then
+            curl --fail --silent --show-error \
+              --header "Authorization: ${auth}" \
+              "https://sonarcloud.io/api/qualitygates/project_status?analysisId=${analysis_id}" \
+              | jq '{quality_gate: {status: .projectStatus.status, conditions: [.projectStatus.conditions[] | {metricKey, status, actualValue, errorThreshold, comparator}]}}'
+          fi
