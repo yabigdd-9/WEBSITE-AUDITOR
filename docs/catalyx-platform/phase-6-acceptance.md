@@ -12,7 +12,12 @@ databases; no production data, outbound SMTP, model provider, or public site.
 | Catalyx web and security integration suite | `.venv/bin/python -m pytest -q toolkit_tests/test_catalyx_web.py` | 68 passed; one upstream Starlette/httpx deprecation warning |
 | Customer-to-admin browser journey and accessibility sweep | `WA_CATALYX_WEB_BROWSER_E2E=1 .venv/bin/python -m pytest -q toolkit_tests/test_catalyx_web_browser_e2e.py` | 1 passed in 15.79 seconds |
 | Link crawl | `lychee --no-progress --verbose http://127.0.0.1:4174/` | 17 total links checked, 11 unique, zero errors |
-| Lighthouse mobile lab run | Lighthouse 13.5.0 with Chrome for Testing 153.0.8010.12 against `http://127.0.0.1:4174/` | Performance 100, accessibility 100, best practices 100, SEO 100; LCP 0.9 s, CLS 0, TBT 70 ms |
+| Lighthouse mobile lab runs | Lighthouse 13.5.0 with Chrome for Testing 153.0.8010.12; serial runs against the loopback preview | All six public pages scored 100 for performance, accessibility, best practices, and SEO. LCP was 0.92–0.95 s, CLS 0, TBT 0–91 ms. |
+
+Pages measured: `/`, `/how-it-works`, `/what-we-check`, `/security-and-privacy`,
+`/pricing`, and `/sample-report`. Per-page lab metrics and fetch timestamps are
+in the compact [Lighthouse page summary](/Users/dd/Documents/Codex/2026-09-27/i-ll-generate-the-master-execution/outputs/catalyx-phase6-lighthouse-pages.json)
+(SHA-256 `19e7bd89b20e913f1cbdd569d6457dfd281866f65d3622a0214dde1373daa1f7`).
 
 The browser journey uses a temporary database and local mailbox. It exercises
 synthetic registration, local email verification, site authorization, MFA
@@ -30,6 +35,8 @@ throttling; TBT is a lab metric, not field INP. Lychee and Lighthouse were
 limited to the loopback preview. The full Lighthouse JSON report is saved at
 `/Users/dd/Documents/Codex/2026-09-27/i-ll-generate-the-master-execution/outputs/catalyx-phase6-lighthouse.json`
 (SHA-256 `b10f51cee2b977f195f24271da3ed9de6659f5240dfa28fa48dc2e027288e868`).
+That full report contains the homepage run; the compact summary covers all six
+pages.
 The proposed Phase 6 scope remains pending owner ratification; phases 7–9
 remain gated by provider, privacy/legal, hosting, and release decisions. No
 soak test was run in this check.
