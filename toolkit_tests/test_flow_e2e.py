@@ -124,3 +124,150 @@ def test_real_browser_flow_probe_no_cta_page(tmp_path):
         assert [f.defect_key for f in findings] == ["flow-no-primary-cta"]
     finally:
         server.shutdown()
+
+
+
+def _serve(handler):
+    server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    return server
+
+
+def test_real_browser_flow_probe_disabled_cta(tmp_path):
+    class DisabledCtaHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html")
+            self.end_headers()
+            self.wfile.write(
+                b"<!doctype html><html><body><main>"
+                b"<button disabled>Contact us</button>"
+                b"</main></body></html>"
+            )
+
+        def log_message(self, *args):
+            pass
+
+    server = _serve(DisabledCtaHandler)
+    try:
+        url = f"http://127.0.0.1:{server.server_port}/"
+        result = run_flow_probe(url, tmp_path, enabled=True, allow_private=True)
+        assert result["status"] == "ok"
+        evidence = result["evidence"]
+        assert evidence["states"]["CTA_VISIBLE"]["reached"] is True
+        assert evidence["outcome"]["reason"] == "cta_click_failed"
+        assert any(step.get("failed") for step in evidence["steps"])
+    finally:
+        server.shutdown()
+
+
+def test_real_browser_flow_probe_no_form_records_phone_fallback(tmp_path):
+    class PhoneFallbackHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html")
+            self.end_headers()
+            if self.path == "/":
+                self.wfile.write(
+                    b"<!doctype html><html><body><main>"
+                    b"<a href='/contact'>Contact us</a>"
+                    b"</main></body></html>"
+                )
+            else:
+                self.wfile.write(
+                    b"<!doctype html><html><body><main>"
+                    b"<a href='tel:+6435550101'>Call us</a>"
+                    b"</main></body></html>"
+                )
+
+        def log_message(self, *args):
+            pass
+
+    server = _serve(PhoneFallbackHandler)
+    try:
+        url = f"http://127.0.0.1:{server.server_port}/"
+        result = run_flow_probe(url, tmp_path, enabled=True, allow_private=True)
+        assert result["status"] == "ok"
+        evidence = result["evidence"]
+        assert evidence["states"]["CTA_ACTIVATED"]["reached"] is True
+        assert evidence["outcome"]["reason"] == "no_form_or_booking_widget"
+        assert "tel:" in evidence["outcome"]["conversion_fallback"]
+    finally:
+        server.shutdown()
+
+
+def test_real_browser_flow_probe_blocks_cross_origin_resource(tmp_path):
+    class PixelHandler(BaseHTTPRequestHandler):
+        hits = 0
+
+        def do_GET(self):
+            type(self).hits += 1
+            self.send_response(204)
+            self.end_headers()
+
+        def log_message(self, *args):
+            pass
+
+    pixel_server = _serve(PixelHandler)
+
+    class CrossOriginPageHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            body = (
+                "<!doctype html><html><body><main><p>No CTA</p>"
+                f"<img src='http://127.0.0.1:{pixel_server.server_port}/pixel'>"
+                "</main></body></html>"
+            ).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html")
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *args):
+            pass
+
+    page_server = _serve(CrossOriginPageHandler)
+    try:
+        url = f"http://127.0.0.1:{page_server.server_port}/"
+        result = run_flow_probe(url, tmp_path, enabled=True, allow_private=True)
+        assert result["status"] == "ok"
+        blocked = result["evidence"].get("blocked_requests", [])
+        assert any("cross-origin" in item["reason"] for item in blocked)
+        assert PixelHandler.hits == 0
+    finally:
+        page_server.shutdown()
+        pixel_server.shutdown()
+
+
+def test_real_browser_flow_probe_blocks_write_request(tmp_path):
+    class WritePageHandler(BaseHTTPRequestHandler):
+        posts = 0
+
+        def do_GET(self):
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html")
+            self.end_headers()
+            self.wfile.write(
+                b"<!doctype html><html><body><main><p>No CTA</p></main>"
+                b"<script>fetch('/track',{method:'POST',body:'x'}).catch(()=>{});</script>"
+                b"</body></html>"
+            )
+
+        def do_POST(self):
+            type(self).posts += 1
+            self.send_response(204)
+            self.end_headers()
+
+        def log_message(self, *args):
+            pass
+
+    server = _serve(WritePageHandler)
+    try:
+        url = f"http://127.0.0.1:{server.server_port}/"
+        result = run_flow_probe(url, tmp_path, enabled=True, allow_private=True)
+        assert result["status"] == "ok"
+        blocked = result["evidence"].get("blocked_requests", [])
+        assert any("write requests" in item["reason"] for item in blocked)
+        assert WritePageHandler.posts == 0
+    finally:
+        server.shutdown()
