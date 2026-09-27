@@ -407,13 +407,13 @@ final_acceptance:
 
 latest_execution_checkpoint:
   as_of_local_date: "2026-09-28"
-  workspace: "Canonical-plan implementation is committed and pushed on its isolated feature branch. Catalyx web implementation is separately present as uncommitted local work at the recorded base SHA; neither master merge nor deployment occurred."
+  workspace: "Canonical-plan changes are committed and pushed on their isolated feature branch. Catalyx web implementation is committed and pushed on codex/catalyx-rebuild-phase1-5; only the preserved untracked experiments/ directory remains there. Neither branch was merged to master and no deployment occurred."
   branch: "codex/canonical-plan-execution"
   user_reported:
     reliability_soak: "Completed in Claude per owner report on 2026-09-28; no Codex rerun requested. Claude run artifacts and tested SHA were not inspected in this workspace."
   verified:
     python: "3.11.16"
-    toolkit_tests: "171 passed, 4 skipped, 3 dependency deprecation warnings (fresh run after rebase)."
+    toolkit_tests: "176 passed, 4 skipped, 2 dependency deprecation warnings (fresh full run after P18 challenger-gate hardening)."
     money_machine_tests: "305 passed, 23 skipped, 77 subtests passed; executed with a fresh empty SQLite source fixture and the verified Python 3.11 runtime."
     strict_dependency_audits: "Project dependencies and money-machine/requirements-email.txt: no known vulnerabilities found."
     gitleaks_working_tree: "A completed repository-config scan reported 0 findings before the final test-only/code corrections; the final repeated whole-worktree scan was interrupted. A fresh scoped scan of Catalyx web source reported 0 findings. The initial captured-page matches were sanitized, fixture SHA-256 values refreshed, and source hashes retained in the manifest."
@@ -430,6 +430,7 @@ latest_execution_checkpoint:
     prospect_packet: "CLI accepts an Email Finder V2 status export; verified contacts are included only with matching first-party capture provenance. Packet provenance excludes local capture paths and raw page context."
     draft_qa: "Prospect drafts receive deterministic claim, evidence-reference, quote-band and scope-caveat checks; human review remains required and send authority stays disabled."
     score_separation: "Queue qualification preserves independent commercial and technical scores and qualification basis; blended cross-axis ranking was removed. Regression coverage passes."
+    challenger_eval_gate: "The P18 evaluator rejects prediction IDs outside the golden dataset and rejects zero, negative, or non-finite minimum improvement thresholds. Focused governance tests passed 17 cases; full toolkit suite passed 176 tests with 4 opt-in skips. This hardens evaluation inputs but is not evidence of a measured real challenger/shadow run or promotion."
     canonical_runtime_snapshot: "Fresh read-only check at 2026-09-27T16:53:19Z: supervisor status reports PID 51155 running with a heartbeat at 16:53:19Z. ps reports PPID 1 and elapsed process time 03:19:17; launchctl print gui/501/ai.website-auditor.supervisor returns 'Could not find service'. Pipeline contains 30 REJECTED items, 0 active leases and 0 current dead-letter items. A prior read-only event aggregation showed all 30 rejections came from QUALIFICATION_PENDING and shared a nonempty qualification reason; no business names or reason text were output. Network guard remains degraded since 2026-09-27T12:45:41Z; disk guard is healthy with 21,222 MB free; paid_calls=0, external_sends=0. The supervisor process is live but not owned by the expected LaunchAgent; the reason for network degradation and the owner-reported soak artifacts are not verified by this snapshot. Network probe was not run during this health check."
   acceptance_open:
     - "Owner must privately verify and rotate any valid credentials among the 54 nonempty historical .env/.env.fcc assignments. Do not share their values. Then decide whether to rewrite or retain the unreferenced local commit; it is not reachable from current remote release branches."

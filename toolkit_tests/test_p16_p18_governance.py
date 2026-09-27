@@ -126,6 +126,22 @@ def test_challenger_missing_safety_case_cannot_earn_promotion():
     assert challenger.compare(golden, baseline, candidate)["promotion_recommended"] is False
 
 
+def test_challenger_rejects_predictions_outside_golden_dataset():
+    golden = [{"case_id": "known", "expected": "OK", "safety": {}}]
+    predictions = [
+        {"case_id": "known", "actual": "OK", "safety": {}},
+        {"case_id": "invented", "actual": "OK", "safety": {}},
+    ]
+    with pytest.raises(ValueError, match="outside the golden dataset"):
+        challenger.evaluate(golden, predictions)
+
+
+@pytest.mark.parametrize("threshold", [0, -0.01, float("nan"), float("inf")])
+def test_challenger_requires_positive_finite_improvement_threshold(threshold):
+    with pytest.raises(ValueError, match="finite positive fraction"):
+        challenger.compare([], [], [], min_improvement=threshold)
+
+
 @pytest.mark.parametrize("golden", [[], [{"case_id": "same"}, {"case_id": "same"}]])
 def test_challenger_rejects_invalid_golden_dataset(golden):
     with pytest.raises(ValueError):

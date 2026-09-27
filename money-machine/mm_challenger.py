@@ -6,6 +6,7 @@ A challenger can only earn a recommendation for separate human/integrator review
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 
 
@@ -30,6 +31,9 @@ def evaluate(golden_rows: list[dict], prediction_rows: list[dict]) -> dict:
     predictions = {row["case_id"]: row for row in prediction_rows}
     if len(predictions) != len(prediction_rows):
         raise ValueError("Duplicate prediction case_id")
+    unexpected = set(predictions) - set(expected)
+    if unexpected:
+        raise ValueError("Predictions contain cases outside the golden dataset")
     details = []
     correct = 0
     safety_failures = 0
@@ -68,6 +72,9 @@ def evaluate(golden_rows: list[dict], prediction_rows: list[dict]) -> dict:
 
 
 def compare(golden_rows, baseline_rows, challenger_rows, min_improvement=0.01):
+    min_improvement = float(min_improvement)
+    if not math.isfinite(min_improvement) or min_improvement <= 0:
+        raise ValueError("min_improvement must be a finite positive fraction")
     baseline = evaluate(golden_rows, baseline_rows)
     challenger = evaluate(golden_rows, challenger_rows)
     improvement = round(challenger["accuracy"] - baseline["accuracy"], 6)
