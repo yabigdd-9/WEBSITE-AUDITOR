@@ -471,6 +471,12 @@ def fail(d, business_id, worker_id, error, retryable=True):
         outcome = 'retry_scheduled'
     else:
         to = 'RETRYABLE_FAILURE' if retryable else 'PERMANENT_FAILURE'
+        if r['state'] not in TERMINAL:
+            transition(d, business_id, to, worker_id,
+                       'dead-lettered after %d attempts: %s' % (attempts, msg),
+                       {'attempts': attempts})
+        # transition() clears stale errors for normal progress. Persist this
+        # failure after the transition so DLQ triage retains its actual cause.
         d.execute("""UPDATE pipeline_items SET attempts=?,last_error=?,
                       error_fingerprint=?,repeat_count=repeat_count+1,component=?,origin=?,
                       classification=?,first_seen=COALESCE(first_seen,?),last_seen=?,
@@ -478,10 +484,6 @@ def fail(d, business_id, worker_id, error, retryable=True):
                       WHERE business_id=?""",
                   (attempts, msg, fingerprint, component, origin, classification,
                    now_time, now_time, now_time, business_id))
-        if r['state'] not in TERMINAL:
-            transition(d, business_id, to, worker_id,
-                       'dead-lettered after %d attempts: %s' % (attempts, msg),
-                       {'attempts': attempts})
         outcome = 'dead_lettered'
     metric(d, 'pipeline.items.' + outcome)
     log({'kind': 'failure', 'business_id': business_id, 'worker': worker_id,

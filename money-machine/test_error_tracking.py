@@ -109,7 +109,8 @@ class ErrorTracking(unittest.TestCase):
 
     def test_root_causes_surface(self):
         import mm_observability
-        p.fail(self.d, self.bid, 'w-test', p.PermanentError('hard failure 12345'))
+        p.fail(self.d, self.bid, 'w-test', p.PermanentError('hard failure 12345'),
+               retryable=False)
         self.d.commit()
         result = mm_observability.errors(show_root_causes=True)
         self.assertEqual(result['count'], 1)
@@ -118,6 +119,10 @@ class ErrorTracking(unittest.TestCase):
         self.assertEqual(rc['classification'], 'permanent')
         self.assertTrue(rc['error_fingerprint'])
         self.assertEqual(rc['repeat_count'], 1)
+        self.assertEqual(rc['last_error'], 'hard failure 12345')
+        dlq = mm_observability.dead_letter()
+        self.assertEqual(dlq['count'], 1)
+        self.assertEqual(dlq['items'][0]['last_error'], 'hard failure 12345')
 
 
 if __name__ == '__main__':
