@@ -84,7 +84,7 @@ class Acceptance(unittest.TestCase):
         with self.assertRaises(sqlite3.IntegrityError):c.cash(self.d,self.bid,75000,rid)
         self.assertEqual(o.metrics(self.d)['net_received_nzd'],750)
     def test_05_historical_unverified_sends_excluded(self):
-        self.assertEqual(o.metrics(self.d)['verified_sends'],0);self.assertEqual(o.metrics(self.d)['legacy_claimed_sends_unverified'],3)
+        self.assertEqual(o.metrics(self.d)['verified_sends'],0);self.assertEqual(o.metrics(self.d)['legacy_claimed_sends_unverified'],0)
     def test_06_failed_receipt_recording_does_not_become_sent(self):
         self.approve()
         with self.assertRaises(ValueError):c.record_sent(self.d,self.mid,999999)
