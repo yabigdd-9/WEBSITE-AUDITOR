@@ -37,11 +37,34 @@ throttling; TBT is a lab metric, not field INP. Lychee and Lighthouse were
 limited to the loopback preview. The full Lighthouse JSON report is saved at
 `/Users/dd/Documents/Codex/2026-09-27/i-ll-generate-the-master-execution/outputs/catalyx-phase6-lighthouse.json`
 (SHA-256 `b10f51cee2b977f195f24271da3ed9de6659f5240dfa28fa48dc2e027288e868`).
-That full report contains the homepage run; the compact summary covers all six
-eight routes. The full privacy-draft report, including its CSS audit details, is
+That full report contains the homepage run; the compact summary covers the
+eight-route baseline before the focused CSS change. The full privacy-draft
+baseline report, including its CSS audit details, is
 saved at
 `/Users/dd/Documents/Codex/2026-09-27/i-ll-generate-the-master-execution/outputs/catalyx-phase6-lighthouse-privacy.json`
 (SHA-256 `62b363c87a744b168380cc7d0208a3ef35f0b7eace41c8a9daa107a0e504e04b`).
+
+## Privacy and terms CSS follow-up (`a8f73a72`)
+
+The legal draft routes now use a dedicated stylesheet while the other routes
+continue to use the shared app stylesheet. The new bundle is **4,337 bytes**
+versus **19,577 bytes** for `site.css` (77.8% smaller). On `/privacy`, Lighthouse
+measured a render-blocking resource of 4,958 bytes and 159 ms, down from 20,199
+bytes and 356 ms. It reports no unused or unminified CSS for the draft page.
+
+The isolated mobile rerun scored performance 99, accessibility 100, best
+practices 100, and SEO 100. LCP improved from 1.06 s to 0.8 s; CLS remained 0
+and TBT was 100 ms. The performance category remains 99, so this change records
+reduced CSS transfer and unused rules without claiming a perfect score. The
+full post-change report is saved at
+`/Users/dd/Documents/Codex/2026-09-27/i-ll-generate-the-master-execution/outputs/catalyx-phase6-lighthouse-privacy-compact-css.json`
+(SHA-256 `e08bfaaccf747000a7a0e56332d4da6aa82537761ade76019c2e8e675ec72848`).
+
+Fresh regression results against the changed source: Catalyx web suite **68
+passed, one upstream deprecation warning**; synthetic Chromium journey **1
+passed in 14.48 seconds**, now including privacy and terms in the accessibility
+and reflow sweep; Ruff passed. The local CSS check asserts both draft routes
+load the smaller bundle. No soak test was run.
 The proposed Phase 6 scope remains pending owner ratification; phases 7–9
 remain gated by provider, privacy/legal, hosting, and release decisions. No
 soak test was run in this check.
