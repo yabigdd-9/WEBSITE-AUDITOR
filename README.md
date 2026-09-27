@@ -46,9 +46,10 @@ wa audit https://example.co.nz --profile nz --external-tools
 ```
 
 Those tools are never downloaded automatically by the audit process.
-Lighthouse also needs a local Chrome/Chromium installation. If Lighthouse cannot
-find the browser automatically, set `CHROME_PATH` to its executable before
-running the audit. The audit records Lighthouse lab measurements; they are not
+Lighthouse also needs a local Chrome/Chromium installation. If Playwright and its
+Chromium browser are installed, the audit uses that browser automatically when
+Lighthouse cannot find Chrome. Set `CHROME_PATH` to an executable to choose a
+different browser. The audit records Lighthouse lab measurements; they are not
 field Core Web Vitals.
 
 ## Canonical workflow

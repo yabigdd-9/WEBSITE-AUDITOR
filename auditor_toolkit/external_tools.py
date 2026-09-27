@@ -6,6 +6,7 @@ when explicitly requested and an installed binary is available.
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -28,6 +29,25 @@ def _binary(name: str) -> str:
     if not resolved.is_file():
         raise RuntimeError(f"{name} executable is invalid")
     return str(resolved)
+
+
+def _lighthouse_environment() -> dict[str, str] | None:
+    """Use installed Playwright Chromium when Lighthouse cannot discover Chrome."""
+    if os.environ.get("CHROME_PATH"):
+        return None  # Preserve the operator's explicit browser choice.
+    try:
+        from playwright.sync_api import sync_playwright
+
+        with sync_playwright() as playwright:
+            executable = Path(playwright.chromium.executable_path).resolve()
+        if not executable.is_file():
+            return None
+        child_env = os.environ.copy()
+        child_env["CHROME_PATH"] = str(executable)
+        return child_env
+    except Exception:
+        # Playwright is optional; let Lighthouse use its normal Chrome lookup.
+        return None
 
 
 
@@ -112,14 +132,17 @@ def run_lighthouse(url: str, timeout: float = 180.0):
         "--only-categories=performance,accessibility,best-practices,seo",
     ]
     try:
-        result = subprocess.run(
-            command,
-            capture_output=True,
-            text=True,
-            timeout=timeout,
-            check=False,
-            shell=False,
-        )
+        environment = _lighthouse_environment()
+        run_options = {
+            "capture_output": True,
+            "text": True,
+            "timeout": timeout,
+            "check": False,
+            "shell": False,
+        }
+        if environment is not None:
+            run_options["env"] = environment
+        result = subprocess.run(command, **run_options)
     except subprocess.TimeoutExpired as exc:
         raise RuntimeError("lighthouse timed out") from exc
     if result.returncode != 0:

@@ -1,6 +1,8 @@
 import json
+import os
 import subprocess
-from types import SimpleNamespace
+import sys
+from types import ModuleType, SimpleNamespace
 from unittest.mock import patch
 
 import pytest
@@ -94,6 +96,43 @@ def test_lighthouse_scores_create_evidence_backed_findings(executable):
     assert evidence["lab_metrics"]["cumulative-layout-shift"]["value"] == 0.14
     assert evidence["lab_metrics"]["total-blocking-time"]["value"] == 420.0
     assert "not Interaction to Next Paint" in evidence["limitation"]
+
+
+def test_lighthouse_uses_installed_playwright_chromium_when_unset(executable, tmp_path):
+    chrome = tmp_path / "chrome"
+    chrome.write_text("browser fixture", encoding="utf-8")
+    playwright_package = ModuleType("playwright")
+    playwright_sync = ModuleType("playwright.sync_api")
+
+    class PlaywrightContext:
+        def __enter__(self):
+            return SimpleNamespace(chromium=SimpleNamespace(executable_path=str(chrome)))
+
+        def __exit__(self, *_args):
+            return False
+
+    playwright_sync.sync_playwright = PlaywrightContext
+    payload = {"categories": {}, "audits": {}}
+    result = SimpleNamespace(returncode=0, stdout=json.dumps(payload), stderr="")
+    with (
+        patch.dict(sys.modules, {"playwright": playwright_package, "playwright.sync_api": playwright_sync}),
+        patch.dict(os.environ, {"CHROME_PATH": ""}),
+        patch("auditor_toolkit.external_tools.shutil.which", return_value=executable),
+        patch("auditor_toolkit.external_tools.subprocess.run", return_value=result) as run,
+    ):
+        run_lighthouse("https://example.com")
+    assert run.call_args.kwargs["env"]["CHROME_PATH"] == str(chrome.resolve())
+
+
+def test_lighthouse_preserves_explicit_chrome_path(executable):
+    result = SimpleNamespace(returncode=0, stdout=json.dumps({"categories": {}, "audits": {}}), stderr="")
+    with (
+        patch.dict(os.environ, {"CHROME_PATH": "/operator/chrome"}),
+        patch("auditor_toolkit.external_tools.shutil.which", return_value=executable),
+        patch("auditor_toolkit.external_tools.subprocess.run", return_value=result) as run,
+    ):
+        run_lighthouse("https://example.com")
+    assert "env" not in run.call_args.kwargs
 
 
 def test_external_tools_missing_fails_closed_when_requested():
