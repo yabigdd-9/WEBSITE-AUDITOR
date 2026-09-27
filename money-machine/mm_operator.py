@@ -366,6 +366,7 @@ def main(argv=None):
     s.add_parser('model-routes')
     q=s.add_parser('agent-policy-check');q.add_argument('--file',required=True)
     q=s.add_parser('challenger-eval');q.add_argument('--golden',required=True);q.add_argument('--baseline',required=True);q.add_argument('--challenger',required=True);q.add_argument('--min-improvement',type=float,default=0.01)
+    q=s.add_parser('golden-check');q.add_argument('--golden',default=str(Path(__file__).resolve().parents[1] / 'evaluation' / 'golden_cases.jsonl'))
     q=s.add_parser('model-plan');q.add_argument('--purpose',required=True)
     q=s.add_parser('deploy-check');q.add_argument('--candidate');q.add_argument('--execute',action='store_true')
     s.add_parser('bottlenecks')
@@ -570,6 +571,11 @@ def main(argv=None):
             a.min_improvement,
         )
         print(json.dumps(result,indent=2));return 0
+    if a.cmd=='golden-check':
+        import mm_golden_current
+        result=mm_golden_current.run(a.golden)
+        print(json.dumps(result,indent=2))
+        return 0 if result['result']['correct'] == result['result']['cases'] and result['result']['safety_failures'] == 0 else 1
     if a.cmd in ('pipeline-run','pipeline-status','pipeline-enqueue','pipeline-requeue','pipeline-transition','pipeline-health','approval-check','approval-decide','model-plan','deploy-check'):
         import mm_pipeline, mm_approval, mm_model_router, mm_workers
         readonly=a.cmd in ('approval-check',)

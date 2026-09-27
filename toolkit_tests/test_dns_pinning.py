@@ -6,7 +6,6 @@ import pytest
 
 from auditor_toolkit.common import Fetcher, _PinnedSyncBackend, validate_url
 
-
 PUBLIC_V4 = (socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 443))
 
 

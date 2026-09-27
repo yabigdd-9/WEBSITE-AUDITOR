@@ -20,6 +20,7 @@ def load(name):
 
 agent = load("mm_agent_policy")
 challenger = load("mm_challenger")
+golden_current = load("mm_golden_current")
 
 
 def test_agent_policy_blocks_shared_writes_and_direct_master():
@@ -88,6 +89,32 @@ def test_repository_golden_dataset_is_valid_and_safety_focused():
     assert "email-pattern-guess" in ids
     assert "demo-concept" in ids
     assert all("safety" in row for row in rows)
+
+
+def test_current_code_executes_repository_golden_cases_without_external_side_effects():
+    result = golden_current.run(ROOT / "evaluation" / "golden_cases.jsonl")
+
+    assert result["kind"] == "current_implementation_golden_conformance"
+    assert result["result"]["correct"] == result["result"]["cases"] == 6
+    assert result["result"]["safety_failures"] == 0
+    assert result["promotion_recommended"] is False
+    assert result["promotion_authorized"] is False
+    assert result["side_effects"] == {
+        "model_calls": 0,
+        "network_calls": 0,
+        "smtp_calls": 0,
+        "database_writes": 0,
+        "production_changes": 0,
+        "temporary_preview_artifacts": True,
+    }
+
+
+def test_current_golden_runner_rejects_unimplemented_case_types(tmp_path):
+    path = tmp_path / "unknown.jsonl"
+    path.write_text('{"case_id":"unknown","task":"future","input":{},"expected":"OK","safety":{}}\n')
+
+    with pytest.raises(ValueError, match="No deterministic golden adapter"):
+        golden_current.run(path)
 
 
 def test_external_model_data_collection_defaults_to_deny():
