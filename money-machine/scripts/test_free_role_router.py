@@ -1,24 +1,23 @@
 """No-network behavioral tests for the free-only role dispatcher."""
-import copy
-from pathlib import Path
 import unittest
+from pathlib import Path
 
 import yaml
-from free_role_router import RouteError, free_model, route, validate
+from free_role_router import RouteError, route, validate
 
 ROOT = Path(__file__).resolve().parents[2]
 
-# The routing config is a host-only control-plane fixture. When absent
-# (sandbox checkout), skip explicitly instead of erroring — Master Plan P4.
-_CONFIG_PRESENT = (ROOT / "control-plane/config/routing.yaml").is_file()
-_CONFIG_ABSENT = ("BLOCKED_FIXTURE: control-plane/config/routing.yaml not "
-                  "present in this environment")
+# Routing policy is canonical, tracked project configuration. Tests use
+# synthetic catalogs and an injected transport, so they never call the network.
+ROUTING_CONFIG = ROOT / "money-machine" / "config" / "routing.yaml"
+_CONFIG_PRESENT = ROUTING_CONFIG.is_file()
+_CONFIG_ABSENT = "Canonical money-machine/config/routing.yaml is missing"
 
 
 @unittest.skipUnless(_CONFIG_PRESENT, _CONFIG_ABSENT)
 class RoutingTests(unittest.TestCase):
     def setUp(self):
-        self.config = yaml.safe_load((ROOT / "control-plane/config/routing.yaml").read_text())
+        self.config = yaml.safe_load(ROUTING_CONFIG.read_text())
         ids = {m for spec in self.config["roles"].values() for m in [spec["preferred"], *spec.get("fallbacks", [])]}
         self.catalog = {m: {"id": m, "pricing": {"prompt": "0", "completion": "0"},
             "architecture": {"input_modalities": ["text", "image"]}} for m in ids}

@@ -10,7 +10,7 @@ Exposed constants:
                         (refused still proves the socket stack works)
   HAS_DNS               loopback name resolution works
   HAS_PLAYWRIGHT        playwright package importable
-  HAS_CONTROL_PLANE     control-plane/config/routing.yaml present
+  HAS_CONTROL_PLANE     canonical money-machine/config/routing.yaml present
   HAS_EMAIL_CASE_FIXTURES  email-observation-evidence case corpus present
   HAS_EMAIL_MIGRATION_SQL  migrations/ rollback fixture present
   HAS_HERMES_SOURCE_DB  legacy agent-trials source DB present
@@ -60,7 +60,7 @@ def _probe_playwright():
 HAS_SOCKET = _probe_socket()
 HAS_DNS = _probe_dns()
 HAS_PLAYWRIGHT = _probe_playwright()
-HAS_CONTROL_PLANE = (REPO / "control-plane" / "config" / "routing.yaml").is_file()
+HAS_CONTROL_PLANE = (MM_DIR / "config" / "routing.yaml").is_file()
 HAS_EMAIL_CASE_FIXTURES = (MM_DIR / "reports" / "email-observation-evidence" / "cases").is_dir()
 HAS_EMAIL_MIGRATION_SQL = (MM_DIR / "migrations" / "003_email_finder_v2_rollback.sql").is_file()
 HAS_HERMES_SOURCE_DB = Path(

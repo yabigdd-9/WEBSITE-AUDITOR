@@ -188,7 +188,8 @@ CREATE TABLE contacts (
 
 CREATE TABLE mm_holds (
   business_id INTEGER PRIMARY KEY REFERENCES businesses(id),
-  reason TEXT NOT NULL
+  reason TEXT NOT NULL,
+  created_at TEXT NOT NULL
 );
 
 CREATE TABLE mm_evidence (

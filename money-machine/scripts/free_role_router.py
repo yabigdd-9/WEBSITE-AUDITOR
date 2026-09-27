@@ -1,19 +1,19 @@
 """Explicit free-only model requests. No CRM connection, tool execution or outreach."""
 import argparse
 import base64
-from datetime import datetime, timezone
-from decimal import Decimal, InvalidOperation
 import hashlib
 import json
 import os
-from pathlib import Path
-import time
 import urllib.error
 import urllib.request
+from datetime import datetime, timezone
+from decimal import Decimal, InvalidOperation
+from pathlib import Path
 
 import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
+ROUTING_CONFIG = ROOT / "money-machine" / "config" / "routing.yaml"
 API = "https://openrouter.ai/api/v1"
 
 
@@ -160,7 +160,7 @@ def main():
     parser.add_argument("--image", type=Path, help="Synthetic/public PNG or JPEG only")
     parser.add_argument("--creator-model", help="For JUDGE/CRITIC independent-review checks")
     args = parser.parse_args()
-    config = yaml.safe_load((ROOT / "control-plane/config/routing.yaml").read_text())
+    config = yaml.safe_load(ROUTING_CONFIG.read_text())
     prompt = args.prompt_file.read_text()
     image_data = None
     if args.image:
