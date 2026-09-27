@@ -301,7 +301,25 @@ def flow_findings(evidence: dict, url: str):
     findings: list = []
     states = evidence.get("states", {})
     outcome = evidence.get("outcome", {})
-    summary = {"states_reached": sum(1 for s in states.values() if s.get("reached")), "outcome": outcome}
+    health_weights = {
+        "LANDING": 10,
+        "CTA_VISIBLE": 15,
+        "CTA_ACTIVATED": 20,
+        "FORM_OR_BOOKING_REACHED": 20,
+        "REQUIRED_FIELDS_IDENTIFIED": 10,
+        "CLIENT_VALIDATION_WORKS": 15,
+    }
+    conversion_path_health = sum(
+        weight for state, weight in health_weights.items()
+        if states.get(state, {}).get("reached")
+    )
+    if evidence.get("steps") and evidence.get("started_at") and evidence.get("finished_at"):
+        conversion_path_health += 10
+    summary = {
+        "states_reached": sum(1 for s in states.values() if s.get("reached")),
+        "outcome": outcome,
+        "conversion_path_health": min(100, conversion_path_health),
+    }
 
     if evidence.get("status") == "error":
         findings.append(
