@@ -463,11 +463,14 @@ def test_auth_rate_limit_attempt_reservations_are_atomic_across_connections(tmp_
     assert sum(decisions) == 12
 
 
-def test_login_failure_limit_is_account_scoped_and_persistent(tmp_path):
-    db_path = tmp_path / "account-rate-limit.sqlite3"
-    mailbox_path = tmp_path / "mailbox.json"
-    app = create_app(db_path, mailbox_path)
-    register_and_login(TestClient(app), "customer@example.invalid")
+def test_distributed_login_failures_cannot_lock_out_valid_account(tmp_path, monkeypatch):
+    import catalyx_web.app as app_module
+
+    db_path = tmp_path / "global-login-limit.sqlite3"
+    app = create_app(db_path, tmp_path / "mailbox.json")
+    email = "customer@example.invalid"
+    register_and_login(TestClient(app), email)
+    monkeypatch.setattr(app_module, "verify_password", lambda password, _encoded: password == "correct")
 
     for attempt in range(12):
         client = TestClient(app, client=(f"203.0.113.{attempt + 1}", 8000))
@@ -476,90 +479,78 @@ def test_login_failure_limit_is_account_scoped_and_persistent(tmp_path):
             "/login",
             data={
                 "csrf": form_token(login_page),
-                "email": "CUSTOMER@example.invalid",
+                "email": email,
                 "password": "incorrect-password-for-test",
             },
         )
         assert response.status_code == 401
 
-    restarted_app = create_app(db_path, mailbox_path)
-    blocked = TestClient(restarted_app, client=("203.0.113.100", 8000))
-    login_page = blocked.get("/login")
-    limited = blocked.post(
+    valid_client = TestClient(app, client=("203.0.113.100", 8000))
+    login_page = valid_client.get("/login")
+    accepted = valid_client.post(
+        "/login",
+        data={"csrf": form_token(login_page), "email": email, "password": "correct"},
+        follow_redirects=False,
+    )
+    assert accepted.status_code == 303
+    with Database(db_path).connect() as db:
+        row = db.execute(
+            "SELECT hits,subject_hash FROM auth_rate_limits WHERE scope='login_global'"
+        ).fetchone()
+        assert row["hits"] == 14
+        assert row["subject_hash"] == hashlib.sha256(b"application").hexdigest()
+        assert db.execute(
+            "SELECT count(*) FROM auth_rate_limits WHERE scope='login_account'"
+        ).fetchone()[0] == 0
+
+
+def test_login_global_budget_is_shared_across_accounts_and_configurable(tmp_path, monkeypatch):
+    import catalyx_web.app as app_module
+
+    monkeypatch.setenv("CATALYX_LOGIN_GLOBAL_LIMIT_PER_MINUTE", "2")
+    monkeypatch.setattr(app_module, "verify_password", lambda _password, _encoded: False)
+    db_path = tmp_path / "shared-login-budget.sqlite3"
+    app = create_app(db_path, tmp_path / "mailbox.json")
+    assert app.state.login_global_limit_per_minute == 2
+
+    for attempt in range(2):
+        client = TestClient(app, client=(f"198.51.100.{attempt + 1}", 8000))
+        login_page = client.get("/login")
+        response = client.post(
+            "/login",
+            data={
+                "csrf": form_token(login_page),
+                "email": f"person-{attempt}@example.invalid",
+                "password": "incorrect-password-for-test",
+            },
+        )
+        assert response.status_code == 401
+
+    restarted_app = create_app(db_path, tmp_path / "mailbox.json")
+    client = TestClient(restarted_app, client=("198.51.100.3", 8000))
+    login_page = client.get("/login")
+    limited = client.post(
         "/login",
         data={
             "csrf": form_token(login_page),
-            "email": "customer@example.invalid",
+            "email": "person-2@example.invalid",
             "password": "incorrect-password-for-test",
         },
     )
     assert limited.status_code == 429
 
     with Database(db_path).connect() as db:
-        stored_subjects = [
-            row["subject_hash"]
-            for row in db.execute(
-                "SELECT subject_hash FROM auth_rate_limits WHERE scope='login_account'"
-            )
-        ]
-    assert len(stored_subjects) == 1
-    assert all(len(subject) == 64 for subject in stored_subjects)
-    assert "customer@example.invalid" not in stored_subjects
+        rows = db.execute(
+            "SELECT hits FROM auth_rate_limits WHERE scope='login_global'"
+        ).fetchall()
+    assert [row["hits"] for row in rows] == [3]
 
-    database = Database(db_path)
-    assert database.rate_attempt_available(
-        "login_account", "customer@example.invalid", 12, 3600, now=10**10
-    )
 
-    # The account bucket is reserved before PBKDF2, so a valid login must wait
-    # for the provisional account window to expire after it is exhausted.
-    with Database(db_path).connect() as db:
-        db.execute(
-            "UPDATE auth_rate_limits SET window_started=? WHERE scope='login_account'",
-            (int(time.time()) - 3600,),
-        )
-    valid_client = TestClient(restarted_app, client=("203.0.113.101", 8000))
-    login_page = valid_client.get("/login")
-    accepted = valid_client.post(
-        "/login",
-        data={
-            "csrf": form_token(login_page),
-            "email": "customer@example.invalid",
-            "password": "a-long-local-password-123",
-        },
-        follow_redirects=False,
-    )
-    assert accepted.status_code == 303
-    with Database(db_path).connect() as db:
-        assert db.execute(
-            "SELECT 1 FROM auth_rate_limits WHERE scope='login_account' AND subject_hash=?",
-            (hashlib.sha256(b"customer@example.invalid").hexdigest(),),
-        ).fetchone() is None
-
-    clear_email = "success@example.invalid"
-    register_and_login(TestClient(restarted_app), clear_email)
-    failed_client = TestClient(restarted_app, client=("203.0.114.1", 8000))
-    login_page = failed_client.get("/login")
-    assert failed_client.post(
-        "/login",
-        data={"csrf": form_token(login_page), "email": clear_email, "password": "wrong"},
-    ).status_code == 401
-    successful_client = TestClient(restarted_app, client=("203.0.114.2", 8000))
-    login_page = successful_client.get("/login")
-    assert successful_client.post(
-        "/login",
-        data={
-            "csrf": form_token(login_page),
-            "email": clear_email,
-            "password": "a-long-local-password-123",
-        },
-        follow_redirects=False,
-    ).status_code == 303
-    with Database(db_path).connect() as db:
-        assert db.execute(
-            "SELECT 1 FROM auth_rate_limits WHERE scope='login_account' AND subject_hash=?",
-            (hashlib.sha256(clear_email.encode()).hexdigest(),),
-        ).fetchone() is None
+@pytest.mark.parametrize("value", ["0", "61", "not-an-integer"])
+def test_login_global_budget_rejects_invalid_configuration(tmp_path, monkeypatch, value):
+    monkeypatch.setenv("CATALYX_LOGIN_GLOBAL_LIMIT_PER_MINUTE", value)
+    with pytest.raises(RuntimeError, match="CATALYX_LOGIN_GLOBAL_LIMIT_PER_MINUTE"):
+        create_app(tmp_path / "app.sqlite3", tmp_path / "mailbox.json")
 
 
 def test_login_rejects_overlong_password_before_password_verification(tmp_path, monkeypatch):
@@ -595,7 +586,7 @@ def test_local_mailbox_refuses_a_preexisting_symlink(tmp_path):
     assert target.read_text(encoding="utf-8") == "preserve this file\n"
 
 
-def test_admin_valid_mfa_clears_attempts_and_rejects_replay(tmp_path, monkeypatch):
+def test_admin_login_uses_shared_budget_and_rejects_totp_replay(tmp_path, monkeypatch):
     db_path = tmp_path / "admin-rate-limit.sqlite3"
     database = Database(db_path)
     email = "owner@example.invalid"
@@ -605,7 +596,7 @@ def test_admin_valid_mfa_clears_attempts_and_rejects_replay(tmp_path, monkeypatc
     monkeypatch.setattr("catalyx_web.app.time.time", lambda: timestamp)
     database.create_admin(email, hash_password(password), secret)
     for _ in range(11):
-        assert database.allow_rate_attempt("login_account", email, 12, 3600)
+        assert database.allow_rate_attempt("login_global", "application", 60, 60)
 
     client = TestClient(
         create_app(db_path, tmp_path / "mailbox.json"),
@@ -625,9 +616,8 @@ def test_admin_valid_mfa_clears_attempts_and_rejects_replay(tmp_path, monkeypatc
     assert response.status_code == 303
     with database.connect() as db:
         assert db.execute(
-            "SELECT 1 FROM auth_rate_limits WHERE scope='login_account' AND subject_hash=?",
-            (hashlib.sha256(email.encode()).hexdigest(),),
-        ).fetchone() is None
+            "SELECT hits FROM auth_rate_limits WHERE scope='login_global'"
+        ).fetchone()["hits"] == 12
 
     replay_client = TestClient(
         client.app,
@@ -645,6 +635,10 @@ def test_admin_valid_mfa_clears_attempts_and_rejects_replay(tmp_path, monkeypatc
         follow_redirects=False,
     )
     assert replay.status_code == 401
+    with database.connect() as db:
+        assert db.execute(
+            "SELECT hits FROM auth_rate_limits WHERE scope='login_global'"
+        ).fetchone()["hits"] == 13
 
 
 def test_schema_v3_database_migrates_to_persistent_auth_rate_limits(tmp_path):

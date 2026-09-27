@@ -50,6 +50,7 @@ APP_DIR = Path(__file__).parent
 STATIC_DIR = APP_DIR / "static"
 SESSION_SECONDS = 60 * 60 * 8
 MAX_FORM_BYTES = 32_768
+LOGIN_GLOBAL_LIMIT_PER_MINUTE = 60
 
 
 def _e(value) -> str:
@@ -313,6 +314,19 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
     registration_mode = os.getenv(
         "CATALYX_REGISTRATION_MODE", "closed" if hosted else "open"
     ).strip().lower()
+    login_limit_setting = os.getenv(
+        "CATALYX_LOGIN_GLOBAL_LIMIT_PER_MINUTE", str(LOGIN_GLOBAL_LIMIT_PER_MINUTE)
+    ).strip()
+    try:
+        login_global_limit = int(login_limit_setting)
+    except ValueError:
+        raise RuntimeError(
+            "CATALYX_LOGIN_GLOBAL_LIMIT_PER_MINUTE must be an integer from 1 to 60."
+        ) from None
+    if not 1 <= login_global_limit <= LOGIN_GLOBAL_LIMIT_PER_MINUTE:
+        raise RuntimeError(
+            "CATALYX_LOGIN_GLOBAL_LIMIT_PER_MINUTE must be an integer from 1 to 60."
+        )
     if registration_mode not in {"closed", "open"}:
         raise RuntimeError("CATALYX_REGISTRATION_MODE must be closed or open.")
     mail_mode = os.getenv("CATALYX_MAIL_MODE", "disabled" if hosted else "local_mailbox").strip().lower()
@@ -380,6 +394,7 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
     app.state.database = database
     app.state.registration_mode = registration_mode
+    app.state.login_global_limit_per_minute = login_global_limit
     app.state.mail_mode = mail_mode
     app.state.external_send_allowed = external_send_allowed
     app.state.local_mailbox_path = mailbox_path
@@ -1139,10 +1154,12 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
         password = form.get("password", "")
         if len(password) > 1024:
             raise HTTPException(400, "Sign-in unavailable. Check your details and try again.")
-        # Reserve before PBKDF2 so distributed callers cannot multiply the
-        # expensive verification work. Successful authentication clears this
-        # bucket; the threshold remains an owner-approved launch decision.
-        if not database.allow_rate_attempt("login_account", email, 12, 3600):
+        # One shared-database budget bounds aggregate PBKDF2 work across
+        # distinct account names and client addresses. The cap is configurable
+        # downward and remains a provisional launch threshold for owner review.
+        if not database.allow_rate_attempt(
+            "login_global", "application", login_global_limit, 60
+        ):
             raise HTTPException(429, "Too many sign-in attempts. Try again later.")
         with database.connect() as db:
             row = db.execute(
@@ -1172,7 +1189,6 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
                 return response
             response = _form_page("Welcome back", "Sign in to continue to your private workspace.", '<p class="form-error" role="alert" aria-atomic="true">Sign-in unavailable. Check your email verification link or try your details again.</p>' + login_form(request), request=request, status=401)
             return response
-        database.clear_rate_attempts("login_account", email)
         token = new_token()
         csrf_token = new_token()
         with database.connect() as db:
