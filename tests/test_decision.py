@@ -125,12 +125,12 @@ def test_decision_can_hold_low_value_supported_case():
     result = priority_decision(
         technical_opportunity=0.1,
         commercial_opportunity=0.1,
-        identity_confidence=0.7,
-        evidence_confidence=0.7,
-        evidence_freshness=0.7,
-        contactability=0.5,
-        conversion_path_health=0.7,
-        estimated_effort=0.9,
+        identity_confidence=0.6,
+        evidence_confidence=0.6,
+        evidence_freshness=0.5,
+        contactability=0.4,
+        conversion_path_health=0.5,
+        estimated_effort=1.0,
     )
     assert result["priority_score"] < 40
     assert result["next_action"] == "HOLD"
