@@ -2,12 +2,12 @@
 
 - **Status date:** 2026-09-28
 - **Implementation base:** `f9e0694582c4cada39a08c91f86a4adaf083feff`
-- **Current repository revision:** `6d147eba4bb8350849b74086f980d4370bce3b80` on
+- **Current repository revision:** `47a35243c4cd242f9361466487a3fbcb3469e9fc` on
   `codex/catalyx-rebuild-phase1-5` (checked 2026-09-28)
 - **Original app implementation revision:** `ed182a76daab33622a27665596fc7654342b16ef`
-- **Worktree follow-up:** login rate reservation, its regression test, and threat-model
-  correction are committed in `6d147eba`; this readiness document has local
-  edits; untracked `experiments/` is preserved.
+- **Worktree follow-up:** atomic login and account-recovery email rate limits,
+  cross-IP regression coverage, and threat-model/readiness updates are committed
+  through `47a35243`; untracked `experiments/` is preserved.
 - **Worktree:** `/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild`
 
 ## Built in this local slice
