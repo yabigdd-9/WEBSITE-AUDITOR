@@ -47,6 +47,7 @@ class Acceptance(unittest.TestCase):
         for index in range(3):
             bid=self.d.execute("INSERT INTO businesses(name,source,discovered_at,current_status) VALUES(?,?,?,?)", (f'Fixture suppressed {index + 1}', 'fixture', c.now(), 'discovered')).lastrowid
             self.suppressed_ids.append(bid)
+            self.d.execute("INSERT INTO mm_deals(business_id,stage,updated_at) VALUES(?,?,?)", (bid, 'DISCOVERED', c.now()))
             self.d.execute("INSERT INTO mm_holds(business_id, reason, created_at) VALUES(?,?,?)", (bid, 'fixture hold', c.now()))
         self.capture=self.r/'capture.txt';self.capture.write_text('<html><title>Acceptance Fixture</title><h1>Acceptance Fixture</h1><p>Fixturetown</p><p>Contact email: '+self.address+'</p><p>Verified local fixture observation, not a real business.</p></html>');self.demo=self.r/'demo.html';self.demo.write_text(DEMO)
         meta={'url':'https://fixture.example.co.nz','captured_at':c.now(),'sha256':c.sha(self.capture.read_bytes()),'path':str(self.capture)}
@@ -208,7 +209,10 @@ class Acceptance(unittest.TestCase):
         pid,rid=self.pay();r=self.d.execute('SELECT * FROM mm_receipts WHERE id=?',(rid,)).fetchone();Path(r['artifact_path']).write_text('tampered');self.assertEqual(o.metrics(self.d)['net_received_nzd'],0)
     def test_40_live_suppressed_businesses_stay_suppressed(self):
         for bid in self.suppressed_ids:
-            with self.assertRaises(ValueError):c.change_stage(self.d,bid,'DISCOVERED','Attempt')
+            before=self.d.execute('SELECT stage FROM mm_deals WHERE business_id=?',(bid,)).fetchone()[0]
+            target='AUDITED' if before!='AUDITED' else 'QUALIFIED'
+            with self.assertRaises(ValueError):c.change_stage(self.d,bid,target,'Attempt')
+            self.assertEqual(self.d.execute('SELECT stage FROM mm_deals WHERE business_id=?',(bid,)).fetchone()[0],before)
             self.assertEqual(self.d.execute('SELECT count(*) FROM mm_holds WHERE business_id=?',(bid,)).fetchone()[0],1)
     def test_41_receiptless_direct_sent_stage_blocked(self):
         with self.assertRaises(sqlite3.IntegrityError):self.d.execute("UPDATE mm_deals SET stage='SENT' WHERE business_id=?",(self.bid,))
