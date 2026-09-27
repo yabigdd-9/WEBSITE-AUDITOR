@@ -14,6 +14,7 @@ from __future__ import annotations
 import hashlib
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlparse
 
 from .common import validate_url
 
@@ -65,6 +66,22 @@ _MAX_STEPS = 12
 _STEP_TIMEOUT_MS = 4_000
 
 
+def _origin(url: str) -> tuple[str, str | None, int | None]:
+    parsed = urlparse(url)
+    port = parsed.port
+    if port is None:
+        port = 443 if parsed.scheme == "https" else 80 if parsed.scheme == "http" else None
+    return parsed.scheme, parsed.hostname, port
+
+
+def _request_policy_reason(audited_url: str, target_url: str, method: str) -> str | None:
+    if method not in ("GET", "HEAD", "OPTIONS"):
+        return "Flow probe blocks write requests"
+    if _origin(target_url) != _origin(audited_url):
+        return "Flow probe blocks cross-origin requests"
+    return None
+
+
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -112,8 +129,9 @@ def run_flow_probe(url, output_dir, enabled=True, allow_private=False):
                 def guard(route):
                     try:
                         validate_url(route.request.url, allow_private)
-                        if route.request.method not in ("GET", "HEAD", "OPTIONS"):
-                            raise ValueError("Flow probe blocks write requests")
+                        reason = _request_policy_reason(url, route.request.url, route.request.method)
+                        if reason:
+                            raise ValueError(reason)
                         route.continue_()
                     except Exception as exc:
                         evidence.setdefault("blocked_requests", []).append(
