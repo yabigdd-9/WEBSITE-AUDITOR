@@ -8,6 +8,7 @@ license = {text = "MIT"}
 
 # Main dependencies (same as requirements.txt + requests added earlier)
 dependencies = [
+  "fastapi>=0.115,<1",
   "httpx>=0.28,<1",
   "aiohttp>=3.10",
   "beautifulsoup4>=4.15",
@@ -17,23 +18,30 @@ dependencies = [
   "requests>=2.32",
   "pyyaml>=6",
   "dnspython>=2.6,<3",
+  "psycopg[binary]>=3.2,<4",
+  "cryptography>=44,<51",
 ]
 
 [project.scripts]
 wa = "auditor_toolkit.cli:main"
+catalyx-web = "catalyx_web.app:main"
+catalyx-db-migrate = "catalyx_web.migrations:main"
+catalyx-totp-key-rotate = "catalyx_web.totp_key_rotation:main"
 
 [tool.setuptools.packages.find]
-include = ["auditor_toolkit*", "website_auditor*"]
+include = ["auditor_toolkit*", "website_auditor*", "catalyx_web*"]
 exclude = ["toolkit_tests*", "money-machine*", "deepseek-harness*"]
 
 [tool.setuptools.package-data]
 auditor_toolkit = ["assets/*.js", "assets/*.txt"]
+catalyx_web = ["static/*"]
 
 [project.optional-dependencies]
 browser = ["playwright>=1.51,<2"]
-portal = ["fastapi>=0.115,<1", "uvicorn>=0.30,<1", "argon2-cffi>=23,<26", "python-multipart>=0.0.18"]
+portal = ["uvicorn>=0.30,<1", "argon2-cffi>=23,<26", "python-multipart>=0.0.18"]
+web = ["uvicorn>=0.30,<1"]
 ai = ["llama-cpp-python>=0.3,<1"]
-smtp = ["aiosmtplib>=3,<4"]
+smtp = ["aiosmtplib>=5.1.2,<6"]
 dev = [
   "pytest>=8.3",
   "pytest-asyncio>=0.24",

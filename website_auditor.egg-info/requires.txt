@@ -1,3 +1,4 @@
+fastapi<1,>=0.115
 httpx<1,>=0.28
 aiohttp>=3.10
 beautifulsoup4>=4.15
@@ -7,6 +8,8 @@ yarl>=1.25
 requests>=2.32
 pyyaml>=6
 dnspython<3,>=2.6
+psycopg[binary]<4,>=3.2
+cryptography<51,>=44
 
 [ai]
 llama-cpp-python<1,>=0.3
@@ -20,10 +23,12 @@ pytest-asyncio>=0.24
 ruff>=0.6
 
 [portal]
-fastapi<1,>=0.115
 uvicorn<1,>=0.30
 argon2-cffi<26,>=23
 python-multipart>=0.0.18
 
 [smtp]
-aiosmtplib<4,>=3
+aiosmtplib<6,>=5.1.2
+
+[web]
+uvicorn<1,>=0.30

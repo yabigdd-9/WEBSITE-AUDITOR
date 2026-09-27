@@ -58,7 +58,7 @@ jobs:
       - name: Install project + test dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e '.[portal,dev]'
+          python -m pip install -e '.[portal,web,dev]'
           python -m pip install -r money-machine/requirements-email.txt
       - name: Compile canonical Python modules
         run: python -m compileall -q auditor_toolkit website_auditor money-machine

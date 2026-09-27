@@ -1,0 +1,296 @@
+from __future__ import annotations
+
+import base64
+import re
+from email.message import EmailMessage
+from urllib.parse import urlparse
+
+import pytest
+from fastapi.testclient import TestClient
+
+from catalyx_web import app as app_module
+from catalyx_web import mailer
+from catalyx_web.app import create_app
+from catalyx_web.security import production_deployment, valid_email_address
+
+SMTP_ENV = {
+    "CATALYX_SMTP_HOST": "smtp.example.invalid",
+    "CATALYX_SMTP_PORT": "587",
+    "CATALYX_SMTP_USERNAME": "auditor@example.invalid",
+    "CATALYX_SMTP_PASSWORD": "test-secret",
+    "CATALYX_SMTP_FROM": "CatalyxLabs <auditor@example.invalid>",
+}
+
+
+class FakeSMTP:
+    def __init__(self):
+        self.started_tls = False
+        self.logged_in = None
+        self.message = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_exc):
+        return False
+
+    def ehlo(self):
+        return None
+
+    def starttls(self, **_kwargs):
+        self.started_tls = True
+
+    def login(self, username, password):
+        self.logged_in = (username, password)
+
+    def send_message(self, message):
+        self.message = message
+
+
+def test_smtp_account_message_uses_starttls_and_fixed_templates(monkeypatch):
+    smtp = FakeSMTP()
+    monkeypatch.setattr(mailer.smtplib, "SMTP", lambda *_args, **_kwargs: smtp)
+
+    mailer.send_account_link(
+        "customer@example.invalid",
+        "email_verification",
+        "https://catalyxlabs.com/verify#one-time-token",
+        environ=SMTP_ENV,
+    )
+
+    assert smtp.started_tls
+    assert smtp.logged_in == (SMTP_ENV["CATALYX_SMTP_USERNAME"], SMTP_ENV["CATALYX_SMTP_PASSWORD"])
+    assert isinstance(smtp.message, EmailMessage)
+    assert smtp.message["To"] == "customer@example.invalid"
+    assert smtp.message["Subject"] == "Confirm your CatalyxLabs Website Auditor email"
+    assert "one-time-token" in smtp.message.get_content()
+
+
+def test_smtp_account_message_supports_implicit_tls(monkeypatch):
+    smtp = FakeSMTP()
+    monkeypatch.setattr(mailer.smtplib, "SMTP_SSL", lambda *_args, **_kwargs: smtp)
+    config = {**SMTP_ENV, "CATALYX_SMTP_PORT": "465"}
+
+    mailer.send_account_link("customer@example.invalid", "password_reset", "https://example.invalid/reset#token", environ=config)
+
+    assert smtp.logged_in == (config["CATALYX_SMTP_USERNAME"], config["CATALYX_SMTP_PASSWORD"])
+    assert smtp.message["Subject"] == "Reset your CatalyxLabs Website Auditor password"
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {"CATALYX_SMTP_PORT": "25"},
+        {"CATALYX_SMTP_PASSWORD": ""},
+        {"CATALYX_SMTP_FROM": "invalid-address"},
+        {"CATALYX_SMTP_HOST": "bad host"},
+    ],
+)
+def test_smtp_configuration_rejects_unsafe_or_incomplete_values(changes):
+    with pytest.raises(mailer.MailConfigurationError):
+        mailer.smtp_configuration({**SMTP_ENV, **changes})
+
+
+def test_smtp_failure_hides_provider_details(monkeypatch):
+    def fail(*_args, **_kwargs):
+        raise OSError("private provider detail")
+
+    monkeypatch.setattr(mailer.smtplib, "SMTP", fail)
+    with pytest.raises(mailer.MailDeliveryError, match="could not be delivered") as error:
+        mailer.send_account_link("customer@example.invalid", "password_reset", "https://example.invalid/reset#token", environ=SMTP_ENV)
+    assert "private provider detail" not in str(error.value)
+
+
+@pytest.mark.parametrize(
+    "address",
+    ["customer@example.invalid", "name+tag@example.co.nz"],
+)
+def test_valid_email_address_accepts_one_mailbox(address):
+    assert valid_email_address(address)
+
+
+@pytest.mark.parametrize(
+    "address",
+    [
+        "",
+        "@example.invalid",
+        "customer@example",
+        "customer@example.invalid,other@example.invalid",
+        "customer@example.invalid\r\nBcc: other@example.invalid",
+        "two..dots@example.invalid",
+    ],
+)
+def test_valid_email_address_rejects_invalid_or_multi_recipient_syntax(address):
+    assert not valid_email_address(address)
+
+
+def test_vercel_preview_is_hosted_but_not_production(monkeypatch):
+    monkeypatch.setenv("VERCEL", "1")
+    monkeypatch.setenv("VERCEL_ENV", "preview")
+    monkeypatch.setenv("CATALYX_ENV", "production")
+
+    assert production_deployment() is False
+
+
+def test_vercel_preview_requires_isolated_hosted_configuration(monkeypatch):
+    monkeypatch.setenv("VERCEL", "1")
+    monkeypatch.setenv("VERCEL_ENV", "preview")
+    monkeypatch.setenv("CATALYX_ENV", "development")
+    monkeypatch.delenv("CATALYX_REGISTRATION_MODE", raising=False)
+    for name in (
+        "CATALYX_DATABASE_URL",
+        "CATALYX_PUBLIC_BASE_URL",
+        "CATALYX_TOTP_ENCRYPTION_KEY",
+        "CATALYX_SMTP_HOST",
+        "CATALYX_SMTP_PORT",
+        "CATALYX_SMTP_USERNAME",
+        "CATALYX_SMTP_PASSWORD",
+        "CATALYX_SMTP_FROM",
+        "CATALYX_MAIL_MODE",
+    ):
+        monkeypatch.delenv(name, raising=False)
+    with pytest.raises(RuntimeError, match="Hosted startup configuration is incomplete"):
+        create_app()
+
+    monkeypatch.setenv("CATALYX_DATABASE_URL", "postgresql://auditor:secret@db.example.invalid/preview")
+    monkeypatch.setenv("CATALYX_PUBLIC_BASE_URL", "https://preview.example.invalid")
+    monkeypatch.setenv("CATALYX_TOTP_ENCRYPTION_KEY", base64.urlsafe_b64encode(bytes(range(32))).decode())
+    monkeypatch.setenv("CATALYX_MAIL_MODE", "smtp")
+    for name, value in SMTP_ENV.items():
+        monkeypatch.setenv(name, value)
+
+    app = create_app()
+    assert app.state.database.database_url.endswith("/preview")
+    assert app.state.scan_worker_enabled is False
+    assert app.state.runtime_environment == "staging"
+
+    hosted_client = TestClient(app)
+    assert hosted_client.get("/register").status_code == 404
+    assert 'href="/register"' not in hosted_client.get("/").text
+    assert "View the sample report" in hosted_client.get("/").text
+    assert "New to Website Auditor?" not in hosted_client.get("/login").text
+
+    monkeypatch.setenv("CATALYX_REGISTRATION_MODE", "open")
+    explicitly_open_client = TestClient(create_app())
+    assert explicitly_open_client.get("/register").status_code == 200
+
+
+def test_vercel_production_environment_overrides_stale_staging_label(monkeypatch):
+    monkeypatch.setenv("VERCEL", "1")
+    monkeypatch.setenv("VERCEL_ENV", "production")
+    monkeypatch.setenv("CATALYX_ENV", "staging")
+
+    assert production_deployment() is True
+
+
+def test_hosted_preview_does_not_fall_back_to_ephemeral_sqlite_or_mailbox(monkeypatch):
+    monkeypatch.setenv("VERCEL", "1")
+    monkeypatch.setenv("VERCEL_ENV", "preview")
+    monkeypatch.setenv("CATALYX_ENV", "staging")
+    for name in (
+        "CATALYX_DATABASE_URL",
+        "CATALYX_PUBLIC_BASE_URL",
+        "CATALYX_TOTP_ENCRYPTION_KEY",
+        "CATALYX_SMTP_HOST",
+        "CATALYX_SMTP_PORT",
+        "CATALYX_SMTP_USERNAME",
+        "CATALYX_SMTP_PASSWORD",
+        "CATALYX_SMTP_FROM",
+        "CATALYX_MAIL_MODE",
+    ):
+        monkeypatch.delenv(name, raising=False)
+
+    with pytest.raises(RuntimeError, match="Hosted startup configuration is incomplete"):
+        create_app()
+
+
+def test_hosted_startup_requires_explicit_runtime_configuration(monkeypatch):
+    monkeypatch.setenv("CATALYX_ENV", "production")
+    monkeypatch.delenv("VERCEL_ENV", raising=False)
+    for name in (
+        "CATALYX_DATABASE_URL",
+        "CATALYX_PUBLIC_BASE_URL",
+        "CATALYX_TOTP_ENCRYPTION_KEY",
+        "CATALYX_SMTP_HOST",
+        "CATALYX_SMTP_PORT",
+        "CATALYX_SMTP_USERNAME",
+        "CATALYX_SMTP_PASSWORD",
+        "CATALYX_SMTP_FROM",
+        "CATALYX_MAIL_MODE",
+    ):
+        monkeypatch.delenv(name, raising=False)
+    with pytest.raises(RuntimeError, match="Hosted startup configuration is incomplete"):
+        create_app()
+
+
+def test_hosted_startup_accepts_configured_external_dependencies(monkeypatch, tmp_path):
+    monkeypatch.setenv("CATALYX_ENV", "production")
+    monkeypatch.delenv("VERCEL_ENV", raising=False)
+    monkeypatch.setenv("CATALYX_DATABASE_URL", "postgresql://auditor:secret@db.example.invalid/auditor")
+    monkeypatch.setenv("CATALYX_PUBLIC_BASE_URL", "https://catalyxlabs.com")
+    monkeypatch.setenv("CATALYX_TOTP_ENCRYPTION_KEY", base64.urlsafe_b64encode(bytes(range(32))).decode())
+    monkeypatch.setenv("CATALYX_MAIL_MODE", "smtp")
+    for name, value in SMTP_ENV.items():
+        monkeypatch.setenv(name, value)
+
+    app = create_app(tmp_path / "ignored.sqlite3")
+
+    assert app.state.database.database_url.startswith("postgresql://")
+    assert app.state.scan_worker_enabled is False
+    assert app.state.runtime_environment == "production"
+    assert not (tmp_path / "ignored.sqlite3").exists()
+
+
+def test_hosted_startup_rejects_local_mailbox_and_non_origin_public_url(monkeypatch):
+    monkeypatch.setenv("CATALYX_ENV", "production")
+    monkeypatch.delenv("VERCEL_ENV", raising=False)
+    monkeypatch.setenv("CATALYX_DATABASE_URL", "postgresql://auditor:secret@db.example.invalid/auditor")
+    monkeypatch.setenv("CATALYX_PUBLIC_BASE_URL", "https://catalyxlabs.com/unexpected-path")
+    monkeypatch.setenv("CATALYX_TOTP_ENCRYPTION_KEY", base64.urlsafe_b64encode(bytes(range(32))).decode())
+    monkeypatch.setenv("CATALYX_MAIL_MODE", "local_mailbox")
+    for name, value in SMTP_ENV.items():
+        monkeypatch.setenv(name, value)
+
+    with pytest.raises(RuntimeError, match="HTTPS origin|must be smtp"):
+        create_app()
+
+
+def test_smtp_registration_and_resend_use_one_time_links_without_real_delivery(monkeypatch, tmp_path):
+    monkeypatch.setenv("CATALYX_MAIL_MODE", "smtp")
+    sent = []
+    monkeypatch.setattr(app_module, "send_account_link", lambda *args: sent.append(args))
+    client = TestClient(create_app(tmp_path / "app.sqlite3", tmp_path / "mailbox.json"))
+    response = client.get("/register")
+    csrf = re.search(r'name="csrf" value="([^"]+)"', response.text).group(1)
+    address = "smtp-customer@example.invalid"
+    password = "a-long-account-password-456"
+    response = client.post(
+        "/register",
+        data={"csrf": csrf, "email": address, "password": password, "password_confirm": password},
+    )
+    assert response.status_code == 200
+    assert len(sent) == 1
+    assert sent[0][0:2] == (address, "email_verification")
+
+    resend_page = client.get("/resend-verification")
+    resend_csrf = re.search(r'name="csrf" value="([^"]+)"', resend_page.text).group(1)
+    response = client.post(
+        "/resend-verification",
+        data={"csrf": resend_csrf, "email": address},
+    )
+    assert response.status_code == 200
+    assert "If the account needs verification" in response.text
+    assert len(sent) == 2
+    assert sent[1][0:2] == (address, "email_verification")
+    assert urlparse(sent[0][2]).fragment != urlparse(sent[1][2]).fragment
+    assert not (tmp_path / "mailbox.json").exists()
+
+
+def test_email_header_recipient_lists_are_rejected():
+    with pytest.raises(ValueError, match="message data is invalid"):
+        mailer.send_account_link(
+            "first@example.invalid,second@example.invalid",
+            "email_verification",
+            "https://catalyxlabs.com/verify#token",
+            environ=SMTP_ENV,
+        )

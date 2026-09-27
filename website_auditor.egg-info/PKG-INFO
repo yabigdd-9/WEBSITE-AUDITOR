@@ -5,6 +5,7 @@ Summary: Evidence-first website auditing for NZ businesses — free, local, zero
 License: MIT
 Requires-Python: >=3.11
 Description-Content-Type: text/markdown
+Requires-Dist: fastapi<1,>=0.115
 Requires-Dist: httpx<1,>=0.28
 Requires-Dist: aiohttp>=3.10
 Requires-Dist: beautifulsoup4>=4.15
@@ -14,17 +15,20 @@ Requires-Dist: yarl>=1.25
 Requires-Dist: requests>=2.32
 Requires-Dist: pyyaml>=6
 Requires-Dist: dnspython<3,>=2.6
+Requires-Dist: psycopg[binary]<4,>=3.2
+Requires-Dist: cryptography<51,>=44
 Provides-Extra: browser
 Requires-Dist: playwright<2,>=1.51; extra == "browser"
 Provides-Extra: portal
-Requires-Dist: fastapi<1,>=0.115; extra == "portal"
 Requires-Dist: uvicorn<1,>=0.30; extra == "portal"
 Requires-Dist: argon2-cffi<26,>=23; extra == "portal"
 Requires-Dist: python-multipart>=0.0.18; extra == "portal"
+Provides-Extra: web
+Requires-Dist: uvicorn<1,>=0.30; extra == "web"
 Provides-Extra: ai
 Requires-Dist: llama-cpp-python<1,>=0.3; extra == "ai"
 Provides-Extra: smtp
-Requires-Dist: aiosmtplib<4,>=3; extra == "smtp"
+Requires-Dist: aiosmtplib<6,>=5.1.2; extra == "smtp"
 Provides-Extra: dev
 Requires-Dist: pytest>=8.3; extra == "dev"
 Requires-Dist: pytest-asyncio>=0.24; extra == "dev"
