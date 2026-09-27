@@ -86,7 +86,7 @@ class ErrorTracking(unittest.TestCase):
         self.assertEqual(row['state'], 'PERMANENT_FAILURE')
         self.assertEqual(row['classification'], 'permanent')
         self.assertEqual(row['component'], 'w-contract')
-        # transition clears last_error; the dead-letter event keeps the detail
+        # The event ledger remains a source of truth for a legacy last_error.
         ev = self.d.execute(
             "SELECT reason FROM pipeline_events WHERE business_id=? "
             "AND to_state='PERMANENT_FAILURE'", (self.bid,)).fetchone()
@@ -120,9 +120,14 @@ class ErrorTracking(unittest.TestCase):
         self.assertTrue(rc['error_fingerprint'])
         self.assertEqual(rc['repeat_count'], 1)
         self.assertEqual(rc['last_error'], 'hard failure 12345')
+        self.d.execute(
+            'UPDATE pipeline_items SET last_error=NULL WHERE business_id=?',
+            (self.bid,),
+        )
+        self.d.commit()
         dlq = mm_observability.dead_letter()
         self.assertEqual(dlq['count'], 1)
-        self.assertEqual(dlq['items'][0]['last_error'], 'hard failure 12345')
+        self.assertIn('hard failure 12345', dlq['items'][0]['last_error'])
 
 
 if __name__ == '__main__':

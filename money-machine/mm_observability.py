@@ -79,14 +79,25 @@ def queue(limit=100) -> dict:
     if d is None:
         return {"generated_at": core.now(), "items": [], "count": 0, "database": "missing"}
     with contextlib.closing(d):
-        if "pipeline_items" not in _tables(d):
+        tables = _tables(d)
+        if "pipeline_items" not in tables:
             return {"generated_at": core.now(), "items": [], "count": 0, "pipeline": "uninitialised"}
+        error_expression = "p.last_error"
+        if "pipeline_events" in tables:
+            event_columns = {row[1] for row in d.execute("PRAGMA table_info(pipeline_events)")}
+            if {"business_id", "to_state", "reason", "id"} <= event_columns:
+                error_expression = (
+                    "COALESCE(p.last_error,(SELECT e.reason FROM pipeline_events e "
+                    "WHERE e.business_id=p.business_id AND e.to_state IN "
+                    "('RETRYABLE_FAILURE','PERMANENT_FAILURE') ORDER BY e.id DESC LIMIT 1))"
+                )
         rows = [
             dict(r)
             for r in d.execute(
-                "SELECT business_id,state,attempts,max_attempts,next_retry_at,lease_owner,"
-                "lease_until,heartbeat_at,last_error,updated_at FROM pipeline_items "
-                "ORDER BY updated_at ASC LIMIT ?",
+                "SELECT p.business_id,p.state,p.attempts,p.max_attempts,p.next_retry_at,"
+                "p.lease_owner,p.lease_until,p.heartbeat_at," + error_expression +
+                " AS last_error,p.updated_at FROM pipeline_items p "
+                "ORDER BY p.updated_at ASC LIMIT ?",
                 (limit,),
             )
         ]
