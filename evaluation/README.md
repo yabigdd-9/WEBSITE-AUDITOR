@@ -1,9 +1,9 @@
 # Golden evaluation workflow
 
-`golden_cases.jsonl` holds 14 deterministic policy cases covering unsupported
+`golden_cases.jsonl` holds 15 deterministic policy cases covering unsupported
 email guesses, first-party email evidence, catch-all and suppression outcomes,
-corroborated and conflicting identity signals, all five remediation classes,
-and local demo behavior.
+corroborated and conflicting identity signals including business-name/domain
+derivation, all five remediation classes, and local demo behavior.
 
 Run the current implementation against those cases with:
 

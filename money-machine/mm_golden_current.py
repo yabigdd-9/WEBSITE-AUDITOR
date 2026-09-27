@@ -87,19 +87,33 @@ def _predict(case: dict) -> dict:
     if task == "contact_verification":
         actual, safety = _email_prediction(case)
     elif task == "identity":
-        from auditor_toolkit.identity import identity_confidence
+        from auditor_toolkit.identity import assess_business_identity, identity_confidence
 
-        mapping = {
-            "domain": "domain_name_match",
-            "brand": "website_brand_match",
-            "nzbn": "nzbn_match",
-            "email_domain": "email_domain_match",
-            "region": "region_match",
-            "address": "address_match",
-            "phone": "phone_match",
-        }
-        signals = {target: inputs[source] for source, target in mapping.items() if source in inputs}
-        result = identity_confidence(signals)
+        if "business_name" in inputs:
+            result = assess_business_identity(
+                business_name=inputs["business_name"],
+                website=inputs["website"],
+                legal_name=inputs.get("legal_name"),
+                trading_name=inputs.get("trading_name"),
+                nzbn_name=inputs.get("nzbn_name"),
+                email=inputs.get("email"),
+                region_match=inputs.get("region_match"),
+                address_match=inputs.get("address_match"),
+                phone_match=inputs.get("phone_match"),
+                website_brand_match=inputs.get("website_brand_match"),
+            )
+        else:
+            mapping = {
+                "domain": "domain_name_match",
+                "brand": "website_brand_match",
+                "nzbn": "nzbn_match",
+                "email_domain": "email_domain_match",
+                "region": "region_match",
+                "address": "address_match",
+                "phone": "phone_match",
+            }
+            signals = {target: inputs[source] for source, target in mapping.items() if source in inputs}
+            result = identity_confidence(signals)
         actual = result["status"]
         safety = {
             "outreach_identity_eligible": result["outreach_identity_eligible"],

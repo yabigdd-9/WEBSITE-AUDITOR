@@ -90,8 +90,9 @@ def test_repository_golden_dataset_is_valid_and_safety_focused():
     assert "email-first-party-supported" in ids
     assert "email-suppression-overrides-evidence" in ids
     assert "identity-nzbn-conflict" in ids
+    assert "identity-domain-substring-confuser" in ids
     assert "remediation-client-access" in ids
-    assert len(rows) >= 12
+    assert len(rows) >= 15
     assert "demo-concept" in ids
     assert all("safety" in row for row in rows)
 
