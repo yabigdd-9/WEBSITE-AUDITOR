@@ -1049,7 +1049,9 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
         if not database.allow_rate_attempt("login", address, 8, 60):
             raise HTTPException(429, "Too many sign-in attempts. Try again in one minute.")
         email = form.get("email", "").strip().lower()
-        if not database.rate_attempt_available("login_account", email, 12, 3600):
+        # Reserve the account-scoped attempt before credential verification so
+        # concurrent app instances cannot all pass a read-only capacity check.
+        if not database.allow_rate_attempt("login_account", email, 12, 3600):
             raise HTTPException(429, "Too many sign-in attempts. Try again later.")
         with database.connect() as db:
             row = db.execute(
@@ -1061,7 +1063,6 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
         password_valid = verify_password(form.get("password", ""), password_hash)
         valid = bool(row and not row["disabled_at"] and password_valid)
         if not valid or not row["email_verified_at"]:
-            database.allow_rate_attempt("login_account", email, 12, 3600)
             response = _form_page("Welcome back", "Sign in to continue to your private workspace.", '<p class="form-error" role="alert" aria-atomic="true">Sign-in unavailable. Check your email verification link or try your details again.</p>' + login_form(request), request=request, status=401)
             return response
         if row["role"] in PRIVILEGED_ROLES:
@@ -1071,7 +1072,6 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
                 else ""
             )
             if not totp_secret or not verify_totp(totp_secret, form.get("otp", "")):
-                database.allow_rate_attempt("login_account", email, 12, 3600)
                 response = _form_page("Welcome back", "Sign in to continue to your private workspace.", '<p class="form-error" role="alert" aria-atomic="true">Sign-in unavailable. Check your authenticator code and try again.</p>' + login_form(request, require_otp=True), request=request, status=401)
                 return response
         database.clear_rate_attempts("login_account", email)

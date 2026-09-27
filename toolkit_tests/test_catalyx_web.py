@@ -9,6 +9,7 @@ import socket
 import stat
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 from types import SimpleNamespace
 from urllib.parse import urlparse
 
@@ -438,6 +439,21 @@ def test_auth_rate_limits_persist_between_database_instances_and_hash_subjects(t
         stored = [row["subject_hash"] for row in db.execute("SELECT subject_hash FROM auth_rate_limits")]
     assert "203.0.113.12" not in stored
     assert all(len(value) == 64 for value in stored)
+
+
+def test_auth_rate_limit_attempt_reservations_are_atomic_across_connections(tmp_path):
+    database = Database(tmp_path / "concurrent-rate-limits.sqlite3")
+    with ThreadPoolExecutor(max_workers=16) as pool:
+        decisions = list(
+            pool.map(
+                lambda _attempt: database.allow_rate_attempt(
+                    "login_account", "customer@example.invalid", 12, 3600
+                ),
+                range(32),
+            )
+        )
+
+    assert sum(decisions) == 12
 
 
 def test_login_failure_limit_is_account_scoped_and_persistent(tmp_path):

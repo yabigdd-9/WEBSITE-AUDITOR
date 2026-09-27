@@ -1,10 +1,12 @@
 # CatalyxLabs Website Auditor release readiness
 
 - **Status date:** 2026-09-28
-- **Implementation base:** `0348b3f9c06b62d29d51414ffdee7594cb6ecbf5`
-- **Current repository revision:** `ccbc36af64c68109ff65c526184c8a902c5d157d` on
+- **Implementation base:** `f9e0694582c4cada39a08c91f86a4adaf083feff`
+- **Current repository revision:** `f9e0694582c4cada39a08c91f86a4adaf083feff` on
   `codex/catalyx-rebuild-phase1-5` (checked 2026-09-28)
-- **App implementation revision:** `ed182a76daab33622a27665596fc7654342b16ef`
+- **Original app implementation revision:** `ed182a76daab33622a27665596fc7654342b16ef`
+- **Worktree follow-up:** login rate reservation, its regression test, and threat-model
+  wording are modified but uncommitted; untracked `experiments/` is preserved.
 - **Worktree:** `/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild`
 
 ## Built in this local slice
@@ -404,3 +406,68 @@ An additional full-suite rerun against the current checkout completed with **241
 passed, 5 opt-in browser tests skipped, and 2 upstream deprecation warnings** in
 58.64 seconds. Ruff passed for the changed app/security/test files, and
 `git diff --check` passed. No soak test was run.
+
+## Phase F continuation — independent source review and follow-up (2026-09-28)
+
+Codex Security completed an offline Standard review of all 14 files in
+`catalyx_web` at base revision `f9e0694582c4cada39a08c91f86a4adaf083feff`
+(scan `291b76ca-52d2-41ce-9ce0-84afeb5fd795`). It reported two medium findings
+and one low finding. The low finding was the non-atomic account login rate
+check/increment sequence. The working tree now reserves the hashed account
+attempt atomically before credential verification and clears the bucket after
+successful login. The medium findings remain open: distributed login failures
+can trigger the configured one-hour account lockout, and distributed resend/
+reset requests can bypass per-IP limits to cause repeated email/token churn
+when hosted SMTP is enabled. Owner approval is still needed for lockout and
+email-delivery thresholds and recovery behavior. The report marks coverage
+partial because runtime and deployment behavior are unverified; its
+historical deferred-candidate rows are stale after final validation.
+
+Verification after the rate-limit change: full `toolkit_tests` completed with
+**242 passed, 5 opt-in browser tests skipped, and 2 upstream deprecation
+warnings** in 55.56 seconds. The new concurrency regression confirms exactly
+12 of 32 simultaneous reservations are accepted across local SQLite
+connections. Ruff and `git diff --check` passed. The opt-in Catalyx Chromium
+walkthrough separately passed (**1 passed**), checking the synthetic
+customer/admin flow, keyboard focus order, text contrast, narrow viewport
+layout, and simulated 200% text sizing. It is not a screen-reader test or a
+human WCAG 2.2 AA assessment. No soak test was run.
+
+The two medium findings, hosted PostgreSQL behavior, independent worker
+isolation, production provider configuration, privacy/retention/backup/restore,
+manual screen-reader review, legal/support ownership, staging and rollback,
+and fresh Vercel/Cloudflare/domain evidence remain release gates. No production
+or DNS change was made; `.shop` remains outside the cutover scope.
+
+## Public domain spot check (2026-09-28 NZDT)
+
+Read-only requests to `https://catalyxlabs.com/` and
+`https://www.catalyxlabs.com/` returned HTTP 200. Both public hostnames resolved
+to the same Cloudflare anycast A records at the check time; both responses
+identified Cloudflare, and the apex response carried a Vercel `syd1` request
+identifier. The rendered homepage is still the Grow OS site, not the Auditor.
+This confirms the current public route only. It does not identify the assigned
+Vercel project, prove current Cloudflare dashboard settings, or verify TLS and
+rollback configuration in either provider console. No configuration was
+changed, and `.shop` was not queried.
+
+At 05:24 NZDT, the local preview health endpoint returned `200` with
+`environment=staging` and `scan_worker=disabled`; an unauthenticated request
+to `/api/v1/me` returned `401`. This is a point-in-time local smoke check, not
+staging deployment or soak evidence.
+
+## Finite verification refresh (2026-09-28 NZDT)
+
+The current worktree's full `toolkit_tests` run completed with **242 passed,
+5 opt-in browser tests skipped, and 2 upstream deprecation warnings** in 44.65
+seconds. Ruff passed for `catalyx_web` and `toolkit_tests/test_catalyx_web.py`;
+`uv lock --check --offline` and `git diff --check` passed. This validates the
+local source/test scope only. The separately recorded Catalyx browser test
+remains the latest browser evidence; this run did not include it. No soak test
+was run.
+
+The opt-in Catalyx customer/admin Chromium journey was then rerun at 06:28
+NZDT: **1 passed** in 11.86 seconds against disposable local data. This refreshes
+the browser-flow evidence for the current worktree; it is not a deployed
+staging, screen-reader, or production accessibility assessment. No soak test
+was run.
