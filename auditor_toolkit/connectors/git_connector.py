@@ -8,7 +8,10 @@ from auditor_toolkit.common import atomic_write_text
 
 class GitConnector:
     def __init__(self, output_dir='outputs/patches'):
-        self.output_dir = Path(output_dir)
+        output = Path(output_dir)
+        if ".." in output.parts:
+            raise ValueError("Path traversal in output_dir is not allowed")
+        self.output_dir = output
 
     def execute_local_patch(self, action):
         identity = hashlib.sha256(str(action.action_id).encode()).hexdigest()[:24]

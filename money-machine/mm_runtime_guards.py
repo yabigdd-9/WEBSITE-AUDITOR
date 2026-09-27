@@ -88,14 +88,22 @@ def _probe_once(host, port, timeout, resolver=None, connector=None):
         return "%s: %s" % (type(exc).__name__, str(exc)[:200])
 
 
+_CACHE_BASE = (core.root() / "state").resolve()
+
+
 def _cache_path(cache_path=None):
-    return Path(cache_path) if cache_path else core.root() / "state" / "network_guard.json"
+    if cache_path is None:
+        return _CACHE_BASE / "network_guard.json"
+    resolved = Path(cache_path).resolve()
+    if not resolved.is_relative_to(_CACHE_BASE):
+        raise ValueError(f"Cache path escapes allowed directory: {resolved}")
+    return resolved
 
 
 def _read_cache(cache_path=None):
     try:
         return json.loads(_cache_path(cache_path).read_text())
-    except Exception:
+    except (json.JSONDecodeError, OSError):
         return None
 
 
