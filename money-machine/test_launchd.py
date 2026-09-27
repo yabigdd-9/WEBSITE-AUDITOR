@@ -9,7 +9,11 @@ SPEC.loader.exec_module(launchd)
 
 
 def test_plist_periodically_calls_idempotent_ensure_running():
-    payload = launchd.plist_payload()
+    import os
+    from unittest.mock import patch
+
+    with patch.dict(os.environ, {"MM_PYTHON": ""}):
+        payload = launchd.plist_payload()
     args = payload["ProgramArguments"]
 
     assert payload["RunAtLoad"] is True

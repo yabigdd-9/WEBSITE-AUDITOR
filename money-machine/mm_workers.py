@@ -90,7 +90,8 @@ def qualification_handler(d, it, worker):
     # Pipeline items are sqlite3.Row values; decode their JSON payload before
     # reading fields. sqlite3.Row supports indexing but not dict.get().
     try:
-        audit_payload = json.loads(it['payload'] or '{}')
+        raw_payload = it['payload'] or '{}'
+        audit_payload = raw_payload if isinstance(raw_payload, dict) else json.loads(raw_payload)
     except (KeyError, TypeError, ValueError):
         audit_payload = {}
     audit_score = audit_payload.get('score', 0)  # defect score from audit (higher = more defects)

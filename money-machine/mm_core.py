@@ -136,6 +136,8 @@ def ensure_business_columns(d):
         if name not in columns:
             # Names and types come from the fixed tuple above, never user input.
             d.execute(f'ALTER TABLE businesses ADD COLUMN {name} {sql_type}')
+            columns.add(name)
+    return columns
 
 
 def ensure_message_columns(d):
