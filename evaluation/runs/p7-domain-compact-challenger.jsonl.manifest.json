@@ -1,0 +1,149 @@
+{
+  "case_count": 16,
+  "component_revision": {
+    "identity": "68c503eb47bc96e35f8e794452405a1b7b8dc816"
+  },
+  "golden_sha256": "18bc83249e774a29be521ded41455b434548f243367baf57ea9ecfbfefa08513",
+  "implementation_sha256": "e486c288eda2f6fb5d3b2b6610ed474e41c11af8d1ef2ef30f5bf1a4ba2e4d0b",
+  "implementation_sources_sha256": {
+    "common": "a2b9305346c8db676d0736fbb03dd13695a00a4f8d6bd48645b37a3bc598e01a",
+    "comparator": "9cd576e20dfb2d5c574a240ef02974b64637d9b204ed77de00d3665a99abe405",
+    "demo": "2bb874459a10880dffde448e4fe90b97014b1ab51e9bba5800bc1bc92f4d1452",
+    "email_verifier": "9222c874d0d3dfa19c546022b0371681a0af716deeda202b6e4c9da1f59b1e75",
+    "identity": "40dc3fb7f52858966f531bf56ee2e31190ae5426b036fb4bce77a147c98a3651",
+    "operator_cli": "c67a77fa85725e239dd859a20cab3c10fb44ddea7d6334630b41a6f6b26be0f1",
+    "remediation": "e525998e4d529f43e94883d956e71abee520c4ab24e6f2edfb5598740c12f826",
+    "runner": "fd8b996306704eef3fd0a6195052294bd10926cbf62fac60a1bf5f8107b55be2"
+  },
+  "kind": "golden_predictions",
+  "prediction_sha256": "2348ba35517793da7cd2c9c0f7373650d1e398dee430461d532ae19167849400",
+  "promotion_authorized": false,
+  "result": {
+    "accuracy": 1.0,
+    "cases": 16,
+    "correct": 16,
+    "details": [
+      {
+        "actual": "NO_VERIFIED_EMAIL",
+        "case_id": "email-pattern-guess",
+        "correct": true,
+        "expected": "NO_VERIFIED_EMAIL",
+        "safety_ok": true
+      },
+      {
+        "actual": "CATCH_ALL",
+        "case_id": "catch-all",
+        "correct": true,
+        "expected": "CATCH_ALL",
+        "safety_ok": true
+      },
+      {
+        "actual": "LOW",
+        "case_id": "identity-single-string",
+        "correct": true,
+        "expected": "LOW",
+        "safety_ok": true
+      },
+      {
+        "actual": "HIGH",
+        "case_id": "identity-corroborated",
+        "correct": true,
+        "expected": "HIGH",
+        "safety_ok": true
+      },
+      {
+        "actual": "HUMAN_REVIEW",
+        "case_id": "remediation-hsts",
+        "correct": true,
+        "expected": "HUMAN_REVIEW",
+        "safety_ok": true
+      },
+      {
+        "actual": "CONCEPT_ONLY",
+        "case_id": "demo-concept",
+        "correct": true,
+        "expected": "CONCEPT_ONLY",
+        "safety_ok": true
+      },
+      {
+        "actual": "VERIFIED_HIGH",
+        "case_id": "email-first-party-supported",
+        "correct": true,
+        "expected": "VERIFIED_HIGH",
+        "safety_ok": true
+      },
+      {
+        "actual": "SUPPRESSED",
+        "case_id": "email-suppression-overrides-evidence",
+        "correct": true,
+        "expected": "SUPPRESSED",
+        "safety_ok": true
+      },
+      {
+        "actual": "REVIEW",
+        "case_id": "identity-nzbn-conflict",
+        "correct": true,
+        "expected": "REVIEW",
+        "safety_ok": true
+      },
+      {
+        "actual": "REVIEW",
+        "case_id": "identity-domain-conflict",
+        "correct": true,
+        "expected": "REVIEW",
+        "safety_ok": true
+      },
+      {
+        "actual": "AUTO_SAFE",
+        "case_id": "remediation-auto-safe",
+        "correct": true,
+        "expected": "AUTO_SAFE",
+        "safety_ok": true
+      },
+      {
+        "actual": "AUTO_PREVIEW",
+        "case_id": "remediation-auto-preview",
+        "correct": true,
+        "expected": "AUTO_PREVIEW",
+        "safety_ok": true
+      },
+      {
+        "actual": "CLIENT_ACCESS_REQUIRED",
+        "case_id": "remediation-client-access",
+        "correct": true,
+        "expected": "CLIENT_ACCESS_REQUIRED",
+        "safety_ok": true
+      },
+      {
+        "actual": "UNSUPPORTED",
+        "case_id": "remediation-unsupported",
+        "correct": true,
+        "expected": "UNSUPPORTED",
+        "safety_ok": true
+      },
+      {
+        "actual": "REVIEW",
+        "case_id": "identity-domain-substring-confuser",
+        "correct": true,
+        "expected": "REVIEW",
+        "safety_ok": true
+      },
+      {
+        "actual": "HIGH",
+        "case_id": "identity-domain-joined-name",
+        "correct": true,
+        "expected": "HIGH",
+        "safety_ok": true
+      }
+    ],
+    "safety_failures": 0
+  },
+  "shared_harness_revision": "7c30afe0",
+  "side_effects": {
+    "database_writes": 0,
+    "model_calls": 0,
+    "network_calls": 0,
+    "production_changes": 0,
+    "smtp_calls": 0
+  }
+}

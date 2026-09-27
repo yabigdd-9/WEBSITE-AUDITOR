@@ -1,0 +1,16 @@
+{"actual":"NO_VERIFIED_EMAIL","case_id":"email-pattern-guess","safety":{"paid_cost_usd":0,"send_enabled":false}}
+{"actual":"CATCH_ALL","case_id":"catch-all","safety":{"paid_cost_usd":0,"send_enabled":false}}
+{"actual":"LOW","case_id":"identity-single-string","safety":{"outreach_identity_eligible":false,"paid_cost_usd":0}}
+{"actual":"HIGH","case_id":"identity-corroborated","safety":{"outreach_identity_eligible":true,"paid_cost_usd":0}}
+{"actual":"HUMAN_REVIEW","case_id":"remediation-hsts","safety":{"paid_cost_usd":0,"production_applied":false}}
+{"actual":"CONCEPT_ONLY","case_id":"demo-concept","safety":{"live_site_changed":false,"paid_cost_usd":0,"send_enabled":false}}
+{"actual":"VERIFIED_HIGH","case_id":"email-first-party-supported","safety":{"paid_cost_usd":0,"send_enabled":false}}
+{"actual":"SUPPRESSED","case_id":"email-suppression-overrides-evidence","safety":{"paid_cost_usd":0,"send_enabled":false}}
+{"actual":"REVIEW","case_id":"identity-nzbn-conflict","safety":{"outreach_identity_eligible":false,"paid_cost_usd":0}}
+{"actual":"REVIEW","case_id":"identity-domain-conflict","safety":{"outreach_identity_eligible":false,"paid_cost_usd":0}}
+{"actual":"AUTO_SAFE","case_id":"remediation-auto-safe","safety":{"paid_cost_usd":0,"production_applied":false}}
+{"actual":"AUTO_PREVIEW","case_id":"remediation-auto-preview","safety":{"paid_cost_usd":0,"production_applied":false}}
+{"actual":"CLIENT_ACCESS_REQUIRED","case_id":"remediation-client-access","safety":{"paid_cost_usd":0,"production_applied":false}}
+{"actual":"UNSUPPORTED","case_id":"remediation-unsupported","safety":{"paid_cost_usd":0,"production_applied":false}}
+{"actual":"REVIEW","case_id":"identity-domain-substring-confuser","safety":{"outreach_identity_eligible":false,"paid_cost_usd":0}}
+{"actual":"HIGH","case_id":"identity-domain-joined-name","safety":{"outreach_identity_eligible":true,"paid_cost_usd":0}}

@@ -1,3 +1,4 @@
+import hashlib
 import importlib.util
 import json
 import subprocess
@@ -93,8 +94,9 @@ def test_repository_golden_dataset_is_valid_and_safety_focused():
     assert "email-suppression-overrides-evidence" in ids
     assert "identity-nzbn-conflict" in ids
     assert "identity-domain-substring-confuser" in ids
+    assert "identity-domain-joined-name" in ids
     assert "remediation-client-access" in ids
-    assert len(rows) >= 15
+    assert len(rows) >= 16
     assert "demo-concept" in ids
     assert all("safety" in row for row in rows)
 
@@ -127,7 +129,7 @@ def test_golden_prediction_export_records_hashes_and_never_overwrites(tmp_path):
 
     rows = challenger.load_jsonl(output)
     assert manifest["kind"] == "golden_predictions"
-    assert manifest["case_count"] == len(rows) == 15
+    assert manifest["case_count"] == len(rows) == 16
     assert manifest["golden_sha256"]
     assert manifest["implementation_sha256"]
     assert manifest["prediction_sha256"]
@@ -166,8 +168,43 @@ def test_golden_predict_cli_writes_comparable_jsonl_and_manifest(tmp_path):
     assert result.returncode == 0, result.stderr
     manifest = json.loads(result.stdout)
     assert manifest["kind"] == "golden_predictions"
-    assert len(challenger.load_jsonl(output)) == manifest["case_count"] == 15
+    assert len(challenger.load_jsonl(output)) == manifest["case_count"] == 16
     assert Path(str(output) + ".manifest.json").is_file()
+
+
+def test_recorded_p7_challenger_comparison_is_reproducible():
+    runs = ROOT / "evaluation" / "runs"
+    record = json.loads((runs / "p7-domain-compact-comparison.json").read_text())
+    golden_path = ROOT / "evaluation" / "golden_cases.jsonl"
+    golden_sha = hashlib.sha256(golden_path.read_bytes()).hexdigest()
+    baseline_path = runs / "p7-domain-compact-baseline.jsonl"
+    challenger_path = runs / "p7-domain-compact-challenger.jsonl"
+    baseline_manifest = json.loads(
+        Path(str(baseline_path) + ".manifest.json").read_text()
+    )
+    challenger_manifest = json.loads(
+        Path(str(challenger_path) + ".manifest.json").read_text()
+    )
+
+    assert record["golden_sha256"] == golden_sha
+    assert baseline_manifest["golden_sha256"] == challenger_manifest["golden_sha256"] == golden_sha
+    assert baseline_manifest["prediction_sha256"] == hashlib.sha256(
+        baseline_path.read_bytes()
+    ).hexdigest()
+    assert challenger_manifest["prediction_sha256"] == hashlib.sha256(
+        challenger_path.read_bytes()
+    ).hexdigest()
+    assert record["changed_components_only"] is True
+    evaluated = challenger.compare(
+        challenger.load_jsonl(golden_path),
+        challenger.load_jsonl(baseline_path),
+        challenger.load_jsonl(challenger_path),
+        record["comparison"]["minimum_improvement"],
+    )
+    assert evaluated == record["comparison"]
+    assert evaluated["improvement"] == 0.0625
+    assert evaluated["promotion_recommended"] is True
+    assert evaluated["promotion_authorized"] is False
 
 
 def test_current_golden_runner_rejects_unimplemented_case_types(tmp_path):

@@ -1,6 +1,6 @@
 # Golden evaluation workflow
 
-`golden_cases.jsonl` holds 15 deterministic policy cases covering unsupported
+`golden_cases.jsonl` holds 16 deterministic policy cases covering unsupported
 email guesses, first-party email evidence, catch-all and suppression outcomes,
 corroborated and conflicting identity signals including business-name/domain
 derivation, all five remediation classes, and local demo behavior.
@@ -40,4 +40,8 @@ Outputs are synthetic, local-only, and never overwrite existing evidence.
 Preserve the checkout revisions and comparator output with the review record.
 `challenger-eval` may recommend separate integrator review; it never grants
 promotion, merge, production-write, or deployment authority. A real shadow run
-and a measured challenger comparison are still required before P18 can pass.
+is still required before P18 can pass. The recorded comparison in
+`runs/p7-domain-compact-comparison.json` shows a 15/16 to 16/16 result with one
+synthetic identity case; it is not a production shadow run or evidence of
+general business outcomes. It recommends integrator review only and grants no
+promotion authority.
