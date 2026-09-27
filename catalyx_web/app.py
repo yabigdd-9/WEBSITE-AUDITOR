@@ -989,9 +989,11 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
         email = form.get("email", "").strip().lower()
         resend_message = None
         ip_allowed = database.allow_rate_attempt("verification_resend", address, 5, 3600)
-        account_allowed = database.allow_rate_attempt(
-            "verification_resend_account", email, 5, 3600
-        )
+        account_allowed = False
+        if ip_allowed and mail_mode != "disabled" and len(email) <= 254 and valid_email_address(email):
+            account_allowed = database.allow_rate_attempt(
+                "verification_resend_account", email, 5, 3600
+            )
         if ip_allowed and account_allowed and mail_mode != "disabled":
             with database.connect() as db:
                 row = db.execute(
@@ -1000,27 +1002,37 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
                 ).fetchone()
                 if row:
                     db.execute(
-                        "DELETE FROM verification_tokens WHERE user_id=? OR expires_at<=?",
-                        (row["id"], int(time.time())),
+                        "DELETE FROM verification_tokens WHERE expires_at<=?",
+                        (int(time.time()),),
                     )
                     token = new_token()
                     token_expires_at = int(time.time()) + 3600
+                    token_hash = digest_token(token)
                     db.execute(
                         "INSERT INTO verification_tokens(token_hash,user_id,expires_at,created_at) VALUES(?,?,?,?)",
-                        (digest_token(token), row["id"], token_expires_at, now_iso()),
+                        (token_hash, row["id"], token_expires_at, now_iso()),
                     )
                     link = _public_base_url(request) + "/verify#" + quote(token)
-                    resend_message = (email, link, token_expires_at)
+                    resend_message = (email, link, token_expires_at, row["id"], token_hash)
         if resend_message:
+            delivered = False
             if mail_mode == "local_mailbox" and not deployed:
                 _save_local_message(
                     resend_message[0], "email_verification", resend_message[1], resend_message[2]
                 )
+                delivered = True
             elif mail_mode == "smtp" and external_send_allowed:
                 try:
                     await asyncio.to_thread(send_account_link, resend_message[0], "email_verification", resend_message[1])
+                    delivered = True
                 except MailDeliveryError:
                     logger.warning("Verification resend email could not be delivered")
+            if delivered:
+                with database.connect() as db:
+                    db.execute(
+                        "DELETE FROM verification_tokens WHERE user_id=? AND token_hash<>?",
+                        (resend_message[3], resend_message[4]),
+                    )
         body = '<section class="auth-wrap"><p class="eyebrow">EMAIL VERIFICATION</p><h1>Check your inbox</h1><p class="lead narrow">If the account needs verification, a new one-time link is on its way.</p><a class="button primary" href="/login">Return to sign in</a></section>'
         return _page("Check your email", body)
 
@@ -1044,7 +1056,7 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
             if not row or row["expires_at"] <= int(time.time()):
                 return _page("Verification link expired", '<section class="auth-wrap"><h1>This link has expired</h1><p class="lead">Create a new account or contact the site administrator.</p><a href="/register">Create an account</a></section>', status=400)
             db.execute("UPDATE users SET email_verified_at=? WHERE id=?", (now_iso(), row["user_id"]))
-            db.execute("DELETE FROM verification_tokens WHERE token_hash=?", (digest_token(token),))
+            db.execute("DELETE FROM verification_tokens WHERE user_id=?", (row["user_id"],))
         if mail_mode == "local_mailbox" and not deployed:
             _prune_local_messages(consumed_token=token)
         return _page("Email verified", '<section class="auth-wrap"><p class="eyebrow">READY TO SIGN IN</p><h1>Email verified</h1><p class="lead">Your address is confirmed. Sign in to register a website for review.</p><a class="button primary" href="/login">Sign in</a></section>')
@@ -1066,10 +1078,6 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
         if not database.allow_rate_attempt("login", address, 8, 60):
             raise HTTPException(429, "Too many sign-in attempts. Try again in one minute.")
         email = form.get("email", "").strip().lower()
-        # Reserve the account-scoped attempt before credential verification so
-        # concurrent app instances cannot all pass a read-only capacity check.
-        if not database.allow_rate_attempt("login_account", email, 12, 3600):
-            raise HTTPException(429, "Too many sign-in attempts. Try again later.")
         with database.connect() as db:
             row = db.execute(
                 "SELECT u.id,u.email,u.password_hash,u.email_verified_at,u.disabled_at,m.workspace_id,m.role,m.totp_secret "
@@ -1078,19 +1086,28 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
             ).fetchone()
         password_hash = row["password_hash"] if row else app.state.dummy_password_hash
         password_valid = verify_password(form.get("password", ""), password_hash)
-        valid = bool(row and not row["disabled_at"] and password_valid)
-        if not valid or not row["email_verified_at"]:
-            response = _form_page("Welcome back", "Sign in to continue to your private workspace.", '<p class="form-error" role="alert" aria-atomic="true">Sign-in unavailable. Check your email verification link or try your details again.</p>' + login_form(request), request=request, status=401)
-            return response
-        if row["role"] in PRIVILEGED_ROLES:
+        valid = bool(row and not row["disabled_at"] and row["email_verified_at"] and password_valid)
+        needs_otp = bool(valid and row["role"] in PRIVILEGED_ROLES)
+        if needs_otp:
             totp_secret = (
                 database.decrypt_totp_secret(row["totp_secret"], row["workspace_id"], row["id"])
                 if row["totp_secret"]
                 else ""
             )
             if not totp_secret or not verify_totp(totp_secret, form.get("otp", "")):
-                response = _form_page("Welcome back", "Sign in to continue to your private workspace.", '<p class="form-error" role="alert" aria-atomic="true">Sign-in unavailable. Check your authenticator code and try again.</p>' + login_form(request, require_otp=True), request=request, status=401)
+                valid = False
+        if not valid:
+            # Keep a per-account failed-attempt cap, but do not let an
+            # unauthenticated caller lock out someone who has valid
+            # credentials. Valid sign-ins bypass this cap and clear it below.
+            if not database.allow_rate_attempt("login_account", email, 12, 3600):
+                raise HTTPException(429, "Too many sign-in attempts. Try again later.")
+            if needs_otp:
+                message = '<p class="form-error" role="alert" aria-atomic="true">Sign-in unavailable. Check your authenticator code and try again.</p>'
+                response = _form_page("Welcome back", "Sign in to continue to your private workspace.", message + login_form(request, require_otp=True), request=request, status=401)
                 return response
+            response = _form_page("Welcome back", "Sign in to continue to your private workspace.", '<p class="form-error" role="alert" aria-atomic="true">Sign-in unavailable. Check your email verification link or try your details again.</p>' + login_form(request), request=request, status=401)
+            return response
         database.clear_rate_attempts("login_account", email)
         token = new_token()
         csrf_token = new_token()
@@ -1122,34 +1139,46 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
         address = request.client.host if request.client else "unknown"
         allowed = database.allow_rate_attempt("password_reset_request", address, 5, 3600)
         email = form.get("email", "").strip().lower()
-        account_allowed = database.allow_rate_attempt(
-            "password_reset_request_account", email, 5, 3600
-        )
+        account_allowed = False
+        if allowed and mail_mode != "disabled" and len(email) <= 254 and valid_email_address(email):
+            account_allowed = database.allow_rate_attempt(
+                "password_reset_request_account", email, 5, 3600
+            )
         reset_message = None
         if allowed and account_allowed and mail_mode != "disabled":
             with database.connect() as db:
                 row = db.execute("SELECT id FROM users WHERE email=? AND email_verified_at IS NOT NULL AND disabled_at IS NULL", (email,)).fetchone()
                 if row:
-                    db.execute("DELETE FROM password_reset_tokens WHERE user_id=? OR expires_at<=?", (row["id"], int(time.time())))
+                    db.execute("DELETE FROM password_reset_tokens WHERE expires_at<=?", (int(time.time()),))
                     token = new_token()
                     token_expires_at = int(time.time()) + 1800
+                    token_hash = digest_token(token)
                     db.execute(
                         "INSERT INTO password_reset_tokens(token_hash,user_id,expires_at,created_at) VALUES(?,?,?,?)",
-                        (digest_token(token), row["id"], token_expires_at, now_iso()),
+                        (token_hash, row["id"], token_expires_at, now_iso()),
                     )
                     reset_url = _public_base_url(request) + "/reset-password#" + quote(token)
-                    reset_message = (email, reset_url, token_expires_at)
+                    reset_message = (email, reset_url, token_expires_at, row["id"], token_hash)
         if reset_message:
+            delivered = False
             if mail_mode == "local_mailbox" and not deployed:
                 _save_local_message(
                     reset_message[0], "password_reset", reset_message[1], reset_message[2]
                 )
                 logger.info("Local password reset message saved to the private staging mailbox")
+                delivered = True
             elif mail_mode == "smtp" and external_send_allowed:
                 try:
                     await asyncio.to_thread(send_account_link, reset_message[0], "password_reset", reset_message[1])
+                    delivered = True
                 except MailDeliveryError:
                     logger.warning("Password reset email could not be delivered")
+            if delivered:
+                with database.connect() as db:
+                    db.execute(
+                        "DELETE FROM password_reset_tokens WHERE user_id=? AND token_hash<>?",
+                        (reset_message[3], reset_message[4]),
+                    )
         body = '<section class="auth-wrap"><p class="eyebrow">PASSWORD RESET</p><h1>Check your email</h1><p class="lead narrow">If the address can be reset, a one-time link is ready. The link expires after 30 minutes.</p><a class="button primary" href="/login">Return to sign in</a></section>'
         return _page("Check your email", body)
 

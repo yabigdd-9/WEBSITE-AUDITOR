@@ -11,6 +11,7 @@ from fastapi.testclient import TestClient
 from catalyx_web import app as app_module
 from catalyx_web import mailer
 from catalyx_web.app import create_app
+from catalyx_web.db import Database
 from catalyx_web.security import production_deployment, valid_email_address
 
 SMTP_ENV = {
@@ -363,6 +364,104 @@ def test_smtp_registration_and_resend_use_one_time_links_without_real_delivery(m
     assert sent[1][0:2] == (address, "email_verification")
     assert urlparse(sent[0][2]).fragment != urlparse(sent[1][2]).fragment
     assert not (tmp_path / "mailbox.json").exists()
+
+
+def test_existing_recovery_links_survive_replacement_delivery_failure(monkeypatch, tmp_path):
+    for name, value in SMTP_ENV.items():
+        monkeypatch.setenv(name, value)
+    monkeypatch.setenv("CATALYX_MAIL_MODE", "smtp")
+    fail_delivery = False
+    sent = []
+
+    def send_or_fail(*args):
+        sent.append(args)
+        if fail_delivery:
+            raise app_module.MailDeliveryError("Account link could not be delivered.")
+
+    monkeypatch.setattr(app_module, "send_account_link", send_or_fail)
+    db_path = tmp_path / "app.sqlite3"
+    client = TestClient(create_app(db_path, tmp_path / "mailbox.json"))
+    email = "delivery-failure@example.invalid"
+    password = "a-long-account-password-456"
+    page = client.get("/register")
+    response = client.post(
+        "/register",
+        data={
+            "csrf": re.search(r'name="csrf" value="([^"]+)"', page.text).group(1),
+            "email": email,
+            "password": password,
+            "password_confirm": password,
+        },
+    )
+    assert response.status_code == 200
+
+    with Database(db_path).connect() as db:
+        user = db.execute("SELECT id FROM users WHERE email=?", (email,)).fetchone()
+    first_verification_token = urlparse(sent[0][2]).fragment
+    first_verification_hash = app_module.digest_token(first_verification_token)
+    fail_delivery = True
+    page = client.get("/resend-verification")
+    response = client.post(
+        "/resend-verification",
+        data={
+            "csrf": re.search(r'name="csrf" value="([^"]+)"', page.text).group(1),
+            "email": email,
+        },
+    )
+    assert response.status_code == 200
+    with Database(db_path).connect() as db:
+        assert db.execute(
+            "SELECT count(*) FROM verification_tokens WHERE user_id=? AND token_hash=?",
+            (user["id"], first_verification_hash),
+        ).fetchone()[0] == 1
+    first_verification = client.post("/verify", data={"token": first_verification_token})
+    assert first_verification.status_code == 200
+    with Database(db_path).connect() as db:
+        assert db.execute(
+            "SELECT count(*) FROM verification_tokens WHERE user_id=?", (user["id"],)
+        ).fetchone()[0] == 0
+
+    fail_delivery = False
+    page = client.get("/forgot-password")
+    response = client.post(
+        "/forgot-password",
+        data={
+            "csrf": re.search(r'name="csrf" value="([^"]+)"', page.text).group(1),
+            "email": email,
+        },
+    )
+    assert response.status_code == 200
+    first_reset_token = urlparse(sent[-1][2]).fragment
+    first_reset_hash = app_module.digest_token(first_reset_token)
+
+    fail_delivery = True
+    page = client.get("/forgot-password")
+    response = client.post(
+        "/forgot-password",
+        data={
+            "csrf": re.search(r'name="csrf" value="([^"]+)"', page.text).group(1),
+            "email": email,
+        },
+    )
+    assert response.status_code == 200
+    with Database(db_path).connect() as db:
+        assert db.execute(
+            "SELECT count(*) FROM password_reset_tokens WHERE user_id=? AND token_hash=?",
+            (user["id"], first_reset_hash),
+        ).fetchone()[0] == 1
+    response = client.post(
+        "/reset-password",
+        data={
+            "token": first_reset_token,
+            "password": "a-new-password-for-the-account-789",
+            "password_confirm": "a-new-password-for-the-account-789",
+        },
+    )
+    assert response.status_code == 200
+    with Database(db_path).connect() as db:
+        assert db.execute(
+            "SELECT count(*) FROM password_reset_tokens WHERE user_id=?", (user["id"],)
+        ).fetchone()[0] == 0
 
 
 def test_email_header_recipient_lists_are_rejected():

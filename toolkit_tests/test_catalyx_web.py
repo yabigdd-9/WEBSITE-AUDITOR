@@ -504,6 +504,25 @@ def test_login_failure_limit_is_account_scoped_and_persistent(tmp_path):
         "login_account", "customer@example.invalid", 12, 3600, now=10**10
     )
 
+    # An account's failed-attempt cap must not block that account's valid login.
+    valid_client = TestClient(restarted_app, client=("203.0.113.101", 8000))
+    login_page = valid_client.get("/login")
+    accepted = valid_client.post(
+        "/login",
+        data={
+            "csrf": form_token(login_page),
+            "email": "customer@example.invalid",
+            "password": "a-long-local-password-123",
+        },
+        follow_redirects=False,
+    )
+    assert accepted.status_code == 303
+    with Database(db_path).connect() as db:
+        assert db.execute(
+            "SELECT 1 FROM auth_rate_limits WHERE scope='login_account' AND subject_hash=?",
+            (hashlib.sha256(b"customer@example.invalid").hexdigest(),),
+        ).fetchone() is None
+
     clear_email = "success@example.invalid"
     register_and_login(TestClient(restarted_app), clear_email)
     failed_client = TestClient(restarted_app, client=("203.0.114.1", 8000))
@@ -527,6 +546,39 @@ def test_login_failure_limit_is_account_scoped_and_persistent(tmp_path):
         assert db.execute(
             "SELECT 1 FROM auth_rate_limits WHERE scope='login_account' AND subject_hash=?",
             (hashlib.sha256(clear_email.encode()).hexdigest(),),
+        ).fetchone() is None
+
+
+def test_admin_with_valid_mfa_can_sign_in_after_account_failure_cap(tmp_path):
+    db_path = tmp_path / "admin-rate-limit.sqlite3"
+    database = Database(db_path)
+    email = "owner@example.invalid"
+    password = "a-long-admin-password-456"
+    secret = "JBSWY3DPEHPK3PXP"
+    database.create_admin(email, hash_password(password), secret)
+    for _ in range(12):
+        assert database.allow_rate_attempt("login_account", email, 12, 3600)
+
+    client = TestClient(
+        create_app(db_path, tmp_path / "mailbox.json"),
+        client=("203.0.113.222", 8000),
+    )
+    login_page = client.get("/login")
+    response = client.post(
+        "/login",
+        data={
+            "csrf": form_token(login_page),
+            "email": email,
+            "password": password,
+            "otp": totp_code(secret),
+        },
+        follow_redirects=False,
+    )
+    assert response.status_code == 303
+    with database.connect() as db:
+        assert db.execute(
+            "SELECT 1 FROM auth_rate_limits WHERE scope='login_account' AND subject_hash=?",
+            (hashlib.sha256(email.encode()).hexdigest(),),
         ).fetchone() is None
 
 
@@ -685,6 +737,46 @@ def test_verification_and_reset_email_limits_apply_across_client_ips(tmp_path):
     assert hashlib.sha256(reset_email.encode()).hexdigest() in subjects
     assert verification_email not in " ".join(subjects)
     assert reset_email not in " ".join(subjects)
+
+
+def test_recovery_ip_denials_and_invalid_emails_do_not_create_account_buckets(tmp_path):
+    db_path = tmp_path / "app.sqlite3"
+    mailbox_path = tmp_path / "mailbox.json"
+    app = create_app(db_path, mailbox_path)
+    email = "bounded-recovery@example.invalid"
+    client = TestClient(app, client=("198.51.100.44", 8000))
+
+    for _ in range(6):
+        page = client.get("/forgot-password")
+        response = client.post(
+            "/forgot-password",
+            data={"csrf": form_token(page), "email": email},
+        )
+        assert response.status_code == 200
+
+    with Database(db_path).connect() as db:
+        row = db.execute(
+            "SELECT hits FROM auth_rate_limits WHERE scope=? AND subject_hash=?",
+            ("password_reset_request_account", hashlib.sha256(email.encode()).hexdigest()),
+        ).fetchone()
+    assert row["hits"] == 5
+
+    invalid_email = "x" * 255
+    other_client = TestClient(app, client=("198.51.100.45", 8000))
+    page = other_client.get("/forgot-password")
+    response = other_client.post(
+        "/forgot-password",
+        data={"csrf": form_token(page), "email": invalid_email},
+    )
+    assert response.status_code == 200
+    with Database(db_path).connect() as db:
+        assert db.execute(
+            "SELECT count(*) FROM auth_rate_limits WHERE scope=? AND subject_hash=?",
+            (
+                "password_reset_request_account",
+                hashlib.sha256(invalid_email.encode()).hexdigest(),
+            ),
+        ).fetchone()[0] == 0
 
 
 def test_local_mailbox_prunes_expired_bearer_links_on_startup(tmp_path):

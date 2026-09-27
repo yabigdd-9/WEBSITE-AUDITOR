@@ -2,12 +2,14 @@
 
 - **Status date:** 2026-09-28
 - **Implementation base:** `f9e0694582c4cada39a08c91f86a4adaf083feff`
-- **Latest implementation revision:** `47a35243c4cd242f9361466487a3fbcb3469e9fc` on
+- **Latest committed implementation revision:** `eb9f262e231934a5c47b009c411c8e173edbd00c` on
   `codex/catalyx-rebuild-phase1-5` (checked 2026-09-28)
 - **Original app implementation revision:** `ed182a76daab33622a27665596fc7654342b16ef`
 - **Worktree follow-up:** atomic login and account-recovery email rate limits,
   cross-IP regression coverage, readiness inventory, and the FSM mapping
-  proposal are committed; untracked `experiments/` is preserved.
+proposal are committed. Current local recovery-delivery/throttle hardening
+  and this readiness update are uncommitted; untracked `experiments/` is
+  preserved.
 - **Worktree:** `/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild`
 
 ## Built in this local slice
@@ -31,9 +33,11 @@
   and API contract documentation.
 - Authentication rate limits persist across app instances in the database and
   store hashed client identifiers. Login failures also have a provisional
-  per-normalized-email bucket (12 attempts/hour), with successful sign-in
-  clearing the bucket. Owner approval is still required for thresholds and
-  lockout behavior. Schema version 4 adds the shared buckets;
+  per-normalized-email bucket (12 attempts/hour). Only failed credentials
+  consume it; a valid sign-in bypasses and clears the bucket, so an attacker
+  cannot lock out a customer who has valid credentials. Owner approval is
+  still required for thresholds and production edge/client-IP behavior. Schema
+  version 4 adds the shared buckets;
   version 5 adds a fencing token so an expired worker cannot commit after its
   job has been reclaimed. SQLite migration is tested; PostgreSQL migration is
   not live-verified.
@@ -571,3 +575,149 @@ warnings** in 45.10 seconds. Focused mail and web tests passed (**86 passed**);
 Ruff, offline lock validation, `git diff --check`, and scoped Gitleaks scans of
 application, tests, and Catalyx platform documentation passed. No soak test
 was run.
+
+## 2026-09-28 continuation — current source security review
+
+Codex Security completed Standard scan
+`50ab6ee6-819d-4818-b25b-eb4fb31f76a9` for the 14-file `catalyx_web` scope at
+target revision `5519c4da5768dfc27293367db9ef751c6b989666`. It reported one
+medium-severity account lockout issue and two low-severity recovery issues:
+recovery-token replacement before mail delivery, and unbounded per-subject
+throttle state. It found no issue in the reviewed tenant/report/session/worker
+and egress surfaces. The completed scan's generated report retains three stale
+deferred-candidate follow-up rows from earlier checkpoints and marks coverage
+partial; those rows duplicate or overlap the three validated findings. Treat
+the final finding list as the validated result and do not treat those follow-up
+rows as additional findings.
+
+The repository advanced during the scan to
+`eb9f262e231934a5c47b009c411c8e173edbd00c`. The only `catalyx_web` changes
+since the scan target were the hosted account-mail default and explicit-send
+guard in `app.py` and `mailer.py`. A source diff review confirmed hosted mail
+now defaults to disabled, SMTP requires
+`CATALYX_EXTERNAL_SEND_ALLOWED=true`, and the direct mailer enforces the same
+flag. This lowers exposure to the token-delivery finding until an operator
+explicitly enables SMTP; it does not remove that conditional failure path. The
+login cap and recovery throttle behavior remain present. Current line anchors
+are `app.py:1065-1072` for login throttling, `app.py:989-1005` for
+resend-token replacement, `app.py:1122-1129` for reset throttling, and
+`db.py:193-221,338-346` for persistent rate state. The sealed scan did not run
+against the latest commit, so this delta review is recorded separately.
+
+The verified code change and prior account-mail tests are local source
+evidence only. Production SMTP/provider controls, hosted database behavior,
+edge limits, worker isolation, and other deployment settings remain
+unverified. No source was changed in this continuation. No soak test was run.
+
+Phase A and the production no-go remain open. The owner must approve the login
+and recovery limits, first-release scope, production host and data region/cost,
+privacy and retention policy, and named operators before staging or cutover.
+`.com` remains on the existing Grow OS site and `.shop` remains outside scope.
+
+## 2026-09-28 continuation — live provider and public-route recheck
+
+At approximately 07:22 NZDT, read-only Vercel inventory showed the latest
+`website_auditor` deployment `dpl_GyQxF71pDYXLm6Bn6A1m2wgNoJPm` as READY for
+the current branch commit `eb9f262e231934a5c47b009c411c8e173edbd00c`. Its
+target is preview and its only alias is a Vercel hostname. The inspected
+production-target `website_auditor` deployment remains READY on the older
+`master` commit `773c9828d3884783c7345144b388bb1912d55f15`, with only Vercel
+hostname aliases. The Vercel project-detail connector call remains unavailable
+because its declared and backend parameter schemas disagree; deployment
+metadata did not expose project environment values.
+
+Cloudflare read-only inventory showed one Worker named
+`nz-revenue-leak-snapshot` in one account and no Workers in the other; neither
+account listed a D1 database. The available connector still did not expose DNS
+zone records. Current public fetches of the `.com` apex and `www` homepage
+render the Grow OS site. These observations do not establish DNS rollback
+values, project environment settings, or any staging app-route health. No
+provider setting, resource, deployment, DNS assignment, or `.shop` route was
+changed.
+
+The current preview is not the reviewed release: there is no isolated staging
+rehearsal, approved production architecture, migration/restore proof, or
+release record. Keep the production no-go and `.com` cutover gate closed.
+
+The Phase B hosting assessment was refreshed against current official provider
+documentation on 2026-09-28. Cloudflare Workers Free remains limited to 100,000
+requests/day and 10 ms CPU/request; D1's 5 million rows read/day and 100,000
+rows written/day limits are enforced and queries fail after quota exhaustion;
+Queues Free retains messages for 24 hours and includes 10,000 operations/day.
+The $5/month Workers Paid tier conflicts with the recorded NZ$0 ceiling.
+Vercel Hobby still restricts use to personal/non-commercial projects. These
+facts leave no approved production host under current constraints; see
+`hosting-cost-and-terms-assessment.md` for source links and implementation
+limits.
+
+## 2026-09-28 continuation — recovery delivery and throttle write hardening
+
+The current local worktree changes recovery-token replacement so older
+verification/reset links remain stored until a replacement is saved to the
+local mailbox or the SMTP send call returns successfully. Failed SMTP delivery leaves the
+old link usable; successful verification clears all outstanding verification
+tokens for that user. Successful reset already clears all outstanding reset
+tokens. Both recovery routes now avoid account-bucket writes for requests
+rejected by their IP cap, when mail is disabled, or when the normalized email
+is invalid or longer than 254 characters.
+
+These changes mitigate the token-loss finding for synchronous SMTP errors and
+the recovery-bucket write on IP-denied or malformed requests. A successful SMTP
+handoff does not prove inbox delivery; later bounce behavior remains unverified.
+The rate-limit table still has no global row
+cap, so varied valid email addresses across many source IPs remain an
+operational resource risk until A10 quotas/edge limits are chosen. The
+account-wide login lockout finding also remains open pending owner disposition
+of the 12-per-hour login cap.
+
+Finite verification on the current uncommitted worktree: full `toolkit_tests`
+**249 passed, 5 opt-in browser tests skipped, 2 upstream deprecation warnings**
+in 54.60 seconds; the dedicated Catalyx Chromium journey **1 passed** in 12.60
+seconds; Ruff passed; `uv lock --check --offline` passed; `git diff --check`
+passed. Tests use disposable local SQLite and synthetic accounts; PostgreSQL
+and hosted provider behavior remain unverified. No soak test was run.
+
+No source commit, deployment, DNS change, external email, or customer-data
+transfer was made. The tracked worktree contains the local app/test/readiness
+changes; untracked `experiments/` remains untouched.
+
+## DNS observation refresh (2026-09-28 07:35 NZDT)
+
+Read-only resolver queries for `catalyxlabs.com` and `www.catalyxlabs.com`
+returned matching Cloudflare proxy A records (`172.67.211.245`,
+`104.21.67.38`) and AAAA records (`2606:4700:3035::ac43:d3f5`,
+`2606:4700:3031::6815:4326`). The apex NS answers were
+`candy.ns.cloudflare.com` and `fonzie.ns.cloudflare.com`. These observations
+do not expose authoritative DNS configuration, origin, TLS mode, or rollback
+values. No `.shop` lookup or DNS/provider change was made. Public HTTP fetches
+still render Grow OS on both `.com` routes. The provider quota and commercial
+use review remains in `hosting-cost-and-terms-assessment.md`; under the
+NZ$0 constraint it has not identified an approved production stack.
+
+The local recovery improvements and finite verification documented above
+remain uncommitted on top of `eb9f262e231934a5c47b009c411c8e173edbd00c`.
+Login rate thresholds/production abuse policy and A1–A10 owner decisions
+remain open.
+No soak test was run; staging, deployment, and `.com` cutover remain no-go.
+
+## Login lockout mitigation and current finite verification (2026-09-28)
+
+The account-keyed login bucket now counts failed credential attempts after
+password and required TOTP validation. A valid sign-in bypasses the bucket and
+clears it, so an attacker cannot exhaust this per-account counter to reject
+the account holder's correct credentials. Invalid attempts still receive a
+429 after the provisional 12-per-hour cap. The existing IP bucket remains
+8-per-minute. This mitigates the account-lockout behavior from the sealed
+security scan in local source; the scan itself predates this uncommitted
+change. Threshold approval, proxy/IP semantics, broader edge controls, and
+independent current-revision security review remain open.
+
+The source-derived `data-map.md` was corrected to describe both login
+buckets. Customer and privileged-account regressions passed (**2 passed**);
+the full `toolkit_tests` suite passed (**250 passed, 5 opt-in browser tests
+skipped, 2 upstream deprecation warnings** in 53.50 seconds); and the
+dedicated Catalyx browser journey passed (**1 passed** in 11.67 seconds).
+`ruff check catalyx_web toolkit_tests`, offline lock validation, and
+`git diff --check` passed after fixing three existing Ruff findings in two
+test files. Tests used synthetic accounts and local SQLite; hosted PostgreSQL
+and edge/provider behavior remain unverified. No soak test was run.

@@ -217,3 +217,36 @@ and no soak test was run.
 - [Oracle policy for Always Free services](https://www.oracle.com/webfolder/dms/prod/docs/Oracle-PaaS-and-IaaS-400379759.pdf)
 - [New Zealand Privacy Commissioner: IPP 12](https://www.privacy.org.nz/privacy-principles/12/)
 - [New Zealand Privacy Commissioner: IPP 12 decision tree](https://www.privacy.org.nz/responsibilities/disclosing-personal-information-outside-new-zealand/decision-tree-page/)
+
+## Current quota and commercial-use recheck (2026-09-28)
+
+The latest official [Workers limits](https://developers.cloudflare.com/workers/platform/limits/)
+and [pricing](https://developers.cloudflare.com/workers/platform/pricing/)
+still list Workers Free at 100,000 requests per account per day and 10 ms CPU
+per HTTP request; the Workers Paid plan starts at US$5/month. The free CPU
+ceiling is a material risk for this Python authentication workload: the local
+WebCrypto timing in this document is wall time, does not measure Worker CPU,
+and is not integrated with application authentication.
+
+Cloudflare's [D1 pricing](https://developers.cloudflare.com/d1/platform/pricing/)
+lists 5 million rows read per day, 100,000 rows written per day, and 5 GB total
+storage for Free. Its [1 September 2026 changelog](https://developers.cloudflare.com/changelog/post/2026-09-01-d1-free-tier-limit-enforcement/)
+confirms those daily row caps are enforced: further D1 queries fail until
+midnight UTC after an account exceeds either limit. D1 data remains stored,
+but the app would lose database availability until reset or plan change.
+
+The [Queues Free limits](https://developers.cloudflare.com/queues/platform/limits/)
+and [pricing](https://developers.cloudflare.com/queues/platform/pricing/)
+confirm 10,000 operations/day and non-configurable 24-hour message retention.
+Typical message delivery consumes a write, read, and delete operation; retries
+and dead-letter handling use additional operations. A queue alone therefore
+cannot be the durable source of truth for audit jobs; persistent job state,
+expiry recovery, and replay behavior need an approved design and rehearsal.
+
+This refresh leaves Vercel Hobby unsuitable for the intended commercial
+service under the documented [fair-use rule](https://vercel.com/docs/limits/fair-use-guidelines).
+Cloudflare Free remains a technical candidate, not an approved production
+choice. Its strict CPU and daily row/operation caps, 24-hour queue retention,
+local-only compatibility results, data-processing terms, service continuity,
+and business-critical suitability still require owner and privacy/legal review.
+No account, resource, plan, or project setting was changed.
