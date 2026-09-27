@@ -7,6 +7,7 @@ artifacts are created only to exercise the remediation and demo builders.
 from __future__ import annotations
 
 import hashlib
+import json
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -182,3 +183,71 @@ def run(golden_path: str | Path | None = None) -> dict:
             "temporary_preview_artifacts": True,
         },
     }
+
+
+def generate(golden_path: str | Path | None = None) -> tuple[list[dict], dict]:
+    """Generate reproducible prediction rows and a local code/data manifest."""
+    path = Path(golden_path) if golden_path else ROOT / "evaluation" / "golden_cases.jsonl"
+    raw = path.read_bytes()
+    golden = mm_challenger.load_jsonl(path)
+    predictions = [_predict(case) for case in golden]
+    source_paths = {
+        "runner": Path(__file__).resolve(),
+        "operator_cli": ROOT / "money-machine" / "mm_operator.py",
+        "comparator": ROOT / "money-machine" / "mm_challenger.py",
+        "email_verifier": ROOT / "money-machine" / "mm_email.py",
+        "identity": ROOT / "auditor_toolkit" / "identity.py",
+        "remediation": ROOT / "auditor_toolkit" / "remediation.py",
+        "demo": ROOT / "auditor_toolkit" / "demo.py",
+        "common": ROOT / "auditor_toolkit" / "common.py",
+    }
+    source_hashes = {
+        name: hashlib.sha256(source.read_bytes()).hexdigest()
+        for name, source in source_paths.items()
+    }
+    prediction_bytes = "".join(
+        json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n"
+        for row in predictions
+    ).encode()
+    result = mm_challenger.evaluate(golden, predictions)
+    manifest = {
+        "kind": "golden_predictions",
+        "golden_sha256": hashlib.sha256(raw).hexdigest(),
+        "implementation_sources_sha256": source_hashes,
+        "implementation_sha256": hashlib.sha256(
+            json.dumps(source_hashes, sort_keys=True).encode()
+        ).hexdigest(),
+        "prediction_sha256": hashlib.sha256(prediction_bytes).hexdigest(),
+        "case_count": len(golden),
+        "result": result,
+        "side_effects": {
+            "model_calls": 0,
+            "network_calls": 0,
+            "smtp_calls": 0,
+            "database_writes": 0,
+            "production_changes": 0,
+        },
+        "promotion_authorized": False,
+    }
+    return predictions, manifest
+
+
+def write_predictions(
+    output_path: str | Path, golden_path: str | Path | None = None
+) -> dict:
+    """Write prediction JSONL and its manifest without overwriting prior evidence."""
+    output = Path(output_path)
+    manifest_path = Path(str(output) + ".manifest.json")
+    if output.exists() or manifest_path.exists():
+        raise FileExistsError("prediction output or manifest already exists")
+    predictions, manifest = generate(golden_path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(
+        "".join(
+            json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n"
+            for row in predictions
+        ),
+        encoding="utf-8",
+    )
+    manifest_path.write_text(json.dumps(manifest, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+    return manifest

@@ -1,4 +1,6 @@
 import importlib.util
+import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -115,6 +117,57 @@ def test_current_code_executes_repository_golden_cases_without_external_side_eff
         "production_changes": 0,
         "temporary_preview_artifacts": True,
     }
+
+
+def test_golden_prediction_export_records_hashes_and_never_overwrites(tmp_path):
+    output = tmp_path / "challenger.jsonl"
+    manifest = golden_current.write_predictions(
+        output, ROOT / "evaluation" / "golden_cases.jsonl"
+    )
+
+    rows = challenger.load_jsonl(output)
+    assert manifest["kind"] == "golden_predictions"
+    assert manifest["case_count"] == len(rows) == 15
+    assert manifest["golden_sha256"]
+    assert manifest["implementation_sha256"]
+    assert manifest["prediction_sha256"]
+    assert manifest["side_effects"] == {
+        "model_calls": 0,
+        "network_calls": 0,
+        "smtp_calls": 0,
+        "database_writes": 0,
+        "production_changes": 0,
+    }
+    assert manifest["promotion_authorized"] is False
+    with pytest.raises(FileExistsError):
+        golden_current.write_predictions(
+            output, ROOT / "evaluation" / "golden_cases.jsonl"
+        )
+
+
+def test_golden_predict_cli_writes_comparable_jsonl_and_manifest(tmp_path):
+    output = tmp_path / "candidate.jsonl"
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(MM / "mm_operator.py"),
+            "golden-predict",
+            "--golden",
+            str(ROOT / "evaluation" / "golden_cases.jsonl"),
+            "--output",
+            str(output),
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stderr
+    manifest = json.loads(result.stdout)
+    assert manifest["kind"] == "golden_predictions"
+    assert len(challenger.load_jsonl(output)) == manifest["case_count"] == 15
+    assert Path(str(output) + ".manifest.json").is_file()
 
 
 def test_current_golden_runner_rejects_unimplemented_case_types(tmp_path):
