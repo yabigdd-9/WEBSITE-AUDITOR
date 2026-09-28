@@ -266,6 +266,13 @@ catalyxlabs_rebuild:
       working tree changed while running; the reviewed source/test diff was
       rechecked and matched the current diff before commit. Documentation edits
       and the untracked experiments/ tree remain preserved and uncommitted.
+      Current dirty state also includes a robots.txt matcher step budget in
+      catalyx_web/customer_audit.py and expanded tenant-isolation tests. The
+      full Catalyx web test module now passes 74 tests with one upstream
+      warning; Ruff and diff checks pass on those source/test files. A redacted
+      Gitleaks scan of those changed files found no matches. These follow-up
+      changes remain unstaged and uncommitted; the full toolkit suite was not
+      rerun after them.
       Existing owner gates remain open for shared-login thresholds, hosting,
       privacy/legal, worker isolation, accessibility, and release readiness.
       User reports the 24-hour soak was completed in Claude; it was not repeated
@@ -482,12 +489,14 @@ latest_execution_checkpoint:
   as_of_local_date: "2026-09-28"
   workspace: >-
     Canonical-plan branch codex/canonical-plan-execution is synchronized with
-    origin through 34a04cf2 and includes the current security, dependency,
+    origin through 73431ae3 and includes the current security, dependency,
     runtime, Lighthouse, and challenger evidence. Catalyx implementation branch
     codex/catalyx-rebuild-phase1-5 is synchronized through 5e451999, based on
-    0348b3f9. Its bounded auth-rate cleanup is committed and pushed; the dirty
-    docs, separate tenant-isolation test additions, and untracked experiments/
-    remain preserved and uncommitted. Pipeline evidence persistence and
+    0348b3f9. Its bounded auth-rate cleanup is committed and pushed; dirty docs,
+    the robots matcher budget and expanded tenant-isolation tests, and untracked
+    experiments/ remain preserved and uncommitted. The Catalyx web test module
+    passes 74 tests, Ruff and diff checks pass on the changed source/test files,
+    and Gitleaks found no matches in those changed paths. Pipeline evidence persistence and
     Lighthouse Chromium discovery are pushed on
     codex/pipeline-evidence-integration at b34f1882; original isolated
     evidence-fix branch bc3fe3b2 remains preserved. No branch was merged to
