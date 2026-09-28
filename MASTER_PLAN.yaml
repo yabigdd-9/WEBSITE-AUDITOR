@@ -163,11 +163,17 @@ phases:
     status: "IMPLEMENTED_MULTI_SOURCE_DISCOVERY_TESTED"
     lanes: ["NZBN", "SearXNG", "industry directories", "public business directories", "public websites", "search engines", "permitted OSM-derived sources", "existing DB"]
     rule: "Deduplicate before expensive audit stages."
+    latest_verification:
+      date: "2026-09-29"
+      pull_request: "PR #48 at 04c00459 adds multi-source batch intake. Hosted Python regression, smoke tests, Gitleaks, pip-audit and SonarCloud pass. Vercel preview is blocked by the account deployment rate limit; the PR remains draft and unmerged."
   P7:
     name: "Identity resolution"
     priority: HIGH
     status: "IMPLEMENTED_WEIGHTED_IDENTITY_TESTED"
     rule: "Use weighted evidence/confidence across NZBN, legal/trading name, domain, website, email domain and region."
+    latest_verification:
+      date: "2026-09-29"
+      exact_head: "PR #50 at d51aa5e3 wires weighted confidence into first-party prospect checks without a business-table migration; the original strict identity gate remains required. The full toolkit suite passed locally on this exact head: 164 passed, 4 opt-in browser skips, 3 upstream deprecation warnings. Hosted fixtures passed in run 36419219020; Gitleaks, pip-audit and SonarCloud pass. Vercel preview is blocked by the account deployment rate limit. The workflow was fixed to quote its hash-locked pip command and run for email dependency lock changes. PR remains draft and unmerged."
   P8:
     name: "Email Finder V2"
     priority: CRITICAL
@@ -188,6 +194,7 @@ phases:
       score_provenance_validation: "At 90b84b63, build_packet independently replays the P5 technical score from complete report findings and requires ordered, unique finding IDs plus evidence on material findings; mismatched scores/IDs and incomplete audits are rejected. The Money Machine synthetic fixture now supplies the score implied by its medium-severity finding. Re-review found no remaining P4/P5/P9 issue at this head."
       review_branch_evidence: "At c27e8bb4, qualification uses fresh verified commercial captures. At f51959a2, packet scoring remains separate from technical health and applies first-party provenance, screenshot hash validation and path redaction. At e87c5f24 through 772c3120, qualification/contact handoffs and direct operator packet construction are implemented. Focused toolkit packet, Money Machine pipeline and email integration tests: 86 passed, 1 fixture-gated skip; compileall and diff checks passed. The fixture copied the canonical DB read-only into a disposable test database; no production DB state was changed."
       hosted_ci: "PR #43 remains open draft at 90b84b63. Hosted run 36401774059 passed full Python regression, Money Machine regressions, compileall and operator CLI import smoke; run 36401774612 passed toolkit/browser fixtures, Ruff, package checks/build and Chromium journeys. Gitleaks, pip-audit and SonarCloud passed. Vercel preview remains rate-limited; CodeRabbit skips draft reviews."
+      score_separation_pr: "PR #49 at 9126f55b separates the technical audit score from the commercial opportunity score in pipeline results. Exact-head hosted full Python regression, smoke tests, Gitleaks, pip-audit and SonarCloud pass. Vercel preview is blocked by the account deployment rate limit; the PR remains draft and unmerged."
   P10:
     name: "Remediation engine"
     priority: HIGH
