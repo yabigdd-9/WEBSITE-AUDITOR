@@ -446,12 +446,14 @@ class WorkerHandlers(unittest.TestCase):
         import mm_operator
 
         output = io.StringIO()
+        open_database = c.connect
+
         def open_test_database(readonly=False):
             if not readonly:
                 raise AssertionError('qualification export must open the database read-only')
-            return c.connect(Path(self.tmp.name) / 't.db', readonly=readonly)
+            return open_database(Path(self.tmp.name) / 't.db', readonly=readonly)
 
-        with patch.object(mm_operator, 'connect', side_effect=open_test_database), \
+        with patch.object(c, 'connect', side_effect=open_test_database), \
                 patch.object(workers, '_commercial_signal_context', return_value=current), \
                 redirect_stdout(output):
             result = mm_operator.main([
