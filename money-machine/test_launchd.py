@@ -27,3 +27,30 @@ def test_plist_targets_current_supervisor_cli_and_fails_closed():
 def test_launchd_is_user_scoped():
     assert launchd.LABEL == "ai.website-auditor.supervisor"
     assert "Library/LaunchAgents" in str(launchd.PLIST_PATH)
+
+
+FCC_MODULE_PATH = ROOT / "money-machine" / "supervisor" / "fcc_launchd.py"
+FCC_SPEC = importlib.util.spec_from_file_location("fcc_launchd_under_test", FCC_MODULE_PATH)
+fcc_launchd = importlib.util.module_from_spec(FCC_SPEC)
+FCC_SPEC.loader.exec_module(fcc_launchd)
+
+
+def test_fcc_plist_is_loopback_user_scoped_and_keepalive():
+    payload = fcc_launchd.plist_payload()
+    assert payload["RunAtLoad"] is True
+    assert payload["KeepAlive"] is True
+    assert payload["WorkingDirectory"] == str(ROOT)
+    assert payload["EnvironmentVariables"]["HOST"] == "127.0.0.1"
+    assert payload["EnvironmentVariables"]["PORT"] == "8082"
+    assert payload["ProgramArguments"] == [
+        "/bin/sh", str(ROOT / "scripts" / "fcc-server-wrapper.sh")
+    ]
+    assert fcc_launchd.LABEL == "ai.website-auditor.fcc"
+    assert "Library/LaunchAgents" in str(fcc_launchd.PLIST_PATH)
+
+
+def test_money_machine_python_path_prefers_project_venvs():
+    path = launchd.python_path()
+    assert path.name == "python"
+    assert path.parent.name == "bin"
+    assert path.parent.parent.name in {".venv-email", ".venv"}
