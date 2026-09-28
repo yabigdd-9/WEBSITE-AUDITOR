@@ -36,6 +36,26 @@ FCC_FREE_MODELS_ENV = "MM_FCC_FREE_MODELS"
 ROOT = Path(__file__).resolve().parents[1]
 HERMES_ROUTING_CONFIG = ROOT / "money-machine" / "config" / "routing.yaml"
 HERMES_FREE_ROUTER = ROOT / "money-machine" / "scripts" / "free_role_router.py"
+FCC_ENV_FILES = (ROOT / ".env.fcc", ROOT / ".env")
+
+
+def _env_value(name, default=""):
+    value = os.environ.get(name)
+    if value is not None:
+        return value
+    for path in FCC_ENV_FILES:
+        try:
+            lines = path.read_text().splitlines()
+        except OSError:
+            continue
+        for line in lines:
+            stripped = line.strip()
+            if not stripped or stripped.startswith("#") or "=" not in stripped:
+                continue
+            key, raw = stripped.split("=", 1)
+            if key.strip() == name:
+                return raw.strip().strip('"').strip("'")
+    return default
 
 PURPOSE_ROLE = {
     "orchestrator": "MASTER_ORCHESTRATOR",
@@ -100,7 +120,7 @@ def _open_local(request, timeout):
 def _fcc_free_allowlist():
     return {
         item.strip()
-        for item in os.environ.get(FCC_FREE_MODELS_ENV, "").split(",")
+        for item in _env_value(FCC_FREE_MODELS_ENV, "").split(",")
         if item.strip()
     }
 
@@ -116,7 +136,7 @@ def _fcc_model_allowed(model):
 
 def _fcc_request(url, data=None):
     headers = {"Content-Type": "application/json"}
-    token = os.environ.get("ANTHROPIC_AUTH_TOKEN", "").strip()
+    token = _env_value("ANTHROPIC_AUTH_TOKEN").strip()
     if token:
         headers["Authorization"] = "Bearer " + token
     return urllib.request.Request(url, data=data, headers=headers)
@@ -124,7 +144,7 @@ def _fcc_request(url, data=None):
 
 def probe_fcc(model=None, timeout=3):
     """Return the configured Claude/FCC model only when it is certified free."""
-    want = model or os.environ.get(FCC_MODEL_ENV)
+    want = model or _env_value(FCC_MODEL_ENV)
     if want and not _fcc_model_allowed(want):
         return None
     try:
@@ -439,7 +459,7 @@ def routes_report():
         },
         "routes": {
             purpose: [
-                {"provider": FCC_PROVIDER, "model": os.environ.get(FCC_MODEL_ENV)},
+                {"provider": FCC_PROVIDER, "model": _env_value(FCC_MODEL_ENV) or None},
                 {"provider": HERMES_PROVIDER, "model": probe_hermes(purpose)},
             ]
             for purpose in PURPOSE_ROUTES
