@@ -2,14 +2,18 @@
 
 - **Status date:** 2026-09-28
 - **Implementation base:** `f9e0694582c4cada39a08c91f86a4adaf083feff`
-- **Latest committed implementation revision:** `eb9f262e231934a5c47b009c411c8e173edbd00c` on
+- **Latest committed implementation revision:** `5e451999674b8ea6c41b5bcbb33fff799648e560` on
   `codex/catalyx-rebuild-phase1-5` (checked 2026-09-28)
 - **Original app implementation revision:** `ed182a76daab33622a27665596fc7654342b16ef`
 - **Worktree follow-up:** atomic login and account-recovery email rate limits,
-  cross-IP regression coverage, readiness inventory, and the FSM mapping
-proposal are committed. Current local recovery-delivery/throttle hardening
-  and this readiness update are uncommitted; untracked `experiments/` is
-  preserved.
+  cross-IP regression coverage, SMTP attempt budgets, local mailbox hardening,
+  readiness inventory, a shared global login-work budget, and bounded cleanup
+  across stale authentication scopes are committed. The robots matcher work
+  budget and regression, threat-model update, release-readiness, hosting,
+  data-map, dependency-audit, login-policy, and Phase 6 acceptance edits, plus
+  additional tenant regression assertions, are local and uncommitted. The latest
+  read-only check found origin at the same HEAD; this continuation did not push.
+  The untracked `experiments/` tree is preserved and has not been inspected.
 - **Worktree:** `/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild`
 
 ## Built in this local slice
@@ -32,11 +36,16 @@ proposal are committed. Current local recovery-delivery/throttle hardening
 - Versioned customer/admin API, CSRF checks, health liveness/readiness routes,
   and API contract documentation.
 - Authentication rate limits persist across app instances in the database and
-  store hashed client identifiers. Login failures also have a provisional
-  per-normalized-email bucket (12 attempts/hour). Only failed credentials
-  consume it; a valid sign-in bypasses and clears the bucket, so an attacker
-  cannot lock out a customer who has valid credentials. Owner approval is
-  still required for thresholds and production edge/client-IP behavior. Schema
+  store hashed client identifiers. Login applies a provisional per-address
+  limit (8/minute) and one shared global work budget (60/minute by default),
+  consumed before password verification. Codex Security diff scan
+  `a75440dd-dd11-493c-9f50-ba2d6c53ef35` reports a medium availability finding:
+  distributed unauthenticated attempts can exhaust the shared budget and block
+  every user's sign-in until the window resets. The owner must approve the
+  threshold and recovery behavior, and the selected host's edge/client-IP
+  controls remain unverified. See the user-facing review at
+  `/Users/dd/Documents/Codex/2026-09-27/files-pasted-by-the-user-catalyxlabs/outputs/2026-09-28-catalyxlabs-login-rate-limit-security-review.md`.
+  Schema
   version 4 adds the shared buckets;
   version 5 adds a fencing token so an expired worker cannot commit after its
   job has been reclaimed. SQLite migration is tested; PostgreSQL migration is
@@ -47,15 +56,27 @@ proposal are committed. Current local recovery-delivery/throttle hardening
   underlying one-time tokens and are removed from the staging mailbox when
   consumed or expired. This does not define production mail-provider log or
   retention behavior.
+- Hosted SMTP attempt budgets are persistent and purpose-specific: 30
+  registrations, 30 verification resends, and 40 password resets per hour.
+  External sending still requires both explicit enablement flags. The completed
+  exact-diff Codex Security review found that distributed callers can exhaust
+  an individual purpose budget and delay legitimate delivery until the hourly
+  window resets. Review report:
+  `/Users/dd/.codex/state/plugins/codex-security/scans/catalyx-auditor-rebuild/b1bf406e113deee6239ef07e5ad44988ca3ffde3_20260927T210148Z_6l475v9i/report.md`.
+  This remains an open release risk.
 - Hosted startup now validates the presence and shape of a PostgreSQL URL,
   fixed HTTPS origin, administrator TOTP key, and authenticated SMTP settings
   for preview and production, then keeps the scan worker disabled. Migrations
   remain an explicit command; configuration validation does not establish
   provider reachability or email deliverability. A synthetic Vercel-preview
-  test covers the configuration gate. A READY Vercel branch preview now exists
-  for the current commit, but Vercel SSO intercepted unauthenticated route
-  checks; the preview app/runtime and its environment configuration remain
-  unverified. It is not an isolated staging rehearsal or production deployment.
+  test covers the configuration gate. A Vercel deployment for the current
+  source is marked READY, but an authenticated browser visit to its
+  deployment-specific root displayed Vercel `404: NOT_FOUND`; unauthenticated
+  requests to the deployment and branch alias redirect to Vercel SSO. Its
+  source tree has no `api/` Vercel function shim or `vercel.json`, and the runtime
+  log page showed no requests in the reviewed window. The preview app/runtime
+  and environment configuration remain unverified. It is not an isolated
+  staging rehearsal or production deployment.
 - Public account registration is now closed by default in hosted environments;
   the registration page, submission route, and public signup calls to action
   stay hidden or unavailable until `CATALYX_REGISTRATION_MODE=open` is set.
@@ -281,9 +302,10 @@ continuity still need owner/legal review. See
 6. Complete full role/tenant, SSRF/resource-abuse, accessibility, dependency,
    load, migration, backup/restore, and staging rollback verification.
 7. Refresh provider console, DNS, current release, and rollback evidence. A
-   read-only Vercel project/deployment inventory and public DNS/HTTP spot check
-   are now recorded below; project settings, billing/environment details,
-   Cloudflare zone settings, and rollback configuration remain unverified.
+   read-only Vercel project/deployment inventory, public DNS/HTTP spot check,
+   and Cloudflare DNS/SSL/TLS dashboard review are recorded below. Vercel
+   project/environment and rollback details, an exportable Cloudflare rollback
+   package, and any approved TLS hardening changes remain open.
 
 ## Domain boundary
 
@@ -291,8 +313,21 @@ The PostgreSQL test is a fake-connection adapter check only; it does not cover a
 live server, migrations, concurrent workers, backup, or restore. The selected
 web runtime has a lockfile and scoped package audit; the optional all-extras AI
 profile has the `diskcache` advisory described above. Vercel's official
-documentation describes FastAPI support but identifies the Python runtime as
-Beta. That is a staging evaluation target, not a production-readiness claim.
+documentation confirms FastAPI/ASGI support and labels the Python runtime Beta.
+The standard Python bundle cap is 500 MB, with a separate 5 GB public beta for
+Fluid Compute functions that requires opt-in and excludes Secure Compute and
+Static IP features. Requests and responses are capped at 4.5 MB. This checkout
+exports `catalyx_web.app:app`, which can be selected through
+`tool.vercel.entrypoint`; a thin `api/` shim is not inherently required. The
+deployment root, bundle contents, assets, Python 3.12 compatibility, and actual
+build remain unverified. Vercel created a Preview deployment and marks it Ready,
+but its root returned `404: NOT_FOUND` in the signed-in browser; no working
+application deployment has been demonstrated. See the corrected provider
+assessment in `hosting-cost-and-terms-assessment.md`.
+The Hobby account remains commercially ineligible under Vercel's current terms
+and the NZ$0 ceiling; see `hosting-cost-and-terms-assessment.md` for the
+official-doc links and runtime limits. Runtime support is a technical
+compatibility fact, not production approval.
 
 The production `.com` cutover has not been performed. No DNS record or Vercel
 domain assignment was changed. `.shop` is outside the worktree changes and has
@@ -337,6 +372,17 @@ and complete non-text contrast review remain open. The rendered scan does not
 include input placeholder rendering or non-text component boundaries. No soak
 test was run, per user instruction; soak evidence is unavailable and is not
 marked as passing.
+
+### Python 3.12.14 local compatibility verification — 28 September 2026
+
+An isolated CPython 3.12.14 environment was created outside the repository
+using the pinned `requirements-catalyx-web.lock` and locked development and
+browser extras. The Catalyx web module passed **73 tests** with one upstream
+Starlette/httpx deprecation warning; its dedicated customer/admin browser
+journey passed **1 test**. Ruff passed for both Catalyx test modules. This
+confirms those local tests run under Python 3.12.14; it does not establish a
+Vercel build, bundle size, hosted runtime, or staging result. No soak test was
+run.
 
 ## Phase F continuation — per-account login throttle (2026-09-28)
 
@@ -758,17 +804,17 @@ available. Actual browser zoom, assistive-technology operation, target-size
 exceptions, and non-text contrast still need review. Do not claim WCAG 2.2 AA
 conformance from this evidence. No soak test was run.
 
-## Login lockout mitigation and current finite verification (2026-09-28)
+## Historical login lockout mitigation — superseded at b1bf406e (2026-09-28)
 
-The account-keyed login bucket now counts failed credential attempts after
-password and required TOTP validation. A valid sign-in bypasses the bucket and
-clears it, so an attacker cannot exhaust this per-account counter to reject
-the account holder's correct credentials. Invalid attempts still receive a
-429 after the provisional 12-per-hour cap. The existing IP bucket remains
-8-per-minute. This mitigates the account-lockout behavior from the sealed
-security scan in local source; the scan itself predates this uncommitted
-change. Threshold approval, proxy/IP semantics, broader edge controls, and
-independent current-revision security review remain open.
+At this intermediate revision, the account-keyed login bucket counted failed
+credential attempts only, after password and required TOTP validation. A valid
+sign-in bypassed and cleared it. The source then used a provisional 12-per-hour
+account cap and an 8-per-minute IP bucket. This behavior was tested in local
+SQLite, but was later changed in commit `b1bf406e`: login now reserves the
+account bucket before PBKDF2 to limit password-hashing work. That current policy
+can reject a valid sign-in after the bucket is exhausted; see the current-commit
+security review below. Neither version resolves owner approval of thresholds,
+proxy/IP semantics, or aggregate login capacity.
 
 The source-derived `data-map.md` was corrected to describe both login
 buckets. Customer and privileged-account regressions passed (**2 passed**);
@@ -973,3 +1019,316 @@ and `git diff --check` passed. No soak test was run.
 
 No soak test was run. No worker, live mail, customer data, provider, DNS, or
 production environment was accessed.
+
+## Current-commit Standard security review (2026-09-28)
+
+Codex Security scan `8639b614-d74d-4358-8aa5-b83efef9d487` reviewed all 14
+`catalyx_web` files at immutable commit
+`b1bf406e113deee6239ef07e5ad44988ca3ffde3`. It recorded two medium findings:
+aggregate login password-hashing capacity across varied client addresses and
+email subjects, and temporary account lockout after the 12-per-hour account
+bucket is exhausted. Three low findings remain: recovery-link quota exhaustion
+for a target address, persistent rate-limit row growth without a hard cap, and
+registration timing inference despite generic response content. The practical
+database impact of high-cardinality rate state remains unmeasured; scan coverage
+is partial.
+
+The reviewed commit includes pre-hash per-account throttling and a 1,024-character
+password cap, shared per-purpose SMTP budgets (30 registration, 30 verification
+resend, 40 password reset attempts per hour), and local mailbox no-follow,
+regular-file, ownership and size checks. These mitigate earlier snapshot
+findings. Login lockout, aggregate login work across varied subjects, recovery
+quota behavior, rate-state bounds, and owner approval of thresholds remain open.
+Hosted registration defaults closed, hosted mail defaults disabled, and the
+customer-facing scan worker remains disabled.
+
+The finite suite result already recorded for this commit is **259 passed, 5
+opt-in browser checks skipped, and 3 upstream deprecation warnings**; scoped
+Ruff and `git diff --check` passed. No soak test was run. The scan excluded
+`experiments/**` without opening it and did not access production/provider
+state, customer data, external services, or live mail. It does not validate
+PostgreSQL concurrency, deployed client-IP behavior, SMTP delivery, independent
+worker isolation, or production egress.
+
+**Release disposition remains no-go.** Resolve owner decisions A1–A10 and
+complete current production architecture, privacy/legal, accessibility,
+restore, staging, provider, operational and rollback evidence before any
+production or `.com` cutover.
+
+## Local preview restored (2026-09-28)
+
+The loopback preview is running at `http://127.0.0.1:4174` for product review.
+The home route returned HTTP 200 (4,173 response bytes), and `/api/health`
+returned `status=ok`, `environment=staging`, and `scan_worker=disabled`. It uses
+a fresh synthetic SQLite database and TOTP key under the task's `work/`
+directory; both files are mode `0600`. Registration is configured closed,
+email mode is local-only, and no mailbox file or external email was created.
+This is a point-in-time local preview check, not staging or production evidence.
+No test suite or soak test was run.
+
+## Bounded synthetic rate-state capacity probe (2026-09-28)
+
+A one-shot local measurement called the current `Database.allow_rate_attempt`
+method for 4,000 synthetic login attempts with unique client and normalized
+email subjects. It produced 8,000 persistent SQLite rows and allocated
+1,814,528 bytes (**226.82 bytes per row**) in 24.13 seconds. This addresses the
+previously unmeasured local storage slope for high-cardinality limiter state;
+it does not establish deployed PostgreSQL size, concurrent write behavior,
+cleanup under attack, or a safe production threshold. The auth rate-limit
+table has no hard row cap, so A10 and the rate-state finding remain open. The
+disposable database and script are in task `work/` scratch, not the repository.
+No test suite or soak test was run, and no source, customer data, provider, or
+domain setting was changed.
+
+## Preliminary manual keyboard accessibility review (2026-09-28)
+
+Reviewed public local preview pages using the Codex in-app Chromium browser and
+synthetic staging only. The home page's first Tab stop is a visible skip link;
+Enter navigates to `#main` and moves accessibility focus to the main region.
+Forward tab order on home proceeds through brand, main navigation, sign-in,
+and the sample-report link without a trap. On sign-in, focus reaches the
+email field, password field, button, and recovery link in that order; the
+email field's focus ring was visible in a screenshot. Accessibility-tree
+snapshots showed named sign-in/recovery controls and a disabled reset submit
+until the token is present. The home page had no horizontal overflow at the
+measured default 1,280 CSS-pixel viewport.
+
+This is preliminary manual keyboard evidence, not human screen-reader or WCAG
+sign-off. Browser/OS versions were not exposed by the review surface. Temporary
+browser reduced-motion emulation on sign-in matched the CSS media query and
+reduced button transition/animation durations to `0.00001s`; the emulation was
+cleared afterward and defaults were rechecked. Actual 200% browser zoom,
+non-text contrast, mobile target size, and complete authenticated customer/admin
+journeys remain unverified. The detailed observations are recorded in the task
+output accessibility checklist. No test suite or soak test was run.
+
+## Fresh Cloudflare DNS and TLS inventory (2026-09-28)
+
+The signed-in Cloudflare dashboard was reviewed read-only for the
+`catalyxlabs.com` zone. It shows Free plan, Full DNS setup, and 10 DNS records.
+The proxied site records are apex `A 76.76.21.21` and `www CNAME
+cname.vercel-dns-0.com`; `_domainconnect` is proxied to
+`_domainconnect.gd.domaincontrol.com`. Six apex TXT records contain Vercel
+nameserver/domain-verification values, and `_dmarc` is `p=quarantine` with
+relaxed alignment. Their verification strings are not copied into this log.
+The zone list contains no MX record and no SPF policy. Preserve every existing
+TXT and `_domainconnect` record during any later hostname change.
+
+SSL/TLS is **Full**, with an active universal apex/wildcard edge certificate
+through 2026-12-07 and a backup certificate through 2026-12-09. The configured
+minimum is TLS 1.0. Always Use HTTPS is off, but fresh HTTP HEAD requests to
+both `.com` hostnames returned 308 redirects to their HTTPS counterparts; the
+HTTPS response advertises HSTS for two years with `includeSubDomains`. TLS 1.3
+and Automatic HTTPS Rewrites are enabled; Certificate Transparency Monitoring
+is off. No setting was changed. Full (strict) origin validation and a TLS 1.2
+minimum should be reviewed before any production cutover, with staging
+compatibility established first.
+
+## Current continuation status — 28 September 2026, 11:27–11:49 NZDT
+
+The checkout is `c6be872e`; the latest committed application source is
+`a8f73a72`.
+Vercel deployment `C6KSAqXXaQfHE9APHYfnhTJJ4vs1` is labeled Ready in Preview,
+but the deployment-specific root displayed Vercel `404: NOT_FOUND` in the
+signed-in browser. Unauthenticated requests to its root and the branch alias
+returned 302 to Vercel SSO. Runtime Logs showed no request entries in the
+selected time window. The source tree has `catalyx_web/` but no `vercel.json`
+or root Vercel API entrypoint, which is consistent with an unserved root;
+the precise build/output cause has not been established. This preview has not
+passed an app reachability check and does not qualify as staging.
+
+The post-change Phase 6 Lighthouse record reports `/privacy` Performance 99
+and the initial `/terms` run 94, with 100 Accessibility, Best Practices and
+SEO on all eight routes. A same-settings rerun using pinned Chrome for Testing
+153.0.8010.12 at 11:43 NZDT scored `/terms` 100 in all four categories
+(FCP/LCP 0.92 s, CLS 0, TBT 0 ms). One rerun does not define the performance
+distribution; report hash and path are recorded in `phase-6-acceptance.md`.
+
+The login-budget change is now committed at `8db56629777098ccadc489790bf35abca79f2267`.
+The Catalyx web suite passed **72 tests** with one upstream deprecation warning;
+Ruff and `git diff --check` passed before that commit. A fresh diff scan has
+since completed and found one high-confidence medium availability issue: a
+distributed burst can exhaust the shared login bucket and block every new
+sign-in until the window resets. See the linked security review in the output
+crosswalk. Owner approval of the threshold and recovery trade-off remains open.
+No soak test was run, per user instruction.
+
+At 11:39 NZDT, the loopback `/api/health` returned HTTP 200 with restrictive
+security headers and `status=ok`, `environment=staging`,
+`scan_worker=disabled`. This confirms the local synthetic preview only.
+
+Release remains **no-go**. Owner decisions A1–A10, eligible hosting under the
+NZ$0 limit, provider-backed database and worker architecture, privacy/legal
+approval, human accessibility sign-off, reachable isolated staging, restore
+and rollback evidence, and operational ownership remain unresolved. No
+provider, domain, production, or customer-data settings were changed.
+
+## Login-budget diff review — 28 September 2026
+
+Codex Security diff scan `a75440dd-dd11-493c-9f50-ba2d6c53ef35` completed
+against `c6be872e05536c70524c1370e8f9c6ebfeb4b086...8db56629777098ccadc489790bf35abca79f2267`.
+It reviewed both changed source/test inventory items, the changed login policy
+and threat-model documents, and the unchanged atomic database limiter. The
+scan reports one high-confidence medium finding: distributed unauthenticated
+traffic can exhaust the single shared login-work budget and return 429 to every
+new sign-in for the rest of the one-minute window. Production edge controls,
+trusted client-address forwarding, PostgreSQL behavior, and the final approved
+threshold remain unverified. The report is in the user-facing output folder.
+
+The source/test changes are committed on `codex/catalyx-rebuild-phase1-5` at
+`8db56629777098ccadc489790bf35abca79f2267`. A read-only recheck showed origin
+at the same SHA; the source of that ref update is not established, and no push
+command was run in this continuation. The readiness, hosting, data-map, and Phase 6 documents remain dirty;
+the untracked `experiments/` tree was preserved. Prior local test and lint
+results stand; no new tests were run for this review. No soak test, deploy,
+provider/DNS change, external email, customer-data import, or `.shop` change
+occurred. Release remains no-go pending the finding disposition and all other
+owner and operational gates.
+
+## Expired rate-bucket cleanup diff review — 28 September 2026
+
+Codex Security diff scan `3201c52a-eba7-424d-9f67-4ceb2e0acb75` completed
+against `8db56629777098ccadc489790bf35abca79f2267...8f04403f391c4abff8af25d5682660c2ac47846f`.
+It reviewed the changed database helper, expiration test, and limiter policy,
+including the schema/index and all limiter scopes. One high-confidence low
+finding reports that the new per-scope cleanup leaves expired rows in other
+dormant scopes indefinitely. The stored values are hashes rather than raw
+subjects, but retention exceeds the policy's stated rate-window lifetime.
+Production row counts and approved retention remain unknown. The local policy
+document was corrected after this scan to disclose dormant-scope retention;
+that documentation change does not remediate the cleanup behavior. See the
+user-facing security review for evidence and remediation guidance.
+
+At the latest read-only check, both `HEAD` and
+`origin/codex/catalyx-rebuild-phase1-5` resolve to
+`8f04403f391c4abff8af25d5682660c2ac47846f`. This commit appeared during the
+continuation; its source actor is unknown, and this agent did not push it.
+Five documentation files remain dirty and `experiments/` remains untouched.
+No new tests or runtime/database experiments were run for this review. No
+soak test, deployment, provider/DNS change, external email, customer-data
+import, or `.shop` change occurred. Production remains no-go pending both
+authentication findings and the other owner and operational gates.
+
+## Bounded cross-scope cleanup follow-up — 28 September 2026
+
+The current local diff replaces the unbounded active-scope delete with a
+bounded indexed delete of at most 100 rows per rate-limited request. It clears
+the active scope at its configured window and selects globally stale rows
+whose last update is at least the longest configured authentication window
+(one hour). The outer predicate rechecks staleness before deletion to avoid
+removing a row refreshed while a concurrent database transaction is waiting.
+The existing `updated_at` index supports candidate selection in SQLite and
+PostgreSQL. Cleanup remains opportunistic and pauses when no rate-limited
+requests occur; production scheduled cleanup and the retention period still
+need an approved architecture. A targeted synthetic regression verifies
+dormant-scope backlog draining in batches and preservation of a live one-hour
+bucket. The complete Catalyx web test module passed **73 tests** and Ruff
+passed for the changed source and test files; one upstream Starlette/httpx
+deprecation warning remains. No soak test was run. An independent candidate
+review and fresh diff security review remain to be completed.
+
+Follow-up verification also ran the full repository test suite from the locked
+worktree environment: **264 passed, 5 opt-in browser tests skipped, 2
+deprecation warnings**. Ruff passed for `catalyx_web` and the changed Catalyx
+test module, and `git diff --check` passed. No soak or load test was run.
+
+The follow-up working-tree security diff scan is now complete:
+`1997f1a0-d1db-4121-90a5-9040bab0aba6` reviewed the bounded cleanup
+implementation and regression test, with no reportable finding. Its review
+receipt records the 100-row request bound, current one-hour maximum window,
+refresh recheck, and SQLite/PostgreSQL query compatibility. The pre-existing
+untracked `experiments/cloudflare-workers-probe/` tree was excluded without
+content inspection. Cleanup remains request-driven, so old rows can persist
+while authentication receives no traffic; production scheduled cleanup and
+retention still require an owner/architecture decision. The review report is
+in the output crosswalk. PostgreSQL runtime was not exercised.
+
+## Accessibility and Vercel runtime evidence refresh — 28 September 2026
+
+A finite local accessibility check was recorded in `phase-6-acceptance.md`:
+the home skip link moves keyboard focus to the main landmark; six public
+routes reflowed at a temporary 640 CSS pixel viewport without document-level
+horizontal overflow; sign-in labels and native invalid-email validation were
+present; anonymous `/app` and `/admin` requests returned 401 without private
+content. Actual 200% browser zoom, screen-reader review, and authenticated
+customer/admin accessibility journeys remain unverified.
+
+Official Vercel documentation was refreshed. FastAPI supports a custom
+`tool.vercel.entrypoint`, and this checkout exports `catalyx_web.app:app`;
+a thin `api/index.py` shim is not inherently required. A clean Vercel build,
+monorepo bundle/assets review, and Python 3.12 compatibility remain unverified.
+The 5 GB Large Functions option is a separate Fluid Compute public beta; it
+does not resolve commercial-use terms, the NZ$0 constraint, persistent
+services, or isolated-worker requirements. No account or deployment settings
+changed. Production remains no-go.
+
+## Tenant-boundary and zero-cost host follow-up — 28 September 2026
+
+Three distinct focused tenant/role tests passed on the current local worktree.
+They verify foreign-workspace site and audit reads/lists, audit creation against
+another tenant's site, and foreign audit cancellation are denied across API and
+customer pages. After report release, the owning customer receives the report
+through the API while another customer receives 404. The existing administrator
+role matrix passes. These are synthetic SQLite checks, not PostgreSQL or
+provider-staging evidence; details are in `phase-6-acceptance.md`. Ruff and
+`git diff --check` pass. No soak/load test was run.
+
+The Cloudflare Free hosting review was refreshed against the current
+Self-Serve Subscription Agreement and Developer Platform terms. The terms
+reviewed do not show an express blanket commercial-use ban, but the general
+Free plan is positioned for non-business-critical use. Free services are
+revocable and carry a no-liability disclaimer; Worker/D1/Queues limits include
+10 ms CPU per Worker request, 5 million D1 rows read and 100,000 rows written
+per day, 10,000 Queue operations/day and 24-hour queue retention. Exceeding D1
+daily query limits fails queries until the UTC reset. This keeps Cloudflare a
+possible but unapproved $0 candidate pending owner/privacy/legal review; it
+does not close the host, data-processing or continuity gate. See
+`hosting-cost-and-terms-assessment.md` for the linked provider sources.
+
+The current committed source revision is `5e451999674b8ea6c41b5bcbb33fff799648e560`;
+the origin ref matched at the latest read-only check. The five documentation
+files and tenant-regression assertions remain uncommitted, and untracked
+`experiments/` remains preserved and uninspected. Production and `.com` remain
+no-go pending A1–A10, approved architecture, provider staging, and remaining
+security/privacy/operations/accessibility evidence.
+
+The latest full repository verification passed **264 tests**, skipped 5
+opt-in browser tests, and reported 2 upstream deprecation warnings in 98.06
+seconds. The Catalyx-specific customer/admin browser test was then explicitly
+enabled and passed **1 test in 24.96 seconds**; four other opt-in browser tests
+remain unrun. Ruff and `git diff --check` passed. No soak or load test was run.
+
+## Locked production dependency advisory refresh — 28 September 2026
+
+`uv audit --locked --no-group dev --no-extra ai --no-extra browser --no-extra
+smtp` checked the current locked hosted profile against OSV and found no known
+vulnerabilities or adverse project statuses in **62 packages**. `uv` identifies
+this audit command as experimental. This does not replace source/secret review,
+independent security review, or future rechecks against the release artifact.
+
+## Scoped Catalyx web security review — 28 September 2026
+
+Codex Security Standard scan `e85a46f7-641d-4765-9719-c77fb0313eb4` completed
+against committed revision `5e451999674b8ea6c41b5bcbb33fff799648e560`, with
+complete static review of all 15 files under `catalyx_web/`. It reports two
+medium availability findings and one low manual-worker CPU finding. The
+user-facing report is in the output crosswalk. This was a parent-only review
+because independent delegated reviewers were unavailable; no network,
+production, soak, or load testing was performed.
+
+The robots matcher now has a cumulative per-policy operation budget and fails
+closed when it is exhausted. Its focused regressions passed **2 tests**; Ruff
+and `git diff --check` passed. This is a local change after the scan's pinned
+revision, so the completed report still records the pre-fix source. The shared
+login-budget finding remains open pending owner-approved capacity and host
+proxy decisions. The open-registration storage finding remains open pending an
+owner-approved onboarding, aggregate quota, and unverified-account lifecycle
+policy. The worker CPU-isolation gate remains open despite the local matcher
+bound.
+
+Production and `.com` cutover remain no-go. Owner decisions A1–A10, a viable
+NZ$0 commercial host, provider-backed database/queue/worker, privacy/legal
+approval, human accessibility sign-off, staging, recovery, rollback, and
+operational ownership remain unresolved. `.shop` and production settings were
+not changed; `experiments/` remains uninspected. Soak/load testing remains
+skipped as directed.

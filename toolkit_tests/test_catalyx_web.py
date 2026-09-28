@@ -18,6 +18,7 @@ import httpx
 import pytest
 from fastapi.testclient import TestClient
 
+import catalyx_web.customer_audit as customer_audit
 from catalyx_web.app import create_app, create_runtime_app
 from catalyx_web.customer_audit import _robots_can_fetch, run_authorized_static_audit
 from catalyx_web.db import Database, DatabaseError, _postgres_row_factory, _PostgresConnection
@@ -1052,8 +1053,24 @@ def test_versioned_api_enforces_tenancy_and_admin_review(tmp_path):
 
     other_customer = TestClient(create_app(db_path, tmp_path / "other-mailbox.json"))
     register_and_login(other_customer, "other-api-customer@example.invalid")
+    other_me = other_customer.get("/api/v1/me").json()
+    other_csrf = {"X-CSRF-Token": other_me["csrf_token"]}
+    assert other_customer.get("/api/v1/sites").json()["sites"] == []
+    assert other_customer.get("/api/v1/audits").json()["audits"] == []
     assert other_customer.get(f"/api/v1/sites/{site['id']}").status_code == 404
     assert other_customer.get(f"/api/v1/audits/{audit['id']}").status_code == 404
+    assert other_customer.post(
+        f"/api/v1/sites/{site['id']}/audits",
+        json={"authorized": True},
+        headers={**other_csrf, "Idempotency-Key": "foreign-site-request-1"},
+    ).status_code == 404
+    assert other_customer.post(
+        f"/api/v1/audits/{audit['id']}/cancel",
+        json={},
+        headers=other_csrf,
+    ).status_code == 404
+    assert other_customer.get("/api/v1/audits/not-a-real-audit").status_code == 404
+    assert customer.get(f"/api/v1/audits/{audit['id']}").json()["audit"]["state"] == "authorization_review"
     assert customer.get("/api/v1/admin/audits").status_code == 403
 
     admin_secret = "JBSWY3DPEHPK3PXP"
@@ -1241,7 +1258,16 @@ def test_customer_ownership_and_request_review_with_admin_mfa(tmp_path, monkeypa
 
     client_b = TestClient(create_app(db_path, tmp_path / "mailbox-b.json"))
     register_and_login(client_b, "b@example.invalid")
+    assert client_b.get(f"/app/sites/{site_id}").status_code == 404
     assert client_b.get(f"/app/audits/{audit_id}").status_code == 404
+    customer_home = client_b.get("/app")
+    foreign_cancel = client_b.post(
+        f"/app/audits/{audit_id}/cancel",
+        data={"csrf": form_token(customer_home)},
+        follow_redirects=False,
+    )
+    assert foreign_cancel.status_code == 404
+    assert client_a.get(f"/app/audits/{audit_id}").status_code == 200
 
     secret = "JBSWY3DPEHPK3PXP"
     database = Database(db_path)
@@ -1305,6 +1331,10 @@ def test_customer_ownership_and_request_review_with_admin_mfa(tmp_path, monkeypa
     released = client_a.get(f"/app/audits/{audit_id}")
     assert "Sample finding" in released.text
     assert client_b.get(f"/app/audits/{audit_id}").status_code == 404
+    released_api = client_a.get(f"/api/v1/audits/{audit_id}")
+    assert released_api.status_code == 200
+    assert "Sample finding" in json.dumps(released_api.json()["audit"]["report"])
+    assert client_b.get(f"/api/v1/audits/{audit_id}").status_code == 404
     with database.connect() as db:
         state = db.execute("SELECT state FROM audit_requests WHERE id=?", (audit_id,)).fetchone()["state"]
         actions = db.execute("SELECT action,reason FROM admin_activity WHERE target_id=?", (audit_id,)).fetchall()
@@ -1890,6 +1920,17 @@ def test_robots_policy_merges_matching_groups_and_uses_specific_rules():
         f"Allow: /path-{index}\n" for index in range(2_049)
     )
     assert not _robots_can_fetch(excessive_rules, "https://example.com/")
+
+
+def test_robots_policy_fails_closed_when_match_work_budget_is_exhausted(monkeypatch):
+    rules = "User-agent: *\nAllow: /path\nAllow: /path"
+    target = "https://example.com/path"
+
+    monkeypatch.setattr(customer_audit, "MAX_ROBOTS_MATCH_STEPS", 10)
+    assert _robots_can_fetch(rules, target)
+
+    monkeypatch.setattr(customer_audit, "MAX_ROBOTS_MATCH_STEPS", 9)
+    assert not _robots_can_fetch(rules, target)
 
 
 def test_worker_fencing_token_rejects_a_result_after_lease_reclaim(tmp_path, monkeypatch):

@@ -25,7 +25,11 @@ Verification-resend and password-reset email limits remain separate. Hosted
 mail and live external sends remain disabled by default and require their
 existing explicit gates.
 
-Expired subject buckets are pruned from the active scope as requests arrive.
-Their hashes and hit counts are retained only while they can affect the
-configured rate window; this bounds stale-row retention without clearing an
-active subject's limit early.
+Each rate-limited request removes at most 100 expired subject buckets. It
+cleans the active scope against that scope's window and also sweeps older rows
+from any scope once their last update is at least one hour old. This lets
+requests in other scopes drain dormant buckets while bounding delete work per
+request. Cleanup is opportunistic: if no rate-limited requests occur, expired
+rows remain until the next such request. Update the one-hour maximum if a
+longer authentication window is introduced. The retention period and any
+production scheduled cleanup remain owner/architecture decisions.

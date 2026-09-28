@@ -35,6 +35,7 @@ MAX_TOTAL_REQUESTS = 8
 MAX_RESPONSE_BYTES = 2_000_000
 MAX_ROBOTS_RULES = 2_048
 MAX_ROBOTS_RULE_BYTES = 2_048
+MAX_ROBOTS_MATCH_STEPS = 1_000_000
 MAX_TOTAL_SECONDS = 35
 IMPACT_TEXT = {
     "missing_title": "Search previews may have less useful page information.",
@@ -120,12 +121,22 @@ def _robots_path(value: str, *, pattern: bool = False) -> str:
     return re.sub(r"%([0-9A-Fa-f]{2})", normalize_escape, encoded)
 
 
-def _robots_pattern_matches(pattern: str, target: str, anchored: bool) -> bool:
+def _robots_pattern_matches(
+    pattern: str,
+    target: str,
+    anchored: bool,
+    *,
+    step_budget: list[int] | None = None,
+) -> bool | None:
     """Match robots '*' patterns without feeding site text to a backtracking regex."""
     pattern_index = target_index = 0
     last_star = -1
     star_target_index = 0
     while target_index < len(target):
+        if step_budget is not None:
+            if step_budget[0] <= 0:
+                return None
+            step_budget[0] -= 1
         if pattern_index == len(pattern) and not anchored:
             return True
         if pattern_index < len(pattern) and pattern[pattern_index] == target[target_index]:
@@ -142,6 +153,10 @@ def _robots_pattern_matches(pattern: str, target: str, anchored: bool) -> bool:
         else:
             return False
     while pattern_index < len(pattern) and pattern[pattern_index] == "*":
+        if step_budget is not None:
+            if step_budget[0] <= 0:
+                return None
+            step_budget[0] -= 1
         pattern_index += 1
     return pattern_index == len(pattern) and (not anchored or target_index == len(target))
 
@@ -202,6 +217,7 @@ def _robots_can_fetch(text: str, target: str, user_agent: str = SCANNER_AGENT) -
     if parts.query:
         target_path += "?" + _robots_path(parts.query)
     matches: list[tuple[int, bool]] = []
+    match_budget = [MAX_ROBOTS_MATCH_STEPS]
     for pattern, allowance in selected_rules:
         if not pattern:
             continue
@@ -209,7 +225,14 @@ def _robots_can_fetch(text: str, target: str, user_agent: str = SCANNER_AGENT) -
         if anchored:
             pattern = pattern[:-1]
         pattern = _robots_path(pattern, pattern=True)
-        if _robots_pattern_matches(pattern, target_path, anchored):
+        matched = _robots_pattern_matches(
+            pattern, target_path, anchored, step_budget=match_budget
+        )
+        if matched is None:
+            # Treat exhausted matching work as disallow so an attacker cannot
+            # turn an incomplete rules evaluation into permission to fetch.
+            return False
+        if matched:
             specificity = len(pattern.replace("*", "").encode("ascii"))
             matches.append((specificity, allowance))
     if not matches:

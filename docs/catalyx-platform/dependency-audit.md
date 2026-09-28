@@ -1,6 +1,6 @@
 # CatalyxLabs Website Auditor dependency audit
 
-**Date:** 2026-09-28
+**Date:** 2026-09-28; refreshed during continuation
 **Scope:** Selected hosted web runtime (`web` + `portal` extras), plus a separate
 all-extras inventory. This does not assess application source code.
 
@@ -19,6 +19,13 @@ all-extras inventory. This does not assess application source code.
 - `uv sync --dry-run --frozen --no-dev --extra web --extra portal --python
   /Users/dd/WEBSITE-AUDITOR/.venv/bin/python`: resolved successfully for Python
   3.11.16; planned 54 packages for the selected profile.
+
+The selected hosted profile was refreshed against the OSV advisory service
+from the current locked checkout with
+`uv audit --locked --no-group dev --no-extra ai --no-extra browser --no-extra
+smtp`: **no known vulnerabilities and no adverse project statuses in 62
+packages**. `uv` emitted its notice that the audit command is experimental.
+This remains a point-in-time advisory check, not source-code or secret review.
 
 The base lock was resolved on Python 3.14 and contains interpreter markers;
 the Python 3.11 dry run confirms the selected runtime profile resolves for the

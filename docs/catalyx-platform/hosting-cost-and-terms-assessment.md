@@ -169,6 +169,31 @@ app's authorized-host/redirect policy, queue permissions, report access, or
 production deployment configuration; those still need integration and security
 evidence. [Workers security model](https://developers.cloudflare.com/workers/reference/security-model/)
 
+## Fresh signed-in Vercel dashboard review — 2026-09-28
+
+The current `yabigdd-1427` workspace remains on **Hobby**. Its deployment
+storage usage page, set to the preceding 30 days and updated during this check,
+reported **10.66 GB / 10 GB**. The `website_auditor` project accounted for
+**9.37 GB**; `catalyx-labs-grow-os` used **606.49 MB**, `work` used
+**308.96 MB**, and `catalyx-labs-grow-os-recovery` used **378.3 MB**. Vercel's
+16 September 2026 [Hobby retention update](https://vercel.com/changelog/hobby-projects-now-retain-fewer-deployments-to-free-up-storage)
+says usage above the 10 GB limit can block new deployments until storage is
+freed. The dashboard did not show that the existing `.com` deployment is
+paused. Do not remove deployments without an owner-approved retention decision;
+the overage is an additional risk to producing a staging or release artifact.
+
+The current `catalyx-labs-grow-os` Domains page lists the `.com` apex and `www`
+as Production domains marked **Proxy Detected**. It lists `.shop` apex as a
+308 redirect to `www` and `www.catalyxlabs.shop` as a Production domain. The
+`website_auditor` project lists only `websiteauditor-drab.vercel.app`; it has
+no `.com` assignment. The team overview also associates `www.catalyxlabs.shop`
+with a separate `work` project, but the detailed `work` Domains page lists only
+`work-omega-inky.vercel.app`, and has no `.shop` assignment. The team-level
+Domains page lists `.com` and `.shop` registrations, and the detailed Grow OS
+page confirms the active assignments above. Treat the `work` summary link as a
+listing inconsistency rather than a second `.shop` assignment. No setting or
+deployment was changed.
+
 Commercial suitability remains unresolved. Cloudflare's general plan page
 describes its Free plan for personal or hobby projects that are not
 business-critical, while the current self-serve agreement says Cloudflare may
@@ -250,3 +275,157 @@ choice. Its strict CPU and daily row/operation caps, 24-hour queue retention,
 local-only compatibility results, data-processing terms, service continuity,
 and business-critical suitability still require owner and privacy/legal review.
 No account, resource, plan, or project setting was changed.
+
+## Historical preliminary Vercel runtime assessment — superseded below (2026-09-28)
+
+Vercel's current [Python runtime documentation](https://vercel.com/docs/functions/runtimes/python),
+last updated 30 January 2026, confirms the Python runtime supports FastAPI and
+ASGI applications. It currently labels Python runtime support **Beta** and
+lists Python 3.12 as the default, with 3.13 and 3.14 also available. The
+[FastAPI guide](https://vercel.com/docs/frameworks/backend/fastapi) says a
+FastAPI application is deployed as one Vercel Function and uses Fluid Compute
+by default. This establishes framework compatibility in the provider's
+documented model; it does not establish that this checkout has a working Vercel
+build or environment.
+
+This first pass incorrectly concluded that the repository needed a thin
+`api/` function entrypoint. The later entrypoint refresh below corrects that:
+Vercel documents a custom module entrypoint, and this checkout exports
+`catalyx_web.app:app`. Deployment-root selection, bundle include/exclude rules,
+runtime compatibility, and binary dependencies still need a build assessment.
+
+The first pass recorded the standard Python bundle cap as 500 MB. The later
+refresh below adds the 5 GB public beta qualification. Request and response
+payloads remain capped at 4.5 MB. With Fluid Compute, the documented Hobby
+maximum duration is 300 seconds; without it, the Hobby maximum is 60 seconds.
+Function duration is not a durable queue or worker guarantee.
+Production data still needs separately selected durable services; the web
+function must not run customer scans.
+
+The [Terms of Service](https://vercel.com/legal/terms), last updated
+1 June 2026, limit Hobby use to personal or non-commercial use. The terms also
+allow Vercel to use Hobby and trial-Pro submitted content for model training
+and share it with third parties for product/model improvement. A commercial
+customer service with site reports is therefore not approved for the current
+Hobby workspace. Vercel Python support does not change that terms or budget
+blocker. A paid plan would require an explicit change to the NZ$0 constraint;
+no such approval is recorded.
+
+**Decision status:** Vercel is a technically documented FastAPI host, but is
+not an approved production choice under the current account and budget. A
+Vercel implementation would still require owner approval of terms/spend,
+entrypoint/build proof, persistent data services, and an isolated worker
+architecture. This preliminary runtime assessment is superseded by the
+entrypoint and package-limit refresh below. No deployment or provider setting
+was changed.
+
+## Fresh Cloudflare zone and TLS review — 2026-09-28 11:18–11:23 NZDT
+
+Read the signed-in Cloudflare dashboard for `catalyxlabs.com` in the existing
+account, without changing settings. The zone is on the Free plan, DNS setup is
+Full, and the Records view contains 10 of 200 records. The website records are
+apex `A 76.76.21.21` and `www CNAME cname.vercel-dns-0.com`; both are proxied
+with automatic TTL. `_domainconnect` points to
+`_domainconnect.gd.domaincontrol.com` and is also proxied. The remaining apex
+TXT rows are Vercel nameserver and domain verification records; verification
+values are intentionally omitted from this assessment. `_dmarc` has
+`p=quarantine`, relaxed DKIM/SPF alignment, and a reporting destination at
+`onsecureserver.net`. The current zone list contains no MX record and no SPF
+policy. Preserve all verification and mail-related records during any later
+`.com` change; the detailed dashboard snapshot is in the user-facing provider
+record.
+
+Cloudflare currently reports SSL/TLS mode **Full**, not Full (strict), and a
+Universal certificate for the apex and wildcard that is Active through
+2026-12-07; the backup certificate is Issued through 2026-12-09. Minimum TLS
+Version is set to the `TLS 1.0 (default)` option. The `Always Use HTTPS`
+setting is off, although fresh HEAD requests to both HTTP `.com` hostnames
+returned 308 redirects to HTTPS and HTTPS responses include
+`Strict-Transport-Security: max-age=63072000; includeSubDomains`. TLS 1.3 and
+Automatic HTTPS Rewrites are enabled. Certificate Transparency Monitoring is
+off. These are observed settings, not changes or launch approval; review the
+Full (strict) origin validation and TLS 1.2 minimum before a production
+cutover. The current Vercel Hobby host remains commercially ineligible and
+the production architecture is still unapproved.
+
+## Vercel FastAPI entrypoint and package-limit refresh — 2026-09-28
+
+The current Vercel FastAPI guide (15 June 2026) and Python runtime
+documentation now describe automatic FastAPI detection with a supported
+entrypoint. Vercel supports a custom module through
+`[tool.vercel] entrypoint = "catalyx_web.app:app"` in `pyproject.toml`.
+This checkout exports `app` at that module path, so a new `api/index.py`
+shim or `vercel.json` is not inherently required just to make FastAPI
+detection work. This corrects the earlier statement that a thin entrypoint was
+necessarily required. The project root still needs a deployment/build
+assessment: it is a large monorepo, and Python functions do not tree-shake the
+repository automatically. Vercel supports function file inclusion/exclusion
+rules, but a clean build, package inventory and asset lookup have not been
+verified for this application.
+
+The documented standard Python function bundle limit is 500 MB. Vercel's
+29 June 2026 public beta raises Node.js/Python Fluid Compute functions to 5 GB;
+existing projects require `VERCEL_SUPPORT_LARGE_FUNCTIONS=1` or a prompted
+opt-in. The beta is not enabled in this workspace and is incompatible with
+Secure Compute and Static IP features. It does not make the app's manual scan
+worker safe or isolated. Request and response payloads remain limited to
+4.5 MB. These changes correct and qualify the earlier 500 MB-only package
+statement; no Vercel setting was changed.
+
+The official runtime defaults to Python 3.12, while the local locked worktree
+currently runs Python 3.11.16 and declares `requires-python >=3.11`. No Python
+3.12 deployment build or native-dependency check has been run. Vercel
+FastAPI/runtime compatibility is now documented, but this checkout is still
+not a verified deployable artifact. Vercel Hobby's personal/non-commercial
+restriction, the NZ$0 cap, customer-content terms, durable data/queue choices,
+and worker isolation remain separate launch blockers.
+
+Official sources checked in this refresh:
+[FastAPI on Vercel](https://vercel.com/kb/guide/ship-a-fastapi-app-on-vercel)
+(15 June 2026),
+[Python runtime and entrypoints](https://vercel.com/docs/functions/runtimes/python),
+[Function limits](https://vercel.com/docs/functions/limitations), and
+[5 GB Large Functions public beta](https://vercel.com/changelog/vercel-functions-can-now-be-up-to-5-gb-in-package-size)
+(29 June 2026). No project, deployment, account, environment, or domain
+setting was changed.
+
+## Cloudflare Workers Free terms and hard-limit refresh — 2026-09-28
+
+Reviewed Cloudflare's current [Self-Serve Subscription Agreement](https://www.cloudflare.com/terms/)
+and [Developer Platform Service-Specific Terms](https://www.cloudflare.com/service-specific-terms-developer-platform/)
+alongside the [general plans page](https://www.cloudflare.com/plans/) and current
+Workers/D1/Queues documentation. The general Free plan is positioned for
+personal or hobby projects that are not business-critical. The account and
+Developer Platform terms reviewed do not state an express general ban on
+commercial Developer Platform use; that observation is not legal approval for
+this product or a conclusion about whether its beta would be business-critical.
+The agreement calls free offerings revocable at Cloudflare's discretion and
+disclaims liability for harm connected with Free Services. The Developer
+Platform terms allow Cloudflare to limit storage or requests, place support and
+end-user obligations on the customer, and suspend access. They state that
+Cloudflare does not use Developer Platform Customer Content except as needed to
+provide the Services and that source-code IP remains with the customer.
+
+Current free-tier ceilings are material to service continuity: Workers allow
+100,000 inbound requests per day and 10 ms CPU per request; D1 includes 5
+million rows read/day, 100,000 rows written/day, and 5 GB total storage; and
+Queues include 10,000 operations/day with non-configurable 24-hour message
+retention. Since 1 September 2026, exceeding D1 daily read/write limits causes
+queries to fail until the reset at midnight UTC. The Workers Paid plan starts
+at US$5/month, which is outside the NZ$0 constraint.
+
+**Decision status:** Cloudflare Workers Free remains an unapproved candidate,
+not a confirmed commercial host. Its current public terms do not establish a
+commercial-use prohibition, but Cloudflare's stated non-business-critical
+positioning, revocable/no-liability free-service terms, finite quotas and hard
+D1 failure behavior require owner and privacy/legal review before customer
+data. No account, project, resource, deployment, or domain setting changed.
+
+Sources checked: [Cloudflare plans](https://www.cloudflare.com/plans/),
+[Self-Serve Subscription Agreement](https://www.cloudflare.com/terms/),
+[Developer Platform terms](https://www.cloudflare.com/service-specific-terms-developer-platform/),
+[Workers limits](https://developers.cloudflare.com/workers/platform/limits/),
+[D1 pricing](https://developers.cloudflare.com/d1/platform/pricing/),
+[D1 limit enforcement notice](https://developers.cloudflare.com/changelog/post/2026-09-01-d1-free-tier-limit-enforcement/),
+[Queues pricing](https://developers.cloudflare.com/queues/platform/pricing/), and
+[Workers pricing](https://developers.cloudflare.com/workers/platform/pricing/).
