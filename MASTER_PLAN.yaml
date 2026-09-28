@@ -233,7 +233,24 @@ catalyxlabs_rebuild:
     intended_worktree_head: "0c8041da4051d6ac341814d62f04be58fc97be63"
     intended_worktree_plan_status: "User-created MASTER_EXECUTION_PLAN.md remains untracked in the phase1-rebuild worktree at 0c8041da; an additive execution-status section now records Phases 1-9, evidence, safety posture, and owner gates. The worktree still is not based on the requested implementation SHA, so the implementation remains in the separate branch based on 0348b3f9. The original scope and phase descriptions were retained."
     implementation_worktree: "/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild"
-    implementation_worktree_status: "Branch codex/catalyx-rebuild-phase1-5 is pushed through 8f04403f, based on 0348b3f9. Commit 8f04403f prunes expired rate-limit subject buckets after one idle scope window; it does not impose a hard ceiling on active distinct subjects. Fresh inspection found uncommitted follow-up changes in catalyx_web/db.py and toolkit_tests/test_catalyx_web.py adding a 100-row bounded sweep of dormant scopes; the new regression passes (1 passed, 72 deselected) and Ruff passes. These changes remain uncommitted/unpushed, were not fully tested or independently security-reviewed, and are preserved with the dirty docs and experiments/ tree. The pushed revision's focused auth regression: 1 passed; Catalyx web suite: 72 passed; Catalyx mailer suite: 30 passed; Ruff and diff checks passed. The current-commit scoped security review 55b8fbfb-b9f6-46c9-858f-659b5e4f8c73 completed with one medium (shared login budget can deny all users) and three low findings (active rate-state has no hard ceiling, recovery-request quota exhaustion, registration timing distinction). Owner approval of the shared login threshold and deployment controls remains required; runtime hosting and edge controls were out of scan scope. Earlier Lighthouse reports remain as recorded below; no soak test, master merge, or deployment occurred."
+    implementation_worktree_status: >-
+      Branch codex/catalyx-rebuild-phase1-5 is pushed through 5e451999, based on
+      0348b3f9. The follow-up commit adds a 100-row bounded sweep of expired
+      authentication buckets across dormant scopes, preserving active one-hour
+      buckets. The full toolkit suite passed on the dirty source/test state
+      immediately before commit (264 passed, 5 opt-in skips, 2 upstream
+      warnings); Ruff and diff checks passed. Scoped security diff scan
+      2bbaf29c-6a9c-49d8-a4d5-8709693ceaae reported zero findings for
+      catalyx_web/db.py and toolkit_tests/test_catalyx_web.py, with partial
+      coverage: docs/catalyx-platform/** and experiments/** were excluded, and
+      PostgreSQL execution remains deferred. The scan reported that the wider
+      working tree changed while running; the reviewed source/test diff was
+      rechecked and matched the current diff before commit. Documentation edits
+      and the untracked experiments/ tree remain preserved and uncommitted.
+      Existing owner gates remain open for shared-login thresholds, hosting,
+      privacy/legal, worker isolation, accessibility, and release readiness.
+      User reports the 24-hour soak was completed in Claude; it was not repeated
+      here. No master merge or deployment occurred.
     branch_from_sha: "0348b3f9"
   safety_gates:
     external_send_allowed: false
