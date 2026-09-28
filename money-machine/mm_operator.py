@@ -299,6 +299,11 @@ def main(argv=None):
     s.add_parser('email-rollback')
     q=s.add_parser('discover-import');q.add_argument('--file',required=True);q.add_argument('--region',default='');q.add_argument('--source',default='import');q.add_argument('--dry-run',action='store_true')
     q=s.add_parser('discover-search');q.add_argument('--query',required=True);q.add_argument('--region',required=True);q.add_argument('--endpoint',default='http://127.0.0.1:8888');q.add_argument('--limit',type=int,default=20);q.add_argument('--dry-run',action='store_true')
+    q=s.add_parser('discover-batch',help='combine bounded CSV/JSON imports and local SearXNG queries before one deduplicated intake')
+    q.add_argument('--file',action='append',default=[],help='CSV, JSON, or JSONL source file; repeat to combine sources')
+    q.add_argument('--query',action='append',default=[],help='local SearXNG query; repeat to combine searches')
+    q.add_argument('--region',default='');q.add_argument('--endpoint',default='http://127.0.0.1:8888')
+    q.add_argument('--limit',type=int,default=20);q.add_argument('--dry-run',action='store_true')
     q=s.add_parser('audit-backfill');q.add_argument('--id',type=int,action='append',dest='ids');q.add_argument('--no-delay',action='store_true')
     q=s.add_parser('discover-contacts');q.add_argument('--id',type=int,required=True);q.add_argument('--no-delay',action='store_true')
     q=s.add_parser('report');q.add_argument('granularity',nargs='?',choices=['daily'],default='daily');s.add_parser('alerts');s.add_parser('rotate-logs')
@@ -451,11 +456,11 @@ def main(argv=None):
                 result={'mode':'v1_hold','history_retained':True,'new_approvals_held':True,'external_sends':0}
         print(email_cli.human_text(result) if a.cmd in ('email-status','email-find') and not a.json else json.dumps(result,indent=2))
         return 0
-    if a.cmd in ('discover-import','discover-search'):
+    if a.cmd in ('discover-import','discover-search','discover-batch'):
         import mm_discovery
         if a.cmd=='discover-import':
             candidates,rejected=mm_discovery.read_candidates(a.file,a.region,a.source)
-        else:
+        elif a.cmd=='discover-search':
             try:
                 candidates=mm_discovery.searxng_candidates(a.query,a.region,a.endpoint,a.limit)
             except mm_discovery.SearchBlocked as e:
@@ -465,9 +470,17 @@ def main(argv=None):
                                   'note':'Search lane is blocked in this environment; run on a host with a local SearXNG for ranked candidates.'},indent=2))
                 return 0
             rejected=[]
+        else:
+            collection=mm_discovery.collect_multi_source(
+                files=a.file,queries=a.query,region=a.region,endpoint=a.endpoint,limit=a.limit)
+            candidates=collection['candidates']
+            rejected=collection['source_rejections']
         with contextlib.closing(connect()) as d,d:
             result=mm_discovery.ingest(d,candidates,actor='mm-'+a.cmd,dry_run=a.dry_run)
         result['source_rejections']=rejected
+        if a.cmd=='discover-batch':
+            result['sources']=collection['sources']
+            result['collection_counts']=collection['counts']
         result['external_sends']=0
         print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd=='audit-backfill':
