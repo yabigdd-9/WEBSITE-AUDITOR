@@ -25,6 +25,7 @@ from .security import (
 
 AUTH_RATE_LIMIT_MAX_WINDOW_SECONDS = 3600
 AUTH_RATE_LIMIT_CLEANUP_BATCH_SIZE = 100
+MAX_AUTH_RATE_LIMIT_ROWS = 10_000
 MAX_CUSTOMER_WORKSPACES = 5
 
 
@@ -200,28 +201,12 @@ class Database:
         current = int(time.time()) if now is None else int(now)
         subject_hash = hashlib.sha256(subject.encode("utf-8")).hexdigest()
         with self.connect() as db:
-            row = db.execute(
-                "INSERT INTO auth_rate_limits(scope,subject_hash,window_started,hits,updated_at) "
-                "VALUES(?,?,?,1,?) ON CONFLICT(scope,subject_hash) DO UPDATE SET "
-                "window_started=CASE WHEN auth_rate_limits.window_started+?<=? THEN ? "
-                "ELSE auth_rate_limits.window_started END, "
-                "hits=CASE WHEN auth_rate_limits.window_started+?<=? THEN 1 "
-                "ELSE auth_rate_limits.hits+1 END, updated_at=excluded.updated_at RETURNING hits",
-                (
-                    scope,
-                    subject_hash,
-                    current,
-                    current,
-                    window_seconds,
-                    current,
-                    current,
-                    window_seconds,
-                    current,
-                ),
-            ).fetchone()
-            # Prune expired subjects from the active scope promptly, and
-            # slowly sweep other scopes too. All application auth windows
-            # are at most one hour; the indexed batch bounds work per request.
+            if self.database_url is not None:
+                db.execute("SELECT pg_advisory_xact_lock(1128350801, 2)")
+            else:
+                db.execute("BEGIN IMMEDIATE")
+            # Clean expired subjects before checking the hard capacity. The
+            # bounded sweep keeps each request's cleanup work predictable.
             global_cutoff = current - max(
                 AUTH_RATE_LIMIT_MAX_WINDOW_SECONDS, window_seconds
             )
@@ -243,6 +228,35 @@ class Database:
                     scope_cutoff,
                 ),
             )
+            existing = db.execute(
+                "SELECT 1 FROM auth_rate_limits WHERE scope=? AND subject_hash=?",
+                (scope, subject_hash),
+            ).fetchone()
+            if existing is None:
+                row_count = db.execute(
+                    "SELECT count(*) FROM auth_rate_limits"
+                ).fetchone()[0]
+                if row_count >= MAX_AUTH_RATE_LIMIT_ROWS:
+                    return False
+            row = db.execute(
+                "INSERT INTO auth_rate_limits(scope,subject_hash,window_started,hits,updated_at) "
+                "VALUES(?,?,?,1,?) ON CONFLICT(scope,subject_hash) DO UPDATE SET "
+                "window_started=CASE WHEN auth_rate_limits.window_started+?<=? THEN ? "
+                "ELSE auth_rate_limits.window_started END, "
+                "hits=CASE WHEN auth_rate_limits.window_started+?<=? THEN 1 "
+                "ELSE auth_rate_limits.hits+1 END, updated_at=excluded.updated_at RETURNING hits",
+                (
+                    scope,
+                    subject_hash,
+                    current,
+                    current,
+                    window_seconds,
+                    current,
+                    current,
+                    window_seconds,
+                    current,
+                ),
+            ).fetchone()
         return row["hits"] <= limit
 
     def rate_attempt_available(

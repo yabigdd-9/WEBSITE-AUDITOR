@@ -579,6 +579,25 @@ def test_auth_rate_limit_cleanup_sweeps_dormant_scopes_in_bounded_batches(tmp_pa
         assert long_window == 1
 
 
+def test_auth_rate_limit_table_has_a_hard_row_ceiling(tmp_path, monkeypatch):
+    import catalyx_web.db as db_module
+
+    database = Database(tmp_path / "rate-limit-capacity.sqlite3")
+    monkeypatch.setattr(db_module, "MAX_AUTH_RATE_LIMIT_ROWS", 3)
+    for subject in ("one", "two", "three"):
+        assert database.allow_rate_attempt("login", subject, 5, 60, now=1000)
+
+    assert not database.allow_rate_attempt("login", "four", 5, 60, now=1000)
+    assert database.allow_rate_attempt("login", "one", 5, 60, now=1000)
+    with database.connect() as db:
+        assert db.execute("SELECT count(*) FROM auth_rate_limits").fetchone()[0] == 3
+
+    # Expired rows are pruned before capacity is evaluated.
+    assert database.allow_rate_attempt("login", "after-expiry", 5, 60, now=5000)
+    with database.connect() as db:
+        assert db.execute("SELECT count(*) FROM auth_rate_limits").fetchone()[0] == 1
+
+
 def test_auth_rate_limit_attempt_reservations_are_atomic_across_connections(tmp_path):
     database = Database(tmp_path / "concurrent-rate-limits.sqlite3")
     with ThreadPoolExecutor(max_workers=16) as pool:
