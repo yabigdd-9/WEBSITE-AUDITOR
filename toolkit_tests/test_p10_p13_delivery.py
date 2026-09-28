@@ -92,6 +92,7 @@ def test_p12_quote_refuses_missing_or_invalid_rate():
 
 def test_p11_demo_and_p13_packet_never_claim_live_change_or_send(tmp_path):
     r = report()
+    r["opportunity_score"] = 99.9  # ignored without component evidence
     remediation = build_remediation(r, tmp_path / "remediation")
     quote = calculate_quote(r, "150")
     demo = build_demo(r, remediation, tmp_path / "demo")
@@ -112,9 +113,46 @@ def test_p11_demo_and_p13_packet_never_claim_live_change_or_send(tmp_path):
     assert packet["paid_ai_cost_usd"] == 0
     assert packet["contact"] is None
     assert packet["email_confidence"] == "NO_VERIFIED_EMAIL"
+    assert packet["audit_score"] == 72
+    assert packet["opportunity_score"] == 0
+    assert packet["opportunity"]["formula_version"] == "opportunity-v1"
+    assert packet["opportunity"]["provenance"]["commercial_score_evidence_ids"] == []
     assert len(packet["evidence"]) == 4
     assert Path(packet["draft_message_path"]).is_file()
     assert "not measured or guaranteed" in Path(packet["draft_message_path"]).read_text()
+
+
+def test_p13_packet_recomputes_opportunity_from_bound_evidence(tmp_path):
+    r = report()
+    r["commercial_score"] = 80
+    r["commercial_score_evidence_ids"] = [17, 18]
+    r["opportunity_score"] = 99.9  # ignored legacy/untrusted precomputed value
+    remediation = build_remediation(r, tmp_path / "remediation")
+    quote = calculate_quote(r, "150")
+    demo = build_demo(r, remediation, tmp_path / "demo")
+
+    packet = build_packet(
+        r,
+        remediation,
+        demo,
+        quote,
+        tmp_path / "packet",
+        contact={
+            "email": "owner@example.co.nz",
+            "selected": {"confidence_label": "VERIFIED_HIGH"},
+        },
+    )
+
+    assert packet["schema_version"] == 2
+    assert packet["audit_score"] == 72
+    assert packet["opportunity_score"] == packet["opportunity"]["opportunity_score"]
+    assert packet["opportunity_score"] < 99.9
+    assert packet["opportunity"]["formula_version"] == "opportunity-v1"
+    assert packet["opportunity"]["components"]["need"] == 0.25
+    assert packet["opportunity"]["components"]["business_value"] == 0.8
+    assert packet["opportunity"]["components"]["contactability"] == 0.95
+    assert packet["opportunity"]["provenance"]["commercial_score_evidence_ids"] == [17, 18]
+    assert packet["contact"] == "owner@example.co.nz"
 
 
 def test_packet_rejects_fake_after_claim(tmp_path):

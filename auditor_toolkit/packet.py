@@ -69,6 +69,10 @@ def build_packet(
     if quote.get("llm_determined_price") is not False:
         raise ValueError("Quote must be deterministic")
 
+    from .opportunity import opportunity_from_packet_evidence
+
+    opportunity = opportunity_from_packet_evidence(report, remediation, quote, contact)
+
     output = Path(output_dir)
     if output.exists() and any(output.iterdir()):
         raise ValueError("New or empty packet directory required")
@@ -86,14 +90,15 @@ def build_packet(
             email_state = label
 
     packet = {
-        "schema_version": 1,
+        "schema_version": 2,
         "kind": "prospect_packet",
         "source_run_id": run_id,
         "business": {"website": report.get("url"), "domain": report.get("domain")},
         "contact": selected_email,
         "email_confidence": email_state,
         "audit_score": report.get("health_score"),
-        "opportunity_score": report.get("opportunity_score"),
+        "opportunity_score": opportunity["opportunity_score"],
+        "opportunity": opportunity,
         "top_problems": [
             {
                 "finding_id": d.get("finding_id"),
