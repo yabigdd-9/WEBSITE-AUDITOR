@@ -36,6 +36,13 @@ def fresh_db(tmp):
         recipient TEXT, body TEXT, invalidated_reason TEXT, approved_hash TEXT);
     CREATE TABLE IF NOT EXISTS email_verifications(id INTEGER PRIMARY KEY,
         prospect_id INTEGER, email TEXT, result_json TEXT);
+    CREATE VIEW IF NOT EXISTS email_current_high AS
+        SELECT prospect_id,
+               email AS normalized_email,
+               id AS candidate_id,
+               id AS verification_id
+        FROM email_verifications
+        WHERE json_extract(result_json,'$.confidence_label')='VERIFIED_HIGH';
     CREATE TABLE IF NOT EXISTS mm_model_invocations(id INTEGER PRIMARY KEY,
         run_key TEXT UNIQUE, model TEXT, provider TEXT, purpose_hash TEXT,
         status TEXT, model_calls INTEGER DEFAULT 0, input_tokens INTEGER,
@@ -220,6 +227,20 @@ class ApprovalEngine(unittest.TestCase):
         self.d.execute("INSERT INTO mm_messages(business_id,recipient,body) VALUES(?,?,?)",
                        (self.bid, 'office@fixture.example.co.nz',
                         'Subject: fix\n\nFixture body.'))
+
+    def test_verified_email_gate_uses_current_high_view(self):
+        self.d.execute("INSERT INTO email_verifications(prospect_id,email,result_json) "
+                       "VALUES(?,?,?)", (self.bid, 'medium@fixture.example.co.nz',
+                       json.dumps({'confidence_label': 'VERIFIED_MEDIUM'})))
+        ok, evidence = appr._gate_verified_email(self.d, self.bid)
+        self.assertFalse(ok)
+        self.d.execute("INSERT INTO email_verifications(prospect_id,email,result_json) "
+                       "VALUES(?,?,?)", (self.bid, 'high@fixture.example.co.nz',
+                       json.dumps({'confidence_label': 'VERIFIED_HIGH'})))
+        ok, evidence = appr._gate_verified_email(self.d, self.bid)
+        self.assertTrue(ok)
+        self.assertEqual(evidence['email'], 'high@fixture.example.co.nz')
+        self.assertEqual(evidence['confidence'], 'VERIFIED_HIGH')
 
     def test_missing_evidence_never_approves(self):
         aid = appr.request_approval(self.d, self.bid)
