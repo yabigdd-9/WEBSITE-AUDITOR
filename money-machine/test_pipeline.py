@@ -6,15 +6,16 @@ businesses, no sends.
 import datetime as dt
 import json
 import os
-from pathlib import Path
 import sqlite3
 import tempfile
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
-import mm_core as c
-import mm_pipeline as p
 import mm_approval as appr
+import mm_core as c
 import mm_model_router as router
+import mm_pipeline as p
 
 
 def fresh_db(tmp):
@@ -386,6 +387,58 @@ class WorkerHandlers(unittest.TestCase):
         bid = add_business(self.d, site=site)
         p.enqueue(self.d, bid, state=state)
         return bid
+
+    def test_audit_handler_persists_detector_defect_score(self):
+        import subprocess
+
+        import mm_workers as workers
+
+        bid = self._enqueue('AUDIT_PENDING')
+        completed = subprocess.CompletedProcess(
+            args=['python3'], returncode=0,
+            stdout='{"defects":[{"severity":"high"}],"defect_score":72}',
+            stderr='',
+        )
+        with patch('auditor_toolkit.storage.History.get_latest_valid_audit',
+                   return_value=None), patch('mm_workers.subprocess.run',
+                                             return_value=completed):
+            state, _, evidence = workers.audit_handler(
+                self.d, {'business_id': bid}, None
+            )
+        self.assertEqual(state, 'AUDITED')
+        self.assertEqual(evidence['defect_count'], 1)
+        self.assertEqual(evidence['score'], 72)
+
+    def test_audit_handler_reuses_defect_score_when_legacy_score_is_null(self):
+        import mm_workers as workers
+
+        bid = self._enqueue('AUDIT_PENDING')
+        cached = {'defects': [{}], 'score': None, 'defect_score': 64}
+        with patch('auditor_toolkit.storage.History.get_latest_valid_audit',
+                   return_value=cached):
+            state, _, evidence = workers.audit_handler(
+                self.d, {'business_id': bid}, None
+            )
+        self.assertEqual(state, 'AUDITED')
+        self.assertEqual(evidence['score'], 64)
+
+    def test_qualification_invalid_audit_scores_fail_closed(self):
+        import mm_workers as workers
+
+        bid = self._enqueue('QUALIFICATION_PENDING')
+        commercial = {'qualification_score': 10, 'tier': 'COLD', 'reasons': []}
+        for score in (None, '55', True, float('nan'), float('inf'), -5):
+            item = {
+                'business_id': bid,
+                'payload': json.dumps({'score': score, 'defect_count': 'unknown'}),
+            }
+            with patch('mm_lead_qualifier.qualify_lead', return_value=commercial):
+                state, _, evidence = workers.qualification_handler(
+                    self.d, item, None
+                )
+            self.assertEqual(state, 'REJECTED')
+            self.assertEqual(evidence['technical_score'], 0)
+            self.assertEqual(evidence['defect_count'], 0)
 
     def test_handler_targets_are_reachable_from_declared_inputs(self):
         """Regression: earlier handlers returned states the machine rejected."""
