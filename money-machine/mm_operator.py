@@ -470,7 +470,8 @@ def main(argv=None):
                 'commands':[
                     'git clone --depth 1 https://github.com/searxng/searxng.git ~/searxng-src',
                     'uv venv --python 3.11 ~/.local/share/searxng/.venv',
-                    '~/.local/share/searxng/.venv/bin/python -m pip install -r ~/searxng-src/requirements.txt',
+                    'uv pip install --python ~/.local/share/searxng/.venv/bin/python --upgrade setuptools wheel pyyaml msgspec typing-extensions pybind11',
+                    'uv pip install --python ~/.local/share/searxng/.venv/bin/python --no-build-isolation --editable ~/searxng-src',
                     'mkdir -p ~/.searxng && chmod 700 ~/.searxng',
                     'create ~/.searxng/settings.yml with loopback bind and JSON search format',
                     'python3 money-machine/supervisor/searxng_launchd.py install',
