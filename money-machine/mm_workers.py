@@ -8,6 +8,7 @@ The outreach worker NEVER sends: it performs the eligibility chain and moves
 items to APPROVAL_PENDING, where the evidence-gated approval engine decides.
 """
 import json
+import math
 import subprocess
 from pathlib import Path
 from urllib.parse import urlparse
@@ -76,66 +77,122 @@ def audit_handler(d, it, worker):
         raise RetryableError('site unreachable: ' + str(result['error'])[:200])
     defects = result.get('defects', result.get('findings', []))
     return ('AUDITED', 'audit captured',
-            {'defect_count': len(defects), 'score': result.get('score')})
+            {'defect_count': len(defects),
+             'score': result.get('defect_score', result.get('score'))})
+
+
+def _latest_pipeline_evidence(d, business_id, to_state):
+    """Load the newest append-only stage evidence without trusting item payload."""
+    row = d.execute(
+        "SELECT evidence FROM pipeline_events WHERE business_id=? AND to_state=? "
+        "AND evidence IS NOT NULL ORDER BY id DESC LIMIT 1",
+        (business_id, to_state),
+    ).fetchone()
+    if not row:
+        return {}
+    try:
+        decoded = json.loads(row['evidence'])
+    except (KeyError, TypeError, ValueError):
+        return {}
+    return decoded if isinstance(decoded, dict) else {}
+
+
+def _bounded_score(value):
+    if isinstance(value, bool):
+        return None
+    try:
+        score = float(value)
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(score):
+        return None
+    return round(min(100.0, max(0.0, score)), 1)
+
+
+def _technical_opportunity(audit_evidence):
+    """Use the audit stage's own score; missing audit evidence stays unknown."""
+    try:
+        defect_count = max(0, int(audit_evidence.get('defect_count', 0)))
+    except (OverflowError, TypeError, ValueError):
+        defect_count = 0
+    if defect_count == 0:
+        return None, defect_count
+    return _bounded_score(audit_evidence.get('score')), defect_count
 
 
 def qualification_handler(d, it, worker):
-    """Deterministic qualification: separate commercial relevance from technical fitness."""
+    """Keep commercial qualification and technical need as separate evidence axes."""
     import mm_lead_qualifier as lq
     b = _business(d, it['business_id'])
 
-    # Get audit results from payload (set by audit_handler)
-    audit_payload = it.get('payload', {})
-    audit_score = audit_payload.get('score', 0)  # defect score from audit (higher = more defects)
-    defect_count = audit_payload.get('defect_count', 0)
-    has_audit_evidence = defect_count > 0  # Consider as evidence if we found defects
+    # Stage outputs live in the append-only event log. pipeline_items.payload is
+    # intake data and is not rewritten by worker transitions.
+    audit_evidence = _latest_pipeline_evidence(d, b['id'], 'AUDITED')
+    understanding = _latest_pipeline_evidence(d, b['id'], 'QUALIFICATION_PENDING')
+    technical_score, defect_count = _technical_opportunity(audit_evidence)
+    raw_opportunity = understanding.get('opportunity_score')
+    commercial_opportunity = (
+        raw_opportunity if isinstance(raw_opportunity, dict) else None
+    )
+    commercial_opportunity_score = (
+        _bounded_score(commercial_opportunity.get('score'))
+        if commercial_opportunity else None
+    )
 
-    # Calculate commercial relevance score from business signals
-    ev = d.execute("SELECT id FROM mm_evidence WHERE business_id=? "
-                   "ORDER BY id DESC LIMIT 1", (b['id'],)).fetchone()
     keys = b.keys() if hasattr(b, 'keys') else []
-    text = ' '.join(str(v) for v in (b['name'],
-                                     b['region'] if 'region' in keys else ''))
+    text = ' '.join(str(v) for v in (
+        b['name'], b['region'] if 'region' in keys else ''
+    ))
     commercial_lead = lq.qualify_lead(text, industry='')
-    commercial_score = commercial_lead['qualification_score']
+    commercial_score = _bounded_score(commercial_lead['qualification_score']) or 0.0
+    commercial_pass = commercial_score >= 30
+    technical_pass = technical_score is not None and technical_score >= 40
+    qualification_basis = []
+    if commercial_pass:
+        qualification_basis.append('commercial')
+    if technical_pass:
+        qualification_basis.append('technical')
 
-    # Calculate technical fitness score (invert defect score so higher = better)
-    # For website optimization business: more defects = more opportunity = better prospect
-    # We'll use the defect score directly as technical opportunity score
-    technical_opportunity_score = min(100, audit_score)  # Cap at 100
-
-    # Qualification logic:
-    # A prospect is qualified if they have either:
-    # 1. Sufficient commercial relevance (business signals indicate ability to pay/ready to buy)
-    # 2. Sufficient technical opportunity (website has issues we can fix)
-    # 3. Or both (ideal prospect)
-    if commercial_score >= 30 or technical_opportunity_score >= 40:
-        # Determine tier based on combined strength
-        combined_score = (commercial_score * 0.4) + (technical_opportunity_score * 0.6)
-        if combined_score >= 80:
-            tier = "HOT"
-        elif combined_score >= 55:
-            tier = "WARM"
-        else:
-            tier = "QUALIFIED"
-
-        return ('CONTACT_PENDING', f'qualified: commercial={commercial_score}, technical={technical_opportunity_score}',
-                {
-                    'commercial_score': commercial_score,
-                    'technical_score': technical_opportunity_score,
-                    'defect_count': defect_count,
-                    'tier': tier,
-                    'commercial_tier': commercial_lead['tier'],
-                    'qualification_reasons': commercial_lead['reasons']
-                })
+    if technical_score is not None and technical_score >= 70:
+        technical_tier = 'HIGH_NEED'
+    elif technical_pass:
+        technical_tier = 'QUALIFIED_NEED'
     else:
-        return ('REJECTED', f' insufficient commercial ({commercial_score}) and technical ({technical_opportunity_score}) scores',
-                {
-                    'commercial_score': commercial_score,
-                    'technical_score': technical_opportunity_score,
-                    'defect_count': defect_count
-                })
+        technical_tier = 'LOW_OR_UNKNOWN'
 
+    result = {
+        'commercial_score': commercial_score,
+        'commercial_qualification_score': commercial_score,
+        'commercial_opportunity_score': commercial_opportunity_score,
+        'commercial_opportunity': commercial_opportunity,
+        'commercial_tier': commercial_lead['tier'],
+        'technical_score': technical_score,
+        'technical_opportunity_score': technical_score,
+        'technical_tier': technical_tier,
+        'technical_evidence': {
+            'stage': 'AUDITED' if audit_evidence else 'MISSING',
+            'defect_count': defect_count,
+            'audit_score': audit_evidence.get('score'),
+        },
+        'qualification_basis': qualification_basis,
+        'qualification_reasons': commercial_lead['reasons'],
+    }
+    if qualification_basis:
+        axes = ' and '.join(qualification_basis)
+        return (
+            'CONTACT_PENDING',
+            f'qualified on independent {axes} evidence',
+            result,
+        )
+
+    result['qualification_reasons'] = list(commercial_lead['reasons']) + [
+        'No independent commercial or technical qualification threshold met'
+    ]
+    return (
+        'REJECTED',
+        f'not qualified: commercial={commercial_score}, technical={technical_score}',
+        result,
+    )
 
 def contact_handler(d, it, worker):
     """Contacts come only from Email Finder V2 evidence already recorded.
