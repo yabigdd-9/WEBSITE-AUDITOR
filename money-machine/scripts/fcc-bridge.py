@@ -26,9 +26,9 @@ import urllib.error
 from pathlib import Path
 
 # Configuration
-PROJECT_DIR = Path(__file__).parent.parent
+PROJECT_DIR = Path(__file__).resolve().parents[2]
 SCRIPT_DIR = PROJECT_DIR / "money-machine" / "scripts"
-FCC_HOST = os.environ.get("HOST", "0.0.0.0")
+FCC_HOST = os.environ.get("HOST", "127.0.0.1")
 FCC_PORT = int(os.environ.get("PORT", "8082"))
 FCC_URL = f"http://{FCC_HOST}:{FCC_PORT}"
 ADMIN_URL = f"{FCC_URL}/admin"
@@ -79,6 +79,13 @@ def load_env():
     if "ANTHROPIC_AUTH_TOKEN" not in os.environ:
         os.environ["ANTHROPIC_AUTH_TOKEN"] = f"fcc-{int(time.time())}"
     
+    global FCC_HOST, FCC_PORT, FCC_URL, ADMIN_URL, API_URL
+    FCC_HOST = os.environ.get("HOST", "127.0.0.1")
+    FCC_PORT = int(os.environ.get("PORT", "8082"))
+    FCC_URL = f"http://{FCC_HOST}:{FCC_PORT}"
+    ADMIN_URL = f"{FCC_URL}/admin"
+    API_URL = f"{FCC_URL}/v1"
+
     log_ok("Environment loaded")
 
 def check_process(name, pattern):
