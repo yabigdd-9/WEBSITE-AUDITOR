@@ -267,3 +267,14 @@ evidence that are not available in the current checkout.
   production auth, deployment, customer scans, external email, or merge. The
   owner reports completing the 24-hour soak in Claude; it was not repeated.
   No `.env` file was needed or read.
+
+### Latest execution update (2026-09-28, nonblocking mailbox reads)
+
+- Implementation branch `codex/catalyx-rebuild-phase1-5` is pushed through
+  `e23ac3f3`. The guarded mailbox reader now opens with `O_NONBLOCK` as well as
+  `O_NOFOLLOW`, so a malicious or mistaken FIFO path is rejected without
+  hanging the CLI or web startup.
+- At `e23ac3f3`, `toolkit_tests/test_catalyx_web.py` passed **84 tests**;
+  targeted Ruff and `git diff --check` passed. The FIFO, symlink CLI, and
+  startup-symlink regressions passed together. Hosted verification is pending.
+- All owner and release gates above remain in force. No soak was rerun.
