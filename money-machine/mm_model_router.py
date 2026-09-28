@@ -22,6 +22,7 @@ from mm_pipeline import BlockedCost
 from mm_redaction import prepare_prompt
 
 OLLAMA_PROVIDER = 'local:ollama'
+FCC_PROVIDER = 'gateway:fcc'
 
 
 def _routes(*external):
@@ -29,6 +30,7 @@ def _routes(*external):
     return [
         ('local:llamacpp', None),
         (OLLAMA_PROVIDER, None),
+        (FCC_PROVIDER, None),
         *external,
     ]
 
@@ -77,7 +79,10 @@ PURPOSE_ROUTES = {
 # llama.cpp's llama-server exposes an OpenAI-compatible /v1/models surface;
 LLAMACPP_BASE = os.environ.get('MM_LLAMACPP_HOST', 'http://127.0.0.1:8080')
 OLLAMA_BASE = os.environ.get('MM_OLLAMA_BASE', 'http://127.0.0.1:11434')
+FCC_BASE = os.environ.get('MM_FCC_BASE', 'http://127.0.0.1:8082')
 LOCAL_MODEL_ENV = 'MM_LOCAL_MODEL'  # exact model id, e.g. qwen3:4b or a GGUF ref
+FCC_MODEL_ENV = 'MM_FCC_MODEL'
+FCC_FREE_MODELS_ENV = 'MM_FCC_FREE_MODELS'
 EXTERNAL_FREE_ENV = 'MM_ALLOW_EXTERNAL_FREE_MODELS'
 
 
@@ -94,7 +99,7 @@ def check_route(provider, model):
     """Validate a route against the zero-cost policy. Returns reason or None."""
     if not _is_free(model):
         return 'PAID_ROUTE_REFUSED: %s has no free marker' % model
-    if provider.startswith('local'):
+    if provider.startswith('local') or provider == FCC_PROVIDER:
         return None
     if provider in ('openrouter', 'nous'):
         return None
@@ -169,15 +174,63 @@ def probe_ollama(model=None, timeout=3):
     return models[0] if models else None
 
 
+def _fcc_free_allowlist():
+    return {
+        item.strip()
+        for item in os.environ.get(FCC_FREE_MODELS_ENV, '').split(',')
+        if item.strip()
+    }
+
+
+def _fcc_model_allowed(model):
+    if not isinstance(model, str) or not model:
+        return False
+    # Explicit :free model IDs are intrinsically permitted. Other FCC model
+    # IDs (for example provider-specific free quotas) must be named exactly in
+    # MM_FCC_FREE_MODELS so "auto" can never silently select a billable route.
+    return model.endswith(':free') or model in _fcc_free_allowlist()
+
+
+def _fcc_request(url, data=None):
+    headers = {'Content-Type': 'application/json'}
+    token = os.environ.get('ANTHROPIC_AUTH_TOKEN', '').strip()
+    if token:
+        headers['Authorization'] = 'Bearer ' + token
+    return urllib.request.Request(url, data=data, headers=headers)
+
+
+def probe_fcc(model=None, timeout=3):
+    """Return an explicitly zero-cost FCC model exposed on the loopback gateway."""
+    want = model or os.environ.get(FCC_MODEL_ENV)
+    if want and not _fcc_model_allowed(want):
+        return None
+    try:
+        req = _fcc_request(_loopback_url(FCC_BASE).rstrip('/') + '/v1/models')
+        with _open_local(req, timeout) as response:
+            payload = json.loads(response.read().decode())
+        models = [
+            item.get('id')
+            for item in payload.get('data', [])
+            if isinstance(item, dict) and isinstance(item.get('id'), str)
+        ]
+    except Exception:
+        return None
+    if want:
+        return want if want in models else None
+    return next((name for name in models if _fcc_model_allowed(name)), None)
+
+
 LOCAL_PROBES = {
     'local:llamacpp': probe_llamacpp,
     OLLAMA_PROVIDER: probe_ollama,
+    FCC_PROVIDER: probe_fcc,
 }
 
 
 def probe_local(kind):
-    """Return an available model id for a configured local inference server."""
-    probe = LOCAL_PROBES.get('local:' + kind)
+    """Return an available zero-cost model id from a configured loopback route."""
+    key = FCC_PROVIDER if kind == 'fcc' else 'local:' + kind
+    probe = LOCAL_PROBES.get(key)
     return probe() if probe else None
 
 
@@ -206,7 +259,7 @@ def plan(d, purpose, at=None, local_lookup=None):
         refusal = check_route(provider, model)
         if refusal:
             raise PaidRouteRefused(refusal)  # config error must never route
-        if provider.startswith('local'):
+        if provider.startswith('local') or provider == FCC_PROVIDER:
             kind = provider.split(':', 1)[1]
             found = lookup(kind)
             if found:
@@ -298,7 +351,7 @@ def local_complete(prompt, purpose='lightweight_worker', max_tokens=64,
     """
     lookup = probe_local if lookup is None else lookup
     selected = next(
-        ((kind, model) for kind in ('llamacpp', 'ollama')
+        ((kind, model) for kind in ('llamacpp', 'ollama', 'fcc')
          if (model := lookup(kind))),
         None,
     )
@@ -340,3 +393,23 @@ def local_complete(prompt, purpose='lightweight_worker', max_tokens=64,
         return {'text': text, 'provider': OLLAMA_PROVIDER, 'model': model,
                 'elapsed_s': round(elapsed, 3), 'cost_usd': 0,
                 'base_url': OLLAMA_BASE}
+    if kind == 'fcc':
+        if not _fcc_model_allowed(model):
+            raise BlockedCost('FCC model is not on the explicit zero-cost allowlist')
+        url = _loopback_url(FCC_BASE).rstrip('/') + '/v1/chat/completions'
+        body = {
+            'model': model,
+            'messages': [{'role': 'user', 'content': prompt}],
+            'max_tokens': max_tokens,
+            'temperature': 0,
+            'stream': False,
+        }
+        req = _fcc_request(url, json.dumps(body).encode())
+        started = dt.datetime.now(dt.timezone.utc)
+        with _open_local(req, timeout) as response:
+            payload = json.loads(response.read().decode())
+        elapsed = (dt.datetime.now(dt.timezone.utc) - started).total_seconds()
+        text = (payload.get('choices') or [{}])[0].get('message', {}).get('content', '')
+        return {'text': text, 'provider': FCC_PROVIDER, 'model': model,
+                'elapsed_s': round(elapsed, 3), 'cost_usd': 0,
+                'base_url': FCC_BASE}
