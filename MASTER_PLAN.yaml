@@ -267,10 +267,10 @@ catalyxlabs_rebuild:
   execution_workspace:
     intended_worktree: "/Users/dd/WEBSITE-AUDITOR/.claude/worktrees/phase1-rebuild"
     intended_worktree_head: "6972fb5952564e05bc4c8e91f96d5f7e679f7a92"
-    intended_worktree_plan_status: "The user-created MASTER_EXECUTION_PLAN.md is committed and pushed on codex/catalyx-plan-update at 6972fb59 in the phase1-rebuild importer directory. That branch is based directly on the requested 0348b3f9 SHA. The file preserves the original phase scope and records current verification and owner gates; implementation remains in the separate codex/catalyx-rebuild-phase1-5 branch, also based on 0348b3f9."
+    intended_worktree_plan_status: "The user-created MASTER_EXECUTION_PLAN.md is committed and pushed on codex/catalyx-plan-update at 83a9aefa in the phase1-rebuild importer directory. That branch is based directly on the requested 0348b3f9 SHA. The file preserves the original phase scope and records current verification and owner gates; implementation remains in the separate codex/catalyx-rebuild-phase1-5 branch, also based on 0348b3f9."
     implementation_worktree: "/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild"
     implementation_worktree_status: >-
-      Branch codex/catalyx-rebuild-phase1-5 is pushed through 142510ec and now
+      Branch codex/catalyx-rebuild-phase1-5 is pushed through 51b543f8 and now
       includes merge commit b0630ed9 from upgrade/v32-canonical-execution;
       its original feature work remains based on the requested 0348b3f9. The
       merge resolved pipeline/watchdog conflicts, restored persisted flow
@@ -316,9 +316,15 @@ catalyxlabs_rebuild:
       and real Chromium/PDF browser tests (5 opt-in tests skipped, 2 warnings);
       Gitleaks and pip-audit also passed. Sonar analysis now reaches the active
       project but fails because SonarCloud Automatic Analysis is enabled at the
-      same time as CI analysis. Select one analysis mode in project settings,
-      then rerun; the earlier D rating with TLS-protocol and TOTP-HMAC findings
-      remains the last completed code analysis. No soak, master merge, or
+      same time as CI analysis. Commit 51b543f8 adds a versioned TOTP algorithm
+      column (schema v8): new admin seeds use SHA256, while upgraded memberships
+      default to SHA1 and retain sign-in compatibility. RFC vectors and a legacy
+      sign-in through schema migration passed locally; the focused web suite had
+      81 passes, followed by 3 passing migration/TOTP regressions and Ruff.
+      Hosted checks for 51b543f8 are running. Select one analysis mode in project
+      settings before rerunning Sonar; the last completed code analysis still
+      reports TLS-protocol and TOTP-HMAC findings, so neither source mitigation
+      has been confirmed by a successful scan. No soak, master merge, or
       deployment occurred.
     branch_from_sha: "0348b3f9"
   safety_gates:
@@ -541,7 +547,7 @@ latest_execution_checkpoint:
     Canonical-plan branch codex/canonical-plan-execution was synchronized with
     origin through 5586865 and includes the current security, dependency,
     runtime, Lighthouse, and challenger evidence. Catalyx implementation branch
-    codex/catalyx-rebuild-phase1-5 is pushed through 04d50ff8, based on
+    codex/catalyx-rebuild-phase1-5 is pushed through 51b543f8, based on
     0348b3f9 and merged with the v32 canonical base. The last completed hosted
     toolkit and Chromium/PDF suite at adc59f94 passed with Gitleaks and pip-audit.
     At 142510ec, 279 toolkit tests, Ruff, package checks/build, Chromium/PDF
@@ -549,8 +555,12 @@ latest_execution_checkpoint:
     04d50ff8, focused verified-TLS regression and Ruff passed locally, and hosted
     fixture, Gitleaks and pip-audit passed. CI Sonar again fails because Automatic
     Analysis is enabled concurrently; project settings must select one analysis
-    mode. The last completed code analysis remains D with TLS-protocol and
-    TOTP-HMAC findings. Untracked experiments/ and separate
+    mode. Commit 51b543f8 adds per-membership TOTP algorithm versioning and a
+    schema v8 migration, preserving existing SHA1 seeds while issuing new admin
+    seeds with SHA256. The Catalyx web test file passed 81 tests locally, then
+    3 focused migration/TOTP regressions passed after the final compatibility
+    check; Ruff passed. Hosted checks are in progress. The last completed code
+    analysis remains D with TLS-protocol and TOTP-HMAC findings. Untracked experiments/ and separate
     dirty security follow-up notes remain preserved and unreviewed. Pipeline
     evidence persistence and Lighthouse Chromium discovery are pushed on
     codex/pipeline-evidence-integration at b34f1882; original isolated
