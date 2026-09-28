@@ -481,12 +481,35 @@ class WorkerHandlers(unittest.TestCase):
         self.assertEqual(evidence['tier'], 'TECHNICAL_ONLY')
         self.assertEqual(evidence['qualification_basis'], ['technical_need'])
 
+    def test_qualification_invalid_audit_score_fails_closed(self):
+        import mm_workers as workers
+        bid = self._enqueue('QUALIFICATION_PENDING')
+        commercial = {
+            'qualification_score': 10,
+            'tier': 'COLD',
+            'reasons': [],
+        }
+        for score in (None, '55', True, float('nan'), float('inf'), -5):
+            it = {
+                'business_id': bid,
+                'payload': {
+                    '_stage_evidence': {
+                        'AUDITED': [{'score': score, 'defect_count': 'unknown'}],
+                    },
+                },
+            }
+            with patch('mm_lead_qualifier.qualify_lead', return_value=commercial):
+                state, _, evidence = workers.qualification_handler(self.d, it, None)
+            self.assertEqual(state, 'REJECTED')
+            self.assertEqual(evidence['technical_score'], 0)
+            self.assertEqual(evidence['defect_count'], 0)
+
     def test_audit_worker_uses_supervisor_python_environment(self):
         import mm_workers as workers
         bid = self._enqueue('AUDIT_PENDING')
         completed = type('Completed', (), {
             'returncode': 0,
-            'stdout': '{"defects": [], "score": 0}',
+            'stdout': '{"defects": [{"severity": "high"}], "defect_score": 72}',
             'stderr': '',
         })()
         with patch('auditor_toolkit.storage.History') as history, \
@@ -496,7 +519,8 @@ class WorkerHandlers(unittest.TestCase):
             state, _, evidence = workers.audit_handler(
                 self.d, {'business_id': bid}, None)
         self.assertEqual(state, 'AUDITED')
-        self.assertEqual(evidence['defect_count'], 0)
+        self.assertEqual(evidence['defect_count'], 1)
+        self.assertEqual(evidence['score'], 72)
         self.assertEqual(run.call_args.args[0][0], '/fixture/venv/bin/python')
 
     def test_handler_targets_are_reachable_from_declared_inputs(self):

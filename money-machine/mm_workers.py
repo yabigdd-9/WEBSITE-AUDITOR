@@ -8,6 +8,7 @@ The outreach worker NEVER sends: it performs the eligibility chain and moves
 items to APPROVAL_PENDING, where the evidence-gated approval engine decides.
 """
 import json
+import math
 import subprocess
 import sys
 from pathlib import Path
@@ -30,6 +31,15 @@ def _business(d, bid):
     if not r:
         raise PermanentError('business row missing')
     return r
+
+
+def _bounded_defect_score(value):
+    """Return a finite 0..100 defect score; malformed scores are unscored."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return 0
+    if not math.isfinite(float(value)):
+        return 0
+    return max(0, min(100, value))
 
 
 def identity_handler(d, it, worker):
@@ -57,9 +67,11 @@ def audit_handler(d, it, worker):
         if recent_audit:
             # Reuse existing audit results
             defects = recent_audit.get('defects', [])
-            score = recent_audit.get('score', recent_audit.get('defect_score', 0))
+            score = recent_audit.get('defect_score')
+            if score is None:
+                score = recent_audit.get('score', 0)
             return ('AUDITED', 'audit reused (recent)',
-                    {'defect_count': len(defects), 'score': score})
+                    {'defect_count': len(defects), 'score': _bounded_defect_score(score)})
 
     # No recent audit found, run new detection
     try:
@@ -78,8 +90,11 @@ def audit_handler(d, it, worker):
     if isinstance(result, dict) and result.get('error'):
         raise RetryableError('site unreachable: ' + str(result['error'])[:200])
     defects = result.get('defects', result.get('findings', []))
+    score = result.get('defect_score')
+    if score is None:
+        score = result.get('score', 0)
     return ('AUDITED', 'audit captured',
-            {'defect_count': len(defects), 'score': result.get('score')})
+            {'defect_count': len(defects), 'score': _bounded_defect_score(score)})
 
 
 def qualification_handler(d, it, worker):
@@ -101,8 +116,16 @@ def qualification_handler(d, it, worker):
     audit_payload = audit_entries[-1] if isinstance(audit_entries, list) and audit_entries else payload
     if not isinstance(audit_payload, dict):
         audit_payload = {}
-    audit_score = audit_payload.get('score', 0)  # defect score from audit (higher = more defects)
-    defect_count = audit_payload.get('defect_count', 0)
+    # Defect score from audit (higher = more defects). Historical payloads may
+    # contain null or malformed values; those carry no technical qualification.
+    audit_score = _bounded_defect_score(audit_payload.get('score', 0))
+    raw_defect_count = audit_payload.get('defect_count', 0)
+    defect_count = (
+        raw_defect_count
+        if isinstance(raw_defect_count, int) and not isinstance(raw_defect_count, bool)
+        and raw_defect_count >= 0
+        else 0
+    )
     # Calculate commercial relevance score from business signals
     keys = b.keys() if hasattr(b, 'keys') else []
     text = ' '.join(str(v) for v in (b['name'],
@@ -113,7 +136,7 @@ def qualification_handler(d, it, worker):
     # Calculate technical fitness score (invert defect score so higher = better)
     # For website optimization business: more defects = more opportunity = better prospect
     # We'll use the defect score directly as technical opportunity score
-    technical_opportunity_score = min(100, audit_score)  # Cap at 100
+    technical_opportunity_score = audit_score
 
     # Keep the two dimensions independent. Either may qualify a prospect for
     # review, but neither is averaged into the other or used to rewrite its tier.
