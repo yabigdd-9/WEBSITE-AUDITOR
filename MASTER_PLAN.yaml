@@ -134,7 +134,7 @@ phases:
       crash_restart_no_duplicate_work: "toolkit_tests/test_supervisor.py::test_supervisor_crash_recovery_no_duplicate_work passed (1 test, 7.45s) using isolated temporary MM_ROOT."
       soak: "User reports the 24-hour soak was completed in Claude; it was not rerun."
       live_read_only_snapshot: "Fresh read-only CLI checks at 2026-09-28 09:52 UTC: supervisor PID 14336 reports running with a current heartbeat; all eight registered workers report alive; queue has 30 terminal REJECTED items and zero active leases. ./mm dead-letter exposes a triage view and currently lists 0 items; cumulative metrics include 16 historical dead_lettered transitions. ./mm doctor reports SQLite integrity ok, models_enabled=false, model_calls=0. No runtime state was changed by these status/doctor/DLQ reads."
-      runtime_fix_rollout_gate: "Active supervisor PID 14336 predates the pushed code on codex/review-integration, including audit evidence handoff and packet opportunity scoring. At 90b84b63, PR #43 regression, browser-fixture, SonarCloud, Gitleaks and pip-audit checks pass; Vercel reports the 24-hour deployment rate limit. PR remains draft and UNSTABLE. No merge, restart, or queue mutation was performed."
+      runtime_fix_rollout_gate: "Active supervisor PID 14336 predates the pushed code on codex/review-integration, including audit evidence handoff, packet scoring and the P4 audit adapter evidence improvements. At f617b661, hosted toolkit tests (187 passed, 4 skipped), portable Money Machine tests (194 passed, 3 skipped, 53 subtests), browser fixtures (2 passed), SonarCloud, Gitleaks, pip-audit and Vercel pass; GitHub reports mergeable check state. PR #43 remains draft and has not been integrated into the active runtime. No merge, restart, or queue mutation was performed."
       historical_rejection_replay: "A read-only, in-memory deterministic replay found the latest AUDITED event for each of the 30 terminal rejected items has score=null. With the corrected handler, all 30 remain REJECTED with technical_score=0; their old events cannot supply a technical opportunity score. The replay made zero database writes, network requests, model calls, or external actions. Re-auditing would contact public sites and change queue work, so it remains an operator decision."
       reviewable_score_handoff: "Branch codex/review-integration now includes e87c5f24, 4afd8804, d7db8e6b, c9b47fe3 and 772c3120: read-only qualification export binds to the latest audit and fresh verified capture IDs; the Email Finder V2 export uses only current first-party provenance, strips URL query/fragment data, rejects credential-bearing URLs, and returns no email while the release gate is closed; ./mm prospect-packet reads qualification and contact evidence directly from SQLite and creates a same-run packet with sends disabled. wa packet can also consume scoped sidecars for local review. Synthetic coverage includes exporter CLI, current Email V2 provenance, URL/path redaction, sidecar redaction, and operator packet orchestration. Focused packet, pipeline and email integration tests: 86 passed, 1 fixture-gated skip (using a read-only source DB copied into temporary fixtures); compileall and diff checks pass. Ruff’s targeted toolkit checks pass; mm_operator.py retains pre-existing repository lint findings outside the new command blocks. At 772c3120, hosted fixtures, SonarCloud, Gitleaks and pip-audit pass; Vercel reports the 24-hour rate limit. No soak rerun, canonical merge, runtime mutation, or historical rejected-work requeue."
   P4:
@@ -161,8 +161,9 @@ phases:
     status: "IMPLEMENTED_TESTED_FALSE_POSITIVE_REVIEW_EVIDENCE_GATED"
     rule: "Scores are derived from findings; material findings require evidence; false-positive classifications require an attributable reviewer, rationale, and complete run containing the finding."
     latest_verification:
-      date: "2026-09-28"
+      date: "2026-09-29"
       evidence_gate_branch: "codex/false-positive-review-gate at 3dc6fb6, based on upgrade/v32-canonical-execution. The remediation transition rejects missing reviewer, missing rationale, partial runs, and runs that do not contain the finding; a valid complete-run review records reviewer, rationale, and run ID. Full toolkit suite: 165 passed, 4 opt-in browser tests skipped, 2 upstream deprecation warnings. Ruff and diff checks passed. Branch is pushed for review and not merged."
+      integrated_head: "PR #43 at f617b661 carries the review gate into the evidence-pipeline integration branch; the hosted full toolkit suite passed 187 tests with 4 skips, alongside the portable Money Machine suite (194 passed, 3 skipped, 53 subtests). PR remains draft and unmerged."
   P6:
     name: "NZ business discovery"
     priority: HIGH
@@ -600,14 +601,14 @@ final_acceptance:
     - "Optional infrastructure is not required to satisfy the default local-first stack."
 
 latest_execution_checkpoint:
-  as_of_local_date: "2026-09-28"
+  as_of_local_date: "2026-09-29"
   latest_review_integration:
     branch: "codex/review-integration"
-    head: "90b84b63a031c6b761ffebf707a92fc67c0be709"
+    head: "f617b6616644a561e0214f2903d4a02c8ff349af"
     pull_request: "https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/43"
-    status: "PUSHED_DRAFT_REGRESSION_SECURITY_PASS_VERCEL_RATE_LIMIT"
-    evidence: "At 90b84b63, qualification and Email Finder V2 provenance exports feed read-only prospect packet construction. Exports bind to the latest audit and fresh verified capture IDs, strip URL query/fragment data, reject credential URLs, and redact local paths. The versioned opportunity formula is recomputed from evidence-backed findings, verified commercial evidence, first-party contact provenance, remediation classes, and quote effort; missing or stale inputs fail closed. build_packet independently replays technical score provenance against complete findings. Hosted regression, browser fixtures, SonarCloud, Gitleaks and pip-audit pass. Vercel reports the project's daily deployment-rate limit. The PR remains draft and is not merged or running in the canonical supervisor."
-  focused_tests: "At 90b84b63, hosted toolkit suite: 187 passed, 4 skipped, 2 warnings; both browser journeys passed. Hosted Money Machine suite: 194 passed, 3 skips, 53 subtests. Gitleaks, pip-audit, SonarCloud, compileall, CLI smoke, Ruff, and package checks/build passed."
+    status: "PUSHED_DRAFT_REGRESSION_SECURITY_AND_PREVIEW_PASS"
+    evidence: "At f617b661, qualification and Email Finder V2 provenance exports feed read-only prospect packet construction; technical and commercial scores remain separate and replayable. P4 Lychee requests are now bounded and Lighthouse findings retain weighted audit references. Exact-head hosted checks pass: 187 toolkit tests, 4 skips, 2 warnings; two Chromium journeys; 194 portable Money Machine tests, 3 skips, 53 subtests; Ruff/package checks, compileall/CLI smoke, SonarCloud, Gitleaks, pip-audit and Vercel preview. The PR remains draft and is not merged or running in the canonical supervisor."
+  focused_tests: "At f617b661, hosted toolkit suite: 187 passed, 4 skipped, 2 warnings; both browser journeys passed. Hosted Money Machine suite: 194 passed, 3 skips, 53 subtests. Gitleaks, pip-audit, SonarCloud, compileall, CLI smoke, Ruff, package checks/build, and Vercel preview passed."
   workspace: >-
     Canonical-plan branch codex/canonical-plan-execution was synchronized with
     origin through 5586865 and includes the current security, dependency,
