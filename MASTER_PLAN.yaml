@@ -187,6 +187,10 @@ phases:
     status: "IMPLEMENTED_PROVENANCE_AND_GOLDEN_TESTED"
     states: ["VERIFIED", "STRONG_EVIDENCE", "CATCH_ALL", "UNVERIFIED", "NO_VERIFIED_EMAIL", "INVALID"]
     rule: "Every eligible email has provenance; pattern/MX/catch-all alone never equals verified."
+    latest_verification:
+      date: "2026-09-29"
+      exact_head: "codex/canonical-plan-execution at 3d56f35f5b6b8009c988cc92eea8dae1443f513b"
+      synthetic_tests: "Focused email finder, lifecycle, CLI, tracking, and non-database hardening tests passed: 37 passed, 47 subtests. The shared verified Python 3.11 interpreter was selected explicitly with MM_PYTHON. Six HardeningDatabase tests were excluded because this isolated worktree lacks the ignored source database; they are not counted as passed, and the broader DB-backed email integration suite is not established by this run."
   P9:
     name: "Opportunity scoring"
     priority: HIGH
