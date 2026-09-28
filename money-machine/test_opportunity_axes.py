@@ -1,0 +1,115 @@
+"""Pipeline qualification keeps commercial and technical scores independent."""
+import json
+import sqlite3
+import sys
+from pathlib import Path
+from unittest.mock import patch
+
+ROOT = Path(__file__).resolve().parents[1]
+MM_DIR = ROOT / "money-machine"
+if str(MM_DIR) not in sys.path:
+    sys.path.insert(0, str(MM_DIR))
+
+import mm_pipeline
+import mm_workers
+
+
+def database():
+    d = sqlite3.connect(":memory:")
+    d.row_factory = sqlite3.Row
+    d.execute("CREATE TABLE businesses(id INTEGER PRIMARY KEY, name TEXT, region TEXT, public_website TEXT)")
+    d.execute("CREATE TABLE mm_evidence(id INTEGER PRIMARY KEY, business_id INTEGER)")
+    mm_pipeline.migrate(d)
+    d.execute("INSERT INTO businesses(id,name,region,public_website) "
+              "VALUES(1,'Fixture Plumbing','Canterbury','https://fixture.example')")
+    return d
+
+
+def lead(score, tier="COLD"):
+    return {"qualification_score": score, "tier": tier, "reasons": ["fixture signal"]}
+
+
+def record(d, state, evidence):
+    mm_pipeline._record(d, 1, None, state, "fixture", "captured stage evidence", evidence)
+
+
+def qualify(d, commercial_score, payload=None):
+    row = {"business_id": 1, "payload": json.dumps(payload or {})}
+    with patch("mm_lead_qualifier.qualify_lead", return_value=lead(commercial_score)):
+        return mm_workers.qualification_handler(d, row, None)
+
+
+def test_qualification_keeps_high_commercial_and_low_technical_scores_separate():
+    d = database()
+    record(d, "AUDITED", {"defect_count": 1, "score": 25})
+    record(d, "QUALIFICATION_PENDING", {"opportunity_score": {"score": 44.5}})
+
+    state, _, result = qualify(d, 85)
+
+    assert state == "CONTACT_PENDING"
+    assert result["commercial_score"] == 85
+    assert result["commercial_opportunity_score"] == 44.5
+    assert result["commercial_opportunity"]["score"] == 44.5
+    assert result["technical_score"] == 25
+    assert result["qualification_basis"] == ["commercial"]
+    assert "combined_score" not in result
+
+
+def test_technical_only_qualification_does_not_inflate_commercial_score():
+    d = database()
+    record(d, "AUDITED", {"defect_count": 4, "score": 72})
+    record(d, "QUALIFICATION_PENDING", {"opportunity_score": {"score": 10}})
+
+    state, _, result = qualify(d, 12)
+
+    assert state == "CONTACT_PENDING"
+    assert result["commercial_score"] == 12
+    assert result["commercial_opportunity_score"] == 10
+    assert result["commercial_opportunity"]["score"] == 10
+    assert result["technical_score"] == 72
+    assert result["technical_tier"] == "HIGH_NEED"
+    assert result["qualification_basis"] == ["technical"]
+
+
+def test_missing_audit_event_cannot_create_technical_score_from_intake_payload():
+    d = database()
+
+    state, _, result = qualify(d, 5, payload={"score": 99, "defect_count": 20})
+
+    assert state == "REJECTED"
+    assert result["technical_score"] is None
+    assert result["technical_evidence"]["stage"] == "MISSING"
+    assert result["qualification_basis"] == []
+
+
+def test_invalid_or_zero_finding_evidence_stays_unknown():
+    assert mm_workers._technical_opportunity({"defect_count": 0, "score": 100}) == (None, 0)
+    assert mm_workers._technical_opportunity({"defect_count": 2, "score": "unknown"}) == (None, 2)
+    assert mm_workers._technical_opportunity({"defect_count": 2, "score": float("nan")}) == (None, 2)
+    assert mm_workers._technical_opportunity({"defect_count": 2, "score": float("inf")}) == (None, 2)
+    assert mm_workers._technical_opportunity({"defect_count": 2, "score": 140}) == (100.0, 2)
+
+
+def test_audit_handler_persists_detector_defect_score_field():
+    d = database()
+
+    class EmptyHistory:
+        def __init__(self, *_args):
+            pass
+
+        @staticmethod
+        def get_latest_valid_audit(*_args, **_kwargs):
+            return None
+
+    class ProcessResult:
+        returncode = 0
+        stderr = ""
+        stdout = json.dumps({"defects": [{"id": "missing-title"}], "defect_score": 75})
+
+    with patch("auditor_toolkit.storage.History", EmptyHistory), patch.object(
+        mm_workers.subprocess, "run", return_value=ProcessResult()
+    ):
+        state, _, evidence = mm_workers.audit_handler(d, {"business_id": 1}, None)
+
+    assert state == "AUDITED"
+    assert evidence == {"defect_count": 1, "score": 75}
