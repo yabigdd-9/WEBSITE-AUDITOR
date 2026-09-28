@@ -111,3 +111,6 @@ def test_searxng_wrapper_creates_loopback_json_only_private_service():
     install_block = wrapper.split("  install)", 1)[1].split("  status)", 1)[0]
     assert install_block.index("ensure_settings") < install_block.index("validate_settings")
     assert install_block.index("validate_settings") < install_block.index('\"$PY\" \"$LAUNCHD\" install')
+    assert 'sh "$0" verify' in install_block
+    restart_block = wrapper.split("  start|restart)", 1)[1].split("  stop)", 1)[0]
+    assert 'sh "$0" verify' in restart_block
