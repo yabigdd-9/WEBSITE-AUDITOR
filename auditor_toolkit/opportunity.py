@@ -12,6 +12,8 @@ Formula (v1), every component 0..1 unless stated:
 """
 from __future__ import annotations
 
+import math
+
 FORMULA_VERSION = "opportunity-v1"
 
 NEED_KEYS = frozenset({
@@ -44,11 +46,13 @@ CERTAINTY_MAP = {
 
 
 def _clamp01(value):
+    if isinstance(value, bool):
+        raise ValueError("opportunity input must be numeric, not boolean")
     try:
         number = float(value)
     except (TypeError, ValueError):
         raise ValueError(f"opportunity input must be numeric, got {value!r}")
-    if not 0.0 <= number <= 1.0:
+    if not math.isfinite(number) or not 0.0 <= number <= 1.0:
         raise ValueError(f"opportunity input out of range [0,1]: {value!r}")
     return number
 
@@ -99,4 +103,3 @@ def opportunity_formula(
             "effort": effort,
         },
     }
-
