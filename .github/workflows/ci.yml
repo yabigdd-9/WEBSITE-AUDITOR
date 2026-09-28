@@ -67,6 +67,7 @@ jobs:
         run: |
           python -m pytest \
             money-machine/test_discovery.py \
+            money-machine/test_discovery_batch.py \
             money-machine/test_email_finder.py \
             money-machine/test_pipeline.py \
             money-machine/test_dsh_harness_bridge.py \
