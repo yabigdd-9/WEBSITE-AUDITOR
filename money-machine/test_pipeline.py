@@ -5,11 +5,13 @@ businesses, no sends.
 """
 import datetime as dt
 import hashlib
+import io
 import json
 import os
 import sqlite3
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
@@ -439,6 +441,27 @@ class WorkerHandlers(unittest.TestCase):
                 workers.qualification_evidence_for_packet(
                     self.d, bid, 'older-audit-run'
                 )
+
+        self.d.commit()
+        import mm_operator
+
+        output = io.StringIO()
+        def open_test_database(readonly=False):
+            if not readonly:
+                raise AssertionError('qualification export must open the database read-only')
+            return c.connect(Path(self.tmp.name) / 't.db', readonly=readonly)
+
+        with patch.object(mm_operator, 'connect', side_effect=open_test_database), \
+                patch.object(workers, '_commercial_signal_context', return_value=current), \
+                redirect_stdout(output):
+            result = mm_operator.main([
+                'pipeline-qualification-export', str(bid),
+                '--run-id', 'audit-run-export',
+            ])
+        self.assertEqual(result, 0)
+        self.assertEqual(
+            json.loads(output.getvalue())['commercial_score_evidence_ids'], [7]
+        )
 
         stale = {'evidence_ids': [8], 'industry': 'electrical'}
         with patch.object(workers, '_business', return_value={'id': bid}), \
