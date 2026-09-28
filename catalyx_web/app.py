@@ -103,7 +103,12 @@ def _read_local_mailbox_file(mailbox_path: Path) -> list[dict]:
     if not mailbox_path.exists():
         return []
     try:
-        descriptor = os.open(mailbox_path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+        descriptor = os.open(
+            mailbox_path,
+            os.O_RDONLY
+            | getattr(os, "O_NOFOLLOW", 0)
+            | getattr(os, "O_NONBLOCK", 0),
+        )
         with os.fdopen(descriptor, "r", encoding="utf-8") as mailbox_file:
             metadata = os.fstat(mailbox_file.fileno())
             if (

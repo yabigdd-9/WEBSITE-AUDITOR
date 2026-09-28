@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+import os
 import re
 import socket
 import ssl
@@ -743,6 +744,15 @@ def test_local_mailbox_cli_does_not_read_through_symlink(tmp_path, monkeypatch, 
 
     assert "secret-token" not in capsys.readouterr().out
     assert "secret-token" in target.read_text(encoding="utf-8")
+
+
+def test_local_mailbox_reader_does_not_block_on_fifo(tmp_path):
+    import catalyx_web.app as app_module
+
+    mailbox = tmp_path / "mailbox.fifo"
+    os.mkfifo(mailbox)
+
+    assert app_module._read_local_mailbox_file(mailbox) == []
 
 
 def test_admin_login_uses_shared_budget_and_rejects_totp_replay(tmp_path, monkeypatch):
