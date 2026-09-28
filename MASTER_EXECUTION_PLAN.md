@@ -99,12 +99,12 @@ evidence that are not available in the current checkout.
   The scope remains a proposal until owner ratification; automated results do
   not close human accessibility or production gates.
 
-- Implementation branch: `codex/catalyx-rebuild-phase1-5`, latest pushed
-  application commit `a8f73a72`.
+- At that checkpoint, implementation branch `codex/catalyx-rebuild-phase1-5` was
+  pushed through application commit `a8f73a72`.
   This code lives in
   `/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild`.
-- Full local suite on the current worktree: **259 passed, 5 opt-in browser tests
-  skipped, 3 upstream deprecation warnings**. Focused mail/web tests: **98
+- Historical full local suite at that checkpoint: **259 passed, 5 opt-in browser
+  tests skipped, 3 upstream deprecation warnings**. Focused mail/web tests: **98
   passed**; synthetic Catalyx browser journey on `b1bf406e`: **1 passed**.
   Scoped Ruff, diff check, and staged-content Gitleaks passed. The user reports
   that the 24+ hour soak completed in Claude; Codex will not repeat it. The
@@ -187,3 +187,32 @@ evidence that are not available in the current checkout.
   `codex/canonical-plan-execution` at `c1f0ee7`. The Website Auditor pipeline
   review branch `codex/review-integration` is a separate change set and is not
   merged into the live runtime branch.
+
+
+## Latest execution update (2026-09-28, Codex continuation)
+
+- Implementation branch `codex/catalyx-rebuild-phase1-5` is pushed through
+  `04d50ff8`, based on the requested `0348b3f9` and merged with the canonical
+  v32 base. The branch remains separate from `master`; PR #46 is draft.
+- Hosted run `36393312797` passed 279 toolkit tests, Ruff, package checks/build,
+  Chromium installation, and real Chromium/PDF browser tests. Five opt-in tests
+  were skipped and two upstream warnings were reported. Gitleaks and pip-audit
+  passed on this head. Local regression for the explicit
+  `ssl.PROTOCOL_TLS_CLIENT` context passed (1 test); Ruff passed.
+- Sonar CI reaches the bound project but fails because SonarCloud Automatic
+  Analysis is enabled concurrently. The job log confirms the service rejects
+  simultaneous Automatic and CI-based analysis. The last completed code scan
+  still reported TLS context construction and RFC-compatible TOTP HMAC-SHA1;
+  the explicit TLS protocol change has not yet been scanned successfully. The
+  owner must select one Sonar analysis mode in project settings before rerun.
+- The earlier source review's shared-login availability finding remains open.
+  Production login and scanning stay gated on a verified ingress/client-IP and
+  rate-control design. FSM integration, hosting/region/retention/mail decisions,
+  accessibility sign-off, isolated staging, backup/restore/rollback, and release
+  approval remain open.
+- `MASTER_PLAN.yaml` is current through plan commit `431b30a7` on
+  `codex/master-plan-pr`; PR #45 remains draft. PR #43 is also draft and
+  unmerged. No master merge or deployment occurred.
+- The owner reports the 24-hour soak was completed in Claude; it was not rerun.
+  No `.env` file was needed or read. Existing uncommitted security notes and the
+  untracked `experiments/` directory were preserved and excluded from commits.
