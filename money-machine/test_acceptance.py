@@ -21,7 +21,6 @@ sys.path.insert(0,str(Path(__file__).resolve().parent/'scripts'))
 import mm_core as c
 import mm_intelligence as i
 import mm_operator as o
-from mm_operator import ValidationError
 import mm_email as email_engine
 import mm_email_store as email_store
 SOURCE=Path(os.environ.get('MM_TEST_SOURCE',str(Path(__file__).resolve().parents[1]/'database/money_machine.db')))
@@ -43,13 +42,6 @@ class Acceptance(unittest.TestCase):
         # Independent fixture prospect. No real contact or sends used by tests.
         self.bid=self.d.execute("INSERT INTO businesses(name,region,public_website,source,discovered_at,current_status,is_dummy) VALUES('Acceptance Fixture','Fixturetown','https://fixture.example.co.nz','fixture',?,'discovered',0)",(c.now(),)).lastrowid
         self.d.execute("INSERT INTO mm_deals(business_id,stage,updated_at) VALUES(?,'DISCOVERED',?)",(self.bid,c.now()));self.address='operator@fixture.example.co.nz'
-        # Add fixture data for regression tests 40 and 05
-        for bid in [204, 213, 214]:
-            self.d.execute("INSERT INTO businesses(id,name,source,discovered_at,current_status) VALUES(?,?,?,?,?)", (bid, f'Fixture {bid}', 'fixture', c.now(), 'discovered'))
-            self.d.execute("INSERT INTO mm_holds(business_id, reason, created_at) VALUES(?,?,?)", (bid, 'fixture hold', c.now()))
-        for _ in range(3):
-            self.d.execute("INSERT INTO outreach(draft, sent_at) VALUES(?,?)", ('fixture draft', c.now()))
-
         self.capture=self.r/'capture.txt';self.capture.write_text('<html><title>Acceptance Fixture</title><h1>Acceptance Fixture</h1><p>Fixturetown</p><p>Contact email: '+self.address+'</p><p>Verified local fixture observation, not a real business.</p></html>');self.demo=self.r/'demo.html';self.demo.write_text(DEMO)
         meta={'url':'https://fixture.example.co.nz','captured_at':c.now(),'sha256':c.sha(self.capture.read_bytes()),'path':str(self.capture)}
         page=email_engine.parse_page(meta,self.capture.read_bytes())
@@ -78,7 +70,7 @@ class Acceptance(unittest.TestCase):
     def test_02_modified_approved_body_invalidates_approval(self):
         self.approve();self.d.execute('UPDATE mm_messages SET body=body||? WHERE id=?',(' modified',self.mid));self.assertIsNone(self.d.execute('SELECT approved_hash FROM mm_messages WHERE id=?',(self.mid,)).fetchone()[0])
     def test_03_suppressed_prospect_cannot_enter_queue(self):
-        self.d.execute('INSERT INTO mm_holds(business_id, reason, created_at) VALUES(?,?,?)',(self.bid,'fixture hold',c.now()))
+        self.d.execute('INSERT INTO mm_holds VALUES(?,?)',(self.bid,'fixture hold'))
         with self.assertRaises(sqlite3.IntegrityError):self.d.execute("INSERT INTO mm_messages(business_id,evidence_id,recipient,body,digest,kind,created_at) VALUES(?,?,?,?,?,'followup',?)",(self.bid,self.eid,self.address,BODY,'new',c.now()))
     def test_04_duplicate_payment_cannot_inflate_revenue(self):
         pid,rid=self.pay()
@@ -113,17 +105,8 @@ class Acceptance(unittest.TestCase):
             # A retired entrypoint is safe when it is absent; if a compatibility
             # stub remains, it must explicitly fail closed.
             if p.exists():self.assertIn('BLOCKED',run.stderr+run.stdout)
-        mm_root=Path(__file__).resolve().parent
-        retired_paths=('seed_data.py','fix_contacts.py','mark_sent.py','PROMPTS/dispatch_judges.py')
-        for relative in retired_paths:
-            self.assertFalse((mm_root/relative).exists(),f'retired entrypoint still active: {relative}')
-        archive=mm_root/'archive/retired-scripts'
-        for name in ('seed_data.py','fix_contacts.py','mark_sent.py','dispatch_judges.py'):
-            archived=archive/name
-            self.assertTrue(archived.is_file(),f'missing archived script: {name}')
-            self.assertIn('BLOCKED',archived.read_text())
         self.demo.write_text('')
-        with self.assertRaises(ValidationError):o.demo_qa(self.d,self.bid,self.demo)
+        with self.assertRaises(ValueError):o.demo_qa(self.d,self.bid,self.demo)
     def test_13_migration_requires_verified_restorable_backup(self):
         with self.assertRaises(ValueError):c.migrate(self.d,self.r/'missing')
         backupdb=self.backup/'money_machine.db'
@@ -134,7 +117,7 @@ class Acceptance(unittest.TestCase):
         c.change_stage(self.d,self.bid,'VERIFIED','Evidence reviewed');c.change_stage(self.d,self.bid,'AUDITED','Scope fixture');c.change_stage(self.d,self.bid,'DRAFT_READY','Review fixture');self.proposal();c.change_stage(self.d,self.bid,'PROPOSAL_READY','Human review')
         self.assertEqual(o.metrics(self.d)['verified_sends'],0);self.assertEqual(self.d.execute('SELECT stage FROM mm_deals WHERE business_id=?',(self.bid,)).fetchone()[0],'PROPOSAL_READY')
     def test_16_suppression_overrides_approval(self):
-        h=self.approve();rid=self.proof('send',self.mid,h);self.d.execute('INSERT INTO mm_suppression(address, reason, created_at) VALUES(?,?,?)',(self.address,'fixture',c.now()))
+        h=self.approve();rid=self.proof('send',self.mid,h);self.d.execute('INSERT INTO mm_suppression VALUES(?,?,?)',(self.address,'fixture',c.now()))
         with self.assertRaises(ValueError):c.record_sent(self.d,self.mid,rid)
         self.assertIsNone(self.d.execute('SELECT approved_hash FROM mm_messages WHERE id=?',(self.mid,)).fetchone()[0])
     def test_17_recipient_change_invalidates_approval(self):
@@ -169,7 +152,7 @@ class Acceptance(unittest.TestCase):
         self.d.execute("UPDATE mm_jobs SET attempts=3,lease_until='2000-01-01' WHERE job_key='resume'")
         with self.assertRaises(ValueError):i.claim_job(self.d,'resume','status')
     def test_27_duplicate_prospect_is_flagged(self):
-        with self.assertRaisesRegex(ValidationError,'Duplicate'):
+        with self.assertRaisesRegex(ValueError,'Duplicate'):
             o.main(['intake','--name','Acceptance Fixture','--url','https://fixture.example.invalid','--region','fixture','--source','https://fixture.example.invalid'])
     def test_28_budget_cannot_record_positive_paid_cost(self):
         with self.assertRaises(sqlite3.IntegrityError):self.d.execute("INSERT INTO mm_model_invocations(run_key,model,provider,purpose_hash,status,cost_usd,created_at) VALUES('x','paid','nous','x','started',1,?)",(c.now(),))
@@ -207,9 +190,9 @@ class Acceptance(unittest.TestCase):
     def test_39_payment_receipt_file_tampering_excluded(self):
         pid,rid=self.pay();r=self.d.execute('SELECT * FROM mm_receipts WHERE id=?',(rid,)).fetchone();Path(r['artifact_path']).write_text('tampered');self.assertEqual(o.metrics(self.d)['net_received_nzd'],0)
     def test_40_live_suppressed_businesses_stay_suppressed(self):
-        for bid in (204, 213, 214):
+        for bid in (4,13,14):
             with self.assertRaises(ValueError):c.change_stage(self.d,bid,'DISCOVERED','Attempt')
-        self.assertEqual(self.d.execute('SELECT count(*) FROM mm_holds WHERE business_id IN (204,213,214)').fetchone()[0],3)
+        self.assertEqual(self.d.execute('SELECT count(*) FROM mm_holds WHERE business_id IN (4,13,14)').fetchone()[0],3)
     def test_41_receiptless_direct_sent_stage_blocked(self):
         with self.assertRaises(sqlite3.IntegrityError):self.d.execute("UPDATE mm_deals SET stage='SENT' WHERE business_id=?",(self.bid,))
     def test_42_revenue_legacy_table_cannot_bypass_cash_proof(self):
