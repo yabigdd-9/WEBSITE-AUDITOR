@@ -400,7 +400,9 @@ def searxng_candidates(query, region, endpoint="http://127.0.0.1:8888", limit=20
         query.encode("utf-8")
     ).hexdigest()[:12])
     for item in result.get("results") or []:
-        if len(candidates) >= limit or not isinstance(item, dict):
+        if not isinstance(item, dict):
+            continue
+        if len(candidates) >= limit:
             break
         try:
             website, host = root_url(item.get("url"))

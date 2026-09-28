@@ -189,3 +189,31 @@ def test_provider_output_has_no_contact_or_send_authority(monkeypatch, isolated_
     assert '"email"' not in encoded
     assert '"recipient"' not in encoded
     assert "external_send" not in encoded
+
+
+def test_searxng_malformed_result_does_not_stop_processing(monkeypatch, isolated_state):
+    """A malformed non-dict result must be skipped, not abort the loop.
+
+    Regression: searxng_candidates() used `break` on the first non-dict item,
+    silently dropping every subsequent valid result. It must `continue` instead.
+    """
+    import mm_discovery
+
+    body = json.dumps({
+        "results": [
+            "not-a-dict",
+            {"url": "https://example.com/valid", "title": "Valid"},
+        ]
+    }).encode()
+    monkeypatch.setattr(search, "urlopen", lambda *a, **k: FakeResponse(body))
+
+    candidates = mm_discovery.searxng_candidates(
+        "accountant Wellington NZ", "NZ", endpoint="http://127.0.0.1:8888", limit=20
+    )
+    # Exactly one candidate: malformed result skipped, valid result processed.
+    assert len(candidates) == 1
+    assert candidates[0]["canonical_host"] == "example.com"
+    assert candidates[0]["public_website"] == "https://example.com/"
+    # No external sends or email/outreach authority in the discovery path.
+    assert "email" not in candidates[0]
+    assert "recipient" not in candidates[0]

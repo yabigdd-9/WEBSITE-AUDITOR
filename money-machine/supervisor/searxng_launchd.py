@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import os
 import plistlib
+import socket
 import subprocess
 from pathlib import Path
 
@@ -76,6 +77,35 @@ def install():
     }
 
 
+def _pid_file():
+    """Return the optional SearXNG PID file path (for non-launchd management)."""
+    return STATE_DIR / "searxng.pid"
+
+
+def _pid_alive(pid):
+    """Return True if the given PID belongs to a live process."""
+    if not pid or pid <= 0:
+        return False
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    except OSError:
+        return False
+    return True
+
+
+def _is_listening(host, port, timeout=3):
+    """Independently verify a TCP listener is accepting on host:port (loopback only)."""
+    try:
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except OSError:
+        return False
+
+
 def status():
     proc = subprocess.run(
         ["launchctl", "print", _domain() + "/" + LABEL],
@@ -83,10 +113,35 @@ def status():
         text=True,
         check=False,
     )
+    loaded = proc.returncode == 0
+
+    # PID-file-managed check (when SearXNG runs outside launchd).
+    pid = None
+    pid_alive = False
+    pid_file = _pid_file()
+    if pid_file.exists():
+        try:
+            pid = int(pid_file.read_text().strip())
+        except (OSError, ValueError):
+            pid = None
+        if pid:
+            pid_alive = _pid_alive(pid)
+
+    # Independent, accurate loopback listener check.
+    listening = _is_listening("127.0.0.1", 8888)
+
+    # running spans both management modes: a live PID file OR a reachable
+    # listener (covers launchd-managed instances that have no PID file).
+    running = pid_alive or listening
+
     return {
         "label": LABEL,
         "plist_exists": PLIST_PATH.exists(),
-        "loaded": proc.returncode == 0,
+        "loaded": loaded,
+        "running": running,
+        "listening": listening,
+        "pid": pid if pid_alive else None,
+        "pidfile": str(pid_file) if pid_file.exists() else None,
         "python_exists": PYTHON.is_file(),
         "settings_exists": SETTINGS.is_file(),
         "host": "127.0.0.1",
