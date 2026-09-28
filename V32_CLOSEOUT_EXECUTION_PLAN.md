@@ -135,9 +135,9 @@ Phase E (24h Soak) -------+
 | Medium | `upgrade/v42-local-audit-intelligence` | Review (200 files) | general-purpose | **REVIEW** — 10+ commits, +25631/-89 |
 | Medium | `commercial/proposal-quote-intelligence` | Review (187 files) | general-purpose | **REVIEW** — 10+ commits, +24490/-87 |
 | Medium | `intelligence/discovery-entity-resolution` | Review (5 commits) | general-purpose | **REVIEW** — 5 commits, large binary diffs |
-| High | `integration/v41-release-candidate` | Promote to merge | general-purpose | **REVIEW** — 187 files, release candidate |
-| Medium | `upgrade/v41-production-readiness` | Review (145 files) | general-purpose | **REVIEW** — 145 files, +15226/-87 |
-| Medium | `upgrade/v40-tech-vuln` | Review (125 files) | general-purpose | **REVIEW** — 125 files, +14039/-87 |
+| High | `integration/v41-release-candidate` | Promote to merge | general-purpose | **MERGE AFTER FIXES** — 187 files, 1 acceptance failure (schema mismatch) |
+| Medium | `upgrade/v41-production-readiness` | Review (145 files) | general-purpose | **HOLD** — CRITICAL: paid model default violates paid_allowed=false |
+| Medium | `upgrade/v40-tech-vuln` | Review (125 files) | general-purpose | **MERGE AFTER FIXES** — Critical: missing mm_evidence table; Medium: SSRF redirect |
 
 #### Branch Review Results
 
