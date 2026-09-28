@@ -18,6 +18,34 @@ pytestmark = pytest.mark.skipif(
 )
 
 
+def start_local_app_server(app):
+    import uvicorn
+
+    sock = socket.socket()
+    sock.bind(("127.0.0.1", 0))
+    sock.listen()
+    port = sock.getsockname()[1]
+    server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=port, log_level="critical"))
+    thread = threading.Thread(target=server.run, kwargs={"sockets": [sock]}, daemon=True)
+    thread.start()
+    for _ in range(100):
+        if server.started:
+            break
+        time.sleep(0.05)
+    if not server.started:
+        server.should_exit = True
+        thread.join(10)
+        sock.close()
+        raise AssertionError("local Catalyx web server did not start")
+    return server, thread, sock, f"http://127.0.0.1:{port}"
+
+
+def stop_local_app_server(server, thread, sock):
+    server.should_exit = True
+    thread.join(10)
+    sock.close()
+
+
 def assert_keyboard_focus_order(page):
     selector = (
         'a[href],button:not([disabled]),input:not([type="hidden"]):not([disabled]),'
@@ -196,7 +224,6 @@ def assert_accessible_structure(page):
 
 
 def test_customer_registration_site_request_and_admin_review(tmp_path, monkeypatch):
-    import uvicorn
     from playwright.sync_api import expect, sync_playwright
 
     from catalyx_web.app import create_app
@@ -213,21 +240,8 @@ def test_customer_registration_site_request_and_admin_review(tmp_path, monkeypat
     admin_secret = "JBSWY3DPEHPK3PXP"
     Database(database_path).create_admin(admin_email, hash_password(admin_password), admin_secret)
 
-    sock = socket.socket()
-    sock.bind(("127.0.0.1", 0))
-    sock.listen()
-    port = sock.getsockname()[1]
-    server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=port, log_level="critical"))
-    thread = threading.Thread(target=server.run, kwargs={"sockets": [sock]}, daemon=True)
-    thread.start()
-    base_url = f"http://127.0.0.1:{port}"
+    server, thread, sock, base_url = start_local_app_server(app)
     try:
-        for _ in range(100):
-            if server.started:
-                break
-            time.sleep(0.05)
-        assert server.started, "local Catalyx web server did not start"
-
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch(headless=True)
             try:
@@ -352,13 +366,10 @@ def test_customer_registration_site_request_and_admin_review(tmp_path, monkeypat
             finally:
                 browser.close()
     finally:
-        server.should_exit = True
-        thread.join(10)
-        sock.close()
+        stop_local_app_server(server, thread, sock)
 
 
 def test_invitation_fragment_is_copied_then_removed_before_server_request(tmp_path, monkeypatch):
-    import uvicorn
     from playwright.sync_api import expect, sync_playwright
 
     from catalyx_web.app import create_app
@@ -379,21 +390,8 @@ def test_invitation_fragment_is_copied_then_removed_before_server_request(tmp_pa
     admin_secret = "JBSWY3DPEHPK3PXP"
     Database(database_path).create_admin(admin_email, hash_password(admin_password), admin_secret)
 
-    sock = socket.socket()
-    sock.bind(("127.0.0.1", 0))
-    sock.listen()
-    port = sock.getsockname()[1]
-    server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=port, log_level="critical"))
-    thread = threading.Thread(target=server.run, kwargs={"sockets": [sock]}, daemon=True)
-    thread.start()
-    base_url = f"http://127.0.0.1:{port}"
+    server, thread, sock, base_url = start_local_app_server(app)
     try:
-        for _ in range(100):
-            if server.started:
-                break
-            time.sleep(0.05)
-        assert server.started, "local Catalyx web server did not start"
-
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch(headless=True)
             try:
@@ -437,6 +435,4 @@ def test_invitation_fragment_is_copied_then_removed_before_server_request(tmp_pa
             finally:
                 browser.close()
     finally:
-        server.should_exit = True
-        thread.join(10)
-        sock.close()
+        stop_local_app_server(server, thread, sock)
