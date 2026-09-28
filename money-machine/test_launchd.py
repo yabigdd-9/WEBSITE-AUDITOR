@@ -64,3 +64,42 @@ def test_fcc_wrapper_forces_loopback_after_env_loading():
     forced_host = wrapper.index("export HOST=127.0.0.1")
     assert forced_host > last_env_load
     assert 'export PORT="${MM_FCC_PORT:-8082}"' in wrapper
+
+
+SEARXNG_MODULE_PATH = ROOT / "money-machine" / "supervisor" / "searxng_launchd.py"
+SEARXNG_SPEC = importlib.util.spec_from_file_location(
+    "searxng_launchd_under_test", SEARXNG_MODULE_PATH
+)
+searxng_launchd = importlib.util.module_from_spec(SEARXNG_SPEC)
+SEARXNG_SPEC.loader.exec_module(searxng_launchd)
+
+
+def test_searxng_launchd_is_user_scoped_keepalive_and_isolated():
+    payload = searxng_launchd.plist_payload()
+    assert payload["RunAtLoad"] is True
+    assert payload["KeepAlive"] is True
+    assert payload["ProcessType"] == "Background"
+    assert payload["ThrottleInterval"] == 10
+    assert payload["ProgramArguments"] == [
+        str(Path.home() / ".local" / "share" / "searxng" / ".venv" / "bin" / "python"),
+        "-m",
+        "searx.webapp",
+    ]
+    env = payload["EnvironmentVariables"]
+    assert env["SEARXNG_SETTINGS_PATH"] == str(Path.home() / ".searxng" / "settings.yml")
+    assert "MM_ROOT" not in env
+    assert not any("OUTREACH" in key or "TOKEN" in key for key in env)
+    assert searxng_launchd.LABEL == "ai.website-auditor.searxng"
+    assert "Library/LaunchAgents" in str(searxng_launchd.PLIST_PATH)
+
+
+def test_searxng_wrapper_creates_loopback_json_only_private_service():
+    wrapper = (ROOT / "money-machine" / "scripts" / "searxng.sh").read_text()
+    assert 'bind_address: "127.0.0.1"' in wrapper
+    assert "port: 8888" in wrapper
+    assert "- json" in wrapper
+    assert "public_instance: false" in wrapper
+    assert "chmod 600" in wrapper
+    assert '--editable "$SRC"' in wrapper
+    assert '--no-build-isolation' in wrapper
+    assert "0.0.0.0:8888" in wrapper  # explicit unsafe-listener rejection
