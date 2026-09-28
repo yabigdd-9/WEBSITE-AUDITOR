@@ -1,0 +1,103 @@
+# Local-First Architecture — WEBSITE-AUDITOR / Money Machine
+
+## Purpose
+
+The public/client website and the Money Machine are separate systems.
+
+### Client website
+
+The website is a lightweight customer-facing surface for:
+
+- showing the work and services offered;
+- letting people share the business/site;
+- collecting subscription or contact interest;
+- presenting approved examples, demos, and information.
+
+It is **not** the Money Machine runtime. It must not own the worker queue, local prospect database, model routing, supervisor, approval state, or autonomous outreach.
+
+### Local Money Machine
+
+The Money Machine runs locally on the operator Mac and remains the source of truth for:
+
+- NZ business discovery and deduplication;
+- identity confidence;
+- website auditing and evidence collection;
+- opportunity scoring;
+- remediation/demo generation;
+- deterministic quotes;
+- prospect packets;
+- observability, retries, leases, DLQ, backups, and reports;
+- local/free model assistance where explicitly allowed.
+
+Human review remains required. Paid fallback remains disabled. External outreach remains fail-closed unless separately and explicitly enabled later.
+
+## Always-on macOS runtime
+
+The supported primary runtime is the existing user-scoped launchd service:
+
+- label: `ai.website-auditor.supervisor`
+- process: `.venv-email/bin/python -m supervisor.cli _run-foreground`
+- working directory: `money-machine/`
+- `RunAtLoad=true`
+- `KeepAlive=true`
+- external send disabled in the launchd environment
+- PID/flock protection prevents duplicate supervisors.
+
+Install and verify from the repository root:
+
+```sh
+sh scripts/local-machine.sh install
+```
+
+Check it at any time:
+
+```sh
+sh scripts/local-machine.sh status
+```
+
+Restart:
+
+```sh
+sh scripts/local-machine.sh restart
+```
+
+Logs:
+
+```sh
+sh scripts/local-machine.sh logs
+```
+
+Uninstall:
+
+```sh
+sh scripts/local-machine.sh uninstall
+```
+
+The install command runs `./mm doctor`, installs/loads the user LaunchAgent, checks launchd status, and then runs `./mm health`. It exits non-zero if launchd does not load.
+
+## Runtime boundary
+
+```text
+CLIENT WEBSITE
+  services / portfolio / subscribe / contact
+             |
+             | approved, narrow integration only
+             v
+LOCAL MONEY MACHINE
+  discover -> identity -> audit -> evidence -> opportunity
+           -> remediation -> demo -> quote -> prospect packet
+           -> HUMAN REVIEW
+```
+
+The website must never become a hidden remote control for high-risk local actions. Any future website-to-machine integration should use a narrow authenticated API or reviewed import queue, not direct database access.
+
+## Release gates
+
+Before calling the local machine production-ready:
+
+1. CI/security/toolkit checks green.
+2. `./mm doctor` and `./mm health` green on the Mac.
+3. Real Chromium audit path verified.
+4. Local Ollama route verified when enabled.
+5. Optional local SearXNG discovery verified when enabled.
+6. 24+ hour unattended soak with no duplicate workers, healthy lease recovery, visible DLQ, $0 paid spend, and zero external sends.
