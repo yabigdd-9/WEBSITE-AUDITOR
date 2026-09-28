@@ -448,6 +448,7 @@ def local_complete(
 
 
 def routes_report():
+    fcc_model = probe_fcc()
     return {
         "policy": {
             "paid_allowed": False,
@@ -460,7 +461,7 @@ def routes_report():
         },
         "routes": {
             purpose: [
-                {"provider": FCC_PROVIDER, "model": _env_value(FCC_MODEL_ENV) or None},
+                {"provider": FCC_PROVIDER, "model": fcc_model},
                 {"provider": HERMES_PROVIDER, "model": probe_hermes(purpose)},
             ]
             for purpose in PURPOSE_ROUTES
