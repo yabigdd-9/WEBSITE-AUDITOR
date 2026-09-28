@@ -30,7 +30,7 @@ def test_findings_are_deduplicated_in_pipeline(tmp_path, monkeypatch):
     report = run_audit(
         "https://example.com/", AuditOptions(output_root=tmp_path), Fetcher(transport=transport)
     )
-    assert report["status"] == "complete"
+    assert report["status"] == "complete", report["checks"]
     unique_defects = {(d["defect_key"], d["impact"]) for d in report["defects"]}
     assert report["defect_count"] == len(unique_defects)
     assert Path(report["artifacts"]["json"]).exists()
@@ -71,7 +71,7 @@ def test_pipeline_persists_flow_probe_evidence_and_findings(tmp_path, monkeypatc
         Fetcher(transport=transport),
     )
 
-    assert report["status"] == "complete"
+    assert report["status"] == "complete", report["checks"]
     assert report["checks"]["flow"]["status"] == "ok"
     assert report["evidence"]["flow"]["steps"] == flow_evidence["steps"]
     assert report["evidence"]["flow"]["summary"] == {"states_reached": 1}
