@@ -479,12 +479,24 @@ final_acceptance:
 
 latest_execution_checkpoint:
   as_of_local_date: "2026-09-28"
-  workspace: "Canonical-plan branch codex/canonical-plan-execution is synchronized with origin and includes the current Catalyx security review and Lighthouse evidence. Catalyx implementation branch codex/catalyx-rebuild-phase1-5 is pushed through 8f04403f over app commit a8f73a72, with additional uncommitted auth-rate cleanup/test and documentation changes preserved. Pipeline evidence persistence and Lighthouse Chromium discovery are pushed on codex/pipeline-evidence-integration at 9a995bc8; original isolated evidence-fix branch bc3fe3b2 remains preserved. No branch was merged to master and no deployment occurred."
+  workspace: >-
+    Canonical-plan branch codex/canonical-plan-execution is synchronized with
+    origin through 34a04cf2 and includes the current security, dependency,
+    runtime, Lighthouse, and challenger evidence. Catalyx implementation branch
+    codex/catalyx-rebuild-phase1-5 is synchronized through 5e451999, based on
+    0348b3f9. Its bounded auth-rate cleanup is committed and pushed; the dirty
+    docs, separate tenant-isolation test additions, and untracked experiments/
+    remain preserved and uncommitted. Pipeline evidence persistence and
+    Lighthouse Chromium discovery are pushed on
+    codex/pipeline-evidence-integration at 9a995bc8; original isolated
+    evidence-fix branch bc3fe3b2 remains preserved. No branch was merged to
+    master and no deployment occurred.
   branch: "codex/canonical-plan-execution"
   user_reported:
     reliability_soak: "Completed in Claude per owner report on 2026-09-28; no Codex rerun requested. Claude run artifacts and tested SHA were not inspected in this workspace."
   verified:
     python: "3.11.16"
+    canonical_branch_revalidation_20260928: "On upgrade/v32-canonical-execution at 3ad64156: full toolkit suite 164 passed, 4 opt-in browser skips, 2 deprecation warnings; strict pip-audit 2.10.1 OSV audit of requirements.txt and money-machine/requirements-email.txt found no known vulnerabilities. Gitleaks 8.30.1 found 0 current-HEAD matches, with historical owner-review items still open. Isolated crash-restart test passed (1) and synthetic DLQ visibility test passed (1); live runtime checks are read-only."
     toolkit_tests: "Fresh full run on codex/pipeline-evidence-integration before the Lighthouse browser fallback at 7c70c9f6: 185 passed, 4 opt-in browser skips, 2 dependency deprecation warnings. After the fallback change at 9a995bc8: 187 passed, 4 opt-in browser skips, the same 2 deprecation warnings. Focused pipeline/error-tracking suite: 60 passed; focused real-tool parser/fallback suite: 15 passed."
     external_tool_runtime_check_20260928: "Fresh end-to-end wa audit on a temporary loopback-only synthetic fixture using Lighthouse 13.5.0 and Lychee 0.24.2, with CHROME_PATH unset. Lighthouse automatically used the already installed Playwright Chromium; no dependencies were installed. The complete audit returned exit 0/status complete, both checks were status=ok, Lychee surfaced the deliberately broken local link as lychee-broken-links, and the saved report retained Lighthouse LCP, CLS and TBT lab metrics. Temporary site and report directory were removed automatically. This validates local CLI wiring and evidence serialization, not public-site coverage or field Core Web Vitals."
     hermes_runtime_check_20260928: "Installed Hermes Agent v0.21.5+3641.ge54d550. The repository's bounded adapter ran only --help/--version capability checks; its smoke gate returned BLOCKED_COST because no isolated zero-cost inference provider is certified. smoke_executed=false; model_calls=0, paid_ai_cost=0, external_actions=0. No .env file was read and no model prompt was sent. Hermes orchestration remains unverified until a local/free route can be independently certified and a bounded runner is implemented."
