@@ -90,6 +90,15 @@ def _public_registration_open() -> bool:
     return mode.strip().lower() == "open"
 
 
+def _auth_enabled_for_mode(hosted: bool | None = None) -> bool:
+    is_hosted = production_mode() if hosted is None else hosted
+    setting = os.getenv("CATALYX_AUTH_ENABLED", "false" if is_hosted else "true")
+    normalized = setting.strip().lower()
+    if normalized not in {"true", "false"}:
+        raise RuntimeError("CATALYX_AUTH_ENABLED must be true or false.")
+    return normalized == "true"
+
+
 def _read_local_mailbox_file(mailbox_path: Path) -> list[dict]:
     if not mailbox_path.exists():
         return []
@@ -194,12 +203,13 @@ def _page(
         ]
         registration_link = (
             '<a class="nav-cta" href="/register">Create account</a>'
-            if _public_registration_open()
+            if _public_registration_open() and _auth_enabled_for_mode()
             else ""
         )
+        login_link = '<a href="/login">Sign in</a>' if _auth_enabled_for_mode() else ""
         nav = '<nav class="public-nav" aria-label="Main">' + "".join(
             '<a href="' + path + '">' + label + "</a>" for path, label in links
-        ) + '<a href="/login">Sign in</a>' + registration_link + '</nav>'
+        ) + login_link + registration_link + '</nav>'
     notice_html = '<div class="notice" role="status">' + _e(notice) + "</div>" if notice else ""
     return HTMLResponse(
         '<!doctype html><html lang="en-NZ"><head><meta charset="utf-8">'
@@ -346,6 +356,7 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
     registration_mode = os.getenv(
         "CATALYX_REGISTRATION_MODE", "closed" if hosted else "open"
     ).strip().lower()
+    auth_enabled = _auth_enabled_for_mode(hosted)
     login_limit_setting = os.getenv(
         "CATALYX_LOGIN_GLOBAL_LIMIT_PER_MINUTE", str(LOGIN_GLOBAL_LIMIT_PER_MINUTE)
     ).strip()
@@ -432,6 +443,7 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
     app.state.database = database
     app.state.registration_mode = registration_mode
+    app.state.auth_enabled = auth_enabled
     app.state.login_global_limit_per_minute = login_global_limit
     app.state.mail_mode = mail_mode
     app.state.external_send_allowed = external_send_allowed
@@ -551,6 +563,15 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
 
     @app.middleware("http")
     async def security_headers(request: Request, call_next):
+        if not app.state.auth_enabled and request.url.path in {
+            "/login",
+            "/register",
+            "/resend-verification",
+            "/verify",
+            "/forgot-password",
+            "/reset-password",
+        }:
+            return _apply_security_headers(request, Response("Not found", status_code=404))
         if request.method in {"POST", "PUT", "PATCH", "DELETE"}:
             try:
                 content_length = int(request.headers.get("content-length", "0"))
@@ -568,6 +589,10 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
         return _apply_security_headers(request, response)
 
     def _session(request: Request, required=True):
+        if not app.state.auth_enabled:
+            if required:
+                raise HTTPException(401, "Sign-in is not enabled")
+            return None
         token = request.cookies.get("catalyx_session", "")
         if not token:
             if required:

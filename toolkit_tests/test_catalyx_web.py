@@ -469,6 +469,39 @@ def test_hosted_registration_and_external_email_stay_closed_for_first_release(tm
     assert local_app.state.registration_mode == "open"
 
 
+def test_hosted_auth_is_disabled_by_default_and_local_auth_can_fail_closed(tmp_path, monkeypatch):
+    import catalyx_web.app as app_module
+
+    for key in (
+        "CATALYX_ENV",
+        "VERCEL",
+        "K_SERVICE",
+        "AWS_LAMBDA_FUNCTION_NAME",
+        "CATALYX_AUTH_ENABLED",
+        "CATALYX_REGISTRATION_MODE",
+    ):
+        monkeypatch.delenv(key, raising=False)
+    monkeypatch.setenv("VERCEL", "1")
+    assert app_module._auth_enabled_for_mode() is False
+    monkeypatch.setenv("CATALYX_AUTH_ENABLED", "invalid")
+    with pytest.raises(RuntimeError, match="CATALYX_AUTH_ENABLED"):
+        app_module._auth_enabled_for_mode(True)
+
+    monkeypatch.delenv("VERCEL")
+    monkeypatch.setenv("CATALYX_AUTH_ENABLED", "false")
+    app = create_app(tmp_path / "closed-auth.sqlite3", tmp_path / "closed-auth-mailbox.json")
+    client = TestClient(app)
+    assert app.state.auth_enabled is False
+    home = client.get("/")
+    assert "Sign in" not in home.text
+    assert "Create account" not in home.text
+    for route in ("/login", "/register", "/resend-verification", "/verify", "/forgot-password", "/reset-password"):
+        assert client.get(route).status_code == 404
+    assert client.post("/login", data={"email": "nobody@example.invalid"}).status_code == 404
+    with Database(tmp_path / "closed-auth.sqlite3").connect() as db:
+        assert db.execute("SELECT count(*) FROM auth_rate_limits").fetchone()[0] == 0
+
+
 def test_postgres_adapter_keeps_mapping_and_positional_rows_and_binds_parameters():
     class FakeConnection:
         def execute(self, statement, parameters):
