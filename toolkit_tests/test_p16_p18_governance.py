@@ -88,6 +88,17 @@ def test_repository_golden_dataset_is_valid_and_safety_focused():
     assert "email-pattern-guess" in ids
     assert "demo-concept" in ids
     assert all("safety" in row for row in rows)
+    by_id = {row["case_id"]: row for row in rows}
+    assert {
+        "audit-finding-without-evidence",
+        "audit-finding-with-evidence",
+        "audit-false-positive-review",
+        "opportunity-score-separation",
+    } <= ids
+    assert by_id["audit-finding-without-evidence"]["safety"]["score_deduction"] == 0
+    assert by_id["audit-finding-with-evidence"]["input"]["evidence_refs"]
+    assert by_id["audit-false-positive-review"]["safety"]["automatic_training"] is False
+    assert by_id["opportunity-score-separation"]["safety"]["cross_axis_blending"] is False
 
 
 def test_external_model_data_collection_defaults_to_deny():
