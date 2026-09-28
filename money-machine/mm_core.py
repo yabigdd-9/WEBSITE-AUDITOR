@@ -26,6 +26,43 @@ CLAIM_TYPES = (
 
 def now(): return dt.datetime.now(UTC).isoformat()
 def root(): return Path(os.environ.get('MM_ROOT', Path(__file__).resolve().parents[1])).resolve()
+
+
+def safe_path(path, base=None) -> Path:
+    """Resolve *path* relative to *base*, rejecting any result that escapes *base*.
+
+    Prevents path-traversal attacks (e.g. ``../../etc/passwd``) by ensuring the
+    resolved path stays within the allowed base directory.
+
+    Args:
+        path:  Filesystem path to resolve (may be relative or absolute).
+        base:  Containment root.  Defaults to :func:`root`.  When *path* is
+               relative it is joined to *base*; when absolute it must already
+               lie within *base*.
+
+    Returns:
+        Resolved, normalised :class:`~pathlib.Path`.
+
+    Raises:
+        ValueError: If the resolved path escapes *base*.
+    """
+    base = (Path(base) if base else root()).resolve()
+    p = Path(path)
+    # For both relative and absolute paths, resolve to absolute path first
+    if p.is_absolute():
+        target = p.resolve()
+    else:
+        target = (base / p).resolve()
+    # Check that the resolved path is within the base directory
+    try:
+        target.relative_to(base)        # containment check
+    except ValueError:
+        raise ValueError(f"Path escapes base directory: {target}")
+    return target
+# Alias for callers that prefer an explicit name.
+workspace_path = safe_path
+
+
 def sha(data): return hashlib.sha256(data if isinstance(data, bytes) else data.encode()).hexdigest()
 def digest(recipient, body): return sha(recipient.strip().lower()+'\n'+body)
 def proposal_digest(recipient, body, price): return sha(json.dumps([recipient.strip().lower(),body,price],separators=(',',':')))
@@ -67,6 +104,16 @@ BUSINESS_OPERATIONAL_COLUMNS = (
     ('canonical_host', 'TEXT'),
     ('normalized_name', 'TEXT'),
 )
+
+
+def ensure_business_columns(d):
+    """Add v32 business metadata columns to legacy databases, idempotently."""
+    columns = {row[1] for row in d.execute('PRAGMA table_info(businesses)')}
+    for name, sql_type in BUSINESS_OPERATIONAL_COLUMNS:
+        if name not in columns:
+            d.execute(f'ALTER TABLE businesses ADD COLUMN {name} {sql_type}')
+            columns.add(name)
+    return columns
 
 
 def ensure_message_columns(d):

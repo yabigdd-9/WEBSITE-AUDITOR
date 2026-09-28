@@ -5,6 +5,7 @@ purification ritual execution, and seasonal transition management.
 import json
 import sqlite3
 import math
+import contextlib
 from datetime import datetime, timezone
 from mm_core import now, connect
 from typing import Dict, List, Any, Optional, Tuple

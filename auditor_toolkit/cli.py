@@ -91,7 +91,8 @@ def main(argv=None):
     watchdog = sub.add_parser("watchdog")
     watchdog.add_argument("domain", help="Domain to check for regressions")
     watchdog.add_argument("--output-root", default="outputs/toolkit", help="Root directory for audit outputs")
-    watchdog.add_argument("--alert", action="store_true", help="Send alert if regressions are detected")
+    watchdog.add_argument("--alert", action="store_true", help="Send alert if regressions are detected (requires ALERT_WEBHOOK_URL or --webhook-url)")
+    watchdog.add_argument("--webhook-url", default=None, help="Override ALERT_WEBHOOK_URL for alert delivery")
     secret = sub.add_parser("secret")
     secret_sub = secret.add_subparsers(dest="secret_command", required=True)
     # set
@@ -243,13 +244,17 @@ def main(argv=None):
             return 1
         latest = reports[0]
         defects = latest.get("defects", [])
-        wd = Watchdog(output_root=root)
+        webhook = args.webhook_url or os.getenv("ALERT_WEBHOOK_URL", "")
+        wd = Watchdog(output_root=root, webhook_url=webhook)
         result = wd.detect_regressions(args.domain, defects)
         wd.take_snapshot(args.domain, defects)
         print(json.dumps(result, indent=2))
         if args.alert and result.get("regressions"):
-            alert_result = wd.send_alert(args.domain, result["regressions"])
-            print(json.dumps(alert_result, indent=2))
+            if not webhook:
+                print(json.dumps({"status": "skipped", "reason": "--alert requires --webhook-url or ALERT_WEBHOOK_URL"}, indent=2))
+            else:
+                alert_result = wd.send_alert(args.domain, result["regressions"])
+                print(json.dumps(alert_result, indent=2))
         return 1 if result.get("regressions") else 0
 
     if args.command == "secret":

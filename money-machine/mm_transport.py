@@ -9,6 +9,7 @@ The live `himalaya` SMTP adapter is used for sending only when:
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -17,8 +18,13 @@ import mm_core as core
 
 
 def load_config(path=None):
-    path = Path(path or (Path(__file__).resolve().parent / "config" / "transport.json"))
-    doc = json.loads(path.read_text(encoding="utf-8"))
+    expected_dir = Path(__file__).resolve().parent / "config"
+    if path is None:
+        path = expected_dir / "transport.json"
+    resolved = Path(path).resolve()
+    if not resolved.is_relative_to(expected_dir):
+        raise ValueError(f"Config path escapes allowed directory: {resolved}")
+    doc = json.loads(resolved.read_text(encoding="utf-8"))
     required = {
         "version",
         "enabled",

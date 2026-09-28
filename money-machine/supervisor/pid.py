@@ -3,6 +3,7 @@ import os
 import fcntl
 import signal
 import atexit
+import contextlib
 from pathlib import Path
 from typing import Optional
 
@@ -98,7 +99,8 @@ def write_pid_atomic(path: Path, pid: int) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix('.tmp')
     tmp.write_text(str(pid))
-    os.fsync(tmp.open().fileno())
+    with tmp.open() as f:
+        os.fsync(f.fileno())
     tmp.replace(path)
 
 

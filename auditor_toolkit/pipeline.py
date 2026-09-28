@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 import hashlib
-import time
 import logging
+import time
 import traceback
-
-logger = logging.getLogger(__name__)
-from concurrent.futures import ThreadPoolExecutor
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -17,7 +15,10 @@ from .browser import export_pdf, run_browser_checks
 from .checks import Finding, analyse_html, classify_response, dedupe_findings, score_findings
 from .common import Fetcher, atomic_write_json, atomic_write_text, validate_url
 from .external_tools import run_lighthouse, run_lychee
-from .faults import enrich as enrich_fault, group_root_causes, regression as fault_regression
+from .faults import enrich as enrich_fault
+from .faults import group_root_causes
+from .faults import regression as fault_regression
+from .flows import flow_findings, run_flow_probe
 from .hygiene import (
     check_mixed_content,
     check_robots,
@@ -29,9 +30,11 @@ from .hygiene import (
 )
 from .models import REGISTRY, SCHEMA_VERSION
 from .network import crawl, inspect_dns, inspect_headers, inspect_schema, inspect_tls
+from .quality_checks import run_quality_checks
 from .reporting import render_trend_svg, write_html_report
 from .storage import History, finding_id
-from .quality_checks import run_quality_checks
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -231,18 +234,56 @@ def run_audit(url, options=None, fetcher=None):
                 )
             except Exception as exc:
                 result = {"status": "error", "reason": str(exc), "evidence": {}}
-            try:
-                if result["status"] != "skipped":
-                    flow_result = run_flow_probe(final_url, run_dir / "artifacts", enabled=True, allow_private=opts.allow_private)
+            final_url_ev = result.get("final_url", final_url)
+            if result["status"] == "skipped":
+                checks["flow"] = {
+                    "status": "skipped",
+                    "reason": "Browser checks are disabled.",
+                    "required": False,
+                }
+            else:
+                try:
+                    flow_result = run_flow_probe(
+                        final_url,
+                        run_dir / "artifacts",
+                        enabled=True,
+                        allow_private=opts.allow_private,
+                    )
+                    flow_status = flow_result["status"]
                     flow_evidence = flow_result.get("evidence", {})
-                    final_url_ev = result.get("final_url", final_url)
-                    if flow_result["status"] in ("ok", "error"):
-                        flow_evidence.setdefault("reason", flow_result.get("reason", ""))
-                        flow_findings_list, flow_summary = flow_findings(flow_evidence, final_url_ev, flow_result["status"])
-                        findings.extend(replace(f, source_url=final_url_ev) for f in flow_findings_list)
+                    flow_evidence.setdefault("reason", flow_result.get("reason", ""))
+                    if flow_status in ("ok", "error"):
+                        flow_findings_list, flow_summary = flow_findings(
+                            flow_evidence, final_url_ev, flow_status
+                        )
+                        findings.extend(
+                            replace(finding, source_url=final_url_ev)
+                            for finding in flow_findings_list
+                        )
                         flow_evidence["summary"] = flow_summary
-            except Exception as exc:
-                pass # Flow probe error is handled in flow_findings
+                    checks["flow"] = {
+                        "status": flow_status,
+                        "reason": flow_result.get("reason", ""),
+                        "required": False,
+                    }
+                    evidence["flow"] = flow_evidence
+                except Exception as exc:
+                    reason = f"Flow probe failed: {type(exc).__name__}"
+                    flow_evidence = {"mode": "lab", "error": reason, "reason": reason}
+                    flow_findings_list, flow_summary = flow_findings(
+                        flow_evidence, final_url_ev, "error"
+                    )
+                    findings.extend(
+                        replace(finding, source_url=final_url_ev)
+                        for finding in flow_findings_list
+                    )
+                    flow_evidence["summary"] = flow_summary
+                    checks["flow"] = {
+                        "status": "error",
+                        "reason": reason,
+                        "required": False,
+                    }
+                    evidence["flow"] = flow_evidence
             checks["browser"] = {
                 "status": result["status"],
                 "reason": result.get("reason", ""),

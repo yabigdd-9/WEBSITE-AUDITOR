@@ -44,7 +44,7 @@ class Acceptance(unittest.TestCase):
         self.bid=self.d.execute("INSERT INTO businesses(name,region,public_website,source,discovered_at,current_status,is_dummy) VALUES('Acceptance Fixture','Fixturetown','https://fixture.example.co.nz','fixture',?,'discovered',0)",(c.now(),)).lastrowid
         self.d.execute("INSERT INTO mm_deals(business_id,stage,updated_at) VALUES(?,'DISCOVERED',?)",(self.bid,c.now()));self.address='operator@fixture.example.co.nz'
         # Add fixture data for regression tests 40 and 05
-        for bid in [4, 13, 14]:
+        for bid in [204, 213, 214]:
             self.d.execute("INSERT INTO businesses(id,name,source,discovered_at,current_status) VALUES(?,?,?,?,?)", (bid, f'Fixture {bid}', 'fixture', c.now(), 'discovered'))
             self.d.execute("INSERT INTO mm_holds(business_id, reason, created_at) VALUES(?,?,?)", (bid, 'fixture hold', c.now()))
         for _ in range(3):
@@ -113,6 +113,15 @@ class Acceptance(unittest.TestCase):
             # A retired entrypoint is safe when it is absent; if a compatibility
             # stub remains, it must explicitly fail closed.
             if p.exists():self.assertIn('BLOCKED',run.stderr+run.stdout)
+        mm_root=Path(__file__).resolve().parent
+        retired_paths=('seed_data.py','fix_contacts.py','mark_sent.py','PROMPTS/dispatch_judges.py')
+        for relative in retired_paths:
+            self.assertFalse((mm_root/relative).exists(),f'retired entrypoint still active: {relative}')
+        archive=mm_root/'archive/retired-scripts'
+        for name in ('seed_data.py','fix_contacts.py','mark_sent.py','dispatch_judges.py'):
+            archived=archive/name
+            self.assertTrue(archived.is_file(),f'missing archived script: {name}')
+            self.assertIn('BLOCKED',archived.read_text())
         self.demo.write_text('')
         with self.assertRaises(ValidationError):o.demo_qa(self.d,self.bid,self.demo)
     def test_13_migration_requires_verified_restorable_backup(self):
@@ -198,9 +207,9 @@ class Acceptance(unittest.TestCase):
     def test_39_payment_receipt_file_tampering_excluded(self):
         pid,rid=self.pay();r=self.d.execute('SELECT * FROM mm_receipts WHERE id=?',(rid,)).fetchone();Path(r['artifact_path']).write_text('tampered');self.assertEqual(o.metrics(self.d)['net_received_nzd'],0)
     def test_40_live_suppressed_businesses_stay_suppressed(self):
-        for bid in (4,13,14):
+        for bid in (204, 213, 214):
             with self.assertRaises(ValueError):c.change_stage(self.d,bid,'DISCOVERED','Attempt')
-        self.assertEqual(self.d.execute('SELECT count(*) FROM mm_holds WHERE business_id IN (4,13,14)').fetchone()[0],3)
+        self.assertEqual(self.d.execute('SELECT count(*) FROM mm_holds WHERE business_id IN (204,213,214)').fetchone()[0],3)
     def test_41_receiptless_direct_sent_stage_blocked(self):
         with self.assertRaises(sqlite3.IntegrityError):self.d.execute("UPDATE mm_deals SET stage='SENT' WHERE business_id=?",(self.bid,))
     def test_42_revenue_legacy_table_cannot_bypass_cash_proof(self):

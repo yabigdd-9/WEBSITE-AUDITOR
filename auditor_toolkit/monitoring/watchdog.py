@@ -1,7 +1,14 @@
 
-import json, os, urllib.request
+import ipaddress
+import json
+import os
+import re
+import socket
+import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlsplit
+
 
 class Watchdog:
     def __init__(self, output_root=None, snapshot_dir=None, webhook_url=None):
@@ -14,7 +21,40 @@ class Watchdog:
         self.snapshot_dir.mkdir(parents=True, exist_ok=True)
         self.webhook_url = webhook_url or os.getenv("ALERT_WEBHOOK_URL", "")
 
+    @staticmethod
+    def _safe_domain(domain: str) -> str:
+        """Sanitise *domain* so it cannot escape the snapshot directory."""
+        clean = re.sub(r'[^A-Za-z0-9._-]', '_', str(domain))
+        return clean[:100] or "unknown"
+
+    @staticmethod
+    def _validate_webhook(url: str) -> None:
+        """Reject non-http(s) schemes and hosts resolving to private IPs (SSRF)."""
+        parts = urlsplit(url)
+        if parts.scheme not in ("http", "https"):
+            raise ValueError(f"Webhook scheme not allowed: {parts.scheme}")
+        host = parts.hostname
+        if not host:
+            raise ValueError("Webhook URL missing host")
+        if host.lower() == "localhost":
+            raise ValueError(f"Webhook to private host rejected: {host}")
+        try:
+            address = ipaddress.ip_address(host)
+        except ValueError:
+            address = None
+        if address is not None and not address.is_global:
+            raise ValueError(f"Webhook to non-public host rejected: {host}")
+        try:
+            infos = socket.getaddrinfo(host, None, type=socket.SOCK_STREAM)
+        except socket.gaierror as exc:
+            raise ValueError(f"Webhook host could not be resolved: {host}") from exc
+        if not infos or any(
+            not ipaddress.ip_address(info[4][0]).is_global for info in infos
+        ):
+            raise ValueError(f"Webhook resolves to non-public address: {host}")
+
     def take_snapshot(self, domain, defects):
+        domain = self._safe_domain(domain)
         ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         path = self.snapshot_dir / f"{domain}_{ts}.json"
         path.write_text(json.dumps({
@@ -28,6 +68,7 @@ class Watchdog:
         return path
 
     def get_previous_snapshot(self, domain):
+        domain = self._safe_domain(domain)
         snapshots = sorted(self.snapshot_dir.glob(f"{domain}_*.json"))
         if len(snapshots) < 2:
             return None
@@ -59,6 +100,11 @@ class Watchdog:
         if not self.webhook_url:
             return {"status": "skipped", "reason": "ALERT_WEBHOOK_URL not set"}
 
+        try:
+            self._validate_webhook(self.webhook_url)
+        except ValueError as e:
+            return {"status": "failed", "error": f"webhook validation: {e}"}
+
         message = f"REGRESSION DETECTED: {domain}\n"
         for r in regressions[:5]:
             message += f"  - {r}\n"
@@ -72,7 +118,7 @@ class Watchdog:
             method="POST",
         )
         try:
-            with urllib.request.urlopen(req) as resp:
+            with urllib.request.urlopen(req, timeout=10) as resp:
                 return {"status": "sent", "code": resp.status}
         except Exception as e:
             return {"status": "failed", "error": str(e)}

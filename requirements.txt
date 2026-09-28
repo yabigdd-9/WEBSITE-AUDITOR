@@ -1,7 +1,2 @@
-httpx>=0.28,<1
-aiohttp>=3.10
-beautifulsoup4>=4.15
-lxml>=6
-trafilatura>=2
-yarl>=1.25
-requests>=2.32
+-e .
+-r requirements-catalyx-web.lock
