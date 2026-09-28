@@ -70,22 +70,32 @@ def _parse_probe_hosts(hosts=None, host=None, port=443):
 
 
 def _probe_once(host, port, timeout, resolver=None, connector=None):
-    """Attempt DNS + TCP connect to one host. Returns None on success, error str."""
+    """Attempt DNS + TCP connect across all resolved addresses for one host."""
     resolver = resolver or socket.getaddrinfo
     try:
         addresses = resolver(host, port, type=socket.SOCK_STREAM)
-        if not addresses:
-            raise OSError("no addresses")
-        family, socktype, proto, _, sockaddr = addresses[0]
-        if connector is not None:
-            connector(family, socktype, proto, sockaddr, timeout)
-        else:
-            with socket.socket(family, socktype, proto) as sock:
-                sock.settimeout(timeout)
-                sock.connect(sockaddr)
-        return None
     except OSError as exc:
         return "%s: %s" % (type(exc).__name__, str(exc)[:200])
+    if not addresses:
+        return "OSError: no addresses"
+
+    last_error = None
+    for family, socktype, proto, _, sockaddr in addresses:
+        try:
+            if connector is not None:
+                connector(family, socktype, proto, sockaddr, timeout)
+            else:
+                with socket.socket(family, socktype, proto) as sock:
+                    sock.settimeout(timeout)
+                    sock.connect(sockaddr)
+            return None
+        except OSError as exc:
+            last_error = exc
+
+    return "%s: %s" % (
+        type(last_error).__name__ if last_error is not None else "OSError",
+        str(last_error)[:200] if last_error is not None else "all addresses failed",
+    )
 
 
 def _cache_path(cache_path=None):
