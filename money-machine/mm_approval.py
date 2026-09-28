@@ -20,6 +20,7 @@ from mm_core import now, digest, timestamp
 from mm_pipeline import transition, item, rate_ok, log
 
 APPROVAL_STATES = ('PENDING', 'CHECKING', 'APPROVED', 'REJECTED', 'NEEDS_REVIEW')
+TOOLKIT_ROOT = (Path(__file__).resolve().parents[1] / 'outputs' / 'toolkit').resolve()
 
 DDL = """
 CREATE TABLE IF NOT EXISTS approval_records(
@@ -125,12 +126,11 @@ def _gate_audit_evidence(d, bid):
     if not run_id or not raw_path:
         return False, {'reason': 'canonical audit run_id/report_path missing'}
 
-    toolkit_root = (Path(__file__).resolve().parents[1] / 'outputs' / 'toolkit').resolve()
     try:
         report_path = Path(raw_path).resolve()
     except OSError:
         return False, {'reason': 'canonical audit report path invalid'}
-    if not report_path.is_relative_to(toolkit_root) or not report_path.is_file():
+    if not report_path.is_relative_to(TOOLKIT_ROOT) or not report_path.is_file():
         return False, {'reason': 'canonical audit report missing or outside toolkit root'}
 
     try:
