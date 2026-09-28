@@ -220,3 +220,25 @@ evidence that are not available in the current checkout.
   needed or read. Existing
   uncommitted security notes and the
   untracked `experiments/` directory were preserved and excluded from commits.
+
+### Latest execution update (2026-09-28, hosted customer browser journey)
+
+- Implementation branch `codex/catalyx-rebuild-phase1-5` now points to
+  `b0567644`, with commits `1bc25c11` and `b0567644` adding the dedicated
+  Catalyx customer/admin browser journey to hosted fixture CI and making the
+  accessibility check tolerate Chromium's implicit focus stop on an overflow
+  container. The journey also waits for route navigation before inspecting the
+  next page.
+- The dedicated browser journey passed locally on the same `uv run --no-sync`
+  invocation used by CI. Hosted run `36396949329` passed the full toolkit
+  fixture job, including the generic browser tests and the Catalyx journey;
+  Ruff, package/dependency checks, Gitleaks, and pip-audit passed as well.
+- Vercel preview is again rate-limited for 24 hours. Sonar CI remains blocked
+  by the project setting that enables Automatic Analysis alongside CI analysis.
+  No code-side workaround was applied because it would remove the required
+  code scan. PR #46 remains a draft, with no merge or deployment.
+- The isolated test uses a temporary SQLite database and local mailbox, binds
+  Uvicorn to loopback, and only queues the synthetic `example.invalid` request;
+  it does not start a scan worker or contact an external target. No `.env` file
+  was needed or read. Existing dirty owner notes and untracked `experiments/`
+  remain preserved and excluded from commits.
