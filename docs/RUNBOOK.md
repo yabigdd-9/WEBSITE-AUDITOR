@@ -79,6 +79,19 @@ Do not rely on cron as the primary path when the LaunchAgent is healthy.
 `./mm doctor` prints live capabilities so "why skipped" is one command away. Test skips are explicit
 (`BLOCKED_FIXTURE: <path> not present in this environment`) — never silently green.
 
+## 5.1 Recurring discovery
+
+The supervisor checks the recurring-discovery scheduler on startup and periodically thereafter.
+
+- Schedule: `money-machine/config/discovery_schedule.yaml`
+- Default cadence: every 360 minutes.
+- Search endpoint: loopback SearXNG only (`127.0.0.1:8888`).
+- Local inbox: `discovery-inbox/` accepts CSV, JSON, and JSONL.
+- Maximum per cycle: 20 import files and 20 search queries.
+- Known hosts/names are deduplicated before queue work.
+- Missing SearXNG produces typed source errors; it does not stop the supervisor.
+- Recurring discovery never sends outreach and never invokes paid models.
+
 ## 6. Backup / restore
 
 - Backup: `./mm backup` → checksummed copy under `database/backups/`. **Always run before any migration or bulk change.**
