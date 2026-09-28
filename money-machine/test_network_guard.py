@@ -61,6 +61,13 @@ class MultiProbeGuard(unittest.TestCase):
         self.assertIn("defer_or_retry", result["action"])
         self.assertEqual(len(result["attempts"]), 2)
 
+    def test_default_probe_hosts_are_resilient_multi_probe(self):
+        parsed = guards._parse_probe_hosts()
+        self.assertGreaterEqual(len(parsed), 3)
+        self.assertIn(("openrouter.ai", 443), parsed)
+        self.assertIn(("github.com", 443), parsed)
+        self.assertIn(("example.com", 443), parsed)
+
     def test_env_probe_hosts_order(self):
         with mock.patch.dict(os.environ,
                              {"MM_NETWORK_PROBE_HOSTS": "x.example:443, y.example:8443"}):
