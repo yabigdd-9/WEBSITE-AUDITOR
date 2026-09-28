@@ -28,18 +28,18 @@
   {
     "phase": 2,
     "status": "PARTIAL",
-    "summary": "Local zero-cost inference route verified end to end (llama-server + Qwen3-4B on 127.0.0.1:8080, one bounded completion, cost_usd=0) and wired into mm_model_router as the preferred route. The full model-backed chain has not been executed and no paid route exists as a fallback.",
-    "findings": "Local zero-cost inference route verified end to end (llama-server + Qwen3-4B on 127.0.0.1:8080, one bounded completion, cost_usd=0) and wired into mm_model_router as the preferred route. The full model-backed chain has not been executed and no paid route exists as a fallback.",
-    "evidence": "phase2-unblock-evidence.json, llama-server curl test",
+    "summary": "v44 zero-cost model routing is implemented: FCC is used only when an exact model is explicitly certified zero-cost; otherwise Hermes uses live-verified OpenRouter :free role routes with zero price caps; otherwise work DEFERs. No paid fallback exists. Earlier live zero-cost Hermes and Money Machine fallback smokes succeeded, but the exact final PR #52 head still requires one bounded host revalidation before release.",
+    "findings": "v44 zero-cost model routing is implemented: FCC is used only when an exact model is explicitly certified zero-cost; otherwise Hermes uses live-verified OpenRouter :free role routes with zero price caps; otherwise work DEFERs. No paid fallback exists. Earlier live zero-cost Hermes and Money Machine fallback smokes succeeded, but the exact final PR #52 head still requires one bounded host revalidation before release.",
+    "evidence": "money-machine/mm_model_router.py; money-machine/scripts/free_role_router.py; money-machine/config/routing.yaml; toolkit_tests/test_p15_local_routing.py; money-machine/scripts/test_free_role_router.py; PR #52 automated gates",
     "files_changed": "Exact per-file change-manifest.json (shared repairs; see scope summary)",
-    "tests_run": "Missing/nonzero/malformed interface tested. Deterministic stages pass separately. test_pipeline covers local-route preference and BLOCKED_COST deferral.",
-    "test_results": "Missing/nonzero/malformed interface tested. Deterministic stages pass separately. test_pipeline covers local-route preference and BLOCKED_COST deferral.",
+    "tests_run": "Unit/governance coverage verifies explicit FCC certification, live catalog :free/zero-price checks, per-request public/synthetic data-collection override, non-zero-cost blocking, and DEFER behavior. Earlier host live free-route and end-to-end fallback smokes returned cost 0.",
+    "test_results": "Repository tests green on the last verified PR #52 head; current final-head bounded host smoke remains release evidence, not a code blocker.",
     "blockers": [
-      "End-to-end model-backed chain not executed",
-      "No :free external route configured (OPENROUTER_API_KEY unset) - deferral, not payment, is the fallback"
+      "Run one bounded model-backed smoke on the exact final PR #52 head and record cost_usd=0",
+      "Complete the 24+ hour unattended soak on the unchanged final release-candidate head"
     ],
     "rollback": "Preflight backup plus guarded rollback-local.py and reverse binary Git patch; live DB never restored",
-    "next_action": "Run a bounded model-backed chain against the local route; external actions still require APR-004 (price bands) and per-prospect consent ratification (APR-007)"
+    "next_action": "Pull the exact final PR #52 head, run bounded live free-route smoke, then complete the 24+ hour zero-paid/zero-send soak before marking the PR ready."
   },
   {
     "phase": 3,
