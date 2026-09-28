@@ -36,3 +36,4 @@ jobs:
       - run: uv build --wheel --sdist --out-dir /tmp/wa-wheel
       - run: uv run --locked --no-build python -m playwright install --with-deps chromium
       - run: WA_BROWSER_E2E=1 uv run --locked --no-build python -m pytest toolkit_tests/test_browser_e2e.py toolkit_tests/test_monthly_browser_e2e.py -q
+      - run: WA_CATALYX_WEB_BROWSER_E2E=1 uv run --locked --no-sync --no-build python -m pytest toolkit_tests/test_catalyx_web_browser_e2e.py -q
