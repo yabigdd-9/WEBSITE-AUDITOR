@@ -306,3 +306,8 @@ evidence that are not available in the current checkout.
   both existing Chromium journeys, and the Catalyx customer/admin journey
   passed. Gitleaks, pip-audit, and SonarCloud passed. Vercel remains rate-limited
   on this head; no soak was rerun.
+- Commit `cdb02b0d` lets a new login source proceed to the shared application
+  budget when the bounded per-source rate-limit table is full. This prevents
+  table saturation itself from rejecting every first-time source while keeping
+  aggregate password work bounded. Three focused capacity tests passed; Ruff
+  and `git diff --check` passed. Hosted checks are running; no soak was rerun.
