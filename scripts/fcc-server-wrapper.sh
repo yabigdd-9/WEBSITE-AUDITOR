@@ -2,8 +2,6 @@
 set -eu
 
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-export HOST=127.0.0.1
-export PORT="${PORT:-8082}"
 export PATH="$HOME/.local/bin:/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:$PATH"
 
 load_env_file() {
@@ -16,6 +14,10 @@ load_env_file() {
 
 load_env_file "$ROOT/.env"
 load_env_file "$ROOT/.env.fcc"
+
+# Security boundary: repo env files must never broaden the FCC listener.
+export HOST=127.0.0.1
+export PORT="${MM_FCC_PORT:-8082}"
 
 command -v fcc-server >/dev/null 2>&1 || {
   echo "fcc-server not found in PATH" >&2
