@@ -301,3 +301,8 @@ evidence that are not available in the current checkout.
   authentication rate-table cap remains atomic under contention. The six
   focused auth rate-limit tests pass; hosted checks for this test-only commit
   are pending. No soak was rerun.
+- Hosted run `36405122985` at `76b5221d` passed **285 tests**, skipped five
+  opt-in tests, and reported two upstream warnings. Ruff, package checks/build,
+  both existing Chromium journeys, and the Catalyx customer/admin journey
+  passed. Gitleaks, pip-audit, and SonarCloud passed. Vercel remains rate-limited
+  on this head; no soak was rerun.
