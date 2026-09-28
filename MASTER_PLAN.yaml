@@ -270,7 +270,7 @@ catalyxlabs_rebuild:
     intended_worktree_plan_status: "The user-created MASTER_EXECUTION_PLAN.md is committed and pushed on codex/catalyx-plan-update at 6972fb59 in the phase1-rebuild importer directory. That branch is based directly on the requested 0348b3f9 SHA. The file preserves the original phase scope and records current verification and owner gates; implementation remains in the separate codex/catalyx-rebuild-phase1-5 branch, also based on 0348b3f9."
     implementation_worktree: "/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild"
     implementation_worktree_status: >-
-      Branch codex/catalyx-rebuild-phase1-5 is pushed through ebe001e6 and now
+      Branch codex/catalyx-rebuild-phase1-5 is pushed through adc59f94 and now
       includes merge commit b0630ed9 from upgrade/v32-canonical-execution;
       its original feature work remains based on the requested 0348b3f9. The
       merge resolved pipeline/watchdog conflicts, restored persisted flow
@@ -287,14 +287,18 @@ catalyxlabs_rebuild:
       31bbd0a1. Local locked sync now includes a versioned `email` extra, and
       both full-regression workflows use `uv sync --locked`; local suite passed
       279 tests with 5 opt-in skips and 2 upstream warnings, plus Ruff, lock,
-      package compatibility, and wheel/sdist build. At 31bbd0a1 SonarCloud still
-      reported a D security rating, including the egress TLS rule and pip
-      workflow locking; ebe001e6 changes the TLS context to the verified
-      server default and uses the project lock in workflows, with fresh hosted
-      analysis pending. The standard TOTP HMAC-SHA1 finding remains unresolved
-      because existing authenticator seeds use the RFC-default algorithm and a
-      safe change requires versioned algorithm compatibility. Earlier hosted
-      Gitleaks and pip-audit checks passed at b7d6904. A source security scan at f3e04482 reviewed all 15
+      package compatibility, and wheel/sdist build. Commits ebe001e6, 71fdaa1f,
+      and adc59f94 added locked email dependencies, explicit verified TLS,
+      binary-only dependency sync, and a workflow path filter that includes
+      Catalyx source. Hosted run 36390522015 passed toolkit tests, Ruff,
+      package compatibility/build, Chromium install, and real Chromium/PDF
+      tests at adc59f94; Gitleaks and pip-audit also passed. SonarCloud still
+      reports a D security rating with two open findings: TLS protocol
+      construction in egress.py and HMAC-SHA1 in TOTP. The TLS context requires
+      TLS 1.2+, validates certificates and hostnames, but the analyzer does not
+      recognize its configured minimum. HMAC-SHA1 remains for RFC-compatible
+      authenticator seeds; changing it requires versioned algorithm
+      compatibility. A source security scan at f3e04482 reviewed all 15
       catalyx_web files and confirmed a medium shared-login availability issue;
       no login behavior change addresses it.
       PostgreSQL, provider staging, worker isolation, accessibility sign-off,
