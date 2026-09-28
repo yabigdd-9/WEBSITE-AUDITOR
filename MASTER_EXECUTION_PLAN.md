@@ -278,3 +278,17 @@ evidence that are not available in the current checkout.
   targeted Ruff and `git diff --check` passed. The FIFO, symlink CLI, and
   startup-symlink regressions passed together. Hosted verification is pending.
 - All owner and release gates above remain in force. No soak was rerun.
+
+### Latest execution update (2026-09-28, bounded authentication state)
+
+- Commit `898b8b05` caps the persistent authentication rate-limit table at
+  10,000 rows. Expired entries are pruned before capacity is checked, and a new
+  subject is denied when the table remains full; the database check is
+  serialized for SQLite and PostgreSQL.
+- Focused rate-limit coverage passed **5 tests**; the full Catalyx web suite
+  passed **85 tests** with one upstream Starlette/httpx deprecation warning.
+  Ruff and `git diff --check` passed. Hosted checks for `898b8b05` are pending.
+- The aggregate login rate limit can still temporarily deny valid users if
+  authentication is enabled. Hosted authentication remains disabled by default
+  until approved ingress/client-IP semantics and replacement login controls
+  have been tested. No soak was rerun.
