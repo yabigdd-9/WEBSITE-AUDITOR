@@ -178,15 +178,16 @@ phases:
   P9:
     name: "Opportunity scoring"
     priority: HIGH
-    status: "FORMULA_UNIT_TESTED_WORKFLOW_INTEGRATION_OPEN"
-    formula: "need * business_value * contactability * fixability * confidence / delivery_effort"
+    status: "PACKET_FORMULA_INTEGRATED_UPSTREAM_COMMERCIAL_EVIDENCE_HANDOFF_OPEN"
+    formula: "100 * need * business_value * contactability * fixability * confidence / (1 + normalized_effort)"
+    effort_normalization: "Quote upper effort estimate divided by 60 hours and capped at 1.0."
     rule: "Deterministic and replayable from stored inputs."
     latest_verification:
       date: "2026-09-28"
-      formula_tests: "The pure opportunity-v1 function rejects booleans, non-finite values, and out-of-range inputs; its deterministic score and component/input record pass 10 focused cases locally."
-      integration_gap: "No call site currently invokes auditor_toolkit.opportunity.opportunity_formula. Prospect packet generation only copies a precomputed opportunity_score. Money Machine qualification now derives its separate commercial signal score from fresh verified capture evidence, but it does not yet calculate the versioned opportunity formula. Wire the formula to evidence-backed inputs, persist inputs and score, keep the technical website score distinct, and verify packet/operator output. Resolve the formula text versus implementation's normalized (1 + effort) denominator before calling P9 complete."
-      review_branch_evidence: "At c27e8bb4, qualification reads only unexpired, confidence>=0.7 verified captures whose timestamp and capture hash pass validation; the event records evidence IDs, industry and qualification basis. Money Machine pipeline suite: 56 passed; Ruff and diff checks passed. The separate audit technical score remains independently replayed from persisted findings. This change improves commercial signal provenance but does not establish end-to-end opportunity_formula scoring or prospect packet output."
-      hosted_ci_at_c27e8bb4: "Toolkit fixture suite passed; SonarCloud, Gitleaks and pip-audit passed. Vercel is rate-limited for 24 hours; CodeRabbit skipped review because PR #43 is draft. PR remains open and UNSTABLE pending required checks/review."
+      formula_tests: "The pure opportunity-v1 function rejects booleans, non-finite values, and out-of-range inputs. Packet scoring now recomputes the score from evidence-backed audit findings, verified commercial score evidence IDs, contact confidence, remediation classifications, and deterministic quote effort. It persists the formula components, inputs, and factor provenance beside the independent technical audit score. Focused toolkit tests: 18 passed; complete toolkit suite before the final effort-cap test: 178 passed, 4 opt-in skips; Money Machine pipeline suite: 56 passed."
+      integration_gap: "The prospect packet calls auditor_toolkit.opportunity.opportunity_formula through opportunity_from_packet_evidence and rejects cross-run artifacts. Remaining gap: the workflow does not yet construct the packet report DTO with the verified commercial_score and commercial_score_evidence_ids from Money Machine qualification events. Without those fields, the business_value component fails closed to zero. Wire this persisted source to packet generation and verify operator/packet output against a real synthetic end-to-end workflow."
+      review_branch_evidence: "At c27e8bb4, qualification reads only unexpired, confidence>=0.7 verified captures whose timestamp and capture hash pass validation; the event records evidence IDs, industry and qualification basis. At a9bfcaee, the packet recomputes and persists the separate opportunity score and its input/provenance record. The current P9 branch is pushed; focused tests pass. The technical score remains independently replayed from persisted findings."
+      hosted_ci: "At c27e8bb4, toolkit fixture suite, SonarCloud, Gitleaks and pip-audit passed. Vercel is rate-limited for 24 hours; CodeRabbit skips review while PR #43 is draft. Checks for a9bfcaee are running; PR #43 remains open, draft, and UNSTABLE."
   P10:
     name: "Remediation engine"
     priority: HIGH
