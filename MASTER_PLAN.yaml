@@ -401,10 +401,11 @@ catalyxlabs_rebuild:
         actions: ["Synthetic end-to-end customer/reviewer journeys", "Accessibility and local Lighthouse/Lychee evidence", "Verify privacy, evidence, redaction, and disabled-action boundaries"]
         evidence: "At baseline b1bf406e, toolkit_tests/test_catalyx_web.py: 68 passed and the browser journey: 1 passed; Lychee found zero errors across 17 links; eight Lighthouse routes scored 100 in accessibility, best practices, and SEO and 99-100 in performance. Follow-up application commit a8f73a72 uses a 4,337-byte legal-draft stylesheet instead of the 19,577-byte shared stylesheet; its privacy Lighthouse report retains performance 99, improves LCP from 1.06s to 0.8s, reduces render-blocking from 356ms to 159ms, and reports no unused/unminified CSS. Fresh tests at a8f73a72: 68 web tests passed with one warning, Chromium accessibility journey 1 passed in 14.48s, Ruff passed. Human screen-reader/WCAG sign-off and owner ratification remain open. Details: docs/catalyx-platform/phase-6-acceptance.md and report outputs under /Users/dd/Documents/Codex/2026-09-27/i-ll-generate-the-master-execution/outputs/."
         latest_verification:
-          head: "b0567644"
-          hosted_run: "36396949329: full fixture job passed, including the dedicated Catalyx customer/admin journey."
-          local_browser_journey: "1 passed using synthetic identities, temporary SQLite/mailbox, and loopback only; the scan worker remains off."
-          remaining: "Human screen-reader/WCAG review and owner ratification remain open."
+          head: "4d7c6cc98fd1f0837c72813a9ab20258f84836fd"
+          hosted_run: "36399606889: full toolkit suite, Ruff, dependency compatibility, package build, existing browser journeys, and dedicated Catalyx customer/admin journey passed."
+          security_and_preview: "Gitleaks, pip-audit, SonarCloud Code Analysis, and the Vercel preview deployment check passed on this head."
+          local_suite: "toolkit_tests/test_catalyx_web.py: 81 passed; Ruff passed after the TLS context-flow adjustment."
+          remaining: "Human screen-reader/WCAG review, owner ratification, hosting/data decisions, and staged recovery evidence remain open. The owner-reported Claude soak is not repeated by Codex."
         gate: "Automated acceptance using synthetic data; material defects and false positives recorded."
       phase_7:
         name: "Hosting and data architecture"
