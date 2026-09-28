@@ -297,3 +297,7 @@ evidence that are not available in the current checkout.
   customer/admin journey. Gitleaks, pip-audit, and SonarCloud passed. Vercel
   could not build a preview on this head because of the account deployment
   quota. No soak was rerun.
+- Commit `76b5221d` adds a concurrent-new-subject regression to prove the
+  authentication rate-table cap remains atomic under contention. The six
+  focused auth rate-limit tests pass; hosted checks for this test-only commit
+  are pending. No soak was rerun.
