@@ -4,6 +4,7 @@ import copy
 import json
 import sqlite3
 from pathlib import Path
+from urllib.parse import urlsplit, urlunsplit
 
 import mm_core as core
 import mm_email as engine
@@ -203,6 +204,27 @@ def status(d, bid):
             'human_review_required': True, 'outreach_eligible': outreach_ready, 'next_action': 'Complete independent holdout review; production email finding and outreach remain held' if release and release['mode']=='POST_DEPLOYMENT_OBSERVATION' else 'Human relevance/permission and exact-item approval required' if selected else 'No current verified email; review evidence or use public contact form manually'}
 
 
+def _path_free_first_party_url(url, canonical_domain):
+    try:
+        parts = urlsplit(url)
+        port = parts.port
+    except (TypeError, ValueError):
+        return None
+    if (
+        parts.scheme not in ('http', 'https')
+        or not parts.hostname
+        or parts.username
+        or parts.password
+        or engine.root_domain(url) != canonical_domain
+    ):
+        return None
+    host = parts.hostname.lower().rstrip('.')
+    netloc = f'[{host}]' if ':' in host else host
+    if port and port != (80 if parts.scheme == 'http' else 443):
+        netloc += f':{port}'
+    return urlunsplit((parts.scheme, netloc, parts.path, '', ''))
+
+
 def packet_contact(d, bid):
     """Return path-free first-party contact provenance from the current V2 view.
 
@@ -247,23 +269,21 @@ def packet_contact(d, bid):
     for evidence in verification.get('evidence', []):
         if not isinstance(evidence, dict) or evidence.get('email') != email:
             continue
-        url = evidence.get('source_url') or ''
-        try:
-            first_party = engine.root_domain(url) == canonical_domain
-        except (TypeError, ValueError):
-            first_party = False
+        safe_url = _path_free_first_party_url(
+            evidence.get('source_url') or '', canonical_domain
+        )
         path = evidence.get('capture_path')
         capture_hash = evidence.get('capture_hash')
         captured_at = evidence.get('observed_at')
         if (
-            first_party
+            safe_url
             and path
             and capture_hash
             and core.fresh(captured_at)
             and core.artifact_valid(path, capture_hash)
         ):
             sources.append({
-                'source_url': url,
+                'source_url': safe_url,
                 'observed_email': email,
                 'captured_at': captured_at,
                 'capture_sha256': capture_hash,

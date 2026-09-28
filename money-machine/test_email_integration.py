@@ -29,6 +29,20 @@ class EmailIntegration(unittest.TestCase):
     proposal = legacy.Acceptance.proposal
 
     def test_packet_contact_exports_current_path_free_provenance_read_only(self):
+        self.assertEqual(
+            s._path_free_first_party_url(
+                'https://fixture.example.co.nz/contact?session=private#email',
+                'example.co.nz',
+            ),
+            'https://fixture.example.co.nz/contact',
+        )
+        self.assertIsNone(s._path_free_first_party_url(
+            'https://user:secret@fixture.example.co.nz/contact',
+            'example.co.nz',
+        ))
+        self.assertIsNone(s._path_free_first_party_url(
+            'https://directory.example.net/contact', 'example.co.nz'
+        ))
         contact = s.packet_contact(self.d, self.bid)
         self.assertEqual(contact['email'], self.address)
         self.assertEqual(contact['selected']['confidence_label'], 'VERIFIED_HIGH')
