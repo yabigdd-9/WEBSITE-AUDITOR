@@ -27,6 +27,7 @@ AUTH_RATE_LIMIT_MAX_WINDOW_SECONDS = 3600
 AUTH_RATE_LIMIT_CLEANUP_BATCH_SIZE = 100
 MAX_AUTH_RATE_LIMIT_ROWS = 10_000
 MAX_CUSTOMER_WORKSPACES = 5
+CUSTOMER_INVITATION_TTL_SECONDS = 72 * 60 * 60
 
 
 def now_iso() -> str:
@@ -88,6 +89,7 @@ class Database:
         *,
         initialize: bool = True,
         totp_encryption_key: bytes | None = None,
+        postgres_backup_verified: bool = False,
     ):
         value = str(path)
         self.database_url = value if value.startswith(("postgres://", "postgresql://")) else None
@@ -102,7 +104,7 @@ class Database:
             raise DatabaseError("The TOTP encryption key must contain exactly 32 bytes.")
         self._totp_encryption_key = totp_encryption_key or self._load_totp_encryption_key()
         if initialize:
-            self.initialize()
+            self.initialize(postgres_backup_verified=postgres_backup_verified)
 
     def _secure_local_database_file(self) -> None:
         """Create or restrict the SQLite file before opening it for database work."""
@@ -308,14 +310,16 @@ class Database:
             ).fetchone()
         return row is not None
 
-    def initialize(self) -> None:
+    def initialize(self, *, postgres_backup_verified: bool = False) -> None:
         if self.database_url:
-            self._initialize_postgres()
+            self._initialize_postgres(postgres_backup_verified=postgres_backup_verified)
             self._protect_totp_secrets()
+            self._purge_expired_customer_invitations()
             return
+        self._backup_before_sqlite_migration()
         with self.connect() as db:
             version = db.execute("PRAGMA user_version").fetchone()[0]
-            if version > 8:
+            if version > 9:
                 raise RuntimeError("Catalyx application database is newer than this version")
             db.executescript(
                 """
@@ -465,6 +469,15 @@ class Database:
                     created_at TEXT NOT NULL
                 );
                 CREATE INDEX IF NOT EXISTS idx_password_reset_expiry ON password_reset_tokens(expires_at);
+                CREATE TABLE IF NOT EXISTS customer_invitations (
+                    id TEXT PRIMARY KEY,
+                    token_hash TEXT NOT NULL UNIQUE,
+                    email_fingerprint TEXT NOT NULL,
+                    created_by TEXT NOT NULL REFERENCES users(id),
+                    expires_at INTEGER NOT NULL,
+                    created_at TEXT NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_customer_invitations_expiry ON customer_invitations(expires_at);
                 """
             )
             columns = {row["name"] for row in db.execute("PRAGMA table_info(audit_requests)")}
@@ -482,8 +495,92 @@ class Database:
                     "ALTER TABLE memberships ADD COLUMN totp_algorithm TEXT NOT NULL "
                     "DEFAULT 'SHA1' CHECK(totp_algorithm IN ('SHA1','SHA256','SHA512'))"
                 )
-            db.execute("PRAGMA user_version=8")
+            db.execute("PRAGMA user_version=9")
         self._protect_totp_secrets()
+        self._purge_expired_customer_invitations()
+
+    def _purge_expired_customer_invitations(self) -> None:
+        with self.connect() as db:
+            db.execute("DELETE FROM customer_invitations WHERE expires_at<=?", (int(time.time()),))
+
+    def _backup_before_sqlite_migration(self) -> None:
+        """Create and validate a private SQLite backup before changing an old schema."""
+        if self.database_url is not None or not self.path.exists() or self.path.stat().st_size == 0:
+            return
+        source = sqlite3.connect(self.path, timeout=10)
+        try:
+            version = source.execute("PRAGMA user_version").fetchone()[0]
+            tables = source.execute(
+                "SELECT count(*) FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+            ).fetchone()[0]
+            if version >= 9 or not tables:
+                return
+            timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ")
+            backup_path = self.path.with_name(self.path.name + ".pre-v9-" + timestamp + ".bak")
+            temporary_path = backup_path.with_name(backup_path.name + ".tmp")
+            try:
+                descriptor = os.open(
+                    temporary_path,
+                    os.O_RDWR | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0),
+                    0o600,
+                )
+                os.fchmod(descriptor, 0o600)
+                os.close(descriptor)
+            except OSError:
+                raise DatabaseError("The pre-migration SQLite backup could not be created safely.") from None
+            destination = sqlite3.connect(temporary_path)
+            try:
+                source.backup(destination)
+                destination.commit()
+            except Exception:
+                destination.close()
+                temporary_path.unlink(missing_ok=True)
+                raise DatabaseError("The pre-migration SQLite backup could not be created safely.") from None
+            else:
+                destination.close()
+            try:
+                verify = sqlite3.connect(temporary_path)
+                integrity = verify.execute("PRAGMA integrity_check").fetchone()[0]
+                backup_version = verify.execute("PRAGMA user_version").fetchone()[0]
+                table_count = verify.execute(
+                    "SELECT count(*) FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+                ).fetchone()[0]
+                verify.close()
+                schema = sqlite3.connect(self.path)
+                backup_schema = sqlite3.connect(temporary_path)
+                schema_digest = hashlib.sha256(
+                    repr(schema.execute(
+                        "SELECT type,name,tbl_name,sql FROM sqlite_master "
+                        "WHERE name NOT LIKE 'sqlite_%' ORDER BY type,name"
+                    ).fetchall()).encode("utf-8")
+                ).hexdigest()
+                backup_digest = hashlib.sha256(
+                    repr(backup_schema.execute(
+                        "SELECT type,name,tbl_name,sql FROM sqlite_master "
+                        "WHERE name NOT LIKE 'sqlite_%' ORDER BY type,name"
+                    ).fetchall()).encode("utf-8")
+                ).hexdigest()
+                schema.close()
+                backup_schema.close()
+                if (
+                    integrity != "ok" or backup_version != version or table_count != tables
+                    or schema_digest != backup_digest
+                ):
+                    raise DatabaseError("The pre-migration SQLite backup did not verify.")
+                os.replace(temporary_path, backup_path)
+                directory_fd = os.open(self.path.parent, os.O_RDONLY)
+                try:
+                    os.fsync(directory_fd)
+                finally:
+                    os.close(directory_fd)
+            except DatabaseError:
+                temporary_path.unlink(missing_ok=True)
+                raise
+            except Exception:
+                temporary_path.unlink(missing_ok=True)
+                raise DatabaseError("The pre-migration SQLite backup could not be verified safely.") from None
+        finally:
+            source.close()
 
     def _load_totp_encryption_key(self) -> bytes:
         configured = os.getenv("CATALYX_TOTP_ENCRYPTION_KEY", "")
@@ -654,8 +751,24 @@ class Database:
             "applied": apply,
         }
 
-    def _initialize_postgres(self) -> None:
+    def _initialize_postgres(self, *, postgres_backup_verified: bool = False) -> None:
         with self.connect() as db:
+            existing_tables = db.execute(
+                "SELECT count(*) FROM information_schema.tables "
+                "WHERE table_schema=current_schema() AND table_type='BASE TABLE'"
+            ).fetchone()[0]
+            has_version_table = db.execute(
+                "SELECT EXISTS(SELECT 1 FROM information_schema.tables "
+                "WHERE table_schema=current_schema() AND table_name='catalyx_schema_version')"
+            ).fetchone()[0]
+            existing_version = (
+                db.execute("SELECT version FROM catalyx_schema_version WHERE singleton=TRUE").fetchone()[0]
+                if has_version_table else 0
+            )
+            if existing_tables and existing_version < 9 and not postgres_backup_verified:
+                raise DatabaseError(
+                    "PostgreSQL migration requires a verified external backup artifact."
+                )
             db.execute(
                 "CREATE TABLE IF NOT EXISTS catalyx_schema_version ("
                 "singleton BOOLEAN PRIMARY KEY DEFAULT TRUE CHECK(singleton), "
@@ -664,7 +777,7 @@ class Database:
             db.execute("SELECT pg_advisory_xact_lock(hashtext('catalyx_web_schema'))")
             db.execute("INSERT INTO catalyx_schema_version(singleton,version) VALUES(TRUE,0) ON CONFLICT(singleton) DO NOTHING")
             version = db.execute("SELECT version FROM catalyx_schema_version WHERE singleton=TRUE").fetchone()["version"]
-            if version > 8:
+            if version > 9:
                 raise DatabaseError("Catalyx application database is newer than this version")
             db.executescript(
                 """
@@ -814,6 +927,15 @@ class Database:
                     created_at TEXT NOT NULL
                 );
                 CREATE INDEX IF NOT EXISTS idx_password_reset_expiry ON password_reset_tokens(expires_at);
+                CREATE TABLE IF NOT EXISTS customer_invitations (
+                    id TEXT PRIMARY KEY,
+                    token_hash TEXT NOT NULL UNIQUE,
+                    email_fingerprint TEXT NOT NULL,
+                    created_by TEXT NOT NULL REFERENCES users(id),
+                    expires_at BIGINT NOT NULL,
+                    created_at TEXT NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_customer_invitations_expiry ON customer_invitations(expires_at);
                 """
             )
             db.execute("ALTER TABLE audit_requests ADD COLUMN IF NOT EXISTS attempt_count INTEGER NOT NULL DEFAULT 0")
@@ -824,7 +946,7 @@ class Database:
                 "ALTER TABLE memberships ADD COLUMN IF NOT EXISTS totp_algorithm TEXT "
                 "NOT NULL DEFAULT 'SHA1' CHECK(totp_algorithm IN ('SHA1','SHA256','SHA512'))"
             )
-            db.execute("UPDATE catalyx_schema_version SET version=8 WHERE singleton=TRUE")
+            db.execute("UPDATE catalyx_schema_version SET version=9 WHERE singleton=TRUE")
 
     def create_customer(self, email: str, password_hash: str) -> tuple[str, str]:
         user_id, workspace_id = str(uuid.uuid4()), str(uuid.uuid4())
@@ -849,6 +971,107 @@ class Database:
             db.execute(
                 "INSERT INTO memberships(workspace_id,user_id,role,created_at) VALUES(?,?,?,?)",
                 (workspace_id, user_id, "customer", now_iso()),
+            )
+        return user_id, workspace_id
+
+    def _invitation_email_fingerprint(self, email: str) -> str:
+        return hmac.new(
+            self._totp_encryption_key,
+            b"catalyx-customer-invitation-email-v1\0" + email.encode("utf-8"),
+            hashlib.sha256,
+        ).hexdigest()
+
+    def issue_customer_invitation(
+        self, actor: dict, email: str, token_hash: str, *, now: int, expires_at: int
+    ) -> str:
+        invitation_id = str(uuid.uuid4())
+        fingerprint = self._invitation_email_fingerprint(email)
+        with self.connect() as db:
+            if self.database_url is not None:
+                db.execute("SELECT pg_advisory_xact_lock(1128350801, 3)")
+            else:
+                db.execute("BEGIN IMMEDIATE")
+            db.execute("DELETE FROM customer_invitations WHERE expires_at<=?", (now,))
+            if db.execute("SELECT 1 FROM users WHERE email=?", (email,)).fetchone():
+                raise ValueError("An account already exists for this email address.")
+            if db.execute(
+                "SELECT 1 FROM customer_invitations WHERE email_fingerprint=? AND expires_at>?",
+                (fingerprint, now),
+            ).fetchone():
+                raise ValueError("An active invitation already exists for this email address.")
+            db.execute(
+                "INSERT INTO customer_invitations(id,token_hash,email_fingerprint,created_by,expires_at,created_at) "
+                "VALUES(?,?,?,?,?,?)",
+                (invitation_id, token_hash, fingerprint, actor["user_id"], expires_at, now_iso()),
+            )
+            self.audit_admin(
+                actor, "customer_invitation_created", "customer_invitation", invitation_id,
+                "Invitation issued for owner-reviewed beta access", {}, connection=db,
+            )
+        return invitation_id
+
+    def revoke_customer_invitation(self, actor: dict, invitation_id: str, *, now: int) -> bool:
+        with self.connect() as db:
+            if self.database_url is not None:
+                db.execute("SELECT pg_advisory_xact_lock(1128350801, 3)")
+            else:
+                db.execute("BEGIN IMMEDIATE")
+            row = db.execute(
+                "SELECT id FROM customer_invitations WHERE id=? AND expires_at>?",
+                (invitation_id, now),
+            ).fetchone()
+            if row is None:
+                return False
+            db.execute("DELETE FROM customer_invitations WHERE id=?", (invitation_id,))
+            self.audit_admin(
+                actor, "customer_invitation_revoked", "customer_invitation", invitation_id,
+                "Invitation revoked by an administrator", {}, connection=db,
+            )
+        return True
+
+    def create_invited_customer(
+        self, email: str, password_hash: str, token_hash: str, *, now: int
+    ) -> tuple[str, str] | None:
+        """Consume a matching one-time invitation and create an unverified account atomically."""
+        fingerprint = self._invitation_email_fingerprint(email)
+        user_id, workspace_id = str(uuid.uuid4()), str(uuid.uuid4())
+        with self.connect() as db:
+            if self.database_url is not None:
+                db.execute("SELECT pg_advisory_xact_lock(1128350801, 1)")
+                db.execute("SELECT pg_advisory_xact_lock(1128350801, 3)")
+            else:
+                db.execute("BEGIN IMMEDIATE")
+            row = db.execute(
+                "SELECT i.id,i.created_by,m.role AS actor_role FROM customer_invitations i "
+                "JOIN memberships m ON m.user_id=i.created_by AND m.active=1 "
+                "WHERE i.token_hash=? AND i.email_fingerprint=? AND i.expires_at>? "
+                "AND m.role IN ('owner','admin')",
+                (token_hash, fingerprint, now),
+            ).fetchone()
+            if row is None:
+                return None
+            customer_workspaces = db.execute(
+                "SELECT count(DISTINCT workspace_id) FROM memberships WHERE role='customer'"
+            ).fetchone()[0]
+            if customer_workspaces >= MAX_CUSTOMER_WORKSPACES:
+                raise ValueError("The first-release beta is currently full.")
+            db.execute("DELETE FROM customer_invitations WHERE id=?", (row["id"],))
+            db.execute(
+                "INSERT INTO users(id,email,password_hash,created_at) VALUES(?,?,?,?)",
+                (user_id, email, password_hash, now_iso()),
+            )
+            db.execute(
+                "INSERT INTO workspaces(id,name,created_at) VALUES(?,?,?)",
+                (workspace_id, email.split("@", 1)[0][:80] + " workspace", now_iso()),
+            )
+            db.execute(
+                "INSERT INTO memberships(workspace_id,user_id,role,created_at) VALUES(?,?,?,?)",
+                (workspace_id, user_id, "customer", now_iso()),
+            )
+            self.audit_admin(
+                {"user_id": row["created_by"], "role": row["actor_role"]},
+                "customer_invitation_accepted", "user", user_id,
+                "One-time owner-issued invitation accepted", {}, connection=db,
             )
         return user_id, workspace_id
 

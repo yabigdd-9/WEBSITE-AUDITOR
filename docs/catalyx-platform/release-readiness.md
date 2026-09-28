@@ -79,8 +79,12 @@
   stay hidden or unavailable until `CATALYX_REGISTRATION_MODE=open` is set.
   Local development remains open by default when that variable is omitted.
   This is a fail-closed implementation default, not owner approval of open
-  self-service; A1 onboarding and any invitation/admin-review flow remain
-  unresolved.
+  self-service. The isolated `codex/catalyx-invitations` branch now adds a
+  local-only `invitation_only` mode, administrator issue/revoke, one-use
+  email-bound tokens, and an administrator identity-review action. This is
+  implementation in a review branch only: focused tests, independent review,
+  PR integration, and owner review remain outstanding. Hosted mode rejects
+  invitation onboarding and remains closed by default.
 - The project now has `uv.lock` and a separate hash-pinned
   `requirements-catalyx-web.lock` for the selected web runtime (`web` and
   `portal` extras). `uv audit --locked` for the selected production web profile

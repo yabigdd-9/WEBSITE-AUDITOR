@@ -58,12 +58,35 @@ owner approval of key retention and recovery.
 
 Local registration writes verification links to the mode-0600 `state/catalyx-local-mailbox.json` file; view it explicitly with `catalyx-web --show-local-mailbox`. The one-time links are kept out of server logs. This mailbox is local staging only. Hosted startup requires a PostgreSQL URL, a fixed HTTPS public origin, and an explicit TOTP encryption key; it does not run database migrations automatically. Mail defaults to disabled. To opt into transactional SMTP, set `CATALYX_MAIL_MODE=smtp` and `CATALYX_EXTERNAL_SEND_ALLOWED=true`, then provide the authenticated SMTP settings below. A PostgreSQL adapter is available through `CATALYX_DATABASE_URL`, and `catalyx-db-migrate` explicitly initializes/upgrades its schema. No live PostgreSQL integration has been completed; do not use this adapter with customer data yet.
 
-Public registration is disabled by default on hosted preview and production. Set
-`CATALYX_REGISTRATION_MODE=open` only after the owner approves that onboarding
-mode. Local development defaults to open registration when the setting is
-omitted; the example environment file sets it to `closed` as a safer copy
-starting point. Invitation-only or administrator-reviewed onboarding is not
-implemented by this flag and still needs its own reviewed flow if selected.
+Public registration is disabled by default on hosted preview and production.
+Local development defaults to open registration for legacy synthetic tests.
+For the local invitation beta, set `CATALYX_REGISTRATION_MODE=invitation_only`;
+an owner/admin can issue a 72-hour, one-use link from `/admin/invitations`.
+The invite address is stored only as a keyed fingerprint, the token is stored
+as a hash, and no email or audit job is created. The invitee's account remains
+unverified until an owner/admin records an identity review on the customer
+page. The invitation flow is explicitly rejected in hosted mode; it does not
+approve production identity verification, customer data, or launch.
+
+SQLite schema upgrades first create a mode-0600 `.pre-v9-*.bak` file and verify
+its integrity, schema version, and schema fingerprint before applying the
+migration. If backup creation or verification fails, startup stops before
+schema changes. Existing PostgreSQL databases require a verified `pg_dump`
+artifact when running `catalyx-db-migrate`; live PostgreSQL restore and
+concurrency behavior remain unverified. Example for a reviewed maintenance
+window:
+
+```sh
+pg_dump --format=custom --file state/catalyx-pre-migration.dump "$CATALYX_DATABASE_URL"
+shasum -a 256 state/catalyx-pre-migration.dump
+catalyx-db-migrate --database "$CATALYX_DATABASE_URL" \
+  --postgres-backup state/catalyx-pre-migration.dump \
+  --postgres-backup-sha256 <reviewed-sha256>
+```
+
+Store and protect the dump outside the application checkout according to the
+approved retention policy. The command checks the dump signature and the
+operator-supplied digest; it does not perform a restore rehearsal.
 
 The built-in SMTP sender supports implicit TLS on port 465 or STARTTLS on port 587. Set `CATALYX_MAIL_MODE=smtp`, `CATALYX_EXTERNAL_SEND_ALLOWED=true`, `CATALYX_SMTP_HOST`, `CATALYX_SMTP_PORT`, `CATALYX_SMTP_USERNAME`, `CATALYX_SMTP_PASSWORD`, and `CATALYX_SMTP_FROM` only after an owner-approved email provider is available. No SMTP credentials are stored in the repository. Hosted startup validates the presence and shape of these settings but does not prove provider connectivity or deliverability. Failed verification delivery can be retried from `/resend-verification`; password-reset requests can be repeated.
 

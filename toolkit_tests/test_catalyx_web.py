@@ -6,6 +6,7 @@ import json
 import os
 import re
 import socket
+import sqlite3
 import ssl
 import stat
 import sys
@@ -212,6 +213,217 @@ def test_sqlite_database_file_permissions_are_owner_only(tmp_path, monkeypatch):
         patch_context.setattr("catalyx_web.db.os.fchmod", deny_permission_change)
         with pytest.raises(DatabaseError, match="permissions could not be secured"):
             Database(tmp_path / "unsecure.sqlite3")
+
+
+def test_sqlite_schema_upgrade_keeps_verified_private_pre_migration_backup(tmp_path):
+    db_path = tmp_path / "migration.sqlite3"
+    Database(db_path)
+    with sqlite3.connect(db_path) as db:
+        db.execute("DROP TABLE customer_invitations")
+        db.execute("PRAGMA user_version=8")
+
+    migrated = Database(db_path)
+
+    backups = list(tmp_path.glob("migration.sqlite3.pre-v9-*.bak"))
+    assert len(backups) == 1
+    assert stat.S_IMODE(backups[0].stat().st_mode) == 0o600
+    with sqlite3.connect(backups[0]) as backup:
+        assert backup.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+        assert backup.execute("PRAGMA user_version").fetchone()[0] == 8
+        assert backup.execute(
+            "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='customer_invitations'"
+        ).fetchone()[0] == 0
+    with migrated.connect() as db:
+        assert db.execute("PRAGMA user_version").fetchone()[0] == 9
+        assert db.execute("SELECT count(*) FROM customer_invitations").fetchone()[0] == 0
+
+
+def test_sqlite_schema_upgrade_fails_closed_when_backup_fails(tmp_path, monkeypatch):
+    db_path = tmp_path / "migration-failure.sqlite3"
+    Database(db_path)
+    with sqlite3.connect(db_path) as db:
+        db.execute("DROP TABLE customer_invitations")
+        db.execute("PRAGMA user_version=8")
+
+    def fail_backup(_self):
+        raise DatabaseError("simulated backup failure")
+
+    monkeypatch.setattr(Database, "_backup_before_sqlite_migration", fail_backup)
+    with pytest.raises(DatabaseError, match="simulated backup failure"):
+        Database(db_path)
+    with sqlite3.connect(db_path) as db:
+        assert db.execute("PRAGMA user_version").fetchone()[0] == 8
+        assert db.execute(
+            "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='customer_invitations'"
+        ).fetchone()[0] == 0
+
+
+def test_invitation_only_onboarding_is_admin_gated_private_and_one_time(tmp_path, monkeypatch):
+    for key in ("CATALYX_ENV", "VERCEL", "K_SERVICE", "AWS_LAMBDA_FUNCTION_NAME"):
+        monkeypatch.delenv(key, raising=False)
+    monkeypatch.setenv("CATALYX_AUTH_ENABLED", "true")
+    monkeypatch.setenv("CATALYX_REGISTRATION_MODE", "invitation_only")
+    monkeypatch.setenv("CATALYX_MAIL_MODE", "local_mailbox")
+    monkeypatch.setenv("CATALYX_EXTERNAL_SEND_ALLOWED", "false")
+    db_path = tmp_path / "invitation.sqlite3"
+    client = TestClient(create_app(db_path, tmp_path / "mailbox.json"))
+    database = Database(db_path)
+    admin_email = "inviter@example.invalid"
+    admin_password = "a-long-admin-password-456"
+    admin_secret = "JBSWY3DPEHPK3PXP"
+    database.create_admin(admin_email, hash_password(admin_password), admin_secret)
+
+    login_page = client.get("/login")
+    login = client.post(
+        "/login",
+        data={
+            "csrf": form_token(login_page),
+            "email": admin_email,
+            "password": admin_password,
+            "otp": totp_code(admin_secret),
+        },
+        follow_redirects=False,
+    )
+    assert login.status_code == 303
+    admin_page = client.get("/admin/invitations")
+    assert admin_page.status_code == 200
+    assert "expire after 72 hours" in admin_page.text
+    csrf = re.search(r'name="csrf" value="([^"]+)"', admin_page.text).group(1)
+    invited_email = "beta@example.invalid"
+    created = client.post(
+        "/admin/invitations",
+        data={"csrf": csrf, "email": invited_email},
+    )
+    assert created.status_code == 200
+    assert "shown only once" in created.text
+    assert created.headers["referrer-policy"] == "no-referrer"
+    assert client.app.state.local_mailbox == []
+    duplicate = client.post(
+        "/admin/invitations",
+        data={"csrf": csrf, "email": invited_email},
+    )
+    assert duplicate.status_code == 409
+    assert invited_email not in duplicate.text
+    invite_url = re.search(r'value="(http[^\"]+/register#([^\"]+))"', created.text)
+    assert invite_url
+    token = invite_url.group(2)
+    assert token not in (tmp_path / "mailbox.json").read_text() if (tmp_path / "mailbox.json").exists() else True
+
+    registration = client.get("/register#" + token)
+    assert registration.status_code == 200
+    assert registration.headers["cache-control"] == "no-store"
+    assert registration.headers["referrer-policy"] == "strict-origin-when-cross-origin"
+    assert "invitation.js" in registration.text
+    form_csrf = form_token(registration)
+    mismatch = client.post(
+        "/register",
+        data={
+            "csrf": form_csrf,
+            "invitation_token": token,
+            "email": "other@example.invalid",
+            "password": "a-long-local-password-123",
+            "password_confirm": "a-long-local-password-123",
+        },
+    )
+    assert mismatch.status_code == 400
+    accepted = client.post(
+        "/register",
+        data={
+            "csrf": form_csrf,
+            "invitation_token": token,
+            "email": invited_email,
+            "password": "a-long-local-password-123",
+            "password_confirm": "a-long-local-password-123",
+        },
+    )
+    assert accepted.status_code == 200
+    assert "awaiting review" in accepted.text
+    assert accepted.headers["referrer-policy"] == "no-referrer"
+    replayed = client.post(
+        "/register",
+        data={
+            "csrf": form_csrf,
+            "invitation_token": token,
+            "email": invited_email,
+            "password": "another-long-password-456",
+            "password_confirm": "another-long-password-456",
+        },
+    )
+    assert replayed.status_code == 400
+    with database.connect() as db:
+        customer = db.execute("SELECT id,email_verified_at FROM users WHERE email=?", (invited_email,)).fetchone()
+        assert customer["email_verified_at"] is None
+        assert db.execute("SELECT count(*) FROM customer_invitations").fetchone()[0] == 0
+        assert db.execute("SELECT count(*) FROM audit_requests").fetchone()[0] == 0
+        assert db.execute("SELECT count(*) FROM verification_tokens").fetchone()[0] == 0
+        assert db.execute(
+            "SELECT count(*) FROM admin_activity WHERE action='customer_invitation_accepted'"
+        ).fetchone()[0] == 1
+        stored = db.execute("SELECT token_hash,email_fingerprint FROM customer_invitations").fetchall()
+        assert token not in repr(stored)
+        assert invited_email not in repr(stored)
+    customer_page = client.get("/admin/customers/" + customer["id"])
+    verify = client.post(
+        "/admin/customers/" + customer["id"] + "/verify-email",
+        data={
+            "csrf": form_token(customer_page),
+            "reason": "Identity reviewed for the local beta invitation.",
+        },
+        follow_redirects=False,
+    )
+    assert verify.status_code == 303
+    with database.connect() as db:
+        assert db.execute("SELECT email_verified_at FROM users WHERE id=?", (customer["id"],)).fetchone()[0]
+        activity = db.execute(
+            "SELECT reason,metadata FROM admin_activity WHERE action='customer_identity_verified'"
+        ).fetchone()
+        assert activity["reason"] == "Identity reviewed for the local beta invitation."
+        assert activity["metadata"] == '{"method": "administrator_review"}'
+        invitation_activity = db.execute(
+            "SELECT target_id,reason,metadata FROM admin_activity "
+            "WHERE action IN ('customer_invitation_created','customer_invitation_accepted')"
+        ).fetchall()
+        assert invitation_activity
+        assert invited_email not in repr(invitation_activity)
+        assert token not in repr(invitation_activity)
+
+
+def test_customer_invitation_revocation_and_expiry_are_enforced(tmp_path):
+    database = Database(tmp_path / "invitation-state.sqlite3")
+    admin_id = database.create_admin(
+        "admin@example.invalid",
+        hash_password("a-long-admin-password-456"),
+        "JBSWY3DPEHPK3PXP",
+    )
+    actor = {"user_id": admin_id, "role": "owner"}
+    revoked_token_hash = hashlib.sha256(b"revoked-token").hexdigest()
+    revoked_id = database.issue_customer_invitation(
+        actor, "revoked@example.invalid", revoked_token_hash, now=100, expires_at=200
+    )
+    assert database.revoke_customer_invitation(actor, revoked_id, now=101)
+    assert not database.revoke_customer_invitation(actor, revoked_id, now=101)
+    assert database.create_invited_customer(
+        "revoked@example.invalid", "unused", revoked_token_hash, now=102
+    ) is None
+
+    expired_token_hash = hashlib.sha256(b"expired-token").hexdigest()
+    database.issue_customer_invitation(
+        actor, "expired@example.invalid", expired_token_hash, now=100, expires_at=200
+    )
+    assert database.create_invited_customer(
+        "expired@example.invalid", "unused", expired_token_hash, now=200
+    ) is None
+    Database(tmp_path / "invitation-state.sqlite3")
+    with database.connect() as db:
+        assert db.execute("SELECT count(*) FROM customer_invitations").fetchone()[0] == 0
+
+
+def test_invitation_only_mode_cannot_start_on_hosted_environment(tmp_path, monkeypatch):
+    monkeypatch.setenv("VERCEL", "1")
+    monkeypatch.setenv("CATALYX_REGISTRATION_MODE", "invitation_only")
+    monkeypatch.setenv("CATALYX_AUTH_ENABLED", "true")
+    with pytest.raises(RuntimeError, match="local-only"):
+        create_app(tmp_path / "hosted-invitation.sqlite3")
 
 
 def test_admin_totp_secrets_are_encrypted_and_legacy_seeds_are_migrated(tmp_path):
@@ -886,7 +1098,7 @@ def test_schema_v3_database_migrates_to_persistent_auth_rate_limits(
     upgraded = Database(database_path)
     assert upgraded.allow_rate_attempt("login", "192.0.2.4", 2, 60, now=2000)
     with upgraded.connect() as db:
-        assert db.execute("PRAGMA user_version").fetchone()[0] == 8
+        assert db.execute("PRAGMA user_version").fetchone()[0] == 9
         columns = {row["name"] for row in db.execute("PRAGMA table_info(audit_requests)")}
         assert "worker_lease_token" in columns
         membership_columns = {row["name"] for row in db.execute("PRAGMA table_info(memberships)")}

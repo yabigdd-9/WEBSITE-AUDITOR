@@ -18,6 +18,34 @@ pytestmark = pytest.mark.skipif(
 )
 
 
+def start_local_app_server(app):
+    import uvicorn
+
+    sock = socket.socket()
+    sock.bind(("127.0.0.1", 0))
+    sock.listen()
+    port = sock.getsockname()[1]
+    server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=port, log_level="critical"))
+    thread = threading.Thread(target=server.run, kwargs={"sockets": [sock]}, daemon=True)
+    thread.start()
+    for _ in range(100):
+        if server.started:
+            break
+        time.sleep(0.05)
+    if not server.started:
+        server.should_exit = True
+        thread.join(10)
+        sock.close()
+        raise AssertionError("local Catalyx web server did not start")
+    return server, thread, sock, f"http://127.0.0.1:{port}"
+
+
+def stop_local_app_server(server, thread, sock):
+    server.should_exit = True
+    thread.join(10)
+    sock.close()
+
+
 def assert_keyboard_focus_order(page):
     selector = (
         'a[href],button:not([disabled]),input:not([type="hidden"]):not([disabled]),'
@@ -196,7 +224,6 @@ def assert_accessible_structure(page):
 
 
 def test_customer_registration_site_request_and_admin_review(tmp_path, monkeypatch):
-    import uvicorn
     from playwright.sync_api import expect, sync_playwright
 
     from catalyx_web.app import create_app
@@ -213,21 +240,8 @@ def test_customer_registration_site_request_and_admin_review(tmp_path, monkeypat
     admin_secret = "JBSWY3DPEHPK3PXP"
     Database(database_path).create_admin(admin_email, hash_password(admin_password), admin_secret)
 
-    sock = socket.socket()
-    sock.bind(("127.0.0.1", 0))
-    sock.listen()
-    port = sock.getsockname()[1]
-    server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=port, log_level="critical"))
-    thread = threading.Thread(target=server.run, kwargs={"sockets": [sock]}, daemon=True)
-    thread.start()
-    base_url = f"http://127.0.0.1:{port}"
+    server, thread, sock, base_url = start_local_app_server(app)
     try:
-        for _ in range(100):
-            if server.started:
-                break
-            time.sleep(0.05)
-        assert server.started, "local Catalyx web server did not start"
-
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch(headless=True)
             try:
@@ -352,6 +366,73 @@ def test_customer_registration_site_request_and_admin_review(tmp_path, monkeypat
             finally:
                 browser.close()
     finally:
-        server.should_exit = True
-        thread.join(10)
-        sock.close()
+        stop_local_app_server(server, thread, sock)
+
+
+def test_invitation_fragment_is_copied_then_removed_before_server_request(tmp_path, monkeypatch):
+    from playwright.sync_api import expect, sync_playwright
+
+    from catalyx_web.app import create_app
+    from catalyx_web.db import Database
+    from catalyx_web.security import hash_password, totp_code
+
+    monkeypatch.setenv("CATALYX_ENV", "development")
+    monkeypatch.setenv("CATALYX_AUTH_ENABLED", "true")
+    monkeypatch.setenv("CATALYX_REGISTRATION_MODE", "invitation_only")
+    monkeypatch.setenv("CATALYX_MAIL_MODE", "local_mailbox")
+    monkeypatch.setenv("CATALYX_EXTERNAL_SEND_ALLOWED", "false")
+    database_path = tmp_path / "catalyx-invitation-browser.sqlite3"
+    mailbox_path = tmp_path / "catalyx-invitation-mailbox.json"
+    app = create_app(database_path, mailbox_path)
+
+    admin_email = "inviter@example.invalid"
+    admin_password = "local-browser-admin-password-123"
+    admin_secret = "JBSWY3DPEHPK3PXP"
+    Database(database_path).create_admin(admin_email, hash_password(admin_password), admin_secret)
+
+    server, thread, sock, base_url = start_local_app_server(app)
+    try:
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch(headless=True)
+            try:
+                page = browser.new_page()
+                page.set_default_timeout(8_000)
+                server_requests = []
+                page.on("request", lambda request: server_requests.append(request.url))
+                page.goto(base_url + "/login")
+                page.get_by_label("Email address").fill(admin_email)
+                page.get_by_label("Password").fill(admin_password)
+                page.get_by_role("button", name="Sign in").click()
+                page.get_by_label("Authenticator code").fill(totp_code(admin_secret))
+                page.get_by_label("Email address").fill(admin_email)
+                page.get_by_label("Password").fill(admin_password)
+                page.get_by_role("button", name="Sign in").click()
+                page.goto(base_url + "/admin/invitations")
+                page.get_by_label("Invitee email").fill("beta@example.invalid")
+                page.get_by_role("button", name="Create invitation").click()
+                expect(page.get_by_role("heading", name="Copy this link now")).to_be_visible()
+                invite_url = page.get_by_label("Invitation link").input_value()
+                token = urlsplit(invite_url).fragment
+                assert token
+                assert token not in page.url
+
+                page.goto(invite_url)
+                invitation_field = page.get_by_label("Invitation token")
+                expect(invitation_field).to_have_value(token)
+                expect(page).to_have_url(re.compile(r"/register$"))
+                page.get_by_label("Email address").fill("beta@example.invalid")
+                page.locator('input[name="password"]').fill("local-customer-password-123")
+                page.get_by_label("Confirm password").fill("local-customer-password-123")
+                page.get_by_role("button", name="Create account").click()
+                expect(page.get_by_role("heading", name="Account awaiting review")).to_be_visible()
+                assert all(token not in request_url for request_url in server_requests)
+                assert not mailbox_path.exists()
+                with Database(database_path).connect() as db:
+                    assert db.execute("SELECT count(*) FROM audit_requests").fetchone()[0] == 0
+                    assert db.execute(
+                        "SELECT count(*) FROM users WHERE email='beta@example.invalid' AND email_verified_at IS NULL"
+                    ).fetchone()[0] == 1
+            finally:
+                browser.close()
+    finally:
+        stop_local_app_server(server, thread, sock)
