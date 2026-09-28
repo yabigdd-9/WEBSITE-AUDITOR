@@ -327,3 +327,19 @@ evidence that are not available in the current checkout.
   `models_enabled=false`, and zero model calls. No runtime state was changed.
 - The 30 rejected prospects remain an operator re-audit decision; this check did
   not requeue or re-audit them. No soak was rerun.
+
+### Latest execution update (2026-09-29, local invitation onboarding)
+
+- Draft PR #51, branch `codex/catalyx-invitations` at
+  `11aebdf13bfa94ca6d98da28e6cdee18c5a6bf1a`, adds a local-only invitation
+  registration mode with one-use email-bound tokens, hashed token storage,
+  expiry/revocation, and explicit admin identity review. Hosted auth remains
+  disabled by default; this flow does not send email, launch an audit, or enable
+  hosted invitation mode.
+- Fresh local locked setup and verification on that exact head: the focused
+  Catalyx web/mailer suite passed **123 tests** (two opt-in browser cases
+  skipped), then both synthetic Chromium journeys passed (**2 passed**).
+  GitHub reports **9 checks passed, 0 failed** on the same PR head.
+- PR #51 is a draft stacked on PR #46. It has not been merged or deployed;
+  hosted identity verification, owner review, release decisions, accessibility
+  sign-off, and the other Phase 7–9 gates remain open. No soak was rerun.
