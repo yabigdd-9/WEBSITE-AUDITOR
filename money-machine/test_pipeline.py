@@ -630,6 +630,94 @@ class StageHandlers(unittest.TestCase):
         self.assertEqual(nxt, 'AUDIT_PENDING')
         self.assertEqual(ev['canonical_host'], 'fixture.example.co.nz')
 
+    def test_audit_handler_reuses_recent_canonical_toolkit_report(self):
+        import mm_workers
+        recent = {
+            'run_id': 'run-recent',
+            'status': 'complete',
+            'profile': 'static',
+            'health_score': 72,
+            'defect_score': 28,
+            'defects': [{'defect_key': 'viewport'}],
+            'artifacts': {'json': '/tmp/run-recent/report.json'},
+        }
+        p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
+        it = p.item(self.d, self.bid)
+        with patch('auditor_toolkit.storage.History') as history_cls, \
+             patch('auditor_toolkit.pipeline.run_audit') as run_audit:
+            history_cls.return_value.get_latest_valid_audit.return_value = recent
+            nxt, reason, ev = mm_workers.audit_handler(self.d, it, None)
+
+        self.assertEqual(nxt, 'AUDITED')
+        self.assertEqual(ev['run_id'], 'run-recent')
+        self.assertEqual(ev['score'], 28)
+        self.assertEqual(ev['audit_engine'], 'auditor_toolkit')
+        self.assertEqual(ev['model_calls'], 0)
+        self.assertEqual(ev['external_sends'], 0)
+        run_audit.assert_not_called()
+
+    def test_audit_handler_runs_canonical_toolkit_with_safe_options(self):
+        import mm_workers
+        report = {
+            'run_id': 'run-new',
+            'status': 'complete',
+            'profile': 'static',
+            'health_score': 61,
+            'defect_score': 39,
+            'defects': [
+                {'defect_key': 'viewport'},
+                {'defect_key': 'missing_title'},
+            ],
+            'artifacts': {'json': '/tmp/run-new/report.json'},
+            'checks': {'fetch': {'required': True, 'status': 'ok'}},
+        }
+        p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
+        it = p.item(self.d, self.bid)
+        with patch('auditor_toolkit.storage.History') as history_cls, \
+             patch('auditor_toolkit.pipeline.run_audit', return_value=report) as run_audit:
+            history_cls.return_value.get_latest_valid_audit.return_value = None
+            nxt, reason, ev = mm_workers.audit_handler(self.d, it, None)
+
+        self.assertEqual(nxt, 'AUDITED')
+        self.assertEqual(ev['run_id'], 'run-new')
+        self.assertEqual(ev['defect_count'], 2)
+        self.assertEqual(ev['score'], 39)
+        self.assertEqual(ev['health_score'], 61)
+        self.assertEqual(ev['audit_engine'], 'auditor_toolkit')
+        self.assertEqual(ev['model_calls'], 0)
+        self.assertEqual(ev['external_sends'], 0)
+        args, kwargs = run_audit.call_args
+        self.assertEqual(args[0], 'https://fixture.example.co.nz')
+        options = args[1]
+        self.assertEqual(options.profile, 'static')
+        self.assertFalse(options.ai)
+        self.assertFalse(options.browser)
+        self.assertFalse(options.deep)
+        self.assertFalse(options.external_tools)
+
+    def test_audit_handler_incomplete_toolkit_report_retries(self):
+        import mm_workers
+        report = {
+            'run_id': 'run-partial',
+            'status': 'partial',
+            'profile': 'static',
+            'health_score': None,
+            'defect_score': 10,
+            'defects': [],
+            'artifacts': {'json': '/tmp/run-partial/report.json'},
+            'checks': {
+                'fetch': {'required': True, 'status': 'error'},
+                'page': {'required': True, 'status': 'skipped'},
+            },
+        }
+        p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
+        it = p.item(self.d, self.bid)
+        with patch('auditor_toolkit.storage.History') as history_cls, \
+             patch('auditor_toolkit.pipeline.run_audit', return_value=report):
+            history_cls.return_value.get_latest_valid_audit.return_value = None
+            with self.assertRaises(p.RetryableError):
+                mm_workers.audit_handler(self.d, it, None)
+
     def test_contact_handler_never_fabricates(self):
         import mm_workers
         p.enqueue(self.d, self.bid, state='CONTACT_PENDING')
