@@ -64,7 +64,7 @@ class RoutingTests(unittest.TestCase):
         self.assertEqual(result["requested_model"], self.config["roles"]["SECONDARY_CODER"]["fallbacks"][0])
         for call in self.calls:
             self.assertTrue(call["provider"]["require_parameters"])
-            self.assertEqual(call["provider"]["data_collection"], "allow")
+            self.assertEqual(call["provider"]["data_collection"], "deny")
             self.assertTrue(all(v == 0 for v in call["provider"]["max_price"].values()))
             self.assertNotIn("tools", call)
 
@@ -95,11 +95,24 @@ class RoutingTests(unittest.TestCase):
         with self.assertRaises(RouteError):
             validate(self.config)
 
-    def test_public_only_scope_required_when_data_collection_allowed(self):
+    def test_repository_policy_must_default_data_collection_to_deny(self):
         self.config["policy"]["data_collection"] = "allow"
-        self.config["policy"]["external_free_prompt_scope"] = "anything"
-        with self.assertRaisesRegex(RouteError, "public-only prompt scope"):
+        with self.assertRaisesRegex(RouteError, "default data_collection to deny"):
             validate(self.config)
+
+    def test_public_synthetic_override_can_allow_data_collection_per_request(self):
+        result = route(
+            self.config,
+            "FAST_RESEARCHER",
+            "fixture",
+            "fake",
+            self.catalog,
+            self.respond,
+            allow_data_collection=True,
+        )
+        self.assertEqual(result["requested_model"], self.config["roles"]["FAST_RESEARCHER"]["preferred"])
+        self.assertEqual(self.calls[-1]["provider"]["data_collection"], "allow")
+        self.assertTrue(all(v == 0 for v in self.calls[-1]["provider"]["max_price"].values()))
 
     def test_vision_skips_text_only_primary(self):
         slug = self.config["roles"]["VISION"]["preferred"]
