@@ -270,7 +270,7 @@ catalyxlabs_rebuild:
     intended_worktree_plan_status: "The user-created MASTER_EXECUTION_PLAN.md is committed and pushed on codex/catalyx-plan-update at 6972fb59 in the phase1-rebuild importer directory. That branch is based directly on the requested 0348b3f9 SHA. The file preserves the original phase scope and records current verification and owner gates; implementation remains in the separate codex/catalyx-rebuild-phase1-5 branch, also based on 0348b3f9."
     implementation_worktree: "/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild"
     implementation_worktree_status: >-
-      Branch codex/catalyx-rebuild-phase1-5 is pushed through 898e4331 and now
+      Branch codex/catalyx-rebuild-phase1-5 is pushed through 31bbd0a1 and now
       includes merge commit b0630ed9 from upgrade/v32-canonical-execution;
       its original feature work remains based on the requested 0348b3f9. The
       merge resolved pipeline/watchdog conflicts, restored persisted flow
@@ -281,10 +281,17 @@ catalyxlabs_rebuild:
       browser skips and 2 upstream warnings; Ruff, uv lock check, uv pip check,
       and wheel/sdist build passed. A hosted fixture run then exposed that its
       workflow omitted money-machine/requirements-email.txt; 898e4331 adds that
-      dependency and a path trigger, and its hosted rerun is pending. Earlier
-      hosted Gitleaks and pip-audit checks passed at b7d6904. A source security
-      scan at f3e04482 reviewed all 15 catalyx_web files and confirmed a medium
-      shared-login availability issue; no login behavior change addresses it.
+      dependency and a path trigger. The hosted rerun confirmed the dependency
+      fix and exposed a test's reliance on a local Chromium binary to create a
+      PDF; 31bbd0a1 makes the unit fixture emit a synthetic PDF, with a fresh
+      hosted run pending. SonarCloud still reports a D security rating at its
+      last completed scan; TLS findings for SMTP were closed after the explicit
+      verified TLS-context change, while the egress TLS rule, TOTP HMAC-SHA1
+      review, and pip workflow dependency-lock findings need a safe resolution
+      or documented disposition. Earlier hosted Gitleaks and pip-audit checks
+      passed at b7d6904. A source security scan at f3e04482 reviewed all 15
+      catalyx_web files and confirmed a medium shared-login availability issue;
+      no login behavior change addresses it.
       PostgreSQL, provider staging, worker isolation, accessibility sign-off,
       owner decisions, and the auth availability finding remain release gates.
       The separate checkout retains untracked experiments/ and restored,
