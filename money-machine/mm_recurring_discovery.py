@@ -88,15 +88,33 @@ def due(config, state, at=None):
     return last is None or at - last >= dt.timedelta(minutes=minutes)
 
 
-def run_due(d, *, config_path=DEFAULT_CONFIG, state_path=DEFAULT_STATE, at=None):
+def run_due(
+    d,
+    *,
+    config_path=DEFAULT_CONFIG,
+    state_path=DEFAULT_STATE,
+    at=None,
+    force=False,
+):
+    """Run one bounded cycle; force bypasses only the interval timer."""
     at = at or dt.datetime.now(UTC)
     config = load_config(config_path)
     state = _read_state(state_path)
-    if not due(config, state, at):
+    if config.get("enabled") is not True:
+        return {
+            "ran": False,
+            "reason": "disabled",
+            "last_finished_at": state.get("last_finished_at"),
+            "forced": bool(force),
+            "external_sends": 0,
+            "paid_calls": 0,
+        }
+    if not force and not due(config, state, at):
         return {
             "ran": False,
             "reason": "disabled_or_not_due",
             "last_finished_at": state.get("last_finished_at"),
+            "forced": False,
             "external_sends": 0,
             "paid_calls": 0,
         }
@@ -113,6 +131,7 @@ def run_due(d, *, config_path=DEFAULT_CONFIG, state_path=DEFAULT_STATE, at=None)
             "ran": False,
             "reason": "no_sources",
             "last_finished_at": at.isoformat(),
+            "forced": bool(force),
             "external_sends": 0,
             "paid_calls": 0,
         }
@@ -136,6 +155,7 @@ def run_due(d, *, config_path=DEFAULT_CONFIG, state_path=DEFAULT_STATE, at=None)
         "ran": True,
         "started_at": state.get("current_started_at") or at.isoformat(),
         "last_finished_at": at.isoformat(),
+        "forced": bool(force),
         "sources": collection["sources"],
         "collection_counts": collection["counts"],
         "intake_counts": intake["counts"],
