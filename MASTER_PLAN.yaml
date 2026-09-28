@@ -225,11 +225,15 @@ phases:
   P15:
     name: "Free model router"
     priority: HIGH
-    status: "IMPLEMENTED_ZERO_COST_ROUTING_TESTED"
+    status: "ZERO_COST_ROUTER_TESTED_OLLAMA_ADAPTER_IN_DRAFT_PR_RUNTIME_ENDPOINT_ABSENT"
     route: ["DETERMINISTIC_CODE", "LOCAL_FREE_MODEL", "FREE_EXTERNAL_ROUTE_1", "FREE_EXTERNAL_ROUTE_2", "DEFER"]
     max_cost_usd: 0
     max_large_local_models_concurrent: 0
     preferred_small_local_models_concurrent: 1
+    latest_verification:
+      date: "2026-09-29"
+      ollama_adapter: "Draft PR #47, commit 5c51fea5 stacked on PR #43, adds Ollama /api/tags probing and bounded /api/chat inference as a loopback-only local route after llama.cpp. Local Money Machine ModelRouter tests: 13 passed; hosted run 36413143127 passed 187 toolkit tests (4 skipped, 2 warnings), the 13 router tests, package checks/build, and both Chromium journeys. Ruff passed for the two changed router files with the pre-existing N818 naming finding ignored; Gitleaks, pip-audit, and SonarCloud passed. Vercel preview was rate-limited. PR #47 remains draft and unmerged."
+      local_runtime: "On 2026-09-29, ./mm model-plan for a synthetic shadow evaluation returned BLOCKED_COST with model_calls=0 and cost_usd=0; external free routes remain disabled. Loopback checks found no listeners at the llama.cpp, Ollama, or LM Studio default ports. The Ollama model-store link points to the unmounted LLM USB volume. No inference call or model spend occurred."
   P16:
     name: "Agent team"
     priority: HIGH
@@ -238,8 +242,8 @@ phases:
     roles: ["RESEARCHER", "CODER", "OPERATOR", "JUDGE", "PROOFER", "INTEGRATOR"]
     rule: "One branch/worktree per coding agent; no shared-file concurrent writes."
     latest_verification:
-      date: "2026-09-28"
-      runtime_model_plan: "./mm doctor --profile research-only reports models_enabled=false and model_calls=0. A deterministic ./mm model-plan request found no local llamacpp model and external free routes are disabled; result BLOCKED_COST, model_calls=0 and cost_usd=0. No model endpoint was called."
+      date: "2026-09-29"
+      runtime_model_plan: "Fresh ./mm doctor --profile research-only reports SQLite integrity ok, models_enabled=false and model_calls=0. A deterministic ./mm model-plan request found no local llama.cpp model and external free routes are disabled; result BLOCKED_COST, model_calls=0 and cost_usd=0. Loopback checks at 127.0.0.1 ports 8080, 11434, and 1234 found no local inference endpoint. Draft PR #47 adds an Ollama route but does not create or call an endpoint."
   P17:
     name: "Observability"
     priority: MEDIUM
@@ -256,9 +260,9 @@ phases:
     flow: ["propose", "branch", "test", "evaluate", "shadow run", "compare metrics", "judge", "merge or reject"]
     rule: "No direct autonomous modification of production."
     latest_verification:
-      date: "2026-09-28"
+      date: "2026-09-29"
       synthetic_cli_evaluation: "The repository evaluation/golden_cases.jsonl now contains 10 cases spanning contact provenance, identity, evidence-backed audit findings, false-positive review, score separation, remediation, and demos. ./mm challenger-eval was run with temporary constructed predictions: baseline 9/10, challenger 10/10, improvement 0.1, safety_failures=0, promotion_recommended=true, promotion_authorized=false, merge_authority=false. This validates evaluator wiring and safety gates only; constructed predictions are not model or production-quality evidence."
-      runtime_shadow: "Still open; no verified zero-cost local model endpoint is available for a runtime shadow run."
+      runtime_shadow: "Still open; fresh loopback checks on 2026-09-29 found no verified local model endpoint and no inference call was made. Draft PR #47 adds Ollama adapter support but does not create or enable a model service."
 
 catalyxlabs_rebuild:
   name: "Catalyx Labs website rebuild"
