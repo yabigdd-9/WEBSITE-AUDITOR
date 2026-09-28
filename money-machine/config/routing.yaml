@@ -4,7 +4,7 @@ model_execution_enabled: false
 manual_role_requests_enabled: true
 version: 3
 catalog_source: https://openrouter.ai/api/v1/models
-catalog_verified_date: "2026-09-21"
+catalog_verified_date: "2026-09-29"
 provider: openrouter
 
 policy:
@@ -12,7 +12,7 @@ policy:
   prefer_free_models: true
   providers_sort: price
   require_parameters: true
-  data_collection: deny
+  data_collection: allow
   external_free_requires_explicit_opt_in: true
   external_free_prompt_scope: public_or_non_confidential_only
   max_price: {prompt: 0, completion: 0, request: 0, image: 0}
@@ -74,7 +74,8 @@ roles:
 rules:
   - Never silently switch to paid token usage.
   - External free routes are disabled unless explicitly enabled.
-  - Public or synthetic prompts only; never send secrets, PII or confidential customer data to free endpoints.
+  - Free endpoints may retain or train on prompts; only explicitly public or synthetic prompts may use them.
+  - Never send secrets, PII or confidential customer data to free endpoints.
   - Prefer another currently verified free model if the preferred model fails.
   - Stop and defer when free routes are unavailable or quota-limited.
   - Never allow recursive agent spawning.
