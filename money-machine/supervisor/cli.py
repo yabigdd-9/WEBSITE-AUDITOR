@@ -216,6 +216,14 @@ def cmd_run_foreground(args) -> int:
                     _log({"kind": "runtime_guard", "cycle": cycles, "disk": disk, "action": "pause_new_work"})
                     time.sleep(min(max(sleep_seconds, 1), 60))
                     continue
+                if cycles == 0 or cycles % 60 == 0:
+                    try:
+                        import mm_recurring_discovery
+                        discovery = mm_recurring_discovery.run_due(d)
+                        if discovery.get("ran") or discovery.get("reason") not in {"disabled_or_not_due"}:
+                            _log({"kind": "recurring_discovery", **discovery})
+                    except Exception as ex:
+                        _log({"kind": "recurring_discovery_error", "error": str(ex)[:500]})
                 snapshot = [{"worker": w.worker_id, "processed": w.run_once(d)} for w in workers]
                 mm_pipeline.drain_expired_leases(d)
                 d.commit()
