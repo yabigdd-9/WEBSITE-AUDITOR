@@ -406,12 +406,12 @@ class WorkerHandlers(unittest.TestCase):
                  workers.WORKERS['identity'][1]).run_once(self.d)
         self.assertEqual(p.item(self.d, bid)['state'], 'PERMANENT_FAILURE')
 
-    def test_contact_without_verified_email_is_a_valid_final_state(self):
+    def test_contact_without_released_v2_is_held_for_review(self):
         import mm_workers as workers
         bid = self._enqueue('CONTACT_PENDING')
         p.Worker('w-contact', workers.WORKERS['contact'][0],
                  workers.WORKERS['contact'][1]).run_once(self.d)
-        self.assertEqual(p.item(self.d, bid)['state'], 'NO_VERIFIED_EMAIL')
+        self.assertEqual(p.item(self.d, bid)['state'], 'NEEDS_REVIEW')
         n = self.d.execute("SELECT count(*) FROM email_verifications").fetchone()[0]
         self.assertEqual(n, 0)  # nothing fabricated into the evidence tables
 
@@ -635,17 +635,126 @@ class StageHandlers(unittest.TestCase):
         p.enqueue(self.d, self.bid, state='CONTACT_PENDING')
         it = p.item(self.d, self.bid)
         nxt, reason, ev = mm_workers.contact_handler(self.d, it, None)
-        self.assertEqual(nxt, 'NO_VERIFIED_EMAIL')
+        self.assertEqual(nxt, 'NEEDS_REVIEW')
+        self.assertEqual(ev['external_sends'], 0)
+        self.assertFalse(ev['finder_run'])
 
-    def test_contact_handler_uses_verified_high_only(self):
+    def test_contact_handler_legacy_medium_never_advances(self):
         import mm_workers
         self.d.execute("INSERT INTO email_verifications(prospect_id,email,result_json) "
                        "VALUES(?,?,?)", (self.bid, 'maybe@fixture.example.co.nz',
                        json.dumps({'confidence_label': 'VERIFIED_MEDIUM'})))
         p.enqueue(self.d, self.bid, state='CONTACT_PENDING')
         it = p.item(self.d, self.bid)
-        nxt, _, _ = mm_workers.contact_handler(self.d, it, None)
-        self.assertEqual(nxt, 'NO_VERIFIED_EMAIL')  # MEDIUM never routes to send lane
+        nxt, _, ev = mm_workers.contact_handler(self.d, it, None)
+        self.assertEqual(nxt, 'NEEDS_REVIEW')
+        self.assertEqual(ev['external_sends'], 0)
+
+    def test_contact_handler_runs_v2_finder_then_advances_from_authoritative_view(self):
+        import mm_workers
+        import mm_email_cli
+
+        p.enqueue(self.d, self.bid, state='CONTACT_PENDING')
+        it = p.item(self.d, self.bid)
+        current = {
+            'email': 'office@fixture.example.co.nz',
+            'verification_id': 77,
+            'confidence': 'VERIFIED_HIGH',
+        }
+        with patch.object(
+            mm_workers,
+            '_email_v2_release_state',
+            return_value=(True, {
+                'installed': True,
+                'email_policy': 'v2',
+                'release_mode': 'PRODUCTION',
+                'verifier_version': 'email-v2.0.1',
+            }),
+        ), patch.object(
+            mm_workers,
+            '_current_verified_high',
+            side_effect=[None, current],
+        ), patch.object(
+            mm_email_cli,
+            'find_one',
+            return_value={'candidates': [], 'contact_form_urls': []},
+        ) as finder:
+            nxt, reason, ev = mm_workers.contact_handler(self.d, it, None)
+
+        self.assertEqual(nxt, 'REMEDIATION_PENDING')
+        self.assertEqual(ev['email'], 'office@fixture.example.co.nz')
+        self.assertTrue(ev['finder_run'])
+        self.assertEqual(ev['external_sends'], 0)
+        finder.assert_called_once_with(self.d, self.bid)
+
+    def test_contact_handler_finder_completion_without_high_is_valid_terminal(self):
+        import mm_workers
+        import mm_email_cli
+
+        p.enqueue(self.d, self.bid, state='CONTACT_PENDING')
+        it = p.item(self.d, self.bid)
+        with patch.object(
+            mm_workers,
+            '_email_v2_release_state',
+            return_value=(True, {
+                'installed': True,
+                'email_policy': 'v2',
+                'release_mode': 'PRODUCTION',
+                'verifier_version': 'email-v2.0.1',
+            }),
+        ), patch.object(
+            mm_workers,
+            '_current_verified_high',
+            side_effect=[None, None],
+        ), patch.object(
+            mm_email_cli,
+            'find_one',
+            return_value={
+                'candidates': [
+                    {
+                        'email': 'maybe@fixture.example.co.nz',
+                        'confidence_label': 'VERIFIED_MEDIUM',
+                    }
+                ],
+                'contact_form_urls': ['https://fixture.example.co.nz/contact'],
+            },
+        ):
+            nxt, reason, ev = mm_workers.contact_handler(self.d, it, None)
+
+        self.assertEqual(nxt, 'NO_VERIFIED_EMAIL')
+        self.assertTrue(ev['finder_run'])
+        self.assertEqual(ev['candidate_count'], 1)
+        self.assertEqual(ev['contact_form_count'], 1)
+        self.assertEqual(ev['external_sends'], 0)
+
+    def test_contact_handler_release_hold_does_not_call_finder(self):
+        import mm_workers
+        import mm_email_cli
+
+        p.enqueue(self.d, self.bid, state='CONTACT_PENDING')
+        it = p.item(self.d, self.bid)
+        with patch.object(
+            mm_workers,
+            '_current_verified_high',
+            return_value=None,
+        ), patch.object(
+            mm_workers,
+            '_email_v2_release_state',
+            return_value=(False, {
+                'installed': True,
+                'email_policy': 'v2',
+                'release_mode': 'POST_DEPLOYMENT_OBSERVATION',
+                'verifier_version': 'email-v2.0.1',
+            }),
+        ), patch.object(
+            mm_email_cli,
+            'find_one',
+        ) as finder:
+            nxt, reason, ev = mm_workers.contact_handler(self.d, it, None)
+
+        self.assertEqual(nxt, 'NEEDS_REVIEW')
+        self.assertEqual(ev['external_sends'], 0)
+        finder.assert_not_called()
 
     def test_demo_handler_requires_artifact(self):
         import mm_workers
