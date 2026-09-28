@@ -292,3 +292,8 @@ evidence that are not available in the current checkout.
   authentication is enabled. Hosted authentication remains disabled by default
   until approved ingress/client-IP semantics and replacement login controls
   have been tested. No soak was rerun.
+- Hosted run `36404530321` at `898b8b05` passed the locked toolkit suite,
+  Ruff, package checks/build, both existing Chromium journeys, and the Catalyx
+  customer/admin journey. Gitleaks, pip-audit, and SonarCloud passed. Vercel
+  could not build a preview on this head because of the account deployment
+  quota. No soak was rerun.
