@@ -4,7 +4,7 @@ on:
   push:
     branches: [master, trial/**]
   pull_request:
-    branches: [master]
+    branches: [master, upgrade/v32-canonical-execution]
 
 permissions:
   contents: read
@@ -70,6 +70,7 @@ jobs:
             money-machine/test_discovery.py \
             money-machine/test_email_finder.py \
             money-machine/test_pipeline.py \
+            money-machine/test_opportunity_axes.py \
             money-machine/test_dsh_harness_bridge.py \
             money-machine/test_lead_qualifier.py \
             money-machine/test_polish.py \

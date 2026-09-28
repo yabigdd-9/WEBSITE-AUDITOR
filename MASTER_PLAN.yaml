@@ -156,6 +156,12 @@ phases:
     priority: HIGH
     formula: "need * business_value * contactability * fixability * confidence / delivery_effort"
     rule: "Deterministic and replayable from stored inputs."
+    implemented_slice:
+      - "Qualification events retain separate commercial qualification, commercial opportunity, and technical need values."
+      - "Technical need is read from append-only AUDITED evidence; missing or malformed audit evidence stays unknown."
+      - "Qualification no longer computes a blended commercial/technical score."
+    remaining:
+      - "Wire the canonical opportunity formula to complete, persisted inputs and replay it against real evidence."
   P10:
     name: "Remediation engine"
     priority: HIGH
