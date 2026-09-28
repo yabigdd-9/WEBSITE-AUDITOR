@@ -40,6 +40,65 @@ def _business(d, bid):
     return r
 
 
+def _commercial_signal_context(d, business):
+    """Build qualifier input only from fresh, verified evidence artifacts."""
+    keys = set(business.keys()) if hasattr(business, 'keys') else set()
+    industry = ''
+    if 'industry_id' in keys and business['industry_id']:
+        tables = {
+            row[0] for row in d.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'"
+            )
+        }
+        if 'industries' in tables:
+            row = d.execute(
+                'SELECT name FROM industries WHERE id=?',
+                (business['industry_id'],),
+            ).fetchone()
+            if row:
+                industry = str(row['name'] if hasattr(row, 'keys') else row[0])[:200]
+
+    tables = {
+        row[0] for row in d.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'"
+        )
+    }
+    if not {'mm_evidence', 'mm_evidence_meta'}.issubset(tables):
+        return {'text': '', 'industry': industry, 'evidence_ids': []}
+
+    from mm_core import artifact_valid, fresh
+
+    rows = d.execute(
+        'SELECT e.id,e.observation,e.checked_at,m.status,m.confidence,'
+        'm.expires_at,m.capture_path,m.capture_hash,m.commercial_relevance '
+        'FROM mm_evidence e JOIN mm_evidence_meta m ON m.evidence_id=e.id '
+        'WHERE e.business_id=? AND m.status=? AND m.confidence>=0.7 '
+        "AND julianday(m.expires_at)>=julianday('now') "
+        'ORDER BY julianday(e.checked_at) DESC,e.id DESC LIMIT 10',
+        (business['id'], 'verified'),
+    ).fetchall()
+    observations = []
+    evidence_ids = []
+    for row in rows:
+        if (
+            not fresh(row['checked_at'])
+            or not artifact_valid(row['capture_path'], row['capture_hash'])
+        ):
+            continue
+        evidence_ids.append(int(row['id']))
+        observation = str(row['observation'] or '').strip()[:2000]
+        relevance = str(row['commercial_relevance'] or '').strip()[:500]
+        if observation:
+            observations.append(observation)
+        if relevance:
+            observations.append(relevance)
+    return {
+        'text': '\n'.join(observations)[:20000],
+        'industry': industry,
+        'evidence_ids': evidence_ids,
+    }
+
+
 def _latest_audit_evidence(d, it):
     """Read the persisted audit-stage evidence, with legacy payload fallback."""
     row = d.execute(
@@ -357,11 +416,11 @@ def qualification_handler(d, it, worker):
         audit_score = 0
     defect_count = len(findings) if findings_valid else 0
 
-    # Calculate commercial relevance score from business signals
-    keys = b.keys() if hasattr(b, 'keys') else []
-    text = ' '.join(str(v) for v in (b['name'],
-                                     b['region'] if 'region' in keys else ''))
-    commercial_lead = lq.qualify_lead(text, industry='')
+    # Commercial value comes from fresh verified captures, not name/region alone.
+    commercial_context = _commercial_signal_context(d, b)
+    commercial_lead = lq.qualify_lead(
+        commercial_context['text'], industry=commercial_context['industry']
+    )
     commercial_score = commercial_lead['qualification_score']
 
     state, reason, result = _qualification_result(
@@ -374,6 +433,9 @@ def qualification_handler(d, it, worker):
             str(finding.get('finding_id', ''))[:128] for finding in findings
         ],
         'technical_score_evidence_complete': findings_valid,
+        'commercial_score_evidence_ids': commercial_context['evidence_ids'],
+        'commercial_score_industry': commercial_context['industry'],
+        'commercial_score_basis': commercial_lead.get('basis', 'unspecified'),
     })
     return state, reason, result
 

@@ -4,6 +4,7 @@ All fixtures are synthetic and disposable. No network, no model calls, no real
 businesses, no sends.
 """
 import datetime as dt
+import hashlib
 import json
 import os
 import sqlite3
@@ -486,6 +487,61 @@ class WorkerHandlers(unittest.TestCase):
         self.assertEqual(evidence['technical_score'], 0)
         self.assertEqual(evidence['technical_score_finding_ids'], [])
         self.assertFalse(evidence['technical_score_evidence_complete'])
+
+    def test_qualification_uses_only_fresh_verified_commercial_evidence(self):
+        import mm_workers as workers
+
+        bid = self._enqueue('QUALIFICATION_PENDING')
+        self.d.execute('ALTER TABLE businesses ADD COLUMN industry_id INTEGER')
+        self.d.execute(
+            'CREATE TABLE industries(id INTEGER PRIMARY KEY,name TEXT NOT NULL)'
+        )
+        self.d.execute('INSERT INTO industries(id,name) VALUES(1,?)', ('electrical',))
+        self.d.execute('UPDATE businesses SET industry_id=1 WHERE id=?', (bid,))
+        for name, declaration in (
+            ('url', 'TEXT'), ('observation', 'TEXT'),
+            ('limitation', 'TEXT'), ('checked_at', 'TEXT'),
+        ):
+            self.d.execute(f'ALTER TABLE mm_evidence ADD COLUMN {name} {declaration}')
+        self.d.execute(
+            'CREATE TABLE mm_evidence_meta('
+            'evidence_id INTEGER PRIMARY KEY,status TEXT,method TEXT,confidence REAL,'
+            'claim_type TEXT,commercial_relevance TEXT,expires_at TEXT,'
+            'capture_path TEXT,capture_hash TEXT,verified_by TEXT,verification_count INTEGER)'
+        )
+
+        expires = (dt.datetime.now(dt.timezone.utc) + dt.timedelta(days=1)).isoformat()
+        verified_evidence_id = None
+        for status, observation in (
+            ('verified', 'We are hiring a senior electrician to join our team.'),
+            ('unverified', 'We approved a $50,000 website investment budget.'),
+        ):
+            capture = Path(self.tmp.name) / f'{status}.txt'
+            capture.write_text(observation)
+            capture_hash = hashlib.sha256(capture.read_bytes()).hexdigest()
+            cursor = self.d.execute(
+                'INSERT INTO mm_evidence(business_id,url,observation,limitation,checked_at) '
+                'VALUES(?,?,?,?,?)',
+                (bid, 'https://fixture.example.co.nz/about', observation,
+                 'synthetic test capture', c.now()),
+            )
+            evidence_id = cursor.lastrowid
+            if status == 'verified':
+                verified_evidence_id = evidence_id
+            self.d.execute(
+                'INSERT INTO mm_evidence_meta VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+                (evidence_id, status, 'public_capture', 0.95, 'observed_fact',
+                 'business hiring signal', expires, str(capture), capture_hash,
+                 'test-reviewer', 1),
+            )
+
+        item = {'business_id': bid, 'payload': '{}'}
+        state, _, evidence = workers.qualification_handler(self.d, item, None)
+
+        self.assertEqual(state, 'CONTACT_PENDING')
+        self.assertGreaterEqual(evidence['commercial_score'], 30)
+        self.assertEqual(evidence['commercial_score_evidence_ids'], [verified_evidence_id])
+        self.assertEqual(evidence['commercial_score_industry'], 'electrical')
 
     def test_qualification_keeps_commercial_and_technical_tiers_separate(self):
         import mm_workers as workers
