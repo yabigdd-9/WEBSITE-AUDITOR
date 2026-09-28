@@ -78,7 +78,7 @@ phases:
   P1:
     name: "Reproducible green baseline"
     priority: CRITICAL
-    status: "DEPENDENCY_AUDIT_PASSED_HISTORICAL_GITLEAKS_SCAN_PENDING"
+    status: "TESTS_AND_STRICT_DEPENDENCY_AUDIT_PASS_SECRET_SCAN_CLEAR_CLEAN_TREE_GATE_OPEN"
     python: "3.11"
     actions:
       - "Standardize dependency source."
@@ -97,7 +97,7 @@ phases:
       date: "2026-09-28"
       dependency_audit: "pip-audit 2.10.1 strict OSV audit of requirements.txt and money-machine/requirements-email.txt: no known vulnerabilities."
       full_toolkit_suite: "164 passed, 4 opt-in browser skips, 2 deprecation warnings."
-      historical_secret_scan: "Redacted Gitleaks scan is still running; do not close the secret gate until its result is reviewed."
+      historical_secret_scan: "Gitleaks 8.30.1 scanned Git history: 103 matches across 4 historical commits, 0 at current HEAD. Secret values were redacted. The matches were traced to a shell-variable-backed CI curl auth argument, generated action/idempotency identifiers, captured third-party HTML, and scanner-rule documentation. A redacted scan of all current dirty/untracked paths listed by git status found 0 matches; .env files were not scanned or opened. No active project-owned credential was identified."
   P2:
     name: "Code consolidation"
     priority: HIGH
