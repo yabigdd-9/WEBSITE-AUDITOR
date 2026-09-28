@@ -184,10 +184,10 @@ phases:
     rule: "Deterministic and replayable from stored inputs."
     latest_verification:
       date: "2026-09-28"
-      formula_tests: "The pure opportunity-v1 function rejects booleans, non-finite values, and out-of-range inputs. Packet scoring now recomputes the score from evidence-backed audit findings, verified commercial score evidence IDs, contact confidence, remediation classifications, and deterministic quote effort. It persists formula components, inputs, and factor provenance beside the independent technical audit score, and caps normalized effort for quotes above the XL reference. Exact-head toolkit suite: 179 passed, 4 opt-in skips; focused P9/P13 tests: 18 passed; Money Machine pipeline suite: 56 passed; Ruff and diff checks passed."
+      formula_tests: "The pure opportunity-v1 function rejects booleans, non-finite values, and out-of-range inputs. Packet scoring recomputes from evidence-backed findings, verified commercial evidence IDs, first-party contact provenance, remediation classes, and deterministic quote effort; it stores formula inputs/provenance separately from technical health. Missing contact provenance or commercial evidence fails closed to zero. The packet omits unproven VERIFIED_HIGH email and redacts local paths; screenshots are copied only from the explicitly supplied artifact directory after hash verification. Exact-head toolkit suite: 181 passed, 4 opt-in skips; focused P9/P13 suite: 20 passed; Money Machine pipeline suite: 56 passed; Ruff and diff checks passed."
       integration_gap: "The prospect packet calls auditor_toolkit.opportunity.opportunity_formula through opportunity_from_packet_evidence and rejects cross-run artifacts. Remaining gap: the workflow does not yet construct the packet report DTO with the verified commercial_score and commercial_score_evidence_ids from Money Machine qualification events. Without those fields, the business_value component fails closed to zero. Wire this persisted source to packet generation and verify operator/packet output against a real synthetic end-to-end workflow."
-      review_branch_evidence: "At c27e8bb4, qualification reads only unexpired, confidence>=0.7 verified captures whose timestamp and capture hash pass validation; the event records evidence IDs, industry and qualification basis. At a9bfcaee, the packet recomputes and persists the separate opportunity score and its input/provenance record. The exact-head toolkit suite passed 179 tests with 4 opt-in skips; Money Machine pipeline suite passed 56; the technical score remains independently replayed from persisted findings."
-      hosted_ci: "At a9bfcaee, hosted fixtures, SonarCloud, Gitleaks and pip-audit passed. Vercel reports the daily deployment-rate limit; CodeRabbit skips review while PR #43 is draft. PR #43 remains open and UNSTABLE."
+      review_branch_evidence: "At c27e8bb4, qualification reads only unexpired, confidence>=0.7 verified captures whose timestamp and capture hash pass validation; the event records evidence IDs, industry and qualification basis. At f51959a2, packet scoring recomputes and persists the separate opportunity score, enforces first-party contact provenance, redacts local artifact paths, and copies only hash-validated screenshots from the caller-supplied demo directory. Exact-head toolkit suite passed 181 tests with 4 opt-in skips; Money Machine pipeline suite passed 56; technical score remains independently replayed from persisted findings."
+      hosted_ci: "At f51959a2, fixture, Gitleaks and pip-audit checks are running. Vercel reports the daily deployment-rate limit; CodeRabbit skips review while PR #43 is draft. PR #43 remains open and UNSTABLE."
   P10:
     name: "Remediation engine"
     priority: HIGH
@@ -210,6 +210,9 @@ phases:
     priority: HIGH
     status: "IMPLEMENTED_PROVENANCE_AND_DRAFT_QA_TESTED"
     gate: "No prospect reaches outreach without a complete reviewable packet."
+    latest_verification:
+      date: "2026-09-28"
+      evidence: "At f51959a2, packet output includes a separate formula-backed commercial opportunity score and first-party contact provenance. VERIFIED_HIGH email is omitted when matching captured provenance is absent. Local screenshot artifacts are copied by relative name from the caller-specified artifact directory only after hash validation; local filesystem paths are excluded from packet DTOs. Full toolkit suite: 181 passed, 4 opt-in skips; focused P9/P13 suite: 20 passed."
   P14:
     name: "Outreach engine"
     priority: HIGH
