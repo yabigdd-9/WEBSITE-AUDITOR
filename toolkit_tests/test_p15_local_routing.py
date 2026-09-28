@@ -45,6 +45,14 @@ def test_fcc_redirect_refused():
         handler.redirect_request(None, None, 302, "Found", {}, "https://remote.example")
 
 
+def test_probe_fcc_requires_explicit_model():
+    with patch.object(router, "_env_value", return_value=""), patch.object(
+        router, "_open_local"
+    ) as open_local:
+        assert router.probe_fcc() is None
+    open_local.assert_not_called()
+
+
 def test_routes_report_hides_unusable_configured_fcc_model():
     with patch.object(router, "probe_fcc", return_value=None), patch.object(
         router, "_env_value", return_value="stale/configured:free"
