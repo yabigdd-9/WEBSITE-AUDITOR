@@ -104,3 +104,10 @@ def test_searxng_wrapper_creates_loopback_json_only_private_service():
     assert '--no-build-isolation' in wrapper
     assert r"0\.0\.0\.0:8888" in wrapper  # explicit unsafe-listener rejection
     assert r"\*:8888" in wrapper
+    assert "validate_settings()" in wrapper
+    assert "BLOCKED_SETTINGS: bind_address must be explicit loopback" in wrapper
+    assert "BLOCKED_SETTINGS: public_instance must be false" in wrapper
+    assert "BLOCKED_SETTINGS: search.formats must include json" in wrapper
+    install_block = wrapper.split("  install)", 1)[1].split("  status)", 1)[0]
+    assert install_block.index("ensure_settings") < install_block.index("validate_settings")
+    assert install_block.index("validate_settings") < install_block.index('\"$PY\" \"$LAUNCHD\" install')
