@@ -22,6 +22,11 @@ jobs:
       - run: "python -m pip install --only-binary=:all: --require-hashes -r money-machine/requirements-email.lock"
       - run: python -m pytest toolkit_tests -q --cov=auditor_toolkit --cov-report=xml
       - run: ruff check auditor_toolkit toolkit_tests
+      - name: Run Money Machine model-router tests
+        working-directory: money-machine
+        run: python -m unittest test_pipeline.ModelRouter -v
+      - name: Lint model-router changes
+        run: ruff check money-machine/mm_model_router.py money-machine/test_pipeline.py --ignore N818
       - run: python -m pip check
       - run: python -m pip wheel --no-deps . -w /tmp/wa-wheel
       - run: python -m playwright install --with-deps chromium
