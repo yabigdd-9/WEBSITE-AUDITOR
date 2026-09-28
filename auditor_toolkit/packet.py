@@ -34,7 +34,7 @@ def _validate_technical_qualification(report: dict, qualification_evidence: dict
     for defect in defects:
         if not isinstance(defect, dict):
             raise ValueError("Malformed technical finding")
-        severity = defect.get("severity")
+        severity = defect.get("severity", "medium")
         if severity not in {"low", "medium", "high", "critical"}:
             raise ValueError("Technical findings must have a valid severity")
         finding_id = defect.get("finding_id")

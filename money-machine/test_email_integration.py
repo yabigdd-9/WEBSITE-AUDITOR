@@ -96,6 +96,7 @@ class EmailIntegration(unittest.TestCase):
             'defects': [{
                 'finding_id': 'fixture-title',
                 'defect_key': 'missing_title',
+                'severity': 'medium',
                 'defect': 'Page title missing',
                 'source_url': 'https://fixture.example.co.nz/',
                 'observed': 'No title element found in captured HTML.',
@@ -123,7 +124,7 @@ class EmailIntegration(unittest.TestCase):
             'commercial_score_evidence_ids': [self.eid],
             'commercial_score_industry': 'fixture',
             'commercial_score_basis': 'verified_fixture',
-            'technical_score': 80,
+            'technical_score': 8,
             'technical_score_method': 'toolkit-p5-v1',
             'technical_score_finding_ids': ['fixture-title'],
             'technical_score_evidence_complete': True,
