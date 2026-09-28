@@ -51,6 +51,8 @@ STATIC_DIR = APP_DIR / "static"
 SESSION_SECONDS = 60 * 60 * 8
 MAX_FORM_BYTES = 32_768
 LOGIN_GLOBAL_LIMIT_PER_MINUTE = 60
+AUDIT_REQUESTS_PER_WORKSPACE_PER_DAY = 1
+MAX_PENDING_AUDIT_REQUESTS = 5
 
 
 def _e(value) -> str:
@@ -329,6 +331,10 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
         )
     if registration_mode not in {"closed", "open"}:
         raise RuntimeError("CATALYX_REGISTRATION_MODE must be closed or open.")
+    if hosted and registration_mode == "open":
+        raise RuntimeError(
+            "Hosted registration must remain closed until the reviewed invitation flow is implemented."
+        )
     mail_mode = os.getenv("CATALYX_MAIL_MODE", "disabled" if hosted else "local_mailbox").strip().lower()
     if mail_mode not in {"disabled", "smtp", "local_mailbox"}:
         raise RuntimeError("CATALYX_MAIL_MODE must be disabled, smtp, or local_mailbox.")
@@ -340,6 +346,8 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
         raise RuntimeError("SMTP mode requires CATALYX_EXTERNAL_SEND_ALLOWED=true.")
     if external_send_allowed and mail_mode != "smtp":
         raise RuntimeError("CATALYX_EXTERNAL_SEND_ALLOWED=true requires CATALYX_MAIL_MODE=smtp.")
+    if hosted and (mail_mode == "smtp" or external_send_allowed):
+        raise RuntimeError("Hosted external account email is not approved for the first release.")
     if registration_mode == "open" and mail_mode == "disabled":
         raise RuntimeError("Open registration requires an enabled account email delivery mode.")
     if hosted:
@@ -402,6 +410,32 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
     app.state.scan_worker_enabled = False
     app.state.runtime_environment = "production" if deployed else "staging"
     app.state.dummy_password_hash = hash_password(new_token())
+
+    def _lock_audit_admission(db) -> None:
+        # SQLite's BEGIN IMMEDIATE serializes admission. PostgreSQL needs a
+        # transaction lock so parallel instances observe one shared queue cap.
+        if database.database_url is not None:
+            db.execute("SELECT pg_advisory_xact_lock(1128350801, 0)")
+
+    def _enforce_audit_admission(db, workspace_id: str, timestamp: str) -> None:
+        day_start = (
+            datetime.fromisoformat(timestamp)
+            .astimezone(UTC)
+            .replace(hour=0, minute=0, second=0, microsecond=0)
+            .isoformat(timespec="seconds")
+        )
+        daily_count = db.execute(
+            "SELECT count(*) FROM audit_requests WHERE workspace_id=? AND created_at>=?",
+            (workspace_id, day_start),
+        ).fetchone()[0]
+        if daily_count >= AUDIT_REQUESTS_PER_WORKSPACE_PER_DAY:
+            raise HTTPException(429, "This workspace has reached its daily audit request limit")
+        pending_count = db.execute(
+            "SELECT count(*) FROM audit_requests "
+            "WHERE state IN ('authorization_review','queued','running','quality_review')"
+        ).fetchone()[0]
+        if pending_count >= MAX_PENDING_AUDIT_REQUESTS:
+            raise HTTPException(429, "The audit review queue is full. Try again later.")
 
     async def _send_external_account_link(
         email: str, kind: str, link: str, budget: str
@@ -720,6 +754,7 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
         timestamp = now_iso()
         with database.connect() as db:
             db.execute("BEGIN IMMEDIATE")
+            _lock_audit_admission(db)
             site = db.execute(
                 "SELECT id FROM sites WHERE id=? AND workspace_id=? AND deleted_at IS NULL",
                 (site_id, user["workspace_id"]),
@@ -732,13 +767,7 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
             ).fetchone()
             if existing:
                 return {"audit": dict(existing), "created": False}
-            cutoff = datetime.fromtimestamp(time.time() - 3600, UTC).isoformat(timespec="seconds")
-            recent = db.execute(
-                "SELECT count(*) FROM audit_requests WHERE workspace_id=? AND created_at>=?",
-                (user["workspace_id"], cutoff),
-            ).fetchone()[0]
-            if recent >= 10:
-                raise HTTPException(429, "This workspace has reached the hourly request limit")
+            _enforce_audit_admission(db, user["workspace_id"], timestamp)
             audit_id, authorization_id = str(uuid.uuid4()), str(uuid.uuid4())
             db.execute(
                 "INSERT INTO authorization_receipts(id,workspace_id,site_id,user_id,statement,version,recorded_at) "
@@ -958,7 +987,7 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
             ("Page structure", "Titles, descriptions, canonical links, viewport metadata, image alternatives, and readable page content."),
             ("Structured data", "Whether common structured data is present; presence does not establish eligibility or correctness."),
             ("Technical responses", "The first page response, selected response headers, and supported security header signals."),
-            ("Site hygiene", "Robots and sitemap signals, mixed content, and selected page links when the profile allows them."),
+            ("Site hygiene", "The robots.txt access policy and mixed-content indicators on the audited page. The profile does not fetch sitemaps or crawl linked pages."),
             ("Rendered checks", "Browser and accessibility checks are optional engine capabilities and are not enabled for this service."),
         ]
         rows = "".join('<article class="check-row"><span class="check-mark">+</span><div><h2>' + h + '</h2><p>' + p + "</p></div></article>" for h,p in checks)
@@ -1398,19 +1427,14 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
         timestamp = now_iso()
         with database.connect() as db:
             db.execute("BEGIN IMMEDIATE")
+            _lock_audit_admission(db)
             site = db.execute("SELECT id FROM sites WHERE id=? AND workspace_id=? AND deleted_at IS NULL", (site_id, user["workspace_id"])).fetchone()
             if not site:
                 raise HTTPException(404, "Website not found")
             existing = db.execute("SELECT id FROM audit_requests WHERE workspace_id=? AND idempotency_key=?", (user["workspace_id"], key)).fetchone()
             if existing:
                 return RedirectResponse("/app/audits/" + existing["id"], status_code=303)
-            cutoff = datetime.fromtimestamp(time.time() - 3600, UTC).isoformat(timespec="seconds")
-            recent = db.execute(
-                "SELECT count(*) FROM audit_requests WHERE workspace_id=? AND created_at>=?",
-                (user["workspace_id"], cutoff),
-            ).fetchone()[0]
-            if recent >= 10:
-                raise HTTPException(429, "This workspace has reached the hourly request limit.")
+            _enforce_audit_admission(db, user["workspace_id"], timestamp)
             db.execute("INSERT INTO authorization_receipts(id,workspace_id,site_id,user_id,statement,version,recorded_at) VALUES(?,?,?,?,?,?,?)", (authorization_id, user["workspace_id"], site_id, user["user_id"], CONSENT_TEXT, CONSENT_VERSION, timestamp))
             db.execute("INSERT INTO audit_requests(id,workspace_id,site_id,requested_by,authorization_id,profile,state,idempotency_key,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)", (audit_id, user["workspace_id"], site_id, user["user_id"], authorization_id, "static", "authorization_review", key, timestamp, timestamp))
         return RedirectResponse("/app/audits/" + audit_id, status_code=303)

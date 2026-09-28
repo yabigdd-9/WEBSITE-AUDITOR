@@ -174,14 +174,15 @@ def test_vercel_preview_requires_isolated_hosted_configuration(monkeypatch):
     monkeypatch.setenv("CATALYX_DATABASE_URL", "postgresql://auditor:secret@db.example.invalid/preview")
     monkeypatch.setenv("CATALYX_PUBLIC_BASE_URL", "https://preview.example.invalid")
     monkeypatch.setenv("CATALYX_TOTP_ENCRYPTION_KEY", base64.urlsafe_b64encode(bytes(range(32))).decode())
-    monkeypatch.setenv("CATALYX_MAIL_MODE", "smtp")
-    for name, value in SMTP_ENV.items():
-        monkeypatch.setenv(name, value)
+    monkeypatch.setenv("CATALYX_MAIL_MODE", "disabled")
+    monkeypatch.delenv("CATALYX_EXTERNAL_SEND_ALLOWED", raising=False)
 
     app = create_app()
     assert app.state.database.database_url.endswith("/preview")
     assert app.state.scan_worker_enabled is False
     assert app.state.runtime_environment == "staging"
+    assert app.state.mail_mode == "disabled"
+    assert app.state.external_send_allowed is False
 
     hosted_client = TestClient(app)
     assert hosted_client.get("/register").status_code == 404
@@ -190,8 +191,8 @@ def test_vercel_preview_requires_isolated_hosted_configuration(monkeypatch):
     assert "New to Website Auditor?" not in hosted_client.get("/login").text
 
     monkeypatch.setenv("CATALYX_REGISTRATION_MODE", "open")
-    explicitly_open_client = TestClient(create_app())
-    assert explicitly_open_client.get("/register").status_code == 200
+    with pytest.raises(RuntimeError, match="reviewed invitation flow"):
+        create_app()
 
 
 def test_hosted_account_email_is_disabled_by_default(monkeypatch):
@@ -246,7 +247,7 @@ def test_open_registration_is_rejected_when_mail_delivery_is_disabled(monkeypatc
     monkeypatch.setenv("CATALYX_MAIL_MODE", "disabled")
     monkeypatch.delenv("CATALYX_EXTERNAL_SEND_ALLOWED", raising=False)
 
-    with pytest.raises(RuntimeError, match="Open registration requires"):
+    with pytest.raises(RuntimeError, match="reviewed invitation flow"):
         create_app()
 
 
@@ -300,21 +301,21 @@ def test_hosted_startup_requires_explicit_runtime_configuration(monkeypatch):
         create_app()
 
 
-def test_hosted_startup_accepts_configured_external_dependencies(monkeypatch, tmp_path):
+def test_hosted_startup_accepts_database_config_with_email_disabled(monkeypatch, tmp_path):
     monkeypatch.setenv("CATALYX_ENV", "production")
     monkeypatch.delenv("VERCEL_ENV", raising=False)
     monkeypatch.setenv("CATALYX_DATABASE_URL", "postgresql://auditor:secret@db.example.invalid/auditor")
     monkeypatch.setenv("CATALYX_PUBLIC_BASE_URL", "https://catalyxlabs.com")
     monkeypatch.setenv("CATALYX_TOTP_ENCRYPTION_KEY", base64.urlsafe_b64encode(bytes(range(32))).decode())
-    monkeypatch.setenv("CATALYX_MAIL_MODE", "smtp")
-    for name, value in SMTP_ENV.items():
-        monkeypatch.setenv(name, value)
+    monkeypatch.setenv("CATALYX_MAIL_MODE", "disabled")
+    monkeypatch.delenv("CATALYX_EXTERNAL_SEND_ALLOWED", raising=False)
 
     app = create_app(tmp_path / "ignored.sqlite3")
 
     assert app.state.database.database_url.startswith("postgresql://")
     assert app.state.scan_worker_enabled is False
     assert app.state.runtime_environment == "production"
+    assert app.state.mail_mode == "disabled"
     assert not (tmp_path / "ignored.sqlite3").exists()
 
 

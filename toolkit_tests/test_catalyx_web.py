@@ -159,11 +159,20 @@ def test_accessibility_error_announcement_and_current_page_state(tmp_path):
 
 
 def test_customer_dashboard_counts_all_requests_and_shows_only_five_recent(tmp_path):
-    client = TestClient(create_app(tmp_path / "app.sqlite3", tmp_path / "mailbox.json"))
+    db_path = tmp_path / "app.sqlite3"
+    client = TestClient(create_app(db_path, tmp_path / "mailbox.json"))
     register_and_login(client, "dashboard-count@example.invalid")
     site_id = add_site(client)
-    for _ in range(6):
+    database = Database(db_path)
+    for index in range(6):
         submit_audit(client, site_id)
+        if index < 5:
+            with database.connect() as db:
+                db.execute(
+                    "UPDATE audit_requests SET state='cancelled',created_at=? "
+                    "WHERE id=(SELECT id FROM audit_requests ORDER BY created_at DESC LIMIT 1)",
+                    (f"2020-01-0{index + 1}T00:00:00+00:00",),
+                )
 
     dashboard = client.get("/app")
 
@@ -409,6 +418,43 @@ def test_serverless_platform_cannot_be_downgraded_to_local_mode(monkeypatch):
 
     monkeypatch.setenv("CATALYX_ENV", "staging")
     assert production_mode()
+
+
+def test_hosted_registration_and_external_email_stay_closed_for_first_release(tmp_path, monkeypatch):
+    for key in (
+        "CATALYX_ENV",
+        "VERCEL",
+        "K_SERVICE",
+        "AWS_LAMBDA_FUNCTION_NAME",
+        "CATALYX_REGISTRATION_MODE",
+        "CATALYX_MAIL_MODE",
+        "CATALYX_EXTERNAL_SEND_ALLOWED",
+    ):
+        monkeypatch.delenv(key, raising=False)
+
+    monkeypatch.setenv("VERCEL", "1")
+    monkeypatch.setenv("CATALYX_REGISTRATION_MODE", "open")
+    with pytest.raises(RuntimeError, match="reviewed invitation flow"):
+        create_app(tmp_path / "hosted-open.sqlite3", tmp_path / "hosted-open-mail.json")
+
+    monkeypatch.setenv("CATALYX_REGISTRATION_MODE", "closed")
+    monkeypatch.setenv("CATALYX_MAIL_MODE", "smtp")
+    monkeypatch.setenv("CATALYX_EXTERNAL_SEND_ALLOWED", "true")
+    with pytest.raises(RuntimeError, match="not approved for the first release"):
+        create_app(tmp_path / "hosted-mail.sqlite3", tmp_path / "hosted-mail.json")
+
+    monkeypatch.delenv("VERCEL")
+    monkeypatch.delenv("CATALYX_MAIL_MODE")
+    monkeypatch.delenv("CATALYX_EXTERNAL_SEND_ALLOWED")
+    monkeypatch.setenv("CATALYX_ENV", "production")
+    monkeypatch.setenv("CATALYX_REGISTRATION_MODE", "open")
+    with pytest.raises(RuntimeError, match="reviewed invitation flow"):
+        create_app(tmp_path / "hosted-explicit-open.sqlite3", tmp_path / "hosted-explicit-open-mail.json")
+
+    monkeypatch.delenv("CATALYX_ENV")
+    monkeypatch.setenv("CATALYX_REGISTRATION_MODE", "open")
+    local_app = create_app(tmp_path / "local-open.sqlite3", tmp_path / "local-mail.json")
+    assert local_app.state.registration_mode == "open"
 
 
 def test_postgres_adapter_keeps_mapping_and_positional_rows_and_binds_parameters():
@@ -1003,6 +1049,76 @@ def test_browser_responses_include_security_headers(tmp_path):
     assert "default-src 'self'" in oversized.headers["Content-Security-Policy"]
 
 
+def test_audit_admission_caps_daily_workspace_requests_and_global_queue(tmp_path):
+    db_path = tmp_path / "app.sqlite3"
+
+    def customer(index: int):
+        client = TestClient(create_app(db_path, tmp_path / f"mail-{index}.json"))
+        email = f"quota-{index}@example.invalid"
+        if index < 5:
+            register_and_login(client, email)
+        else:
+            # Keep this queue-cap test independent of the separate local
+            # five-per-hour registration throttle.
+            password = "a-long-local-password-123"
+            Database(db_path).create_customer(email, hash_password(password))
+            with Database(db_path).connect() as db:
+                db.execute("UPDATE users SET email_verified_at=created_at WHERE email=?", (email,))
+            page = client.get("/login")
+            login = client.post(
+                "/login",
+                data={"csrf": form_token(page), "email": email, "password": password},
+                follow_redirects=False,
+            )
+            assert login.status_code == 303
+        return client, add_site(client)
+
+    first, first_site = customer(0)
+    first_audit = submit_audit(first, first_site)
+    page = first.get(f"/app/sites/{first_site}")
+    denied_daily = first.post(
+        f"/app/sites/{first_site}/audit-request",
+        data={
+            "csrf": form_token(page),
+            "authorized": "yes",
+            "idempotency_key": "second-audit-same-day",
+        },
+        follow_redirects=False,
+    )
+    assert denied_daily.status_code == 429
+    assert "daily audit request limit" in denied_daily.text
+    assert first.get(f"/app/audits/{first_audit}").status_code == 200
+    api_me = first.get("/api/v1/me").json()
+    denied_api_daily = first.post(
+        f"/api/v1/sites/{first_site}/audits",
+        json={"authorized": True},
+        headers={
+            "X-CSRF-Token": api_me["csrf_token"],
+            "Idempotency-Key": "second-api-audit-same-day",
+        },
+    )
+    assert denied_api_daily.status_code == 429
+    assert "daily audit request limit" in denied_api_daily.text
+
+    for index in range(1, 5):
+        client, site_id = customer(index)
+        submit_audit(client, site_id)
+
+    sixth, sixth_site = customer(5)
+    page = sixth.get(f"/app/sites/{sixth_site}")
+    denied_queue = sixth.post(
+        f"/app/sites/{sixth_site}/audit-request",
+        data={
+            "csrf": form_token(page),
+            "authorized": "yes",
+            "idempotency_key": "sixth-pending-audit",
+        },
+        follow_redirects=False,
+    )
+    assert denied_queue.status_code == 429
+    assert "review queue is full" in denied_queue.text
+
+
 def test_versioned_api_enforces_tenancy_and_admin_review(tmp_path):
     db_path = tmp_path / "app.sqlite3"
     mailbox_path = tmp_path / "mailbox.json"
@@ -1344,6 +1460,11 @@ def test_customer_ownership_and_request_review_with_admin_mfa(tmp_path, monkeypa
         ("report_release", "Evidence and coverage reviewed"),
     ]
 
+    with database.connect() as db:
+        db.execute(
+            "UPDATE audit_requests SET created_at='2020-01-01T00:00:00+00:00' WHERE id=?",
+            (audit_id,),
+        )
     cancelled_id = submit_audit(client_a, site_id)
     cancel_page = client_a.get(f"/app/audits/{cancelled_id}")
     response = client_a.post(
@@ -2086,13 +2207,14 @@ def test_failed_job_queue_shows_attempts_reason_and_retry_boundary(tmp_path):
     register_and_login(customer, "failed-jobs@example.invalid")
     site_id = add_site(customer)
     retryable_id = submit_audit(customer, site_id)
-    exhausted_id = submit_audit(customer, site_id)
     database = Database(db_path)
     with database.connect() as db:
         db.execute(
-            "UPDATE audit_requests SET state='failed',attempt_count=1,review_reason=? WHERE id=?",
-            ("The target could not be audited within the configured limits", retryable_id),
+            "UPDATE audit_requests SET state='failed',attempt_count=1,review_reason=?,created_at=? WHERE id=?",
+            ("The target could not be audited within the configured limits", "2020-01-01T00:00:00+00:00", retryable_id),
         )
+    exhausted_id = submit_audit(customer, site_id)
+    with database.connect() as db:
         db.execute(
             "UPDATE audit_requests SET state='failed',attempt_count=2,review_reason=? WHERE id=?",
             ("Worker lease expired after the retry limit", exhausted_id),
