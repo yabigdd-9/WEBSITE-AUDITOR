@@ -683,6 +683,35 @@ def test_local_mailbox_refuses_a_preexisting_symlink(tmp_path):
     assert target.read_text(encoding="utf-8") == "preserve this file\n"
 
 
+def test_local_mailbox_cli_does_not_read_through_symlink(tmp_path, monkeypatch, capsys):
+    import catalyx_web.app as app_module
+
+    target = tmp_path / "private.json"
+    target.write_text(
+        json.dumps(
+            [
+                {
+                    "email": "owner@example.invalid",
+                    "kind": "verification",
+                    "verification_url": "http://localhost/verify#secret-token",
+                    "expires_at": int(time.time()) + 3600,
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+    mailbox = tmp_path / "mailbox.json"
+    mailbox.symlink_to(target)
+    monkeypatch.setenv("CATALYX_LOCAL_MAILBOX", str(mailbox))
+    monkeypatch.setattr(sys, "argv", ["catalyx_web.app", "--show-local-mailbox"])
+
+    with pytest.raises(SystemExit, match="No local verification messages"):
+        app_module.main()
+
+    assert "secret-token" not in capsys.readouterr().out
+    assert "secret-token" in target.read_text(encoding="utf-8")
+
+
 def test_admin_login_uses_shared_budget_and_rejects_totp_replay(tmp_path, monkeypatch):
     db_path = tmp_path / "admin-rate-limit.sqlite3"
     database = Database(db_path)

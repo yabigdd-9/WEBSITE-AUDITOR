@@ -90,6 +90,35 @@ def _public_registration_open() -> bool:
     return mode.strip().lower() == "open"
 
 
+def _read_local_mailbox_file(mailbox_path: Path) -> list[dict]:
+    if not mailbox_path.exists():
+        return []
+    try:
+        descriptor = os.open(mailbox_path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+        with os.fdopen(descriptor, "r", encoding="utf-8") as mailbox_file:
+            metadata = os.fstat(mailbox_file.fileno())
+            if (
+                not stat.S_ISREG(metadata.st_mode)
+                or metadata.st_uid != os.geteuid()
+                or metadata.st_size > 1_000_000
+            ):
+                return []
+            messages = json.load(mailbox_file)
+    except (json.JSONDecodeError, OSError):
+        return []
+    if not isinstance(messages, list):
+        return []
+    current_time = int(time.time())
+    return [
+        message
+        for message in messages
+        if isinstance(message, dict)
+        and isinstance(message.get("verification_url"), str)
+        and isinstance(message.get("expires_at"), int)
+        and message["expires_at"] > current_time
+    ][-50:]
+
+
 def _home_path_for_role(role: str) -> str:
     if role in REVIEW_ROLES:
         return "/admin"
@@ -460,32 +489,7 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
         return True
 
     def _read_local_messages() -> list[dict]:
-        if not mailbox_path.exists():
-            return []
-        try:
-            descriptor = os.open(mailbox_path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
-            with os.fdopen(descriptor, "r", encoding="utf-8") as mailbox_file:
-                metadata = os.fstat(mailbox_file.fileno())
-                if (
-                    not stat.S_ISREG(metadata.st_mode)
-                    or metadata.st_uid != os.geteuid()
-                    or metadata.st_size > 1_000_000
-                ):
-                    return []
-                messages = json.load(mailbox_file)
-        except (json.JSONDecodeError, OSError):
-            messages = []
-        if not isinstance(messages, list):
-            return []
-        current_time = int(time.time())
-        return [
-            message
-            for message in messages
-            if isinstance(message, dict)
-            and isinstance(message.get("verification_url"), str)
-            and isinstance(message.get("expires_at"), int)
-            and message["expires_at"] > current_time
-        ][-50:]
+        return _read_local_mailbox_file(mailbox_path)
 
     def _write_local_messages(messages: list[dict]) -> None:
         mailbox_path.parent.mkdir(parents=True, exist_ok=True)
@@ -2063,9 +2067,10 @@ def main() -> None:
     args = parser.parse_args()
     if args.show_local_mailbox:
         mailbox_path = Path(os.getenv("CATALYX_LOCAL_MAILBOX", "state/catalyx-local-mailbox.json")).expanduser()
-        if not mailbox_path.exists():
+        messages = _read_local_mailbox_file(mailbox_path)
+        if not messages:
             raise SystemExit("No local verification messages are available.")
-        print(mailbox_path.read_text(encoding="utf-8"))
+        print(json.dumps(messages, indent=2))
         return
     if args.create_admin:
         bootstrap_admin(args.db, args.create_admin)
