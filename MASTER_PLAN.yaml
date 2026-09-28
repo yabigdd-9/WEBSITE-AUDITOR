@@ -78,7 +78,7 @@ phases:
   P1:
     name: "Reproducible green baseline"
     priority: CRITICAL
-    status: "TESTED_BASELINE_HISTORY_SECRET_GATE_OPEN"
+    status: "DEPENDENCY_AUDIT_PASSED_HISTORICAL_GITLEAKS_SCAN_PENDING"
     python: "3.11"
     actions:
       - "Standardize dependency source."
@@ -93,6 +93,11 @@ phases:
       - "Python 3.11 confirmed."
       - "No active secrets committed."
       - "Working tree clean."
+    latest_verification:
+      date: "2026-09-28"
+      dependency_audit: "pip-audit 2.10.1 strict OSV audit of requirements.txt and money-machine/requirements-email.txt: no known vulnerabilities."
+      full_toolkit_suite: "164 passed, 4 opt-in browser skips, 2 deprecation warnings."
+      historical_secret_scan: "Redacted Gitleaks scan is still running; do not close the secret gate until its result is reviewed."
   P2:
     name: "Code consolidation"
     priority: HIGH
@@ -123,6 +128,10 @@ phases:
       - "log rotation/retention"
       - "disk/network guards"
       - "crash recovery"
+    latest_verification:
+      date: "2026-09-28"
+      crash_restart_no_duplicate_work: "toolkit_tests/test_supervisor.py::test_supervisor_crash_recovery_no_duplicate_work passed (1 test, 7.45s) using isolated temporary MM_ROOT."
+      soak: "User reports the 24-hour soak was completed in Claude; it was not rerun."
   P4:
     name: "Audit engine"
     priority: HIGH
@@ -216,6 +225,9 @@ phases:
     status: "IMPLEMENTED_READ_ONLY_HEALTH_METRICS_QUEUE_AND_DLQ"
     start_with: ["state/health.json", "state/metrics.jsonl", "state/errors.jsonl", "state/worker-heartbeats/", "state/dead-letter/"]
     defer: ["Prometheus", "Grafana", "Loki", "Langfuse"]
+    latest_verification:
+      date: "2026-09-28"
+      dead_letter_visibility: "toolkit_tests/test_p17_observability.py passed (1 test, 0.62s) against a synthetic temporary database."
   P18:
     name: "Self improvement"
     priority: MEDIUM
