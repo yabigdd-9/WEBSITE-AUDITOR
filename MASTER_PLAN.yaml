@@ -235,6 +235,10 @@ phases:
     status: "GOLDEN_AND_SYNTHETIC_COMPONENT_CHALLENGER_EVALUATED_RUNTIME_SHADOW_OPEN"
     flow: ["propose", "branch", "test", "evaluate", "shadow run", "compare metrics", "judge", "merge or reject"]
     rule: "No direct autonomous modification of production."
+    latest_verification:
+      date: "2026-09-28"
+      synthetic_cli_evaluation: "./mm challenger-eval compared all 6 golden cases using temporary synthetic predictions: baseline accuracy 0.833333, challenger accuracy 1.0, improvement 0.166667, safety_failures=0, promotion_recommended=true, promotion_authorized=false, merge_authority=false."
+      runtime_shadow: "Still open; no verified zero-cost local model endpoint is available for a runtime shadow run."
 
 catalyxlabs_rebuild:
   name: "Catalyx Labs website rebuild"
