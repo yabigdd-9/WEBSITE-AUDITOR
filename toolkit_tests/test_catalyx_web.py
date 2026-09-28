@@ -598,6 +598,26 @@ def test_auth_rate_limit_table_has_a_hard_row_ceiling(tmp_path, monkeypatch):
         assert db.execute("SELECT count(*) FROM auth_rate_limits").fetchone()[0] == 1
 
 
+def test_auth_rate_limit_row_ceiling_is_atomic_across_new_subjects(tmp_path, monkeypatch):
+    import catalyx_web.db as db_module
+
+    database = Database(tmp_path / "concurrent-rate-limit-capacity.sqlite3")
+    monkeypatch.setattr(db_module, "MAX_AUTH_RATE_LIMIT_ROWS", 3)
+    with ThreadPoolExecutor(max_workers=12) as pool:
+        accepted = list(
+            pool.map(
+                lambda index: database.allow_rate_attempt(
+                    "login", f"source-{index}", 5, 60, now=1000
+                ),
+                range(24),
+            )
+        )
+
+    assert sum(accepted) == 3
+    with database.connect() as db:
+        assert db.execute("SELECT count(*) FROM auth_rate_limits").fetchone()[0] == 3
+
+
 def test_auth_rate_limit_attempt_reservations_are_atomic_across_connections(tmp_path):
     database = Database(tmp_path / "concurrent-rate-limits.sqlite3")
     with ThreadPoolExecutor(max_workers=16) as pool:
