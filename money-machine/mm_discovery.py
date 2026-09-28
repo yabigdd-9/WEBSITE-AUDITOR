@@ -26,6 +26,7 @@ from urllib.request import Request, urlopen
 
 import mm_core as core
 import mm_pipeline
+import mm_search_backend
 
 
 class SearchBlocked(RuntimeError):
@@ -363,6 +364,7 @@ def _loopback_endpoint(endpoint):
 
 
 def searxng_candidates(query, region, endpoint="http://127.0.0.1:8888", limit=20):
+    """Return normalized discovery candidates through the typed local backend."""
     query = str(query or "").strip()
     if not query or len(query) > 200:
         raise ValueError("query must contain 1-200 characters")
@@ -372,51 +374,40 @@ def searxng_candidates(query, region, endpoint="http://127.0.0.1:8888", limit=20
     limit = max(1, min(int(limit), MAX_SEARCH_RESULTS))
     endpoint = _loopback_endpoint(endpoint)
 
-    # P5: typed BLOCKED_SEARCH_* failures instead of raw URLError tracebacks.
-    # The frozen signature and happy path are unchanged; only the failure mode
-    # is upgraded to a machine-readable, typed error.
-    params = urlencode({
-        "q": query,
-        "format": "json",
-        "categories": "general",
-        "language": "en-NZ",
-        "safesearch": "1",
-    })
-    request = Request(
-        endpoint + "/search?" + params,
-        headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+    result = mm_search_backend.search(
+        query,
+        region,
+        endpoint=endpoint,
+        limit=limit,
+        timeout=SEARCH_TIMEOUT,
     )
-    try:
-        with urlopen(request, timeout=SEARCH_TIMEOUT) as response:
-            body = response.read(MAX_SEARCH_RESPONSE + 1)
-    except HTTPError as e:
-        raise SearchBlocked("BLOCKED_SEARCH_BAD_STATUS", endpoint,
-                            f"SearXNG returned HTTP {e.code}") from e
-    except URLError as e:
-        reason = str(getattr(e, "reason", e))
-        code = ("BLOCKED_SEARCH_TIMEOUT" if "timed out" in reason.lower()
-                else "BLOCKED_SEARCH_SERVICE_ABSENT")
-        raise SearchBlocked(code, endpoint, reason) from e
-    except OSError as e:
-        raise SearchBlocked("BLOCKED_SEARCH_SERVICE_ABSENT", endpoint, str(e)) from e
-    if len(body) > MAX_SEARCH_RESPONSE:
-        raise SearchBlocked("BLOCKED_SEARCH_BAD_RESPONSE", endpoint, "response exceeds size limit")
-    try:
-        document = json.loads(body.decode("utf-8"))
-    except ValueError as e:
-        raise SearchBlocked("BLOCKED_SEARCH_BAD_RESPONSE", endpoint, f"invalid JSON: {e}") from e
-    results = document.get("results", [])
-    if not isinstance(results, list):
-        raise SearchBlocked("BLOCKED_SEARCH_BAD_RESPONSE", endpoint, "results not a list")
+    state = result.get("state")
+    if state != mm_search_backend.OK:
+        code_map = {
+            mm_search_backend.BLOCKED_NOT_LISTENING: "BLOCKED_SEARCH_SERVICE_ABSENT",
+            mm_search_backend.BLOCKED_TIMEOUT: "BLOCKED_SEARCH_TIMEOUT",
+            mm_search_backend.BLOCKED_HTTP_STATUS: "BLOCKED_SEARCH_BAD_STATUS",
+            mm_search_backend.BLOCKED_NOT_JSON: "BLOCKED_SEARCH_BAD_RESPONSE",
+            mm_search_backend.BLOCKED_TOO_LARGE: "BLOCKED_SEARCH_BAD_RESPONSE",
+            mm_search_backend.BLOCKED_INVALID_JSON: "BLOCKED_SEARCH_BAD_RESPONSE",
+            mm_search_backend.BLOCKED_CIRCUIT_OPEN: "BLOCKED_SEARCH_CIRCUIT_OPEN",
+        }
+        raise SearchBlocked(
+            code_map.get(state, "BLOCKED_SEARCH_BAD_RESPONSE"),
+            endpoint,
+            str(result.get("reason") or result.get("remedy") or state)[:240],
+        )
 
     candidates = []
     seen = set()
-    query_ref = hashlib.sha256(query.encode("utf-8")).hexdigest()[:12]
-    for result in results:
-        if len(candidates) >= limit or not isinstance(result, dict):
+    query_ref = str(result.get("query_ref") or hashlib.sha256(
+        query.encode("utf-8")
+    ).hexdigest()[:12])
+    for item in result.get("results") or []:
+        if len(candidates) >= limit or not isinstance(item, dict):
             break
         try:
-            website, host = root_url(result.get("url"))
+            website, host = root_url(item.get("url"))
         except ValueError:
             continue
         if host in seen:
@@ -427,6 +418,9 @@ def searxng_candidates(query, region, endpoint="http://127.0.0.1:8888", limit=20
             "region": region,
             "public_website": website,
             "source": f"searxng-local:{query_ref}",
+            "source_lane": "searxng",
+            "source_record_id": query_ref,
+            "source_url": str(item.get("url") or "")[:500],
             "canonical_host": host,
         })
     return candidates
