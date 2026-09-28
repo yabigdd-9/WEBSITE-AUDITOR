@@ -64,6 +64,7 @@ class RoutingTests(unittest.TestCase):
         self.assertEqual(result["requested_model"], self.config["roles"]["SECONDARY_CODER"]["fallbacks"][0])
         for call in self.calls:
             self.assertTrue(call["provider"]["require_parameters"])
+            self.assertEqual(call["provider"]["data_collection"], "allow")
             self.assertTrue(all(v == 0 for v in call["provider"]["max_price"].values()))
             self.assertNotIn("tools", call)
 
@@ -92,6 +93,12 @@ class RoutingTests(unittest.TestCase):
     def test_parameter_protection_cannot_be_disabled(self):
         self.config["policy"]["require_parameters"] = False
         with self.assertRaises(RouteError):
+            validate(self.config)
+
+    def test_public_only_scope_required_when_data_collection_allowed(self):
+        self.config["policy"]["data_collection"] = "allow"
+        self.config["policy"]["external_free_prompt_scope"] = "anything"
+        with self.assertRaisesRegex(RouteError, "public-only prompt scope"):
             validate(self.config)
 
     def test_vision_skips_text_only_primary(self):
