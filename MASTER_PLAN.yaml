@@ -190,7 +190,7 @@ phases:
     latest_verification:
       date: "2026-09-29"
       exact_head: "codex/canonical-plan-execution at 3d56f35f5b6b8009c988cc92eea8dae1443f513b"
-      synthetic_tests: "Focused email finder, lifecycle, CLI, tracking, and non-database hardening tests passed: 37 passed, 47 subtests. The shared verified Python 3.11 interpreter was selected explicitly with MM_PYTHON. Six HardeningDatabase tests were excluded because this isolated worktree lacks the ignored source database; they are not counted as passed, and the broader DB-backed email integration suite is not established by this run."
+      synthetic_tests: "Focused email finder, hardening, lifecycle, CLI, and tracking tests passed: 43 passed, 47 subtests. The shared verified Python 3.11 interpreter was selected explicitly with MM_PYTHON. HardeningDatabase tests used a disposable source database initialized from tracked mm_core.SCHEMA; no ignored or user database was read, copied, or modified. The broader acceptance and email integration suites remain separately gated."
   P9:
     name: "Opportunity scoring"
     priority: HIGH
