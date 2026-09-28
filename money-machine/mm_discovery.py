@@ -20,9 +20,7 @@ import ipaddress
 import json
 import sqlite3
 from pathlib import Path
-from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode, urlsplit, urlunsplit
-from urllib.request import Request, urlopen
+from urllib.parse import urlsplit, urlunsplit
 
 import mm_core as core
 import mm_pipeline
@@ -40,9 +38,7 @@ class SearchBlocked(RuntimeError):
 
 MAX_IMPORT_ROWS = 5000
 MAX_SEARCH_RESULTS = 50
-MAX_SEARCH_RESPONSE = 2 * 1024 * 1024
 SEARCH_TIMEOUT = 20
-USER_AGENT = "WEBSITE-AUDITOR-Discovery/1.0"
 
 
 def _first(row, names):
