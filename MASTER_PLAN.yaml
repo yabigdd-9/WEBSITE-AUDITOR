@@ -78,7 +78,7 @@ phases:
   P1:
     name: "Reproducible green baseline"
     priority: CRITICAL
-    status: "TESTS_AND_STRICT_DEPENDENCY_AUDIT_PASS_SECRET_SCAN_CLEAR_CLEAN_TREE_GATE_OPEN"
+    status: "TESTS_AND_DEPENDENCY_AUDIT_PASS_HISTORICAL_SECRET_AND_CLEAN_TREE_GATES_OPEN"
     python: "3.11"
     actions:
       - "Standardize dependency source."
@@ -97,7 +97,7 @@ phases:
       date: "2026-09-28"
       dependency_audit: "pip-audit 2.10.1 strict OSV audit of requirements.txt and money-machine/requirements-email.txt: no known vulnerabilities."
       full_toolkit_suite: "164 passed, 4 opt-in browser skips, 2 deprecation warnings."
-      historical_secret_scan: "Gitleaks 8.30.1 scanned Git history: 103 matches across 4 historical commits, 0 at current HEAD. Secret values were redacted. The matches were traced to a shell-variable-backed CI curl auth argument, generated action/idempotency identifiers, captured third-party HTML, and scanner-rule documentation. A redacted scan of all current dirty/untracked paths listed by git status found 0 matches; .env files were not scanned or opened. No active project-owned credential was identified."
+      historical_secret_scan: "Gitleaks 8.30.1 scanned the current branch history: 103 matches across 4 historical commits, 0 at current HEAD. Redacted triage identified a shell-variable-backed CI curl auth argument, generated action/idempotency identifiers, captured third-party HTML, and scanner-rule documentation. A redacted scan of every current dirty/untracked path listed by git status found 0 matches; .env files were not scanned or opened. This does not cover the separate unreferenced local commit recorded under acceptance_open with 54 nonempty historical .env/.env.fcc assignments, and it does not establish third-party key ownership or rotation. Owner verification/rotation and the clean-tree gate remain open."
   P2:
     name: "Code consolidation"
     priority: HIGH
