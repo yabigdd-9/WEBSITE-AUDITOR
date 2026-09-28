@@ -31,10 +31,16 @@ def run_nightly():
         print(f"\n🔍 Scanning: {clean_domain}")
         
         # 1. Run Audit (Silent)
-        subprocess.run([sys.executable, "wa.py", "audit", url], capture_output=True)
+        audit_proc = subprocess.run([sys.executable, "wa.py", "audit", url], capture_output=True)
+        if audit_proc.returncode != 0:
+            print(f"   ⚠️  Audit failed (rc={audit_proc.returncode}): {audit_proc.stderr.decode()[:200]}")
+            continue
 
         # 2. Run Remediation to get JSON
-        subprocess.run([sys.executable, "remediation-engine.py", "--domain", clean_domain, "--output-dir", "outputs/remediations"], capture_output=True)
+        rem_proc = subprocess.run([sys.executable, "remediation-engine.py", "--domain", clean_domain, "--output-dir", "outputs/remediations"], capture_output=True)
+        if rem_proc.returncode != 0:
+            print(f"   ⚠️  Remediation failed (rc={rem_proc.returncode}): {rem_proc.stderr.decode()[:200]}")
+            continue
         
         # 3. Load defects and run Watchdog
         try:

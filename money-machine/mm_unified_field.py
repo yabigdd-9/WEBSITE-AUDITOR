@@ -446,7 +446,8 @@ def _get_component_time_series(
 
         return data
 
-    except Exception:
+    except (sqlite3.Error, TypeError, ValueError) as exc:
+        logging.debug(f"Metric time series failed for {component_name}: {exc}")
         return []
 
 def _get_metric_time_series(

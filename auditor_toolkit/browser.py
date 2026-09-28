@@ -1,7 +1,7 @@
 import hashlib
 from pathlib import Path
 
-from .common import validate_url
+from .common import validate_url, workspace_path
 
 VIEWPORTS = {
     "desktop": {"width": 1366, "height": 900},
@@ -150,7 +150,7 @@ def export_pdf(html_path, pdf_path, opts=None):
         try:
             import requests
             # Read the HTML file
-            html_content = Path(html_path).read_text()
+            html_content = workspace_path(html_path, must_exist=True, file_only=True).read_text()
             # Send to Gotenberg
             response = requests.post(
                 f"{gotenberg_url}/forms/html",
@@ -160,7 +160,7 @@ def export_pdf(html_path, pdf_path, opts=None):
             )
             response.raise_for_status()
             # Write the PDF
-            Path(pdf_path).write_bytes(response.content)
+            workspace_path(pdf_path).write_bytes(response.content)
             return
         except Exception:
             # Fall back to Playwright if Gotenberg fails

@@ -24,6 +24,14 @@ SMTP_ENV = {
 }
 
 
+def test_smtp_tls_context_requires_valid_server_certificate():
+    context = mailer._server_tls_context()
+
+    assert context.minimum_version >= mailer.ssl.TLSVersion.TLSv1_2
+    assert context.verify_mode == mailer.ssl.CERT_REQUIRED
+    assert context.check_hostname
+
+
 class FakeSMTP:
     def __init__(self):
         self.started_tls = False

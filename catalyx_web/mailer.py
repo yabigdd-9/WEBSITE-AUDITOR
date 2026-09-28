@@ -19,6 +19,16 @@ class MailDeliveryError(RuntimeError):
     """An account message could not be delivered."""
 
 
+def _server_tls_context() -> ssl.SSLContext:
+    """Create a TLS client context with certificate and hostname checks enabled."""
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    context.minimum_version = ssl.TLSVersion.TLSv1_2
+    context.load_default_certs(ssl.Purpose.SERVER_AUTH)
+    context.verify_mode = ssl.CERT_REQUIRED
+    context.check_hostname = True
+    return context
+
+
 def smtp_configuration(environ=None) -> dict[str, str | int]:
     """Validate SMTP settings without opening a network connection."""
     values = os.environ if environ is None else environ
@@ -89,14 +99,14 @@ def send_account_link(recipient: str, kind: str, link: str, *, environ=None) -> 
         if settings["port"] == 465:
             with smtplib.SMTP_SSL(
                 settings["host"], settings["port"], timeout=10,
-                context=ssl.create_default_context(),
+                context=_server_tls_context(),
             ) as server:
                 server.login(settings["username"], settings["password"])
                 server.send_message(message)
         else:
             with smtplib.SMTP(settings["host"], settings["port"], timeout=10) as server:
                 server.ehlo()
-                server.starttls(context=ssl.create_default_context())
+                server.starttls(context=_server_tls_context())
                 server.ehlo()
                 server.login(settings["username"], settings["password"])
                 server.send_message(message)
