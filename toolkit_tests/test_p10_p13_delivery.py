@@ -1,4 +1,6 @@
+import io
 import json
+from contextlib import redirect_stdout
 from pathlib import Path
 
 import pytest
@@ -240,6 +242,66 @@ def test_p13_packet_rejects_qualification_from_another_audit_run(tmp_path):
             r, remediation, demo, quote, tmp_path / "packet",
             qualification_evidence=qualification,
         )
+
+
+def test_wa_packet_cli_imports_pipeline_scores_and_email_provenance(tmp_path, monkeypatch):
+    from auditor_toolkit.cli import main
+
+    r = report()
+    remediation = build_remediation(r, tmp_path / "remediation")
+    quote = calculate_quote(r, "150")
+    demo = build_demo(r, remediation, tmp_path / "demo")
+    inputs = {
+        "report.json": r,
+        "remediation.json": remediation,
+        "demo.json": demo,
+        "quote.json": quote,
+        "qualification.json": {
+            "audit_run_id": r["run_id"],
+            "commercial_score": 80,
+            "commercial_score_evidence_ids": [17],
+            "technical_score": 72,
+            "technical_score_method": "toolkit-p5-v1",
+            "technical_score_finding_ids": [d["finding_id"] for d in r["defects"]],
+            "technical_score_evidence_complete": True,
+        },
+        "contact.json": {
+            "contact": {
+                "email": "owner@example.co.nz",
+                "selected": {"confidence_label": "VERIFIED_HIGH"},
+                "provenance": {
+                    "verifier_version": "email-v2.0.1",
+                    "sources": [{
+                        "source_url": "https://example.co.nz/contact?session=private",
+                        "captured_at": "2026-09-28T00:00:00Z",
+                        "capture_sha256": "c" * 64,
+                        "first_party_observed": True,
+                        "observed_email": "owner@example.co.nz",
+                    }],
+                },
+            },
+        },
+    }
+    for name, value in inputs.items():
+        (tmp_path / name).write_text(json.dumps(value))
+    monkeypatch.chdir(tmp_path)
+    output = io.StringIO()
+    with redirect_stdout(output):
+        assert main([
+            "packet", "report.json", "remediation.json", "demo.json", "quote.json",
+            "--output-dir", "packet",
+            "--qualification-evidence", "qualification.json",
+            "--contact-evidence", "contact.json",
+        ]) == 0
+
+    packet = json.loads(output.getvalue())
+    assert packet["contact"] == "owner@example.co.nz"
+    assert packet["opportunity"]["components"]["business_value"] == 0.8
+    assert packet["opportunity"]["provenance"]["commercial_score_evidence_ids"] == [17]
+    assert packet["external_send_allowed"] is False
+    assert packet["outbound_sent"] == 0
+    assert "capture_path" not in output.getvalue()
+    assert "session=private" not in output.getvalue()
 
 
 def test_p13_drops_verified_email_without_matching_first_party_capture(tmp_path):

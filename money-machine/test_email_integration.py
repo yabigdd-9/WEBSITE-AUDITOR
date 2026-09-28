@@ -1,22 +1,24 @@
 """Database and adapter tests on disposable snapshots; live data read-only."""
 import contextlib
 import copy
+import io
 import json
-from pathlib import Path
 import socket
 import sqlite3
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stdout
+from pathlib import Path
 from unittest.mock import patch
 
-import test_acceptance as legacy
+import dns.resolver
 import mm_core as c
 import mm_email as e
 import mm_email_store as s
+import test_acceptance as legacy
 from mm_email_network import Crawler, DNSChecks
-from test_email_finder import page, good_dns, ROOT
-import dns.resolver
+from test_email_finder import ROOT, good_dns, page
 
 
 class EmailIntegration(unittest.TestCase):
@@ -25,6 +27,123 @@ class EmailIntegration(unittest.TestCase):
     proof = legacy.Acceptance.proof
     approve = legacy.Acceptance.approve
     proposal = legacy.Acceptance.proposal
+
+    def test_packet_contact_exports_current_path_free_provenance_read_only(self):
+        contact = s.packet_contact(self.d, self.bid)
+        self.assertEqual(contact['email'], self.address)
+        self.assertEqual(contact['selected']['confidence_label'], 'VERIFIED_HIGH')
+        self.assertTrue(contact['provenance']['sources'])
+        self.assertTrue(all(
+            source['first_party_observed'] is True
+            and source['source_url'].startswith('https://fixture.example.co.nz')
+            for source in contact['provenance']['sources']
+        ))
+        self.assertNotIn('capture_path', json.dumps(contact))
+        from auditor_toolkit.opportunity import contact_provenance
+        self.assertIsNotNone(contact_provenance(contact))
+
+        import mm_operator
+        output = io.StringIO()
+        open_database = c.connect
+
+        def open_test_database(readonly=False):
+            if not readonly:
+                raise AssertionError('contact export must open the database read-only')
+            return open_database(self.path, readonly=True)
+
+        with patch.object(c, 'connect', side_effect=open_test_database), \
+                redirect_stdout(output):
+            result = mm_operator.main(['email-contact-export', str(self.bid)])
+        self.assertEqual(result, 0)
+        cli_contact = json.loads(output.getvalue())['contact']
+        self.assertEqual(cli_contact['email'], self.address)
+        self.assertNotIn('capture_path', output.getvalue())
+
+        self.d.execute(
+            "UPDATE email_release_policy SET mode='POST_DEPLOYMENT_OBSERVATION' WHERE id=1"
+        )
+        self.assertIsNone(s.packet_contact(self.d, self.bid))
+
+    def test_prospect_packet_operator_binds_database_evidence_and_keeps_send_off(self):
+        import mm_operator
+        import mm_workers
+
+        from auditor_toolkit.demo import build_demo
+        from auditor_toolkit.quote import calculate_quote
+        from auditor_toolkit.remediation import build_remediation
+
+        report = {
+            'schema_version': 2,
+            'run_id': 'operator-packet-run',
+            'url': 'https://fixture.example.co.nz/',
+            'domain': 'fixture.example.co.nz',
+            'status': 'complete',
+            'health_score': 80,
+            'defects': [{
+                'finding_id': 'fixture-title',
+                'defect_key': 'missing_title',
+                'defect': 'Page title missing',
+                'source_url': 'https://fixture.example.co.nz/',
+                'observed': 'No title element found in captured HTML.',
+                'evidence_summary': 'No title element found in captured HTML.',
+                'effort_band': 'S',
+                'confidence': 'observed',
+            }],
+        }
+        remediation = build_remediation(report, self.r / 'packet-remediation')
+        demo = build_demo(report, remediation, self.r / 'packet-demo')
+        quote = calculate_quote(report, '150')
+        inputs = {
+            'report': report,
+            'remediation': remediation,
+            'demo': demo,
+            'quote': quote,
+        }
+        paths = {}
+        for name, value in inputs.items():
+            paths[name] = self.r / f'packet-{name}.json'
+            paths[name].write_text(json.dumps(value))
+        qualification = {
+            'audit_run_id': report['run_id'],
+            'commercial_score': 80,
+            'commercial_score_evidence_ids': [self.eid],
+            'commercial_score_industry': 'fixture',
+            'commercial_score_basis': 'verified_fixture',
+            'technical_score': 80,
+            'technical_score_method': 'toolkit-p5-v1',
+            'technical_score_finding_ids': ['fixture-title'],
+            'technical_score_evidence_complete': True,
+        }
+        output = io.StringIO()
+        open_database = c.connect
+
+        def open_test_database(readonly=False):
+            if not readonly:
+                raise AssertionError('prospect packet must read the database only')
+            return open_database(self.path, readonly=True)
+
+        with patch.object(c, 'connect', side_effect=open_test_database), \
+                patch.object(mm_workers, 'qualification_evidence_for_packet',
+                             return_value=qualification), \
+                patch('auditor_toolkit.common.workspace_path',
+                      side_effect=lambda value, **kwargs: Path(value)), \
+                redirect_stdout(output):
+            result = mm_operator.main([
+                'prospect-packet', str(self.bid),
+                '--report', str(paths['report']),
+                '--remediation', str(paths['remediation']),
+                '--demo', str(paths['demo']),
+                '--quote', str(paths['quote']),
+                '--output-dir', str(self.r / 'packet-output'),
+            ])
+
+        self.assertEqual(result, 0)
+        packet = json.loads(output.getvalue())
+        self.assertEqual(packet['contact'], self.address)
+        self.assertEqual(packet['opportunity']['components']['business_value'], 0.8)
+        self.assertFalse(packet['external_send_allowed'])
+        self.assertFalse(packet['send_enabled'])
+        self.assertNotIn('capture_path', output.getvalue())
 
     def test_migration_idempotent_and_historical_tables_unchanged(self):
         before = [tuple(r) for r in self.d.execute('SELECT * FROM contacts')]

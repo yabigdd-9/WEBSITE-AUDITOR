@@ -139,6 +139,11 @@ def main(argv=None):
         type=Path,
         help="Run-bound JSON exported from the Money Machine qualification record",
     )
+    packet_cmd.add_argument(
+        "--contact-evidence",
+        type=Path,
+        help="Path-free contact JSON exported from the current Email Finder V2 selection",
+    )
     actions = sub.add_parser("actions")
     actions.add_argument("operation", choices=["preview", "cancel"])
     actions.add_argument("report", type=Path)
@@ -202,6 +207,15 @@ def main(argv=None):
                 args.qualification_evidence, must_exist=True, file_only=True
             )
             qualification = json.loads(qualification_path.read_text())
+        contact = None
+        if args.contact_evidence:
+            contact_path = workspace_path(
+                args.contact_evidence, must_exist=True, file_only=True
+            )
+            contact_payload = json.loads(contact_path.read_text())
+            if not isinstance(contact_payload, dict):
+                raise ValueError("Contact evidence must be a JSON object")
+            contact = contact_payload.get("contact", contact_payload)
         result = build_packet(
             report,
             remediation,
@@ -210,6 +224,7 @@ def main(argv=None):
             output_dir,
             demo_artifact_dir=demo_path.parent,
             qualification_evidence=qualification,
+            contact=contact,
         )
         print(json.dumps(result, indent=2))
         return 0
