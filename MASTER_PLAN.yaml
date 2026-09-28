@@ -394,7 +394,7 @@ catalyxlabs_rebuild:
     import_shop_repository_code_config_or_assets: false
   owner_defaults:
     decision_record: "Local phase-a-decision-log.md dated 2026-09-29 records the owner's delegation to recommended A1-A10 first-release defaults. It is currently uncommitted in the Catalyx implementation worktree; this snapshot records the decision without staging or changing that worktree."
-    A1: "Invitation-only, administrator-reviewed NZ beta. Invitation workflow and production identity verification are not implemented; do not accept customer data."
+    A1: "Invitation-only, administrator-reviewed NZ beta. Local invitation onboarding is implemented in draft PR #51 for review; hosted identity verification remains unimplemented. Do not accept customer data."
     A2: "Exclude agencies and multi-client administration from first release."
     A3: "One fixed static audit profile against one customer-authorized public page; local implementation is present, while launch copy needs owner review."
     A4: "NZ$0/month maximum is confirmed. No production host/database/identity/queue/object store or region is selected; remain local-only and do not use Vercel Hobby for commercial customer data."
@@ -469,6 +469,24 @@ catalyxlabs_rebuild:
           security_and_preview: "Gitleaks, pip-audit, and SonarCloud passed at cdb02b0d; Vercel preview is rate-limited by the account build quota."
           local_suite: "At 898b8b05, toolkit_tests/test_catalyx_web.py: 85 passed; at 76b5221d, six focused authentication rate-limit tests passed, including concurrent creation at the row cap. At cdb02b0d, three focused capacity tests passed; Ruff and git diff checks passed. Hosted auth defaults to disabled and protected sessions fail closed unless explicitly enabled. FIFO mailbox opens use O_NONBLOCK; persistent authentication rate state is capped at 10,000 rows. When the per-source table is full, new sources continue to the shared application login budget."
           remaining: "Human screen-reader/WCAG review, owner ratification, hosting/data decisions, and staged recovery evidence remain open. The owner-reported Claude soak is not repeated by Codex."
+          invitation_flow: >-
+            PR #51, codex/catalyx-invitations, latest pushed head 11aebdf1, adds
+            local-only invitation onboarding: owner/admin issue and revoke,
+            one-use email-bound 72-hour links, token fragments removed by the
+            browser before later requests, token hash and keyed email fingerprint
+            at rest, no invitation email or audit request, and separate
+            administrator identity review before account verification. SQLite
+            schema v9 takes and verifies a private backup before migration;
+            existing PostgreSQL migrations require a pg_dump artifact and
+            matching SHA-256. Local Catalyx web suite passed 92 tests; the
+            browser suite passed 2 tests, including the invitation fragment
+            flow. Ruff, compileall and diff checks passed. The first hosted
+            SonarCloud result at 175d3cdd failed new-code duplication at 3.2%
+            against a 3% threshold; shared browser server setup was extracted
+            and pushed at 11aebdf1. Exact-head hosted verification is pending.
+            The PR is draft and stacked on PR #46. Hosted invitation mode
+            remains rejected, production identity review is unresolved, and no
+            customer data is authorized.
         gate: "Automated acceptance using synthetic data; material defects and false positives recorded."
       phase_7:
         name: "Hosting and data architecture"
