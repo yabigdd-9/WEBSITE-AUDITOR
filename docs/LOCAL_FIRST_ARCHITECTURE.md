@@ -27,9 +27,9 @@ The Money Machine runs locally on the operator Mac and remains the source of tru
 - deterministic quotes;
 - prospect packets;
 - observability, retries, leases, DLQ, backups, and reports;
-- local/free model assistance where explicitly allowed.
+- Claude through the local FCC harness first, with Hermes verified-free role routing as fallback.
 
-Human review remains required. Paid fallback remains disabled. External outreach remains fail-closed unless separately and explicitly enabled later.
+Human review remains required. Paid fallback remains disabled. If FCC/Claude would require payment or is unavailable, the machine falls back to Hermes verified-free roles; if those are unavailable it defers. External outreach remains fail-closed unless separately and explicitly enabled later.
 
 ## Always-on macOS runtime
 
@@ -98,6 +98,7 @@ Before calling the local machine production-ready:
 1. CI/security/toolkit checks green.
 2. `./mm doctor` and `./mm health` green on the Mac.
 3. Real Chromium audit path verified.
-4. Local Ollama route verified when enabled.
-5. Optional local SearXNG discovery verified when enabled.
-6. 24+ hour unattended soak with no duplicate workers, healthy lease recovery, visible DLQ, $0 paid spend, and zero external sends.
+4. FCC/Claude loopback route verified with an explicitly zero-cost model.
+5. Hermes verified-free fallback verified.
+6. Optional local SearXNG discovery verified when enabled.
+7. 24+ hour unattended soak with no duplicate workers, healthy lease recovery, visible DLQ, $0 paid spend, and zero external sends.
