@@ -31,6 +31,13 @@ def fresh_db(tmp):
 
 
 class MultiProbeGuard(unittest.TestCase):
+    def test_disk_guard_handles_uninitialized_workspace_without_creating_it(self):
+        with tempfile.TemporaryDirectory() as temp:
+            workspace = Path(temp) / "not-created"
+            result = guards.disk_guard(workspace, min_free_mb=0)
+            self.assertTrue(result["ok"])
+            self.assertFalse(workspace.exists())
+
     def test_guard_multi_probe_fallback(self):
         """First probe fails, second succeeds -> guard reports ok via fallback."""
         def resolver(host, port, type=None):
