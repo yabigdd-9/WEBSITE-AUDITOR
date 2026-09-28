@@ -1,8 +1,9 @@
 plan:
   name: "WEBSITE-AUDITOR Master Merged Plan"
-  version: "32.0"
+  version: "44.0"
   status: "CANONICAL_EXECUTION_PLAN"
   primary_workspace: "/Users/dd/WEBSITE-AUDITOR"
+  target_release: "PR #52 — v44 local-machine convergence"
   experimental_cline_workspace: "/Users/dd/Downloads/WEBSITE-AUDITOR-master"
   execution_mode: "local-first, zero-paid-token, evidence-first, supervised, obsidian-operator-workspace"
   paid_allowed: false

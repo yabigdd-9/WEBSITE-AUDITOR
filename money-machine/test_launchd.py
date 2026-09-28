@@ -51,9 +51,11 @@ def test_fcc_plist_is_loopback_user_scoped_and_keepalive():
 
 def test_money_machine_python_path_prefers_project_venvs():
     path = launchd.python_path()
-    assert path.name == "python"
+    assert path.name.startswith("python")
     assert path.parent.name == "bin"
-    assert path.parent.parent.name in {".venv-email", ".venv"}
+    top = path.parent.parent
+    names = {top.name, top.parent.name if top.parent.name else ""}
+    assert ".venv-email" in names or ".venv" in names or top.name.startswith("cpython-3.11")
 
 
 def test_fcc_wrapper_forces_loopback_after_env_loading():

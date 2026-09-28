@@ -1,8 +1,9 @@
-# WEBSITE-AUDITOR Master Plan v32.0
+# WEBSITE-AUDITOR Master Plan v44.0
 
 **Status:** CANONICAL_EXECUTION_PLAN  
 **Workspace:** `/Users/dd/WEBSITE-AUDITOR`  
-**Mode:** local-first · zero-paid-token · evidence-first · supervised · Obsidian operator workspace
+**Mode:** local-first · zero-paid-token · evidence-first · supervised · Obsidian operator workspace  
+**Target release:** PR #52 — v44 local-machine convergence
 
 This file is the human-readable canonical companion to `MASTER_PLAN.yaml`.
 
