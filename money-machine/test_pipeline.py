@@ -4,12 +4,14 @@ All fixtures are synthetic and disposable. No network, no model calls, no real
 businesses, no sends.
 """
 import datetime as dt
+import io
 import json
 import os
 from pathlib import Path
 import sqlite3
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import mm_core as c
 import mm_pipeline as p
