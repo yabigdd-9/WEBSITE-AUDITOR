@@ -21,7 +21,13 @@ from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from .db import Database, DatabaseError, DatabaseIntegrityError, now_iso
+from .db import (
+    CUSTOMER_INVITATION_TTL_SECONDS,
+    Database,
+    DatabaseError,
+    DatabaseIntegrityError,
+    now_iso,
+)
 from .mailer import MailConfigurationError, MailDeliveryError, send_account_link, smtp_configuration
 from .security import (
     CONSENT_TEXT,
@@ -174,6 +180,7 @@ def _page(
         else:
             links = [
                 ("/admin", "Operations", "admin"),
+                ("/admin/invitations", "Invitations", "invitations"),
                 ("/admin/audits", "Audit queue", "queue"),
                 ("/admin/sites", "Sites", "sites"),
                 ("/admin/jobs", "Jobs", "jobs"),
@@ -375,8 +382,8 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
         raise RuntimeError(
             "CATALYX_LOGIN_GLOBAL_LIMIT_PER_MINUTE must be an integer from 1 to 60."
         )
-    if registration_mode not in {"closed", "open"}:
-        raise RuntimeError("CATALYX_REGISTRATION_MODE must be closed or open.")
+    if registration_mode not in {"closed", "open", "invitation_only"}:
+        raise RuntimeError("CATALYX_REGISTRATION_MODE must be closed, open, or invitation_only.")
     if hosted and registration_mode == "open":
         raise RuntimeError(
             "Hosted registration must remain closed until the reviewed invitation flow is implemented."
@@ -394,6 +401,8 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
         raise RuntimeError("CATALYX_EXTERNAL_SEND_ALLOWED=true requires CATALYX_MAIL_MODE=smtp.")
     if hosted and (mail_mode == "smtp" or external_send_allowed):
         raise RuntimeError("Hosted external account email is not approved for the first release.")
+    if hosted and registration_mode == "invitation_only":
+        raise RuntimeError("Invitation onboarding is local-only until hosted identity verification is reviewed.")
     if registration_mode == "open" and mail_mode == "disabled":
         raise RuntimeError("Open registration requires an enabled account email delivery mode.")
     if hosted:
@@ -554,7 +563,13 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
 
     def _apply_security_headers(request: Request, response: Response) -> Response:
         response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Referrer-Policy"] = (
+            "no-referrer"
+            if request.method == "POST"
+            and request.url.path in {"/admin/invitations", "/register"}
+            and (request.url.path != "/register" or app.state.registration_mode == "invitation_only")
+            else "strict-origin-when-cross-origin"
+        )
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
         response.headers["Cache-Control"] = "no-store"
@@ -1058,20 +1073,28 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
 
     @app.get("/register", response_class=HTMLResponse)
     def register_page(request: Request):
-        if app.state.registration_mode != "open":
+        if app.state.registration_mode == "closed":
             raise HTTPException(404, "Account registration is not open.")
-        if mail_mode == "smtp" and external_send_allowed:
+        if app.state.registration_mode == "invitation_only":
+            mail_note = "A valid, administrator-issued invitation link is required. No account email will be sent."
+        elif mail_mode == "smtp" and external_send_allowed:
             mail_note = "A one-time verification link will be sent to your email address."
         elif mail_mode == "local_mailbox":
             mail_note = "A one-time verification link is saved to the private local staging mailbox."
         else:
             mail_note = "Account email delivery is disabled in this environment."
-        form = '<form method="post" action="/register" class="form-stack">' + _form_csrf(request=request) + '<label>Email address<input type="email" name="email" autocomplete="email" required maxlength="254"></label><label>Password<input type="password" name="password" autocomplete="new-password" minlength="12" required><small>Use at least 12 characters.</small></label><label>Confirm password<input type="password" name="password_confirm" autocomplete="new-password" minlength="12" required></label><p class="form-note">' + _e(mail_note) + '</p>' + _button("Create account") + '</form><p class="auth-switch">Already registered? <a href="/login">Sign in</a></p>'
-        return _form_page("A clearer view starts here", "Create a customer account to register a site for review.", form, request=request)
+        invitation_field = ('<label>Invitation token<input name="invitation_token" autocomplete="off" required maxlength="128"></label><script src="/static/invitation.js" defer></script>') if app.state.registration_mode == "invitation_only" else ''
+        form = '<form method="post" action="/register" class="form-stack">' + _form_csrf(request=request) + invitation_field + '<label>Email address<input type="email" name="email" autocomplete="email" required maxlength="254"></label><label>Password<input type="password" name="password" autocomplete="new-password" minlength="12" required><small>Use at least 12 characters.</small></label><label>Confirm password<input type="password" name="password_confirm" autocomplete="new-password" minlength="12" required></label><p class="form-note">' + _e(mail_note) + '</p>' + _button("Create account") + '</form><p class="auth-switch">Already registered? <a href="/login">Sign in</a></p>'
+        response = _form_page("A clearer view starts here", "Create a customer account to register a site for review.", form, request=request)
+        if app.state.registration_mode == "invitation_only":
+            response.headers["Cache-Control"] = "no-store"
+            response.headers["Referrer-Policy"] = "no-referrer"
+        return response
 
     @app.post("/register")
     async def register(request: Request):
-        if app.state.registration_mode != "open":
+        invitation_only = app.state.registration_mode == "invitation_only"
+        if app.state.registration_mode == "closed":
             raise HTTPException(404, "Account registration is not open.")
         form = _parse_form(request)
         _check_csrf(request, form)
@@ -1080,20 +1103,38 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
         if not database.allow_rate_attempt("register", address, 5, 3600):
             raise HTTPException(429, "Registration limit reached. Try again later.")
         email = form.get("email", "").strip().lower()
+        invitation_token = form.get("invitation_token", "")
+        retry_form = register_form(
+            request,
+            invitation_only=invitation_only,
+            invitation_token=invitation_token if invitation_only else "",
+        )
+        if invitation_only and (not invitation_token or len(invitation_token) > 128):
+            raise HTTPException(400, "A valid invitation is required.")
         password = form.get("password", "")
         if not valid_email_address(email):
-            return _form_page("A clearer view starts here", "Create a customer account to register a site for review.", "<p class=\"form-error\" role=\"alert\" aria-atomic=\"true\">Enter a valid email address.</p>" + register_form(request), request=request, status=400)
+            return _form_page("A clearer view starts here", "Create a customer account to register a site for review.", "<p class=\"form-error\" role=\"alert\" aria-atomic=\"true\">Enter a valid email address.</p>" + retry_form, request=request, status=400)
         if password != form.get("password_confirm"):
-            return _form_page("A clearer view starts here", "Create a customer account to register a site for review.", "<p class=\"form-error\" role=\"alert\" aria-atomic=\"true\">The passwords do not match.</p>" + register_form(request), request=request, status=400)
+            return _form_page("A clearer view starts here", "Create a customer account to register a site for review.", "<p class=\"form-error\" role=\"alert\" aria-atomic=\"true\">The passwords do not match.</p>" + retry_form, request=request, status=400)
         confirmation_body = '<section class="auth-wrap"><p class="eyebrow">EMAIL VERIFICATION</p><h1>Check your email</h1><p class="lead narrow">If the address can be registered, verification instructions will be provided. Follow them before adding a site or requesting an audit.</p><a class="button primary" href="/login">Continue to sign in</a></section>'
         try:
             password_hash = hash_password(password)
-            user_id, _ = database.create_customer(email, password_hash)
+            if invitation_only:
+                created = database.create_invited_customer(
+                    email, password_hash, digest_token(invitation_token), now=int(time.time())
+                )
+                if created is None:
+                    raise HTTPException(400, "The invitation is invalid, expired, or does not match this email address.")
+                user_id, _ = created
+            else:
+                user_id, _ = database.create_customer(email, password_hash)
         except ValueError as exc:
-            return _form_page("A clearer view starts here", "Create a customer account to register a site for review.", "<p class=\"form-error\" role=\"alert\" aria-atomic=\"true\">" + _e(exc) + "</p>" + register_form(request), request=request, status=400)
+            return _form_page("A clearer view starts here", "Create a customer account to register a site for review.", "<p class=\"form-error\" role=\"alert\" aria-atomic=\"true\">" + _e(exc) + "</p>" + retry_form, request=request, status=400)
         except DatabaseIntegrityError:
             # Keep the response neutral to avoid disclosing registered addresses.
             return _page("Check your email", confirmation_body)
+        if invitation_only:
+            return _page("Account created", '<section class="auth-wrap"><p class="eyebrow">INVITATION ACCEPTED</p><h1>Account awaiting review</h1><p class="lead narrow">Your account details were submitted. An administrator must review and verify the account before sign-in is enabled.</p></section>')
         verify_token = new_token()
         verify_expires_at = int(time.time()) + 3600
         with database.connect() as db:
@@ -1672,6 +1713,90 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
         body = '<section class="workspace-heading"><div><p class="eyebrow">CATALYXLABS · OPERATIONS</p><h1>Review desk</h1><p class="lead">Customer and job controls for the Website Auditor staging service.</p></div><span class="worker-badge"><i></i> Public worker disabled</span></section><section class="metric-grid"><article class="metric"><span>Authorization review</span><strong>' + str(pending) + '</strong><small>Requests needing a decision</small></article><article class="metric"><span>Waiting for worker</span><strong>' + str(queued) + '</strong><small>Approved requests</small></article><article class="metric"><span>Report quality review</span><strong>' + str(quality_review) + '</strong><small>Awaiting release decision</small></article><article class="metric"><span>Customers</span><strong>' + str(customer_count) + '</strong><small>Active customer memberships</small></article><article class="metric"><span>Failed jobs</span><strong>' + str(failed) + '</strong><small>Recorded outcomes only</small></article></section><section class="content-section"><div class="section-heading"><div><p class="eyebrow">LATEST REQUESTS</p><h2>Audit queue</h2></div><a class="arrow-link" href="/admin/audits">Open queue →</a></div>' + _table(rows,["Website","Status","Submitted"],"No audit requests yet.") + '</section><section class="callout compact"><h2>Launch gates</h2><ul class="blocker-list"><li>Production hosting is not approved: Vercel Hobby terms exclude commercial use. The local Cloudflare probe includes a separate WebCrypto prototype that passes, but auth integration, D1 persistence, measured CPU fit, and restricted scan egress remain unproven.</li><li>SQLite is local-only. The PostgreSQL adapter has no live integration, approved data region, or restore evidence.</li><li>The paid-services cap is $0. Keep billing and paid providers off.</li><li>Customer email delivery is not configured. Scans remain queued until a separate worker and restricted egress are verified.</li><li>Retention, backup, support and incident response, approved legal copy, and a customer support contact still need owner review.</li></ul></section>'
         return _page("Operations", body, user=user, active="admin")
 
+    @app.get("/admin/invitations", response_class=HTMLResponse)
+    def admin_invitations(request: Request):
+        user = _session(request)
+        _need_role(user, {"owner", "admin"})
+        with database.connect() as db:
+            rows = db.execute(
+                "SELECT id,expires_at,created_at FROM customer_invitations "
+                "WHERE expires_at>? ORDER BY created_at DESC LIMIT 100",
+                (int(time.time()),),
+            ).fetchall()
+        table_rows = []
+        for row in rows:
+            revoke_form = (
+                '<form method="post" action="/admin/invitations/' + _e(row["id"]) + '/revoke">'
+                + _form_csrf(user=user) + _button("Revoke", "secondary") + "</form>"
+            )
+            table_rows.append(
+                "<tr><td>" + _e(row["id"][:12]) + "</td><td>" + _e(row["created_at"])
+                + "</td><td>" + _e(datetime.fromtimestamp(row["expires_at"], UTC).isoformat())
+                + "</td><td>" + revoke_form + "</td></tr>"
+            )
+        create_form = (
+            '<form method="post" action="/admin/invitations" class="form-stack">'
+            + _form_csrf(user=user)
+            + '<label>Invitee email<input type="email" name="email" autocomplete="off" required maxlength="254"></label>'
+            + '<p class="form-note">The address is stored only as a keyed fingerprint. The one-time link appears once and must be delivered manually. No email is sent.</p>'
+            + _button("Create invitation") + "</form>"
+        )
+        body = (
+            '<section class="workspace-heading"><div><p class="eyebrow">BETA ACCESS</p><h1>Invitations</h1>'
+            '<p class="lead">Local invitation-only account creation. Links expire after 72 hours and can be used once.</p></div></section>'
+            '<section class="content-section"><h2>Issue an invitation</h2>' + create_form + "</section>"
+            '<section class="content-section"><h2>Active invitations</h2>'
+            + _table(table_rows, ["Invitation", "Created", "Expires", "Action"], "No active invitations.")
+            + "</section>"
+        )
+        return _page("Invitations", body, user=user, active="invitations")
+
+    @app.post("/admin/invitations", response_class=HTMLResponse)
+    async def create_admin_invitation(request: Request):
+        user = _session(request)
+        _need_role(user, {"owner", "admin"})
+        form = _parse_form(request)
+        _check_csrf(request, form, user)
+        if app.state.registration_mode != "invitation_only":
+            raise HTTPException(404, "Invitation onboarding is not enabled.")
+        email = form.get("email", "").strip().lower()
+        if not valid_email_address(email):
+            raise HTTPException(400, "Enter a valid email address.")
+        address = request.client.host if request.client else "unknown"
+        if not database.allow_rate_attempt("invitation_create", address, 10, 3600):
+            raise HTTPException(429, "Invitation limit reached. Try again later.")
+        token = new_token()
+        expires_at = int(time.time()) + CUSTOMER_INVITATION_TTL_SECONDS
+        try:
+            invitation_id = database.issue_customer_invitation(
+                user, email, digest_token(token), now=int(time.time()), expires_at=expires_at
+            )
+        except ValueError as exc:
+            raise HTTPException(409, str(exc)) from None
+        invite_url = _public_base_url(request) + "/register#" + quote(token)
+        body = (
+            '<section class="auth-wrap"><p class="eyebrow">ONE-TIME INVITATION</p><h1>Copy this link now</h1>'
+            '<p class="lead narrow">It expires in 72 hours. This link is shown only once; deliver it to the intended invitee using an approved channel.</p>'
+            '<p><input class="invitation-url" aria-label="Invitation link" readonly value="' + _e(invite_url) + '"></p>'
+            '<p class="form-note">The invitation token is in the URL fragment, which browsers do not send to the server in the page request. Do not put this link in a ticket or public channel.</p>'
+            '<a class="button primary" href="/admin/invitations">Return to invitations</a></section>'
+        )
+        logger.info("Administrator issued customer invitation id=%s", invitation_id)
+        response = _page("Invitation created", body, user=user, active="invitations")
+        response.headers["Cache-Control"] = "no-store"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        return response
+
+    @app.post("/admin/invitations/{invitation_id}/revoke")
+    async def revoke_admin_invitation(invitation_id: str, request: Request):
+        user = _session(request)
+        _need_role(user, {"owner", "admin"})
+        form = _parse_form(request)
+        _check_csrf(request, form, user)
+        if not database.revoke_customer_invitation(user, invitation_id, now=int(time.time())):
+            raise HTTPException(404, "Active invitation not found.")
+        return RedirectResponse("/admin/invitations", status_code=303)
+
     @app.get("/admin/audits", response_class=HTMLResponse)
     def admin_audits(request: Request, state: str = ""):
         user = _session(request)
@@ -1992,7 +2117,10 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
         audit_rows = ['<tr><td><a href="/admin/audits/' + _e(row["id"]) + '">' + _e(row["id"][:8]) + '</a></td><td>' + _e(_state_label(row["state"])) + '</td><td>' + _e(row["created_at"][:10]) + "</td></tr>" for row in audits]
         body = '<section class="workspace-heading"><div><p class="eyebrow">CUSTOMER ACCOUNT</p><h1>' + _e(customer["email"]) + '</h1><p class="lead">Created ' + _e(customer["created_at"][:10]) + ' · ' + ("Email verified" if customer["email_verified_at"] else "Email not verified") + '</p></div><a class="quiet-link" href="/admin/customers">← Customers</a></section><section class="content-section"><h2>Registered sites</h2>' + _table(site_rows,["Host","Origin","Added"],"No sites registered.") + '</section><section class="content-section"><h2>Audit history</h2>' + _table(audit_rows,["Request","Status","Submitted"],"No audit requests.") + '</section>'
         if not customer["disabled_at"] and user["role"] in {"owner", "admin"}:
-            body += '<section class="content-section"><h2>Access control</h2><form method="post" action="/admin/customers/' + _e(customer_id) + '/disable" class="form-stack">' + _form_csrf(user) + '<label>Reason<textarea name="reason" minlength="4" maxlength="500" required></textarea></label><button class="button danger" type="submit">Disable account and revoke sessions</button></form></section>'
+            body += '<section class="content-section"><h2>Access control</h2>'
+            if not customer["email_verified_at"]:
+                body += '<p>Account access is pending administrator identity review.</p><form method="post" action="/admin/customers/' + _e(customer_id) + '/verify-email" class="form-stack">' + _form_csrf(user) + '<label>Identity review note<textarea name="reason" minlength="4" maxlength="500" required></textarea></label><button class="button primary" type="submit">Verify account after review</button></form>'
+            body += '<form method="post" action="/admin/customers/' + _e(customer_id) + '/disable" class="form-stack">' + _form_csrf(user) + '<label>Reason<textarea name="reason" minlength="4" maxlength="500" required></textarea></label><button class="button danger" type="submit">Disable account and revoke sessions</button></form></section>'
         return _page("Customer account", body, user=user, active="customers")
 
     @app.post("/admin/customers/{customer_id}/disable")
@@ -2012,6 +2140,35 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
             db.execute("UPDATE users SET disabled_at=? WHERE id=?", (now_iso(), customer_id))
             db.execute("DELETE FROM sessions WHERE user_id=?", (customer_id,))
             database.audit_admin(user, "customer_disabled", "user", customer_id, reason, {}, connection=db)
+        return RedirectResponse("/admin/customers/" + customer_id, status_code=303)
+
+    @app.post("/admin/customers/{customer_id}/verify-email")
+    async def admin_verify_customer(request: Request, customer_id: str):
+        user = _session(request)
+        _need_role(user, {"owner", "admin"})
+        form = _parse_form(request)
+        _check_csrf(request, form, user)
+        reason = form.get("reason", "").strip()
+        if len(reason) < 4 or len(reason) > 500:
+            raise HTTPException(400, "Enter an identity review note.")
+        with database.connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            customer = db.execute(
+                "SELECT u.id,u.email_verified_at,u.disabled_at,m.role FROM users u "
+                "JOIN memberships m ON m.user_id=u.id WHERE u.id=?",
+                (customer_id,),
+            ).fetchone()
+            if not customer or customer["role"] != "customer":
+                raise HTTPException(404, "Customer not found")
+            if customer["disabled_at"]:
+                raise HTTPException(409, "Disabled accounts cannot be verified.")
+            if customer["email_verified_at"]:
+                raise HTTPException(409, "This account is already verified.")
+            db.execute("UPDATE users SET email_verified_at=? WHERE id=?", (now_iso(), customer_id))
+            database.audit_admin(
+                user, "customer_identity_verified", "user", customer_id, reason,
+                {"method": "administrator_review"}, connection=db,
+            )
         return RedirectResponse("/admin/customers/" + customer_id, status_code=303)
 
     @app.get("/admin/activity", response_class=HTMLResponse)
@@ -2037,16 +2194,22 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
     return app
 
 
-def register_form(request: Request) -> str:
+def register_form(request: Request, *, invitation_only=False, invitation_token="") -> str:
     mail_mode = os.getenv("CATALYX_MAIL_MODE", "disabled" if production_mode() else "local_mailbox")
     send_allowed = os.getenv("CATALYX_EXTERNAL_SEND_ALLOWED", "false").strip().lower() == "true"
-    if mail_mode == "smtp" and send_allowed:
+    if invitation_only:
+        note = "A valid administrator invitation is required. No account email will be sent."
+    elif mail_mode == "smtp" and send_allowed:
         note = "A one-time verification link will be sent to your email address."
     elif mail_mode == "local_mailbox":
         note = "A one-time verification link is saved to the private local staging mailbox."
     else:
         note = "Account email delivery is disabled in this environment."
-    return '<form method="post" action="/register" class="form-stack">' + _form_csrf(request=request) + '<label>Email address<input type="email" name="email" autocomplete="email" required maxlength="254"></label><label>Password<input type="password" name="password" autocomplete="new-password" minlength="12" required><small>Use at least 12 characters.</small></label><label>Confirm password<input type="password" name="password_confirm" autocomplete="new-password" minlength="12" required></label><p class="form-note">' + _e(note) + '</p><button class="button primary" type="submit">Create account</button></form><p class="auth-switch">Already registered? <a href="/login">Sign in</a></p>'
+    token_field = (
+        '<input type="hidden" name="invitation_token" value="' + _e(invitation_token) + '">'
+        if invitation_only and invitation_token else ""
+    )
+    return '<form method="post" action="/register" class="form-stack">' + _form_csrf(request=request) + token_field + '<label>Email address<input type="email" name="email" autocomplete="email" required maxlength="254"></label><label>Password<input type="password" name="password" autocomplete="new-password" minlength="12" required><small>Use at least 12 characters.</small></label><label>Confirm password<input type="password" name="password_confirm" autocomplete="new-password" minlength="12" required></label><p class="form-note">' + _e(note) + '</p><button class="button primary" type="submit">Create account</button></form><p class="auth-switch">Already registered? <a href="/login">Sign in</a></p>'
 
 
 def login_form(request: Request, next_path="", require_otp=False) -> str:
