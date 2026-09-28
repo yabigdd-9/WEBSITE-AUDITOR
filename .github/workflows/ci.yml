@@ -58,14 +58,14 @@ jobs:
       - name: Install project + test dependencies
         run: |
           python -m pip install --only-binary=:all: uv==0.12.17
-          uv sync --locked --no-install-project --extra portal --extra web --extra dev --extra email
+          uv sync --locked --no-build --no-install-project --extra portal --extra web --extra dev --extra email
       - name: Compile canonical Python modules
-        run: uv run --locked --no-sync python -m compileall -q auditor_toolkit website_auditor money-machine
+        run: uv run --locked --no-sync --no-build python -m compileall -q auditor_toolkit website_auditor money-machine
       - name: Run toolkit regression suite
-        run: uv run --locked --no-sync python -m pytest toolkit_tests -v
+        run: uv run --locked --no-sync --no-build python -m pytest toolkit_tests -v
       - name: Run portable MoneyMachine regressions
         run: |
-          uv run --locked --no-sync python -m pytest \
+          uv run --locked --no-sync --no-build python -m pytest \
             money-machine/test_discovery.py \
             money-machine/test_email_finder.py \
             money-machine/test_pipeline.py \

@@ -29,10 +29,10 @@ jobs:
         with:
           python-version: '3.11'
       - run: "python -m pip install --only-binary=:all: uv==0.12.17"
-      - run: uv sync --locked --extra dev --extra browser --extra portal --extra email
-      - run: uv run --locked python -m pytest toolkit_tests -q --cov=auditor_toolkit --cov-report=xml
-      - run: uv run --locked ruff check auditor_toolkit toolkit_tests
+      - run: uv sync --locked --no-build --no-install-project --extra dev --extra browser --extra portal --extra email
+      - run: uv run --locked --no-build python -m pytest toolkit_tests -q --cov=auditor_toolkit --cov-report=xml
+      - run: uv run --locked --no-build ruff check auditor_toolkit toolkit_tests
       - run: uv pip check --python .venv/bin/python
       - run: uv build --wheel --sdist --out-dir /tmp/wa-wheel
-      - run: uv run --locked python -m playwright install --with-deps chromium
-      - run: WA_BROWSER_E2E=1 uv run --locked python -m pytest toolkit_tests/test_browser_e2e.py toolkit_tests/test_monthly_browser_e2e.py -q
+      - run: uv run --locked --no-build python -m playwright install --with-deps chromium
+      - run: WA_BROWSER_E2E=1 uv run --locked --no-build python -m pytest toolkit_tests/test_browser_e2e.py toolkit_tests/test_monthly_browser_e2e.py -q
