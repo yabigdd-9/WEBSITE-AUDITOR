@@ -380,6 +380,7 @@ def _hermes_complete(prompt, purpose, timeout):
                 role,
                 "--prompt-file",
                 prompt_path,
+                "--public-or-synthetic",
             ],
             capture_output=True,
             text=True,
