@@ -582,6 +582,83 @@ class ModelRouter(unittest.TestCase):
                 )
         open_local.assert_not_called()
 
+    def test_fcc_probe_requires_explicit_zero_cost_allowlist(self):
+        response = io.BytesIO(json.dumps({
+            'data': [{'id': 'auto'}, {'id': 'openrouter/example:free'}],
+        }).encode())
+
+        with patch.dict(os.environ, {
+            router.FCC_MODEL_ENV: 'auto',
+            router.FCC_FREE_MODELS_ENV: '',
+        }, clear=False), patch.object(router, '_open_local', return_value=response):
+            self.assertIsNone(router.probe_fcc())
+
+        response = io.BytesIO(json.dumps({
+            'data': [{'id': 'openrouter/example:free'}],
+        }).encode())
+        with patch.dict(os.environ, {
+            router.FCC_MODEL_ENV: 'openrouter/example:free',
+            router.FCC_FREE_MODELS_ENV: '',
+        }, clear=False), patch.object(router, '_open_local', return_value=response):
+            self.assertEqual(router.probe_fcc(), 'openrouter/example:free')
+
+    def test_local_route_uses_fcc_after_local_models_are_unavailable(self):
+        with patch.dict(os.environ, {
+            router.FCC_FREE_MODELS_ENV: 'nvidia_nim/free-fixture',
+        }, clear=False):
+            result = router.plan(
+                self.d,
+                'researcher',
+                local_lookup=lambda kind: 'nvidia_nim/free-fixture' if kind == 'fcc' else None,
+            )
+        self.assertEqual(result['status'], 'planned')
+        self.assertEqual(result['provider'], 'gateway:fcc')
+        self.assertEqual(result['model'], 'nvidia_nim/free-fixture')
+        self.assertEqual(result['cost_usd'], 0)
+
+    def test_local_complete_uses_fcc_harness_without_paid_fallback(self):
+        response = io.BytesIO(json.dumps({
+            'choices': [{'message': {'content': 'fcc fixture response'}}],
+        }).encode())
+        requests = []
+
+        def open_local(request, timeout):
+            requests.append((request, timeout))
+            return response
+
+        with patch.dict(os.environ, {
+            router.FCC_FREE_MODELS_ENV: 'nvidia_nim/free-fixture',
+        }, clear=False), patch.object(router, '_open_local', side_effect=open_local):
+            result = router.local_complete(
+                'synthetic prompt',
+                max_tokens=21,
+                timeout=5,
+                lookup=lambda kind: 'nvidia_nim/free-fixture' if kind == 'fcc' else None,
+            )
+
+        self.assertEqual(result['text'], 'fcc fixture response')
+        self.assertEqual(result['provider'], 'gateway:fcc')
+        self.assertEqual(result['model'], 'nvidia_nim/free-fixture')
+        self.assertEqual(result['cost_usd'], 0)
+        request, timeout = requests[0]
+        self.assertEqual(request.full_url, 'http://127.0.0.1:8082/v1/chat/completions')
+        self.assertEqual(timeout, 5)
+        payload = json.loads(request.data)
+        self.assertEqual(payload['model'], 'nvidia_nim/free-fixture')
+        self.assertFalse(payload['stream'])
+
+    def test_fcc_route_rejects_non_loopback_endpoint(self):
+        with patch.dict(os.environ, {
+            router.FCC_FREE_MODELS_ENV: 'nvidia_nim/free-fixture',
+        }, clear=False), patch.object(router, 'FCC_BASE', 'http://192.0.2.10:8082'), \
+                patch.object(router, '_open_local') as open_local:
+            with self.assertRaises(router.BlockedCost):
+                router.local_complete(
+                    'synthetic prompt',
+                    lookup=lambda kind: 'nvidia_nim/free-fixture' if kind == 'fcc' else None,
+                )
+        open_local.assert_not_called()
+
     def test_local_complete_blocks_cost_when_no_local_route(self):
         with self.assertRaises(router.BlockedCost):
             router.local_complete('hello', lookup=lambda kind: None)
