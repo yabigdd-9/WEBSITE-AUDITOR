@@ -450,6 +450,42 @@ def test_auth_rate_limits_persist_between_database_instances_and_hash_subjects(t
     assert len(stored[0]["subject_hash"]) == 64
 
 
+def test_auth_rate_limit_cleanup_sweeps_dormant_scopes_in_bounded_batches(tmp_path):
+    database = Database(tmp_path / "rate-limit-cleanup.sqlite3")
+    with database.connect() as db:
+        for index in range(250):
+            subject_hash = hashlib.sha256(f"dormant-{index}".encode()).hexdigest()
+            db.execute(
+                "INSERT INTO auth_rate_limits(scope,subject_hash,window_started,hits,updated_at) "
+                "VALUES(?,?,?,?,?)",
+                ("dormant_scope", subject_hash, 1000, 1, 1000),
+            )
+        # This active one-hour bucket must survive a login-triggered sweep.
+        db.execute(
+            "INSERT INTO auth_rate_limits(scope,subject_hash,window_started,hits,updated_at) "
+            "VALUES(?,?,?,?,?)",
+            (
+                "long_window_scope",
+                hashlib.sha256(b"active").hexdigest(),
+                5000,
+                1,
+                5000,
+            ),
+        )
+
+    for now, expected_dormant_rows in ((5056, 150), (5120, 50), (5184, 0)):
+        assert database.allow_rate_attempt("login", f"active-{now}", 5, 60, now=now)
+        with database.connect() as db:
+            remaining = db.execute(
+                "SELECT count(*) FROM auth_rate_limits WHERE scope='dormant_scope'"
+            ).fetchone()[0]
+            long_window = db.execute(
+                "SELECT count(*) FROM auth_rate_limits WHERE scope='long_window_scope'"
+            ).fetchone()[0]
+        assert remaining == expected_dormant_rows
+        assert long_window == 1
+
+
 def test_auth_rate_limit_attempt_reservations_are_atomic_across_connections(tmp_path):
     database = Database(tmp_path / "concurrent-rate-limits.sqlite3")
     with ThreadPoolExecutor(max_workers=16) as pool:

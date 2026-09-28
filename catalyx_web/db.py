@@ -21,6 +21,9 @@ from .security import (
     parse_totp_encryption_key,
 )
 
+AUTH_RATE_LIMIT_MAX_WINDOW_SECONDS = 3600
+AUTH_RATE_LIMIT_CLEANUP_BATCH_SIZE = 100
+
 
 def now_iso() -> str:
     return datetime.now(UTC).isoformat(timespec="seconds")
@@ -213,12 +216,29 @@ class Database:
                     current,
                 ),
             ).fetchone()
-            # A subject bucket has no security value after its rate window has
-            # elapsed. Prune expired subjects for this scope on every attempt
-            # so a stream of one-off identities cannot retain rows for a day.
+            # Prune expired subjects from the active scope promptly, and
+            # slowly sweep other scopes too. All application auth windows
+            # are at most one hour; the indexed batch bounds work per request.
+            global_cutoff = current - max(
+                AUTH_RATE_LIMIT_MAX_WINDOW_SECONDS, window_seconds
+            )
+            scope_cutoff = current - window_seconds
             db.execute(
-                "DELETE FROM auth_rate_limits WHERE scope=? AND updated_at<=?",
-                (scope, current - window_seconds),
+                "DELETE FROM auth_rate_limits "
+                "WHERE (scope,subject_hash) IN ("
+                "SELECT scope,subject_hash FROM auth_rate_limits "
+                "WHERE updated_at<=? OR (scope=? AND updated_at<=?) "
+                "ORDER BY updated_at,scope,subject_hash LIMIT ?) "
+                "AND (updated_at<=? OR (scope=? AND updated_at<=?))",
+                (
+                    global_cutoff,
+                    scope,
+                    scope_cutoff,
+                    AUTH_RATE_LIMIT_CLEANUP_BATCH_SIZE,
+                    global_cutoff,
+                    scope,
+                    scope_cutoff,
+                ),
             )
         return row["hits"] <= limit
 
