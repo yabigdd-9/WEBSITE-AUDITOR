@@ -1,8 +1,14 @@
 
-import json, os, re, ipaddress, socket, urllib.request
+import ipaddress
+import json
+import os
+import re
+import socket
+import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlsplit
+
 
 class Watchdog:
     def __init__(self, output_root=None, snapshot_dir=None, webhook_url=None):
@@ -30,20 +36,22 @@ class Watchdog:
         host = parts.hostname
         if not host:
             raise ValueError("Webhook URL missing host")
+        if host.lower() == "localhost":
+            raise ValueError(f"Webhook to private host rejected: {host}")
         try:
-            if host.lower() == "localhost" or ipaddress.ip_address(host).is_private:
-                raise ValueError(f"Webhook to private host rejected: {host}")
+            address = ipaddress.ip_address(host)
         except ValueError:
-            # ip_address raises ValueError for non-IP strings (DNS names) — that's fine
-            pass
+            address = None
+        if address is not None and not address.is_global:
+            raise ValueError(f"Webhook to non-public host rejected: {host}")
         try:
             infos = socket.getaddrinfo(host, None, type=socket.SOCK_STREAM)
         except socket.gaierror as exc:
             raise ValueError(f"Webhook host could not be resolved: {host}") from exc
         if not infos or any(
-            ipaddress.ip_address(info[4][0]).is_private for info in infos
+            not ipaddress.ip_address(info[4][0]).is_global for info in infos
         ):
-            raise ValueError(f"Webhook resolves to private address: {host}")
+            raise ValueError(f"Webhook resolves to non-public address: {host}")
 
     def take_snapshot(self, domain, defects):
         domain = self._safe_domain(domain)
