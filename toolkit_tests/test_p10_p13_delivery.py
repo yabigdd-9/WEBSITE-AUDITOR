@@ -155,6 +155,41 @@ def test_p13_packet_recomputes_opportunity_from_bound_evidence(tmp_path):
     assert packet["contact"] == "owner@example.co.nz"
 
 
+def test_p9_caps_normalized_effort_for_large_quotes():
+    from auditor_toolkit.opportunity import opportunity_from_packet_evidence
+
+    r = report()
+    r["commercial_score"] = 80
+    r["commercial_score_evidence_ids"] = [17]
+    for index, key in enumerate(("schema_missing", "no-contact-path", "viewport", "sitemap-missing"), 3):
+        r["defects"].append({
+            "finding_id": f"f{index}",
+            "defect_key": key,
+            "observed": "synthetic evidence",
+            "evidence_summary": "synthetic evidence",
+            "confidence": "observed",
+            "effort_band": "XL",
+        })
+    remediation = {
+        "source_run_id": r["run_id"],
+        "items": [
+            {"finding_id": finding["finding_id"], "classification": "HUMAN_REVIEW"}
+            for finding in r["defects"]
+        ],
+    }
+    quote = {
+        "source_run_id": r["run_id"],
+        "rules_version": "quote-v1",
+        "estimated_hours": {"high": "276.00"},
+    }
+
+    result = opportunity_from_packet_evidence(
+        r, remediation, quote, {"selected": {"confidence_label": "VERIFIED_HIGH"}}
+    )
+
+    assert result["components"]["effort"] == 1
+
+
 def test_packet_rejects_fake_after_claim(tmp_path):
     r = report()
     remediation = build_remediation(r, tmp_path / "remediation")

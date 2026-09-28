@@ -118,7 +118,8 @@ def opportunity_from_packet_evidence(
     The technical health score remains a separate report field. Missing verified
     commercial evidence or contact provenance contributes zero, never a default
     positive value. Four distinct material findings saturate the need factor;
-    quote hours are normalized against the quote engine's 60-hour XL ceiling.
+    quote hours are normalized against the quote engine's 60-hour XL ceiling,
+    with larger combined quotes capped at the maximum effort factor.
     """
     defects = report.get("defects")
     if not isinstance(defects, list):
@@ -196,9 +197,9 @@ def opportunity_from_packet_evidence(
         effort_hours = float(hours)
     except (TypeError, ValueError):
         raise ValueError("Quote high effort estimate required for opportunity scoring") from None
-    if not math.isfinite(effort_hours) or effort_hours < 0 or effort_hours > 60:
-        raise ValueError("Quote effort estimate must be between 0 and 60 hours")
-    effort = effort_hours / 60.0
+    if not math.isfinite(effort_hours) or effort_hours < 0:
+        raise ValueError("Quote effort estimate must be finite and non-negative")
+    effort = min(effort_hours / 60.0, 1.0)
 
     finding_confidence = sum(confidence_values) / len(confidence_values) if confidence_values else 0.0
     confidence = min(finding_confidence, contactability)
