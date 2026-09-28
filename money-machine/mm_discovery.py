@@ -109,6 +109,24 @@ def _source_provenance(row, source):
         "source_url": str(row.get("source_url") or "")[:500],
     }
 
+
+def _normalize_provenance_sources(raw_sources):
+    cleaned = []
+    seen = set()
+    for item in raw_sources:
+        if not isinstance(item, dict):
+            continue
+        normalized = {
+            "lane": str(item.get("lane") or "import")[:80],
+            "record_id": str(item.get("record_id") or "")[:160],
+            "source_url": str(item.get("source_url") or "")[:500],
+        }
+        key = json.dumps(normalized, sort_keys=True)
+        if key not in seen:
+            seen.add(key)
+            cleaned.append(normalized)
+    return cleaned[:20]
+
 def root_url(raw):
     value = str(raw or "").strip()
     if not value:
@@ -134,20 +152,7 @@ def normalize_candidate(row, default_region="", default_source="import"):
     provenance = _source_provenance(row, source)
     provenance_sources = row.get("provenance_sources")
     if isinstance(provenance_sources, list):
-        cleaned = []
-        seen = set()
-        for item in provenance_sources:
-            if not isinstance(item, dict):
-                continue
-            item = {
-                "lane": str(item.get("lane") or "import")[:80],
-                "record_id": str(item.get("record_id") or "")[:160],
-                "source_url": str(item.get("source_url") or "")[:500],
-            }
-            key = json.dumps(item, sort_keys=True)
-            if key not in seen:
-                seen.add(key)
-                cleaned.append(item)
+        cleaned = _normalize_provenance_sources(provenance_sources)
         if cleaned:
             provenance["sources"] = cleaned[:20]
     return {
@@ -422,6 +427,48 @@ MAX_BATCH_FILES = 20
 MAX_BATCH_QUERIES = 20
 
 
+def _merge_batch_candidate(by_host, raw_candidate, region):
+    candidate = normalize_candidate(
+        raw_candidate, region, raw_candidate.get("source") or "discovery-import")
+    host = candidate["canonical_host"]
+    source_list = candidate["provenance_sources"]
+    current = by_host.get(host)
+    if current is None:
+        current = candidate
+        current["provenance_sources"] = list(source_list)
+        by_host[host] = current
+        return
+    known = {json.dumps(item, sort_keys=True) for item in current["provenance_sources"]}
+    for item in source_list:
+        key = json.dumps(item, sort_keys=True)
+        if key not in known and len(current["provenance_sources"]) < 20:
+            current["provenance_sources"].append(item)
+            known.add(key)
+
+
+def _collect_import_source(raw_path, region):
+    path = Path(raw_path)
+    try:
+        candidates, rejected = read_candidates(path, region, path.stem[:80] or "import")
+    except (OSError, ValueError) as exc:
+        return [], {"source": path.name, "kind": "import", "candidates": 0,
+                    "error": str(exc)[:240]}, []
+    report = {"source": path.name, "kind": "import", "candidates": len(candidates),
+              "rejected": len(rejected)}
+    return candidates, report, [{"source": path.name, **item} for item in rejected]
+
+
+def _collect_search_source(query, region, endpoint, limit):
+    query_ref = hashlib.sha256(str(query).encode("utf-8")).hexdigest()[:12]
+    try:
+        candidates = searxng_candidates(query, region, endpoint, limit)
+    except (SearchBlocked, ValueError) as exc:
+        return [], {"source": f"searxng:{query_ref}", "kind": "search",
+                    "candidates": 0, "error": str(exc)[:240]}
+    return candidates, {"source": f"searxng:{query_ref}", "kind": "search",
+                        "candidates": len(candidates)}
+
+
 def collect_multi_source(files=(), queries=(), region="", endpoint="http://127.0.0.1:8888", limit=20):
     """Collect and host-dedupe bounded local imports and local search results.
 
@@ -445,54 +492,30 @@ def collect_multi_source(files=(), queries=(), region="", endpoint="http://127.0
     source_reports = []
     source_rejections = []
 
-    def add(candidate):
-        candidate = normalize_candidate(
-            candidate, region, candidate.get("source") or "discovery-import")
-        host = candidate["canonical_host"]
-        source_list = candidate["provenance_sources"]
-        current = by_host.get(host)
-        if current is None:
-            candidate["provenance_sources"] = list(source_list)
-            by_host[host] = candidate
-            return
-        known = {
-            json.dumps(item, sort_keys=True)
-            for item in current.get("provenance_sources", [])
-        }
-        for item in source_list:
-            key = json.dumps(item, sort_keys=True)
-            if key not in known and len(current["provenance_sources"]) < 20:
-                current["provenance_sources"].append(item)
-                known.add(key)
-
     for raw_path in files:
-        path = Path(raw_path)
-        try:
-            candidates, rejected = read_candidates(path, region, path.stem[:80] or "import")
-            for candidate in candidates:
-                add(candidate)
-            source_reports.append({"source": path.name, "kind": "import", "candidates": len(candidates), "rejected": len(rejected)})
-            source_rejections.extend({"source": path.name, **item} for item in rejected)
-        except (OSError, ValueError) as exc:
-            source_reports.append({"source": path.name, "kind": "import", "candidates": 0, "error": str(exc)[:240]})
+        candidates, report, rejected = _collect_import_source(raw_path, region)
+        for candidate in candidates:
+            _merge_batch_candidate(by_host, candidate, region)
+        source_reports.append(report)
+        source_rejections.extend(rejected)
 
     for query in queries:
-        query_ref = hashlib.sha256(str(query).encode("utf-8")).hexdigest()[:12]
-        try:
-            candidates = searxng_candidates(query, region, endpoint, limit)
-            for candidate in candidates:
-                add(candidate)
-            source_reports.append({"source": f"searxng:{query_ref}", "kind": "search", "candidates": len(candidates)})
-        except (SearchBlocked, ValueError) as exc:
-            source_reports.append({"source": f"searxng:{query_ref}", "kind": "search", "candidates": 0, "error": str(exc)[:240]})
+        candidates, report = _collect_search_source(query, region, endpoint, limit)
+        for candidate in candidates:
+            _merge_batch_candidate(by_host, candidate, region)
+        source_reports.append(report)
 
     return {
         "candidates": list(by_host.values()),
         "sources": source_reports,
         "source_rejections": source_rejections,
-        "counts": {"sources": len(source_reports), "candidates": sum(item["candidates"] for item in source_reports),
-                   "unique_hosts": len(by_host), "source_errors": sum("error" in item for item in source_reports),
-                   "rejected_rows": len(source_rejections)},
+        "counts": {
+            "sources": len(source_reports),
+            "candidates": sum(item["candidates"] for item in source_reports),
+            "unique_hosts": len(by_host),
+            "source_errors": sum("error" in item for item in source_reports),
+            "rejected_rows": len(source_rejections),
+        },
     }
 
 
