@@ -36,6 +36,19 @@ properties:
     format: uri
     default: "http://127.0.0.1:11434"
     description: Ollama server base URL; runtime access is restricted to loopback
+  FCC_BASE:
+    type: string
+    format: uri
+    default: "http://127.0.0.1:8082"
+    description: FCC/Claude harness gateway; runtime access is restricted to loopback
+  FCC_MODEL_ENV:
+    type: string
+    default: "MM_FCC_MODEL"
+    description: Environment variable selecting an exact FCC model
+  FCC_FREE_MODELS_ENV:
+    type: string
+    default: "MM_FCC_FREE_MODELS"
+    description: Comma-separated exact FCC model IDs explicitly approved as zero-cost
   LOCAL_MODEL_ENV:
     type: string
     default: "MM_LOCAL_MODEL"
@@ -44,4 +57,7 @@ required:
   - PURPOSE_ROUTES
   - LLAMACPP_BASE
   - OLLAMA_BASE
+  - FCC_BASE
+  - FCC_MODEL_ENV
+  - FCC_FREE_MODELS_ENV
   - LOCAL_MODEL_ENV
