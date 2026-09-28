@@ -272,6 +272,9 @@ def main(argv=None):
     q.add_argument('--sleep',type=float,default=5)
     q.add_argument('--tail',type=int,default=50)
     q.add_argument('--timeout',type=float,default=15)
+    q=s.add_parser('searxng')
+    q.add_argument('action',choices=['status','probe','verify','install-plan'])
+    q.add_argument('--endpoint',default=os.environ.get('MM_SEARXNG_ENDPOINT','http://127.0.0.1:8888'))
     q=s.add_parser('outreach-plan');q.add_argument('--brief',required=True)
     s.add_parser('polish-status')
     s.add_parser('module-status')
@@ -456,6 +459,31 @@ def main(argv=None):
                 result={'mode':'v1_hold','history_retained':True,'new_approvals_held':True,'external_sends':0}
         print(email_cli.human_text(result) if a.cmd in ('email-status','email-find') and not a.json else json.dumps(result,indent=2))
         return 0
+    if a.cmd=='searxng':
+        import mm_search_backend
+        if a.action=='install-plan':
+            result={
+                'action':'install-plan',
+                'executed':False,
+                'cost_usd':0,
+                'external_sends':0,
+                'commands':[
+                    'git clone --depth 1 https://github.com/searxng/searxng.git ~/searxng-src',
+                    'uv venv --python 3.11 ~/.local/share/searxng/.venv',
+                    '~/.local/share/searxng/.venv/bin/python -m pip install -r ~/searxng-src/requirements.txt',
+                    'mkdir -p ~/.searxng && chmod 700 ~/.searxng',
+                    'create ~/.searxng/settings.yml with loopback bind and JSON search format',
+                    'python3 money-machine/supervisor/searxng_launchd.py install',
+                    './mm searxng verify',
+                ],
+                'note':'Plan only. No host installation or launchd mutation was performed.',
+            }
+            print(json.dumps(result,indent=2));return 0
+        result=mm_search_backend.probe(a.endpoint)
+        result['external_sends']=0
+        result['paid_calls']=0
+        print(json.dumps(result,indent=2,default=str))
+        return 0 if a.action!='verify' or result.get('ok') else 2
     if a.cmd in ('discover-import','discover-search','discover-batch'):
         import mm_discovery
         if a.cmd=='discover-import':
