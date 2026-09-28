@@ -137,7 +137,7 @@ case "$action" in
     validate_settings
     "$PY" "$LAUNCHD" install
     sleep 5
-    "$0" verify
+    sh "$0" verify
     ;;
 
   status)
@@ -154,7 +154,7 @@ case "$action" in
     validate_settings
     "$PY" "$LAUNCHD" install
     sleep 5
-    "$0" verify
+    sh "$0" verify
     ;;
 
   stop)
