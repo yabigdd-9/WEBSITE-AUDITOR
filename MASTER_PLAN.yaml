@@ -267,8 +267,8 @@ catalyxlabs_rebuild:
   source_document: "/Users/dd/WEBSITE-AUDITOR/.claude/worktrees/phase1-rebuild/MASTER_EXECUTION_PLAN.md"
   execution_workspace:
     intended_worktree: "/Users/dd/WEBSITE-AUDITOR/.claude/worktrees/phase1-rebuild"
-    intended_worktree_head: "6972fb5952564e05bc4c8e91f96d5f7e679f7a92"
-    intended_worktree_plan_status: "The user-created MASTER_EXECUTION_PLAN.md is committed and pushed on codex/catalyx-plan-update through fc4a0786 in the phase1-rebuild importer directory, based directly on the requested 0348b3f9 SHA. It preserves the original scope, phases 1–9, and current verification/owner gates; implementation remains in the separate codex/catalyx-rebuild-phase1-5 branch, also based on 0348b3f9."
+    intended_worktree_head: "317221b03ece646de2d27501e3f4f8116b2f76c7"
+    intended_worktree_plan_status: "The user-created MASTER_EXECUTION_PLAN.md is committed and pushed on codex/catalyx-plan-update through 317221b0. The branch now includes the current implementation branch at cdb02b0d as its base and preserves the original scope, phases 1–9, and current verification/owner gates. The Catalyx implementation worktree remains separate on codex/catalyx-rebuild-phase1-5."
     implementation_worktree: "/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild"
     implementation_worktree_status: >-
       Branch codex/catalyx-rebuild-phase1-5 is pushed through 51b543f8 and now
@@ -360,6 +360,14 @@ catalyxlabs_rebuild:
       checks/build, both existing Chromium journeys, and the Catalyx
       customer/admin journey passed; Gitleaks, pip-audit, and SonarCloud passed.
       Vercel is rate-limited on this head.
+      Commit cdb02b0d lets first-time login sources continue to the shared
+      application login budget when the per-source limiter table is full.
+      Three focused capacity regressions passed locally. Hosted run 36405890466
+      passed 286 tests (5 opt-in skips, 2 warnings), Ruff, package/build checks,
+      both existing Chromium journeys, and the Catalyx customer/admin journey;
+      Gitleaks, pip-audit, and SonarCloud passed. The exact cdb02b0d Vercel
+      preview was blocked by the account build quota. The owner-reported Claude
+      soak was not repeated. The app remains unmerged and undeployed.
     branch_from_sha: "0348b3f9"
   safety_gates:
     external_send_allowed: false
