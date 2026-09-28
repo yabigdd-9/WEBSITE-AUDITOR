@@ -1,0 +1,63 @@
+test_01_unapproved_message_cannot_be_sent (__main__.Acceptance.test_01_unapproved_message_cannot_be_sent) ... ok
+test_02_modified_approved_body_invalidates_approval (__main__.Acceptance.test_02_modified_approved_body_invalidates_approval) ... ok
+test_03_suppressed_prospect_cannot_enter_queue (__main__.Acceptance.test_03_suppressed_prospect_cannot_enter_queue) ... ok
+test_04_duplicate_payment_cannot_inflate_revenue (__main__.Acceptance.test_04_duplicate_payment_cannot_inflate_revenue) ... ok
+test_05_historical_unverified_sends_excluded (__main__.Acceptance.test_05_historical_unverified_sends_excluded) ... ok
+test_06_failed_receipt_recording_does_not_become_sent (__main__.Acceptance.test_06_failed_receipt_recording_does_not_become_sent) ... ok
+test_07_crm_transitions_have_timestamps_and_events (__main__.Acceptance.test_07_crm_transitions_have_timestamps_and_events) ... ok
+test_08_proposal_requires_approval (__main__.Acceptance.test_08_proposal_requires_approval) ... ok
+test_09_status_uses_zero_models_and_network (__main__.Acceptance.test_09_status_uses_zero_models_and_network) ... ok
+test_10_daily_operator_does_not_send_or_change_crm (__main__.Acceptance.test_10_daily_operator_does_not_send_or_change_crm) ... ok
+test_11_every_hermes_model_invocation_logged (__main__.Acceptance.test_11_every_hermes_model_invocation_logged) ... skipped 'BLOCKED: legacy/global Hermes calls cannot be reconciled to MoneyMachine agent_runs. Separate test covers all new local model requests.'
+test_12_retired_entrypoints_and_empty_artifacts_fail (__main__.Acceptance.test_12_retired_entrypoints_and_empty_artifacts_fail) ... ok
+test_13_migration_requires_verified_restorable_backup (__main__.Acceptance.test_13_migration_requires_verified_restorable_backup) ... ok
+test_14_paid_routes_fail_closed (__main__.Acceptance.test_14_paid_routes_fail_closed) ... ok
+test_15_discovery_to_proposal_without_unauthorized_send (__main__.Acceptance.test_15_discovery_to_proposal_without_unauthorized_send) ... ok
+test_16_suppression_overrides_approval (__main__.Acceptance.test_16_suppression_overrides_approval) ... ok
+test_17_recipient_change_invalidates_approval (__main__.Acceptance.test_17_recipient_change_invalidates_approval) ... ok
+test_18_price_change_invalidates_proposal_approval (__main__.Acceptance.test_18_price_change_invalidates_proposal_approval) ... ok
+test_19_duplicate_send_protection (__main__.Acceptance.test_19_duplicate_send_protection) ... ok
+test_20_stale_and_future_evidence_block_approval (__main__.Acceptance.test_20_stale_and_future_evidence_block_approval) ... ok
+test_21_missing_contact_source_blocks_approval (__main__.Acceptance.test_21_missing_contact_source_blocks_approval) ... ok
+test_22_broken_demo_blocks_draft_ready (__main__.Acceptance.test_22_broken_demo_blocks_draft_ready) ... ok
+test_23_revenue_requires_payment_evidence (__main__.Acceptance.test_23_revenue_requires_payment_evidence) ... ok
+test_24_refunds_are_excluded_from_net_received (__main__.Acceptance.test_24_refunds_are_excluded_from_net_received) ... ok
+test_25_failed_job_cannot_advance_crm (__main__.Acceptance.test_25_failed_job_cannot_advance_crm) ... ok
+test_26_interrupted_job_resumes_checkpoint_with_retry_limit (__main__.Acceptance.test_26_interrupted_job_resumes_checkpoint_with_retry_limit) ... ok
+test_27_duplicate_prospect_is_flagged (__main__.Acceptance.test_27_duplicate_prospect_is_flagged) ... ok
+test_28_budget_cannot_record_positive_paid_cost (__main__.Acceptance.test_28_budget_cannot_record_positive_paid_cost) ... ok
+test_29_unavailable_free_model_fails_without_fallback (__main__.Acceptance.test_29_unavailable_free_model_fails_without_fallback) ... ok
+test_30_send_gates_survive_connection_restart (__main__.Acceptance.test_30_send_gates_survive_connection_restart) ... ok
+test_31_mixed_legacy_timestamp_formats_supported (__main__.Acceptance.test_31_mixed_legacy_timestamp_formats_supported) ... ok
+test_32_refuted_or_partial_evidence_cannot_approve (__main__.Acceptance.test_32_refuted_or_partial_evidence_cannot_approve) ... ok
+test_33_evidence_capture_tampering_blocks_approval (__main__.Acceptance.test_33_evidence_capture_tampering_blocks_approval) ... ok
+test_34_ev_formula_and_zero_cost_handling (__main__.Acceptance.test_34_ev_formula_and_zero_cost_handling) ... ok
+test_35_scoring_refuted_evidence_zeroes_priority (__main__.Acceptance.test_35_scoring_refuted_evidence_zeroes_priority) ... ok
+test_36_pricing_floor_and_scope (__main__.Acceptance.test_36_pricing_floor_and_scope) ... ok
+test_37_learning_does_not_invent_outcomes (__main__.Acceptance.test_37_learning_does_not_invent_outcomes) ... ok
+test_38_model_attempts_log_each_rejection (__main__.Acceptance.test_38_model_attempts_log_each_rejection) ... ok
+test_39_payment_receipt_file_tampering_excluded (__main__.Acceptance.test_39_payment_receipt_file_tampering_excluded) ... ok
+test_40_live_suppressed_businesses_stay_suppressed (__main__.Acceptance.test_40_live_suppressed_businesses_stay_suppressed) ... ok
+test_41_receiptless_direct_sent_stage_blocked (__main__.Acceptance.test_41_receiptless_direct_sent_stage_blocked) ... ok
+test_42_revenue_legacy_table_cannot_bypass_cash_proof (__main__.Acceptance.test_42_revenue_legacy_table_cannot_bypass_cash_proof) ... ok
+test_43_full_approval_receipt_path_works_in_fixture (__main__.Acceptance.test_43_full_approval_receipt_path_works_in_fixture) ... ok
+test_44_external_provider_receipts_independently_verified (__main__.Acceptance.test_44_external_provider_receipts_independently_verified) ... skipped 'BLOCKED: no live mail/bank receipt supplied or independent read-only provider verifier connected; local attestation importer is tested separately.'
+test_45_unsubscribe_after_sent_is_recordable_and_suppresses (__main__.Acceptance.test_45_unsubscribe_after_sent_is_recordable_and_suppresses) ... ok
+test_46_public_email_alone_is_not_permission (__main__.Acceptance.test_46_public_email_alone_is_not_permission) ... ok
+test_47_new_evidence_invalidates_approval (__main__.Acceptance.test_47_new_evidence_invalidates_approval) ... ok
+test_48_reply_opportunity_ranks_before_cleanup (__main__.Acceptance.test_48_reply_opportunity_ranks_before_cleanup) ... ok
+test_49_active_job_cannot_be_claimed_twice (__main__.Acceptance.test_49_active_job_cannot_be_claimed_twice) ... ok
+test_50_experiment_assignment_stable_and_unverified_excluded (__main__.Acceptance.test_50_experiment_assignment_stable_and_unverified_excluded) ... ok
+test_51_migration_idempotent (__main__.Acceptance.test_51_migration_idempotent) ... ok
+test_52_receipt_envelope_rejects_arbitrary_claims (__main__.Acceptance.test_52_receipt_envelope_rejects_arbitrary_claims) ... ok
+test_53_sent_record_cannot_be_erased (__main__.Acceptance.test_53_sent_record_cannot_be_erased) ... ok
+test_54_approval_cannot_be_manufactured_from_plain_fields (__main__.Acceptance.test_54_approval_cannot_be_manufactured_from_plain_fields) ... ok
+test_55_model_cli_failure_keeps_log_and_nonzero_exit (__main__.Acceptance.test_55_model_cli_failure_keeps_log_and_nonzero_exit) ... ok
+test_56_status_cli_persists_no_fixture_changes (__main__.Acceptance.test_56_status_cli_persists_no_fixture_changes) ... ok
+test_57_raw_stage_update_cannot_bypass_demo_gate (__main__.Acceptance.test_57_raw_stage_update_cannot_bypass_demo_gate) ... ok
+test_58_raw_approval_update_requires_fresh_evidence (__main__.Acceptance.test_58_raw_approval_update_requires_fresh_evidence) ... ok
+
+----------------------------------------------------------------------
+Ran 58 tests in 9.890s
+
+OK (skipped=2)
