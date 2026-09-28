@@ -55,6 +55,41 @@ EOF
   fi
 }
 
+validate_settings() {
+  [ -f "$SETTINGS" ] || die "SearXNG settings missing: $SETTINGS"
+  "$PY" - "$SETTINGS" <<'PY'
+import sys
+from pathlib import Path
+import yaml
+
+path = Path(sys.argv[1])
+doc = yaml.safe_load(path.read_text()) or {}
+server = doc.get("server") if isinstance(doc, dict) else None
+search = doc.get("search") if isinstance(doc, dict) else None
+if not isinstance(server, dict):
+    raise SystemExit("BLOCKED_SETTINGS: server mapping missing")
+if not isinstance(search, dict):
+    raise SystemExit("BLOCKED_SETTINGS: search mapping missing")
+if str(server.get("bind_address") or "") not in {"127.0.0.1", "localhost", "::1"}:
+    raise SystemExit("BLOCKED_SETTINGS: bind_address must be explicit loopback")
+try:
+    port = int(server.get("port"))
+except (TypeError, ValueError):
+    raise SystemExit("BLOCKED_SETTINGS: port must be 8888")
+if port != 8888:
+    raise SystemExit("BLOCKED_SETTINGS: port must be 8888")
+if server.get("public_instance") is not False:
+    raise SystemExit("BLOCKED_SETTINGS: public_instance must be false")
+secret = str(server.get("secret_key") or "")
+if len(secret) < 16 or secret.lower() in {"ultrasecretkey", "changeme"}:
+    raise SystemExit("BLOCKED_SETTINGS: secret_key missing or placeholder")
+formats = search.get("formats")
+if not isinstance(formats, list) or "json" not in formats:
+    raise SystemExit("BLOCKED_SETTINGS: search.formats must include json")
+print("SearXNG settings safety check: OK")
+PY
+}
+
 verify_listener() {
   if ! command -v lsof >/dev/null 2>&1; then
     echo "WARNING: lsof unavailable; HTTP probe will still run." >&2
@@ -99,6 +134,7 @@ case "$action" in
     uv pip install --python "$VENV/bin/python" \
       --no-build-isolation --editable "$SRC"
     ensure_settings
+    validate_settings
     "$PY" "$LAUNCHD" install
     sleep 5
     "$0" verify
@@ -115,6 +151,7 @@ case "$action" in
     ;;
 
   start|restart)
+    validate_settings
     "$PY" "$LAUNCHD" install
     sleep 5
     "$0" verify
