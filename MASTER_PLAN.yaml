@@ -190,7 +190,7 @@ phases:
     latest_verification:
       date: "2026-09-29"
       exact_head: "codex/canonical-plan-execution at 3d56f35f5b6b8009c988cc92eea8dae1443f513b"
-      synthetic_tests: "Focused email finder, hardening, lifecycle, CLI, and tracking tests passed: 43 passed, 47 subtests. The shared verified Python 3.11 interpreter was selected explicitly with MM_PYTHON. HardeningDatabase tests used a disposable source database initialized from tracked mm_core.SCHEMA; no ignored or user database was read, copied, or modified. The broader acceptance and email integration suites remain separately gated."
+      synthetic_tests: "The complete money-machine/test_email_*.py suite passed: 58 passed, 55 subtests. Tests used a disposable source database initialized from tracked mm_core.SCHEMA and selected the shared verified Python 3.11 interpreter explicitly with MM_PYTHON; no ignored or user database was read, copied, or modified. This is scoped Email Finder evidence, not a claim that the entire Money Machine acceptance suite passes on this worktree."
   P9:
     name: "Opportunity scoring"
     priority: HIGH
