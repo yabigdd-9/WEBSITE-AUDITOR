@@ -43,12 +43,33 @@ def request(path, key=None, payload=None):
         return error.code, data
 
 
+def _env_file_value(path, name):
+    """Read one simple KEY=VALUE entry without requiring python-dotenv."""
+    try:
+        lines = path.read_text().splitlines()
+    except OSError:
+        return None
+    for raw in lines:
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.startswith("export "):
+            line = line[7:].lstrip()
+        key, sep, value = line.partition("=")
+        if not sep or key.strip() != name:
+            continue
+        value = value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
+            value = value[1:-1]
+        return value or None
+    return None
+
+
 def credential():
     key = os.environ.get("OPENROUTER_API_KEY")
     if key:
         return key
-    from dotenv import dotenv_values
-    key = dotenv_values(Path.home() / ".hermes/.env").get("OPENROUTER_API_KEY")
+    key = _env_file_value(Path.home() / ".hermes/.env", "OPENROUTER_API_KEY")
     if key:
         return key
     path = Path.home() / ".hermes/auth.json"
