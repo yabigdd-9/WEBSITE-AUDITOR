@@ -415,7 +415,7 @@ WORKERS = {
     'understanding': (('AUDITED',), understanding_worker_handler),
     'qualification': (('QUALIFICATION_PENDING',), qualification_handler),
     'contact':       (('QUALIFIED', 'CONTACT_PENDING'), contact_handler),
-    'preparation':   (('VERIFIED', 'REMEDIATION_PENDING', 'DEMO_PENDING', 'QA_PENDING'), preparation_worker_handler),
+    'preparation':   (('VERIFIED', 'REMEDIATION_PENDING', 'DEMO_PENDING', 'DEMO_READY', 'QA_PENDING'), preparation_worker_handler),
     'outreach_gate': (('OUTREACH_PENDING',), outreach_handler),
     'management':    (('RESPONDED',), management_worker_handler),
 }
