@@ -5,6 +5,7 @@ import hashlib
 import json
 import re
 import socket
+import ssl
 import stat
 import sys
 import time
@@ -1801,6 +1802,14 @@ def test_dns_pinning_rejects_mixed_public_and_private_answers():
     resolver = FakeAddressResolver({"A": ["93.184.216.34", "10.0.0.8"]})
     with pytest.raises(EgressPolicyError, match="non-public"):
         PinnedEgressTransport(resolver=resolver)._resolve_public("example.com", 443)
+
+
+def test_pinned_egress_requires_modern_verified_tls():
+    transport = PinnedEgressTransport()
+
+    assert transport._ssl_context.minimum_version >= ssl.TLSVersion.TLSv1_2
+    assert transport._ssl_context.verify_mode == ssl.CERT_REQUIRED
+    assert transport._ssl_context.check_hostname
 
 
 def test_dns_pinning_rejects_excessive_public_answers():

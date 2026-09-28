@@ -29,6 +29,10 @@ Provides-Extra: ai
 Requires-Dist: llama-cpp-python<1,>=0.3; extra == "ai"
 Provides-Extra: smtp
 Requires-Dist: aiosmtplib<6,>=5.1.2; extra == "smtp"
+Provides-Extra: email
+Requires-Dist: email-validator==2.3.0; extra == "email"
+Requires-Dist: pypdf<7,>=6.14.2; extra == "email"
+Requires-Dist: tldextract==5.3.1; extra == "email"
 Provides-Extra: dev
 Requires-Dist: pytest>=8.3; extra == "dev"
 Requires-Dist: pytest-asyncio>=0.24; extra == "dev"

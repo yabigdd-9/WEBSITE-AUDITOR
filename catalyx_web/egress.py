@@ -120,7 +120,7 @@ class PinnedEgressTransport(httpx.BaseTransport):
         self.cancel_check = cancel_check or (lambda: False)
         self.deadline = deadline
         self._resolver = resolver or dns.resolver.Resolver(configure=True)
-        self._ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        self._ssl_context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
         self._ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
         self._ssl_context.load_default_certs(ssl.Purpose.SERVER_AUTH)
         self._ssl_context.verify_mode = ssl.CERT_REQUIRED

@@ -18,11 +18,11 @@ jobs:
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: '3.11'
-      - run: python -m pip install -e '.[dev,browser,portal]'
-      - run: python -m pip install -r money-machine/requirements-email.txt
-      - run: python -m pytest toolkit_tests -q --cov=auditor_toolkit --cov-report=xml
-      - run: ruff check auditor_toolkit toolkit_tests
-      - run: python -m pip check
-      - run: python -m pip wheel --no-deps . -w /tmp/wa-wheel
-      - run: python -m playwright install --with-deps chromium
-      - run: WA_BROWSER_E2E=1 python -m pytest toolkit_tests/test_browser_e2e.py toolkit_tests/test_monthly_browser_e2e.py -q
+      - run: python -m pip install --only-binary=:all: uv==0.12.17
+      - run: uv sync --locked --extra dev --extra browser --extra portal --extra email
+      - run: uv run --locked python -m pytest toolkit_tests -q --cov=auditor_toolkit --cov-report=xml
+      - run: uv run --locked ruff check auditor_toolkit toolkit_tests
+      - run: uv pip check --python .venv/bin/python
+      - run: uv build --wheel --sdist --out-dir /tmp/wa-wheel
+      - run: uv run --locked python -m playwright install --with-deps chromium
+      - run: WA_BROWSER_E2E=1 uv run --locked python -m pytest toolkit_tests/test_browser_e2e.py toolkit_tests/test_monthly_browser_e2e.py -q
