@@ -134,6 +134,11 @@ def main(argv=None):
     packet_cmd.add_argument("demo", type=Path)
     packet_cmd.add_argument("quote", type=Path)
     packet_cmd.add_argument("--output-dir", type=Path, required=True)
+    packet_cmd.add_argument(
+        "--qualification-evidence",
+        type=Path,
+        help="Run-bound JSON exported from the Money Machine qualification record",
+    )
     actions = sub.add_parser("actions")
     actions.add_argument("operation", choices=["preview", "cancel"])
     actions.add_argument("report", type=Path)
@@ -191,6 +196,12 @@ def main(argv=None):
         remediation = json.loads(remediation_path.read_text())
         demo = json.loads(demo_path.read_text())
         quote = json.loads(quote_path.read_text())
+        qualification = None
+        if args.qualification_evidence:
+            qualification_path = workspace_path(
+                args.qualification_evidence, must_exist=True, file_only=True
+            )
+            qualification = json.loads(qualification_path.read_text())
         result = build_packet(
             report,
             remediation,
@@ -198,6 +209,7 @@ def main(argv=None):
             quote,
             output_dir,
             demo_artifact_dir=demo_path.parent,
+            qualification_evidence=qualification,
         )
         print(json.dumps(result, indent=2))
         return 0

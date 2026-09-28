@@ -100,6 +100,7 @@ def build_packet(
     *,
     contact: dict | None = None,
     demo_artifact_dir=None,
+    qualification_evidence: dict | None = None,
 ) -> dict:
     run_id = report.get("run_id")
     if not run_id or any(x.get("source_run_id") != run_id for x in (remediation, demo, quote)):
@@ -109,11 +110,72 @@ def build_packet(
     if quote.get("llm_determined_price") is not False:
         raise ValueError("Quote must be deterministic")
 
+    qualification = None
+    if qualification_evidence is not None:
+        if not isinstance(qualification_evidence, dict):
+            raise ValueError("Qualification evidence must be an object")
+        if qualification_evidence.get("audit_run_id") != run_id:
+            raise ValueError("Qualification evidence must bind to the same audit run")
+        commercial_score = qualification_evidence.get("commercial_score")
+        commercial_ids = qualification_evidence.get("commercial_score_evidence_ids")
+        if (
+            isinstance(commercial_score, bool)
+            or not isinstance(commercial_score, (int, float))
+            or not 0 <= commercial_score <= 100
+            or not isinstance(commercial_ids, list)
+            or not commercial_ids
+            or len(commercial_ids) > 100
+            or any(
+                isinstance(item, bool)
+                or not isinstance(item, (str, int))
+                or not str(item).strip()
+                for item in commercial_ids
+            )
+        ):
+            raise ValueError("Verified commercial qualification evidence is required")
+        technical_score = qualification_evidence.get("technical_score")
+        technical_ids = qualification_evidence.get("technical_score_finding_ids")
+        if (
+            isinstance(technical_score, bool)
+            or not isinstance(technical_score, (int, float))
+            or not 0 <= technical_score <= 100
+            or not isinstance(technical_ids, list)
+            or len(technical_ids) > 100
+            or any(not isinstance(item, str) or not item.strip() for item in technical_ids)
+            or qualification_evidence.get("technical_score_evidence_complete") is not True
+        ):
+            raise ValueError("Complete technical qualification evidence is required")
+        qualification = {
+            "audit_run_id": run_id,
+            "commercial_score": commercial_score,
+            "commercial_score_evidence_ids": commercial_ids,
+            "commercial_score_industry": str(
+                qualification_evidence.get("commercial_score_industry") or ""
+            )[:200],
+            "commercial_score_basis": str(
+                qualification_evidence.get("commercial_score_basis") or ""
+            )[:100],
+            "technical_score": technical_score,
+            "technical_score_method": str(
+                qualification_evidence.get("technical_score_method") or ""
+            )[:100],
+            "technical_score_finding_ids": technical_ids,
+            "technical_score_evidence_complete": True,
+        }
+
     from .opportunity import opportunity_from_packet_evidence
 
     safe_contact_provenance = contact_provenance(contact)
     score_contact = contact if safe_contact_provenance else None
-    opportunity = opportunity_from_packet_evidence(report, remediation, quote, score_contact)
+    packet_report = dict(report)
+    if qualification is not None:
+        packet_report["commercial_score"] = qualification["commercial_score"]
+        packet_report["commercial_score_evidence_ids"] = qualification[
+            "commercial_score_evidence_ids"
+        ]
+    opportunity = opportunity_from_packet_evidence(
+        packet_report, remediation, quote, score_contact
+    )
 
     output = Path(output_dir)
     if output.exists() and any(output.iterdir()):
@@ -143,6 +205,7 @@ def build_packet(
         "audit_score": report.get("health_score"),
         "opportunity_score": opportunity["opportunity_score"],
         "opportunity": opportunity,
+        "qualification": qualification,
         "top_problems": [
             {
                 "finding_id": d.get("finding_id"),
@@ -179,6 +242,8 @@ def build_packet(
         "paid_ai_cost_usd": 0,
         "review_required": True,
     }
+    if qualification is not None:
+        packet["evidence"].append(_bind("qualification", qualification))
     trusted_demo_dir = Path(demo_artifact_dir) if demo_artifact_dir is not None else None
     before = _copy_demo_image(
         demo.get("before"), "before.png", "before-source.png", trusted_demo_dir, output

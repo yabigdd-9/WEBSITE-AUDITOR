@@ -440,6 +440,78 @@ def qualification_handler(d, it, worker):
     return state, reason, result
 
 
+def qualification_evidence_for_packet(d, business_id, audit_run_id):
+    """Export the latest fresh qualification bound to the requested audit run.
+
+    This is read-only. It refuses stale commercial captures, changed audit
+    evidence, or a qualification that no longer follows the latest audit.
+    """
+    audit_row = d.execute(
+        "SELECT id,evidence FROM pipeline_events WHERE business_id=? "
+        "AND to_state='AUDITED' ORDER BY id DESC LIMIT 1",
+        (business_id,),
+    ).fetchone()
+    if audit_row is None:
+        raise ValueError('No persisted audit evidence for this business')
+    try:
+        audit = json.loads(audit_row['evidence'] or '{}')
+    except (TypeError, ValueError):
+        raise ValueError('Persisted audit evidence is malformed') from None
+    if not isinstance(audit, dict) or audit.get('audit_run_id') != audit_run_id:
+        raise ValueError('Requested run is not the latest persisted audit')
+    findings, findings_valid = _normalize_toolkit_findings(audit.get('findings'))
+    if (
+        audit.get('finding_evidence_complete') is not True
+        or not findings_valid
+        or _score_audit_findings(findings, 'toolkit-p5-v1') != audit.get('score')
+    ):
+        raise ValueError('Latest audit findings are incomplete or fail score replay')
+
+    row = d.execute(
+        "SELECT id,evidence FROM pipeline_events WHERE business_id=? "
+        "AND to_state='CONTACT_PENDING' AND evidence IS NOT NULL AND id>? "
+        "ORDER BY id DESC LIMIT 1",
+        (business_id, audit_row['id']),
+    ).fetchone()
+    if row is None:
+        raise ValueError('No qualified pipeline record follows the latest audit')
+    try:
+        evidence = json.loads(row['evidence'] or '{}')
+    except (TypeError, ValueError):
+        raise ValueError('Persisted qualification evidence is malformed') from None
+    if not isinstance(evidence, dict) or evidence.get('audit_run_id') != audit_run_id:
+        raise ValueError('Qualification evidence does not bind to the requested audit')
+
+    expected_technical_ids = [finding['finding_id'] for finding in findings]
+    if (
+        evidence.get('technical_score_evidence_complete') is not True
+        or evidence.get('technical_score_finding_ids') != expected_technical_ids
+        or evidence.get('technical_score') != audit.get('score')
+    ):
+        raise ValueError('Technical qualification evidence no longer matches the audit')
+
+    business = _business(d, business_id)
+    current = _commercial_signal_context(d, business)
+    if (
+        not current['evidence_ids']
+        or evidence.get('commercial_score_evidence_ids') != current['evidence_ids']
+        or evidence.get('commercial_score_industry') != current['industry']
+    ):
+        raise ValueError('Commercial captures changed or expired; requalify before packet build')
+
+    return {
+        'audit_run_id': audit_run_id,
+        'commercial_score': evidence.get('commercial_score'),
+        'commercial_score_evidence_ids': current['evidence_ids'],
+        'commercial_score_industry': current['industry'],
+        'commercial_score_basis': evidence.get('commercial_score_basis'),
+        'technical_score': evidence.get('technical_score'),
+        'technical_score_method': evidence.get('technical_score_method'),
+        'technical_score_finding_ids': expected_technical_ids,
+        'technical_score_evidence_complete': True,
+    }
+
+
 def contact_handler(d, it, worker):
     """Contacts come only from Email Finder V2 evidence already recorded.
 

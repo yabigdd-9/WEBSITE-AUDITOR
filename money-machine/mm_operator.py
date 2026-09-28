@@ -359,6 +359,7 @@ def main(argv=None):
     q=s.add_parser('pipeline-enqueue');q.add_argument('id',type=int);q.add_argument('--state',default='DISCOVERED')
     q=s.add_parser('pipeline-requeue');q.add_argument('id',type=int);q.add_argument('--reason',required=True);q.add_argument('--actor',default='operator')
     q=s.add_parser('pipeline-transition');q.add_argument('id',type=int);q.add_argument('--to',required=True);q.add_argument('--actor',required=True);q.add_argument('--reason',required=True)
+    q=s.add_parser('pipeline-qualification-export');q.add_argument('id',type=int);q.add_argument('--run-id',required=True)
     s.add_parser('pipeline-health')
     q=s.add_parser('approval-check');q.add_argument('id',type=int)
     q=s.add_parser('approval-decide');q.add_argument('approval_id',type=int);q.add_argument('--actor',required=True);q.add_argument('--reason',required=True)
@@ -566,13 +567,16 @@ def main(argv=None):
             a.min_improvement,
         )
         print(json.dumps(result,indent=2));return 0
-    if a.cmd in ('pipeline-run','pipeline-status','pipeline-enqueue','pipeline-requeue','pipeline-transition','pipeline-health','approval-check','approval-decide','model-plan','deploy-check'):
+    if a.cmd in ('pipeline-run','pipeline-status','pipeline-enqueue','pipeline-requeue','pipeline-transition','pipeline-qualification-export','pipeline-health','approval-check','approval-decide','model-plan','deploy-check'):
         import mm_pipeline, mm_approval, mm_model_router, mm_workers
-        readonly=a.cmd in ('approval-check',)
+        readonly=a.cmd in ('approval-check','pipeline-qualification-export')
         with contextlib.closing(connect(readonly=readonly)) as d, d:
-            mm_pipeline.migrate(d);mm_approval.migrate(d)
+            if a.cmd != 'pipeline-qualification-export':
+                mm_pipeline.migrate(d);mm_approval.migrate(d)
             if a.cmd=='pipeline-status':result=mm_pipeline.health(d)
             elif a.cmd=='pipeline-health':result=mm_pipeline.health(d)
+            elif a.cmd=='pipeline-qualification-export':
+                result=mm_workers.qualification_evidence_for_packet(d,a.id,a.run_id)
             elif a.cmd=='pipeline-enqueue':result=dict(mm_pipeline.enqueue(d,a.id,a.state))
             elif a.cmd=='pipeline-requeue':result=dict(mm_pipeline.requeue_permanent_failure(d,a.id,a.reason,a.actor))
             elif a.cmd=='pipeline-transition':result=dict(mm_pipeline.transition(d,a.id,a.to,a.actor,a.reason))

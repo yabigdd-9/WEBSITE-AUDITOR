@@ -394,6 +394,60 @@ class WorkerHandlers(unittest.TestCase):
         p.enqueue(self.d, bid, state=state)
         return bid
 
+    def test_qualification_export_requires_current_matching_audit_and_captures(self):
+        import mm_workers as workers
+
+        bid = add_business(self.d)
+        audit = {
+            'audit_run_id': 'audit-run-export',
+            'findings': [],
+            'finding_evidence_complete': True,
+            'score_method': 'toolkit-p5-v1',
+            'score': 0,
+        }
+        qualification = {
+            'audit_run_id': 'audit-run-export',
+            'commercial_score': 45,
+            'commercial_score_evidence_ids': [7],
+            'commercial_score_industry': 'electrical',
+            'commercial_score_basis': 'verified_capture',
+            'technical_score': 0,
+            'technical_score_method': 'toolkit-p5-v1',
+            'technical_score_finding_ids': [],
+            'technical_score_evidence_complete': True,
+        }
+        self.d.execute(
+            'INSERT INTO pipeline_events(business_id,to_state,actor,reason,evidence,event_at) '
+            'VALUES(?,?,?,?,?,?)',
+            (bid, 'AUDITED', 'test', 'synthetic audit', json.dumps(audit), c.now()),
+        )
+        self.d.execute(
+            'INSERT INTO pipeline_events(business_id,to_state,actor,reason,evidence,event_at) '
+            'VALUES(?,?,?,?,?,?)',
+            (bid, 'CONTACT_PENDING', 'test', 'synthetic qualification',
+             json.dumps(qualification), c.now()),
+        )
+        current = {'evidence_ids': [7], 'industry': 'electrical'}
+        with patch.object(workers, '_business', return_value={'id': bid}), \
+                patch.object(workers, '_commercial_signal_context', return_value=current):
+            exported = workers.qualification_evidence_for_packet(
+                self.d, bid, 'audit-run-export'
+            )
+            self.assertEqual(exported['commercial_score_evidence_ids'], [7])
+            self.assertEqual(exported['technical_score'], 0)
+            with self.assertRaisesRegex(ValueError, 'latest persisted audit'):
+                workers.qualification_evidence_for_packet(
+                    self.d, bid, 'older-audit-run'
+                )
+
+        stale = {'evidence_ids': [8], 'industry': 'electrical'}
+        with patch.object(workers, '_business', return_value={'id': bid}), \
+                patch.object(workers, '_commercial_signal_context', return_value=stale):
+            with self.assertRaisesRegex(ValueError, 'changed or expired'):
+                workers.qualification_evidence_for_packet(
+                    self.d, bid, 'audit-run-export'
+                )
+
     def test_audit_handler_uses_canonical_audit_findings(self):
         import mm_workers as workers
 
