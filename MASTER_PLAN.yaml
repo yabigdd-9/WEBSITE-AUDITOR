@@ -263,32 +263,27 @@ catalyxlabs_rebuild:
     intended_worktree_plan_status: "The user-created MASTER_EXECUTION_PLAN.md is committed and pushed on codex/catalyx-plan-update at 6972fb59 in the phase1-rebuild importer directory. That branch is based directly on the requested 0348b3f9 SHA. The file preserves the original phase scope and records current verification and owner gates; implementation remains in the separate codex/catalyx-rebuild-phase1-5 branch, also based on 0348b3f9."
     implementation_worktree: "/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild"
     implementation_worktree_status: >-
-      Branch codex/catalyx-rebuild-phase1-5 is pushed through 7891c9ae, based on
-      0348b3f9. The follow-up commit adds a 100-row bounded sweep of expired
+      Branch codex/catalyx-rebuild-phase1-5 is pushed through f3e04482, based on
+      0348b3f9. Commit 5e451999 adds a 100-row bounded sweep of expired
       authentication buckets across dormant scopes, preserving active one-hour
-      buckets. The full toolkit suite passed on the dirty source/test state
-      immediately before commit (264 passed, 5 opt-in skips, 2 upstream
-      warnings); Ruff and diff checks passed. Scoped security diff scan
-      2bbaf29c-6a9c-49d8-a4d5-8709693ceaae reported zero findings for
-      catalyx_web/db.py and toolkit_tests/test_catalyx_web.py, with partial
-      coverage: docs/catalyx-platform/** and experiments/** were excluded, and
-      PostgreSQL execution remains deferred. The scan reported that the wider
-      working tree changed while running; the reviewed source/test diff was
-      rechecked and matched the current diff before commit. Documentation edits
-      and the untracked experiments/ tree remain preserved and uncommitted.
-      Current dirty state also includes a robots.txt matcher step budget in
-      catalyx_web/customer_audit.py and expanded tenant-isolation tests. Commit
-      7891c9ae pushes those code, test, and release-documentation updates.
-      The full Catalyx web test module passed 74 tests with one upstream
-      warning; Ruff and diff checks passed on the changed source/test files.
-      Exact-diff security scan 51a1c374-eb8d-48da-86ff-8917c601160e found zero
-      findings with partial coverage; experiments/** stayed excluded and
-      unopened. The full toolkit suite was not rerun after the robots matcher
-      change. No soak test was repeated.
-      Existing owner gates remain open for shared-login thresholds, hosting,
+      buckets. Commit 7891c9ae bounds robots.txt matcher work and documents
+      readiness. The full toolkit suite passed before that commit (264 passed,
+      5 opt-in skips, 2 upstream warnings); Ruff and diff checks passed. Scoped
+      security diff scan 51a1c374-eb8d-48da-86ff-8917c601160e found zero
+      findings with partial coverage; experiments/** was excluded and
+      PostgreSQL execution remains deferred. Commit f3e04482 closes hosted open
+      registration and SMTP for the first release, adds a one-per-workspace
+      daily request cap and five-pending-request global cap with serialized
+      admission, and adds regression tests. The focused Catalyx web+mailer
+      suite passed 106 tests; Ruff and diff checks passed. The initial test
+      command used another checkout's virtualenv and failed collection because
+      cryptography was absent; the Catalyx checkout's .venv passed. Owner
+      documentation edits and experiments/ remain uncommitted and untouched.
+      Owner gates remain open for shared-login thresholds, hosting,
       privacy/legal, worker isolation, accessibility, and release readiness.
       User reports the 24-hour soak was completed in Claude; it was not repeated
-      here. No master merge or deployment occurred.
+      here. No soak or load test was run in this continuation. No master merge
+      or deployment occurred.
     branch_from_sha: "0348b3f9"
   safety_gates:
     external_send_allowed: false
