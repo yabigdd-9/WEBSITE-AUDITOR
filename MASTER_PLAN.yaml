@@ -184,10 +184,10 @@ phases:
     rule: "Deterministic and replayable from stored inputs."
     latest_verification:
       date: "2026-09-28"
-      formula_tests: "The pure opportunity-v1 function rejects booleans, non-finite values, and out-of-range inputs. Packet scoring now recomputes the score from evidence-backed audit findings, verified commercial score evidence IDs, contact confidence, remediation classifications, and deterministic quote effort. It persists the formula components, inputs, and factor provenance beside the independent technical audit score. Focused toolkit tests: 18 passed; complete toolkit suite before the final effort-cap test: 178 passed, 4 opt-in skips; Money Machine pipeline suite: 56 passed."
+      formula_tests: "The pure opportunity-v1 function rejects booleans, non-finite values, and out-of-range inputs. Packet scoring now recomputes the score from evidence-backed audit findings, verified commercial score evidence IDs, contact confidence, remediation classifications, and deterministic quote effort. It persists formula components, inputs, and factor provenance beside the independent technical audit score, and caps normalized effort for quotes above the XL reference. Exact-head toolkit suite: 179 passed, 4 opt-in skips; focused P9/P13 tests: 18 passed; Money Machine pipeline suite: 56 passed; Ruff and diff checks passed."
       integration_gap: "The prospect packet calls auditor_toolkit.opportunity.opportunity_formula through opportunity_from_packet_evidence and rejects cross-run artifacts. Remaining gap: the workflow does not yet construct the packet report DTO with the verified commercial_score and commercial_score_evidence_ids from Money Machine qualification events. Without those fields, the business_value component fails closed to zero. Wire this persisted source to packet generation and verify operator/packet output against a real synthetic end-to-end workflow."
-      review_branch_evidence: "At c27e8bb4, qualification reads only unexpired, confidence>=0.7 verified captures whose timestamp and capture hash pass validation; the event records evidence IDs, industry and qualification basis. At a9bfcaee, the packet recomputes and persists the separate opportunity score and its input/provenance record. The current P9 branch is pushed; focused tests pass. The technical score remains independently replayed from persisted findings."
-      hosted_ci: "At c27e8bb4, toolkit fixture suite, SonarCloud, Gitleaks and pip-audit passed. Vercel is rate-limited for 24 hours; CodeRabbit skips review while PR #43 is draft. Checks for a9bfcaee are running; PR #43 remains open, draft, and UNSTABLE."
+      review_branch_evidence: "At c27e8bb4, qualification reads only unexpired, confidence>=0.7 verified captures whose timestamp and capture hash pass validation; the event records evidence IDs, industry and qualification basis. At a9bfcaee, the packet recomputes and persists the separate opportunity score and its input/provenance record. The exact-head toolkit suite passed 179 tests with 4 opt-in skips; Money Machine pipeline suite passed 56; the technical score remains independently replayed from persisted findings."
+      hosted_ci: "At a9bfcaee, hosted fixtures, SonarCloud, Gitleaks and pip-audit passed. Vercel reports the daily deployment-rate limit; CodeRabbit skips review while PR #43 is draft. PR #43 remains open and UNSTABLE."
   P10:
     name: "Remediation engine"
     priority: HIGH
@@ -244,7 +244,7 @@ phases:
     defer: ["Prometheus", "Grafana", "Loki", "Langfuse"]
     latest_verification:
       date: "2026-09-28"
-      dead_letter_visibility: "toolkit_tests/test_p17_observability.py passed (1 test, 0.62s) against a synthetic temporary database."
+      dead_letter_visibility: "toolkit_tests/test_p17_observability.py passed (1 test, 0.62s) against a synthetic temporary database. Live read-only ./mm dead-letter returned count=0 with triage_required=false; cumulative pipeline metrics separately show 16 historical dead_lettered transitions, so these are not currently in the active triage queue."
   P18:
     name: "Self improvement"
     priority: MEDIUM
