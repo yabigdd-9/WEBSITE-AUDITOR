@@ -21,7 +21,7 @@ class MailDeliveryError(RuntimeError):
 
 def _server_tls_context() -> ssl.SSLContext:
     """Create a TLS client context with certificate and hostname checks enabled."""
-    context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
+    context = ssl.create_default_context()
     context.minimum_version = ssl.TLSVersion.TLSv1_2
     context.load_default_certs(ssl.Purpose.SERVER_AUTH)
     context.verify_mode = ssl.CERT_REQUIRED
