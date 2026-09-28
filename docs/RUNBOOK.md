@@ -1,4 +1,4 @@
-# RUNBOOK — WEBSITE-AUDITOR / Money-Machine (v32 canonical execution)
+# RUNBOOK — WEBSITE-AUDITOR / Money-Machine (v44 local-machine convergence)
 
 Human decisions only. Nothing in this runbook sends, publishes, or prices to a customer.
 Runtime: Python 3.11 in `.venv-email` (never "fix" with global 3.14). All commands run from `/Users/dd/WEBSITE-AUDITOR`.
