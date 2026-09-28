@@ -12,7 +12,7 @@ policy:
   prefer_free_models: true
   providers_sort: price
   require_parameters: true
-  data_collection: allow
+  data_collection: deny
   external_free_requires_explicit_opt_in: true
   external_free_prompt_scope: public_or_non_confidential_only
   max_price: {prompt: 0, completion: 0, request: 0, image: 0}
