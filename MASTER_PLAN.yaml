@@ -253,8 +253,8 @@ catalyxlabs_rebuild:
   source_document: "/Users/dd/WEBSITE-AUDITOR/.claude/worktrees/phase1-rebuild/MASTER_EXECUTION_PLAN.md"
   execution_workspace:
     intended_worktree: "/Users/dd/WEBSITE-AUDITOR/.claude/worktrees/phase1-rebuild"
-    intended_worktree_head: "0c8041da4051d6ac341814d62f04be58fc97be63"
-    intended_worktree_plan_status: "User-created MASTER_EXECUTION_PLAN.md remains untracked in the phase1-rebuild worktree at 0c8041da; an additive execution-status section now records Phases 1-9, evidence, safety posture, and owner gates. The worktree still is not based on the requested implementation SHA, so the implementation remains in the separate branch based on 0348b3f9. The original scope and phase descriptions were retained."
+    intended_worktree_head: "6972fb5952564e05bc4c8e91f96d5f7e679f7a92"
+    intended_worktree_plan_status: "The user-created MASTER_EXECUTION_PLAN.md is committed and pushed on codex/catalyx-plan-update at 6972fb59 in the phase1-rebuild importer directory. That branch is based directly on the requested 0348b3f9 SHA. The file preserves the original phase scope and records current verification and owner gates; implementation remains in the separate codex/catalyx-rebuild-phase1-5 branch, also based on 0348b3f9."
     implementation_worktree: "/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild"
     implementation_worktree_status: >-
       Branch codex/catalyx-rebuild-phase1-5 is pushed through 7891c9ae, based on
