@@ -493,6 +493,13 @@ final_acceptance:
 
 latest_execution_checkpoint:
   as_of_local_date: "2026-09-28"
+  latest_review_integration:
+    branch: "codex/review-integration"
+    head: "b6b5c5ce6029c3155acf939150eac5be983e8b52"
+    pull_request: "https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/43"
+    status: "PUSHED_DRAFT_REVIEW"
+    evidence: "Hash-locked binary-only requirements-email installation is now used in CI and dependency auditing. The workflow's toolkit suite, Ruff, pip check, wheel build, Chromium installation, and real browser/PDF/portal E2E job passed at this head. Gitleaks, pip-audit, SonarCloud, CodeRabbit, and Vercel checks passed. This is branch/PR evidence only; it is not merged or running in the canonical supervisor."
+    money_machine_pipeline_suite: "54 tests passed locally before this commit; latest workflow ran toolkit tests and browser E2E."
   workspace: >-
     Canonical-plan branch codex/canonical-plan-execution was synchronized with
     origin through 5586865 and includes the current security, dependency,
