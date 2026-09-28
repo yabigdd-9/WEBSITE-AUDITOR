@@ -30,7 +30,14 @@ from catalyx_web.egress import (
     EgressTransportError,
     PinnedEgressTransport,
 )
-from catalyx_web.security import hash_password, normalize_site, production_mode, totp_code
+from catalyx_web.security import (
+    DEFAULT_TOTP_ALGORITHM,
+    LEGACY_TOTP_ALGORITHM,
+    hash_password,
+    normalize_site,
+    production_mode,
+    totp_code,
+)
 
 
 def form_token(response) -> str:
@@ -217,10 +224,11 @@ def test_admin_totp_secrets_are_encrypted_and_legacy_seeds_are_migrated(tmp_path
     )
     with database.connect() as db:
         membership = db.execute(
-            "SELECT workspace_id,user_id,totp_secret FROM memberships WHERE user_id=?",
+            "SELECT workspace_id,user_id,totp_secret,totp_algorithm FROM memberships WHERE user_id=?",
             (user_id,),
         ).fetchone()
     assert membership["totp_secret"].startswith("enc:v1:")
+    assert membership["totp_algorithm"] == DEFAULT_TOTP_ALGORITHM
     assert secret not in membership["totp_secret"]
     assert database.decrypt_totp_secret(
         membership["totp_secret"], membership["workspace_id"], membership["user_id"]
@@ -229,6 +237,7 @@ def test_admin_totp_secrets_are_encrypted_and_legacy_seeds_are_migrated(tmp_path
 
     # A version-4 local database may have a legacy seed from before encryption.
     with database.connect() as db:
+        db.execute("UPDATE memberships SET totp_algorithm=? WHERE user_id=?", (LEGACY_TOTP_ALGORITHM, user_id))
         db.execute(
             "UPDATE memberships SET totp_secret=? WHERE user_id=?",
             (secret, user_id),
@@ -236,10 +245,11 @@ def test_admin_totp_secrets_are_encrypted_and_legacy_seeds_are_migrated(tmp_path
     migrated_database = Database(db_path)
     with migrated_database.connect() as db:
         migrated = db.execute(
-            "SELECT workspace_id,user_id,totp_secret FROM memberships WHERE user_id=?",
+            "SELECT workspace_id,user_id,totp_secret,totp_algorithm FROM memberships WHERE user_id=?",
             (user_id,),
         ).fetchone()
     assert migrated["totp_secret"].startswith("enc:v1:")
+    assert migrated["totp_algorithm"] == LEGACY_TOTP_ALGORITHM
     assert migrated_database.decrypt_totp_secret(
         migrated["totp_secret"], migrated["workspace_id"], migrated["user_id"]
     ) == secret
@@ -728,25 +738,73 @@ def test_admin_login_uses_shared_budget_and_rejects_totp_replay(tmp_path, monkey
         ).fetchone()["hits"] == 13
 
 
-def test_schema_v3_database_migrates_to_persistent_auth_rate_limits(tmp_path):
+def test_schema_v3_database_migrates_to_persistent_auth_rate_limits(
+    tmp_path, monkeypatch
+):
     database_path = tmp_path / "upgrade.sqlite3"
     old_database = Database(database_path)
+    legacy_secret = "JBSWY3DPEHPK3PXP"
+    legacy_password = "a-long-admin-password-456"
+    legacy_admin_id = old_database.create_admin(
+        "legacy-admin@example.invalid",
+        hash_password(legacy_password),
+        legacy_secret,
+        totp_algorithm=LEGACY_TOTP_ALGORITHM,
+    )
     with old_database.connect() as db:
         db.execute("DROP TABLE auth_rate_limits")
         db.execute("ALTER TABLE memberships DROP COLUMN totp_last_step")
+        db.execute("ALTER TABLE memberships DROP COLUMN totp_algorithm")
         db.execute("PRAGMA user_version=3")
 
     upgraded = Database(database_path)
     assert upgraded.allow_rate_attempt("login", "192.0.2.4", 2, 60, now=2000)
     with upgraded.connect() as db:
-        assert db.execute("PRAGMA user_version").fetchone()[0] == 7
+        assert db.execute("PRAGMA user_version").fetchone()[0] == 8
         columns = {row["name"] for row in db.execute("PRAGMA table_info(audit_requests)")}
         assert "worker_lease_token" in columns
         membership_columns = {row["name"] for row in db.execute("PRAGMA table_info(memberships)")}
         assert "totp_last_step" in membership_columns
+        assert "totp_algorithm" in membership_columns
+        assert db.execute(
+            "SELECT dflt_value FROM pragma_table_info('memberships') WHERE name='totp_algorithm'"
+        ).fetchone()[0] == "'SHA1'"
+        legacy_membership = db.execute(
+            "SELECT totp_algorithm FROM memberships WHERE user_id=?", (legacy_admin_id,)
+        ).fetchone()
+        assert legacy_membership["totp_algorithm"] == LEGACY_TOTP_ALGORITHM
         assert db.execute(
             "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='worker_leases'"
         ).fetchone()[0] == 1
+
+    timestamp = 1_800_000_000
+    monkeypatch.setattr("catalyx_web.app.time.time", lambda: timestamp)
+    client = TestClient(
+        create_app(database_path, tmp_path / "mailbox.json"),
+        client=("203.0.113.44", 8000),
+    )
+    login_page = client.get("/login")
+    login = client.post(
+        "/login",
+        data={
+            "csrf": form_token(login_page),
+            "email": "legacy-admin@example.invalid",
+            "password": legacy_password,
+            "otp": totp_code(legacy_secret, timestamp, LEGACY_TOTP_ALGORITHM),
+        },
+        follow_redirects=False,
+    )
+    assert login.status_code == 303
+
+
+def test_totp_supports_sha256_for_new_seeds_and_sha1_for_legacy_seeds():
+    sha1_secret = base64.b32encode(b"12345678901234567890").decode().rstrip("=")
+    sha256_secret = base64.b32encode(
+        b"12345678901234567890123456789012"
+    ).decode().rstrip("=")
+
+    assert totp_code(sha1_secret, 59, LEGACY_TOTP_ALGORITHM) == "287082"
+    assert totp_code(sha256_secret, 59, DEFAULT_TOTP_ALGORITHM) == "119246"
 
 
 def test_totp_step_can_only_be_consumed_once(tmp_path):

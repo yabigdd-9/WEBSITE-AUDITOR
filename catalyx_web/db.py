@@ -15,9 +15,11 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from .security import (
+    DEFAULT_TOTP_ALGORITHM,
     TOTP_ENVELOPE_PREFIX,
     decrypt_totp_secret,
     encrypt_totp_secret,
+    normalize_totp_algorithm,
     parse_totp_encryption_key,
 )
 
@@ -294,7 +296,7 @@ class Database:
             return
         with self.connect() as db:
             version = db.execute("PRAGMA user_version").fetchone()[0]
-            if version > 7:
+            if version > 8:
                 raise RuntimeError("Catalyx application database is newer than this version")
             db.executescript(
                 """
@@ -317,6 +319,7 @@ class Database:
                     role TEXT NOT NULL CHECK(role IN ('owner','admin','reviewer','support','customer')),
                     active INTEGER NOT NULL DEFAULT 1,
                     totp_secret TEXT,
+                    totp_algorithm TEXT NOT NULL DEFAULT 'SHA1' CHECK(totp_algorithm IN ('SHA1','SHA256','SHA512')),
                     totp_last_step INTEGER,
                     created_at TEXT NOT NULL,
                     PRIMARY KEY(workspace_id, user_id)
@@ -455,7 +458,12 @@ class Database:
             membership_columns = {row["name"] for row in db.execute("PRAGMA table_info(memberships)")}
             if "totp_last_step" not in membership_columns:
                 db.execute("ALTER TABLE memberships ADD COLUMN totp_last_step INTEGER")
-            db.execute("PRAGMA user_version=7")
+            if "totp_algorithm" not in membership_columns:
+                db.execute(
+                    "ALTER TABLE memberships ADD COLUMN totp_algorithm TEXT NOT NULL "
+                    "DEFAULT 'SHA1' CHECK(totp_algorithm IN ('SHA1','SHA256','SHA512'))"
+                )
+            db.execute("PRAGMA user_version=8")
         self._protect_totp_secrets()
 
     def _load_totp_encryption_key(self) -> bytes:
@@ -637,7 +645,7 @@ class Database:
             db.execute("SELECT pg_advisory_xact_lock(hashtext('catalyx_web_schema'))")
             db.execute("INSERT INTO catalyx_schema_version(singleton,version) VALUES(TRUE,0) ON CONFLICT(singleton) DO NOTHING")
             version = db.execute("SELECT version FROM catalyx_schema_version WHERE singleton=TRUE").fetchone()["version"]
-            if version > 7:
+            if version > 8:
                 raise DatabaseError("Catalyx application database is newer than this version")
             db.executescript(
                 """
@@ -660,6 +668,7 @@ class Database:
                     role TEXT NOT NULL CHECK(role IN ('owner','admin','reviewer','support','customer')),
                     active INTEGER NOT NULL DEFAULT 1,
                     totp_secret TEXT,
+                    totp_algorithm TEXT NOT NULL DEFAULT 'SHA1' CHECK(totp_algorithm IN ('SHA1','SHA256','SHA512')),
                     totp_last_step BIGINT,
                     created_at TEXT NOT NULL,
                     PRIMARY KEY(workspace_id, user_id)
@@ -792,7 +801,11 @@ class Database:
             db.execute("ALTER TABLE audit_requests ADD COLUMN IF NOT EXISTS worker_lease_until INTEGER")
             db.execute("ALTER TABLE audit_requests ADD COLUMN IF NOT EXISTS worker_lease_token TEXT")
             db.execute("ALTER TABLE memberships ADD COLUMN IF NOT EXISTS totp_last_step BIGINT")
-            db.execute("UPDATE catalyx_schema_version SET version=7 WHERE singleton=TRUE")
+            db.execute(
+                "ALTER TABLE memberships ADD COLUMN IF NOT EXISTS totp_algorithm TEXT "
+                "NOT NULL DEFAULT 'SHA1' CHECK(totp_algorithm IN ('SHA1','SHA256','SHA512'))"
+            )
+            db.execute("UPDATE catalyx_schema_version SET version=8 WHERE singleton=TRUE")
 
     def create_customer(self, email: str, password_hash: str) -> tuple[str, str]:
         user_id, workspace_id = str(uuid.uuid4()), str(uuid.uuid4())
@@ -840,8 +853,15 @@ class Database:
                 (token,),
             )
 
-    def create_admin(self, email: str, password_hash: str, totp_secret: str) -> str:
+    def create_admin(
+        self,
+        email: str,
+        password_hash: str,
+        totp_secret: str,
+        totp_algorithm: str = DEFAULT_TOTP_ALGORITHM,
+    ) -> str:
         user_id, workspace_id = str(uuid.uuid4()), str(uuid.uuid4())
+        totp_algorithm = normalize_totp_algorithm(totp_algorithm)
         protected_totp_secret = encrypt_totp_secret(
             totp_secret, self._totp_encryption_key, workspace_id, user_id
         )
@@ -855,8 +875,15 @@ class Database:
                 (workspace_id, "CatalyxLabs operations", now_iso()),
             )
             db.execute(
-                "INSERT INTO memberships(workspace_id,user_id,role,totp_secret,created_at) VALUES(?,?,?,?,?)",
-                (workspace_id, user_id, "owner", protected_totp_secret, now_iso()),
+                "INSERT INTO memberships(workspace_id,user_id,role,totp_secret,totp_algorithm,created_at) VALUES(?,?,?,?,?,?)",
+                (
+                    workspace_id,
+                    user_id,
+                    "owner",
+                    protected_totp_secret,
+                    totp_algorithm,
+                    now_iso(),
+                ),
             )
         return user_id
 

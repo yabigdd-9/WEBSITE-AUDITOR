@@ -18,6 +18,9 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 PASSWORD_ITERATIONS = 310_000
 TOTP_ENVELOPE_PREFIX = "enc:v1:"
+SUPPORTED_TOTP_ALGORITHMS = frozenset({"SHA1", "SHA256", "SHA512"})
+DEFAULT_TOTP_ALGORITHM = "SHA256"
+LEGACY_TOTP_ALGORITHM = "SHA1"
 _NUMERIC_HOST_PART = re.compile(r"(?:0[xX][0-9a-fA-F]+|[0-9]+)\Z")
 _DNS_LABEL = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\Z")
 CONSENT_VERSION = "2026-09-27-v1"
@@ -158,29 +161,53 @@ def _totp_associated_data(workspace_id: str, user_id: str) -> bytes:
     )
 
 
-def totp_code(secret: str, at_time: float | None = None) -> str:
+def normalize_totp_algorithm(algorithm: str) -> str:
+    normalized = algorithm.upper()
+    if normalized not in SUPPORTED_TOTP_ALGORITHMS:
+        raise ValueError("Unsupported TOTP algorithm.")
+    return normalized
+
+
+def totp_code(
+    secret: str,
+    at_time: float | None = None,
+    algorithm: str = DEFAULT_TOTP_ALGORITHM,
+) -> str:
     key = base64.b32decode(secret.upper() + "=" * ((8 - len(secret) % 8) % 8))
     counter = int((at_time if at_time is not None else time.time()) // 30)
-    digest = hmac.new(key, struct.pack(">Q", counter), hashlib.sha1).digest()
+    digest_name = normalize_totp_algorithm(algorithm).lower()
+    digest = hmac.new(key, struct.pack(">Q", counter), digestmod=digest_name).digest()
     offset = digest[-1] & 0x0F
     value = struct.unpack(">I", digest[offset : offset + 4])[0] & 0x7FFFFFFF
     return f"{value % 1_000_000:06d}"
 
 
-def matching_totp_step(secret: str, submitted: str, at_time: float | None = None) -> int | None:
+def matching_totp_step(
+    secret: str,
+    submitted: str,
+    at_time: float | None = None,
+    algorithm: str = DEFAULT_TOTP_ALGORITHM,
+) -> int | None:
     if len(submitted) != 6 or not submitted.isdigit():
         return None
     now = at_time if at_time is not None else time.time()
     matches = [
         int((now + offset * 30) // 30)
         for offset in (-1, 0, 1)
-        if hmac.compare_digest(totp_code(secret, now + offset * 30), submitted)
+        if hmac.compare_digest(
+            totp_code(secret, now + offset * 30, algorithm), submitted
+        )
     ]
     return max(matches) if matches else None
 
 
-def verify_totp(secret: str, submitted: str, at_time: float | None = None) -> bool:
-    return matching_totp_step(secret, submitted, at_time) is not None
+def verify_totp(
+    secret: str,
+    submitted: str,
+    at_time: float | None = None,
+    algorithm: str = DEFAULT_TOTP_ALGORITHM,
+) -> bool:
+    return matching_totp_step(secret, submitted, at_time, algorithm) is not None
 
 
 def normalize_site(value: str) -> tuple[str, str]:

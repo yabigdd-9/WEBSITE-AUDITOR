@@ -26,6 +26,7 @@ from .mailer import MailConfigurationError, MailDeliveryError, send_account_link
 from .security import (
     CONSENT_TEXT,
     CONSENT_VERSION,
+    DEFAULT_TOTP_ALGORITHM,
     assert_money_machine_integrations_disabled,
     digest_token,
     hash_password,
@@ -1192,7 +1193,7 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
             raise HTTPException(429, "Too many sign-in attempts. Try again later.")
         with database.connect() as db:
             row = db.execute(
-                "SELECT u.id,u.email,u.password_hash,u.email_verified_at,u.disabled_at,m.workspace_id,m.role,m.totp_secret "
+                "SELECT u.id,u.email,u.password_hash,u.email_verified_at,u.disabled_at,m.workspace_id,m.role,m.totp_secret,m.totp_algorithm "
                 "FROM users u JOIN memberships m ON m.user_id=u.id AND m.active=1 WHERE u.email=? ORDER BY m.created_at LIMIT 1",
                 (email,),
             ).fetchone()
@@ -1206,7 +1207,15 @@ def create_app(db_path: str | Path | None = None, local_mailbox_path: str | Path
                 if row["totp_secret"]
                 else ""
             )
-            accepted_step = matching_totp_step(totp_secret, form.get("otp", "")) if totp_secret else None
+            accepted_step = (
+                matching_totp_step(
+                    totp_secret,
+                    form.get("otp", ""),
+                    algorithm=row["totp_algorithm"],
+                )
+                if totp_secret
+                else None
+            )
             if accepted_step is None or not database.consume_totp_step(
                 row["workspace_id"], row["id"], accepted_step
             ):
@@ -2033,7 +2042,7 @@ def bootstrap_admin(db_path: str, email: str) -> None:
     logger.info("Admin account created for %s", email)
     print("Add this TOTP secret to a named authenticator account. It is shown once; store it securely:")
     print(secret)
-    print(f"Provisioning URI: otpauth://totp/CatalyxLabs:{quote(email)}?secret={secret}&issuer=CatalyxLabs&digits=6&period=30")
+    print(f"Provisioning URI: otpauth://totp/CatalyxLabs:{quote(email)}?secret={secret}&issuer=CatalyxLabs&algorithm={DEFAULT_TOTP_ALGORITHM}&digits=6&period=30")
 
 
 def create_runtime_app(
