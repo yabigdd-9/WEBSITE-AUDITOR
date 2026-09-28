@@ -337,6 +337,11 @@ catalyxlabs_rebuild:
       run concurrently. The TLS and TOTP changes are not yet confirmed by a
       successful Sonar scan. Select one analysis mode in project settings before
       rerunning. No soak, master merge, or deployment occurred.
+      At 8e63c061, the local mailbox CLI was moved to the same no-follow,
+      owner/regular-file/size/expiry-validated reader as the web app, with a
+      regression proving a mailbox symlink cannot disclose bearer links. The
+      Catalyx web suite passes 82 tests and Ruff passes. Hosted checks for
+      8e63c061 are pending; Vercel remains subject to its deployment quota.
     branch_from_sha: "0348b3f9"
   safety_gates:
     external_send_allowed: false
@@ -402,10 +407,10 @@ catalyxlabs_rebuild:
         actions: ["Synthetic end-to-end customer/reviewer journeys", "Accessibility and local Lighthouse/Lychee evidence", "Verify privacy, evidence, redaction, and disabled-action boundaries"]
         evidence: "At baseline b1bf406e, toolkit_tests/test_catalyx_web.py: 68 passed and the browser journey: 1 passed; Lychee found zero errors across 17 links; eight Lighthouse routes scored 100 in accessibility, best practices, and SEO and 99-100 in performance. Follow-up application commit a8f73a72 uses a 4,337-byte legal-draft stylesheet instead of the 19,577-byte shared stylesheet; its privacy Lighthouse report retains performance 99, improves LCP from 1.06s to 0.8s, reduces render-blocking from 356ms to 159ms, and reports no unused/unminified CSS. Fresh tests at a8f73a72: 68 web tests passed with one warning, Chromium accessibility journey 1 passed in 14.48s, Ruff passed. Human screen-reader/WCAG sign-off and owner ratification remain open. Details: docs/catalyx-platform/phase-6-acceptance.md and report outputs under /Users/dd/Documents/Codex/2026-09-27/i-ll-generate-the-master-execution/outputs/."
         latest_verification:
-          head: "4d7c6cc98fd1f0837c72813a9ab20258f84836fd"
-          hosted_run: "36399606889: full toolkit suite, Ruff, dependency compatibility, package build, existing browser journeys, and dedicated Catalyx customer/admin journey passed."
-          security_and_preview: "Gitleaks, pip-audit, SonarCloud Code Analysis, and the Vercel preview deployment check passed on this head."
-          local_suite: "toolkit_tests/test_catalyx_web.py: 81 passed; Ruff passed after the TLS context-flow adjustment."
+          head: "8e63c061"
+          hosted_run: "At prior code head 4d7c6cc9, run 36399606889 passed the toolkit suite, Ruff, dependency compatibility, package build, existing browser journeys, and dedicated Catalyx customer/admin journey. Hosted verification for 8e63c061 is pending."
+          security_and_preview: "Gitleaks, pip-audit, SonarCloud Code Analysis, and Vercel preview passed at 4d7c6cc9. At 8e63c061 security checks are pending and Vercel reports the account deployment quota."
+          local_suite: "At 8e63c061, toolkit_tests/test_catalyx_web.py: 82 passed; targeted Ruff and git diff checks passed."
           remaining: "Human screen-reader/WCAG review, owner ratification, hosting/data decisions, and staged recovery evidence remain open. The owner-reported Claude soak is not repeated by Codex."
         gate: "Automated acceptance using synthetic data; material defects and false positives recorded."
       phase_7:
