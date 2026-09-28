@@ -534,6 +534,19 @@ latest_execution_checkpoint:
     reliability_soak: "Completed in Claude per owner report on 2026-09-28; no Codex rerun requested. Claude run artifacts and tested SHA were not inspected in this workspace."
   verified:
     python: "3.11.16"
+    catalyx_beta_worker_caps_20260928: >-
+      Catalyx commit 0f8397c3dd976b976f0c7266170f0216b3d708b6 is pushed on
+      codex/catalyx-rebuild-phase1-5, based on 0348b3f9. It adds an atomic
+      five-customer-workspace cap and persistent singleton audit-worker lease
+      (schema v7), with focused coverage for concurrent SQLite signup, worker
+      lease exclusion, fencing, and migration. Targeted Catalyx tests passed
+      78; full toolkit suite passed 269 with 5 opt-in browser skips and 2
+      upstream deprecation warnings; Ruff and diff checks passed. Hosted
+      Gitleaks and pip-audit passed in run 36383962956. PostgreSQL migration
+      and concurrency, a paused-worker expiry scenario, hosted runtime and
+      worker isolation remain unverified; local PostgreSQL tooling is
+      unavailable. Untracked experiments/ remains preserved and unreviewed.
+      No merge, deployment, external email, or soak test occurred.
     canonical_branch_revalidation_20260928: "On upgrade/v32-canonical-execution at 3ad64156: full toolkit suite 164 passed, 4 opt-in browser skips, 2 deprecation warnings; strict pip-audit 2.10.1 OSV audit of requirements.txt and money-machine/requirements-email.txt found no known vulnerabilities. Gitleaks 8.30.1 found 0 current-HEAD matches, with historical owner-review items still open. Isolated crash-restart test passed (1) and synthetic DLQ visibility test passed (1); live runtime checks are read-only."
     toolkit_tests: "Fresh full run on code commit fe513227: 187 passed, 4 opt-in browser skips, 2 dependency deprecation warnings. The corrected audit adapter reads defect_score from engines/detect.py, with finite bounded score validation; the Money Machine pipeline suite passed 57 tests, including null/invalid score, detector schema, and cached audit reuse cases. Ruff passed on mm_workers.py. The test module retains unrelated pre-existing Ruff findings. Focused pipeline/error-tracking suite: 60 passed; focused real-tool parser/fallback suite: 15 passed. Regression-only commit b34f1882 is pushed after the full toolkit run."
     narrow_pipeline_score_fix: "Branch codex/audit-defect-score-fix at 9bba93dc is based directly on upgrade/v32-canonical-execution SHA 3ad64156 and is pushed. It reads engines/detect.py defect_score, validates finite bounded score/count values, preserves separate commercial_score and technical_score, and assigns independent tiers without a blended cross-axis score. It is an earlier handler-level review snapshot and is superseded for promotion by pipeline_audit_evidence_handoff. The ten-case challenger CLI scenario reports 9/10 baseline versus 10/10 constructed challenger predictions with no safety failures; it is evaluator-path evidence, not an actual model evaluation."
