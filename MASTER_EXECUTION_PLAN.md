@@ -242,3 +242,28 @@ evidence that are not available in the current checkout.
   it does not start a scan worker or contact an external target. No `.env` file
   was needed or read. Existing dirty owner notes and untracked `experiments/`
   remain preserved and excluded from commits.
+
+### Latest execution update (2026-09-28, mailbox and hosted-auth hardening)
+
+- Implementation branch `codex/catalyx-rebuild-phase1-5` is pushed through
+  `79420830`. The mailbox CLI now uses the same no-follow reader as the web
+  app, rejecting symlinks, non-regular files, other-user-owned files, oversized
+  files, malformed content, and expired links. Hosted authentication now
+  defaults to disabled; protected sessions fail closed until an operator
+  explicitly sets `CATALYX_AUTH_ENABLED=true`.
+- At `79420830`, `toolkit_tests/test_catalyx_web.py` passed **83 tests**;
+  targeted Ruff and `git diff --check` passed. Hosted run `36403091515` passed
+  the locked toolkit suite, Ruff, package compatibility/build, existing
+  Chromium/PDF journeys, and the dedicated Catalyx customer/admin journey.
+  Gitleaks, pip-audit, SonarCloud, and the Vercel preview passed.
+- The shared-login availability concern remains if authentication is enabled.
+  Keep hosted auth disabled until an owner approves trusted ingress/client-IP
+  semantics and replacement login limits, and those limits are verified against
+  distributed failures and valid login. PostgreSQL migration/concurrency,
+  production worker isolation, backup/restore/rollback, hosting and privacy
+  decisions, legal copy, human accessibility review, and FSM authority/retention
+  decisions remain open.
+- PR #46 remains a draft. This is source/test evidence only; it does not approve
+  production auth, deployment, customer scans, external email, or merge. The
+  owner reports completing the 24-hour soak in Claude; it was not repeated.
+  No `.env` file was needed or read.
