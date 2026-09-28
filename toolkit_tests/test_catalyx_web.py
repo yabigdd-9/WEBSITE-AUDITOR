@@ -585,10 +585,10 @@ def test_auth_rate_limit_table_has_a_hard_row_ceiling(tmp_path, monkeypatch):
     database = Database(tmp_path / "rate-limit-capacity.sqlite3")
     monkeypatch.setattr(db_module, "MAX_AUTH_RATE_LIMIT_ROWS", 3)
     for subject in ("one", "two", "three"):
-        assert database.allow_rate_attempt("login", subject, 5, 60, now=1000)
+        assert database.allow_rate_attempt("capacity_test", subject, 5, 60, now=1000)
 
-    assert not database.allow_rate_attempt("login", "four", 5, 60, now=1000)
-    assert database.allow_rate_attempt("login", "one", 5, 60, now=1000)
+    assert not database.allow_rate_attempt("capacity_test", "four", 5, 60, now=1000)
+    assert database.allow_rate_attempt("capacity_test", "one", 5, 60, now=1000)
     with database.connect() as db:
         assert db.execute("SELECT count(*) FROM auth_rate_limits").fetchone()[0] == 3
 
@@ -596,6 +596,21 @@ def test_auth_rate_limit_table_has_a_hard_row_ceiling(tmp_path, monkeypatch):
     assert database.allow_rate_attempt("login", "after-expiry", 5, 60, now=5000)
     with database.connect() as db:
         assert db.execute("SELECT count(*) FROM auth_rate_limits").fetchone()[0] == 1
+
+
+def test_rate_limit_capacity_falls_through_to_shared_login_bucket(tmp_path, monkeypatch):
+    import catalyx_web.db as db_module
+
+    database = Database(tmp_path / "rate-limit-login-fallback.sqlite3")
+    monkeypatch.setattr(db_module, "MAX_AUTH_RATE_LIMIT_ROWS", 2)
+    assert database.allow_rate_attempt("login", "known-source", 8, 60, now=1000)
+    assert database.allow_rate_attempt("login_global", "application", 1, 60, now=1000)
+
+    # A new source skips a per-address row but proceeds to the shared budget.
+    assert database.allow_rate_attempt("login", "new-source", 8, 60, now=1000)
+    assert not database.allow_rate_attempt("login_global", "application", 1, 60, now=1000)
+    with database.connect() as db:
+        assert db.execute("SELECT count(*) FROM auth_rate_limits").fetchone()[0] == 2
 
 
 def test_auth_rate_limit_row_ceiling_is_atomic_across_new_subjects(tmp_path, monkeypatch):
@@ -607,7 +622,7 @@ def test_auth_rate_limit_row_ceiling_is_atomic_across_new_subjects(tmp_path, mon
         accepted = list(
             pool.map(
                 lambda index: database.allow_rate_attempt(
-                    "login", f"source-{index}", 5, 60, now=1000
+                    "capacity_test", f"source-{index}", 5, 60, now=1000
                 ),
                 range(24),
             )

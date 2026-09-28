@@ -237,6 +237,11 @@ class Database:
                     "SELECT count(*) FROM auth_rate_limits"
                 ).fetchone()[0]
                 if row_count >= MAX_AUTH_RATE_LIMIT_ROWS:
+                    # Login has a fixed shared application bucket as a second
+                    # guard. Let unseen sources reach it rather than turning
+                    # table saturation into a blanket first-time-login lockout.
+                    if scope == "login":
+                        return True
                     return False
             row = db.execute(
                 "INSERT INTO auth_rate_limits(scope,subject_hash,window_started,hits,updated_at) "
