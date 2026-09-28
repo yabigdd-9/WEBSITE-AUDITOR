@@ -102,4 +102,5 @@ def test_searxng_wrapper_creates_loopback_json_only_private_service():
     assert "chmod 600" in wrapper
     assert '--editable "$SRC"' in wrapper
     assert '--no-build-isolation' in wrapper
-    assert "0.0.0.0:8888" in wrapper  # explicit unsafe-listener rejection
+    assert r"0\.0\.0\.0:8888" in wrapper  # explicit unsafe-listener rejection
+    assert r"\*:8888" in wrapper
