@@ -21,58 +21,62 @@ from mm_core import now, sha
 from mm_pipeline import BlockedCost
 from mm_redaction import prepare_prompt
 
-PURPOSE_ROUTES = {
-    # Live-verified free routes as of 2026-09-21; local inference always wins.
-    'orchestrator': [
+OLLAMA_PROVIDER = 'local:ollama'
+
+
+def _routes(*external):
+    """Keep local inference first, with a second local server as fallback."""
+    return [
         ('local:llamacpp', None),
+        (OLLAMA_PROVIDER, None),
+        *external,
+    ]
+
+
+PURPOSE_ROUTES = {
+    # Optional external candidates require explicit opt-in; local inference wins.
+    'orchestrator': _routes(
         ('openrouter', 'meituan/longcat-2.0:free'),
         ('openrouter', 'nvidia/nemotron-3-ultra-550b-a55b:free'),
-    ],
-    'researcher': [
-        ('local:llamacpp', None),
+    ),
+    'researcher': _routes(
         ('openrouter', 'thinkingmachines/inkling:free'),
         ('openrouter', 'nvidia/nemotron-3.5-lightning:free'),
-    ],
-    'executor_sales': [
-        ('local:llamacpp', None),
+    ),
+    'executor_sales': _routes(
         ('openrouter', 'inclusionai/ling-3.0-flash:free'),
         ('openrouter', 'meituan/longcat-2.0:free'),
-    ],
-    'executor_content': [
-        ('local:llamacpp', None),
+    ),
+    'executor_content': _routes(
         ('openrouter', 'thinkingmachines/inkling:free'),
         ('openrouter', 'inclusionai/ling-3.0-flash:free'),
-    ],
-    'coder': [
-        ('local:llamacpp', None),
+    ),
+    'coder': _routes(
         ('openrouter', 'poolside/laguna-s-2.1:free'),
         ('openrouter', 'poolside/laguna-xs-2.1:free'),
-    ],
-    'lightweight_worker': [
-        ('local:llamacpp', None),
+    ),
+    'lightweight_worker': _routes(
         ('openrouter', 'nvidia/nemotron-3.5-lightning:free'),
         ('openrouter', 'poolside/laguna-xs-2.1:free'),
-    ],
-    'judge': [
-        ('local:llamacpp', None),
+    ),
+    'judge': _routes(
         ('openrouter', 'nvidia/nemotron-3-ultra-550b-a55b:free'),
         ('openrouter', 'meituan/longcat-2.0:free'),
-    ],
-    'proofer': [
-        ('local:llamacpp', None),
+    ),
+    'proofer': _routes(
         ('openrouter', 'nvidia/nemotron-3.5-lightning:free'),
         ('openrouter', 'inclusionai/ling-3.0-flash:free'),
-    ],
-    'vision': [
-        ('local:llamacpp', None),
+    ),
+    'vision': _routes(
         ('openrouter', 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free'),
-    ],
+    ),
 }
 
 
 # Local, zero-cost, no-API-key inference endpoints on this machine.
 # llama.cpp's llama-server exposes an OpenAI-compatible /v1/models surface;
 LLAMACPP_BASE = os.environ.get('MM_LLAMACPP_HOST', 'http://127.0.0.1:8080')
+OLLAMA_BASE = os.environ.get('MM_OLLAMA_BASE', 'http://127.0.0.1:11434')
 LOCAL_MODEL_ENV = 'MM_LOCAL_MODEL'  # exact model id, e.g. qwen3:4b or a GGUF ref
 EXTERNAL_FREE_ENV = 'MM_ALLOW_EXTERNAL_FREE_MODELS'
 
@@ -147,11 +151,32 @@ def probe_llamacpp(model=None, timeout=3):
     return models[0] if models else None
 
 
-LOCAL_PROBES = {'local:llamacpp': probe_llamacpp}
+def probe_ollama(model=None, timeout=3):
+    """Ollama exposes local model names through its /api/tags endpoint."""
+    want = model or os.environ.get(LOCAL_MODEL_ENV)
+    try:
+        tags = _get_json(OLLAMA_BASE.rstrip('/') + '/api/tags', timeout)
+        models = [
+            item.get('name') or item.get('model')
+            for item in tags.get('models', [])
+            if isinstance(item, dict)
+        ]
+        models = [name for name in models if isinstance(name, str) and name]
+    except Exception:
+        return None
+    if want:
+        return want if want in models else None
+    return models[0] if models else None
+
+
+LOCAL_PROBES = {
+    'local:llamacpp': probe_llamacpp,
+    OLLAMA_PROVIDER: probe_ollama,
+}
 
 
 def probe_local(kind):
-    """Return an available model id for the local llama.cpp server."""
+    """Return an available model id for a configured local inference server."""
     probe = LOCAL_PROBES.get('local:' + kind)
     return probe() if probe else None
 
@@ -272,10 +297,14 @@ def local_complete(prompt, purpose='lightweight_worker', max_tokens=64,
     reach a paid provider, because only local endpoints are addressed.
     """
     lookup = probe_local if lookup is None else lookup
-    kind = 'llamacpp' if lookup('llamacpp') else None
-    if not kind:
+    selected = next(
+        ((kind, model) for kind in ('llamacpp', 'ollama')
+         if (model := lookup(kind))),
+        None,
+    )
+    if selected is None:
         raise BlockedCost('no local inference route available; deferred, no paid fallback')
-    model = lookup(kind)
+    kind, model = selected
     if kind == 'llamacpp':
         url = _loopback_url(LLAMACPP_BASE).rstrip('/') + '/v1/chat/completions'
         body = {'model': model, 'messages': [{'role': 'user', 'content': prompt}],
@@ -290,3 +319,24 @@ def local_complete(prompt, purpose='lightweight_worker', max_tokens=64,
         return {'text': text, 'provider': 'local:llamacpp', 'model': model,
                 'elapsed_s': round(elapsed, 3), 'cost_usd': 0,
                 'base_url': LLAMACPP_BASE}
+    if kind == 'ollama':
+        url = _loopback_url(OLLAMA_BASE).rstrip('/') + '/api/chat'
+        body = {
+            'model': model,
+            'messages': [{'role': 'user', 'content': prompt}],
+            'stream': False,
+            'options': {'num_predict': max_tokens, 'temperature': 0},
+        }
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(body).encode(),
+            headers={'Content-Type': 'application/json'},
+        )
+        started = dt.datetime.now(dt.timezone.utc)
+        with _open_local(req, timeout) as response:
+            payload = json.loads(response.read().decode())
+        elapsed = (dt.datetime.now(dt.timezone.utc) - started).total_seconds()
+        text = (payload.get('message') or {}).get('content', '')
+        return {'text': text, 'provider': OLLAMA_PROVIDER, 'model': model,
+                'elapsed_s': round(elapsed, 3), 'cost_usd': 0,
+                'base_url': OLLAMA_BASE}
