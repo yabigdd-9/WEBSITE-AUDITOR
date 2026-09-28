@@ -99,17 +99,24 @@ def _gate_audit_evidence(d, bid):
 
 
 def _gate_verified_email(d, bid):
-    rows = d.execute(
-        "SELECT v.email,v.result_json FROM email_verifications v "
-        "WHERE v.prospect_id=? ORDER BY v.id DESC", (bid,)).fetchall()
-    for row in rows or []:
-        try:
-            res = json.loads(row['result_json'])
-        except (ValueError, TypeError):
-            continue
-        if res.get('confidence_label') == 'VERIFIED_HIGH':
-            return True, {'email': row['email'], 'confidence': 'VERIFIED_HIGH'}
-    return False, {'checked': len(rows or [])}
+    """Require the authoritative Email Finder V2 current-high selection."""
+    view = d.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='view' AND name='email_current_high'"
+    ).fetchone()
+    if not view:
+        return False, {'reason': 'email_current_high view unavailable'}
+    row = d.execute(
+        "SELECT normalized_email,verification_id FROM email_current_high "
+        "WHERE prospect_id=? ORDER BY verification_id DESC LIMIT 1",
+        (bid,),
+    ).fetchone()
+    if not row:
+        return False, {'checked': 0, 'confidence': 'NO_VERIFIED_EMAIL'}
+    return True, {
+        'email': row['normalized_email'],
+        'verification_id': row['verification_id'],
+        'confidence': 'VERIFIED_HIGH',
+    }
 
 
 def _gate_consent(d, bid):
