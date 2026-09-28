@@ -523,6 +523,23 @@ class WorkerHandlers(unittest.TestCase):
         self.assertEqual(evidence['score'], 72)
         self.assertEqual(run.call_args.args[0][0], '/fixture/venv/bin/python')
 
+    def test_audit_worker_reuses_cached_defect_score(self):
+        import mm_workers as workers
+        bid = self._enqueue('AUDIT_PENDING')
+        cached = {
+            'defects': [{'severity': 'high'}],
+            'score': None,
+            'defect_score': 72,
+        }
+        with patch('auditor_toolkit.storage.History') as history, \
+                patch.object(workers.subprocess, 'run') as run:
+            history.return_value.get_latest_valid_audit.return_value = cached
+            state, _, evidence = workers.audit_handler(
+                self.d, {'business_id': bid}, None)
+        self.assertEqual(state, 'AUDITED')
+        self.assertEqual(evidence, {'defect_count': 1, 'score': 72})
+        run.assert_not_called()
+
     def test_handler_targets_are_reachable_from_declared_inputs(self):
         """Regression: earlier handlers returned states the machine rejected."""
         import mm_workers as workers
