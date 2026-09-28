@@ -270,27 +270,24 @@ catalyxlabs_rebuild:
     intended_worktree_plan_status: "The user-created MASTER_EXECUTION_PLAN.md is committed and pushed on codex/catalyx-plan-update at 6972fb59 in the phase1-rebuild importer directory. That branch is based directly on the requested 0348b3f9 SHA. The file preserves the original phase scope and records current verification and owner gates; implementation remains in the separate codex/catalyx-rebuild-phase1-5 branch, also based on 0348b3f9."
     implementation_worktree: "/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild"
     implementation_worktree_status: >-
-      Branch codex/catalyx-rebuild-phase1-5 is pushed through f3e04482, based on
-      0348b3f9. Commit 5e451999 adds a 100-row bounded sweep of expired
-      authentication buckets across dormant scopes, preserving active one-hour
-      buckets. Commit 7891c9ae bounds robots.txt matcher work and documents
-      readiness. The full toolkit suite passed before that commit (264 passed,
-      5 opt-in skips, 2 upstream warnings); Ruff and diff checks passed. Scoped
-      security diff scan 51a1c374-eb8d-48da-86ff-8917c601160e found zero
-      findings with partial coverage; experiments/** was excluded and
-      PostgreSQL execution remains deferred. Commit f3e04482 closes hosted open
-      registration and SMTP for the first release, adds a one-per-workspace
-      daily request cap and five-pending-request global cap with serialized
-      admission, and adds regression tests. The focused Catalyx web+mailer
-      suite passed 106 tests; Ruff and diff checks passed. The initial test
-      command used another checkout's virtualenv and failed collection because
-      cryptography was absent; the Catalyx checkout's .venv passed. Owner
-      documentation edits and experiments/ remain uncommitted and untouched.
-      Owner gates remain open for shared-login thresholds, hosting,
-      privacy/legal, worker isolation, accessibility, and release readiness.
-      User reports the 24-hour soak was completed in Claude; it was not repeated
-      here. No soak or load test was run in this continuation. No master merge
-      or deployment occurred.
+      Branch codex/catalyx-rebuild-phase1-5 is pushed through 36977031, based on
+      0348b3f9. Earlier commits 5e451999 and 7891c9ae bound expired auth-bucket
+      cleanup and robots matching; f3e04482 closes hosted open registration
+      and SMTP, adds daily per-workspace and global pending-request admission
+      caps; 0f8397c3 adds the atomic five-customer-workspace cap and schema-v7
+      singleton worker lease. Commit 36977031 adds deterministic stale-worker
+      recovery coverage across both lease expiries. At 36977031, the full
+      toolkit suite passed 270 tests with 5 opt-in browser skips and 2 upstream
+      warnings; Ruff and diff checks passed. Hosted Gitleaks and pip-audit
+      passed at 0f8397c3. A source security scan at f3e04482 reviewed all 15
+      catalyx_web files and confirmed a medium shared-login availability issue;
+      later app-source edits do not change login behavior. PostgreSQL,
+      provider staging, worker isolation, accessibility sign-off, and release
+      decisions remain open. The separate checkout retains untracked
+      experiments/ and uncommitted security follow-up documentation; neither
+      was staged or changed by this plan update. The owner reports the 24-hour
+      soak completed in Claude; it was not repeated here. No soak, master
+      merge, or deployment occurred.
     branch_from_sha: "0348b3f9"
   safety_gates:
     external_send_allowed: false
@@ -337,7 +334,7 @@ catalyxlabs_rebuild:
       actions:
         - "The customer audit DTO emits a site host and bounded check evidence rather than local filesystem paths; tests cover the fixed profile and egress boundary."
         - "The ASGI runtime factory rejects startup if mm_transport, mm_model_router, or mm_approval is already loaded; regression tests prove startup stops before database initialization. The app has no such integration imports."
-        - "An offline independent review found three auth/control findings: the concurrent login counter race was fixed with atomic reservations and regression coverage; email churn is mitigated by hashed per-account caps, with the provisional threshold awaiting owner approval. Hosted account email defaults disabled and SMTP requires a separate explicit external-send flag at app startup and the mailer boundary. At 8f04403f, a shared persistent login budget bounds aggregate PBKDF2 work, but exhaustion temporarily rejects all login attempts; owner approval of the threshold and production edge controls is required. Expired rate-limit buckets are pruned after one idle window, reducing stale-row retention, but active distinct subjects still have no hard storage ceiling. The current-commit scoped security review reports one medium shared-login denial finding and three low findings for active rate-state capacity, recovery quota exhaustion, and registration timing. These and production worker isolation remain release gates; production readiness is not established."
+        - "An offline independent review found auth/control risks. The concurrent login counter race was fixed with atomic reservations; hashed per-account mail-request caps and bounded stale-bucket cleanup are implemented, with provisional limits awaiting approval. Hosted registration and SMTP remain disabled. A source security scan at f3e04482 reviewed all 15 catalyx_web files and confirmed a high-confidence medium finding: distributed anonymous requests can consume the shared 60-per-minute login budget and return HTTP 429 to every account before credential verification. Later Catalyx changes through 36977031 do not modify login behavior, so the finding remains applicable. Removing the aggregate PBKDF2 work cap without verified ingress/client-IP controls could create resource exhaustion; keep production account access disabled until an approved ingress and rate-control design is selected and tested. Other scoped reviews record recovery-quota and active rate-state capacity concerns; production worker isolation and release readiness remain open."
       gate: "Automated security audit."
     phase_5:
       name: "Pipeline"
@@ -602,6 +599,7 @@ latest_execution_checkpoint:
     canonical_runtime_snapshot_20260927T2134Z: "Fresh read-only snapshot on 2026-09-28 10:34 NZT: ./mm supervisor status reports PID 51155 running with a heartbeat at 21:34:33Z; ps confirms it is a child of PID 1 with cwd /Users/dd/WEBSITE-AUDITOR/money-machine, and lsof confirms it has /Users/dd/WEBSITE-AUDITOR/database/money_machine.db open. A read-only SQLite check reports integrity=ok, 30 pipeline_items all REJECTED, 0 active leases, 0 expired leases, 0 mm_jobs, and 290 pipeline_events. The dead-letter view reports 0 items but was generated at 12:27Z. state/health.json is also stale at 12:27Z and names former PID 22813, while state/network_guard.json was refreshed at 21:30Z and records a DNS failure for example.com:443. This conflicts with the stale health snapshot and does not prove healthy unattended operation or current DLQ visibility. No database, queue, process, launchd, network, or environment configuration was changed; no soak test was run. Do not restart or requeue without operator control."
     catalyx_phase6_terms_lighthouse: "Verified two local synthetic /terms mobile runs with Lighthouse 13.5.0 and pinned Chrome for Testing 153.0.8010.12. The first scored performance 94 with TBT 294 ms; the serial rerun scored 100 in performance/accessibility/best-practices/SEO with FCP/LCP 0.9 s, CLS 0, TBT 0 ms at 412x823 and simulated throttling. This confirms run-to-run lab variation but is too few runs to estimate a stable distribution. Reports: first SHA-256 3eaae80252c4a07fd501cf181b077241c11e83188ed7ea681168348e1da588c9 under task outputs; rerun SHA-256 12daacd1c2f76f3891c6d5bd470f5d7b39e7fc3e332fff49707bcf5cae2c243d under files-pasted-by-the-user-catalyxlabs outputs. Security review at pushed implementation commit 8f04403f recorded one medium and three low findings, including the global-login-budget availability trade-off. No soak test was run."
   acceptance_open:
+    - "Catalyx source scan 3ad3fb90-05eb-446a-8436-39f917c4879c confirms distributed unauthenticated login attempts can exhaust the shared 60-per-minute bucket and deny all accounts with HTTP 429 for the rate window. The scan snapshot is f3e04482 and the finding remains on branch head 36977031 because later changes do not touch login. Keep production account access disabled until an owner-approved provider/ingress plan establishes trusted client-IP behavior and replacement per-source, per-account, and aggregate work limits; test legitimate login, distributed failures, and privileged login/TOTP replay. Evidence and the remediation decision are recorded in the Catalyx login finding report under files-pasted-by-the-user-catalyxlabs/outputs."
     - "Owner must privately verify and rotate any valid credentials among the 54 nonempty historical .env/.env.fcc assignments. Do not share their values. Then decide whether to rewrite or retain the unreferenced local commit; it is not reachable from current remote release branches."
     - "Owner must privately assess whether secret-shaped values in 26 historical captured-page fixtures and three generated HTML-cache matches were active/restricted third-party credentials, and rotate any owner-controlled active credentials. Metadata links the cache matches to snapshots of prodecorators.co.nz and davidrobertson.co.nz, but ownership and liveness remain unverified. Current fixture contents are sanitized; historical blobs remain. Workflow secret references, generated idempotency IDs, and the Stripe test-key documentation example were reviewed as non-credential matches. The historical scan is not clean even though current scoped source scans are."
     - "Catalyx rebuild Phase 5 has a reviewable FSM mapping proposal at docs/catalyx-platform/money-machine-fsm-mapping-proposal.md, but implementation still needs owner approval of the authority split, event fields, retention/deletion behavior, and quality_review/released semantics. Do not copy customer data into the Money Machine database before approval."
