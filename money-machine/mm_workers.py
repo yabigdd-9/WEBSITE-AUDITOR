@@ -7,9 +7,9 @@ existing engines; anything that would need a model raises BlockedCost.
 The outreach worker NEVER sends: it performs the eligibility chain and moves
 items to APPROVAL_PENDING, where the evidence-gated approval engine decides.
 """
+import hashlib
 import json
 import math
-import subprocess
 import sys
 from pathlib import Path
 from urllib.parse import urlparse
@@ -21,7 +21,14 @@ from mm_preparation_worker import preparation_worker_handler
 from mm_understanding_worker import understanding_worker_handler
 
 REPO = Path(__file__).resolve().parents[1]
-AUDIT_TIMEOUT = 60
+AUDIT_TIMEOUT = 15
+DETECTOR_SEVERITY_WEIGHTS = {
+    'critical': 30,
+    'high': 18,
+    'medium': 9,
+    'low': 4,
+}
+MAX_AUDIT_FINDINGS = 100
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
@@ -51,6 +58,92 @@ def _latest_audit_evidence(d, it):
     except (KeyError, TypeError, ValueError):
         return {}
     return payload if isinstance(payload, dict) else {}
+
+
+def _normalize_detector_findings(raw_findings):
+    """Bound detector output and retain the evidence used by its score."""
+    if not isinstance(raw_findings, list) or len(raw_findings) > MAX_AUDIT_FINDINGS:
+        return [], False
+    findings = []
+    complete = True
+    for raw in raw_findings:
+        if not isinstance(raw, dict):
+            complete = False
+            continue
+        key = str(raw.get('code') or raw.get('defect_key') or '').strip()[:160]
+        severity = str(raw.get('severity') or '').strip().lower()
+        title = str(raw.get('finding') or raw.get('defect') or '').strip()[:500]
+        observed = str(raw.get('evidence') or raw.get('observed') or '').strip()[:2000]
+        if not key or severity not in DETECTOR_SEVERITY_WEIGHTS or not title:
+            complete = False
+            continue
+        if severity != 'low' and not observed:
+            complete = False
+        identity = raw.get('finding_id')
+        if not isinstance(identity, str) or not identity.strip():
+            identity = hashlib.sha256(json.dumps(
+                [key, severity, title, observed], ensure_ascii=False,
+                separators=(',', ':'),
+            ).encode()).hexdigest()[:24]
+        findings.append({
+            'finding_id': identity[:128],
+            'defect_key': key,
+            'severity': severity,
+            'defect': title,
+            'observed': observed,
+            'evidence_summary': observed,
+            'confidence': 'observed' if observed else 'heuristic',
+        })
+    return findings, complete
+
+
+def _normalize_toolkit_findings(raw_findings):
+    """Keep the P5 evidence fields needed to independently replay a score."""
+    if not isinstance(raw_findings, list) or len(raw_findings) > MAX_AUDIT_FINDINGS:
+        return [], False
+    findings = []
+    complete = True
+    for raw in raw_findings:
+        if not isinstance(raw, dict):
+            complete = False
+            continue
+        key = str(raw.get('defect_key') or '').strip()[:160]
+        severity = str(raw.get('severity') or '').strip().lower()
+        summary = str(
+            raw.get('evidence_summary') or raw.get('observed')
+            or raw.get('evidence_source') or raw.get('selector') or ''
+        ).strip()[:2000]
+        identity = str(raw.get('finding_id') or '').strip()[:128]
+        if not key or severity not in DETECTOR_SEVERITY_WEIGHTS or not identity:
+            complete = False
+            continue
+        if severity != 'low' and not summary:
+            complete = False
+        findings.append({
+            'finding_id': identity,
+            'defect_key': key,
+            'severity': severity,
+            'defect': str(raw.get('defect') or raw.get('title') or key)[:500],
+            'observed': str(raw.get('observed') or '')[:2000],
+            'evidence_summary': summary,
+            'evidence_ref': str(raw.get('evidence_ref') or '')[:160],
+            'confidence': raw.get('confidence', 'heuristic'),
+        })
+    return findings, complete
+
+
+def _score_audit_findings(findings, method):
+    """Replay the bounded technical opportunity score from stored findings."""
+    if method == 'detector-severity-v1':
+        return min(100, sum(
+            DETECTOR_SEVERITY_WEIGHTS[finding['severity']]
+            for finding in findings
+        ))
+    if method == 'toolkit-p5-v1':
+        from auditor_toolkit.scoring import score_from_findings
+
+        return score_from_findings(findings, complete=True).severity_total
+    return 0
 
 
 def _bounded_defect_score(value):
@@ -85,40 +178,82 @@ def _recent_audit_result(host):
     recent_audit = history.get_latest_valid_audit(host, max_age_days=7)
     if not recent_audit:
         return None
-    defects = recent_audit.get('defects', [])
-    score = recent_audit.get('defect_score')
-    if score is None:
-        score = recent_audit.get('score', 0)
+    findings, valid = _normalize_toolkit_findings(recent_audit.get('defects'))
+    method = 'toolkit-p5-v1'
+    score = _score_audit_findings(findings, method) if valid else 0
+    reported_breakdown = recent_audit.get('breakdown') or {}
+    if (
+        not isinstance(reported_breakdown, dict)
+        or reported_breakdown.get('severity_total') != score
+    ):
+        valid = False
+        score = 0
     return (
         'AUDITED',
         'audit reused (recent)',
-        {'defect_count': _defect_count(defects), 'score': _bounded_defect_score(score)},
+        {
+            'audit_run_id': str(recent_audit.get('run_id') or '')[:128],
+            'audit_source': 'auditor_toolkit_history',
+            'score_method': method,
+            'finding_evidence_complete': valid,
+            'findings': findings,
+            'defect_count': len(findings),
+            'score': _bounded_defect_score(score),
+        },
     )
 
 
-def _run_detector(url):
+def _run_audit(url):
+    """Run the canonical DNS-pinned audit engine with a bounded static profile."""
+    from auditor_toolkit.pipeline import AuditOptions, run_audit
+
     try:
-        r = subprocess.run(
-            ['python3', str(REPO / 'engines' / 'detect.py'), url],
-            capture_output=True, text=True, timeout=AUDIT_TIMEOUT)
-    except subprocess.TimeoutExpired:
-        raise RetryableError('audit timed out')
-    if r.returncode != 0 or not r.stdout.strip():
-        raise RetryableError('detector failed: ' + (r.stderr or '')[-200:])
-    try:
-        result = json.loads(r.stdout)
-    except ValueError:
-        raise RetryableError('detector output not JSON')
-    result = result[0] if isinstance(result, list) else result
-    if isinstance(result, dict) and result.get('error'):
-        raise RetryableError('site unreachable: ' + str(result['error'])[:200])
-    defects = result.get('defects', result.get('findings', []))
-    score = result.get('defect_score')
-    if score is None:
-        score = result.get('score', 0)
-    return ('AUDITED', 'audit captured',
-            {'defect_count': _defect_count(defects),
-             'score': _bounded_defect_score(score)})
+        report = run_audit(
+            url,
+            AuditOptions(
+                output_root=REPO / 'outputs' / 'toolkit',
+                allow_private=False,
+                browser=False,
+                tls=False,
+                timeout=AUDIT_TIMEOUT,
+                profile='static',
+                deep=False,
+                max_pages=1,
+                max_links=20,
+                cache=False,
+                ai=False,
+                external_tools=False,
+            ),
+        )
+    except TimeoutError as exc:
+        raise RetryableError('audit timed out') from exc
+    except ValueError as exc:
+        raise PermanentError('audit URL rejected: ' + str(exc)[:200]) from exc
+
+    findings, valid = _normalize_toolkit_findings(report.get('defects'))
+    method = 'toolkit-p5-v1'
+    replayed_score = _score_audit_findings(findings, method) if valid else 0
+    breakdown = report.get('breakdown') or {}
+    complete = report.get('status') == 'complete'
+    score_matches = (
+        isinstance(breakdown, dict)
+        and breakdown.get('severity_total') == replayed_score
+    )
+    evidence_complete = valid and complete and score_matches
+    score = replayed_score if evidence_complete else 0
+    return ('AUDITED', 'canonical audit ' + ('complete' if complete else 'partial'),
+            {
+                'audit_run_id': str(report.get('run_id') or '')[:128],
+                'audit_source': 'auditor_toolkit',
+                'audit_status': str(report.get('status') or 'unknown')[:32],
+                'score_method': method,
+                'finding_evidence_complete': evidence_complete,
+                'reported_score_matches_findings': score_matches,
+                'findings': findings,
+                'defect_count': len(findings),
+                'score': _bounded_defect_score(score),
+                'audit_coverage': report.get('coverage') or {},
+            })
 
 
 def audit_handler(d, it, worker):
@@ -129,7 +264,7 @@ def audit_handler(d, it, worker):
     recent_result = _recent_audit_result(host)
     if recent_result is not None:
         return recent_result
-    return _run_detector(url)
+    return _run_audit(url)
 
 
 def _technical_tier(score):
@@ -191,14 +326,36 @@ def qualification_handler(d, it, worker):
     # reading fields. sqlite3.Row supports indexing but not dict.get().
     audit_payload = _latest_audit_evidence(d, it)
     # Malformed historical evidence cannot create technical qualification.
-    audit_score = _bounded_defect_score(audit_payload.get('score', 0))
-    raw_defect_count = audit_payload.get('defect_count', 0)
-    defect_count = (
-        raw_defect_count
-        if isinstance(raw_defect_count, int) and not isinstance(raw_defect_count, bool)
-        and raw_defect_count >= 0
+    score_method = audit_payload.get('score_method')
+    raw_findings = audit_payload.get('findings')
+    findings_valid = bool(audit_payload.get('finding_evidence_complete'))
+    if not isinstance(raw_findings, list) or len(raw_findings) > MAX_AUDIT_FINDINGS:
+        findings_valid = False
+        findings = []
+    elif score_method == 'detector-severity-v1':
+        findings, normalized = _normalize_detector_findings(raw_findings)
+        findings_valid = findings_valid and normalized and len(findings) == len(raw_findings)
+    elif score_method == 'toolkit-p5-v1':
+        findings, normalized = _normalize_toolkit_findings(raw_findings)
+        findings_valid = findings_valid and normalized and len(findings) == len(raw_findings)
+    else:
+        findings_valid = False
+        findings = []
+    replayed_score = _score_audit_findings(findings, score_method) if findings_valid else 0
+    audit_score = (
+        replayed_score
+        if _bounded_defect_score(audit_payload.get('score', 0)) == replayed_score
         else 0
     )
+    raw_defect_count = audit_payload.get('defect_count')
+    if (
+        not isinstance(raw_defect_count, int)
+        or isinstance(raw_defect_count, bool)
+        or raw_defect_count != len(findings)
+    ):
+        findings_valid = False
+        audit_score = 0
+    defect_count = len(findings) if findings_valid else 0
 
     # Calculate commercial relevance score from business signals
     keys = b.keys() if hasattr(b, 'keys') else []
@@ -207,9 +364,18 @@ def qualification_handler(d, it, worker):
     commercial_lead = lq.qualify_lead(text, industry='')
     commercial_score = commercial_lead['qualification_score']
 
-    return _qualification_result(
+    state, reason, result = _qualification_result(
         commercial_lead, commercial_score, audit_score, defect_count
     )
+    result.update({
+        'audit_run_id': str(audit_payload.get('audit_run_id') or '')[:128],
+        'technical_score_method': score_method or 'unverified_legacy',
+        'technical_score_finding_ids': [
+            str(finding.get('finding_id', ''))[:128] for finding in findings
+        ],
+        'technical_score_evidence_complete': findings_valid,
+    })
+    return state, reason, result
 
 
 def contact_handler(d, it, worker):

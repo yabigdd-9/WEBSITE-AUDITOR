@@ -388,25 +388,73 @@ class WorkerHandlers(unittest.TestCase):
         p.enqueue(self.d, bid, state=state)
         return bid
 
-    def test_audit_handler_maps_detector_defect_score(self):
-        import subprocess
-
+    def test_audit_handler_uses_canonical_audit_findings(self):
         import mm_workers as workers
 
         bid = self._enqueue('AUDIT_PENDING')
-        result = subprocess.CompletedProcess(
-            args=['python3'], returncode=0,
-            stdout='{"defects":[{"severity":"high"}],"defect_score":72}',
-            stderr='',
-        )
+        report = {
+            'run_id': 'toolkit-run-1',
+            'status': 'complete',
+            'defects': [
+                {'finding_id': 'title-1', 'defect_key': 'missing-title',
+                 'severity': 'high', 'defect': 'Page has no title.',
+                 'observed': 'title tag missing', 'evidence_summary': 'title tag missing',
+                 'evidence_ref': 'page', 'confidence': 'observed'},
+                {'finding_id': 'meta-1', 'defect_key': 'missing-meta',
+                 'severity': 'medium', 'defect': 'Page has no description.',
+                 'observed': 'description tag missing', 'evidence_summary': 'description tag missing',
+                 'evidence_ref': 'page', 'confidence': 'observed'},
+            ],
+            'breakdown': {'health_score': 76, 'severity_total': 24},
+            'coverage': {'required': 4, 'passed': 4},
+        }
         with patch('auditor_toolkit.storage.History') as history, \
-             patch('mm_workers.subprocess.run', return_value=result):
+             patch('auditor_toolkit.pipeline.run_audit', return_value=report) as run_audit:
             history.return_value.get_latest_valid_audit.return_value = None
             state, _, evidence = workers.audit_handler(
                 self.d, {'business_id': bid}, None
             )
         self.assertEqual(state, 'AUDITED')
-        self.assertEqual(evidence, {'defect_count': 1, 'score': 72})
+        self.assertEqual(evidence['audit_run_id'], 'toolkit-run-1')
+        self.assertEqual(evidence['defect_count'], 2)
+        self.assertEqual(evidence['score'], 24)
+        self.assertEqual(evidence['score_method'], 'toolkit-p5-v1')
+        self.assertTrue(evidence['finding_evidence_complete'])
+        self.assertTrue(evidence['reported_score_matches_findings'])
+        self.assertEqual(
+            [finding['evidence_summary'] for finding in evidence['findings']],
+            ['title tag missing', 'description tag missing'],
+        )
+        options = run_audit.call_args.args[1]
+        self.assertFalse(options.allow_private)
+        self.assertFalse(options.browser)
+        self.assertFalse(options.external_tools)
+
+    def test_audit_handler_partial_run_cannot_create_technical_score(self):
+        import mm_workers as workers
+
+        bid = self._enqueue('AUDIT_PENDING')
+        report = {
+            'run_id': 'partial-run',
+            'status': 'partial',
+            'defects': [
+                {'finding_id': 'finding-1', 'defect_key': 'missing-title',
+                 'severity': 'high', 'defect': 'Page has no title.',
+                 'observed': 'title tag missing', 'evidence_summary': 'title tag missing',
+                 'evidence_ref': 'page', 'confidence': 'observed'},
+            ],
+            'breakdown': {'health_score': None, 'severity_total': 16},
+            'coverage': {'required': 5, 'passed': 4},
+        }
+        with patch('auditor_toolkit.storage.History') as history, \
+             patch('auditor_toolkit.pipeline.run_audit', return_value=report):
+            history.return_value.get_latest_valid_audit.return_value = None
+            state, _, evidence = workers.audit_handler(
+                self.d, {'business_id': bid}, None
+            )
+        self.assertEqual(state, 'AUDITED')
+        self.assertEqual(evidence['score'], 0)
+        self.assertFalse(evidence['finding_evidence_complete'])
 
     def test_qualification_invalid_scores_fail_closed(self):
         import mm_workers as workers
@@ -426,6 +474,19 @@ class WorkerHandlers(unittest.TestCase):
             self.assertEqual(evidence['technical_score'], 0)
             self.assertEqual(evidence['defect_count'], 0)
 
+        item = {
+            'business_id': bid,
+            'payload': json.dumps({'score': 100, 'defect_count': 3}),
+        }
+        with patch('mm_lead_qualifier.qualify_lead', return_value=commercial):
+            state, _, evidence = workers.qualification_handler(
+                self.d, item, None
+            )
+        self.assertEqual(state, 'REJECTED')
+        self.assertEqual(evidence['technical_score'], 0)
+        self.assertEqual(evidence['technical_score_finding_ids'], [])
+        self.assertFalse(evidence['technical_score_evidence_complete'])
+
     def test_qualification_keeps_commercial_and_technical_tiers_separate(self):
         import mm_workers as workers
 
@@ -433,7 +494,24 @@ class WorkerHandlers(unittest.TestCase):
         commercial = {'qualification_score': 10, 'tier': 'COLD', 'reasons': []}
         item = {
             'business_id': bid,
-            'payload': json.dumps({'score': 90, 'defect_count': 3}),
+            'payload': json.dumps({
+                'score': 90,
+                'defect_count': 3,
+                'score_method': 'detector-severity-v1',
+                'finding_evidence_complete': True,
+                'audit_run_id': 'test-run',
+                'findings': [
+                    {'finding_id': 'critical-a', 'defect_key': 'critical-a',
+                     'severity': 'critical', 'finding': 'Critical issue A',
+                     'evidence': 'captured evidence A'},
+                    {'finding_id': 'critical-b', 'defect_key': 'critical-b',
+                     'severity': 'critical', 'finding': 'Critical issue B',
+                     'evidence': 'captured evidence B'},
+                    {'finding_id': 'critical-c', 'defect_key': 'critical-c',
+                     'severity': 'critical', 'finding': 'Critical issue C',
+                     'evidence': 'captured evidence C'},
+                ],
+            }),
         }
         with patch('mm_lead_qualifier.qualify_lead', return_value=commercial):
             state, _, evidence = workers.qualification_handler(
@@ -446,6 +524,11 @@ class WorkerHandlers(unittest.TestCase):
         self.assertEqual(evidence['technical_tier'], 'HIGH_OPPORTUNITY')
         self.assertEqual(evidence['qualification_basis'], 'technical')
         self.assertEqual(evidence['tier'], 'TECHNICAL_OPPORTUNITY')
+        self.assertEqual(evidence['technical_score_method'], 'detector-severity-v1')
+        self.assertEqual(evidence['technical_score_finding_ids'], [
+            'critical-a', 'critical-b', 'critical-c',
+        ])
+        self.assertTrue(evidence['technical_score_evidence_complete'])
 
     def test_pipeline_qualification_uses_persisted_audit_event_evidence(self):
         import mm_workers as workers
@@ -455,7 +538,21 @@ class WorkerHandlers(unittest.TestCase):
             'w-audit-evidence', ('AUDIT_PENDING',),
             lambda d, item, worker: (
                 'AUDITED', 'synthetic audit captured',
-                {'defect_count': 2, 'score': 82},
+                {
+                    'audit_run_id': 'audit-run-1',
+                    'score_method': 'detector-severity-v1',
+                    'finding_evidence_complete': True,
+                    'defect_count': 2,
+                    'score': 48,
+                    'findings': [
+                        {'finding_id': 'finding-a', 'defect_key': 'a',
+                         'severity': 'critical', 'finding': 'Critical issue',
+                         'evidence': 'captured evidence'},
+                        {'finding_id': 'finding-b', 'defect_key': 'b',
+                         'severity': 'high', 'finding': 'High issue',
+                         'evidence': 'captured evidence'},
+                    ],
+                },
             ),
         )
         understanding = p.Worker(
@@ -481,9 +578,13 @@ class WorkerHandlers(unittest.TestCase):
             (bid,),
         ).fetchone()
         qualification = json.loads(event['evidence'])
-        self.assertEqual(qualification['technical_score'], 82)
+        self.assertEqual(qualification['technical_score'], 48)
         self.assertEqual(qualification['commercial_score'], 10)
         self.assertEqual(qualification['qualification_basis'], 'technical')
+        self.assertEqual(qualification['audit_run_id'], 'audit-run-1')
+        self.assertEqual(qualification['technical_score_finding_ids'], [
+            'finding-a', 'finding-b',
+        ])
 
     def test_handler_targets_are_reachable_from_declared_inputs(self):
         """Regression: earlier handlers returned states the machine rejected."""
