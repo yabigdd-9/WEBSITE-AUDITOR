@@ -45,6 +45,15 @@ def test_fcc_redirect_refused():
         handler.redirect_request(None, None, 302, "Found", {}, "https://remote.example")
 
 
+def test_routes_report_hides_unusable_configured_fcc_model():
+    with patch.object(router, "probe_fcc", return_value=None), patch.object(
+        router, "_env_value", return_value="stale/configured:free"
+    ):
+        report = router.routes_report()
+    for routes in report["routes"].values():
+        assert routes[0]["model"] is None
+
+
 def test_active_routes_are_fcc_then_hermes_only():
     report = router.routes_report()
     assert report["policy"]["primary"] == "CLAUDE_VIA_FCC"
