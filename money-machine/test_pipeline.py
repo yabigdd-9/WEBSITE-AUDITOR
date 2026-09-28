@@ -440,6 +440,28 @@ class WorkerHandlers(unittest.TestCase):
             self.assertEqual(evidence['technical_score'], 0)
             self.assertEqual(evidence['defect_count'], 0)
 
+    def test_qualification_keeps_commercial_and_technical_tiers_separate(self):
+        import mm_workers as workers
+
+        bid = self._enqueue('QUALIFICATION_PENDING')
+        commercial = {'qualification_score': 10, 'tier': 'COLD', 'reasons': []}
+        item = {
+            'business_id': bid,
+            'payload': json.dumps({'score': 90, 'defect_count': 3}),
+        }
+        with patch('mm_lead_qualifier.qualify_lead', return_value=commercial):
+            state, _, evidence = workers.qualification_handler(
+                self.d, item, None
+            )
+
+        self.assertEqual(state, 'CONTACT_PENDING')
+        self.assertEqual(evidence['commercial_score'], 10)
+        self.assertEqual(evidence['technical_score'], 90)
+        self.assertEqual(evidence['commercial_tier'], 'COLD')
+        self.assertEqual(evidence['technical_tier'], 'HIGH_OPPORTUNITY')
+        self.assertEqual(evidence['qualification_basis'], 'technical')
+        self.assertEqual(evidence['tier'], 'TECHNICAL_OPPORTUNITY')
+
     def test_handler_targets_are_reachable_from_declared_inputs(self):
         """Regression: earlier handlers returned states the machine rejected."""
         import mm_workers as workers
