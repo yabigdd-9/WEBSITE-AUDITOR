@@ -14,11 +14,26 @@ from .egress import EgressCancelledError
 
 MAX_ATTEMPTS = 2
 LEASE_SECONDS = 60
+GLOBAL_WORKER_LEASE_SECONDS = 90
 
 
 def run_once(db_path: str | Path) -> dict:
     """Claim at most one reviewed request and prepare it for admin review."""
     database = Database(db_path)
+    worker_token = str(uuid.uuid4())
+    if not database.acquire_worker_lease(
+        worker_token,
+        now=int(time.time()),
+        duration=GLOBAL_WORKER_LEASE_SECONDS,
+    ):
+        return {"status": "busy"}
+    try:
+        return _run_once_with_lease(database)
+    finally:
+        database.release_worker_lease(worker_token)
+
+
+def _run_once_with_lease(database: Database) -> dict:
     current_time = int(time.time())
     lease_token = str(uuid.uuid4())
     with database.connect() as db:

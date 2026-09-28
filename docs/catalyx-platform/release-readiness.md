@@ -2,18 +2,15 @@
 
 - **Status date:** 2026-09-28
 - **Implementation base:** `f9e0694582c4cada39a08c91f86a4adaf083feff`
-- **Latest committed implementation revision:** `5e451999674b8ea6c41b5bcbb33fff799648e560` on
+- **Latest committed implementation revision:** `f3e0448269c449615b177693d75a9ba21a4903a5` on
   `codex/catalyx-rebuild-phase1-5` (checked 2026-09-28)
 - **Original app implementation revision:** `ed182a76daab33622a27665596fc7654342b16ef`
-- **Worktree follow-up:** atomic login and account-recovery email rate limits,
-  cross-IP regression coverage, SMTP attempt budgets, local mailbox hardening,
-  readiness inventory, a shared global login-work budget, and bounded cleanup
-  across stale authentication scopes are committed. The robots matcher work
-  budget and regression, threat-model update, release-readiness, hosting,
-  data-map, dependency-audit, login-policy, and Phase 6 acceptance edits, plus
-  additional tenant regression assertions, are local and uncommitted. The latest
-  read-only check found origin at the same HEAD; this continuation did not push.
-  The untracked `experiments/` tree is preserved and has not been inspected.
+- **Worktree follow-up:** admission limits, hosted registration/email guards,
+  regression coverage, and the corrected audit-scope copy are committed in
+  `f3e0448`. The current local changes are this release-readiness record and
+  Phase 6 acceptance record; untracked `experiments/` is preserved without
+  inspection or modification. `origin/codex/catalyx-rebuild-phase1-5` was
+  checked at the same HEAD. This continuation did not commit or push.
 - **Worktree:** `/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild`
 
 ## Built in this local slice
@@ -1288,7 +1285,7 @@ does not close the host, data-processing or continuity gate. See
 The current committed source revision is `5e451999674b8ea6c41b5bcbb33fff799648e560`;
 the origin ref matched at the latest read-only check. The five documentation
 files and tenant-regression assertions remain uncommitted, and untracked
-`experiments/` remains preserved and uninspected. Production and `.com` remain
+`experiments/` remains preserved and unchanged by this continuation. Production and `.com` remain
 no-go pending A1–A10, approved architecture, provider staging, and remaining
 security/privacy/operations/accessibility evidence.
 
@@ -1330,5 +1327,222 @@ Production and `.com` cutover remain no-go. Owner decisions A1–A10, a viable
 NZ$0 commercial host, provider-backed database/queue/worker, privacy/legal
 approval, human accessibility sign-off, staging, recovery, rollback, and
 operational ownership remain unresolved. `.shop` and production settings were
-not changed; `experiments/` remains uninspected. Soak/load testing remains
+not changed; `experiments/` remains unchanged by this continuation. Soak/load testing remains
 skipped as directed.
+
+## Current source security and verification refresh — 28 September 2026
+
+The checkout and `origin/codex/catalyx-rebuild-phase1-5` resolve to
+`7891c9aeee022fb025afa20d1f14f8dca62eb7f9`. The worktree now also contains one
+uncommitted copy correction in `catalyx_web/app.py` and local readiness-document
+updates. The Standard scan and 265-test full-suite result below are pinned to
+committed HEAD; the copy correction separately passed the 74-test Catalyx web
+module and Ruff. Pre-existing untracked `experiments/` remains preserved; no
+changes were made there in this continuation.
+
+Codex Security Standard scan
+`5b8bb04e-6c7f-475a-b74c-2b6646356449` completed with complete static
+coverage of all 15 tracked files under `catalyx_web/`. It reports five
+findings: two medium and three low. The medium findings are service-wide
+login throttling that can reject valid sign-ins after distributed traffic
+exhausts the shared minute bucket, and conditional account/workspace record
+growth when hosted registration is opened. The low findings concern account
+recovery quota consumption before account lookup, persistent rate-limit rows
+for distinct caller-submitted subjects, and registration response timing that
+can disclose whether an address exists. Hosted registration defaults closed
+and external SMTP defaults disabled, but those defaults do not replace an
+approved onboarding and abuse-control policy. The scan found no tenant/report
+authorization flaw in the reviewed source. The earlier robots-rule matching
+budget issue is mitigated in this revision by a cumulative per-policy
+operation budget with fail-closed behavior. Full findings and limitations are
+in the [current source security report](../../../../../files-pasted-by-the-user-catalyxlabs/outputs/2026-09-28-catalyxlabs-current-source-security-scan.md).
+
+Current-HEAD verification passed: full repository suite **265 passed, 5
+skipped**, with two upstream Starlette/httpx deprecation warnings; the
+dedicated Catalyx browser journey **1 passed**; Ruff; offline lock check; and
+`git diff --check`. The five skipped tests are opt-in browser checks. No soak
+or load testing was run. This is local synthetic evidence and does not verify
+PostgreSQL, a provider build, hosted staging, SMTP, or isolated worker egress.
+
+An additional offline packaging check built
+`website_auditor-4.0.0-py3-none-any.whl` from this exact source revision. The
+324.8 KB wheel contains all five `catalyx_web/static/` assets and neither test
+nor `experiments/` files; SHA-256 is
+`93b3dba1824b8ba071570ece668f6da869dcf56f17989705c0e349960a8ee78f`. It is
+the monorepo Python wheel, including `auditor_toolkit`, rather than a
+Vercel deployment bundle. This checkout has no Vercel CLI, `.vercel` project
+link, or `vercel.json`, so an actual Vercel build remains unverified. The
+build emitted a setuptools license-metadata deprecation warning; legal
+license metadata should be confirmed before changing its expression.
+
+Production and `.com` remain no-go. A1–A10 owner decisions, commercial host
+and provider architecture, privacy/legal approval, authenticated human
+accessibility review, staging, migration/restore, isolated worker egress,
+rollback, and named operational ownership remain open. `.shop`, production
+settings, and provider configuration were not changed.
+
+### Browser accessibility-tree and narrow-width refresh — 28 September 2026
+
+At `7891c9aeee022fb025afa20d1f14f8dca62eb7f9`, an isolated local browser
+review found one main landmark and one H1 on each of nine public/auth pages.
+The accessibility tree exposed names for auth fields and text-named buttons.
+On `/login`, the skip link focused first, Enter moved focus to `#main`, and
+keyboard order continued through Email, Password, Sign in, and Forgot your
+password. At 640×900 and 320×900 CSS pixel layout widths, all nine routes had
+no document-level horizontal overflow. These are reflow proxies; browser
+zoom remained 100% despite `super+plus` and `super+equal` shortcuts. The
+viewport override was reset. Human screen-reader and authenticated
+customer/admin review, actual 200% zoom, non-text contrast, and WCAG sign-off
+remain open. No credentials were entered or submitted; no external email was
+sent. No soak or load test was run.
+
+### Fresh loopback readiness sample — 28 September 2026
+
+At 16:41:59 NZDT, `GET http://127.0.0.1:4174/api/health` returned HTTP 200
+with `status=ok`, `environment=staging`, and `scan_worker=disabled`. The
+response included the configured CSP, `X-Content-Type-Options`, `X-Frame-Options`,
+`Referrer-Policy`, restrictive `Permissions-Policy`, and `Cache-Control:
+no-store`. This is one loopback sample; it does not prove provider staging,
+production health, worker operation, or monitoring. No soak or load test was
+run.
+
+### Owner-directed recommended defaults — 28 September 2026
+
+The owner directed us to choose the recommended defaults for A1–A10. A1–A3
+and A9 now record the bounded NZ small-business beta scope, agency exclusion,
+one authorized public page with explicit limitations, and no billing, paid AI,
+or report training. A5 keeps external email disabled; onboarding cannot open
+until secure identity verification is designed. A4 remains deferred under
+NZ$0 because no production-ready provider is approved. A6's draft retention
+targets require privacy/legal approval; A7 still needs named operators; A8
+needs real legal/business details and reviewed copy. A10's daily workspace
+limit and five-pending-request queue cap are implemented and regression-tested
+locally, but not provider-verified; the five-workspace cap, single active
+worker, production login/edge, alert, and pause controls remain incomplete. No
+paid resources, deployment, customer data, external email, or
+domain changes are authorized by this direction. No soak or load test was
+run.
+
+The one-line A3 copy correction removes unsupported claims that the fixed
+profile checks sitemaps or crawls linked pages. Current finite verification of
+that worktree change: **74 Catalyx web tests passed**, Ruff passed, and
+`git diff --check` passed. The Standard security scan predates this copy-only
+worktree diff and remains evidence for committed HEAD; it was not rerun.
+
+### Owner-directed admission caps — local verification — 28 September 2026
+
+Following the owner's direction to apply recommended A1–A10 defaults, the
+local source now enforces one audit request per workspace per UTC day and a
+global maximum of five pending requests across authorization review, queued,
+running, and quality review states. SQLite serializes admission with its write
+transaction; PostgreSQL uses a transaction-scoped advisory lock for the shared
+queue count. The previous ten-per-hour per-workspace request limit was removed.
+The regression test covers the daily rejection and sixth-pending-request
+rejection. This does not implement the planned five-customer workspace cap or
+single active worker, and PostgreSQL concurrency was not tested.
+
+After these changes, the full repository suite passed **267 tests**, skipped
+5 opt-in browser tests, and reported two upstream deprecation warnings. The
+dedicated Catalyx customer/admin browser journey passed **1 test**. Ruff and
+`git diff --check` passed. No soak or load test was run. These are local
+synthetic checks; provider staging and release gates remain open. The current
+source security scan predates these changes and does not cover their diff.
+
+### First-release onboarding and email guard — 28 September 2026
+
+The app now refuses startup in a recognized hosted environment if public
+registration is configured open or if SMTP/external account email is enabled.
+Local synthetic preview registration remains available. This intentionally
+leaves hosted customer onboarding unavailable: the invitation/admin-review
+flow and secure verified-identity alternative have not been built. The
+existing source security findings for signup growth and registration timing
+are therefore gated off in supported hosted modes, while recovery-email quota
+abuse is gated by the no-SMTP policy. Login aggregate-budget and rate-state
+capacity findings remain open. A deployment must expose Vercel's hosted marker
+or set `CATALYX_ENV` to a hosted value; the final provider staging rehearsal
+must verify this before any environment is considered hosted. The startup
+guard does not substitute for that staging proof.
+
+Focused verification passed **8 configuration and compatibility tests**,
+including Vercel preview and explicit production settings, while preserving
+local synthetic signup and mocked SMTP route coverage. Final current-source
+verification passed **267 tests**, skipped 5 opt-in browser tests, and
+reported two upstream deprecation warnings; the dedicated Catalyx browser
+journey passed **1 test**. Ruff and `git diff --check` passed. This does not
+prove behavior on an unconfigured or unrecognized provider, close the login
+and rate-state findings, or implement invitation onboarding.
+
+### Current committed checkpoint — 28 September 2026
+
+The source checkout is at `f3e0448269c449615b177693d75a9ba21a4903a5`
+(`codex/catalyx-rebuild-phase1-5`), matching the origin branch at the latest
+read-only check. The committed changes include one audit request per workspace
+per UTC day, a five-request global pending queue cap with SQLite/PostgreSQL
+transaction locking, hosted registration and external-email startup guards,
+and corrected public audit-scope copy. The only tracked local edits are this
+readiness record and `phase-6-acceptance.md`; `experiments/` remains uninspected
+and untouched.
+
+The exact committed diff from `7891c9aeee022fb025afa20d1f14f8dca62eb7f9` to
+`f3e0448269c449615b177693d75a9ba21a4903a5` received a completed Codex Security
+diff review with complete coverage of the three changed files and zero
+reportable findings. The report is
+`/Users/dd/.codex/state/plugins/codex-security/scans/catalyx-auditor-rebuild/f3e0448269c449615b177693d75a9ba21a4903a5_20260928T044029Z_bi9p4s1g/report.md`.
+The review does not cover live Vercel configuration or PostgreSQL concurrency.
+The latest full local verification now passes 269 tests, with 5 opt-in browser
+tests skipped; the dedicated Catalyx browser journey passed 1 test. Ruff and
+`git diff --check` pass. Soak/load testing was skipped as directed. No
+deployment, provider, DNS, email, customer-data, or `.shop` setting changed.
+
+The owner selected recommended A1–A10 defaults. Hosted onboarding remains
+closed pending a secure identity/invitation flow. Production remains no-go
+under NZ$0 while no suitable provider is approved; A6 needs privacy/legal
+approval; A7 needs real named operators and contacts; A8 needs legal entity
+facts and approved text. A10's local five-workspace customer cap and single
+database-leased manual worker are implemented and tested, but provider-side
+verification, independent worker OS/network isolation, edge-auth controls,
+cost alerts, and pause behavior remain open. Staging,
+database/restore, worker egress, accessibility, rollback, operational, and
+legal gates remain open.
+
+### Current dirty source diff — 28 September 2026
+
+The tracked worktree includes uncommitted changes to `catalyx_web/db.py`,
+`catalyx_web/worker.py`, `toolkit_tests/test_catalyx_web.py`, and these two
+readiness records. The local database enforces a five-customer-workspace cap
+and schema v7 adds a shared 90-second worker lease. Current local verification
+is **269 passed, 5 opt-in browser tests skipped**; the dedicated Catalyx browser
+journey passed **1 test**, Ruff passed, and `git diff --check` passed. The suite
+is synthetic/local evidence; PostgreSQL and provider behavior remain unverified.
+
+Codex Security completed scan
+`09604840-2df3-4a0c-9ce9-a9359b052fee` reviewed the tracked worktree diff from
+committed HEAD `f3e0448269c449615b177693d75a9ba21a4903a5` with **zero confirmed
+reportable findings**. Coverage is partial because it defers one unverified
+scenario: a host process pause longer than 90 seconds could let another local
+worker start while the first process remains alive. The app does not start this
+worker in hosted mode, and per-job token fencing protects persisted results.
+The [current worker-cap diff security review](../../../../../files-pasted-by-the-user-catalyxlabs/outputs/2026-09-28-catalyxlabs-worker-cap-diff-security-review.md)
+records this proof gap, the unverified PostgreSQL path, and the explicit
+exclusion of the untracked `experiments/` tree. Daybreak access was not granted;
+the workbench warned that protected results may not be displayable. No soak or
+load test was run.
+
+The actual A7 operator/support/recovery names and A8 legal entity/contact and
+approved wording remain outstanding. The recommended defaults do not supply
+those facts. Production and `.com` remain no-go; no deployment, provider, DNS,
+email, customer-data, or `.shop` change was made.
+
+### Phase B provider documentation refresh — 28 September 2026
+
+A read-only review of current official provider docs confirms Vercel supports
+FastAPI on its Python runtime, which is marked Beta; its FastAPI guide packages
+the app as one function. Vercel Hobby is limited to personal, non-commercial
+use, so it cannot host this business launch under the current plan. Supabase
+Free can pause projects after seven days of inactivity and does not provide
+automated downloadable backups. Its listed Oceania AWS region is Sydney, not
+New Zealand. Sources are recorded in the Phase A decision log in the outputs
+folder. These free tiers do not meet the current commercial, recovery, and
+privacy requirements. A4 therefore remains no provider/no customer data under
+NZ$0. See the [Phase B provider ADR](../../../../../files-pasted-by-the-user-catalyxlabs/outputs/2026-09-28-catalyxlabs-phase-b-provider-adr.md).
+No account, project, billing, or provider setting changed.

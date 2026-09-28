@@ -737,11 +737,14 @@ def test_schema_v3_database_migrates_to_persistent_auth_rate_limits(tmp_path):
     upgraded = Database(database_path)
     assert upgraded.allow_rate_attempt("login", "192.0.2.4", 2, 60, now=2000)
     with upgraded.connect() as db:
-        assert db.execute("PRAGMA user_version").fetchone()[0] == 6
+        assert db.execute("PRAGMA user_version").fetchone()[0] == 7
         columns = {row["name"] for row in db.execute("PRAGMA table_info(audit_requests)")}
         assert "worker_lease_token" in columns
         membership_columns = {row["name"] for row in db.execute("PRAGMA table_info(memberships)")}
         assert "totp_last_step" in membership_columns
+        assert db.execute(
+            "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='worker_leases'"
+        ).fetchone()[0] == 1
 
 
 def test_totp_step_can_only_be_consumed_once(tmp_path):
@@ -1049,31 +1052,34 @@ def test_browser_responses_include_security_headers(tmp_path):
     assert "default-src 'self'" in oversized.headers["Content-Security-Policy"]
 
 
+def test_beta_customer_workspace_cap_is_atomic_across_connections(tmp_path):
+    database = Database(tmp_path / "beta-cap.sqlite3")
+    password_hash = hash_password("a-long-local-password-123")
+
+    def create_customer(index: int) -> bool:
+        try:
+            database.create_customer(f"beta-{index}@example.invalid", password_hash)
+        except ValueError as exc:
+            assert "beta is currently full" in str(exc)
+            return False
+        return True
+
+    with ThreadPoolExecutor(max_workers=12) as pool:
+        admitted = list(pool.map(create_customer, range(12)))
+
+    assert sum(admitted) == 5
+    with database.connect() as db:
+        assert db.execute(
+            "SELECT count(DISTINCT workspace_id) FROM memberships WHERE role='customer'"
+        ).fetchone()[0] == 5
+
+
 def test_audit_admission_caps_daily_workspace_requests_and_global_queue(tmp_path):
     db_path = tmp_path / "app.sqlite3"
 
-    def customer(index: int):
-        client = TestClient(create_app(db_path, tmp_path / f"mail-{index}.json"))
-        email = f"quota-{index}@example.invalid"
-        if index < 5:
-            register_and_login(client, email)
-        else:
-            # Keep this queue-cap test independent of the separate local
-            # five-per-hour registration throttle.
-            password = "a-long-local-password-123"
-            Database(db_path).create_customer(email, hash_password(password))
-            with Database(db_path).connect() as db:
-                db.execute("UPDATE users SET email_verified_at=created_at WHERE email=?", (email,))
-            page = client.get("/login")
-            login = client.post(
-                "/login",
-                data={"csrf": form_token(page), "email": email, "password": password},
-                follow_redirects=False,
-            )
-            assert login.status_code == 303
-        return client, add_site(client)
-
-    first, first_site = customer(0)
+    first = TestClient(create_app(db_path, tmp_path / "mail.json"))
+    register_and_login(first, "quota@example.invalid")
+    first_site = add_site(first)
     first_audit = submit_audit(first, first_site)
     page = first.get(f"/app/sites/{first_site}")
     denied_daily = first.post(
@@ -1100,14 +1106,25 @@ def test_audit_admission_caps_daily_workspace_requests_and_global_queue(tmp_path
     assert denied_api_daily.status_code == 429
     assert "daily audit request limit" in denied_api_daily.text
 
-    for index in range(1, 5):
-        client, site_id = customer(index)
-        submit_audit(client, site_id)
+    database = Database(db_path)
+    pending_ids = [first_audit]
+    with database.connect() as db:
+        db.execute(
+            "UPDATE audit_requests SET created_at='2020-01-01T00:00:00+00:00' WHERE id=?",
+            (first_audit,),
+        )
+    for day in range(2, 6):
+        audit_id = submit_audit(first, first_site)
+        pending_ids.append(audit_id)
+        with database.connect() as db:
+            db.execute(
+                "UPDATE audit_requests SET created_at=? WHERE id=?",
+                (f"2020-01-0{day}T00:00:00+00:00", audit_id),
+            )
 
-    sixth, sixth_site = customer(5)
-    page = sixth.get(f"/app/sites/{sixth_site}")
-    denied_queue = sixth.post(
-        f"/app/sites/{sixth_site}/audit-request",
+    page = first.get(f"/app/sites/{first_site}")
+    denied_queue = first.post(
+        f"/app/sites/{first_site}/audit-request",
         data={
             "csrf": form_token(page),
             "authorized": "yes",
@@ -1117,6 +1134,31 @@ def test_audit_admission_caps_daily_workspace_requests_and_global_queue(tmp_path
     )
     assert denied_queue.status_code == 429
     assert "review queue is full" in denied_queue.text
+    assert len(pending_ids) == 5
+
+
+def test_only_one_audit_worker_can_hold_the_global_lease(tmp_path):
+    from catalyx_web import worker
+
+    db_path = tmp_path / "single-worker.sqlite3"
+    database = Database(db_path)
+    tokens = [f"worker-{index}" for index in range(12)]
+
+    def acquire(token: str) -> bool:
+        return database.acquire_worker_lease(
+            token, now=int(time.time()), duration=worker.GLOBAL_WORKER_LEASE_SECONDS
+        )
+
+    with ThreadPoolExecutor(max_workers=12) as pool:
+        decisions = list(pool.map(acquire, tokens))
+
+    assert sum(decisions) == 1
+    owner_token = tokens[decisions.index(True)]
+
+    assert worker.run_once(db_path) == {"status": "busy"}
+
+    database.release_worker_lease(owner_token)
+    assert worker.run_once(db_path) == {"status": "idle"}
 
 
 def test_versioned_api_enforces_tenancy_and_admin_review(tmp_path):
@@ -2102,7 +2144,7 @@ def test_worker_fencing_token_rejects_a_result_after_lease_reclaim(tmp_path, mon
                     "UPDATE audit_requests SET worker_lease_until=0 WHERE id=?",
                     (audit_id,),
                 )
-            reclaimed_results.append(worker.run_once(db_path))
+            reclaimed_results.append(worker._run_once_with_lease(database))
         return {
             "schema_version": 1,
             "profile": "customer_static_single_page_v1",

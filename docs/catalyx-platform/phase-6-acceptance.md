@@ -1,5 +1,8 @@
 # Catalyx Phase 6 acceptance evidence
 
+> Historical acceptance document. See the current-HEAD continuation at the
+> end; the original header revision below is not the current source revision.
+
 **Revision:** `b1bf406e113deee6239ef07e5ad44988ca3ffde3`  
 **Run date:** 2026-09-28  
 **Environment:** local Python 3.11.16, synthetic accounts and disposable SQLite
@@ -176,3 +179,122 @@ browser journey passed **1 test**. Ruff passed on both changed Catalyx test
 modules. This is local test evidence only: it does not verify a Vercel build,
 deployment bundle, hosted runtime, or staging environment. No soak or load
 test was run.
+
+### Current-HEAD verification — 28 September 2026
+
+At `7891c9aeee022fb025afa20d1f14f8dca62eb7f9`, the full repository suite
+passed **265 tests** with **5 opt-in browser tests skipped** and two upstream
+Starlette/httpx deprecation warnings (68.85 seconds). The dedicated Catalyx
+customer/admin browser journey passed **1 test** (17.83 seconds). Ruff passed
+for `catalyx_web` and `toolkit_tests/test_catalyx_web.py`; `uv lock --check
+--offline` and `git diff --check` passed.
+
+An offline wheel build at the same source revision succeeded. Inspection of
+the resulting 324.8 KB monorepo wheel confirmed all five Catalyx static assets
+are packaged; SHA-256:
+`93b3dba1824b8ba071570ece668f6da869dcf56f17989705c0e349960a8ee78f`. This
+does not validate Vercel function discovery, deployment bundling, hosted
+startup, or provider routing.
+
+The separate current-source security scan reviewed all 15 tracked
+`catalyx_web` files with complete static coverage and reported five findings
+(two medium, three low); see the [current source security report](../../../../../files-pasted-by-the-user-catalyxlabs/outputs/2026-09-28-catalyxlabs-current-source-security-scan.md).
+These checks use the local synthetic environment. They do not verify provider
+staging, live PostgreSQL, production configuration, or isolated worker egress.
+No soak or load test was run.
+
+### Current browser accessibility-tree and reflow observation — 28 September 2026
+
+On current HEAD `7891c9aeee022fb025afa20d1f14f8dca62eb7f9`, an isolated browser
+review of `/`, `/how-it-works`, `/what-we-check`, `/security-and-privacy`,
+`/sample-report`, `/privacy`, `/terms`, `/login`, and `/forgot-password` found
+one main landmark and one H1 on each route. Login and password-reset fields
+have accessible names; the visible buttons have text names. At 640×900 and
+320×900 CSS pixel layout viewports, `scrollWidth == clientWidth` on every
+route. These are reflow proxies. Browser zoom stayed at 100%, so actual 200%
+zoom was not verified.
+
+Keyboard review on `/login` found Tab focused the skip link first; Enter moved
+focus to `main` and set `#main`; subsequent Tab order was Email, Password,
+Sign in, then Forgot your password. This is not an assistive-technology
+session or human WCAG 2.2 AA sign-off. Screen-reader testing, actual 200% zoom,
+non-text contrast, and authenticated customer/admin human review remain open.
+
+### Current-HEAD continuation — 28 September 2026
+
+Current source is commit `f3e0448269c449615b177693d75a9ba21a4903a5` on
+`codex/catalyx-rebuild-phase1-5`. The full local suite passed **267 tests**,
+with **5 opt-in browser tests skipped** and two upstream deprecation warnings.
+The dedicated Catalyx customer/admin browser journey passed **1 test**;
+Ruff, `uv lock --check --offline`, and `git diff --check` passed. These checks
+use synthetic local data and do not establish provider staging or production
+readiness. Soak/load testing was skipped at the owner's direction.
+
+The exact diff from `7891c9aeee022fb025afa20d1f14f8dca62eb7f9` to current HEAD
+was reviewed by Codex Security across all three changed files. Coverage is
+complete and the scan reported **zero reportable findings**. Its report is
+`/Users/dd/.codex/state/plugins/codex-security/scans/catalyx-auditor-rebuild/f3e0448269c449615b177693d75a9ba21a4903a5_20260928T044029Z_bi9p4s1g/report.md`.
+The review is a local source diff assessment; it did not inspect live provider
+configuration or exercise PostgreSQL concurrency.
+
+The committed source now enforces one audit request per workspace per UTC day
+and five globally pending requests; recognizes hosted startup restrictions for
+registration and SMTP; and corrects the public description of the single-page
+profile. The customer-facing worker remains disabled. Production and `.com`
+remain no-go while provider/data/identity decisions, secure onboarding,
+privacy/legal approval, named owners, production limits, worker isolation,
+database recovery, accessibility sign-off, staging, alerts, and rollback
+evidence remain incomplete. `.shop` is untouched.
+
+### Owner-directed admission caps — 28 September 2026
+
+The local build now enforces one audit request per workspace per UTC day and a
+global cap of five pending requests. The SQLite and PostgreSQL admission lock
+paths are present, but only SQLite was exercised by this run; provider
+PostgreSQL concurrency remains unverified. The planned five-workspace customer
+cap and single active worker are not implemented. The updated full repository
+suite passed **267 tests**, skipped 5 opt-in browser tests, and reported two
+upstream deprecation warnings. The dedicated Catalyx browser journey passed
+**1 test**; Ruff and `git diff --check` passed. No soak or load test was run.
+
+### Hosted onboarding and mail guard — 28 September 2026
+
+The app refuses public registration in execution modes recognized as hosted
+and refuses hosted SMTP/external account email. Local synthetic registration
+and mocked SMTP route tests remain available. Eight focused configuration and
+compatibility tests passed; the full suite passed **267**, with 5 opt-in
+browser checks skipped and two upstream deprecation warnings. The dedicated
+Catalyx customer/admin browser journey passed **1 test**. The selected
+provider's production marker must be confirmed in staging. No provider
+staging or live email was exercised, and no soak/load test was run.
+
+### Beta customer and worker caps — 28 September 2026
+
+The local database now atomically limits customer workspaces to five across
+concurrent registration attempts. Schema version 7 creates a shared worker
+lease row; the manual worker acquires that lease before claiming work and
+returns `busy` if another worker holds it. The lease expires after 90 seconds
+to recover from a crashed process; the customer scan profile has a 35-second
+total request deadline. PostgreSQL migration/locking behavior has not been
+exercised against a live database, and the customer-facing worker remains
+disabled until independent OS/network isolation is built.
+
+The full repository suite passed **269 tests**, with **5 opt-in browser tests
+skipped** and two upstream deprecation warnings. The dedicated Catalyx browser
+journey passed **1 test**. Six focused workspace-cap, admission, worker-lease,
+fencing, cancellation, and schema-migration tests passed; Ruff and
+`git diff --check` passed. These local checks are not soak/load tests, which
+remain skipped as directed.
+
+### Current dirty source diff — 28 September 2026
+
+The latest uncommitted tracked diff adds the workspace cap and singleton worker
+lease described above and updates their regressions. Full local verification
+passed **269 tests**, with **5 opt-in browser tests skipped**; the dedicated
+Catalyx browser journey passed **1 test**. Ruff and `git diff --check` passed.
+Codex Security scan `09604840-2df3-4a0c-9ce9-a9359b052fee` reported zero
+confirmed reportable findings and partial coverage, with the long process-pause
+worker-overlap scenario deferred for a bounded recovery check. PostgreSQL
+behavior, hosted worker isolation, and provider staging remain unverified.
+Production stays no-go while A7 named operations contacts and A8 legal identity
+and approved copy are outstanding. No soak/load test was run.

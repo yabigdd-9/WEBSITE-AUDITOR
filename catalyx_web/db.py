@@ -23,6 +23,7 @@ from .security import (
 
 AUTH_RATE_LIMIT_MAX_WINDOW_SECONDS = 3600
 AUTH_RATE_LIMIT_CLEANUP_BATCH_SIZE = 100
+MAX_CUSTOMER_WORKSPACES = 5
 
 
 def now_iso() -> str:
@@ -293,7 +294,7 @@ class Database:
             return
         with self.connect() as db:
             version = db.execute("PRAGMA user_version").fetchone()[0]
-            if version > 6:
+            if version > 7:
                 raise RuntimeError("Catalyx application database is newer than this version")
             db.executescript(
                 """
@@ -361,6 +362,13 @@ class Database:
                 );
                 CREATE INDEX IF NOT EXISTS idx_audits_workspace ON audit_requests(workspace_id, created_at DESC);
                 CREATE INDEX IF NOT EXISTS idx_audits_state ON audit_requests(state, created_at);
+                CREATE TABLE IF NOT EXISTS worker_leases (
+                    name TEXT PRIMARY KEY CHECK(name='audit'),
+                    token TEXT,
+                    expires_at INTEGER NOT NULL DEFAULT 0
+                );
+                INSERT INTO worker_leases(name,token,expires_at) VALUES('audit',NULL,0)
+                    ON CONFLICT(name) DO NOTHING;
                 CREATE TABLE IF NOT EXISTS sessions (
                     token_hash TEXT PRIMARY KEY,
                     user_id TEXT NOT NULL REFERENCES users(id),
@@ -447,7 +455,7 @@ class Database:
             membership_columns = {row["name"] for row in db.execute("PRAGMA table_info(memberships)")}
             if "totp_last_step" not in membership_columns:
                 db.execute("ALTER TABLE memberships ADD COLUMN totp_last_step INTEGER")
-            db.execute("PRAGMA user_version=6")
+            db.execute("PRAGMA user_version=7")
         self._protect_totp_secrets()
 
     def _load_totp_encryption_key(self) -> bytes:
@@ -629,7 +637,7 @@ class Database:
             db.execute("SELECT pg_advisory_xact_lock(hashtext('catalyx_web_schema'))")
             db.execute("INSERT INTO catalyx_schema_version(singleton,version) VALUES(TRUE,0) ON CONFLICT(singleton) DO NOTHING")
             version = db.execute("SELECT version FROM catalyx_schema_version WHERE singleton=TRUE").fetchone()["version"]
-            if version > 6:
+            if version > 7:
                 raise DatabaseError("Catalyx application database is newer than this version")
             db.executescript(
                 """
@@ -697,6 +705,13 @@ class Database:
                 );
                 CREATE INDEX IF NOT EXISTS idx_audits_workspace ON audit_requests(workspace_id, created_at DESC);
                 CREATE INDEX IF NOT EXISTS idx_audits_state ON audit_requests(state, created_at);
+                CREATE TABLE IF NOT EXISTS worker_leases (
+                    name TEXT PRIMARY KEY CHECK(name='audit'),
+                    token TEXT,
+                    expires_at BIGINT NOT NULL DEFAULT 0
+                );
+                INSERT INTO worker_leases(name,token,expires_at) VALUES('audit',NULL,0)
+                    ON CONFLICT(name) DO NOTHING;
                 CREATE TABLE IF NOT EXISTS sessions (
                     token_hash TEXT PRIMARY KEY,
                     user_id TEXT NOT NULL REFERENCES users(id),
@@ -777,11 +792,20 @@ class Database:
             db.execute("ALTER TABLE audit_requests ADD COLUMN IF NOT EXISTS worker_lease_until INTEGER")
             db.execute("ALTER TABLE audit_requests ADD COLUMN IF NOT EXISTS worker_lease_token TEXT")
             db.execute("ALTER TABLE memberships ADD COLUMN IF NOT EXISTS totp_last_step BIGINT")
-            db.execute("UPDATE catalyx_schema_version SET version=6 WHERE singleton=TRUE")
+            db.execute("UPDATE catalyx_schema_version SET version=7 WHERE singleton=TRUE")
 
     def create_customer(self, email: str, password_hash: str) -> tuple[str, str]:
         user_id, workspace_id = str(uuid.uuid4()), str(uuid.uuid4())
         with self.connect() as db:
+            if self.database_url is not None:
+                db.execute("SELECT pg_advisory_xact_lock(1128350801, 1)")
+            else:
+                db.execute("BEGIN IMMEDIATE")
+            customer_workspaces = db.execute(
+                "SELECT count(DISTINCT workspace_id) FROM memberships WHERE role='customer'"
+            ).fetchone()[0]
+            if customer_workspaces >= MAX_CUSTOMER_WORKSPACES:
+                raise ValueError("The first-release beta is currently full.")
             db.execute(
                 "INSERT INTO users(id,email,password_hash,created_at) VALUES(?,?,?,?)",
                 (user_id, email, password_hash, now_iso()),
@@ -795,6 +819,26 @@ class Database:
                 (workspace_id, user_id, "customer", now_iso()),
             )
         return user_id, workspace_id
+
+    def acquire_worker_lease(self, token: str, *, now: int, duration: int) -> bool:
+        """Atomically acquire the single global audit-worker lease."""
+        with self.connect() as db:
+            row = db.execute(
+                "INSERT INTO worker_leases(name,token,expires_at) VALUES('audit',?,?) "
+                "ON CONFLICT(name) DO UPDATE SET token=excluded.token,expires_at=excluded.expires_at "
+                "WHERE worker_leases.expires_at<=? RETURNING token",
+                (token, now + duration, now),
+            ).fetchone()
+        return row is not None and row["token"] == token
+
+    def release_worker_lease(self, token: str) -> None:
+        """Release the worker lease only if this process still owns it."""
+        with self.connect() as db:
+            db.execute(
+                "UPDATE worker_leases SET token=NULL,expires_at=0 "
+                "WHERE name='audit' AND token=?",
+                (token,),
+            )
 
     def create_admin(self, email: str, password_hash: str, totp_secret: str) -> str:
         user_id, workspace_id = str(uuid.uuid4()), str(uuid.uuid4())
