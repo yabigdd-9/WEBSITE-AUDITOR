@@ -196,23 +196,26 @@ evidence that are not available in the current checkout.
   v32 base. The branch remains separate from `master`; PR #46 is draft.
 - Hosted run `36393312797` passed 279 toolkit tests, Ruff, package checks/build,
   Chromium installation, and real Chromium/PDF browser tests. Five opt-in tests
-  were skipped and two upstream warnings were reported. Gitleaks and pip-audit
-  passed on this head. Local regression for the explicit
-  `ssl.PROTOCOL_TLS_CLIENT` context passed (1 test); Ruff passed.
+  were skipped and two upstream warnings were reported. At `51b543f8`, Gitleaks
+  and pip-audit passed. The Catalyx web suite passed 81 tests, followed by 3
+  focused TOTP migration/vector/login regressions after the final compatibility
+  edit; the explicit `ssl.PROTOCOL_TLS_CLIENT` regression and Ruff passed locally.
 - Sonar CI reaches the bound project but fails because SonarCloud Automatic
   Analysis is enabled concurrently. The job log confirms the service rejects
   simultaneous Automatic and CI-based analysis. The last completed code scan
-  still reported TLS context construction and RFC-compatible TOTP HMAC-SHA1;
-  the explicit TLS protocol change has not yet been scanned successfully. The
-  owner must select one Sonar analysis mode in project settings before rerun.
+  predates the explicit TLS client protocol and versioned TOTP digest changes;
+  their security effects are not yet confirmed by Sonar. Select one analysis
+  mode in project settings before rerunning.
 - The earlier source review's shared-login availability finding remains open.
   Production login and scanning stay gated on a verified ingress/client-IP and
   rate-control design. FSM integration, hosting/region/retention/mail decisions,
   accessibility sign-off, isolated staging, backup/restore/rollback, and release
   approval remain open.
-- `MASTER_PLAN.yaml` is current through plan commit `431b30a7` on
+- `MASTER_PLAN.yaml` is current through plan commit `f2fed817` on
   `codex/master-plan-pr`; PR #45 remains draft. PR #43 is also draft and
   unmerged. No master merge or deployment occurred.
 - The owner reports the 24-hour soak was completed in Claude; it was not rerun.
-  No `.env` file was needed or read. Existing uncommitted security notes and the
+  The full hosted fixture and Sonar jobs for `51b543f8` are still running; hosted
+  Gitleaks and pip-audit have passed. No `.env` file was needed or read. Existing
+  uncommitted security notes and the
   untracked `experiments/` directory were preserved and excluded from commits.
