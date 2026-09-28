@@ -32,6 +32,7 @@ Before merging to master, verify host compatibility and baseline integrity:
 3. **Discovery & Search (if SearXNG is configured):**
    - Verify SearXNG is running at `http://127.0.0.1:8888`
    - `./mm discover-search --query "..." --region "..." --endpoint "http://127.0.0.1:8888"`
+   - For combined NZBN/curated exports and search lanes, start with `./mm discover-batch --file nzbn-export.json --file directory.csv --query "..." --region "..." --dry-run`
 
 4. **Obsidian Sync:**
    - `./mm obsidian-status` (Verify vault connectivity)

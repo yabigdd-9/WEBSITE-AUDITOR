@@ -85,6 +85,23 @@ Use an optional self-hosted loopback SearXNG instance:
 ./mm discover-search   --query "plumber christchurch"   --region Canterbury   --endpoint http://127.0.0.1:8888
 ```
 
+Combine several curated exports and local SearXNG queries in one bounded intake;
+hosts are deduplicated across lanes before they reach the database, and each
+candidate retains source provenance:
+
+```bash
+./mm discover-batch \
+  --file nzbn-export.json \
+  --file trade-directory.csv \
+  --query "plumber Christchurch" \
+  --query "electrician Christchurch" \
+  --region Canterbury --dry-run
+```
+
+Remove `--dry-run` to enqueue unique candidates in `DISCOVERED`. Search is
+loopback-only; a failed optional search lane is reported while successful file
+imports remain available.
+
 Discovery only creates `DISCOVERED` items. It does not create outreach approval or send state.
 
 ### Audit → remediation → demo → quote → packet

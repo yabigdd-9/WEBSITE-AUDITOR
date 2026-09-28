@@ -131,6 +131,25 @@ def normalize_candidate(row, default_region="", default_source="import"):
     region = _first(row, ("region", "city", "area")) or str(default_region or "").strip()
     source = _first(row, ("source",)) or str(default_source or "import").strip()
     normalized_name = name.strip().casefold()
+    provenance = _source_provenance(row, source)
+    provenance_sources = row.get("provenance_sources")
+    if isinstance(provenance_sources, list):
+        cleaned = []
+        seen = set()
+        for item in provenance_sources:
+            if not isinstance(item, dict):
+                continue
+            item = {
+                "lane": str(item.get("lane") or "import")[:80],
+                "record_id": str(item.get("record_id") or "")[:160],
+                "source_url": str(item.get("source_url") or "")[:500],
+            }
+            key = json.dumps(item, sort_keys=True)
+            if key not in seen:
+                seen.add(key)
+                cleaned.append(item)
+        if cleaned:
+            provenance["sources"] = cleaned[:20]
     return {
         "name": name[:250],
         "normalized_name": normalized_name,
@@ -140,7 +159,13 @@ def normalize_candidate(row, default_region="", default_source="import"):
         "public_website": website,
         "canonical_host": host,
         "source": source[:160],
-        "provenance": _source_provenance(row, source),
+        "source_lane": str(row.get("source_lane") or provenance["lane"])[:80],
+        "source_record_id": str(row.get("source_record_id") or provenance["record_id"])[:160],
+        "source_url": str(row.get("source_url") or provenance["source_url"])[:500],
+        "provenance_sources": provenance.get("sources", [
+            {key: provenance[key] for key in ("lane", "record_id", "source_url")}
+        ]),
+        "provenance": provenance,
     }
 
 
@@ -391,6 +416,84 @@ def searxng_candidates(query, region, endpoint="http://127.0.0.1:8888", limit=20
             "canonical_host": host,
         })
     return candidates
+
+
+MAX_BATCH_FILES = 20
+MAX_BATCH_QUERIES = 20
+
+
+def collect_multi_source(files=(), queries=(), region="", endpoint="http://127.0.0.1:8888", limit=20):
+    """Collect and host-dedupe bounded local imports and local search results.
+
+    Failed lanes are reported independently so an unavailable optional source
+    does not discard results from the other sources. This function performs no
+    database writes; callers decide whether to dry-run or ingest the result.
+    """
+    files = list(files or ())
+    queries = list(queries or ())
+    region = str(region or "").strip()
+    if not files and not queries:
+        raise ValueError("at least one --file or --query source is required")
+    if len(files) > MAX_BATCH_FILES:
+        raise ValueError(f"batch exceeds {MAX_BATCH_FILES} import files")
+    if len(queries) > MAX_BATCH_QUERIES:
+        raise ValueError(f"batch exceeds {MAX_BATCH_QUERIES} search queries")
+    if queries and not region:
+        raise ValueError("region is required when search queries are used")
+
+    by_host = {}
+    source_reports = []
+    source_rejections = []
+
+    def add(candidate):
+        candidate = normalize_candidate(
+            candidate, region, candidate.get("source") or "discovery-import")
+        host = candidate["canonical_host"]
+        source_list = candidate["provenance_sources"]
+        current = by_host.get(host)
+        if current is None:
+            candidate["provenance_sources"] = list(source_list)
+            by_host[host] = candidate
+            return
+        known = {
+            json.dumps(item, sort_keys=True)
+            for item in current.get("provenance_sources", [])
+        }
+        for item in source_list:
+            key = json.dumps(item, sort_keys=True)
+            if key not in known and len(current["provenance_sources"]) < 20:
+                current["provenance_sources"].append(item)
+                known.add(key)
+
+    for raw_path in files:
+        path = Path(raw_path)
+        try:
+            candidates, rejected = read_candidates(path, region, path.stem[:80] or "import")
+            for candidate in candidates:
+                add(candidate)
+            source_reports.append({"source": path.name, "kind": "import", "candidates": len(candidates), "rejected": len(rejected)})
+            source_rejections.extend({"source": path.name, **item} for item in rejected)
+        except (OSError, ValueError) as exc:
+            source_reports.append({"source": path.name, "kind": "import", "candidates": 0, "error": str(exc)[:240]})
+
+    for query in queries:
+        query_ref = hashlib.sha256(str(query).encode("utf-8")).hexdigest()[:12]
+        try:
+            candidates = searxng_candidates(query, region, endpoint, limit)
+            for candidate in candidates:
+                add(candidate)
+            source_reports.append({"source": f"searxng:{query_ref}", "kind": "search", "candidates": len(candidates)})
+        except (SearchBlocked, ValueError) as exc:
+            source_reports.append({"source": f"searxng:{query_ref}", "kind": "search", "candidates": 0, "error": str(exc)[:240]})
+
+    return {
+        "candidates": list(by_host.values()),
+        "sources": source_reports,
+        "source_rejections": source_rejections,
+        "counts": {"sources": len(source_reports), "candidates": sum(item["candidates"] for item in source_reports),
+                   "unique_hosts": len(by_host), "source_errors": sum("error" in item for item in source_reports),
+                   "rejected_rows": len(source_rejections)},
+    }
 
 
 def normalize_intake_url(url):

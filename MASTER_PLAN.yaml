@@ -142,6 +142,12 @@ phases:
     priority: HIGH
     lanes: ["NZBN", "SearXNG", "industry directories", "public business directories", "public websites", "search engines", "permitted OSM-derived sources", "existing DB"]
     rule: "Deduplicate before expensive audit stages."
+    implemented_slice:
+      - "discover-batch combines bounded NZBN/curated CSV or JSON imports with loopback SearXNG queries."
+      - "Candidates deduplicate by canonical host before intake and retain merged source provenance."
+      - "Unavailable optional search lanes are reported without discarding successful source results."
+    remaining:
+      - "Add and validate further permitted NZ source adapters; this slice does not mark P6 complete."
   P7:
     name: "Identity resolution"
     priority: HIGH
