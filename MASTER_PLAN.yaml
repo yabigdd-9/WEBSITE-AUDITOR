@@ -172,7 +172,7 @@ phases:
     rule: "Deduplicate before expensive audit stages."
     latest_verification:
       date: "2026-09-29"
-      pull_request: "PR #48 at 04c00459 adds multi-source batch intake. Hosted Python regression, smoke tests, Gitleaks, pip-audit and SonarCloud pass. Vercel preview is blocked by the account deployment rate limit; the PR remains draft and unmerged."
+      pull_request: "PR #48 at 04c00459e9253a25c86a1fd2bfe96e4ea5c85b1a adds multi-source batch intake. Fresh isolated local discovery/deduplication regressions: 23 passed. Hosted Python regression, smoke tests, Gitleaks, pip-audit and SonarCloud pass. Vercel preview is blocked by the account deployment rate limit; the PR remains draft and unmerged."
   P7:
     name: "Identity resolution"
     priority: HIGH
