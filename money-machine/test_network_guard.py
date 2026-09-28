@@ -31,6 +31,27 @@ def fresh_db(tmp):
 
 
 class MultiProbeGuard(unittest.TestCase):
+    def test_probe_tries_all_resolved_addresses(self):
+        calls = []
+
+        def resolver(host, port, type=None):
+            return [
+                (10, 1, 6, "", ("2001:db8::1", port, 0, 0)),
+                (2, 1, 6, "", ("203.0.113.10", port)),
+            ]
+
+        def connector(family, socktype, proto, sockaddr, timeout):
+            calls.append(sockaddr)
+            if family == 10:
+                raise OSError("IPv6 route unavailable")
+
+        result = guards._probe_once(
+            "multi.example", 443, 1.0,
+            resolver=resolver, connector=connector
+        )
+        self.assertIsNone(result)
+        self.assertEqual(len(calls), 2)
+
     def test_guard_multi_probe_fallback(self):
         """First probe fails, second succeeds -> guard reports ok via fallback."""
         def resolver(host, port, type=None):
