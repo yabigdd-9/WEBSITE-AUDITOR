@@ -54,3 +54,11 @@ def test_money_machine_python_path_prefers_project_venvs():
     assert path.name == "python"
     assert path.parent.name == "bin"
     assert path.parent.parent.name in {".venv-email", ".venv"}
+
+
+def test_fcc_wrapper_forces_loopback_after_env_loading():
+    wrapper = (ROOT / "scripts" / "fcc-server-wrapper.sh").read_text()
+    last_env_load = wrapper.index('load_env_file "$ROOT/.env.fcc"')
+    forced_host = wrapper.index("export HOST=127.0.0.1")
+    assert forced_host > last_env_load
+    assert 'export PORT="${MM_FCC_PORT:-8082}"' in wrapper
