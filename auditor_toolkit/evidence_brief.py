@@ -6,8 +6,8 @@ human-written, template-based) to improve the quality and effectiveness
 of generated content.
 """
 
-from typing import Dict, List, Any
 from datetime import datetime, timezone
+from typing import Any, Dict, List
 
 
 def create_evidence_brief(audit_report: Dict[str, Any]) -> Dict[str, Any]:
@@ -65,6 +65,13 @@ def create_evidence_brief(audit_report: Dict[str, Any]) -> Dict[str, Any]:
             "overall_assessment": _get_overall_assessment(
                 audit_report.get("health_score", 0)
             ),
+            "severity_counts": {
+                "critical": critical_count,
+                "high": high_count,
+                "medium": medium_count,
+                "low": low_count,
+            },
+            "evidence_summary": evidence_summary,
             "primary_concerns": _get_primary_concerns(defects_by_severity),
             "quick_wins": _get_quick_wins(defects_by_severity),
         },
@@ -102,6 +109,8 @@ def _create_empty_evidence_brief() -> Dict[str, Any]:
         },
         "summary": {
             "overall_assessment": "Unable to assess - no audit data",
+            "severity_counts": {"critical": 0, "high": 0, "medium": 0, "low": 0},
+            "evidence_summary": "No defects identified",
             "primary_concerns": [],
             "quick_wins": [],
         },

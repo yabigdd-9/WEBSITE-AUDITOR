@@ -197,6 +197,75 @@ def test_invalid_urls(url):
         validate_url(url)
 
 
+def test_fetcher_pinned_transport_preserves_tls_hostname(monkeypatch):
+    captured = {}
+
+    def handle_request(_transport, request):
+        captured["url"] = str(request.url)
+        captured["host"] = request.headers["host"]
+        captured["sni"] = request.extensions.get("sni_hostname")
+        return httpx.Response(200, text="ok", request=request)
+
+    monkeypatch.setattr(httpx.HTTPTransport, "handle_request", handle_request)
+    fetcher = Fetcher()
+    transport = fetcher._build_pinned_transport("93.184.216.34")
+    try:
+        response = transport.handle_request(httpx.Request("GET", "https://example.com:8443/path"))
+    finally:
+        transport.close()
+        fetcher.close()
+
+    assert response.status_code == 200
+    assert captured == {
+        "url": "https://93.184.216.34:8443/path",
+        "host": "example.com:8443",
+        "sni": "example.com",
+    }
+
+
+def test_fetcher_uses_validated_ip_and_repins_each_redirect(monkeypatch):
+    pinned = []
+    requests = []
+
+    def resolve(url, allow_private):
+        assert allow_private is False
+        if "first.example" in url:
+            return url, "93.184.216.34"
+        return url, "1.1.1.1"
+
+    monkeypatch.setattr("auditor_toolkit.common.validate_url", resolve)
+    fetcher = Fetcher()
+
+    def build_client(url, pinned_ip):
+        pinned.append((url, pinned_ip))
+
+        def handler(request):
+            requests.append(str(request.url))
+            if len(requests) == 1:
+                return httpx.Response(
+                    302,
+                    headers={"location": "https://second.example/next"},
+                    request=request,
+                )
+            return httpx.Response(200, text="final", request=request)
+
+        return httpx.Client(transport=httpx.MockTransport(handler))
+
+    monkeypatch.setattr(fetcher, "_build_pinned_client", build_client)
+    try:
+        response = fetcher.get("https://first.example/")
+    finally:
+        fetcher.close()
+
+    assert response.text == "final"
+    assert str(response.request.url) == "https://second.example/next"
+    assert pinned == [
+        ("https://first.example/", "93.184.216.34"),
+        ("https://second.example/next", "1.1.1.1"),
+    ]
+    assert requests == ["https://first.example/", "https://second.example/next"]
+
+
 def test_response_limit_and_soft404():
     with pytest.raises(ValueError):
         Fetcher(
