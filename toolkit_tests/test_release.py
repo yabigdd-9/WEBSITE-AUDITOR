@@ -92,6 +92,56 @@ def test_healthy_defective_history_and_counts(tmp_path):
     assert history.get(regressed["run_id"])["defect_count"] == regressed["defect_count"]
 
 
+def test_false_positive_review_requires_attribution_and_complete_evidence(tmp_path):
+    defective = fixture_audit(tmp_path, "<html><body><p>Short</p></body></html>")
+    identity = defective["defects"][0]["finding_id"]
+    history = History(tmp_path)
+
+    with pytest.raises(ValueError, match="reviewer_id"):
+        history.transition(identity, "false_positive", {
+            "rationale": "Evidence shows this is expected.",
+            "review_run": defective["run_id"],
+        })
+    with pytest.raises(ValueError, match="rationale"):
+        history.transition(identity, "false_positive", {
+            "reviewer_id": "reviewer-1",
+            "rationale": "  ",
+            "review_run": defective["run_id"],
+        })
+    with pytest.raises(ValueError, match="complete run containing"):
+        history.transition("not-in-run", "false_positive", {
+            "reviewer_id": "reviewer-1",
+            "rationale": "The captured page confirms this was expected.",
+            "review_run": defective["run_id"],
+        })
+
+    partial = {**defective, "run_id": "partial-review-run", "status": "partial"}
+    history.save(partial)
+    with pytest.raises(ValueError, match="complete run containing"):
+        history.transition(identity, "false_positive", {
+            "reviewer_id": "reviewer-1",
+            "rationale": "The captured page confirms this was expected.",
+            "review_run": partial["run_id"],
+        })
+
+    metadata = {
+        "reviewer_id": "reviewer-1",
+        "rationale": "The captured page confirms this was expected.",
+        "review_run": defective["run_id"],
+    }
+    history.transition(identity, "false_positive", metadata)
+    with history.connect() as db:
+        row = db.execute(
+            "SELECT state, metadata FROM remediations WHERE id=?", (identity,)
+        ).fetchone()
+        event = db.execute(
+            "SELECT payload FROM events WHERE kind='remediation' ORDER BY id DESC LIMIT 1"
+        ).fetchone()
+    assert row[0] == "false_positive"
+    assert json.loads(row[1]) == metadata
+    assert json.loads(event[0])["review_run"] == defective["run_id"]
+
+
 def test_browser_plugin_failure_is_partial(tmp_path, monkeypatch):
     monkeypatch.setattr(
         "auditor_toolkit.pipeline.run_browser_checks",

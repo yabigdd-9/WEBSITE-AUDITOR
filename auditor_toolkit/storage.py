@@ -4,8 +4,8 @@ import hashlib
 import json
 import sqlite3
 from contextlib import contextmanager
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from datetime import datetime, timezone, timedelta
 
 STATES = {
     "detected",
@@ -145,6 +145,26 @@ class History:
         if state not in STATES:
             raise ValueError("Unknown remediation state")
         metadata = metadata or {}
+        if state == "false_positive":
+            if not isinstance(metadata, dict):
+                raise ValueError("False-positive review metadata must be an object")
+            reviewer_id = metadata.get("reviewer_id")
+            rationale = metadata.get("rationale")
+            review_run_id = metadata.get("review_run")
+            if not isinstance(reviewer_id, str) or not reviewer_id.strip():
+                raise ValueError("False-positive review needs a reviewer_id")
+            if not isinstance(rationale, str) or not rationale.strip():
+                raise ValueError("False-positive review needs a rationale")
+            if not isinstance(review_run_id, str) or not review_run_id.strip():
+                raise ValueError("False-positive review needs a review_run")
+            review_run = self.get(review_run_id)
+            if review_run.get("status") != "complete" or not any(
+                finding.get("finding_id") == identity
+                for finding in review_run.get("defects", [])
+            ):
+                raise ValueError(
+                    "False-positive review needs a complete run containing the finding"
+                )
         if state == "verified":
             run = self.get(metadata.get("verification_run", ""))
             if run["status"] != "complete" or any(
