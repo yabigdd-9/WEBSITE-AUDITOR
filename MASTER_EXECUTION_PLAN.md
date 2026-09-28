@@ -310,4 +310,8 @@ evidence that are not available in the current checkout.
   budget when the bounded per-source rate-limit table is full. This prevents
   table saturation itself from rejecting every first-time source while keeping
   aggregate password work bounded. Three focused capacity tests passed; Ruff
-  and `git diff --check` passed. Hosted checks are running; no soak was rerun.
+  and `git diff --check` passed. Hosted run `36405890466` passed **286 tests**,
+  skipped five opt-in tests, and reported two upstream warnings; Ruff, package
+  checks/build, both existing Chromium journeys, and the Catalyx browser
+  journey passed. Gitleaks, pip-audit, and SonarCloud passed. Vercel could not
+  build a preview because of the account build quota. No soak was rerun.
