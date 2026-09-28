@@ -156,11 +156,12 @@ def qualification_handler(d, it, worker):
     if technical_pass:
         qualification_basis.append('technical')
 
-    technical_tier = (
-        'HIGH_NEED' if technical_score is not None and technical_score >= 70
-        else 'QUALIFIED_NEED' if technical_pass
-        else 'LOW_OR_UNKNOWN'
-    )
+    if technical_score is not None and technical_score >= 70:
+        technical_tier = 'HIGH_NEED'
+    elif technical_pass:
+        technical_tier = 'QUALIFIED_NEED'
+    else:
+        technical_tier = 'LOW_OR_UNKNOWN'
     result = {
         'commercial_score': commercial_score,
         'commercial_qualification_score': commercial_score,
