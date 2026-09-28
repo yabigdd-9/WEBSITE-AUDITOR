@@ -155,7 +155,8 @@ def main(argv=None) -> int:
             rotate_every=args.rotate_every,
         )
         print(result)
-        return 0 if result.get("installed") else 2
+        ok = bool(result.get("installed")) and (args.no_load or bool(result.get("loaded")))
+        return 0 if ok else 2
     if args.cmd == "status":
         print(status())
         return 0
