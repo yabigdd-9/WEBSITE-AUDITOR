@@ -6,15 +6,16 @@ businesses, no sends.
 import datetime as dt
 import json
 import os
-from pathlib import Path
 import sqlite3
 import tempfile
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
-import mm_core as c
-import mm_pipeline as p
 import mm_approval as appr
+import mm_core as c
 import mm_model_router as router
+import mm_pipeline as p
 
 
 def fresh_db(tmp):
@@ -386,6 +387,103 @@ class WorkerHandlers(unittest.TestCase):
         bid = add_business(self.d, site=site)
         p.enqueue(self.d, bid, state=state)
         return bid
+
+    def test_audit_handler_maps_detector_defect_score(self):
+        import subprocess
+
+        import mm_workers as workers
+
+        bid = self._enqueue('AUDIT_PENDING')
+        result = subprocess.CompletedProcess(
+            args=['python3'], returncode=0,
+            stdout='{"defects":[{"severity":"high"}],"defect_score":72}',
+            stderr='',
+        )
+        with patch('auditor_toolkit.storage.History') as history, \
+             patch('mm_workers.subprocess.run', return_value=result):
+            history.return_value.get_latest_valid_audit.return_value = None
+            state, _, evidence = workers.audit_handler(
+                self.d, {'business_id': bid}, None
+            )
+        self.assertEqual(state, 'AUDITED')
+        self.assertEqual(evidence, {'defect_count': 1, 'score': 72})
+
+    def test_qualification_invalid_scores_fail_closed(self):
+        import mm_workers as workers
+
+        bid = self._enqueue('QUALIFICATION_PENDING')
+        commercial = {'qualification_score': 10, 'tier': 'COLD', 'reasons': []}
+        for score in (None, '55', True, float('nan'), float('inf'), -5):
+            item = {
+                'business_id': bid,
+                'payload': json.dumps({'score': score, 'defect_count': 'unknown'}),
+            }
+            with patch('mm_lead_qualifier.qualify_lead', return_value=commercial):
+                state, _, evidence = workers.qualification_handler(
+                    self.d, item, None
+                )
+            self.assertEqual(state, 'REJECTED')
+            self.assertEqual(evidence['technical_score'], 0)
+            self.assertEqual(evidence['defect_count'], 0)
+
+    def test_qualification_keeps_commercial_and_technical_tiers_separate(self):
+        import mm_workers as workers
+
+        bid = self._enqueue('QUALIFICATION_PENDING')
+        commercial = {'qualification_score': 10, 'tier': 'COLD', 'reasons': []}
+        item = {
+            'business_id': bid,
+            'payload': json.dumps({'score': 90, 'defect_count': 3}),
+        }
+        with patch('mm_lead_qualifier.qualify_lead', return_value=commercial):
+            state, _, evidence = workers.qualification_handler(
+                self.d, item, None
+            )
+        self.assertEqual(state, 'CONTACT_PENDING')
+        self.assertEqual(evidence['commercial_score'], 10)
+        self.assertEqual(evidence['technical_score'], 90)
+        self.assertEqual(evidence['commercial_tier'], 'COLD')
+        self.assertEqual(evidence['technical_tier'], 'HIGH_OPPORTUNITY')
+        self.assertEqual(evidence['qualification_basis'], 'technical')
+        self.assertEqual(evidence['tier'], 'TECHNICAL_OPPORTUNITY')
+
+    def test_pipeline_qualification_uses_persisted_audit_event_evidence(self):
+        import mm_workers as workers
+
+        bid = self._enqueue('AUDIT_PENDING')
+        audit = p.Worker(
+            'w-audit-evidence', ('AUDIT_PENDING',),
+            lambda d, item, worker: (
+                'AUDITED', 'synthetic audit captured',
+                {'defect_count': 2, 'score': 82},
+            ),
+        )
+        understanding = p.Worker(
+            'w-understanding-evidence', ('AUDITED',),
+            lambda d, item, worker: (
+                'QUALIFICATION_PENDING', 'synthetic context prepared', {},
+            ),
+        )
+        commercial = {'qualification_score': 10, 'tier': 'COLD', 'reasons': []}
+        self.assertEqual(audit.run_once(self.d), 1)
+        self.assertEqual(understanding.run_once(self.d), 1)
+        with patch('mm_lead_qualifier.qualify_lead', return_value=commercial):
+            qualify = p.Worker(
+                'w-qualification-evidence', workers.WORKERS['qualification'][0],
+                workers.WORKERS['qualification'][1],
+            )
+            self.assertEqual(qualify.run_once(self.d), 1)
+
+        self.assertEqual(p.item(self.d, bid)['state'], 'CONTACT_PENDING')
+        event = self.d.execute(
+            "SELECT evidence FROM pipeline_events WHERE business_id=? "
+            "AND to_state='CONTACT_PENDING' ORDER BY id DESC LIMIT 1",
+            (bid,),
+        ).fetchone()
+        qualification = json.loads(event['evidence'])
+        self.assertEqual(qualification['technical_score'], 82)
+        self.assertEqual(qualification['commercial_score'], 10)
+        self.assertEqual(qualification['qualification_basis'], 'technical')
 
     def test_handler_targets_are_reachable_from_declared_inputs(self):
         """Regression: earlier handlers returned states the machine rejected."""
