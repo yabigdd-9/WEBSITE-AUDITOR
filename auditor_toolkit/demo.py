@@ -60,7 +60,7 @@ body{font:16px/1.55 system-ui;max-width:1000px;margin:32px auto;padding:24px;col
 table{width:100%;border-collapse:collapse;margin-top:24px}th,td{text-align:left;vertical-align:top;padding:10px;border-bottom:1px solid #bbb}
 code{overflow-wrap:anywhere}
 </style></head><body>
-<div class="notice"><strong>LOCAL CONCEPT ONLY.</strong> This is a local demonstration. Nothing is sent, and nothing on the source website has been changed.
+<div class="notice"><strong>LOCAL CONCEPT ONLY.</strong> This is a local demonstration. Nothing is sent. Nothing on the source website has been changed.
 This page is not proof of improved performance, accessibility, SEO, leads or revenue.</div>
 <h1>Reviewable website improvement concept</h1>
 <p>Source: <code>""" + escape(str(report.get("url") or "")) + """</code></p>
