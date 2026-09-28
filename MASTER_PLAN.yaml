@@ -148,7 +148,7 @@ phases:
     status: "PARTIAL"
     rule: "Use weighted evidence/confidence across NZBN, legal/trading name, domain, website, email domain and region."
     delivered:
-      - "Persist NZBN, legal and trading names from discovery imports."
+      - "Preserve NZBN, legal and trading names in append-only discovery evidence."
       - "Attach weighted, signal-level confidence to first-party identity checks and email verification records."
       - "Expose weighted identity confidence in the email operator status."
     remaining:

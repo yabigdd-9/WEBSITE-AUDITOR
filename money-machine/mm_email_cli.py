@@ -11,6 +11,7 @@ from mm_email_network import Crawler, DNSChecks
 
 def find_one(d, bid):
     business = dict(c.business(d, bid))
+    business = with_discovery_identity(d, business)
     if not store.installed(d): raise ValueError('Run email-migrate with a verified backup first')
     store.require_production_persistence(d)
     # Research may inspect a suppressed business, but cannot make it eligible.
@@ -29,6 +30,31 @@ def find_one(d, bid):
     result['crawl_errors'] = errors
     with d: store.persist(d, result)
     return store.status(d, bid)
+
+
+def with_discovery_identity(d, business):
+    """Add identity names from the immutable discovery event, if available."""
+    row = d.execute(
+        "SELECT detail FROM mm_events WHERE business_id=? AND action='discovery_intake' ORDER BY id DESC LIMIT 1",
+        (business.get('id'),),
+    ).fetchone()
+    if not row:
+        return business
+    try:
+        detail = json.loads(row['detail'] if hasattr(row, 'keys') else row[0])
+    except (TypeError, ValueError, KeyError):
+        return business
+    if not isinstance(detail, dict):
+        return business
+    for field in ('legal_name', 'trading_name', 'nzbn', 'nzbn_name'):
+        value = detail.get(field)
+        if isinstance(value, str) and value.strip():
+            business[field] = value.strip()
+    provenance = detail.get('provenance')
+    if isinstance(provenance, dict) and provenance.get('lane') == 'nzbn':
+        business.setdefault('nzbn', provenance.get('record_id'))
+        business.setdefault('nzbn_name', business.get('legal_name') or business.get('trading_name'))
+    return business
 
 
 def human_text(status):

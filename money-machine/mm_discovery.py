@@ -266,11 +266,6 @@ def ingest(d, candidates, actor="discovery-v2", dry_run=False):
             (host, candidate["name"].strip().casefold(), business_id),
         )
         d.execute(
-            "UPDATE businesses SET legal_name=?, trading_name=?, nzbn=?, nzbn_name=? WHERE id=?",
-            (candidate.get("legal_name") or None, candidate.get("trading_name") or None,
-             candidate.get("nzbn") or None, candidate.get("nzbn_name") or None, business_id),
-        )
-        d.execute(
             "INSERT INTO mm_deals(business_id,stage,updated_at) VALUES(?,'DISCOVERED',?)",
             (business_id, core.now()),
         )

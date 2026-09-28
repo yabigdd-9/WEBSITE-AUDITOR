@@ -415,7 +415,7 @@ def identify(business, pages):
         email_domain_match = bool(dest and email_roots == {dest})
     weighted_identity = assess_business_identity(
         business_name=business.get('name', ''),
-        website=requested,
+        website=dest or requested,
         legal_name=business.get('legal_name'),
         trading_name=business.get('trading_name'),
         nzbn_name=business.get('nzbn_name'),
@@ -435,7 +435,7 @@ def identify(business, pages):
         'legal_name': business.get('legal_name'),
         'trading_name': business.get('trading_name'),
         'nzbn_name': business.get('nzbn_name'),
-        'canonical_domain': root_domain(requested),
+        'canonical_domain': dest or root_domain(requested),
         'signals': identity_signals,
     })
     parked = bool(re.search(r'this domain is (?:for sale|parked)|buy this domain|domain expired|account suspended|website coming soon', body, re.I))

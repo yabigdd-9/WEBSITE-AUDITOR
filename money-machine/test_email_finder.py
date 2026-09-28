@@ -66,6 +66,25 @@ class EmailUnit(unittest.TestCase):
         })
         self.assertIn('Weighted identity confidence: 0.9 / HIGH', text)
 
+    def test_identity_uses_nzbn_names_from_append_only_discovery_event(self):
+        import sqlite3
+        d = sqlite3.connect(':memory:')
+        d.row_factory = sqlite3.Row
+        d.execute('CREATE TABLE mm_events(id INTEGER PRIMARY KEY, business_id INTEGER, action TEXT, detail TEXT)')
+        d.execute(
+            'INSERT INTO mm_events(business_id,action,detail) VALUES(?,?,?)',
+            (7, 'discovery_intake', json.dumps({
+                'legal_name': 'Koru Plumbing Limited', 'trading_name': 'Koru Plumbing',
+                'provenance': {'lane': 'nzbn', 'record_id': '9429000000007'},
+            })),
+        )
+        business = email_cli.with_discovery_identity(d, {'id': 7, 'name': 'Koru Plumbing'})
+        self.assertEqual(business['legal_name'], 'Koru Plumbing Limited')
+        self.assertEqual(business['trading_name'], 'Koru Plumbing')
+        self.assertEqual(business['nzbn'], '9429000000007')
+        self.assertEqual(business['nzbn_name'], 'Koru Plumbing Limited')
+        d.close()
+
     def test_normalization_and_obfuscation(self):
         self.assertEqual(e.normalize_email('  Owner(at)Example.CO.NZ  ')[0], 'Owner@example.co.nz')
         self.assertEqual(e.normalize_email('office [at] koru [dot] co [dot] nz')[0], 'office@koru.co.nz')

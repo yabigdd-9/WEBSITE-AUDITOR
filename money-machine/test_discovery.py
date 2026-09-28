@@ -118,7 +118,7 @@ def test_dry_run_does_not_write():
 def test_ingest_adds_legacy_business_metadata_columns_idempotently():
     d = db()
     columns = discovery.core.ensure_business_columns(d)
-    assert {"suppression_reason", "canonical_host", "normalized_name", "legal_name", "trading_name", "nzbn", "nzbn_name"} <= columns
+    assert {"suppression_reason", "canonical_host", "normalized_name"} <= columns
     assert discovery.core.ensure_business_columns(d) == columns
 
 
@@ -216,10 +216,6 @@ def test_discovery_event_and_queue_payload_retain_provenance():
     payload = json.loads(
         d.execute("SELECT payload FROM pipeline_items WHERE business_id=?", (bid,)).fetchone()[0]
     )
-    stored = d.execute(
-        "SELECT legal_name,trading_name,nzbn,nzbn_name FROM businesses WHERE id=?", (bid,)
-    ).fetchone()
-    assert tuple(stored) == ("Fixture Limited", "Fixture", "9429000000001", "Fixture Limited")
     assert event["provenance"]["lane"] == "nzbn"
     assert event["provenance"]["record_id"] == "9429000000001"
     assert payload["discovery_provenance"] == event["provenance"]
