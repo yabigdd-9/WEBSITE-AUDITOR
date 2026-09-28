@@ -483,7 +483,10 @@ catalyxlabs_rebuild:
             flow. Ruff, compileall and diff checks passed. The first hosted
             SonarCloud result at 175d3cdd failed new-code duplication at 3.2%
             against a 3% threshold; shared browser server setup was extracted
-            and pushed at 11aebdf1. Exact-head hosted verification is pending.
+            and pushed at 11aebdf1. At exact head 11aebdf1, GitHub reports all
+            9 checks passed, including fixtures, Gitleaks, pip-audit, SonarCloud
+            and Vercel. This is a draft review branch, not an integrated or
+            production release.
             The PR is draft and stacked on PR #46. Hosted invitation mode
             remains rejected, production identity review is unresolved, and no
             customer data is authorized.
