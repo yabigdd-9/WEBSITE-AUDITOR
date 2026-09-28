@@ -1,42 +1,66 @@
-# JSON Schema for Money Machine inference routing
+# JSON Schema for money-machine/config/routing.yaml
 $schema: http://json-schema.org/draft-07/schema#
-title: Money Machine Zero-Cost Routing Configuration
+title: Hermes Zero-Cost Role Routing Configuration
 type: object
 description: |
-  Active inference order is Claude through the loopback FCC harness first,
-  Hermes verified-free role routing second, then BlockedCost/DEFER.
-  llama.cpp and Ollama are intentionally not active Money Machine routes.
-
-properties:
-  FCC_BASE:
-    type: string
-    format: uri
-    default: "http://127.0.0.1:8082"
-    description: Loopback-only FCC/Claude harness gateway.
-  FCC_MODEL_ENV:
-    type: string
-    default: "MM_FCC_MODEL"
-    description: Environment variable selecting the exact Claude/FCC model.
-  FCC_FREE_MODELS_ENV:
-    type: string
-    default: "MM_FCC_FREE_MODELS"
-    description: Comma-separated exact FCC model IDs explicitly certified as zero-cost.
-  HERMES_ROUTING_CONFIG:
-    type: string
-    default: "money-machine/config/routing.yaml"
-    description: Hermes role routing policy; models must remain :free with zero price caps.
-  paid_allowed:
-    type: boolean
-    const: false
-  max_cost_usd:
-    type: number
-    const: 0
+  This file governs the Hermes fallback lane. The Money Machine's active
+  inference order is Claude via FCC first, then these Hermes :free roles,
+  then DEFER. Paid fallback is forbidden.
 
 required:
-  - FCC_BASE
-  - FCC_MODEL_ENV
-  - FCC_FREE_MODELS_ENV
-  - HERMES_ROUTING_CONFIG
-  - paid_allowed
-  - max_cost_usd
+  - provider
+  - manual_role_requests_enabled
+  - policy
+  - roles
+
+properties:
+  provider:
+    const: openrouter
+  manual_role_requests_enabled:
+    const: true
+  model_execution_enabled:
+    type: boolean
+  policy:
+    type: object
+    required:
+      - paid_tokens
+      - require_parameters
+      - max_price
+    properties:
+      paid_tokens:
+        const: false
+      require_parameters:
+        const: true
+      data_collection:
+        enum: [deny, allow]
+      max_price:
+        type: object
+        required: [prompt, completion, request, image]
+        properties:
+          prompt: {const: 0}
+          completion: {const: 0}
+          request: {const: 0}
+          image: {const: 0}
+        additionalProperties: false
+    additionalProperties: true
+  roles:
+    type: object
+    minProperties: 1
+    patternProperties:
+      "^[A-Z_]+$":
+        type: object
+        required: [preferred]
+        properties:
+          preferred:
+            type: string
+            pattern: ":free$"
+          fallbacks:
+            type: array
+            items:
+              type: string
+              pattern: ":free$"
+            uniqueItems: true
+        additionalProperties: false
+    additionalProperties: false
+
 additionalProperties: true
