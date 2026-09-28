@@ -253,7 +253,7 @@ catalyxlabs_rebuild:
     intended_worktree_plan_status: "User-created MASTER_EXECUTION_PLAN.md remains untracked in the phase1-rebuild worktree at 0c8041da; an additive execution-status section now records Phases 1-9, evidence, safety posture, and owner gates. The worktree still is not based on the requested implementation SHA, so the implementation remains in the separate branch based on 0348b3f9. The original scope and phase descriptions were retained."
     implementation_worktree: "/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild"
     implementation_worktree_status: >-
-      Branch codex/catalyx-rebuild-phase1-5 is pushed through 5e451999, based on
+      Branch codex/catalyx-rebuild-phase1-5 is pushed through 7891c9ae, based on
       0348b3f9. The follow-up commit adds a 100-row bounded sweep of expired
       authentication buckets across dormant scopes, preserving active one-hour
       buckets. The full toolkit suite passed on the dirty source/test state
@@ -267,12 +267,14 @@ catalyxlabs_rebuild:
       rechecked and matched the current diff before commit. Documentation edits
       and the untracked experiments/ tree remain preserved and uncommitted.
       Current dirty state also includes a robots.txt matcher step budget in
-      catalyx_web/customer_audit.py and expanded tenant-isolation tests. The
-      full Catalyx web test module now passes 74 tests with one upstream
-      warning; Ruff and diff checks pass on those source/test files. A redacted
-      Gitleaks scan of those changed files found no matches. These follow-up
-      changes remain unstaged and uncommitted; the full toolkit suite was not
-      rerun after them.
+      catalyx_web/customer_audit.py and expanded tenant-isolation tests. Commit
+      7891c9ae pushes those code, test, and release-documentation updates.
+      The full Catalyx web test module passed 74 tests with one upstream
+      warning; Ruff and diff checks passed on the changed source/test files.
+      Exact-diff security scan 51a1c374-eb8d-48da-86ff-8917c601160e found zero
+      findings with partial coverage; experiments/** stayed excluded and
+      unopened. The full toolkit suite was not rerun after the robots matcher
+      change. No soak test was repeated.
       Existing owner gates remain open for shared-login thresholds, hosting,
       privacy/legal, worker isolation, accessibility, and release readiness.
       User reports the 24-hour soak was completed in Claude; it was not repeated
@@ -333,7 +335,7 @@ catalyxlabs_rebuild:
         - "The customer app has no model-router or approval-engine integration in the inspected source; add regression coverage for the intended hard-disabled boundary as part of the approved mapping work."
       gate: "Automated integration test."
   phases_6_to_9:
-    status: "PROPOSED_SCOPE_PENDING_OWNER_RATIFICATION"
+    status: "SCOPE_RATIFIED_IMPLEMENTATION_AND_OWNER_GATES_OPEN"
     source: "/Users/dd/WEBSITE-AUDITOR/.claude/worktrees/phase1-rebuild/MASTER_EXECUTION_PLAN.md"
     phases:
       phase_6:
@@ -489,14 +491,15 @@ latest_execution_checkpoint:
   as_of_local_date: "2026-09-28"
   workspace: >-
     Canonical-plan branch codex/canonical-plan-execution is synchronized with
-    origin through 73431ae3 and includes the current security, dependency,
+    origin through 462c809a and includes the current security, dependency,
     runtime, Lighthouse, and challenger evidence. Catalyx implementation branch
-    codex/catalyx-rebuild-phase1-5 is synchronized through 5e451999, based on
-    0348b3f9. Its bounded auth-rate cleanup is committed and pushed; dirty docs,
-    the robots matcher budget and expanded tenant-isolation tests, and untracked
-    experiments/ remain preserved and uncommitted. The Catalyx web test module
-    passes 74 tests, Ruff and diff checks pass on the changed source/test files,
-    and Gitleaks found no matches in those changed paths. Pipeline evidence persistence and
+    codex/catalyx-rebuild-phase1-5 is synchronized through 7891c9ae, based on
+    0348b3f9. Its bounded auth-rate cleanup, robots matcher budget, expanded
+    tenant-isolation tests, and associated readiness documentation are committed
+    and pushed. The Catalyx web test module passed 74 tests; Ruff and diff checks
+    passed on changed source/test files. Exact-diff security scan
+    51a1c374-eb8d-48da-86ff-8917c601160e found no new findings with partial
+    coverage. Untracked experiments/ remains preserved and unreviewed. Pipeline evidence persistence and
     Lighthouse Chromium discovery are pushed on
     codex/pipeline-evidence-integration at b34f1882; original isolated
     evidence-fix branch bc3fe3b2 remains preserved. No branch was merged to
