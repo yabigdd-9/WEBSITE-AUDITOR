@@ -97,7 +97,7 @@ Do not rely on cron as the primary path when the LaunchAgent is healthy.
 
 ## 8. Iron rules (from the master plan — restated for operators)
 
-$0 spend (`paid_allowed=false`, never set `MM_ALLOW_EXTERNAL_FREE_MODELS=1`) · zero new software/deps ·
+$0 spend (`paid_allowed=false`, `max_cost_usd=0`) · Claude via FCC only when its exact model is certified zero-cost · Hermes verified-free fallback only · no automatic paid fallback ·
 fail-closed transport (`external_send_allowed=false`, `daily_cap=0`) · loopback-only probes ·
 one writer per file · never commit `state/*`, `*.db`, `.env`, reports outputs, caches, secrets ·
 human-only: external sends, model enablement, pricing to customers, approvals, SearXNG host service, master merges, remote pushes.
@@ -126,5 +126,8 @@ human-only: external sends, model enablement, pricing to customers, approvals, S
 
 - `report.json` contains a claim ledger mapping draftable claims to finding IDs, source URLs, evidence references, freshness and confidence.
 - Draft proofing rejects guarantees, invented percentages, unsupported revenue claims and unbounded promises.
-- Optional external free-model prompts must pass the redaction boundary; secrets, contact details and local paths are masked, and human review remains required.
+- Model-assisted work uses Claude through the loopback FCC harness first. The exact FCC model must be explicitly certified zero-cost; `auto` is not trusted as free.
+- If FCC/Claude is unavailable or would require payment, Hermes may use only its live-verified `:free` role routes with zero price caps. If no such route is available, the task DEFERs.
+- llama.cpp and Ollama are not active Money Machine inference routes.
+- External-model prompts pass the redaction boundary; secrets, contact details and local paths are masked, and human review remains required.
 - Deterministic findings and evidence remain canonical; model output is challenger material only.
