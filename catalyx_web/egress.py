@@ -120,11 +120,12 @@ class PinnedEgressTransport(httpx.BaseTransport):
         self.cancel_check = cancel_check or (lambda: False)
         self.deadline = deadline
         self._resolver = resolver or dns.resolver.Resolver(configure=True)
-        self._ssl_context = ssl.create_default_context()
-        self._ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
-        self._ssl_context.load_default_certs(ssl.Purpose.SERVER_AUTH)
-        self._ssl_context.verify_mode = ssl.CERT_REQUIRED
-        self._ssl_context.check_hostname = True
+        ssl_context = ssl.create_default_context()
+        ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
+        ssl_context.load_default_certs(ssl.Purpose.SERVER_AUTH)
+        ssl_context.verify_mode = ssl.CERT_REQUIRED
+        ssl_context.check_hostname = True
+        self._ssl_context = ssl_context
 
     def _remaining_deadline(self) -> float:
         if self.deadline is None:
