@@ -133,6 +133,7 @@ phases:
       crash_restart_no_duplicate_work: "toolkit_tests/test_supervisor.py::test_supervisor_crash_recovery_no_duplicate_work passed (1 test, 7.45s) using isolated temporary MM_ROOT."
       soak: "User reports the 24-hour soak was completed in Claude; it was not rerun."
       live_read_only_snapshot: "2026-09-28: supervisor PID 51155 reports running; 30 queue rows are terminal REJECTED after QUALIFICATION_PENDING, with zero attempts; the qualification worker intentionally rejects insufficient commercial/technical scores. Active leases=0 and dead_lettered=0; network mode=degraded; paid calls=0 and external sends=0. No live state was changed."
+      runtime_fix_rollout_gate: "Fresh process check: PID 51155 is a PID-1 child started 2026-09-28 02:34 NZDT and has database/money_machine.db open. Evidence-persistence fix 7c70c9f6034a9d0cabab8b8c1fdcf64a00388228 was committed at 12:38 NZDT and is reachable only from codex/pipeline-evidence-integration, not the canonical runtime branch; the active process predates it. No merge, restart, or queue mutation was performed."
   P4:
     name: "Audit engine"
     priority: HIGH
