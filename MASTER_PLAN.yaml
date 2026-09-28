@@ -519,22 +519,20 @@ latest_execution_checkpoint:
   as_of_local_date: "2026-09-28"
   latest_review_integration:
     branch: "codex/review-integration"
-    head: "3056f24db007ed2a4b93d8ce4ea3002b6ce6a6b3"
+    head: "772c3120a62a4f081be762fc9836347ccee9af80"
     pull_request: "https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/43"
     status: "PUSHED_DRAFT_CI_PASS_VERCEL_RATE_LIMIT"
-    evidence: "At 3056f24d the hosted toolkit suite passed (177 passed, 4 opt-in skips, 2 warnings), Chromium browser/PDF/portal E2E passed (2), hash-locked binary-only email install passed, and Ruff, pip check, wheel build, Gitleaks, pip-audit and SonarCloud passed. CodeRabbit reports success but explicitly skipped review because the PR remains draft. Vercel reports the project's daily deployment-rate limit. The branch routes queue audits through the canonical static auditor_toolkit profile with private targets, browser, external tools and AI disabled; full findings and evidence are persisted, scores replay from those findings, and partial audits produce no technical score. This branch is not merged or running in the canonical supervisor."
-    focused_tests: "65 passed locally at 3056f24d: 55 Money Machine pipeline tests plus 10 opportunity-formula tests; Ruff on changed Python files and diff checks passed."
+    evidence: "At 772c3120, qualification and Email Finder V2 provenance exports feed read-only prospect packet construction. Exports bind to the latest audit and fresh verified capture IDs, strip URL query/fragment data, reject credential URLs, and redact local paths. The versioned opportunity formula is recomputed from evidence-backed findings, verified commercial evidence, first-party contact provenance, remediation classes, and quote effort; missing or stale inputs fail closed. Hosted fixtures, SonarCloud, Gitleaks and pip-audit pass. Vercel reports the project's daily deployment-rate limit; CodeRabbit skips review because the PR remains draft. This branch is not merged or running in the canonical supervisor."
+  focused_tests: "86 packet, pipeline and Email Finder V2 tests passed locally; 1 fixture-gated test skipped. Compileall and diff checks passed."
   workspace: >-
     Canonical-plan branch codex/canonical-plan-execution was synchronized with
     origin through 5586865 and includes the current security, dependency,
     runtime, Lighthouse, and challenger evidence. Catalyx implementation branch
-    codex/catalyx-rebuild-phase1-5 is synchronized through 7891c9ae, based on
-    0348b3f9. Its bounded auth-rate cleanup, robots matcher budget, expanded
-    tenant-isolation tests, and associated readiness documentation are committed
-    and pushed. The Catalyx web test module passed 74 tests; Ruff and diff checks
-    passed on changed source/test files. Exact-diff security scan
-    51a1c374-eb8d-48da-86ff-8917c601160e found no new findings with partial
-    coverage. Untracked experiments/ remains preserved and unreviewed. Pipeline
+    codex/catalyx-rebuild-phase1-5 is pushed through adc59f94, based on
+    0348b3f9 and merged with the v32 canonical base. Its latest hosted toolkit,
+    Chromium/PDF, Gitleaks and pip-audit checks pass; SonarCloud remains D with
+    TLS-protocol and TOTP-HMAC findings. Untracked experiments/ and separate
+    dirty security follow-up notes remain preserved and unreviewed. Pipeline
     evidence persistence and Lighthouse Chromium discovery are pushed on
     codex/pipeline-evidence-integration at b34f1882; original isolated
     evidence-fix branch bc3fe3b2 remains preserved. A narrow audit-score fix
@@ -542,8 +540,9 @@ latest_execution_checkpoint:
     codex/audit-defect-score-fix at 9bba93dc, including expanded golden cases
     and coverage assertions. False-positive review enforcement is pushed on
     codex/false-positive-review-gate at 3dc6fb6. These changes are combined
-    on codex/review-integration at 0ca9ac74; the combined full toolkit suite
-    passed 165 tests with 4 opt-in browser skips. No branch was merged to master,
+    on codex/review-integration at 772c3120; focused packet, pipeline and Email
+    Finder V2 tests passed 86 with 1 fixture-gated skip. The branch's hosted
+    fixture, SonarCloud, Gitleaks and pip-audit checks pass. No branch was merged to master,
     no runtime restart occurred, and no deployment occurred.
   branch: "codex/canonical-plan-execution"
   user_reported:
