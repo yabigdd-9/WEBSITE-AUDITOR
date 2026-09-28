@@ -59,7 +59,8 @@ class StateMachine(unittest.TestCase):
         self.bid = add_business(self.d)
 
     def tearDown(self):
-        self.d.close(); self.tmp.cleanup()
+        self.d.close()
+        self.tmp.cleanup()
 
     def test_happy_path_forward_edges(self):
         p.enqueue(self.d, self.bid)
@@ -127,7 +128,8 @@ class WorkerBehaviour(unittest.TestCase):
         self.d = fresh_db(self.tmp.name)
 
     def tearDown(self):
-        self.d.close(); self.tmp.cleanup()
+        self.d.close()
+        self.tmp.cleanup()
 
     def test_worker_advances_and_is_restartable(self):
         bid = add_business(self.d)
@@ -223,7 +225,8 @@ class ApprovalEngine(unittest.TestCase):
         self.bid = add_business(self.d)
 
     def tearDown(self):
-        self.d.close(); self.tmp.cleanup()
+        self.d.close()
+        self.tmp.cleanup()
 
     def _fully_evidence(self):
         """Give the fixture business every piece of required evidence."""
@@ -318,7 +321,8 @@ class AdvanceSemantics(unittest.TestCase):
         self.bid = add_business(self.d)
 
     def tearDown(self):
-        self.d.close(); self.tmp.cleanup()
+        self.d.close()
+        self.tmp.cleanup()
 
     def test_advance_records_every_intermediate_edge(self):
         p.enqueue(self.d, self.bid)
@@ -382,7 +386,8 @@ class WorkerHandlers(unittest.TestCase):
         p.migrate(self.d)
 
     def tearDown(self):
-        self.d.close(); self.tmp.cleanup()
+        self.d.close()
+        self.tmp.cleanup()
 
     def _enqueue(self, state, site='https://fixture.example.co.nz'):
         bid = add_business(self.d, site=site)
@@ -718,7 +723,8 @@ class ModelRouter(unittest.TestCase):
         self.d = fresh_db(self.tmp.name)
 
     def tearDown(self):
-        self.d.close(); self.tmp.cleanup()
+        self.d.close()
+        self.tmp.cleanup()
 
     def test_paid_route_hard_refused(self):
         self.assertIn('PAID_ROUTE_REFUSED',
@@ -808,7 +814,8 @@ class StageHandlers(unittest.TestCase):
         self.bid = add_business(self.d)
 
     def tearDown(self):
-        self.d.close(); self.tmp.cleanup()
+        self.d.close()
+        self.tmp.cleanup()
 
     def test_identity_rejects_private_url(self):
         import mm_workers
