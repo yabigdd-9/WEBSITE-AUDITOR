@@ -57,6 +57,10 @@ def test_pipeline_persists_flow_probe_evidence_and_findings(tmp_path, monkeypatc
         },
     )
     monkeypatch.setattr(
+        "auditor_toolkit.pipeline.export_pdf",
+        lambda _html_path, pdf_path, *_args: Path(pdf_path).write_bytes(b"%PDF-fixture"),
+    )
+    monkeypatch.setattr(
         "auditor_toolkit.pipeline.run_flow_probe",
         lambda *_args, **_kwargs: {"status": "ok", "evidence": flow_evidence},
     )
