@@ -66,13 +66,17 @@ jobs:
       - name: Run portable MoneyMachine regressions
         run: |
           python -m pytest \
+            money-machine/test_search_backend.py \
             money-machine/test_discovery.py \
             money-machine/test_discovery_batch.py \
             money-machine/test_recurring_discovery.py \
+            money-machine/test_observability_discovery.py \
             money-machine/test_launchd.py \
+            money-machine/test_scanning_activation.py \
             money-machine/test_email_finder.py \
             money-machine/test_pipeline.py \
             money-machine/test_opportunity_axes.py \
+            money-machine/test_preparation_worker.py \
             money-machine/test_dsh_harness_bridge.py \
             money-machine/test_lead_qualifier.py \
             money-machine/test_polish.py \
