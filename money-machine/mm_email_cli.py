@@ -64,9 +64,13 @@ def human_text(status):
         str(weighted.get('confidence')) + ' / ' + str(weighted.get('status'))
         if weighted else 'not assessed'
     )
+    positive_signals = ', '.join(weighted.get('positive_signals') or []) or 'none'
+    identity_conflicts = ', '.join(weighted.get('conflicts') or []) or 'none'
     lines = ['Business: ' + status['business'], 'Website: ' + (status.get('website') or 'Unknown'),
              'Canonical domain: ' + (identity.get('canonical_root_domain') or 'UNCONFIRMED'),
              'Weighted identity confidence: ' + identity_summary,
+             'Identity signals: ' + positive_signals,
+             'Identity conflicts: ' + identity_conflicts,
              'Email selected: ' + status['email'],
              'Confidence: ' + str(status.get('confidence') or '—') + ' / ' + selected.get('confidence_label', 'NO VERIFIED EMAIL FOUND'),
              'Mode: ' + status.get('mode', 'unknown'), 'Observed first-party: ' + ('YES' if selected.get('first_party_observed') else 'NO'),

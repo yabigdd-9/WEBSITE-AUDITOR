@@ -62,9 +62,15 @@ class EmailUnit(unittest.TestCase):
         text = email_cli.human_text({
             'business': 'Koru Plumbing', 'website': 'https://koruplumbing.co.nz',
             'email': 'NO_VERIFIED_EMAIL',
-            'identity': {'weighted_confidence': {'confidence': 0.9, 'status': 'HIGH'}},
+            'identity': {'weighted_confidence': {
+                'confidence': 0.9, 'status': 'HIGH',
+                'positive_signals': ['nzbn_match', 'website_brand_match'],
+                'conflicts': ['email_domain_match'],
+            }},
         })
         self.assertIn('Weighted identity confidence: 0.9 / HIGH', text)
+        self.assertIn('Identity signals: nzbn_match, website_brand_match', text)
+        self.assertIn('Identity conflicts: email_domain_match', text)
 
     def test_identity_uses_nzbn_names_from_append_only_discovery_event(self):
         import sqlite3
