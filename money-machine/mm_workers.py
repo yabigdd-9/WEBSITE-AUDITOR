@@ -194,26 +194,148 @@ def qualification_handler(d, it, worker):
         result,
     )
 
-def contact_handler(d, it, worker):
-    """Contacts come only from Email Finder V2 evidence already recorded.
+def _email_v2_release_state(d):
+    """Return whether Email Finder V2 may persist production observations.
 
-    This handler never guesses or pattern-generates addresses. If no verified
-    observation exists the item routes to NO_VERIFIED_EMAIL (a valid final
-    result), not to a fabricated candidate.
+    The email subsystem intentionally has two independent release gates:
+    email_policy.mode == v2 and email_release_policy.mode == PRODUCTION for the
+    exact verifier version. The contact worker must not weaken either gate just
+    to keep the pipeline moving.
+    """
+    import mm_email as email_engine
+    import mm_email_store as email_store
+
+    if not email_store.installed(d):
+        return False, {
+            'installed': False,
+            'email_policy': 'not_migrated',
+            'release_mode': 'not_migrated',
+            'verifier_version': email_engine.VERSION,
+        }
+
+    policy = d.execute(
+        "SELECT mode FROM email_policy WHERE id=1"
+    ).fetchone()
+    release_table = d.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' "
+        "AND name='email_release_policy'"
+    ).fetchone()
+    release = (
+        d.execute(
+            "SELECT mode,verifier_version FROM email_release_policy WHERE id=1"
+        ).fetchone()
+        if release_table else None
+    )
+    policy_mode = policy['mode'] if policy else 'missing'
+    release_mode = release['mode'] if release else 'missing'
+    verifier_version = release['verifier_version'] if release else None
+    ready = (
+        policy_mode == 'v2'
+        and release_mode == 'PRODUCTION'
+        and verifier_version == email_engine.VERSION
+    )
+    return ready, {
+        'installed': True,
+        'email_policy': policy_mode,
+        'release_mode': release_mode,
+        'verifier_version': verifier_version,
+        'required_verifier_version': email_engine.VERSION,
+    }
+
+
+def _current_verified_high(d, bid):
+    """Read only the authoritative Email Finder V2 current-selection view."""
+    view = d.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='view' AND name='email_current_high'"
+    ).fetchone()
+    if not view:
+        return None
+    row = d.execute(
+        "SELECT normalized_email,verification_id FROM email_current_high "
+        "WHERE prospect_id=? ORDER BY verification_id DESC LIMIT 1",
+        (bid,),
+    ).fetchone()
+    if not row:
+        return None
+    return {
+        'email': row['normalized_email'],
+        'verification_id': row['verification_id'],
+        'confidence': 'VERIFIED_HIGH',
+    }
+
+
+def contact_handler(d, it, worker):
+    """Run Email Finder V2 when released, then trust only current VERIFIED_HIGH.
+
+    No guessed/pattern-generated address can advance this worker. An existing
+    current selection from email_current_high may advance immediately.
+    Otherwise the worker invokes the existing Email Finder V2 workflow only
+    when its independent production-release gates are already open. A held or
+    uninstalled finder routes to recoverable NEEDS_REVIEW; after a legitimate
+    finder run, absence of a current VERIFIED_HIGH selection is the valid
+    NO_VERIFIED_EMAIL terminal outcome.
     """
     bid = it['business_id']
-    rows = d.execute("SELECT email,result_json FROM email_verifications "
-                     "WHERE prospect_id=? ORDER BY id DESC", (bid,)).fetchall()
-    for row in rows:
-        try:
-            res = json.loads(row['result_json'])
-        except (ValueError, TypeError):
-            continue
-        if res.get('confidence_label') == 'VERIFIED_HIGH':
-            return ('REMEDIATION_PENDING', 'verified contact on record',
-                    {'email': row['email'], 'confidence': 'VERIFIED_HIGH'})
-    return ('NO_VERIFIED_EMAIL', 'no VERIFIED_HIGH contact; final for email lane',
-            {'checked': len(rows)})
+
+    current = _current_verified_high(d, bid)
+    if current:
+        return (
+            'REMEDIATION_PENDING',
+            'current VERIFIED_HIGH Email Finder V2 contact on record',
+            {**current, 'finder_run': False, 'external_sends': 0},
+        )
+
+    released, release = _email_v2_release_state(d)
+    if not released:
+        return (
+            'NEEDS_REVIEW',
+            'Email Finder V2 production release gate is not open',
+            {
+                'email_finder': release,
+                'finder_run': False,
+                'external_sends': 0,
+                'next_action': (
+                    'Complete the existing independent Email Finder V2 release '
+                    'review; do not bypass the production gate.'
+                ),
+            },
+        )
+
+    import mm_email_cli
+
+    try:
+        status = mm_email_cli.find_one(d, bid)
+    except ValueError as exc:
+        return (
+            'NEEDS_REVIEW',
+            'Email Finder V2 held: ' + str(exc)[:240],
+            {
+                'email_finder': release,
+                'finder_run': False,
+                'external_sends': 0,
+            },
+        )
+
+    current = _current_verified_high(d, bid)
+    if current:
+        return (
+            'REMEDIATION_PENDING',
+            'Email Finder V2 produced current VERIFIED_HIGH contact',
+            {**current, 'finder_run': True, 'external_sends': 0},
+        )
+
+    candidates = status.get('candidates') if isinstance(status, dict) else []
+    forms = status.get('contact_form_urls') if isinstance(status, dict) else []
+    return (
+        'NO_VERIFIED_EMAIL',
+        'Email Finder V2 completed with no current VERIFIED_HIGH contact',
+        {
+            'finder_run': True,
+            'candidate_count': len(candidates or []),
+            'contact_form_count': len(forms or []),
+            'external_sends': 0,
+        },
+    )
 
 
 def demo_handler(d, it, worker):
