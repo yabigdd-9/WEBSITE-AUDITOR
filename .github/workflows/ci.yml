@@ -4,7 +4,7 @@ on:
   push:
     branches: [master, trial/**]
   pull_request:
-    branches: [master]
+    branches: [master, upgrade/v32-canonical-execution]
 
 permissions:
   contents: read
