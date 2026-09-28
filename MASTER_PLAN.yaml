@@ -154,7 +154,7 @@ phases:
       lychee: "Lychee completed in about 10 seconds: 69 links, 55 unique URLs, 0 errors, 0 timeouts, 51 redirects. Adapter now caps concurrency at 2, retries at 0, per-request timeout at 15 seconds, and retains a 90-second outer timeout."
       lighthouse: "Lighthouse 13.5.0 completed against the public homepage: performance 48, accessibility 100, best-practices 96, SEO 100. Performance evidence includes Total Blocking Time 1,720 ms (score 0.10) and Largest Contentful Paint 6.9 s (score 0.07); the deterministic adapter emits one low-performance finding with those weighted audit references. A prior run scored performance 43, demonstrating lab variability."
       limitation: "These are local laboratory measurements, not field Core Web Vitals. Lighthouse used the already installed Playwright Chrome binary through CHROME_PATH; no browser or package was downloaded."
-      code: "PR #43 head f617b661 bounds Lychee network load and retains up to five weighted failing Lighthouse audit summaries per category; focused external-tool tests pass (13 tests), and changed-file Ruff and diff checks pass. PR remains draft and unmerged."
+      code: "PR #43 head f617b661 bounds Lychee network load and retains up to five weighted failing Lighthouse audit summaries per category; focused external-tool tests pass (13 tests), and changed-file Ruff and diff checks pass. Hosted exact-head run 36420223116 passed the full toolkit fixture suite; CI, dependency/secret scans, SonarCloud, and Vercel also pass. The PR is mergeable by check state but remains draft and unmerged."
   P5:
     name: "Evidence-first findings"
     priority: CRITICAL
