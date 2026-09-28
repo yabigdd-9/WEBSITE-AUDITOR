@@ -21,12 +21,14 @@ from mm_core import now, sha
 from mm_pipeline import BlockedCost
 from mm_redaction import prepare_prompt
 
+OLLAMA_PROVIDER = 'local:ollama'
+
 
 def _routes(*external):
     """Keep local inference first, with a second local server as fallback."""
     return [
         ('local:llamacpp', None),
-        ('local:ollama', None),
+        (OLLAMA_PROVIDER, None),
         *external,
     ]
 
@@ -169,7 +171,7 @@ def probe_ollama(model=None, timeout=3):
 
 LOCAL_PROBES = {
     'local:llamacpp': probe_llamacpp,
-    'local:ollama': probe_ollama,
+    OLLAMA_PROVIDER: probe_ollama,
 }
 
 
@@ -335,6 +337,6 @@ def local_complete(prompt, purpose='lightweight_worker', max_tokens=64,
             payload = json.loads(response.read().decode())
         elapsed = (dt.datetime.now(dt.timezone.utc) - started).total_seconds()
         text = (payload.get('message') or {}).get('content', '')
-        return {'text': text, 'provider': 'local:ollama', 'model': model,
+        return {'text': text, 'provider': OLLAMA_PROVIDER, 'model': model,
                 'elapsed_s': round(elapsed, 3), 'cost_usd': 0,
                 'base_url': OLLAMA_BASE}
