@@ -81,10 +81,13 @@ def _adapt_source_row(row, lane):
         }
     if lane == "nzbn" or any(k in row for k in ("nzbn", "entityName", "entity_name")):
         trading = row.get("tradingName") or row.get("trading_name") or ""
+        legal = row.get("entityName") or row.get("entity_name") or ""
         return {
-            "name": row.get("entityName") or row.get("entity_name") or trading or row.get("name") or "",
-            "legal_name": row.get("entityName") or row.get("entity_name") or "",
+            "name": legal or trading or row.get("name") or "",
+            "legal_name": legal,
             "trading_name": trading,
+            "nzbn": str(row.get("nzbn") or row.get("NZBN") or ""),
+            "nzbn_name": legal or trading or "",
             "website": (
                 row.get("website")
                 or row.get("websiteUrl")
@@ -160,6 +163,8 @@ def normalize_candidate(row, default_region="", default_source="import"):
         "normalized_name": normalized_name,
         "legal_name": _first(row, ("legal_name", "entityName", "entity_name"))[:250],
         "trading_name": _first(row, ("trading_name", "tradingName"))[:250],
+        "nzbn": _first(row, ("nzbn", "NZBN"))[:32],
+        "nzbn_name": _first(row, ("nzbn_name", "entityName", "entity_name", "tradingName", "trading_name"))[:250],
         "region": region[:160],
         "public_website": website,
         "canonical_host": host,
@@ -305,6 +310,8 @@ def ingest(d, candidates, actor="discovery-v2", dry_run=False):
                     "provenance": candidate["provenance"],
                     "legal_name": candidate.get("legal_name"),
                     "trading_name": candidate.get("trading_name"),
+                    "nzbn": candidate.get("nzbn"),
+                    "nzbn_name": candidate.get("nzbn_name"),
                     "actor": actor,
                 },
                 sort_keys=True,
@@ -319,6 +326,8 @@ def ingest(d, candidates, actor="discovery-v2", dry_run=False):
                 "discovery_provenance": candidate["provenance"],
                 "legal_name": candidate.get("legal_name"),
                 "trading_name": candidate.get("trading_name"),
+                "nzbn": candidate.get("nzbn"),
+                "nzbn_name": candidate.get("nzbn_name"),
                 "canonical_host": host,
                 "contact_eligibility": "UNASSESSED",
             },
