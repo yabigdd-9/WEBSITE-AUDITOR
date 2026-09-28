@@ -145,7 +145,15 @@ phases:
   P7:
     name: "Identity resolution"
     priority: HIGH
+    status: "PARTIAL"
     rule: "Use weighted evidence/confidence across NZBN, legal/trading name, domain, website, email domain and region."
+    delivered:
+      - "Persist NZBN, legal and trading names from discovery imports."
+      - "Attach weighted, signal-level confidence to first-party identity checks and email verification records."
+      - "Expose weighted identity confidence in the email operator status."
+    remaining:
+      - "Ingest and refresh NZBN evidence from the approved source; the live API lane requires its subscription key."
+      - "Measure identity decisions against reviewed, labeled examples before treating confidence thresholds as calibrated probabilities."
   P8:
     name: "Email Finder V2"
     priority: CRITICAL

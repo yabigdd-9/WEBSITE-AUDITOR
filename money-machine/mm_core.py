@@ -97,12 +97,16 @@ def event(d, action, bid, detail):
     d.execute('INSERT INTO mm_events(event_at,action,business_id,detail) VALUES(?,?,?,?)',(now(),action,bid,detail))
 
 
-# v32 operational columns on businesses: quarantine + dedupe metadata.
-# Added idempotently; existing rows keep NULL until classified.
+# v32 business metadata columns: operational controls, dedupe and identity.
+# Added idempotently; existing rows keep NULL until verified or classified.
 BUSINESS_OPERATIONAL_COLUMNS = (
     ('suppression_reason', 'TEXT'),
     ('canonical_host', 'TEXT'),
     ('normalized_name', 'TEXT'),
+    ('legal_name', 'TEXT'),
+    ('trading_name', 'TEXT'),
+    ('nzbn', 'TEXT'),
+    ('nzbn_name', 'TEXT'),
 )
 
 

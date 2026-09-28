@@ -33,8 +33,14 @@ def find_one(d, bid):
 
 def human_text(status):
     selected = status.get('selected') or {}; identity = status.get('identity') or {}
+    weighted = identity.get('weighted_confidence') or {}
+    identity_summary = (
+        str(weighted.get('confidence')) + ' / ' + str(weighted.get('status'))
+        if weighted else 'not assessed'
+    )
     lines = ['Business: ' + status['business'], 'Website: ' + (status.get('website') or 'Unknown'),
              'Canonical domain: ' + (identity.get('canonical_root_domain') or 'UNCONFIRMED'),
+             'Weighted identity confidence: ' + identity_summary,
              'Email selected: ' + status['email'],
              'Confidence: ' + str(status.get('confidence') or '—') + ' / ' + selected.get('confidence_label', 'NO VERIFIED EMAIL FOUND'),
              'Mode: ' + status.get('mode', 'unknown'), 'Observed first-party: ' + ('YES' if selected.get('first_party_observed') else 'NO'),

@@ -156,7 +156,8 @@ def assess_business_identity(
         return " ".join(_re.findall(r"[a-z0-9]+", value))
 
     expected_names = {norm(x) for x in (business_name, legal_name, trading_name) if norm(x)}
-    nzbn_match = None if not nzbn_name else norm(nzbn_name) in expected_names
+    nzbn_comparison_names = {norm(x) for x in (business_name, trading_name) if norm(x)}
+    nzbn_match = None if not nzbn_name else norm(nzbn_name) in nzbn_comparison_names
 
     domain = canonical_domain(website)
     stem = domain.split(".")[0] if domain else ""
