@@ -154,6 +154,9 @@ phases:
     priority: CRITICAL
     status: "IMPLEMENTED_TESTED_FALSE_POSITIVE_REVIEW_EVIDENCE_GATED"
     rule: "Scores are derived from findings; material findings require evidence; false-positive classifications require an attributable reviewer, rationale, and complete run containing the finding."
+    latest_verification:
+      date: "2026-09-28"
+      evidence_gate_branch: "codex/false-positive-review-gate at 3dc6fb6, based on upgrade/v32-canonical-execution. The remediation transition rejects missing reviewer, missing rationale, partial runs, and runs that do not contain the finding; a valid complete-run review records reviewer, rationale, and run ID. Full toolkit suite: 165 passed, 4 opt-in browser tests skipped, 2 upstream deprecation warnings. Ruff and diff checks passed. Branch is pushed for review and not merged."
   P6:
     name: "NZ business discovery"
     priority: HIGH
@@ -490,8 +493,8 @@ final_acceptance:
 latest_execution_checkpoint:
   as_of_local_date: "2026-09-28"
   workspace: >-
-    Canonical-plan branch codex/canonical-plan-execution is synchronized with
-    origin through 462c809a and includes the current security, dependency,
+    Canonical-plan branch codex/canonical-plan-execution was synchronized with
+    origin through 5586865 and includes the current security, dependency,
     runtime, Lighthouse, and challenger evidence. Catalyx implementation branch
     codex/catalyx-rebuild-phase1-5 is synchronized through 7891c9ae, based on
     0348b3f9. Its bounded auth-rate cleanup, robots matcher budget, expanded
@@ -505,7 +508,8 @@ latest_execution_checkpoint:
     evidence-fix branch bc3fe3b2 remains preserved. A narrow audit-score fix
     based on active canonical SHA 3ad64156 is pushed on
     codex/audit-defect-score-fix at 9bba93dc, including expanded golden cases
-    and coverage assertions. No branch was merged to master,
+    and coverage assertions. False-positive review enforcement is pushed on
+    codex/false-positive-review-gate at 3dc6fb6. No branch was merged to master,
     no runtime restart occurred, and no deployment occurred.
   branch: "codex/canonical-plan-execution"
   user_reported:
