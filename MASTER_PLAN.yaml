@@ -271,7 +271,7 @@ catalyxlabs_rebuild:
     intended_worktree_plan_status: "The user-created MASTER_EXECUTION_PLAN.md is committed and pushed on codex/catalyx-plan-update through 317221b0. The branch now includes the current implementation branch at cdb02b0d as its base and preserves the original scope, phases 1–9, and current verification/owner gates. The Catalyx implementation worktree remains separate on codex/catalyx-rebuild-phase1-5."
     implementation_worktree: "/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild"
     implementation_worktree_status: >-
-      Branch codex/catalyx-rebuild-phase1-5 is pushed through 51b543f8 and now
+      Branch codex/catalyx-rebuild-phase1-5 is pushed through cdb02b0d and now
       includes merge commit b0630ed9 from upgrade/v32-canonical-execution;
       its original feature work remains based on the requested 0348b3f9. The
       merge resolved pipeline/watchdog conflicts, restored persisted flow
