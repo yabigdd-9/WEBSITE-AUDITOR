@@ -22,7 +22,7 @@ This file is the human-readable canonical companion to `MASTER_PLAN.yaml`.
 
 `auditor_toolkit` is the canonical audit engine. `./mm` is the canonical operator interface. SQLite plus state files are authoritative for durable state and the leased queue. launchd + `./mm supervisor` own runtime supervision. Hermes orchestrates agents. Obsidian is the human-facing master brain and review workspace, but it is never the runtime database, queue, pricing authority, or send authority.
 
-n8n is **not** part of the default stack. SearXNG may run as an optional Docker service.
+n8n is **not** part of the default stack. SearXNG is the optional zero-cost discovery service and, when enabled, runs natively as a user-scoped launchd service bound to `127.0.0.1:8888`; Docker is not required.
 
 ## Execution phases
 
@@ -38,8 +38,8 @@ n8n is **not** part of the default stack. SearXNG may run as an optional Docker 
 10. **P9 Opportunity scoring** — deterministic commercial score separate from technical weakness.
 11. **P10 Remediation engine** — AUTO_SAFE / AUTO_PREVIEW / HUMAN_REVIEW / CLIENT_ACCESS_REQUIRED / UNSUPPORTED.
 12. **P11 Demo factory** — tested local improvement + before/after evidence.
-13. **P12 Quote engine** — versioned deterministic pricing rules.
-14. **P13 Prospect packet** — one complete reviewable unit per qualified prospect.
+13. **P12 Quote engine** — versioned deterministic pricing rules; no price is generated until the operator explicitly supplies an hourly rate.
+14. **P13 Prospect packet** — one local reviewable unit per qualified prospect; priced draft material is generated only when an explicit operator rate exists.
 15. **P14 Outreach** — evidence-backed drafting and QA; send remains disabled until intentionally enabled.
 16. **P15 Free model router** — deterministic first, local/free models second, defer rather than pay.
 17. **P16 Agent team** — Hermes plus researcher/coder/operator/judge/proofer/integrator roles with isolated branches.
