@@ -876,6 +876,70 @@ class ModelRouter(unittest.TestCase):
         finally:
             router._get_json = original
 
+    def test_ollama_probe_parses_local_model_tags(self):
+        with patch.object(
+            router,
+            '_get_json',
+            return_value={'models': [{'name': 'qwen3:4b'}, {'model': 'phi4:mini'}]},
+        ) as get_json:
+            self.assertEqual(router.probe_ollama('qwen3:4b'), 'qwen3:4b')
+            get_json.assert_called_once_with(
+                router.OLLAMA_BASE.rstrip('/') + '/api/tags', 3
+            )
+
+    def test_local_route_uses_ollama_after_llamacpp_is_unavailable(self):
+        with patch.dict(os.environ, {'MM_ALLOW_EXTERNAL_FREE_MODELS': '0'}):
+            result = router.plan(
+                self.d,
+                'researcher',
+                local_lookup=lambda kind: 'qwen3:4b' if kind == 'ollama' else None,
+            )
+        self.assertEqual(result['status'], 'planned')
+        self.assertEqual(result['provider'], 'local:ollama')
+        self.assertEqual(result['model'], 'qwen3:4b')
+        self.assertEqual(result['cost_usd'], 0)
+        self.assertEqual(result['model_calls'], 0)
+
+    def test_local_complete_uses_ollama_chat_without_external_egress(self):
+        response = io.BytesIO(json.dumps({
+            'message': {'content': 'synthetic local response'},
+        }).encode())
+        requests = []
+
+        def open_local(request, timeout):
+            requests.append((request, timeout))
+            return response
+
+        with patch.object(router, '_open_local', side_effect=open_local):
+            result = router.local_complete(
+                'synthetic prompt',
+                max_tokens=17,
+                timeout=4,
+                lookup=lambda kind: 'qwen3:4b' if kind == 'ollama' else None,
+            )
+
+        self.assertEqual(result['text'], 'synthetic local response')
+        self.assertEqual(result['provider'], 'local:ollama')
+        self.assertEqual(result['model'], 'qwen3:4b')
+        self.assertEqual(result['cost_usd'], 0)
+        request, timeout = requests[0]
+        self.assertEqual(request.full_url, 'http://127.0.0.1:11434/api/chat')
+        self.assertEqual(timeout, 4)
+        payload = json.loads(request.data)
+        self.assertEqual(payload['model'], 'qwen3:4b')
+        self.assertFalse(payload['stream'])
+        self.assertEqual(payload['options'], {'num_predict': 17, 'temperature': 0})
+
+    def test_ollama_route_rejects_non_loopback_endpoint(self):
+        with patch.object(router, 'OLLAMA_BASE', 'http://192.0.2.10:11434'), \
+                patch.object(router, '_open_local') as open_local:
+            with self.assertRaises(router.BlockedCost):
+                router.local_complete(
+                    'synthetic prompt',
+                    lookup=lambda kind: 'qwen3:4b' if kind == 'ollama' else None,
+                )
+        open_local.assert_not_called()
+
     def test_local_complete_blocks_cost_when_no_local_route(self):
         with self.assertRaises(router.BlockedCost):
             router.local_complete('hello', lookup=lambda kind: None)

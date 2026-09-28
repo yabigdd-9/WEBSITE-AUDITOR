@@ -30,12 +30,12 @@ properties:
     type: string
     format: uri
     default: "http://127.0.0.1:8080"
-    description: llama.cpp server base URL
+    description: llama.cpp server base URL; runtime access is restricted to loopback
   OLLAMA_BASE:
     type: string
     format: uri
     default: "http://127.0.0.1:11434"
-    description: Ollama server base URL
+    description: Ollama server base URL; runtime access is restricted to loopback
   LOCAL_MODEL_ENV:
     type: string
     default: "MM_LOCAL_MODEL"
