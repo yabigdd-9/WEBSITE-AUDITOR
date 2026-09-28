@@ -90,26 +90,29 @@ def test_invalid_or_zero_finding_evidence_stays_unknown():
     assert mm_workers._technical_opportunity({"defect_count": 2, "score": 140}) == (100.0, 2)
 
 
-def test_audit_handler_persists_detector_defect_score_field():
+def test_audit_handler_persists_canonical_defect_score_field():
     d = database()
+    report = {
+        "run_id": "run-opportunity",
+        "status": "complete",
+        "profile": "static",
+        "defects": [{"defect_key": "missing-title"}],
+        "defect_score": 75,
+        "health_score": 25,
+        "checks": {"fetch": {"required": True, "status": "ok"}},
+        "artifacts": {"json": "/tmp/run-opportunity/report.json"},
+    }
 
-    class EmptyHistory:
-        def __init__(self, *_args):
-            pass
-
-        @staticmethod
-        def get_latest_valid_audit(*_args, **_kwargs):
-            return None
-
-    class ProcessResult:
-        returncode = 0
-        stderr = ""
-        stdout = json.dumps({"defects": [{"id": "missing-title"}], "defect_score": 75})
-
-    with patch("auditor_toolkit.storage.History", EmptyHistory), patch.object(
-        mm_workers.subprocess, "run", return_value=ProcessResult()
+    with patch("auditor_toolkit.storage.History") as history_cls, patch(
+        "auditor_toolkit.pipeline.run_audit", return_value=report
     ):
+        history_cls.return_value.get_latest_valid_audit.return_value = None
         state, _, evidence = mm_workers.audit_handler(d, {"business_id": 1}, None)
 
     assert state == "AUDITED"
-    assert evidence == {"defect_count": 1, "score": 75}
+    assert evidence["defect_count"] == 1
+    assert evidence["score"] == 75
+    assert evidence["health_score"] == 25
+    assert evidence["audit_engine"] == "auditor_toolkit"
+    assert evidence["model_calls"] == 0
+    assert evidence["external_sends"] == 0
