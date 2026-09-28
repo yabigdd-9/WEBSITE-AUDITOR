@@ -28,7 +28,22 @@ from pathlib import Path
 # Configuration
 PROJECT_DIR = Path(__file__).parent.parent
 SCRIPT_DIR = PROJECT_DIR / "money-machine" / "scripts"
-FCC_HOST = os.environ.get("HOST", "0.0.0.0")
+import ipaddress
+
+def _validate_fcc_host(host):
+    """Validate FCC host to prevent SSRF: only allow localhost and local interfaces."""
+    if host in ("localhost", "127.0.0.1", "::1", "0.0.0.0"):
+        return host
+    # Allow specific local network interfaces only
+    try:
+        ip = ipaddress.ip_address(host)
+        if ip.is_loopback or ip.is_link_local:
+            return host
+    except ValueError:
+        pass
+    raise ValueError(f"FCC_HOST '{host}' is not a permitted loopback/local address (SSRF protection)")
+
+FCC_HOST = _validate_fcc_host(os.environ.get("HOST", "127.0.0.1"))
 FCC_PORT = int(os.environ.get("PORT", "8082"))
 FCC_URL = f"http://{FCC_HOST}:{FCC_PORT}"
 ADMIN_URL = f"{FCC_URL}/admin"
@@ -77,9 +92,23 @@ def load_env():
     
     # Ensure required vars
     if "ANTHROPIC_AUTH_TOKEN" not in os.environ:
-        os.environ["ANTHROPIC_AUTH_TOKEN"] = f"fcc-{int(time.time())}"
+        log_warn("ANTHROPIC_AUTH_TOKEN not set; child CLI processes will run without auth token")
     
     log_ok("Environment loaded")
+
+def _child_env():
+    """Provide a filtered environment to child processes (Claude/Codex CLI).
+    Avoids leaking sensitive tokens beyond what the child explicitly needs."""
+    safe = {
+        "PATH": os.environ.get("PATH", ""),
+        "HOME": os.environ.get("HOME", ""),
+        "USER": os.environ.get("USER", ""),
+        "MODEL": os.environ.get("MODEL", "claude-fable-5"),
+    }
+    # Explicitly include ANTHROPIC_AUTH_TOKEN only if set by user (not auto-generated)
+    if "ANTHROPIC_AUTH_TOKEN" in os.environ and not os.environ["ANTHROPIC_AUTH_TOKEN"].startswith("fcc-"):
+        safe["ANTHROPIC_AUTH_TOKEN"] = os.environ["ANTHROPIC_AUTH_TOKEN"]
+    return safe
 
 def check_process(name, pattern):
     """Check if a process is running"""
@@ -185,7 +214,7 @@ def run_claude(prompt):
             capture_output=True,
             text=True,
             timeout=300,
-            env=os.environ.copy()
+            env=_child_env()
         )
         print(result.stdout)
         if result.stderr:
@@ -213,7 +242,7 @@ def run_codex(prompt):
             capture_output=True,
             text=True,
             timeout=300,
-            env=os.environ.copy()
+            env=_child_env()
         )
         print(result.stdout)
         if result.stderr:
@@ -234,7 +263,7 @@ def send_to_fcc(prompt):
         # Use FCC's API to generate a response
         # This is a simplified approach - in production you'd use the proper API
         data = json.dumps({
-            "model": os.environ.get("MODEL", "nvidia_nim/nvidia/nemotron-3-super-120b-a12b"),
+            "model": os.environ.get("MODEL", "claude-fable-5"),
             "messages": [{"role": "user", "content": prompt}],
             "max_tokens": 4000,
             "temperature": 0.7,
