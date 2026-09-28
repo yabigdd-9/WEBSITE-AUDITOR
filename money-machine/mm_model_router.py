@@ -262,6 +262,10 @@ def plan(d, purpose, at=None, local_lookup=None):
         if provider.startswith('local') or provider == FCC_PROVIDER:
             kind = provider.split(':', 1)[1]
             found = lookup(kind)
+            if found and provider == FCC_PROVIDER and not _fcc_model_allowed(found):
+                tried.append({'provider': provider, 'kind': kind, 'model': found,
+                              'reason': 'FCC model not on explicit zero-cost allowlist'})
+                continue
             if found:
                 chosen = (provider, found)
                 break
