@@ -41,4 +41,4 @@ jobs:
       - name: Audit declared dependencies
         run: |
           pip-audit --strict .
-          pip-audit --strict -r money-machine/requirements-email.txt
+          pip-audit --strict -r money-machine/requirements-email.lock

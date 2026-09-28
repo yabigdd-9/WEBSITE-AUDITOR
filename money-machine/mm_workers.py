@@ -14,9 +14,9 @@ import sys
 from pathlib import Path
 from urllib.parse import urlparse
 
-from mm_core import public_url, root
+from mm_core import public_url
 from mm_management_worker import management_worker_handler
-from mm_pipeline import BlockedCost, PermanentError, RetryableError
+from mm_pipeline import PermanentError, RetryableError
 from mm_preparation_worker import preparation_worker_handler
 from mm_understanding_worker import understanding_worker_handler
 
@@ -76,29 +76,27 @@ def identity_handler(d, it, worker):
             {'canonical_host': host})
 
 
-def audit_handler(d, it, worker):
-    """Run the deterministic Website Rescue detector for the business site."""
-    b = _business(d, it['business_id'])
-    url = b['public_website']
-    host = urlparse(url).netloc if url else None
+def _recent_audit_result(host):
+    if not host:
+        return None
+    from auditor_toolkit.storage import History
 
-    # Check for recent valid audit to reuse
-    if host:
-        from auditor_toolkit.storage import History
-        history = History(str(REPO / 'outputs' / 'toolkit'))
-        # Look for audit from last 7 days
-        recent_audit = history.get_latest_valid_audit(host, max_age_days=7)
-        if recent_audit:
-            # Reuse existing audit results
-            defects = recent_audit.get('defects', [])
-            score = recent_audit.get('defect_score')
-            if score is None:
-                score = recent_audit.get('score', 0)
-            return ('AUDITED', 'audit reused (recent)',
-                    {'defect_count': _defect_count(defects),
-                     'score': _bounded_defect_score(score)})
+    history = History(str(REPO / 'outputs' / 'toolkit'))
+    recent_audit = history.get_latest_valid_audit(host, max_age_days=7)
+    if not recent_audit:
+        return None
+    defects = recent_audit.get('defects', [])
+    score = recent_audit.get('defect_score')
+    if score is None:
+        score = recent_audit.get('score', 0)
+    return (
+        'AUDITED',
+        'audit reused (recent)',
+        {'defect_count': _defect_count(defects), 'score': _bounded_defect_score(score)},
+    )
 
-    # No recent audit found, run new detection
+
+def _run_detector(url):
     try:
         r = subprocess.run(
             ['python3', str(REPO / 'engines' / 'detect.py'), url],
@@ -121,6 +119,67 @@ def audit_handler(d, it, worker):
     return ('AUDITED', 'audit captured',
             {'defect_count': _defect_count(defects),
              'score': _bounded_defect_score(score)})
+
+
+def audit_handler(d, it, worker):
+    """Run the deterministic Website Rescue detector for the business site."""
+    b = _business(d, it['business_id'])
+    url = b['public_website']
+    host = urlparse(url).netloc if url else None
+    recent_result = _recent_audit_result(host)
+    if recent_result is not None:
+        return recent_result
+    return _run_detector(url)
+
+
+def _technical_tier(score):
+    if score >= 80:
+        return 'HIGH_OPPORTUNITY'
+    if score >= 60:
+        return 'MEDIUM_OPPORTUNITY'
+    if score >= 40:
+        return 'OPPORTUNITY'
+    return 'LOW'
+
+
+def _qualification_result(commercial_lead, commercial_score, technical_score, defect_count):
+    commercial_qualified = commercial_score >= 30
+    technical_qualified = technical_score >= 40
+    technical_tier = _technical_tier(technical_score)
+    if not commercial_qualified and not technical_qualified:
+        return (
+            'REJECTED',
+            f' insufficient commercial ({commercial_score}) and technical ({technical_score}) scores',
+            {
+                'commercial_score': commercial_score,
+                'technical_score': technical_score,
+                'defect_count': defect_count,
+                'qualification_basis': 'none',
+                'technical_tier': technical_tier,
+            },
+        )
+
+    if commercial_qualified and technical_qualified:
+        qualification_basis = 'both'
+    elif commercial_qualified:
+        qualification_basis = 'commercial'
+    else:
+        qualification_basis = 'technical'
+    tier = commercial_lead['tier'] if commercial_qualified else 'TECHNICAL_OPPORTUNITY'
+    return (
+        'CONTACT_PENDING',
+        f'qualified: commercial={commercial_score}, technical={technical_score}',
+        {
+            'commercial_score': commercial_score,
+            'technical_score': technical_score,
+            'defect_count': defect_count,
+            'tier': tier,
+            'qualification_basis': qualification_basis,
+            'commercial_tier': commercial_lead['tier'],
+            'technical_tier': technical_tier,
+            'qualification_reasons': commercial_lead['reasons'],
+        },
+    )
 
 
 def qualification_handler(d, it, worker):
@@ -148,46 +207,9 @@ def qualification_handler(d, it, worker):
     commercial_lead = lq.qualify_lead(text, industry='')
     commercial_score = commercial_lead['qualification_score']
 
-    technical_opportunity_score = audit_score
-
-    # Qualification logic:
-    # A prospect is qualified if they have either:
-    # 1. Sufficient commercial relevance (business signals indicate ability to pay/ready to buy)
-    # 2. Sufficient technical opportunity (website has issues we can fix)
-    # 3. Or both (ideal prospect)
-    commercial_qualified = commercial_score >= 30
-    technical_qualified = technical_opportunity_score >= 40
-    technical_tier = (
-        'HIGH_OPPORTUNITY' if technical_opportunity_score >= 80 else
-        'MEDIUM_OPPORTUNITY' if technical_opportunity_score >= 60 else
-        'OPPORTUNITY' if technical_qualified else 'LOW'
+    return _qualification_result(
+        commercial_lead, commercial_score, audit_score, defect_count
     )
-    if commercial_qualified or technical_qualified:
-        qualification_basis = (
-            'both' if commercial_qualified and technical_qualified else
-            'commercial' if commercial_qualified else 'technical'
-        )
-        tier = commercial_lead['tier'] if commercial_qualified else 'TECHNICAL_OPPORTUNITY'
-        return ('CONTACT_PENDING', f'qualified: commercial={commercial_score}, technical={technical_opportunity_score}',
-                {
-                    'commercial_score': commercial_score,
-                    'technical_score': technical_opportunity_score,
-                    'defect_count': defect_count,
-                    'tier': tier,
-                    'qualification_basis': qualification_basis,
-                    'commercial_tier': commercial_lead['tier'],
-                    'technical_tier': technical_tier,
-                    'qualification_reasons': commercial_lead['reasons']
-                })
-    else:
-        return ('REJECTED', f' insufficient commercial ({commercial_score}) and technical ({technical_opportunity_score}) scores',
-                {
-                    'commercial_score': commercial_score,
-                    'technical_score': technical_opportunity_score,
-                    'defect_count': defect_count,
-                    'qualification_basis': 'none',
-                    'technical_tier': technical_tier,
-                })
 
 
 def contact_handler(d, it, worker):

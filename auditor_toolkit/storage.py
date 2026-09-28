@@ -141,48 +141,57 @@ class History:
                     (d["finding_id"], "detected", "{}"),
                 )
 
+    def _validate_false_positive_review(self, identity, metadata):
+        if not isinstance(metadata, dict):
+            raise ValueError("False-positive review metadata must be an object")
+        reviewer_id = metadata.get("reviewer_id")
+        rationale = metadata.get("rationale")
+        review_run_id = metadata.get("review_run")
+        if not isinstance(reviewer_id, str) or not reviewer_id.strip():
+            raise ValueError("False-positive review needs a reviewer_id")
+        if not isinstance(rationale, str) or not rationale.strip():
+            raise ValueError("False-positive review needs a rationale")
+        if not isinstance(review_run_id, str) or not review_run_id.strip():
+            raise ValueError("False-positive review needs a review_run")
+        review_run = self.get(review_run_id)
+        includes_finding = any(
+            finding.get("finding_id") == identity
+            for finding in review_run.get("defects", [])
+        )
+        if review_run.get("status") != "complete" or not includes_finding:
+            raise ValueError(
+                "False-positive review needs a complete run containing the finding"
+            )
+
+    def _validate_verification(self, identity, metadata):
+        run = self.get(metadata.get("verification_run", ""))
+        finding_remains = any(
+            defect["finding_id"] == identity for defect in run["defects"]
+        )
+        if run["status"] != "complete" or finding_remains:
+            raise ValueError("Verification needs a complete run without the finding")
+        with self.connect() as db:
+            originals = [json.loads(row[0]) for row in db.execute("SELECT report FROM runs")]
+        detection_precedes = any(
+            report["url"] == run["url"]
+            and report["profile"] == run["profile"]
+            and report["timestamp"] < run["timestamp"]
+            and any(defect["finding_id"] == identity for defect in report["defects"])
+            for report in originals
+        )
+        if not detection_precedes:
+            raise ValueError(
+                "Verification must cover the same site and profile after detection"
+            )
+
     def transition(self, identity, state, metadata=None):
         if state not in STATES:
             raise ValueError("Unknown remediation state")
         metadata = metadata or {}
         if state == "false_positive":
-            if not isinstance(metadata, dict):
-                raise ValueError("False-positive review metadata must be an object")
-            reviewer_id = metadata.get("reviewer_id")
-            rationale = metadata.get("rationale")
-            review_run_id = metadata.get("review_run")
-            if not isinstance(reviewer_id, str) or not reviewer_id.strip():
-                raise ValueError("False-positive review needs a reviewer_id")
-            if not isinstance(rationale, str) or not rationale.strip():
-                raise ValueError("False-positive review needs a rationale")
-            if not isinstance(review_run_id, str) or not review_run_id.strip():
-                raise ValueError("False-positive review needs a review_run")
-            review_run = self.get(review_run_id)
-            if review_run.get("status") != "complete" or not any(
-                finding.get("finding_id") == identity
-                for finding in review_run.get("defects", [])
-            ):
-                raise ValueError(
-                    "False-positive review needs a complete run containing the finding"
-                )
-        if state == "verified":
-            run = self.get(metadata.get("verification_run", ""))
-            if run["status"] != "complete" or any(
-                d["finding_id"] == identity for d in run["defects"]
-            ):
-                raise ValueError("Verification needs a complete run without the finding")
-            with self.connect() as db:
-                originals = [json.loads(r[0]) for r in db.execute("SELECT report FROM runs")]
-            if not any(
-                r["url"] == run["url"]
-                and r["profile"] == run["profile"]
-                and r["timestamp"] < run["timestamp"]
-                and any(d["finding_id"] == identity for d in r["defects"])
-                for r in originals
-            ):
-                raise ValueError(
-                    "Verification must cover the same site and profile after detection"
-                )
+            self._validate_false_positive_review(identity, metadata)
+        elif state == "verified":
+            self._validate_verification(identity, metadata)
         with self.connect() as db:
             if (
                 db.execute(
