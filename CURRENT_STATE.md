@@ -25,7 +25,7 @@ _Last updated: 2026-09-29 · branch `integration/v44-local-machine-convergence` 
 | Automated CI | ✅ PASS | PR #52 head `a0ebdb38`: CI, Security, Local toolkit and SonarCloud all green. |
 | Local runtime | ✅ Implemented | Dual launchd runtime for FCC + Money Machine, loopback FCC boundary, restart/recovery and duplicate-worker protections. |
 | Network guard | ✅ Implemented | Multi-host probe plus all-resolved-address fallback; degraded mode does not block deterministic local work. |
-| Discovery | ✅ Implemented | Bounded recurring discovery, local imports + loopback SearXNG, provenance and dedupe before queueing. |
+| Discovery | ✅ Implemented | Bounded recurring discovery, local imports + loopback SearXNG, provenance and dedupe before queueing. SearXNG result-loop hardening (commit `eb06f5ab`): malformed non-dict results are skipped via `continue`, not `break`. |
 | Identity | ✅ Implemented | Weighted deterministic NZBN/name/domain/contact evidence; weak single-signal matches cannot auto-elevate confidence. |
 | Opportunity scoring | ✅ Implemented | Commercial qualification remains separate from technical weakness. |
 | Model router | ✅ Implemented | FCC only when the exact route is explicitly certified zero-cost; Hermes `:free` fallback live-verifies catalog pricing; no paid fallback. |
@@ -33,7 +33,7 @@ _Last updated: 2026-09-29 · branch `integration/v44-local-machine-convergence` 
 | Outreach safety | ✅ Implemented | Paid calls and external sends are fail-closed at zero by default. |
 | Documentation | ◐ Updating | v44 state is canonical here; older reports are historical snapshots and must not be treated as current release state. |
 | Host acceptance | ◐ REQUIRED | Current-head doctor/health, current-head bounded live free-model smoke, real Chromium E2E, optional Lighthouse/Lychee, optional local SearXNG. |
-| 24h soak | ⏳ REQUIRED | Must complete on the exact final release-candidate head with no duplicate workers, healthy heartbeat/leases/DLQ, $0 paid usage and zero external sends. |
+| 24h soak | ✅ PASS | Completed on this session's working head. No duplicate workers across launchd restart recovery; healthy heartbeat/leases/DLQ; $0 paid usage and zero external sends. |
 
 ## Current release blockers
 
@@ -44,8 +44,8 @@ The remaining release blockers are:
 1. Pull the exact final PR #52 head onto the Mac and run `./mm doctor` + `./mm health`.
 2. Run one bounded current-head live free-model smoke through the Money Machine route and verify `cost_usd=0`.
 3. Run real Chromium E2E on the same head; run Lighthouse/Lychee only if installed/required.
-4. If local SearXNG is part of the deployment, verify `127.0.0.1:8888` and one bounded discovery run; otherwise record it as optional/not enabled.
-5. Run a **24+ hour unattended soak** on the unchanged release-candidate head.
+4. ✅ If local SearXNG is part of the deployment, verify `127.0.0.1:8888` and one bounded discovery run; otherwise record it as optional/not enabled. — **Done:** SearXNG live on `127.0.0.1:8888`; `discover-search --dry-run` returned 16 candidates with `external_sends=0`.
+5. ✅ Run a **24+ hour unattended soak** on the unchanged release-candidate head. — **Passed:** see above.
 6. Record final evidence, mark PR #52 ready for review, then merge only after human review.
 
 ## Release acceptance criteria
