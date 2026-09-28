@@ -1505,15 +1505,17 @@ cost alerts, and pause behavior remain open. Staging,
 database/restore, worker egress, accessibility, rollback, operational, and
 legal gates remain open.
 
-### Current dirty source diff — 28 September 2026
+### Previous worker-cap diff snapshot (committed in `0f8397c3`) — 28 September 2026
 
-The tracked worktree includes uncommitted changes to `catalyx_web/db.py`,
-`catalyx_web/worker.py`, `toolkit_tests/test_catalyx_web.py`, and these two
-readiness records. The local database enforces a five-customer-workspace cap
-and schema v7 adds a shared 90-second worker lease. Current local verification
-is **269 passed, 5 opt-in browser tests skipped**; the dedicated Catalyx browser
-journey passed **1 test**, Ruff passed, and `git diff --check` passed. The suite
-is synthetic/local evidence; PostgreSQL and provider behavior remain unverified.
+At this recorded snapshot, the tracked worktree contained uncommitted changes
+to `catalyx_web/db.py`, `catalyx_web/worker.py`,
+`toolkit_tests/test_catalyx_web.py`, and these two readiness records. That
+change set was committed and pushed as `0f8397c3`. The local database enforces
+a five-customer-workspace cap and schema v7 adds a shared 90-second worker
+lease. Verification at that revision was **269 passed, 5 opt-in browser tests
+skipped**; the dedicated Catalyx browser journey passed **1 test**, Ruff
+passed, and `git diff --check` passed. PostgreSQL and provider behavior remain
+unverified.
 
 Codex Security completed scan
 `09604840-2df3-4a0c-9ce9-a9359b052fee` reviewed the tracked worktree diff from
@@ -1532,6 +1534,19 @@ The actual A7 operator/support/recovery names and A8 legal entity/contact and
 approved wording remain outstanding. The recommended defaults do not supply
 those facts. Production and `.com` remain no-go; no deployment, provider, DNS,
 email, customer-data, or `.shop` change was made.
+
+### Worker lease expiry regression — 28 September 2026
+
+A deterministic synthetic test now pauses the first worker beyond both its
+60-second request lease and 90-second global lease, lets a replacement worker
+reclaim and complete the request, then resumes the stale worker. The stale
+worker observes cancellation, cannot persist a second result, and releases
+only its own lease token. The complete toolkit suite passed **270 tests**, with
+**5 opt-in browser tests skipped** and two upstream deprecation warnings; the
+three focused global-lease, expiry-recovery, and result-fencing tests passed.
+Ruff and `git diff --check` passed. This closes the synthetic process-pause
+recovery case; PostgreSQL migration/concurrency, hosted worker isolation, and
+provider staging remain unverified. No soak/load test was run.
 
 ### Phase B provider documentation refresh — 28 September 2026
 

@@ -286,15 +286,26 @@ fencing, cancellation, and schema-migration tests passed; Ruff and
 `git diff --check` passed. These local checks are not soak/load tests, which
 remain skipped as directed.
 
-### Current dirty source diff — 28 September 2026
+### Previous worker-cap diff snapshot (committed in `0f8397c3`) — 28 September 2026
 
-The latest uncommitted tracked diff adds the workspace cap and singleton worker
-lease described above and updates their regressions. Full local verification
-passed **269 tests**, with **5 opt-in browser tests skipped**; the dedicated
-Catalyx browser journey passed **1 test**. Ruff and `git diff --check` passed.
-Codex Security scan `09604840-2df3-4a0c-9ce9-a9359b052fee` reported zero
-confirmed reportable findings and partial coverage, with the long process-pause
-worker-overlap scenario deferred for a bounded recovery check. PostgreSQL
-behavior, hosted worker isolation, and provider staging remain unverified.
-Production stays no-go while A7 named operations contacts and A8 legal identity
-and approved copy are outstanding. No soak/load test was run.
+The tracked worker-cap change set was committed and pushed as `0f8397c3`. Full
+local verification at that revision passed **269 tests**, with **5 opt-in
+browser tests skipped**; Ruff and `git diff --check` passed. Codex Security
+scan `09604840-2df3-4a0c-9ce9-a9359b052fee` reported zero confirmed reportable
+findings and partial coverage, deferring the long process-pause worker-overlap
+scenario. PostgreSQL behavior, hosted worker isolation, and provider staging
+remain unverified. Production stays no-go while A7 named operations contacts
+and A8 legal identity and approved copy are outstanding. No soak/load test was
+run.
+
+### Worker lease expiry recovery check — 28 September 2026
+
+A new deterministic synthetic regression pauses a worker beyond its 90-second
+global lease and 60-second request lease, then verifies that a replacement
+worker completes the request and the stale worker cannot continue the audit or
+persist another result. The full repository suite passed **270 tests**, with
+**5 opt-in browser tests skipped** and two upstream deprecation warnings. The
+three focused global-lease, expiry-recovery, and result-fencing tests passed;
+Ruff and `git diff --check` passed. PostgreSQL migration/concurrency and hosted
+worker isolation remain unverified. A7/A8 owner gates remain open; no soak or
+load test was run.

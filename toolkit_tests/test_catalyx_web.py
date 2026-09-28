@@ -9,6 +9,7 @@ import stat
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
+from threading import Event
 from types import SimpleNamespace
 from urllib.parse import urlparse
 
@@ -1159,6 +1160,97 @@ def test_only_one_audit_worker_can_hold_the_global_lease(tmp_path):
 
     database.release_worker_lease(owner_token)
     assert worker.run_once(db_path) == {"status": "idle"}
+
+
+def test_worker_resuming_after_expiry_cannot_continue_stale_audit(tmp_path, monkeypatch):
+    from catalyx_web import worker
+
+    db_path = tmp_path / "worker-expiry.sqlite3"
+    customer = TestClient(create_app(db_path, tmp_path / "customer-mailbox.json"))
+    register_and_login(customer, "worker-expiry@example.invalid")
+    audit_id = submit_audit(customer, add_site(customer))
+
+    database = Database(db_path)
+    secret = "JBSWY3DPEHPK3PXP"
+    database.create_admin("reviewer@example.invalid", hash_password("a-long-reviewer-password-456"), secret)
+    reviewer = TestClient(create_app(db_path, tmp_path / "reviewer-mailbox.json"))
+    login_page = reviewer.get("/login")
+    response = reviewer.post(
+        "/login",
+        data={
+            "csrf": form_token(login_page),
+            "email": "reviewer@example.invalid",
+            "password": "a-long-reviewer-password-456",
+            "otp": totp_code(secret),
+        },
+        follow_redirects=False,
+    )
+    assert response.status_code == 303
+    detail = reviewer.get(f"/admin/audits/{audit_id}")
+    response = reviewer.post(
+        f"/admin/audits/{audit_id}/decision",
+        data={
+            "csrf": form_token(detail),
+            "decision": "approve",
+            "reason": "Worker expiry recovery test",
+        },
+        follow_redirects=False,
+    )
+    assert response.status_code == 303
+
+    fake_now = [int(time.time())]
+    monkeypatch.setattr(worker, "time", SimpleNamespace(time=lambda: fake_now[0]))
+    first_started = Event()
+    resume_first = Event()
+    cancelled_first = []
+    calls = []
+
+    def staged_result(_origin, *, cancel_check=None):
+        calls.append(cancel_check)
+        if len(calls) == 1:
+            first_started.set()
+            assert resume_first.wait(timeout=5)
+            cancelled_first.append(cancel_check())
+            if cancelled_first[-1]:
+                raise EgressCancelledError("stale worker lease")
+            pytest.fail("stale worker continued after its request lease expired")
+        return {
+            "schema_version": 1,
+            "profile": "customer_static_single_page_v1",
+            "status": "complete",
+            "site_host": "example.co.nz",
+            "started_at": "2026-09-28T00:00:00+00:00",
+            "completed_at": "2026-09-28T00:00:01+00:00",
+            "checks": {"fetch": {"status": "complete", "http_status": 200}},
+            "findings": [],
+            "limitations": [],
+        }
+
+    monkeypatch.setattr(worker, "run_authorized_static_audit", staged_result)
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        stale_future = pool.submit(worker.run_once, db_path)
+        assert first_started.wait(timeout=5)
+        fake_now[0] += worker.GLOBAL_WORKER_LEASE_SECONDS + 1
+        current_result = worker.run_once(db_path)
+        resume_first.set()
+        stale_result = stale_future.result(timeout=5)
+
+    assert current_result["status"] == "quality_review"
+    assert current_result["audit_id"] == audit_id
+    assert stale_result == {"status": "lease_lost"}
+    assert cancelled_first == [True]
+    with database.connect() as db:
+        request = db.execute(
+            "SELECT state,attempt_count,worker_lease_token FROM audit_requests WHERE id=?",
+            (audit_id,),
+        ).fetchone()
+        result_count = db.execute(
+            "SELECT COUNT(*) FROM audit_results WHERE audit_id=?", (audit_id,)
+        ).fetchone()[0]
+    assert request["state"] == "quality_review"
+    assert request["attempt_count"] == 2
+    assert request["worker_lease_token"] is None
+    assert result_count == 1
 
 
 def test_versioned_api_enforces_tenancy_and_admin_review(tmp_path):
