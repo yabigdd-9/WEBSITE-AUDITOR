@@ -1,7 +1,10 @@
 
-import json, os, urllib.request
+import json
+import os
+import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
+
 
 class Watchdog:
     def __init__(self, output_root=None, snapshot_dir=None, webhook_url=None):

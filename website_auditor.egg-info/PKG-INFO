@@ -32,6 +32,7 @@ Requires-Dist: aiosmtplib<6,>=5.1.2; extra == "smtp"
 Provides-Extra: dev
 Requires-Dist: pytest>=8.3; extra == "dev"
 Requires-Dist: pytest-asyncio>=0.24; extra == "dev"
+Requires-Dist: pytest-cov<7,>=6; extra == "dev"
 Requires-Dist: ruff>=0.6; extra == "dev"
 
 # WEBSITE AUDITOR

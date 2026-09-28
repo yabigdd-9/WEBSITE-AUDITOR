@@ -20,6 +20,7 @@ playwright<2,>=1.51
 [dev]
 pytest>=8.3
 pytest-asyncio>=0.24
+pytest-cov<7,>=6
 ruff>=0.6
 
 [portal]

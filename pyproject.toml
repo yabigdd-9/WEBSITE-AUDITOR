@@ -45,6 +45,7 @@ smtp = ["aiosmtplib>=5.1.2,<6"]
 dev = [
   "pytest>=8.3",
   "pytest-asyncio>=0.24",
+  "pytest-cov>=6,<7",
   "ruff>=0.6",
 ]
 

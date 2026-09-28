@@ -59,6 +59,7 @@ catalyx_web/security.py
 catalyx_web/totp_key_rotation.py
 catalyx_web/worker.py
 catalyx_web/static/favicon.svg
+catalyx_web/static/public-draft.css
 catalyx_web/static/reset.js
 catalyx_web/static/site.css
 catalyx_web/static/verify.js
