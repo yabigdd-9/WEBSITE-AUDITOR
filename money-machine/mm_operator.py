@@ -272,6 +272,7 @@ def main(argv=None):
     q.add_argument('--sleep',type=float,default=5)
     q.add_argument('--tail',type=int,default=50)
     q.add_argument('--timeout',type=float,default=15)
+    q=s.add_parser('searxng');q.add_argument('action',choices=['status','start','stop','restart','ensure-running','install','uninstall'])
     q=s.add_parser('outreach-plan');q.add_argument('--brief',required=True)
     s.add_parser('polish-status')
     s.add_parser('module-status')
@@ -517,6 +518,33 @@ def main(argv=None):
         result=_sc.COMMANDS[a.action](a)
         print(json.dumps(result,indent=2,default=str))
         return 0
+
+    if a.cmd=='searxng':
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from supervisor import searxng_launchd as searxng
+        try:
+            if a.action == 'status':
+                result = searxng.status()
+            elif a.action == 'start':
+                result = searxng.start()
+            elif a.action == 'stop':
+                result = searxng.stop()
+            elif a.action == 'restart':
+                searxng.stop()
+                result = searxng.start()
+            elif a.action == 'ensure-running':
+                result = searxng.ensure_running()
+            elif a.action == 'install':
+                result = searxng.install(load=True)
+            elif a.action == 'uninstall':
+                result = searxng.uninstall()
+            else:
+                raise AssertionError(f"Unknown searxng action: {a.action}")
+            print(json.dumps(result, indent=2, default=str))
+            return 0
+        except FileNotFoundError as e:
+            print(json.dumps({"error": str(e)}, indent=2))
+            return 2
     if a.cmd=='model-routes':
         import mm_model_router
         print(json.dumps({'routes':mm_model_router.routes_report(),'paid_allowed':False,'max_cost_usd':0,'fallback':'DEFER'},indent=2));return 0
