@@ -140,7 +140,7 @@ human-only: external sends, model enablement, pricing to customers, approvals, S
 - `report.json` contains a claim ledger mapping draftable claims to finding IDs, source URLs, evidence references, freshness and confidence.
 - Draft proofing rejects guarantees, invented percentages, unsupported revenue claims and unbounded promises.
 - Model-assisted work uses Claude through the loopback FCC harness first. The exact FCC model must be explicitly certified zero-cost; `auto` is not trusted as free.
-- If FCC/Claude is unavailable or would require payment, Hermes may use only its live-verified `:free` role routes with zero price caps. Free endpoints may retain or train on prompts, so this lane is restricted to sanitized public/non-confidential prompts; secrets/PII/confidential customer content must be held. If no such route is available, the task DEFERs.
+- If FCC/Claude is unavailable or would require payment, Hermes may use only its live-verified `:free` role routes with zero price caps. Repository policy remains `data_collection: deny` by default; only an explicitly attested public/synthetic request may opt into a data-collecting free endpoint at request time. Secrets/PII/confidential customer content must be held. If no such route is available, the task DEFERs.
 - llama.cpp and Ollama are not active Money Machine inference routes.
 - External-model prompts pass the redaction boundary; secrets, contact details and local paths are masked, and human review remains required.
 - Deterministic findings and evidence remain canonical; model output is challenger material only.
