@@ -37,16 +37,31 @@ Runtime: Python 3.11 in `.venv-email` (never "fix" with global 3.14). All comman
 - Stale-process hygiene: `ps aux | grep '[s]upervisor'` may match multiple; confirm cwd with
   `lsof -p <PID> | awk '$4=="cwd"'` before killing strays (e.g. pre-flock Python 3.14 leftovers).
 
-## 4. Continuity cron (ensure-running) — install & removal
+## 4. Always-on local runtime — launchd primary
 
-Installed (one line, built into macOS, plus @reboot):
+The supported macOS path is the user-scoped LaunchAgent in `money-machine/supervisor/launchd.py`.
+It uses `RunAtLoad=true` and `KeepAlive=true`, while the supervisor PID/flock still prevents duplicates.
+
+- Install + verify: `sh scripts/local-machine.sh install`
+- Status + health: `sh scripts/local-machine.sh status`
+- Restart: `sh scripts/local-machine.sh restart`
+- Logs: `sh scripts/local-machine.sh logs`
+- Remove: `sh scripts/local-machine.sh uninstall`
+- Label: `ai.website-auditor.supervisor`
+- External sends remain disabled in the LaunchAgent environment.
+
+The installer now exits non-zero if the plist is written but `launchctl bootstrap` fails, so a broken always-on setup cannot look successful.
+
+### Optional cron fallback
+
+If launchd is intentionally not used, the existing idempotent fallback remains:
+
 ```
 */5 * * * * cd /Users/dd/WEBSITE-AUDITOR && ./mm supervisor ensure-running >> state/ensure-running.log 2>&1
 @reboot cd /Users/dd/WEBSITE-AUDITOR && ./mm supervisor ensure-running >> state/ensure-running.log 2>&1
 ```
-- Install: `crontab -e`, add both lines. Verify: `kill -9 <supervisor_pid>` → new PID within 5 min, no duplicates.
-- **Removal:** `crontab -e`, delete both lines, save. Then `./mm supervisor stop` if you want it fully down.
-- Log: `state/ensure-running.log` (tail it to see no-op vs start events).
+
+Do not rely on cron as the primary path when the LaunchAgent is healthy.
 
 ## 5. Sandbox vs host capability table
 
@@ -59,7 +74,7 @@ Installed (one line, built into macOS, plus @reboot):
 | Playwright / browser e2e | ❌ (skipped) | ✅ |
 | Discovery tests (frozen 12) | ✅ pass | ✅ pass |
 | Email send transport | ❌ none (fail-closed, cap 0) | ❌ must stay none |
-| launchd install | ❌ blocked | optional; cron is the supported path |
+| launchd install | host-only | ✅ primary always-on path on macOS |
 
 `./mm doctor` prints live capabilities so "why skipped" is one command away. Test skips are explicit
 (`BLOCKED_FIXTURE: <path> not present in this environment`) — never silently green.
@@ -85,7 +100,7 @@ Installed (one line, built into macOS, plus @reboot):
 $0 spend (`paid_allowed=false`, never set `MM_ALLOW_EXTERNAL_FREE_MODELS=1`) · zero new software/deps ·
 fail-closed transport (`external_send_allowed=false`, `daily_cap=0`) · loopback-only probes ·
 one writer per file · never commit `state/*`, `*.db`, `.env`, reports outputs, caches, secrets ·
-human-only: external sends, model enablement, pricing to customers, approvals, launchd, SearXNG host service, master merges, remote pushes.
+human-only: external sends, model enablement, pricing to customers, approvals, SearXNG host service, master merges, remote pushes.
 
 ## 9. Fast audit and visual evidence
 
