@@ -7,9 +7,11 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shutil
 from pathlib import Path
 
 from .common import atomic_write_json, atomic_write_text
+from .opportunity import contact_provenance
 
 
 def _sha(path: Path) -> str:
@@ -20,6 +22,43 @@ def _bind(label: str, obj: dict) -> dict:
     """Bind only the supplied manifest object; never follow manifest-provided paths."""
     encoded = json.dumps(obj, sort_keys=True, separators=(",", ":"), default=str).encode()
     return {"kind": label, "sha256": hashlib.sha256(encoded).hexdigest()}
+
+
+def _copy_demo_image(
+    record: dict | None,
+    name: str,
+    source_name: str,
+    artifact_dir: Path | None,
+    output: Path,
+) -> dict | None:
+    if record is None:
+        return None
+    if not isinstance(record, dict):
+        raise ValueError("Malformed demo screenshot reference")
+    if artifact_dir is None:
+        raise ValueError("Trusted demo_artifact_dir is required to include screenshots")
+    try:
+        root = Path(artifact_dir).resolve(strict=True)
+        source = (root / source_name).resolve(strict=True)
+    except (OSError, RuntimeError) as exc:
+        raise ValueError("Trusted demo screenshot cannot be resolved safely") from exc
+    output_parent = output.resolve().parent
+    if (
+        not root.is_dir()
+        or root.parent != output_parent
+        or source.parent != root
+        or source.suffix.lower() != ".png"
+        or not source.is_file()
+        or source.stat().st_size > 20_000_000
+        or not source.read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
+        or record.get("sha256") != _sha(source)
+    ):
+        raise ValueError("Demo screenshot is outside the packet workspace or failed hash validation")
+    target_dir = output / "screenshots"
+    target_dir.mkdir(exist_ok=True)
+    target = target_dir / name
+    shutil.copyfile(source, target)
+    return {"path": f"screenshots/{name}", "sha256": _sha(target), "kind": record.get("kind")}
 
 
 def _draft(report: dict, quote: dict) -> str:
@@ -60,6 +99,7 @@ def build_packet(
     output_dir,
     *,
     contact: dict | None = None,
+    demo_artifact_dir=None,
 ) -> dict:
     run_id = report.get("run_id")
     if not run_id or any(x.get("source_run_id") != run_id for x in (remediation, demo, quote)):
@@ -71,7 +111,9 @@ def build_packet(
 
     from .opportunity import opportunity_from_packet_evidence
 
-    opportunity = opportunity_from_packet_evidence(report, remediation, quote, contact)
+    safe_contact_provenance = contact_provenance(contact)
+    score_contact = contact if safe_contact_provenance else None
+    opportunity = opportunity_from_packet_evidence(report, remediation, quote, score_contact)
 
     output = Path(output_dir)
     if output.exists() and any(output.iterdir()):
@@ -82,11 +124,12 @@ def build_packet(
 
     selected_email = None
     email_state = "NO_VERIFIED_EMAIL"
-    if contact:
-        selected = contact.get("selected") or {}
-        label = selected.get("confidence_label") or contact.get("verification")
-        if label in {"VERIFIED_HIGH", "VERIFIED"} and contact.get("email"):
+    if contact and safe_contact_provenance:
+        label = safe_contact_provenance["confidence_label"]
+        if label == "VERIFIED_HIGH" and contact.get("email"):
             selected_email = contact["email"]
+            email_state = label
+        else:
             email_state = label
 
     packet = {
@@ -96,6 +139,7 @@ def build_packet(
         "business": {"website": report.get("url"), "domain": report.get("domain")},
         "contact": selected_email,
         "email_confidence": email_state,
+        "contact_provenance": safe_contact_provenance,
         "audit_score": report.get("health_score"),
         "opportunity_score": opportunity["opportunity_score"],
         "opportunity": opportunity,
@@ -108,8 +152,8 @@ def build_packet(
             }
             for d in (report.get("defects") or [])[:5]
         ],
-        "before_images": [demo["before"]] if demo.get("before") else [],
-        "after_images": [demo["after"]] if demo.get("after") else [],
+        "before_images": [],
+        "after_images": [],
         "recommended_package": quote.get("package"),
         "quote_band": quote.get("price_band_nzd"),
         "proof": {
@@ -123,7 +167,7 @@ def build_packet(
             _bind("demo", demo),
             _bind("quote", quote),
         ],
-        "draft_message_path": str(output / "draft-message.txt"),
+        "draft_message_path": "draft-message.txt",
         "draft_message_sha256": _sha(output / "draft-message.txt"),
         "qa_status": "HUMAN_REVIEW_REQUIRED",
         "approval_status": "HUMAN_APPROVAL_REQUIRED",
@@ -135,6 +179,19 @@ def build_packet(
         "paid_ai_cost_usd": 0,
         "review_required": True,
     }
+    trusted_demo_dir = Path(demo_artifact_dir) if demo_artifact_dir is not None else None
+    before = _copy_demo_image(
+        demo.get("before"), "before.png", "before-source.png", trusted_demo_dir, output
+    )
+    after = _copy_demo_image(
+        demo.get("after"), "after.png", "concept-render.png", trusted_demo_dir, output
+    )
+    if before:
+        packet["before_images"].append(before)
+    if after:
+        packet["after_images"].append(after)
+    if safe_contact_provenance:
+        packet["evidence"].append(_bind("contact_provenance", safe_contact_provenance))
     atomic_write_json(output / "packet.json", packet)
     approval = (
         "# Prospect packet — HUMAN_APPROVAL_REQUIRED\n\n"

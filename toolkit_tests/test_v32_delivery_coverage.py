@@ -16,7 +16,7 @@ def full_report(tmp_path):
     run_dir = tmp_path / "run"
     run_dir.mkdir()
     screenshot = run_dir / "desktop.png"
-    screenshot.write_bytes(b"synthetic-png")
+    screenshot.write_bytes(b"\x89PNG\r\n\x1a\nsynthetic-png")
     report_json = run_dir / "report.json"
     defects = []
     keys = [
@@ -91,7 +91,7 @@ def test_demo_copies_only_manifest_verified_screenshot_and_renders_in_memory(tmp
 
     def fake_render(html, screenshot):
         assert "LOCAL CONCEPT ONLY" in html
-        screenshot.write_bytes(b"rendered-concept")
+        screenshot.write_bytes(b"\x89PNG\r\n\x1a\nrendered-concept")
 
     with patch("auditor_toolkit.demo._render_html", side_effect=fake_render):
         demo = build_demo(
@@ -102,9 +102,9 @@ def test_demo_copies_only_manifest_verified_screenshot_and_renders_in_memory(tmp
             report_path=report["artifacts"]["json"],
         )
     assert demo["before"]["kind"] == "captured_source"
-    assert Path(demo["before"]["path"]).read_bytes() == b"synthetic-png"
+    assert Path(demo["before"]["path"]).read_bytes() == b"\x89PNG\r\n\x1a\nsynthetic-png"
     assert demo["after"]["kind"] == "local_concept_render"
-    assert Path(demo["after"]["path"]).read_bytes() == b"rendered-concept"
+    assert Path(demo["after"]["path"]).read_bytes() == b"\x89PNG\r\n\x1a\nrendered-concept"
 
     tampered = dict(report)
     tampered["manifest"] = {
@@ -131,6 +131,15 @@ def test_packet_verified_contact_and_manifest_binding_do_not_follow_paths(tmp_pa
     contact = {
         "email": "hello@example.co.nz",
         "selected": {"confidence_label": "VERIFIED_HIGH"},
+        "provenance": {
+            "sources": [{
+                "source_url": "https://example.co.nz/contact",
+                "captured_at": "2026-09-28T00:00:00Z",
+                "capture_sha256": "c" * 64,
+                "first_party_observed": True,
+                "observed_email": "hello@example.co.nz",
+            }]
+        },
     }
     packet = build_packet(
         report,
@@ -139,6 +148,7 @@ def test_packet_verified_contact_and_manifest_binding_do_not_follow_paths(tmp_pa
         quote,
         tmp_path / "packet",
         contact=contact,
+        demo_artifact_dir=tmp_path / "demo",
     )
     assert packet["contact"] == "hello@example.co.nz"
     assert packet["email_confidence"] == "VERIFIED_HIGH"

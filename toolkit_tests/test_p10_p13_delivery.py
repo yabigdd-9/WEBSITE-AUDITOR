@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import pytest
@@ -118,8 +119,11 @@ def test_p11_demo_and_p13_packet_never_claim_live_change_or_send(tmp_path):
     assert packet["opportunity"]["formula_version"] == "opportunity-v1"
     assert packet["opportunity"]["provenance"]["commercial_score_evidence_ids"] == []
     assert len(packet["evidence"]) == 4
-    assert Path(packet["draft_message_path"]).is_file()
-    assert "not measured or guaranteed" in Path(packet["draft_message_path"]).read_text()
+    assert not Path(packet["draft_message_path"]).is_absolute()
+    assert (tmp_path / "packet" / packet["draft_message_path"]).is_file()
+    assert "not measured or guaranteed" in (
+        tmp_path / "packet" / packet["draft_message_path"]
+    ).read_text()
 
 
 def test_p13_packet_recomputes_opportunity_from_bound_evidence(tmp_path):
@@ -137,9 +141,21 @@ def test_p13_packet_recomputes_opportunity_from_bound_evidence(tmp_path):
         demo,
         quote,
         tmp_path / "packet",
+        demo_artifact_dir=tmp_path / "demo",
         contact={
             "email": "owner@example.co.nz",
             "selected": {"confidence_label": "VERIFIED_HIGH"},
+            "provenance": {
+                "verifier_version": "email-v2.0.0",
+                "sources": [{
+                    "source_url": "https://example.co.nz/contact?session=private",
+                    "captured_at": "2026-09-28T00:00:00Z",
+                    "capture_sha256": "a" * 64,
+                    "first_party_observed": True,
+                    "observed_email": "owner@example.co.nz",
+                    "capture_path": "/private/local/capture.html",
+                }],
+            },
         },
     )
 
@@ -153,6 +169,66 @@ def test_p13_packet_recomputes_opportunity_from_bound_evidence(tmp_path):
     assert packet["opportunity"]["components"]["contactability"] == 0.95
     assert packet["opportunity"]["provenance"]["commercial_score_evidence_ids"] == [17, 18]
     assert packet["contact"] == "owner@example.co.nz"
+    assert packet["contact_provenance"]["sources"] == [{
+        "url": "https://example.co.nz/contact",
+        "captured_at": "2026-09-28T00:00:00Z",
+        "sha256": "a" * 64,
+    }]
+    assert "capture_path" not in json.dumps(packet)
+
+
+def test_p13_drops_verified_email_without_matching_first_party_capture(tmp_path):
+    r = report()
+    remediation = build_remediation(r, tmp_path / "remediation")
+    quote = calculate_quote(r, "150")
+    demo = build_demo(r, remediation, tmp_path / "demo")
+
+    packet = build_packet(
+        r,
+        remediation,
+        demo,
+        quote,
+        tmp_path / "packet",
+        contact={
+            "email": "owner@example.co.nz",
+            "selected": {"confidence_label": "VERIFIED_HIGH"},
+        },
+    )
+
+    assert packet["contact"] is None
+    assert packet["email_confidence"] == "NO_VERIFIED_EMAIL"
+    assert packet["contact_provenance"] is None
+    assert packet["opportunity"]["components"]["contactability"] == 0
+
+
+def test_p13_copies_screenshots_into_packet_without_absolute_paths(tmp_path):
+    r = report()
+    remediation = build_remediation(r, tmp_path / "remediation")
+    quote = calculate_quote(r, "150")
+    demo = build_demo(r, remediation, tmp_path / "demo")
+    screenshot = tmp_path / "demo" / "before-source.png"
+    screenshot.write_bytes(b"\x89PNG\r\n\x1a\nsynthetic")
+    from hashlib import sha256
+    demo["before"] = {
+        "path": str(screenshot),
+        "sha256": sha256(screenshot.read_bytes()).hexdigest(),
+        "kind": "captured_source",
+    }
+
+    packet = build_packet(
+        r,
+        remediation,
+        demo,
+        quote,
+        tmp_path / "packet",
+        demo_artifact_dir=tmp_path / "demo",
+    )
+
+    image_ref = packet["before_images"][0]
+    assert image_ref["path"] == "screenshots/before.png"
+    assert not Path(image_ref["path"]).is_absolute()
+    assert (tmp_path / "packet" / image_ref["path"]).read_bytes() == screenshot.read_bytes()
+    assert str(screenshot) not in json.dumps(packet)
 
 
 def test_p9_caps_normalized_effort_for_large_quotes():
@@ -183,9 +259,19 @@ def test_p9_caps_normalized_effort_for_large_quotes():
         "estimated_hours": {"high": "276.00"},
     }
 
-    result = opportunity_from_packet_evidence(
-        r, remediation, quote, {"selected": {"confidence_label": "VERIFIED_HIGH"}}
-    )
+    result = opportunity_from_packet_evidence(r, remediation, quote, {
+        "email": "owner@example.co.nz",
+        "selected": {"confidence_label": "VERIFIED_HIGH"},
+        "provenance": {
+            "sources": [{
+                "source_url": "https://example.co.nz/contact",
+                "captured_at": "2026-09-28T00:00:00Z",
+                "capture_sha256": "b" * 64,
+                "first_party_observed": True,
+                "observed_email": "owner@example.co.nz",
+            }]
+        },
+    })
 
     assert result["components"]["effort"] == 1
 

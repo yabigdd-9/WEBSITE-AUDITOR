@@ -191,7 +191,14 @@ def main(argv=None):
         remediation = json.loads(remediation_path.read_text())
         demo = json.loads(demo_path.read_text())
         quote = json.loads(quote_path.read_text())
-        result = build_packet(report, remediation, demo, quote, output_dir)
+        result = build_packet(
+            report,
+            remediation,
+            demo,
+            quote,
+            output_dir,
+            demo_artifact_dir=demo_path.parent,
+        )
         print(json.dumps(result, indent=2))
         return 0
     if args.command == "doctor":

@@ -13,6 +13,9 @@ Formula (v1), every component 0..1 unless stated:
 from __future__ import annotations
 
 import math
+import re
+from datetime import datetime
+from urllib.parse import urlsplit, urlunsplit
 
 FORMULA_VERSION = "opportunity-v1"
 
@@ -60,6 +63,77 @@ def _clamp01(value):
     if not math.isfinite(number) or not 0.0 <= number <= 1.0:
         raise ValueError(f"opportunity input out of range [0,1]: {value!r}")
     return number
+
+
+def contact_provenance(contact: dict | None) -> dict | None:
+    """Return a path-free provenance summary for first-party contact evidence."""
+    if not isinstance(contact, dict):
+        return None
+    provenance = contact.get("provenance")
+    sources = provenance.get("sources") if isinstance(provenance, dict) else None
+    if not isinstance(sources, list) or not sources:
+        return None
+    email = str(contact.get("email") or "").strip().casefold()
+    if email.count("@") != 1 or any(ch.isspace() for ch in email):
+        return None
+    local, domain = email.rsplit("@", 1)
+    if not local or not domain or "." not in domain:
+        return None
+    selected = contact.get("selected")
+    label = (
+        (selected.get("confidence_label") if isinstance(selected, dict) else None)
+        or contact.get("verification")
+        or contact.get("confidence")
+    )
+    if label not in CERTAINTY_MAP or CERTAINTY_MAP[label] <= 0:
+        return None
+    safe_sources = []
+    for source in sources:
+        if not isinstance(source, dict) or source.get("first_party_observed") is not True:
+            continue
+        observed_email = str(source.get("observed_email") or "").strip().casefold()
+        if observed_email != email:
+            continue
+        raw_url = str(source.get("source_url") or source.get("url") or "")
+        try:
+            parts = urlsplit(raw_url)
+            hostname = parts.hostname
+            port = parts.port
+        except ValueError:
+            continue
+        if (
+            parts.scheme not in {"http", "https"}
+            or not hostname
+            or parts.username
+            or parts.password
+        ):
+            continue
+        capture_hash = str(source.get("capture_sha256") or source.get("sha256") or "")
+        if not re.fullmatch(r"[0-9a-fA-F]{64}", capture_hash):
+            continue
+        captured_at = str(source.get("captured_at") or "")
+        if not captured_at:
+            continue
+        try:
+            datetime.fromisoformat(captured_at.replace("Z", "+00:00"))
+        except ValueError:
+            continue
+        netloc = f"[{hostname}]" if ":" in hostname else hostname
+        if port:
+            netloc += f":{port}"
+        safe_sources.append({
+            "url": urlunsplit((parts.scheme, netloc, parts.path, "", "")),
+            "captured_at": captured_at,
+            "sha256": capture_hash.lower(),
+        })
+    if not safe_sources:
+        return None
+    safe_sources.sort(key=lambda item: (item["url"], item["sha256"]))
+    return {
+        "confidence_label": label,
+        "verifier_version": str(provenance.get("verifier_version") or "")[:80],
+        "sources": safe_sources[:20],
+    }
 
 
 def opportunity_formula(
@@ -167,9 +241,12 @@ def opportunity_from_packet_evidence(
     else:
         business_value = float(commercial_score) / 100.0
 
+    provenance = contact_provenance(contact)
     selected = (contact or {}).get("selected") or {}
     label = selected.get("confidence_label") or (contact or {}).get("verification") or "NO_VERIFIED_EMAIL"
-    contactability = CERTAINTY_MAP.get(label, 0.0)
+    if provenance:
+        label = provenance["confidence_label"]
+    contactability = CERTAINTY_MAP.get(label, 0.0) if provenance else 0.0
     remediation_items = remediation.get("items")
     if not isinstance(remediation_items, list):
         raise ValueError("Remediation items required for opportunity scoring")
