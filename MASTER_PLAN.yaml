@@ -178,9 +178,14 @@ phases:
   P9:
     name: "Opportunity scoring"
     priority: HIGH
-    status: "IMPLEMENTED_SEPARATE_TECHNICAL_AND_COMMERCIAL_SCORES_TESTED"
+    status: "FORMULA_UNIT_TESTED_WORKFLOW_INTEGRATION_OPEN"
     formula: "need * business_value * contactability * fixability * confidence / delivery_effort"
     rule: "Deterministic and replayable from stored inputs."
+    latest_verification:
+      date: "2026-09-28"
+      formula_tests: "The pure opportunity-v1 function rejects booleans, non-finite values, and out-of-range inputs; its deterministic score and component/input record pass 10 focused cases locally."
+      integration_gap: "No call site currently invokes auditor_toolkit.opportunity.opportunity_formula. Prospect packet generation only copies a precomputed opportunity_score, while the Money Machine qualification worker's commercial_score comes from keyword lead qualification. Wire the versioned formula to evidence-backed inputs, persist those inputs and score, keep technical website score distinct, and verify packet/operator output. Resolve the formula text versus implementation's normalized (1 + effort) denominator before calling P9 complete."
+      review_branch_evidence: "At 3056f24d, the separate audit technical score is independently replayed from persisted findings. This does not establish end-to-end commercial opportunity scoring."
   P10:
     name: "Remediation engine"
     priority: HIGH
@@ -495,11 +500,11 @@ latest_execution_checkpoint:
   as_of_local_date: "2026-09-28"
   latest_review_integration:
     branch: "codex/review-integration"
-    head: "40a5207852e91c2055077306960fc08b22948f1a"
+    head: "3056f24db007ed2a4b93d8ce4ea3002b6ce6a6b3"
     pull_request: "https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/43"
-    status: "PUSHED_DRAFT_REVIEW"
-    evidence: "At this head the hosted toolkit suite passed (167 passed, 4 opt-in skips, 2 warnings), Chromium browser/PDF/portal E2E passed (2), hash-locked binary-only email dependency install passed, Ruff/pip-check/wheel build passed, and Gitleaks, pip-audit, SonarCloud, CodeRabbit and Vercel passed. Follow-up work switches Money Machine's queue audit to the canonical static auditor_toolkit profile with private targets, browser, external tools and AI disabled; full findings and evidence are persisted, scores replay from those findings, and partial audits produce no technical score. This is branch/PR evidence only; it is not merged or running in the canonical supervisor."
-    money_machine_pipeline_suite: "55 passed locally at this head; Ruff on the changed worker and diff checks passed."
+    status: "PUSHED_DRAFT_CI_PASS_VERCEL_RATE_LIMIT"
+    evidence: "At 3056f24d the hosted toolkit suite passed (177 passed, 4 opt-in skips, 2 warnings), Chromium browser/PDF/portal E2E passed (2), hash-locked binary-only email install passed, and Ruff, pip check, wheel build, Gitleaks, pip-audit and SonarCloud passed. CodeRabbit reports success but explicitly skipped review because the PR remains draft. Vercel reports the project's daily deployment-rate limit. The branch routes queue audits through the canonical static auditor_toolkit profile with private targets, browser, external tools and AI disabled; full findings and evidence are persisted, scores replay from those findings, and partial audits produce no technical score. This branch is not merged or running in the canonical supervisor."
+    focused_tests: "65 passed locally at 3056f24d: 55 Money Machine pipeline tests plus 10 opportunity-formula tests; Ruff on changed Python files and diff checks passed."
   workspace: >-
     Canonical-plan branch codex/canonical-plan-execution was synchronized with
     origin through 5586865 and includes the current security, dependency,
