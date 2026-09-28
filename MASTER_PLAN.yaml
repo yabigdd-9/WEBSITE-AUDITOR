@@ -309,7 +309,9 @@ catalyxlabs_rebuild:
       was not repeated here. Commit 99213e55 switched to the active Sonar
       project and locked workflow, but its hosted scan failed because
       website_auditor does not exist on the selected base branch. Commit
-      142510ec removed that stale source directory. Hosted run 36392558598
+      142510ec removed that stale source directory. Commit 04d50ff8 now uses
+      Python PROTOCOL_TLS_CLIENT explicitly; the focused TLS regression passed
+      locally and Ruff passed. Hosted run 36392558598
       passed 279 toolkit tests, Ruff, package checks/build, Chromium install,
       and real Chromium/PDF browser tests (5 opt-in tests skipped, 2 warnings);
       Gitleaks and pip-audit also passed. Sonar analysis now reaches the active
@@ -539,7 +541,7 @@ latest_execution_checkpoint:
     Canonical-plan branch codex/canonical-plan-execution was synchronized with
     origin through 5586865 and includes the current security, dependency,
     runtime, Lighthouse, and challenger evidence. Catalyx implementation branch
-    codex/catalyx-rebuild-phase1-5 is pushed through 142510ec, based on
+    codex/catalyx-rebuild-phase1-5 is pushed through 04d50ff8, based on
     0348b3f9 and merged with the v32 canonical base. The last completed hosted
     toolkit and Chromium/PDF suite at adc59f94 passed with Gitleaks and pip-audit.
     At 142510ec, 279 toolkit tests, Ruff, package checks/build, Chromium/PDF
