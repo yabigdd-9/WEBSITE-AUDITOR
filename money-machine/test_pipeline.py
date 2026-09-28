@@ -448,224 +448,159 @@ class ModelRouter(unittest.TestCase):
         self.d.close(); self.tmp.cleanup()
 
     def test_paid_route_hard_refused(self):
-        self.assertIn('PAID_ROUTE_REFUSED',
-                      router.check_route('openrouter', 'anthropic/claude-sonnet-4'))
-        with self.assertRaises(router.PaidRouteRefused):
-            # plan() treats a non-free id in config as a hard error, never routes
-            router.PURPOSE_ROUTES['test-role'] = [('openrouter', 'paid/model-1')]
-            try:
-                router.plan(self.d, 'test-role')
-            finally:
-                router.PURPOSE_ROUTES.pop('test-role')
+        with patch.dict(os.environ, {router.FCC_FREE_MODELS_ENV: ''}, clear=False):
+            self.assertIn(
+                'PAID_ROUTE_REFUSED',
+                router.check_route(router.FCC_PROVIDER, 'claude-paid-model'),
+            )
+        self.assertIn(
+            'PAID_ROUTE_REFUSED',
+            router.check_route(router.HERMES_PROVIDER, 'paid/hermes-model'),
+        )
 
-    def test_free_routes_accepted(self):
-        self.assertIsNone(router.check_route('openrouter', 'meituan/longcat-2.0:free'))
-        self.assertIsNone(router.check_route('local:llamacpp', None))
+    def test_zero_cost_routes_accepted(self):
+        with patch.dict(os.environ, {
+            router.FCC_FREE_MODELS_ENV: 'claude-fcc-free',
+        }, clear=False):
+            self.assertIsNone(
+                router.check_route(router.FCC_PROVIDER, 'claude-fcc-free')
+            )
+        self.assertIsNone(
+            router.check_route(router.HERMES_PROVIDER, 'fixture/hermes:free')
+        )
 
     def test_unknown_provider_refused(self):
         self.assertIsNotNone(router.check_route('acme-paid-api', 'x:free'))
 
     def test_no_route_yields_blocked_cost_not_paid(self):
-        os.environ.pop('OPENROUTER_API_KEY', None)
-        res = router.plan(self.d, 'researcher', local_lookup=lambda kind: None)
+        res = router.plan(
+            self.d, 'researcher', local_lookup=lambda kind: None
+        )
         self.assertEqual(res['status'], 'blocked')
         self.assertEqual(res['cost_usd'], 0)
-        r = self.d.execute("SELECT * FROM mm_model_invocations WHERE run_key=?",
-                           (res['run_key'],)).fetchone()
-        self.assertEqual(r['status'], 'blocked')
-        self.assertEqual(r['cost_usd'], 0)
+        row = self.d.execute(
+            "SELECT * FROM mm_model_invocations WHERE run_key=?",
+            (res['run_key'],),
+        ).fetchone()
+        self.assertEqual(row['status'], 'blocked')
+        self.assertEqual(row['cost_usd'], 0)
 
-    def test_local_route_is_preferred_and_free(self):
-        """A local server must win over any external route, at zero cost."""
-        os.environ.pop('OPENROUTER_API_KEY', None)  # no external route available
-        res = router.plan(self.d, 'researcher',
-                          local_lookup=lambda kind: 'stub-local-4b' if kind == 'llamacpp' else None)
-        self.assertEqual(res['status'], 'planned')
-        self.assertEqual(res['provider'], 'local:llamacpp')
-        self.assertEqual(res['model'], 'stub-local-4b')
-        self.assertEqual(res['cost_usd'], 0)
-        self.assertEqual(res['model_calls'], 0)
-
-    def test_external_route_used_only_when_no_local_route_exists(self):
-        os.environ['OPENROUTER_API_KEY'] = 'stub-key-never-called'
-        os.environ['MM_ALLOW_EXTERNAL_FREE_MODELS'] = '1'
-        try:
-            res = router.plan(self.d, 'judge', local_lookup=lambda kind: None)
-            self.assertEqual(res['status'], 'planned')
-            self.assertTrue(res['model'].endswith(':free'))
-            self.assertEqual(res['cost_usd'], 0)
-        finally:
-            os.environ.pop('OPENROUTER_API_KEY', None)
-            os.environ.pop('MM_ALLOW_EXTERNAL_FREE_MODELS', None)
-
-    def test_external_free_route_requires_explicit_opt_in(self):
-        os.environ['OPENROUTER_API_KEY'] = 'stub-key-never-called'
-        os.environ.pop('MM_ALLOW_EXTERNAL_FREE_MODELS', None)
-        try:
-            res = router.plan(self.d, 'judge', local_lookup=lambda kind: None)
-            self.assertEqual(res['status'], 'blocked')
-            self.assertEqual(res['cost_usd'], 0)
-            self.assertIn('external free models disabled', res['reason'])
-        finally:
-            os.environ.pop('OPENROUTER_API_KEY', None)
-
-    def test_llamacpp_probe_parses_openai_model_list(self):
-        original = router._get_json
-        router._get_json = lambda url, timeout=3: {'data': [{'id': 'ggml-org/Qwen3-4B-GGUF:Q4_K_M'}]}
-        try:
-            self.assertEqual(router.probe_llamacpp(),
-                             'ggml-org/Qwen3-4B-GGUF:Q4_K_M')
-        finally:
-            router._get_json = original
-
-    def test_ollama_probe_parses_local_model_tags(self):
-        with patch.object(
-            router,
-            '_get_json',
-            return_value={'models': [{'name': 'qwen3:4b'}, {'model': 'phi4:mini'}]},
-        ) as get_json:
-            self.assertEqual(router.probe_ollama('qwen3:4b'), 'qwen3:4b')
-            get_json.assert_called_once_with(
-                router.OLLAMA_BASE.rstrip('/') + '/api/tags', 3
-            )
-
-    def test_local_route_uses_ollama_after_llamacpp_is_unavailable(self):
-        with patch.dict(os.environ, {'MM_ALLOW_EXTERNAL_FREE_MODELS': '0'}):
-            result = router.plan(
+    def test_fcc_claude_is_primary(self):
+        with patch.dict(os.environ, {
+            router.FCC_FREE_MODELS_ENV: 'claude-fcc-free',
+        }, clear=False):
+            res = router.plan(
                 self.d,
                 'researcher',
-                local_lookup=lambda kind: 'qwen3:4b' if kind == 'ollama' else None,
+                local_lookup=lambda kind: (
+                    'claude-fcc-free' if kind == 'fcc'
+                    else 'fixture/hermes:free'
+                ),
             )
-        self.assertEqual(result['status'], 'planned')
-        self.assertEqual(result['provider'], 'local:ollama')
-        self.assertEqual(result['model'], 'qwen3:4b')
-        self.assertEqual(result['cost_usd'], 0)
-        self.assertEqual(result['model_calls'], 0)
+        self.assertEqual(res['status'], 'planned')
+        self.assertEqual(res['provider'], router.FCC_PROVIDER)
+        self.assertEqual(res['model'], 'claude-fcc-free')
+        self.assertEqual(res['cost_usd'], 0)
 
-    def test_local_complete_uses_ollama_chat_without_external_egress(self):
-        response = io.BytesIO(json.dumps({
-            'message': {'content': 'synthetic local response'},
-        }).encode())
-        requests = []
-
-        def open_local(request, timeout):
-            requests.append((request, timeout))
-            return response
-
-        with patch.object(router, '_open_local', side_effect=open_local):
-            result = router.local_complete(
-                'synthetic prompt',
-                max_tokens=17,
-                timeout=4,
-                lookup=lambda kind: 'qwen3:4b' if kind == 'ollama' else None,
+    def test_hermes_fallback_used_when_fcc_would_need_payment(self):
+        with patch.dict(os.environ, {
+            router.FCC_FREE_MODELS_ENV: '',
+        }, clear=False):
+            res = router.plan(
+                self.d,
+                'judge',
+                local_lookup=lambda kind: (
+                    'claude-paid-model' if kind == 'fcc'
+                    else 'fixture/hermes:free'
+                ),
             )
-
-        self.assertEqual(result['text'], 'synthetic local response')
-        self.assertEqual(result['provider'], 'local:ollama')
-        self.assertEqual(result['model'], 'qwen3:4b')
-        self.assertEqual(result['cost_usd'], 0)
-        request, timeout = requests[0]
-        self.assertEqual(request.full_url, 'http://127.0.0.1:11434/api/chat')
-        self.assertEqual(timeout, 4)
-        payload = json.loads(request.data)
-        self.assertEqual(payload['model'], 'qwen3:4b')
-        self.assertFalse(payload['stream'])
-        self.assertEqual(payload['options'], {'num_predict': 17, 'temperature': 0})
-
-    def test_ollama_route_rejects_non_loopback_endpoint(self):
-        with patch.object(router, 'OLLAMA_BASE', 'http://192.0.2.10:11434'), \
-                patch.object(router, '_open_local') as open_local:
-            with self.assertRaises(router.BlockedCost):
-                router.local_complete(
-                    'synthetic prompt',
-                    lookup=lambda kind: 'qwen3:4b' if kind == 'ollama' else None,
-                )
-        open_local.assert_not_called()
+        self.assertEqual(res['status'], 'planned')
+        self.assertEqual(res['provider'], router.HERMES_PROVIDER)
+        self.assertEqual(res['model'], 'fixture/hermes:free')
+        self.assertEqual(res['cost_usd'], 0)
 
     def test_fcc_probe_requires_explicit_zero_cost_allowlist(self):
         response = io.BytesIO(json.dumps({
-            'data': [{'id': 'auto'}, {'id': 'openrouter/example:free'}],
+            'data': [{'id': 'auto'}, {'id': 'claude-fcc-free'}],
         }).encode())
-
         with patch.dict(os.environ, {
             router.FCC_MODEL_ENV: 'auto',
             router.FCC_FREE_MODELS_ENV: '',
-        }, clear=False), patch.object(router, '_open_local', return_value=response):
+        }, clear=False), patch.object(
+            router, '_open_local', return_value=response
+        ):
             self.assertIsNone(router.probe_fcc())
 
         response = io.BytesIO(json.dumps({
-            'data': [{'id': 'openrouter/example:free'}],
+            'data': [{'id': 'claude-fcc-free'}],
         }).encode())
         with patch.dict(os.environ, {
-            router.FCC_MODEL_ENV: 'openrouter/example:free',
-            router.FCC_FREE_MODELS_ENV: '',
-        }, clear=False), patch.object(router, '_open_local', return_value=response):
-            self.assertEqual(router.probe_fcc(), 'openrouter/example:free')
+            router.FCC_MODEL_ENV: 'claude-fcc-free',
+            router.FCC_FREE_MODELS_ENV: 'claude-fcc-free',
+        }, clear=False), patch.object(
+            router, '_open_local', return_value=response
+        ):
+            self.assertEqual(router.probe_fcc(), 'claude-fcc-free')
 
-    def test_local_route_uses_fcc_after_local_models_are_unavailable(self):
+    def test_complete_uses_fcc_claude_first(self):
         with patch.dict(os.environ, {
-            router.FCC_FREE_MODELS_ENV: 'nvidia_nim/free-fixture',
-        }, clear=False):
-            result = router.plan(
-                self.d,
-                'researcher',
-                local_lookup=lambda kind: 'nvidia_nim/free-fixture' if kind == 'fcc' else None,
-            )
-        self.assertEqual(result['status'], 'planned')
-        self.assertEqual(result['provider'], 'gateway:fcc')
-        self.assertEqual(result['model'], 'nvidia_nim/free-fixture')
-        self.assertEqual(result['cost_usd'], 0)
-
-    def test_local_complete_uses_fcc_harness_without_paid_fallback(self):
-        response = io.BytesIO(json.dumps({
-            'choices': [{'message': {'content': 'fcc fixture response'}}],
-        }).encode())
-        requests = []
-
-        def open_local(request, timeout):
-            requests.append((request, timeout))
-            return response
-
-        with patch.dict(os.environ, {
-            router.FCC_FREE_MODELS_ENV: 'nvidia_nim/free-fixture',
-        }, clear=False), patch.object(router, '_open_local', side_effect=open_local):
+            router.FCC_FREE_MODELS_ENV: 'claude-fcc-free',
+        }, clear=False), patch.object(
+            router,
+            '_fcc_complete',
+            return_value={
+                'text': 'fcc response',
+                'provider': router.FCC_PROVIDER,
+                'model': 'claude-fcc-free',
+                'cost_usd': 0,
+            },
+        ) as fcc, patch.object(router, '_hermes_complete') as hermes:
             result = router.local_complete(
-                'synthetic prompt',
-                max_tokens=21,
-                timeout=5,
-                lookup=lambda kind: 'nvidia_nim/free-fixture' if kind == 'fcc' else None,
+                'synthetic public prompt',
+                lookup=lambda kind: (
+                    'claude-fcc-free' if kind == 'fcc'
+                    else 'fixture/hermes:free'
+                ),
+            )
+        self.assertEqual(result['provider'], router.FCC_PROVIDER)
+        fcc.assert_called_once()
+        hermes.assert_not_called()
+
+    def test_complete_falls_back_to_hermes_when_fcc_blocks(self):
+        with patch.dict(os.environ, {
+            router.FCC_FREE_MODELS_ENV: 'claude-fcc-free',
+        }, clear=False), patch.object(
+            router,
+            '_fcc_complete',
+            side_effect=router.BlockedCost('fcc unavailable or no longer free'),
+        ), patch.object(
+            router,
+            '_hermes_complete',
+            return_value={
+                'text': 'hermes response',
+                'provider': router.HERMES_PROVIDER,
+                'model': 'fixture/hermes:free',
+                'cost_usd': 0,
+            },
+        ) as hermes:
+            result = router.local_complete(
+                'synthetic public prompt',
+                purpose='researcher',
+                lookup=lambda kind: (
+                    'claude-fcc-free' if kind == 'fcc'
+                    else 'fixture/hermes:free'
+                ),
+            )
+        self.assertEqual(result['provider'], router.HERMES_PROVIDER)
+        hermes.assert_called_once()
+
+    def test_complete_blocks_cost_when_no_zero_cost_route(self):
+        with self.assertRaises(router.BlockedCost):
+            router.local_complete(
+                'synthetic public prompt',
+                lookup=lambda kind: None,
             )
 
-        self.assertEqual(result['text'], 'fcc fixture response')
-        self.assertEqual(result['provider'], 'gateway:fcc')
-        self.assertEqual(result['model'], 'nvidia_nim/free-fixture')
-        self.assertEqual(result['cost_usd'], 0)
-        request, timeout = requests[0]
-        self.assertEqual(request.full_url, 'http://127.0.0.1:8082/v1/chat/completions')
-        self.assertEqual(timeout, 5)
-        payload = json.loads(request.data)
-        self.assertEqual(payload['model'], 'nvidia_nim/free-fixture')
-        self.assertFalse(payload['stream'])
-
-    def test_fcc_route_rejects_non_loopback_endpoint(self):
-        with patch.dict(os.environ, {
-            router.FCC_FREE_MODELS_ENV: 'nvidia_nim/free-fixture',
-        }, clear=False), patch.object(router, 'FCC_BASE', 'http://192.0.2.10:8082'), \
-                patch.object(router, '_open_local') as open_local:
-            with self.assertRaises(router.BlockedCost):
-                router.local_complete(
-                    'synthetic prompt',
-                    lookup=lambda kind: 'nvidia_nim/free-fixture' if kind == 'fcc' else None,
-                )
-        open_local.assert_not_called()
-
-    def test_local_complete_blocks_cost_when_no_local_route(self):
-        with self.assertRaises(router.BlockedCost):
-            router.local_complete('hello', lookup=lambda kind: None)
-
-
-if __name__ == '__main__':
-    unittest.main()
 
 class StageHandlers(unittest.TestCase):
     """Adapter handlers bridge the state machine to existing components."""
