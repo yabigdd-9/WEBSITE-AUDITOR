@@ -392,6 +392,19 @@ catalyxlabs_rebuild:
     max_cost_usd: 0
     redact_absolute_paths_before_report_generation: true
     import_shop_repository_code_config_or_assets: false
+  owner_defaults:
+    decision_record: "Local phase-a-decision-log.md dated 2026-09-29 records the owner's delegation to recommended A1-A10 first-release defaults. It is currently uncommitted in the Catalyx implementation worktree; this snapshot records the decision without staging or changing that worktree."
+    A1: "Invitation-only, administrator-reviewed NZ beta. Invitation workflow and production identity verification are not implemented; do not accept customer data."
+    A2: "Exclude agencies and multi-client administration from first release."
+    A3: "One fixed static audit profile against one customer-authorized public page; local implementation is present, while launch copy needs owner review."
+    A4: "NZ$0/month maximum is confirmed. No production host/database/identity/queue/object store or region is selected; remain local-only and do not use Vercel Hobby for commercial customer data."
+    A5: "External email remains disabled; local mailbox is development-only."
+    A6: "Retention, backup, deletion, RPO and RTO entries are proposals only and require privacy/legal and provider review before customer data."
+    A7: "The user is product/domain owner; named initial beta admin, reviewer, privacy/legal, support and incident roles remain open."
+    A8: "Privacy/terms and business details remain drafts; no entity, address, support contact or legal claims may be invented."
+    A9: "No billing, paid plans, payment data, paid AI, or customer-report model training in first release."
+    A10: "Conservative local workspace, queue, worker and scan caps are implemented or proposed; PostgreSQL concurrency, ingress, worker isolation, alerts and pause behavior remain unverified."
+    outstanding_gates: "Delegated defaults do not pass implementation, legal/privacy, security, provider, production, accessibility, or release gates."
   source_status:
     not_done_phase_numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9]
     detailed_scope_available_through_phase: 5
