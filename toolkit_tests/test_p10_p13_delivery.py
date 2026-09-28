@@ -23,6 +23,7 @@ def report():
             {
                 "finding_id": "f1",
                 "defect_key": "viewport",
+                "severity": "medium",
                 "defect": "Missing viewport metadata",
                 "source_url": "https://example.co.nz/",
                 "observed": "no viewport meta tag",
@@ -35,6 +36,7 @@ def report():
             {
                 "finding_id": "f2",
                 "defect_key": "header-hsts",
+                "severity": "medium",
                 "defect": "Missing HSTS",
                 "source_url": "https://example.co.nz/",
                 "observed": "strict-transport-security absent",
@@ -190,7 +192,7 @@ def test_p13_packet_imports_run_bound_pipeline_qualification(tmp_path):
         "commercial_score_evidence_ids": [17, 18],
         "commercial_score_industry": "electrical",
         "commercial_score_basis": "fresh_verified_capture",
-        "technical_score": 72,
+        "technical_score": 16,
         "technical_score_method": "toolkit-p5-v1",
         "technical_score_finding_ids": [d["finding_id"] for d in r["defects"]],
         "technical_score_evidence_complete": True,
@@ -223,6 +225,59 @@ def test_p13_packet_imports_run_bound_pipeline_qualification(tmp_path):
     assert any(item["kind"] == "qualification" for item in packet["evidence"])
 
 
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("technical_score", 15),
+        ("technical_score_finding_ids", ["f1"]),
+    ],
+)
+def test_p13_packet_replays_technical_score_and_finding_ids(tmp_path, field, value):
+    r = report()
+    remediation = build_remediation(r, tmp_path / "remediation")
+    quote = calculate_quote(r, "150")
+    demo = build_demo(r, remediation, tmp_path / "demo")
+    qualification = {
+        "audit_run_id": r["run_id"],
+        "commercial_score": 80,
+        "commercial_score_evidence_ids": [17],
+        "technical_score": 16,
+        "technical_score_method": "toolkit-p5-v1",
+        "technical_score_finding_ids": ["f1", "f2"],
+        "technical_score_evidence_complete": True,
+    }
+    qualification[field] = value
+
+    with pytest.raises(ValueError, match="does not replay"):
+        build_packet(
+            r, remediation, demo, quote, tmp_path / "packet",
+            qualification_evidence=qualification,
+        )
+
+
+def test_p13_packet_requires_complete_audit_findings_for_qualification(tmp_path):
+    r = report()
+    r["status"] = "partial"
+    remediation = build_remediation(r, tmp_path / "remediation")
+    quote = calculate_quote(r, "150")
+    demo = build_demo(r, remediation, tmp_path / "demo")
+    qualification = {
+        "audit_run_id": r["run_id"],
+        "commercial_score": 80,
+        "commercial_score_evidence_ids": [17],
+        "technical_score": 16,
+        "technical_score_method": "toolkit-p5-v1",
+        "technical_score_finding_ids": ["f1", "f2"],
+        "technical_score_evidence_complete": True,
+    }
+
+    with pytest.raises(ValueError, match="Complete audit findings"):
+        build_packet(
+            r, remediation, demo, quote, tmp_path / "packet",
+            qualification_evidence=qualification,
+        )
+
+
 def test_p13_packet_rejects_qualification_from_another_audit_run(tmp_path):
     r = report()
     remediation = build_remediation(r, tmp_path / "remediation")
@@ -232,7 +287,7 @@ def test_p13_packet_rejects_qualification_from_another_audit_run(tmp_path):
         "audit_run_id": "different-run",
         "commercial_score": 80,
         "commercial_score_evidence_ids": [17],
-        "technical_score": 72,
+        "technical_score": 16,
         "technical_score_method": "toolkit-p5-v1",
         "technical_score_finding_ids": [d["finding_id"] for d in r["defects"]],
         "technical_score_evidence_complete": True,
@@ -260,7 +315,7 @@ def test_wa_packet_cli_imports_pipeline_scores_and_email_provenance(tmp_path, mo
             "audit_run_id": r["run_id"],
             "commercial_score": 80,
             "commercial_score_evidence_ids": [17],
-            "technical_score": 72,
+            "technical_score": 16,
             "technical_score_method": "toolkit-p5-v1",
             "technical_score_finding_ids": [d["finding_id"] for d in r["defects"]],
             "technical_score_evidence_complete": True,

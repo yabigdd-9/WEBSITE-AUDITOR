@@ -24,6 +24,45 @@ def _bind(label: str, obj: dict) -> dict:
     return {"kind": label, "sha256": hashlib.sha256(encoded).hexdigest()}
 
 
+def _validate_technical_qualification(report: dict, qualification_evidence: dict) -> None:
+    """Replay the qualification score from this packet's complete audit findings."""
+    defects = report.get("defects")
+    if report.get("status") != "complete" or not isinstance(defects, list):
+        raise ValueError("Complete audit findings are required for technical qualification")
+
+    finding_ids = []
+    for defect in defects:
+        if not isinstance(defect, dict):
+            raise ValueError("Malformed technical finding")
+        severity = defect.get("severity")
+        if severity not in {"low", "medium", "high", "critical"}:
+            raise ValueError("Technical findings must have a valid severity")
+        finding_id = defect.get("finding_id")
+        if not isinstance(finding_id, str) or not finding_id.strip():
+            raise ValueError("Technical findings must have stable IDs")
+        finding_ids.append(finding_id)
+        if severity in {"medium", "high", "critical"} and not (
+            defect.get("observed")
+            or defect.get("evidence_summary")
+            or defect.get("evidence_ref")
+            or defect.get("selector")
+        ):
+            raise ValueError("Material technical findings require evidence")
+
+    if len(finding_ids) != len(set(finding_ids)):
+        raise ValueError("Technical finding IDs must be unique")
+    if qualification_evidence.get("technical_score_method") != "toolkit-p5-v1":
+        raise ValueError("Unsupported technical score method")
+    from .scoring import score_from_findings
+
+    replayed_score = score_from_findings(defects, complete=True).severity_total
+    if (
+        qualification_evidence.get("technical_score_finding_ids") != finding_ids
+        or qualification_evidence.get("technical_score") != replayed_score
+    ):
+        raise ValueError("Technical qualification does not replay from packet findings")
+
+
 def _copy_demo_image(
     record: dict | None,
     name: str,
@@ -145,6 +184,7 @@ def build_packet(
             or qualification_evidence.get("technical_score_evidence_complete") is not True
         ):
             raise ValueError("Complete technical qualification evidence is required")
+        _validate_technical_qualification(report, qualification_evidence)
         qualification = {
             "audit_run_id": run_id,
             "commercial_score": commercial_score,
