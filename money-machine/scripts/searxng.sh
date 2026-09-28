@@ -90,7 +90,7 @@ case "$action" in
       uv venv --python 3.11 "$VENV"
     fi
 
-    "$VENV/bin/python" -m pip install -r "$SRC/requirements.txt"
+    uv pip install --python "$VENV/bin/python" -r "$SRC/requirements.txt"
     ensure_settings
     "$PY" "$LAUNCHD" install
     sleep 5
