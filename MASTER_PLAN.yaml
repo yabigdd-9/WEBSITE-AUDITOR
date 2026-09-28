@@ -270,24 +270,27 @@ catalyxlabs_rebuild:
     intended_worktree_plan_status: "The user-created MASTER_EXECUTION_PLAN.md is committed and pushed on codex/catalyx-plan-update at 6972fb59 in the phase1-rebuild importer directory. That branch is based directly on the requested 0348b3f9 SHA. The file preserves the original phase scope and records current verification and owner gates; implementation remains in the separate codex/catalyx-rebuild-phase1-5 branch, also based on 0348b3f9."
     implementation_worktree: "/Users/dd/Documents/Codex/2026-09-27/build-me-a-new-website-with/work/catalyx-auditor-rebuild"
     implementation_worktree_status: >-
-      Branch codex/catalyx-rebuild-phase1-5 is pushed through 36977031, based on
-      0348b3f9. Earlier commits 5e451999 and 7891c9ae bound expired auth-bucket
-      cleanup and robots matching; f3e04482 closes hosted open registration
-      and SMTP, adds daily per-workspace and global pending-request admission
-      caps; 0f8397c3 adds the atomic five-customer-workspace cap and schema-v7
-      singleton worker lease. Commit 36977031 adds deterministic stale-worker
-      recovery coverage across both lease expiries. At 36977031, the full
-      toolkit suite passed 270 tests with 5 opt-in browser skips and 2 upstream
-      warnings; Ruff and diff checks passed. Hosted Gitleaks and pip-audit
-      passed at 0f8397c3. A source security scan at f3e04482 reviewed all 15
-      catalyx_web files and confirmed a medium shared-login availability issue;
-      later app-source edits do not change login behavior. PostgreSQL,
-      provider staging, worker isolation, accessibility sign-off, and release
-      decisions remain open. The separate checkout retains untracked
-      experiments/ and uncommitted security follow-up documentation; neither
-      was staged or changed by this plan update. The owner reports the 24-hour
-      soak completed in Claude; it was not repeated here. No soak, master
-      merge, or deployment occurred.
+      Branch codex/catalyx-rebuild-phase1-5 is pushed through 898e4331 and now
+      includes merge commit b0630ed9 from upgrade/v32-canonical-execution;
+      its original feature work remains based on the requested 0348b3f9. The
+      merge resolved pipeline/watchdog conflicts, restored persisted flow
+      findings and evidence, and corrected DNS-pinned fetch handling so every
+      redirect is revalidated and explicitly injected test transports remain
+      usable. Webhook and SMTP TLS contexts require verified TLS 1.2+. The
+      full local toolkit suite at b0630ed9 passed 278 tests with 5 opt-in
+      browser skips and 2 upstream warnings; Ruff, uv lock check, uv pip check,
+      and wheel/sdist build passed. A hosted fixture run then exposed that its
+      workflow omitted money-machine/requirements-email.txt; 898e4331 adds that
+      dependency and a path trigger, and its hosted rerun is pending. Earlier
+      hosted Gitleaks and pip-audit checks passed at b7d6904. A source security
+      scan at f3e04482 reviewed all 15 catalyx_web files and confirmed a medium
+      shared-login availability issue; no login behavior change addresses it.
+      PostgreSQL, provider staging, worker isolation, accessibility sign-off,
+      owner decisions, and the auth availability finding remain release gates.
+      The separate checkout retains untracked experiments/ and restored,
+      uncommitted security follow-up documentation; neither is included in the
+      code commits. The owner reports the 24-hour soak completed in Claude; it
+      was not repeated here. No soak, master merge, or deployment occurred.
     branch_from_sha: "0348b3f9"
   safety_gates:
     external_send_allowed: false
