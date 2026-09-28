@@ -315,3 +315,15 @@ evidence that are not available in the current checkout.
   checks/build, both existing Chromium journeys, and the Catalyx browser
   journey passed. Gitleaks, pip-audit, and SonarCloud passed. Vercel could not
   build a preview because of the account build quota. No soak was rerun.
+
+### Latest read-only runtime snapshot (2026-09-28 09:52 UTC)
+
+- Supervisor PID 14336 reports running with a fresh heartbeat; all eight
+  registered workers are alive and there are zero active leases.
+- The pipeline has 30 terminal `REJECTED` items. `./mm dead-letter` exposes a
+  triage view and currently reports zero entries; cumulative metrics show 16
+  historical dead-letter transitions.
+- `./mm doctor --profile research-only` reports SQLite integrity OK,
+  `models_enabled=false`, and zero model calls. No runtime state was changed.
+- The 30 rejected prospects remain an operator re-audit decision; this check did
+  not requeue or re-audit them. No soak was rerun.
