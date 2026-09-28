@@ -41,7 +41,9 @@ The supported primary runtime is the existing user-scoped launchd service:
 - `RunAtLoad=true`
 - `KeepAlive=true`
 - external send disabled in the launchd environment
-- PID/flock protection prevents duplicate supervisors.
+- PID/flock protection prevents duplicate supervisors;
+- a separate user LaunchAgent keeps the loopback FCC server alive on `127.0.0.1:8082`;
+- recurring discovery runs every 6 hours by default from `money-machine/config/discovery_schedule.yaml`, using only the local inbox and loopback SearXNG.
 
 Install and verify from the repository root:
 
@@ -73,7 +75,7 @@ Uninstall:
 sh scripts/local-machine.sh uninstall
 ```
 
-The install command runs `./mm doctor`, installs/loads the user LaunchAgent, checks launchd status, and then runs `./mm health`. It exits non-zero if launchd does not load.
+The install command runs `./mm doctor`, loads the FCC LaunchAgent when available, installs/loads the Money Machine LaunchAgent, checks both statuses, runs `./mm health`, and prints the active model routes. Money Machine launch failure is fatal; FCC launch failure leaves Hermes verified-free fallback available.
 
 ## Runtime boundary
 
