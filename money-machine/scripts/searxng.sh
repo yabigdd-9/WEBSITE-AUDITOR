@@ -90,7 +90,14 @@ case "$action" in
       uv venv --python 3.11 "$VENV"
     fi
 
-    uv pip install --python "$VENV/bin/python" -r "$SRC/requirements.txt"
+    # Match current upstream source-install requirements: seed the build
+    # dependencies, then install the SearXNG checkout itself into this isolated
+    # venv. Installing requirements.txt alone is insufficient for
+    # python -m searx.webapp from a launchd working directory outside the repo.
+    uv pip install --python "$VENV/bin/python" \
+      --upgrade setuptools wheel pyyaml msgspec typing-extensions pybind11
+    uv pip install --python "$VENV/bin/python" \
+      --no-build-isolation --editable "$SRC"
     ensure_settings
     "$PY" "$LAUNCHD" install
     sleep 5
