@@ -71,7 +71,12 @@ def test_pipeline_persists_flow_probe_evidence_and_findings(tmp_path, monkeypatc
         Fetcher(transport=transport),
     )
 
-    assert report["status"] == "complete", report["checks"]
+    failed_required = {
+        name: result
+        for name, result in report["checks"].items()
+        if result.get("required") and result.get("status") != "ok"
+    }
+    assert report["status"] == "complete", failed_required
     assert report["checks"]["flow"]["status"] == "ok"
     assert report["evidence"]["flow"]["steps"] == flow_evidence["steps"]
     assert report["evidence"]["flow"]["summary"] == {"states_reached": 1}
