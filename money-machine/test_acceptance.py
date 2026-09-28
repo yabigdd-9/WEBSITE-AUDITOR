@@ -24,7 +24,7 @@ import mm_operator as o
 from mm_operator import ValidationError
 import mm_email as email_engine
 import mm_email_store as email_store
-SOURCE=Path(os.environ.get('MM_TEST_SOURCE',str(Path(__file__).resolve().parents[1]/'database/money_machine.db')))
+SOURCE=Path(os.environ['MM_TEST_SOURCE']) if os.environ.get('MM_TEST_SOURCE') else None
 PACKAGE=Path(__file__).resolve().parents[1]
 OPERATOR=PACKAGE/'money-machine/mm_operator.py'
 BODY='Subject: A verified narrow improvement\n\nHello team, this is a local fixture describing a verified issue with explicit limitations. Dion, verified fixture identity. Please reply if useful, or reply no thanks to opt out.'
@@ -33,7 +33,14 @@ DEMO='''<!doctype html><html lang="en"><meta name="viewport" content="width=devi
 class Acceptance(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory(prefix='mm-acceptance-');self.r=Path(self.temp.name);(self.r/'database').mkdir();self.path=self.r/'database/money_machine.db'
-        with sqlite3.connect('file:'+str(SOURCE)+'?mode=ro',uri=True) as src,sqlite3.connect(self.path) as dst:src.backup(dst)
+        if SOURCE is None:
+            # Build a disposable baseline from tracked schema; never default to
+            # copying the ignored runtime database or its private records.
+            with sqlite3.connect(self.path) as dst:
+                dst.executescript(c.SCHEMA)
+        else:
+            with sqlite3.connect('file:'+str(SOURCE)+'?mode=ro',uri=True) as src, sqlite3.connect(self.path) as dst:
+                src.backup(dst)
         self.env=patch.dict(os.environ,{'MM_ROOT':str(self.r)});self.env.start()
         self.backup=c.backup(self.r);self.d=c.connect(self.path);c.migrate(self.d,self.backup)
         email_store.migrate_email(self.d,self.backup)
@@ -275,5 +282,5 @@ class JsonResult(unittest.TextTestResult):
 if __name__=='__main__':
     suite=unittest.defaultTestLoader.loadTestsFromTestCase(Acceptance);result=unittest.TextTestRunner(verbosity=2,resultclass=JsonResult).run(suite)
     output=Path(os.environ.get('MM_TEST_RESULTS',str(PACKAGE/'reports/acceptance-results.json')));output.parent.mkdir(parents=True,exist_ok=True)
-    output.write_text(json.dumps({'generated_at':c.now(),'source_database':str(SOURCE),'fixture_policy':'Every test uses its own temporary backup; real DB never mutated','counts':{s:sum(r['status']==s for r in result.records) for s in ('PASS','FAIL','BLOCKED')},'tests':result.records},indent=2))
+    output.write_text(json.dumps({'generated_at':c.now(),'source_database':str(SOURCE) if SOURCE else 'tracked mm_core.SCHEMA','fixture_policy':'Every test uses its own temporary backup; real DB never mutated','counts':{s:sum(r['status']==s for r in result.records) for s in ('PASS','FAIL','BLOCKED')},'tests':result.records},indent=2))
     sys.exit(0 if result.wasSuccessful() else 1)

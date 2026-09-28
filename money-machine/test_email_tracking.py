@@ -1,7 +1,11 @@
-import json
-from pathlib import Path
 
 import mm_email_tracking as tracking
+import pytest
+
+
+@pytest.fixture(autouse=True)
+def isolate_workspace(tmp_path, monkeypatch):
+    monkeypatch.setenv("MM_ROOT", str(tmp_path))
 
 
 def event(status="provider_accepted", kind="provider_accepted", event_id="evt-1"):
