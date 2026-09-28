@@ -21,16 +21,15 @@ pytestmark = pytest.mark.skipif(
 def assert_keyboard_focus_order(page):
     selector = (
         'a[href],button:not([disabled]),input:not([type="hidden"]):not([disabled]),'
-        'select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"]),'
-        '.table-wrap'
+        'select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'
     )
     expected = page.evaluate(
         """selector => [...document.querySelectorAll(selector)]
             .filter(element => element.getClientRects().length > 0
+                && element.tabIndex >= 0
                 && getComputedStyle(element).visibility !== 'hidden'
                 && !element.closest('[hidden],[aria-hidden="true"]')
-                && (!element.matches('.table-wrap')
-                    || !element.querySelector('a[href],button,input:not([type="hidden"]),select,textarea')))
+                )
             .map(element => ({tag: element.tagName.toLowerCase(),
                 text: element.labels?.[0]?.innerText?.trim()
                     || element.getAttribute('aria-label')
@@ -41,24 +40,42 @@ def assert_keyboard_focus_order(page):
     expected_count = len(expected)
     page.evaluate("() => document.activeElement.blur()")
     actual = []
-    for _ in range(expected_count):
+    unexpected = []
+    for _ in range(expected_count + 5):
+        if len(actual) == expected_count:
+            break
         page.keyboard.press("Tab")
-        actual.append(
-            page.evaluate(
-                """selector => {
-                    const focusable = [...document.querySelectorAll(selector)]
-                            .filter(element => element.getClientRects().length > 0
-                                && getComputedStyle(element).visibility !== 'hidden'
-                                && !element.closest('[hidden],[aria-hidden="true"]')
-                                && (!element.matches('.table-wrap')
-                                    || !element.querySelector('a[href],button,input:not([type="hidden"]),select,textarea')));
-                    return focusable.indexOf(document.activeElement);
-                }""",
-                selector,
-            )
+        current = page.evaluate(
+            """selector => {
+                const focusable = [...document.querySelectorAll(selector)]
+                    .filter(element => element.getClientRects().length > 0
+                        && element.tabIndex >= 0
+                        && getComputedStyle(element).visibility !== 'hidden'
+                        && !element.closest('[hidden],[aria-hidden="true"]'));
+                const active = document.activeElement;
+                return {
+                    index: focusable.indexOf(active),
+                    isImplicitScrollContainer: active.matches('.table-wrap') && active.tabIndex < 0,
+                    description: {tag: active.tagName.toLowerCase(), id: active.id,
+                        className: typeof active.className === 'string' ? active.className : '',
+                        text: active.innerText?.trim().replace(/\\s+/g, ' ').slice(0, 70),
+                        href: active.getAttribute('href'), tabIndex: active.tabIndex},
+                };
+            }""",
+            selector,
         )
-    assert actual == list(range(expected_count)), (
-        f"keyboard focus sequence skipped or reordered a control: {actual}; expected {expected}"
+        if current["index"] >= 0:
+            actual.append(current["index"])
+        elif current["isImplicitScrollContainer"]:
+            # Chromium can focus an overflow region while tabbing even when its
+            # DOM tabindex is -1. It is an incidental scroll stop, not a control.
+            continue
+        else:
+            unexpected.append(current["description"])
+            break
+    assert actual == list(range(expected_count)) and not unexpected, (
+        f"keyboard focus sequence skipped or reordered a control: {actual}; "
+        f"unexpected focus targets: {unexpected}; expected {expected}"
     )
 
 
