@@ -4,21 +4,38 @@ from pathlib import Path
 import unittest
 
 import yaml
-from free_role_router import RouteError, free_model, route, validate
+from free_role_router import RouteError, _env_file_value, free_model, route, validate
 
 ROOT = Path(__file__).resolve().parents[2]
 
-# The routing config is a host-only control-plane fixture. When absent
-# (sandbox checkout), skip explicitly instead of erroring — Master Plan P4.
-_CONFIG_PRESENT = (ROOT / "control-plane/config/routing.yaml").is_file()
-_CONFIG_ABSENT = ("BLOCKED_FIXTURE: control-plane/config/routing.yaml not "
-                  "present in this environment")
+# Canonical v44 routing policy is repository-owned and must always be testable.
+_CONFIG_PATH = ROOT / "money-machine/config/routing.yaml"
+_CONFIG_PRESENT = _CONFIG_PATH.is_file()
+_CONFIG_ABSENT = "BLOCKED_FIXTURE: money-machine/config/routing.yaml missing"
 
 
 @unittest.skipUnless(_CONFIG_PRESENT, _CONFIG_ABSENT)
+class EnvFileTests(unittest.TestCase):
+    def test_env_file_value_without_dotenv_dependency(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            env_path = Path(tmp) / ".env"
+            env_path.write_text(
+                "# comment\n"
+                "export OPENROUTER_API_KEY='fixture-key'\n"
+                "OTHER=value\n"
+            )
+            self.assertEqual(
+                _env_file_value(env_path, "OPENROUTER_API_KEY"),
+                "fixture-key",
+            )
+            self.assertIsNone(_env_file_value(env_path, "MISSING"))
+
+
 class RoutingTests(unittest.TestCase):
     def setUp(self):
-        self.config = yaml.safe_load((ROOT / "control-plane/config/routing.yaml").read_text())
+        self.config = yaml.safe_load(_CONFIG_PATH.read_text())
         ids = {m for spec in self.config["roles"].values() for m in [spec["preferred"], *spec.get("fallbacks", [])]}
         self.catalog = {m: {"id": m, "pricing": {"prompt": "0", "completion": "0"},
             "architecture": {"input_modalities": ["text", "image"]}} for m in ids}
