@@ -1807,6 +1807,7 @@ def test_dns_pinning_rejects_mixed_public_and_private_answers():
 def test_pinned_egress_requires_modern_verified_tls():
     transport = PinnedEgressTransport()
 
+    assert transport._ssl_context.protocol == ssl.PROTOCOL_TLS_CLIENT
     assert transport._ssl_context.minimum_version >= ssl.TLSVersion.TLSv1_2
     assert transport._ssl_context.verify_mode == ssl.CERT_REQUIRED
     assert transport._ssl_context.check_hostname
