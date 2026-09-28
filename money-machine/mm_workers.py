@@ -40,45 +40,74 @@ def identity_handler(d, it, worker):
             {'canonical_host': host})
 
 
+def _audit_evidence(report):
+    """Project a canonical toolkit report into pipeline evidence."""
+    defects = report.get('defects') or []
+    artifacts = report.get('artifacts') or {}
+    return {
+        'run_id': report.get('run_id'),
+        'report_path': artifacts.get('json'),
+        'defect_count': len(defects),
+        # Qualification treats higher values as greater technical opportunity.
+        'score': report.get('defect_score'),
+        'health_score': report.get('health_score'),
+        'profile': report.get('profile'),
+        'audit_engine': 'auditor_toolkit',
+        'model_calls': 0,
+        'external_sends': 0,
+    }
+
+
 def audit_handler(d, it, worker):
-    """Run the deterministic Website Rescue detector for the business site."""
+    """Run/reuse the canonical deterministic auditor_toolkit report.
+
+    Continuous operation must emit the same saved report schema consumed by
+    remediation, demo, quote and proof-package builders. AI, browser rendering
+    and external local tools are disabled in this always-on pass.
+    """
     b = _business(d, it['business_id'])
     url = b['public_website']
     host = urlparse(url).netloc if url else None
+    if not url or not host:
+        raise PermanentError('public website required for audit')
 
-    # Check for recent valid audit to reuse
-    if host:
-        from auditor_toolkit.storage import History
-        history = History(str(REPO / 'outputs' / 'toolkit'))
-        # Look for audit from last 7 days
-        recent_audit = history.get_latest_valid_audit(host, max_age_days=7)
-        if recent_audit:
-            # Reuse existing audit results
-            defects = recent_audit.get('defects', [])
-            score = recent_audit.get('score', recent_audit.get('defect_score', 0))
-            return ('AUDITED', 'audit reused (recent)',
-                    {'defect_count': len(defects), 'score': score})
+    output_root = REPO / 'outputs' / 'toolkit'
+    from auditor_toolkit.storage import History
+    history = History(output_root)
+    recent_audit = history.get_latest_valid_audit(host, max_age_days=7)
+    if recent_audit:
+        return (
+            'AUDITED',
+            'canonical toolkit audit reused (recent)',
+            _audit_evidence(recent_audit),
+        )
 
-    # No recent audit found, run new detection
+    from auditor_toolkit.pipeline import AuditOptions, run_audit
+    options = AuditOptions(
+        output_root=output_root,
+        profile='static',
+        browser=False,
+        deep=False,
+        external_tools=False,
+        ai=False,
+        timeout=min(float(AUDIT_TIMEOUT), 60.0),
+    )
     try:
-        r = subprocess.run(
-            ['python3', str(REPO / 'engines' / 'detect.py'), url],
-            capture_output=True, text=True, timeout=AUDIT_TIMEOUT)
-    except subprocess.TimeoutExpired:
-        raise RetryableError('audit timed out')
-    if r.returncode != 0 or not r.stdout.strip():
-        raise RetryableError('detector failed: ' + (r.stderr or '')[-200:])
-    try:
-        result = json.loads(r.stdout)
-    except ValueError:
-        raise RetryableError('detector output not JSON')
-    result = result[0] if isinstance(result, list) else result
-    if isinstance(result, dict) and result.get('error'):
-        raise RetryableError('site unreachable: ' + str(result['error'])[:200])
-    defects = result.get('defects', result.get('findings', []))
-    return ('AUDITED', 'audit captured',
-            {'defect_count': len(defects),
-             'score': result.get('defect_score', result.get('score'))})
+        report = run_audit(url, options)
+    except Exception as exc:
+        raise RetryableError(
+            'auditor_toolkit failed: ' + str(exc)[:240]
+        ) from exc
+
+    if report.get('status') != 'complete':
+        required_errors = [
+            name for name, value in (report.get('checks') or {}).items()
+            if value.get('required') and value.get('status') != 'ok'
+        ]
+        detail = ','.join(required_errors[:8]) or 'required checks incomplete'
+        raise RetryableError('auditor_toolkit incomplete: ' + detail)
+
+    return ('AUDITED', 'canonical toolkit audit captured', _audit_evidence(report))
 
 
 def _latest_pipeline_evidence(d, business_id, to_state):
