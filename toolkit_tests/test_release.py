@@ -92,6 +92,56 @@ def test_healthy_defective_history_and_counts(tmp_path):
     assert history.get(regressed["run_id"])["defect_count"] == regressed["defect_count"]
 
 
+def test_false_positive_review_requires_attribution_and_complete_evidence(tmp_path):
+    defective = fixture_audit(tmp_path, "<html><body><p>Short</p></body></html>")
+    identity = defective["defects"][0]["finding_id"]
+    history = History(tmp_path)
+
+    with pytest.raises(ValueError, match="reviewer_id"):
+        history.transition(identity, "false_positive", {
+            "rationale": "Evidence shows this is expected.",
+            "review_run": defective["run_id"],
+        })
+    with pytest.raises(ValueError, match="rationale"):
+        history.transition(identity, "false_positive", {
+            "reviewer_id": "reviewer-1",
+            "rationale": "  ",
+            "review_run": defective["run_id"],
+        })
+    with pytest.raises(ValueError, match="complete run containing"):
+        history.transition("not-in-run", "false_positive", {
+            "reviewer_id": "reviewer-1",
+            "rationale": "The captured page confirms this was expected.",
+            "review_run": defective["run_id"],
+        })
+
+    partial = {**defective, "run_id": "partial-review-run", "status": "partial"}
+    history.save(partial)
+    with pytest.raises(ValueError, match="complete run containing"):
+        history.transition(identity, "false_positive", {
+            "reviewer_id": "reviewer-1",
+            "rationale": "The captured page confirms this was expected.",
+            "review_run": partial["run_id"],
+        })
+
+    metadata = {
+        "reviewer_id": "reviewer-1",
+        "rationale": "The captured page confirms this was expected.",
+        "review_run": defective["run_id"],
+    }
+    history.transition(identity, "false_positive", metadata)
+    with history.connect() as db:
+        row = db.execute(
+            "SELECT state, metadata FROM remediations WHERE id=?", (identity,)
+        ).fetchone()
+        event = db.execute(
+            "SELECT payload FROM events WHERE kind='remediation' ORDER BY id DESC LIMIT 1"
+        ).fetchone()
+    assert row[0] == "false_positive"
+    assert json.loads(row[1]) == metadata
+    assert json.loads(event[0])["review_run"] == defective["run_id"]
+
+
 def test_browser_plugin_failure_is_partial(tmp_path, monkeypatch):
     monkeypatch.setattr(
         "auditor_toolkit.pipeline.run_browser_checks",
@@ -145,6 +195,75 @@ def test_failed_fetch_and_dns_are_not_healthy(tmp_path, monkeypatch):
 def test_invalid_urls(url):
     with pytest.raises(ValueError):
         validate_url(url)
+
+
+def test_fetcher_pinned_transport_preserves_tls_hostname(monkeypatch):
+    captured = {}
+
+    def handle_request(_transport, request):
+        captured["url"] = str(request.url)
+        captured["host"] = request.headers["host"]
+        captured["sni"] = request.extensions.get("sni_hostname")
+        return httpx.Response(200, text="ok", request=request)
+
+    monkeypatch.setattr(httpx.HTTPTransport, "handle_request", handle_request)
+    fetcher = Fetcher()
+    transport = fetcher._build_pinned_transport("93.184.216.34")
+    try:
+        response = transport.handle_request(httpx.Request("GET", "https://example.com:8443/path"))
+    finally:
+        transport.close()
+        fetcher.close()
+
+    assert response.status_code == 200
+    assert captured == {
+        "url": "https://93.184.216.34:8443/path",
+        "host": "example.com:8443",
+        "sni": "example.com",
+    }
+
+
+def test_fetcher_uses_validated_ip_and_repins_each_redirect(monkeypatch):
+    pinned = []
+    requests = []
+
+    def resolve(url, allow_private):
+        assert allow_private is False
+        if "first.example" in url:
+            return url, "93.184.216.34"
+        return url, "1.1.1.1"
+
+    monkeypatch.setattr("auditor_toolkit.common.validate_url", resolve)
+    fetcher = Fetcher()
+
+    def build_client(url, pinned_ip):
+        pinned.append((url, pinned_ip))
+
+        def handler(request):
+            requests.append(str(request.url))
+            if len(requests) == 1:
+                return httpx.Response(
+                    302,
+                    headers={"location": "https://second.example/next"},
+                    request=request,
+                )
+            return httpx.Response(200, text="final", request=request)
+
+        return httpx.Client(transport=httpx.MockTransport(handler))
+
+    monkeypatch.setattr(fetcher, "_build_pinned_client", build_client)
+    try:
+        response = fetcher.get("https://first.example/")
+    finally:
+        fetcher.close()
+
+    assert response.text == "final"
+    assert str(response.request.url) == "https://second.example/next"
+    assert pinned == [
+        ("https://first.example/", "93.184.216.34"),
+        ("https://second.example/next", "1.1.1.1"),
+    ]
+    assert requests == ["https://first.example/", "https://second.example/next"]
 
 
 def test_response_limit_and_soft404():

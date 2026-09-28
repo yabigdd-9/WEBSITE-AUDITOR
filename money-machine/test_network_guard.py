@@ -31,6 +31,13 @@ def fresh_db(tmp):
 
 
 class MultiProbeGuard(unittest.TestCase):
+    def test_disk_guard_handles_uninitialized_workspace_without_creating_it(self):
+        with tempfile.TemporaryDirectory() as temp:
+            workspace = Path(temp) / "not-created"
+            result = guards.disk_guard(workspace, min_free_mb=0)
+            self.assertTrue(result["ok"])
+            self.assertFalse(workspace.exists())
+
     def test_guard_multi_probe_fallback(self):
         """First probe fails, second succeeds -> guard reports ok via fallback."""
         def resolver(host, port, type=None):
@@ -71,9 +78,14 @@ class MultiProbeGuard(unittest.TestCase):
 class GuardCacheAndDedupe(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
-        self.cache = Path(self.tmp.name) / "network_guard.json"
+        self.cache_base = Path(self.tmp.name) / "state"
+        self.cache_base.mkdir()
+        self.cache = self.cache_base / "network_guard.json"
+        self.cache_base_patch = mock.patch.object(guards, "_CACHE_BASE", self.cache_base.resolve())
+        self.cache_base_patch.start()
 
     def tearDown(self):
+        self.cache_base_patch.stop()
         self.tmp.cleanup()
 
     def _always_fail(self, host, port, timeout, resolver=None, connector=None):

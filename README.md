@@ -21,7 +21,8 @@ Python 3.11 is the supported runtime.
 python3.11 -m venv .venv-email
 source .venv-email/bin/activate
 python -m pip install --upgrade pip
-python -m pip install -e '.[dev,browser,portal]' -r money-machine/requirements-email.txt
+python -m pip install -e '.[dev,browser,portal]'
+python -m pip install --only-binary=:all: --require-hashes -r money-machine/requirements-email.lock
 npm install
 ```
 
