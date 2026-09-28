@@ -275,6 +275,8 @@ def main(argv=None):
     q=s.add_parser('searxng')
     q.add_argument('action',choices=['status','probe','verify','install-plan'])
     q.add_argument('--endpoint',default=os.environ.get('MM_SEARXNG_ENDPOINT','http://127.0.0.1:8888'))
+    q=s.add_parser('discovery-cycle',help='run one bounded recurring-discovery cycle')
+    q.add_argument('--force',action='store_true',help='bypass only the interval timer; disabled schedules remain disabled')
     q=s.add_parser('outreach-plan');q.add_argument('--brief',required=True)
     s.add_parser('polish-status')
     s.add_parser('module-status')
@@ -458,6 +460,12 @@ def main(argv=None):
                 d.executescript((Path(__file__).resolve().parent/'003_email_finder_v2_rollback.sql').read_text())
                 result={'mode':'v1_hold','history_retained':True,'new_approvals_held':True,'external_sends':0}
         print(email_cli.human_text(result) if a.cmd in ('email-status','email-find') and not a.json else json.dumps(result,indent=2))
+        return 0
+    if a.cmd=='discovery-cycle':
+        import mm_recurring_discovery
+        with contextlib.closing(connect()) as d,d:
+            result=mm_recurring_discovery.run_due(d,force=a.force)
+        print(json.dumps(result,indent=2,default=str))
         return 0
     if a.cmd=='searxng':
         import mm_search_backend
