@@ -228,6 +228,38 @@ class ApprovalEngine(unittest.TestCase):
                        (self.bid, 'office@fixture.example.co.nz',
                         'Subject: fix\n\nFixture body.'))
 
+    def test_audit_gate_accepts_complete_canonical_toolkit_report(self):
+        toolkit_root = Path(self.tmp.name) / 'toolkit'
+        report_dir = toolkit_root / 'run-canonical'
+        report_dir.mkdir(parents=True)
+        report_path = report_dir / 'report.json'
+        report_path.write_text(json.dumps({
+            'run_id': 'run-canonical',
+            'status': 'complete',
+            'url': 'https://fixture.example.co.nz',
+        }))
+
+        p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
+        p.advance(
+            self.d,
+            self.bid,
+            'AUDITED',
+            'w-audit',
+            'canonical audit captured',
+            {
+                'run_id': 'run-canonical',
+                'report_path': str(report_path),
+                'audit_engine': 'auditor_toolkit',
+            },
+        )
+
+        with patch.object(appr, 'TOOLKIT_ROOT', toolkit_root.resolve()):
+            ok, evidence = appr._gate_audit_evidence(self.d, self.bid)
+
+        self.assertTrue(ok)
+        self.assertEqual(evidence['source'], 'auditor_toolkit')
+        self.assertEqual(evidence['run_id'], 'run-canonical')
+
     def test_verified_email_gate_uses_current_high_view(self):
         self.d.execute("INSERT INTO email_verifications(prospect_id,email,result_json) "
                        "VALUES(?,?,?)", (self.bid, 'medium@fixture.example.co.nz',
