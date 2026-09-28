@@ -321,11 +321,13 @@ catalyxlabs_rebuild:
       default to SHA1 and retain sign-in compatibility. RFC vectors and a legacy
       sign-in through schema migration passed locally; the focused web suite had
       81 passes, followed by 3 passing migration/TOTP regressions and Ruff.
-      Hosted checks for 51b543f8 are running. Select one analysis mode in project
-      settings before rerunning Sonar; the last completed code analysis still
-      reports TLS-protocol and TOTP-HMAC findings, so neither source mitigation
-      has been confirmed by a successful scan. No soak, master merge, or
-      deployment occurred.
+      Hosted run 36394486651 at 51b543f8 passed 279 toolkit tests, Ruff, package
+      checks/build, Chromium install, and real Chromium/PDF tests (5 opt-in skips,
+      2 upstream warnings); Gitleaks and pip-audit passed. Sonar CI again failed
+      with the exact service error that Automatic Analysis and CI analysis cannot
+      run concurrently. The TLS and TOTP changes are not yet confirmed by a
+      successful Sonar scan. Select one analysis mode in project settings before
+      rerunning. No soak, master merge, or deployment occurred.
     branch_from_sha: "0348b3f9"
   safety_gates:
     external_send_allowed: false
@@ -559,8 +561,9 @@ latest_execution_checkpoint:
     schema v8 migration, preserving existing SHA1 seeds while issuing new admin
     seeds with SHA256. The Catalyx web test file passed 81 tests locally, then
     3 focused migration/TOTP regressions passed after the final compatibility
-    check; Ruff passed. Hosted checks are in progress. The last completed code
-    analysis remains D with TLS-protocol and TOTP-HMAC findings. Untracked experiments/ and separate
+    check; Ruff passed. Hosted fixture, Gitleaks and pip-audit checks passed at
+    this head; the CI Sonar scan fails on the Automatic Analysis conflict. The
+    last completed code analysis remains D with TLS-protocol and TOTP-HMAC findings. Untracked experiments/ and separate
     dirty security follow-up notes remain preserved and unreviewed. Pipeline
     evidence persistence and Lighthouse Chromium discovery are pushed on
     codex/pipeline-evidence-integration at b34f1882; original isolated
