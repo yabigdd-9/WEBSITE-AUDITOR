@@ -18,6 +18,7 @@ from bs4 import BeautifulSoup, Comment
 from email_validator import validate_email, EmailNotValidError
 import idna
 import tldextract
+from auditor_toolkit.identity import assess_business_identity, identity_confidence
 
 VERSION = 'email-v2.0.1'
 UTC = dt.timezone.utc
@@ -403,11 +404,53 @@ def identify(business, pages):
     matched_branches.update(o['branch'] for o in scopes if o.get('kind') == 'branch_block'
                             and any(name_matches(target, o.get('text', '')) for target in unit_targets))
     location_conflict = bool(business.get('region')) and not region and bool(re.search(r'\b(?:auckland|wellington|christchurch|lower hutt|upper hutt|hamilton|dunedin)\b', body, re.I))
+    observed_emails = sorted({
+        normalize_email(o.get('email', ''))[0]
+        for p in eligible_pages for o in p.get('observations', [])
+        if o.get('email') and not normalize_email(o.get('email', ''))[1]
+    })
+    email_domain_match = None
+    if observed_emails:
+        email_roots = {root_domain(addr.rsplit('@', 1)[-1]) for addr in observed_emails}
+        email_domain_match = bool(dest and email_roots == {dest})
+    weighted_identity = assess_business_identity(
+        business_name=business.get('name', ''),
+        website=dest or requested,
+        legal_name=business.get('legal_name'),
+        trading_name=business.get('trading_name'),
+        nzbn_name=business.get('nzbn_name'),
+        email=None,
+        region_match=region if business.get('region') else None,
+        address_match=address if business.get('address') else None,
+        phone_match=phone if business.get('phone') else None,
+        website_brand_match=brand if eligible_pages else None,
+    )
+    # All first-party page observations are considered. Mixed email domains
+    # are a conflict rather than cherry-picking one address.
+    identity_signals = dict(weighted_identity['signals'])
+    identity_signals['email_domain_match'] = email_domain_match
+    weighted_identity = identity_confidence(identity_signals)
+    weighted_identity.update({
+        'business_name': business.get('name', ''),
+        'legal_name': business.get('legal_name'),
+        'trading_name': business.get('trading_name'),
+        'nzbn_name': business.get('nzbn_name'),
+        'canonical_domain': dest or root_domain(requested),
+        'signals': identity_signals,
+    })
     parked = bool(re.search(r'this domain is (?:for sale|parked)|buy this domain|domain expired|account suspended|website coming soon', body, re.I))
     directory_page=bool(re.search(r'claim this business|add your business|business directory|business listings|claim (?:this|your) listing',body,re.I))
     blocked_domain = dest in THIRD_PARTY or dest in VENDORS or not dest or directory_page
     # Multiple signal types: prominent name + location/phone/address/structured data.
     high = bool(brand and body_name and (region or phone or address or structured_name) and not parked and not blocked_domain and len(destinations) == 1 and not branch_ambiguous and not location_conflict and not phone_conflict)
+    weighted_identity['outreach_identity_eligible'] = (
+        weighted_identity['status'] == 'HIGH' and high
+    )
+    weighted_identity['eligibility_basis'] = (
+        'weighted identity and strict first-party identity checks passed'
+        if weighted_identity['outreach_identity_eligible']
+        else 'weighted confidence is advisory; strict first-party identity checks also apply'
+    )
     reasons = []
     if not brand: reasons.append('Business name not confirmed in title/headings/organization')
     if not body_name: reasons.append('Business name not confirmed in visible page text')
@@ -431,7 +474,8 @@ def identify(business, pages):
             'page_evidence': [{'url':p['url'],'capture_path':p.get('path'),'capture_hash':p['sha256'],'captured_at':p['captured_at']} for p in eligible_pages],
             'status': 'HIGH' if high else 'REJECTED' if parked or blocked_domain or (dest != root) else 'AMBIGUOUS',
             'signals': {'prominent_name': brand, 'body_name': body_name, 'region': region, 'phone': phone, 'address': address, 'structured_name': structured_name},
-            'reasons': reasons, 'accepted_roots': sorted({dest, root}) if high else [],
+            'reasons': reasons, 'weighted_confidence': weighted_identity,
+            'accepted_roots': sorted({dest, root}) if high else [],
             'branch_sensitive': bool(all_branches), 'observed_branches': sorted(all_branches),
             'matched_branches': sorted(matched_branches), 'unit_targets': unit_targets,
             'entity_key': hash_bytes(normalize_name(business.get('name')) + '|' + (dest or '') + '|' + normalize_name(business.get('region')))}
