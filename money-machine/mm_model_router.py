@@ -143,9 +143,11 @@ def _fcc_request(url, data=None):
 
 
 def probe_fcc(model=None, timeout=3):
-    """Return the configured Claude/FCC model only when it is certified free."""
+    """Return only an explicitly configured FCC model that is certified free."""
     want = model or _env_value(FCC_MODEL_ENV)
-    if want and not _fcc_model_allowed(want):
+    if not want:
+        return None
+    if not _fcc_model_allowed(want):
         return None
     try:
         req = _fcc_request(_loopback_url(FCC_BASE).rstrip("/") + "/v1/models")
@@ -158,9 +160,7 @@ def probe_fcc(model=None, timeout=3):
         ]
     except Exception:
         return None
-    if want:
-        return want if want in models else None
-    return next((name for name in models if _fcc_model_allowed(name)), None)
+    return want if want in models else None
 
 
 def _hermes_config():
