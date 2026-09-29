@@ -86,9 +86,12 @@ def holdout():
         "split": {
             "training_count": 6,
             "validation_count": 2,
+            "training_prospect_count": 6,
+            "validation_prospect_count": 2,
             "validation_fraction": 0.25,
             "salt": "test",
             "deterministic": True,
+            "prospect_disjoint": True,
         },
         "promotion_authorized": False,
     }
