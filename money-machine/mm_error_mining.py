@@ -23,9 +23,11 @@ from mm_core import now
 # ---------------------------------------------------------------------------
 
 ERROR_TYPES = (
-    "FALSE_POSITIVE",         # Accepted candidate that should have been rejected
-    "FALSE_NEGATIVE",         # Rejected candidate that should have been accepted
-    "HIGH_CONF_WRONG",        # High-confidence decision that was wrong
+    "SUSPECTED_FALSE_POSITIVE",
+    "SUSPECTED_FALSE_NEGATIVE",
+    "CONFIRMED_FALSE_POSITIVE",
+    "CONFIRMED_FALSE_NEGATIVE",
+    "HIGH_CONF_WRONG",        # High-confidence decision contradicted by correction/outcome
     "CLASSIFICATION_DISAGREEMENT",  # Conflicting classifications from ensemble
     "IDENTITY_CONFLICT",      # Same evidence attributed to different businesses
     "SCORE_INVERSION",        # Lower-score candidate ranked above higher-score
@@ -43,11 +45,11 @@ ERROR_TYPES = (
 
 
 def detect_false_negatives(d: sqlite3.Connection) -> list[dict]:
-    """Detect candidates that were rejected but have strong positive signals.
+    """Detect *suspected* false negatives from heuristic positive signals.
 
-    A false negative is: a REJECTED candidate whose audit score was high
-    (technical_need) AND/OR commercial score was borderline (>= 20),
-    indicating the rejection threshold may be too strict.
+    High technical or borderline commercial scores are review signals only.
+    They do not prove the rejection was wrong; confirmation requires a later
+    human correction or contradictory observed outcome.
     """
     from mm_intelligence_ledger import migrate as ledger_migrate
     from mm_rejection_intelligence import migrate as rejection_migrate
@@ -71,7 +73,7 @@ def detect_false_negatives(d: sqlite3.Connection) -> list[dict]:
         if (tech_score is not None and tech_score >= 70) or \
            (comm_score is not None and comm_score >= 25):
             candidates.append({
-                "type": "FALSE_NEGATIVE",
+                "type": "SUSPECTED_FALSE_NEGATIVE",
                 "prospect_id": row["prospect_id"],
                 "business_name": row["business_name"],
                 "domain": row["domain"],
@@ -84,11 +86,10 @@ def detect_false_negatives(d: sqlite3.Connection) -> list[dict]:
 
 
 def detect_false_positives(d: sqlite3.Connection) -> list[dict]:
-    """Detect candidates that were accepted but have weak evidence.
+    """Detect *suspected* false positives from weak acceptance evidence.
 
-    A false positive is: a non-REJECTED decision (QUALIFIED, etc.) for a
-    candidate with very low evidence confidence (<= 0.3) and low technical
-    score (< 30), indicating the qualification bar may be too loose.
+    Weak evidence is a review signal, not proof that acceptance was wrong.
+    Confirmation requires a later human correction to a negative decision.
     """
     from mm_intelligence_ledger import migrate as ledger_migrate
     ledger_migrate(d)
@@ -109,7 +110,7 @@ def detect_false_positives(d: sqlite3.Connection) -> list[dict]:
         tech_score = derived.get("technical_score")
         if evidence_conf <= 0.3 and (tech_score is None or tech_score < 30):
             candidates.append({
-                "type": "FALSE_POSITIVE",
+                "type": "SUSPECTED_FALSE_POSITIVE",
                 "prospect_id": row["prospect_id"],
                 "business_name": row["business_name"],
                 "domain": row["domain"],
@@ -121,41 +122,139 @@ def detect_false_positives(d: sqlite3.Connection) -> list[dict]:
     return candidates
 
 
-def detect_high_conf_wrong(d: sqlite3.Connection) -> list[dict]:
-    """Detect high-confidence decisions that were later proven wrong.
+POSITIVE_DECISIONS = frozenset({
+    "ACCEPTED", "QUALIFIED", "CONTACT_PENDING", "CONTACT_RESOLVED",
+    "VERIFIED", "REMEDIATION_PENDING", "DEMO_PENDING", "DEMO_READY",
+    "QA_PENDING", "OUTREACH_PENDING", "APPROVAL_PENDING", "APPROVED",
+    "READY_TO_SEND", "SENT", "RESPONDED", "CONVERTED",
+})
+NEGATIVE_DECISIONS = frozenset({
+    "REJECTED", "SUPPRESSED", "DUPLICATE", "PERMANENT_FAILURE",
+})
+POSITIVE_OUTCOMES = frozenset({
+    "REPLIED", "CALL_OR_DISCOVERY", "PROPOSAL_SENT", "WON",
+})
 
-    A high-confidence wrong decision is: a decision with confidence >= 0.8
-    that was annotated with a human correction, OR that transitioned to
-    a contradictory terminal state later.
-    """
+
+def _ledger_rows(d: sqlite3.Connection) -> list[dict]:
     from mm_intelligence_ledger import migrate as ledger_migrate
+
     ledger_migrate(d)
-    rows = d.execute(
-        """SELECT l.id as ledger_id, l.prospect_id, l.business_name, l.domain,
-                  l.decision, l.confidence, l.human_correction, l.later_outcome
-           FROM intelligence_ledger l
-           WHERE l.confidence >= 0.8
-             AND (l.human_correction IS NOT NULL OR l.later_outcome IS NOT NULL)
-           ORDER BY l.recorded_at DESC LIMIT ?""",
-        (500,),
-    ).fetchall()
-    candidates = []
+    return [
+        dict(row)
+        for row in d.execute(
+            "SELECT * FROM intelligence_ledger ORDER BY id"
+        ).fetchall()
+    ]
+
+
+def detect_confirmed_false_negatives(d: sqlite3.Connection) -> list[dict]:
+    """Return rejected decisions contradicted by later correction/outcome evidence."""
+    rows = _ledger_rows(d)
+    by_prospect: dict[int, list[dict]] = defaultdict(list)
     for row in rows:
-        if row["human_correction"]:
-            wrong_text = row["human_correction"]
-        else:
-            wrong_text = row["later_outcome"] or ""
-        candidates.append({
+        by_prospect[int(row["prospect_id"])].append(row)
+
+    results = []
+    for prospect_rows in by_prospect.values():
+        for index, original in enumerate(prospect_rows):
+            if original["decision"] != "REJECTED":
+                continue
+            later = prospect_rows[index + 1:]
+            correction = next(
+                (
+                    row for row in later
+                    if row.get("disposition") == "HUMAN_CORRECTED"
+                    and row.get("decision") in POSITIVE_DECISIONS
+                ),
+                None,
+            )
+            outcome = next(
+                (
+                    row for row in later
+                    if row.get("later_outcome") in POSITIVE_OUTCOMES
+                ),
+                None,
+            )
+            if not correction and not outcome:
+                continue
+            evidence = correction or outcome
+            results.append({
+                "type": "CONFIRMED_FALSE_NEGATIVE",
+                "prospect_id": original["prospect_id"],
+                "business_name": original["business_name"],
+                "domain": original["domain"],
+                "ledger_id": original["id"],
+                "confidence": original["confidence"],
+                "confirmation": (
+                    "human_correction" if correction else "positive_later_outcome"
+                ),
+                "confirmation_ledger_id": evidence["id"],
+                "corrected_decision": evidence.get("decision"),
+                "later_outcome": evidence.get("later_outcome"),
+            })
+    return results
+
+
+def detect_confirmed_false_positives(d: sqlite3.Connection) -> list[dict]:
+    """Return positive decisions later corrected by a human to a negative state."""
+    rows = _ledger_rows(d)
+    by_prospect: dict[int, list[dict]] = defaultdict(list)
+    for row in rows:
+        by_prospect[int(row["prospect_id"])].append(row)
+
+    results = []
+    for prospect_rows in by_prospect.values():
+        for index, original in enumerate(prospect_rows):
+            if original["decision"] not in POSITIVE_DECISIONS:
+                continue
+            correction = next(
+                (
+                    row for row in prospect_rows[index + 1:]
+                    if row.get("disposition") == "HUMAN_CORRECTED"
+                    and row.get("decision") in NEGATIVE_DECISIONS
+                ),
+                None,
+            )
+            if not correction:
+                continue
+            results.append({
+                "type": "CONFIRMED_FALSE_POSITIVE",
+                "prospect_id": original["prospect_id"],
+                "business_name": original["business_name"],
+                "domain": original["domain"],
+                "ledger_id": original["id"],
+                "confidence": original["confidence"],
+                "confirmation": "human_correction",
+                "confirmation_ledger_id": correction["id"],
+                "corrected_decision": correction.get("decision"),
+            })
+    return results
+
+
+def detect_high_conf_wrong(d: sqlite3.Connection) -> list[dict]:
+    """Detect high-confidence decisions with actual contradictory evidence."""
+    confirmed = (
+        detect_confirmed_false_negatives(d)
+        + detect_confirmed_false_positives(d)
+    )
+    results = []
+    for item in confirmed:
+        confidence = item.get("confidence")
+        if confidence is None or float(confidence) < 0.8:
+            continue
+        results.append({
             "type": "HIGH_CONF_WRONG",
-            "prospect_id": row["prospect_id"],
-            "business_name": row["business_name"],
-            "domain": row["domain"],
-            "ledger_id": row["ledger_id"],
-            "decision": row["decision"],
-            "confidence": row["confidence"],
-            "correction": wrong_text[:240],
+            "prospect_id": item["prospect_id"],
+            "business_name": item["business_name"],
+            "domain": item["domain"],
+            "ledger_id": item["ledger_id"],
+            "confidence": confidence,
+            "confirmation": item["confirmation"],
+            "confirmation_ledger_id": item["confirmation_ledger_id"],
+            "confirmed_error_type": item["type"],
         })
-    return candidates
+    return results
 
 
 def detect_repeated_missing_evidence(d: sqlite3.Connection) -> list[dict]:
@@ -239,62 +338,95 @@ def detect_source_failure_clusters(d: sqlite3.Connection) -> list[dict]:
     return results
 
 
-def detect_score_inversions(d: sqlite3.Connection) -> list[dict]:
-    """Detect cases where a lower-scored candidate was ranked above a higher one.
+def _opportunity_score(derived: dict) -> float | None:
+    value = derived.get("opportunity_score")
+    if isinstance(value, dict):
+        value = value.get("score")
+    if isinstance(value, bool):
+        return None
+    try:
+        score = float(value)
+    except (TypeError, ValueError):
+        return None
+    return score
 
-    Compares final scores of candidates processed in the same batch/period.
+
+def detect_score_inversions(d: sqlite3.Connection) -> list[dict]:
+    """Detect suspected score inversions within a comparable source/day cohort.
+
+    An inversion is only considered when a rejected prospect and an accepted
+    prospect share the same source, query fingerprint, stage and calendar day,
+    and both have numeric opportunity scores. It remains suspected because
+    score ordering alone does not prove the decision was wrong.
     """
     from mm_intelligence_ledger import migrate as ledger_migrate
+
     ledger_migrate(d)
     rows = d.execute(
-        """SELECT l.prospect_id, l.business_name, l.domain,
-                  l.derived_evidence, l.decision, l.recorded_at
+        """SELECT l.id,l.prospect_id,l.business_name,l.domain,l.source,
+                  l.query_fingerprint,l.stage,l.derived_evidence,l.decision,
+                  l.recorded_at
            FROM intelligence_ledger l
-           WHERE l.decision NOT IN ('REJECTED', 'SUPPRESSED')
+           WHERE l.disposition != 'HUMAN_CORRECTED'
              AND json_valid(l.derived_evidence)
-           ORDER BY l.recorded_at DESC LIMIT ?""",
-        (500,),
+           ORDER BY l.id DESC LIMIT ?""",
+        (1000,),
     ).fetchall()
-    # Group by day and find inversions
-    by_day: dict[str, list] = defaultdict(list)
+
+    cohorts: dict[tuple[str, str, str, str], list[dict]] = defaultdict(list)
     for row in rows:
-        day = row["recorded_at"][:10] if row["recorded_at"] else ""
-        derived = json.loads(row["derived_evidence"] or "{}")
-        score = derived.get("opportunity_score")
-        if score is not None:
-            by_day[day].append({
-                "prospect_id": row["prospect_id"],
-                "business_name": row["business_name"],
-                "domain": row["domain"],
-                "score": score,
-            })
-    results = []
-    for day, items in by_day.items():
-        if len(items) < 2:
+        source = str(row["source"] or "")
+        query_fp = str(row["query_fingerprint"] or "")
+        if not source and not query_fp:
             continue
-        # Sort by score descending
-        items_sorted = sorted(items, key=lambda x: x["score"], reverse=True)
-        # If the recorded decision order doesn't match score order, flag inversion
-        # (In practice, we check if a REJECTED candidate scored higher than an accepted one)
-        accepted = [i for i in items if True]  # All non-rejected
-        for i in range(len(items_sorted) - 1):
-            if items_sorted[i]["score"] < items_sorted[i + 1]["score"]:
-                # Lower score ranked above higher — but this is expected in sorted output
-                # Real inversion: accepted candidate scored lower than rejected one
-                pass
-    # Simplified: flag candidates with very low scores that were accepted
-    for row in rows[:100]:
         derived = json.loads(row["derived_evidence"] or "{}")
-        score = derived.get("opportunity_score")
-        if score is not None and score < 20 and row["decision"] not in ("REJECTED", "SUPPRESSED"):
+        score = _opportunity_score(derived)
+        if score is None:
+            continue
+        day = str(row["recorded_at"] or "")[:10]
+        key = (day, source, query_fp, str(row["stage"] or ""))
+        cohorts[key].append({
+            "ledger_id": row["id"],
+            "prospect_id": row["prospect_id"],
+            "business_name": row["business_name"],
+            "domain": row["domain"],
+            "decision": row["decision"],
+            "score": score,
+        })
+
+    results = []
+    for cohort, items in cohorts.items():
+        rejected = [item for item in items if item["decision"] == "REJECTED"]
+        accepted = [
+            item for item in items
+            if item["decision"] in POSITIVE_DECISIONS
+        ]
+        if not rejected or not accepted:
+            continue
+        for reject in rejected:
+            lower_accepts = [
+                accept for accept in accepted
+                if reject["score"] > accept["score"]
+            ]
+            if not lower_accepts:
+                continue
+            accept = min(lower_accepts, key=lambda item: item["score"])
             results.append({
-                "type": "SCORE_INVERSION",
-                "prospect_id": row["prospect_id"],
-                "business_name": row["business_name"],
-                "domain": row["domain"],
-                "score": score,
-                "decision": row["decision"],
-                "note": "Low-scoring candidate was not rejected",
+                "type": "SUSPECTED_SCORE_INVERSION",
+                "prospect_id": reject["prospect_id"],
+                "business_name": reject["business_name"],
+                "domain": reject["domain"],
+                "rejected_score": reject["score"],
+                "accepted_prospect_id": accept["prospect_id"],
+                "accepted_score": accept["score"],
+                "score_gap": round(reject["score"] - accept["score"], 4),
+                "cohort": {
+                    "day": cohort[0],
+                    "source": cohort[1],
+                    "query_fingerprint": cohort[2],
+                    "stage": cohort[3],
+                },
+                "confirmed": False,
             })
     return results
 
@@ -327,6 +459,8 @@ def mine_errors(d: sqlite3.Connection) -> dict[str, Any]:
     ledger_migrate(d)
     rejection_migrate(d)
     errors: list[dict] = []
+    errors.extend(detect_confirmed_false_negatives(d))
+    errors.extend(detect_confirmed_false_positives(d))
     errors.extend(detect_false_negatives(d))
     errors.extend(detect_false_positives(d))
     errors.extend(detect_high_conf_wrong(d))
@@ -341,12 +475,18 @@ def mine_errors(d: sqlite3.Connection) -> dict[str, Any]:
 
     cluster_list = []
     for err_type, items in clusters.items():
-        if err_type == "FALSE_NEGATIVE":
-            root = "Qualification thresholds too strict for technical_need candidates"
-            hypothesis = "Lower commercial_pass threshold from 30 to 20 when technical_score >= 70"
-        elif err_type == "FALSE_POSITIVE":
-            root = "Weak evidence accepted without sufficient verification"
-            hypothesis = "Require evidence_confidence >= 0.5 for acceptance"
+        if err_type == "SUSPECTED_FALSE_NEGATIVE":
+            root = "Rejected candidate has positive heuristic signals; correctness is unconfirmed"
+            hypothesis = "Replay a threshold/evidence challenger against corrected hard cases before any rule change"
+        elif err_type == "CONFIRMED_FALSE_NEGATIVE":
+            root = "A rejection was contradicted by later human correction or positive outcome evidence"
+            hypothesis = "Add this case to the hard-case corpus and test challenger rules offline"
+        elif err_type == "SUSPECTED_FALSE_POSITIVE":
+            root = "Accepted candidate has weak evidence; correctness is unconfirmed"
+            hypothesis = "Replay stronger evidence requirements against corrected hard cases"
+        elif err_type == "CONFIRMED_FALSE_POSITIVE":
+            root = "A positive decision was later corrected by a human to a negative state"
+            hypothesis = "Add this case to the hard-case corpus and test evidence-gating challengers offline"
         elif err_type == "HIGH_CONF_WRONG":
             root = "Overconfidence in deterministic heuristics"
             hypothesis = "Reduce confidence ceiling for rule-based decisions"
@@ -356,9 +496,9 @@ def mine_errors(d: sqlite3.Connection) -> dict[str, Any]:
         elif err_type == "SOURCE_FAILURE_CLUSTER":
             root = f"Source quality degradation: {items[0].get('source', 'unknown')}"
             hypothesis = "Deprioritize or refine search from this source"
-        elif err_type == "SCORE_INVERSION":
-            root = "Scoring weights misaligned with actual opportunity"
-            hypothesis = "Recalibrate opportunity score weights"
+        elif err_type == "SUSPECTED_SCORE_INVERSION":
+            root = "Comparable cohort contains rejected candidates scored above accepted candidates"
+            hypothesis = "Replay ranking weights on this cohort; score ordering alone is not confirmation"
         else:
             root = f"Cluster of {len(items)} {err_type} errors"
             hypothesis = f"Investigate {err_type} pattern"
