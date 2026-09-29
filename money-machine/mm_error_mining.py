@@ -337,8 +337,8 @@ def detect_repeated_missing_evidence(d: sqlite3.Connection) -> list[dict]:
 
 def detect_source_failure_clusters(d: sqlite3.Connection) -> list[dict]:
     """Detect sources that produce disproportionately high rejection rates."""
-    from mm_intelligence_ledger import migrate as ledger_migrate
-    ledger_migrate(d)
+    if not _table_exists(d, "intelligence_ledger"):
+        return []
     rows = d.execute(
         """SELECT l.source, l.decision, l.primary_reason,
                   COUNT(*) as n
