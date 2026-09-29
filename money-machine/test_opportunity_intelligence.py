@@ -456,12 +456,50 @@ def test_shadow_review_queue_is_read_only_and_surfaces_incomplete_rejection():
     assert item["business_id"] == 1
     assert item["state"] == "REJECTED"
     assert item["automatic_action"] is False
+    snapshot = oi.prospect_snapshot(d, 1)
+    assert snapshot["state"] == "REJECTED"
+    assert snapshot["assessment_stage"] == "QUALIFICATION_PENDING"
+    assert "commercial_evidence" in snapshot["evidence_completeness"]["missing"]
     assert any(
         reason.startswith("missing_required_evidence:")
         for reason in item["reasons"]
     )
     assert result["paid_calls"] == 0
     assert result["external_sends"] == 0
+
+
+def test_terminal_snapshot_prefers_recorded_originating_stage():
+    d = _db()
+    d.execute(
+        "INSERT INTO businesses VALUES(1,?,?,?,?,?,0)",
+        (
+            "Acme Plumbing",
+            "https://acmeplumbing.co.nz",
+            "Canterbury",
+            "searxng-local:q1",
+            "acmeplumbing.co.nz",
+        ),
+    )
+    d.execute(
+        "INSERT INTO pipeline_items VALUES(1,'REJECTED','{}')"
+    )
+    d.execute(
+        "INSERT INTO pipeline_events VALUES(1,1,'QUALIFICATION_PENDING','REJECTED','w','no',?,?)",
+        (
+            json.dumps({
+                "commercial_score": 20,
+                "technical_score": 25,
+                "commercial_opportunity": None,
+            }),
+            "2026-09-30T00:02:00+00:00",
+        ),
+    )
+
+    result = oi.prospect_snapshot(d, 1)
+
+    assert result["state"] == "REJECTED"
+    assert result["assessment_stage"] == "QUALIFICATION_PENDING"
+    assert result["evidence_completeness"]["stage"] == "QUALIFICATION_PENDING"
 
 
 def test_shadow_review_queue_ignores_active_qualified_prospect():
