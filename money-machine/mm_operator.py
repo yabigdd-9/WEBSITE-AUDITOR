@@ -368,6 +368,7 @@ def main(argv=None):
     q=s.add_parser('intelligence-review-bundle-verify');q.add_argument('--file',required=True)
     q=s.add_parser('intelligence-review-bundle-diff');q.add_argument('--before',required=True);q.add_argument('--after',required=True)
     q=s.add_parser('intelligence-consistency');q.add_argument('--limit',type=int,default=10000);q.add_argument('--min-confidence',type=float,default=0.80)
+    q=s.add_parser('intelligence-selective');q.add_argument('--threshold',type=float,action='append',dest='thresholds');q.add_argument('--min-confirmed',type=int,default=30);q.add_argument('--max-risk',type=float,default=0.10);q.add_argument('--min-coverage',type=float,default=0.30);q.add_argument('--limit',type=int,default=5000)
     q=s.add_parser('db-check')
     q=s.add_parser('safe-mode');q.add_argument('action',choices=['on','off','status'])
     a=p.parse_args(argv)
@@ -443,7 +444,7 @@ def main(argv=None):
                 with d:
                     result=mm_outcomes.record(d,a.id,a.outcome,a.evidence,a.sha256,a.actor,a.note)
         print(json.dumps(result,indent=2,default=str));return 0
-    if a.cmd in ('intelligence-prospect','intelligence-sources','intelligence-review','intelligence-summary','intelligence-errors','intelligence-calibration','intelligence-graph','intelligence-hard-cases','intelligence-challenger-eval','intelligence-challenger-holdout','intelligence-strategy','intelligence-drift','intelligence-evidence-value','intelligence-promotion-readiness','intelligence-review-bundle','intelligence-consistency'):
+    if a.cmd in ('intelligence-prospect','intelligence-sources','intelligence-review','intelligence-summary','intelligence-errors','intelligence-calibration','intelligence-graph','intelligence-hard-cases','intelligence-challenger-eval','intelligence-challenger-holdout','intelligence-strategy','intelligence-drift','intelligence-evidence-value','intelligence-promotion-readiness','intelligence-review-bundle','intelligence-consistency','intelligence-selective'):
         import mm_opportunity_intelligence as opportunity_intelligence
         with contextlib.closing(connect(readonly=True)) as d:
             if a.cmd == 'intelligence-prospect':
@@ -568,6 +569,16 @@ def main(argv=None):
                     d,
                     limit=a.limit,
                     min_confidence=a.min_confidence,
+                )
+            elif a.cmd == 'intelligence-selective':
+                import mm_intelligence_selective
+                result = mm_intelligence_selective.selective_report(
+                    d,
+                    thresholds=a.thresholds,
+                    min_confirmed=a.min_confirmed,
+                    max_risk=a.max_risk,
+                    min_coverage=a.min_coverage,
+                    limit=a.limit,
                 )
             else:
                 result = opportunity_intelligence.source_query_summary(d)
