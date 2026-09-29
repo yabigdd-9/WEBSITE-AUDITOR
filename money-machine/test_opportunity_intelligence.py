@@ -270,6 +270,91 @@ def test_prospect_snapshot_exposes_identity_completeness_and_planner():
     assert result["external_sends"] == 0
 
 
+def test_understanding_opportunity_score_counts_as_substantive_commercial_evidence():
+    d = _db()
+    d.execute(
+        "INSERT INTO businesses VALUES(1,?,?,?,?,?,0)",
+        (
+            "Acme Plumbing",
+            "https://acmeplumbing.co.nz",
+            "Canterbury",
+            "searxng-local:q1",
+            "acmeplumbing.co.nz",
+        ),
+    )
+    d.execute(
+        "INSERT INTO pipeline_items VALUES(1,'QUALIFICATION_PENDING','{}')"
+    )
+    d.execute(
+        "INSERT INTO pipeline_events VALUES(1,1,'IDENTITY_RESOLVED','AUDIT_PENDING','w','ok',?,?)",
+        (json.dumps({"canonical_host": "acmeplumbing.co.nz"}), "2026-09-30T00:00:00+00:00"),
+    )
+    d.execute(
+        "INSERT INTO pipeline_events VALUES(2,1,'AUDIT_PENDING','AUDITED','w','ok',?,?)",
+        (json.dumps({"score": 25, "defect_count": 2}), "2026-09-30T00:01:00+00:00"),
+    )
+    d.execute(
+        "INSERT INTO pipeline_events VALUES(3,1,'AUDITED','QUALIFICATION_PENDING','w','understood',?,?)",
+        (
+            json.dumps({"opportunity_score": {"score": 55, "signals": ["booking_gap"]}}),
+            "2026-09-30T00:02:00+00:00",
+        ),
+    )
+
+    result = oi.prospect_snapshot(d, 1)
+
+    assert "commercial_evidence" in result["observed_evidence"]
+    assert "commercial_evidence" not in result["evidence_completeness"]["missing"]
+
+
+def test_rejected_transition_scores_feed_counterfactual_threshold_gaps():
+    d = _db()
+    d.execute(
+        "INSERT INTO businesses VALUES(1,?,?,?,?,?,0)",
+        (
+            "Acme Plumbing",
+            "https://acmeplumbing.co.nz",
+            "Canterbury",
+            "searxng-local:q1",
+            "acmeplumbing.co.nz",
+        ),
+    )
+    d.execute(
+        "INSERT INTO pipeline_items VALUES(1,'REJECTED','{}')"
+    )
+    d.execute(
+        "INSERT INTO pipeline_events VALUES(1,1,'IDENTITY_RESOLVED','AUDIT_PENDING','w','ok',?,?)",
+        (json.dumps({"canonical_host": "acmeplumbing.co.nz"}), "2026-09-30T00:00:00+00:00"),
+    )
+    d.execute(
+        "INSERT INTO pipeline_events VALUES(2,1,'AUDIT_PENDING','AUDITED','w','ok',?,?)",
+        (json.dumps({"score": 35, "defect_count": 2}), "2026-09-30T00:01:00+00:00"),
+    )
+    d.execute(
+        "INSERT INTO pipeline_events VALUES(3,1,'QUALIFICATION_PENDING','REJECTED','w','not qualified',?,?)",
+        (
+            json.dumps({
+                "commercial_score": 25,
+                "technical_score": 35,
+                "commercial_opportunity": None,
+                "qualification_basis": [],
+            }),
+            "2026-09-30T00:03:00+00:00",
+        ),
+    )
+
+    result = oi.prospect_snapshot(d, 1)
+
+    assert result["derived"]["qualification"]["commercial_score"] == 25
+    axes = {
+        item.get("axis"): item
+        for item in result["counterfactual"]["counterfactuals"]
+        if item.get("kind") == "CURRENT_RULE_THRESHOLD"
+    }
+    assert axes["commercial"]["gap"] == 5.0
+    assert axes["technical"]["gap"] == 5.0
+
+
 def test_numeric_commercial_score_alone_is_not_substantive_evidence():
     d = _db()
     d.execute(
