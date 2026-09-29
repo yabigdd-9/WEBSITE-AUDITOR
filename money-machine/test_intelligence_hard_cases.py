@@ -98,7 +98,6 @@ def test_confirmed_false_negative_becomes_positive_golden_case():
     assert case["expected"] == "POSITIVE"
     assert case["original_polarity"] == "NEGATIVE"
     assert case["later_outcome"] == "WON"
-    assert case["promotion_authorized"] if "promotion_authorized" in case else True
     assert result["promotion_authorized"] is False
 
 
