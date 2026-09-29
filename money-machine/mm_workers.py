@@ -32,12 +32,27 @@ def _business(d, bid):
 
 def identity_handler(d, it, worker):
     """Resolve canonical identity from the declared public website."""
+    import mm_opportunity_intelligence as oi
+
     b = _business(d, it['business_id'])
     if not b['public_website']:
         raise PermanentError('no public website; identity cannot be resolved')
     host = public_url(b['public_website'])  # raises ValueError on private/odd
-    return ('AUDIT_PENDING', 'identity resolved from declared website',
-            {'canonical_host': host})
+    observed = {'business_name', 'canonical_host'}
+    keys = b.keys() if hasattr(b, 'keys') else ()
+    if 'source' in keys and b['source']:
+        observed.add('source')
+    shadow = oi.shadow_assessment(
+        b,
+        'IDENTITY_RESOLVED',
+        observed=observed,
+        evidence={'canonical_host': host},
+    )
+    return (
+        'AUDIT_PENDING',
+        'identity resolved from declared website',
+        {'canonical_host': host, 'shadow_intelligence': shadow},
+    )
 
 
 def _audit_evidence(report):
@@ -206,6 +221,26 @@ def qualification_handler(d, it, worker):
         'qualification_basis': qualification_basis,
         'qualification_reasons': commercial_lead['reasons'],
     }
+    import mm_opportunity_intelligence as oi
+    identity_evidence = _latest_pipeline_evidence(d, b['id'], 'IDENTITY_RESOLVED')
+    observed = {'business_name'}
+    if identity_evidence.get('canonical_host') or b['public_website']:
+        observed.add('canonical_host')
+    if 'source' in keys and b['source']:
+        observed.add('source')
+    if audit_evidence:
+        observed.add('audit')
+    # Do not claim commercial evidence merely because the legacy name+region
+    # heuristic emitted a numeric score. Only substantive opportunity evidence
+    # from the understanding stage satisfies this shadow completeness check.
+    if commercial_opportunity:
+        observed.add('commercial_evidence')
+    result['shadow_intelligence'] = oi.shadow_assessment(
+        b,
+        'QUALIFICATION_PENDING',
+        observed=observed,
+        evidence=identity_evidence,
+    )
     if qualification_basis:
         axes = ' and '.join(qualification_basis)
         return (
