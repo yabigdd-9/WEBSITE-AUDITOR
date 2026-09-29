@@ -365,6 +365,8 @@ def main(argv=None):
     q=s.add_parser('intelligence-evidence-value');q.add_argument('--limit',type=int,default=5000);q.add_argument('--min-samples',type=int,default=5);q.add_argument('--high-confidence-threshold',type=float,default=0.80)
     q=s.add_parser('intelligence-promotion-readiness');q.add_argument('--candidate-rule-version');q.add_argument('--holdout-eval');q.add_argument('--min-confirmed',type=int,default=30);q.add_argument('--min-hard-cases',type=int,default=10);q.add_argument('--min-validation-cases',type=int,default=5);q.add_argument('--min-rule-samples',type=int,default=10);q.add_argument('--max-ece',type=float,default=0.15);q.add_argument('--max-brier',type=float,default=0.25);q.add_argument('--drift-window',type=int,default=25);q.add_argument('--drift-min-samples',type=int,default=10);q.add_argument('--limit',type=int,default=5000)
     q=s.add_parser('intelligence-review-bundle');q.add_argument('--candidate-rule-version');q.add_argument('--holdout-eval');q.add_argument('--min-confirmed',type=int,default=30);q.add_argument('--min-hard-cases',type=int,default=10);q.add_argument('--min-validation-cases',type=int,default=5);q.add_argument('--min-rule-samples',type=int,default=10);q.add_argument('--max-ece',type=float,default=0.15);q.add_argument('--max-brier',type=float,default=0.25);q.add_argument('--drift-window',type=int,default=25);q.add_argument('--drift-min-samples',type=int,default=10);q.add_argument('--limit',type=int,default=5000)
+    q=s.add_parser('intelligence-review-bundle-verify');q.add_argument('--file',required=True)
+    q=s.add_parser('intelligence-review-bundle-diff');q.add_argument('--before',required=True);q.add_argument('--after',required=True)
     q=s.add_parser('db-check')
     q=s.add_parser('safe-mode');q.add_argument('action',choices=['on','off','status'])
     a=p.parse_args(argv)
@@ -416,6 +418,19 @@ def main(argv=None):
     if a.cmd in ('transport-status','transport-preflight'):
         import mm_transport
         result=mm_transport.status() if a.cmd=='transport-status' else mm_transport.preflight_packet(json.loads(Path(a.packet).read_text()))
+        print(json.dumps(result,indent=2,default=str));return 0
+    if a.cmd in ('intelligence-review-bundle-verify','intelligence-review-bundle-diff'):
+        import mm_intelligence_review_bundle
+        if a.cmd == 'intelligence-review-bundle-verify':
+            payload = json.loads(Path(a.file).read_text(encoding='utf-8'))
+            result = mm_intelligence_review_bundle.verify_review_bundle(payload)
+        else:
+            before = json.loads(Path(a.before).read_text(encoding='utf-8'))
+            after = json.loads(Path(a.after).read_text(encoding='utf-8'))
+            result = mm_intelligence_review_bundle.diff_review_bundles(
+                before,
+                after,
+            )
         print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd in ('outcomes','outcome-record'):
         import mm_outcomes
