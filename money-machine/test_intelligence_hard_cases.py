@@ -329,3 +329,214 @@ def test_integrated_challenger_requires_confirmed_hard_cases():
         assert "No confirmed hard cases" in str(exc)
     else:
         raise AssertionError("Expected missing hard cases to fail closed")
+
+
+def _flip_label(label):
+    return "NEGATIVE" if label == "POSITIVE" else "POSITIVE"
+
+
+def _populate_holdout_cases(d, count=6):
+    for prospect_id in range(100, 100 + count):
+        if prospect_id % 2:
+            decision(d, prospect_id, "QUALIFIED", 0.9)
+            ledger.record_correction(
+                d,
+                prospect_id,
+                "Verified non-prospect",
+                "REJECTED",
+                0.99,
+            )
+        else:
+            decision(d, prospect_id, "REJECTED", 0.9)
+            outcome(d, prospect_id, "REJECTED", "WON")
+
+
+def test_hard_case_holdout_split_is_deterministic_disjoint_and_complete():
+    d = fresh_db()
+    _populate_holdout_cases(d, count=8)
+
+    first = hard_cases.split_goldens(
+        d,
+        validation_fraction=0.25,
+        salt="stable-test",
+    )
+    second = hard_cases.split_goldens(
+        d,
+        validation_fraction=0.25,
+        salt="stable-test",
+    )
+
+    first_train = {row["case_id"] for row in first["training"]}
+    first_validation = {row["case_id"] for row in first["validation"]}
+    second_train = {row["case_id"] for row in second["training"]}
+    second_validation = {row["case_id"] for row in second["validation"]}
+    all_cases = {
+        row["case_id"]
+        for row in hard_cases.golden_rows(d)
+    }
+
+    assert first["status"] == "READY"
+    assert first_train == second_train
+    assert first_validation == second_validation
+    assert first_train.isdisjoint(first_validation)
+    assert first_train | first_validation == all_cases
+    assert first["training_count"] + first["validation_count"] == 8
+    assert first["deterministic"] is True
+    assert first["read_only"] is True
+
+
+def test_holdout_split_preserves_both_labels_when_each_has_multiple_cases():
+    d = fresh_db()
+    _populate_holdout_cases(d, count=8)
+
+    split = hard_cases.split_goldens(
+        d,
+        validation_fraction=0.25,
+        salt="label-balance",
+    )
+
+    train_labels = {row["expected"] for row in split["training"]}
+    validation_labels = {row["expected"] for row in split["validation"]}
+    assert train_labels == {"POSITIVE", "NEGATIVE"}
+    assert validation_labels == {"POSITIVE", "NEGATIVE"}
+
+
+def test_holdout_split_fails_closed_on_invalid_fraction():
+    d = fresh_db()
+    _populate_holdout_cases(d, count=4)
+
+    for fraction in (0.0, 1.0, -0.1, 1.1):
+        try:
+            hard_cases.split_goldens(d, validation_fraction=fraction)
+        except ValueError as exc:
+            assert "validation_fraction must be between 0 and 1" in str(exc)
+        else:
+            raise AssertionError("Expected invalid fraction to fail closed")
+
+
+def test_holdout_evaluation_requires_at_least_two_confirmed_cases():
+    d = fresh_db()
+    decision(d, 200, "REJECTED", 0.9)
+    outcome(d, 200, "REJECTED", "WON")
+
+    split = hard_cases.split_goldens(d)
+    assert split["status"] == "INSUFFICIENT_CASES"
+    assert split["validation_count"] == 0
+
+    golden = hard_cases.golden_rows(d)[0]
+    prediction = [{
+        "case_id": golden["case_id"],
+        "actual": golden["expected"],
+        "safety": dict(golden["safety"]),
+    }]
+    try:
+        hard_cases.evaluate_challenger_holdout(
+            d,
+            prediction,
+            prediction,
+        )
+    except ValueError as exc:
+        assert "At least two confirmed hard cases" in str(exc)
+    else:
+        raise AssertionError("Expected insufficient holdout cases to fail")
+
+
+def test_holdout_recommendation_is_based_on_validation_not_training():
+    d = fresh_db()
+    _populate_holdout_cases(d, count=8)
+    split = hard_cases.split_goldens(
+        d,
+        validation_fraction=0.25,
+        salt="evaluation-test",
+    )
+    validation_ids = {
+        row["case_id"] for row in split["validation"]
+    }
+    goldens = hard_cases.golden_rows(d)
+
+    baseline = []
+    challenger_rows = []
+    for row in goldens:
+        safe = dict(row["safety"])
+        baseline.append({
+            "case_id": row["case_id"],
+            "actual": (
+                _flip_label(row["expected"])
+                if row["case_id"] in validation_ids
+                else row["expected"]
+            ),
+            "safety": safe,
+        })
+        challenger_rows.append({
+            "case_id": row["case_id"],
+            "actual": row["expected"],
+            "safety": safe,
+        })
+
+    result = hard_cases.evaluate_challenger_holdout(
+        d,
+        baseline,
+        challenger_rows,
+        validation_fraction=0.25,
+        salt="evaluation-test",
+        min_improvement=0.1,
+    )
+
+    assert result["baseline"]["accuracy"] == 0.0
+    assert result["challenger"]["accuracy"] == 1.0
+    assert result["promotion_recommended"] is True
+    assert result["recommendation_basis"] == "validation_holdout_only"
+    assert result["training"]["baseline"]["accuracy"] == 1.0
+    assert result["training"]["challenger"]["accuracy"] == 1.0
+    assert result["promotion_authorized"] is False
+    assert result["merge_authority"] is False
+    assert result["deployment_authorized"] is False
+    assert result["automatic_rule_change"] is False
+
+
+def test_holdout_safety_failure_blocks_recommendation():
+    d = fresh_db()
+    _populate_holdout_cases(d, count=8)
+    split = hard_cases.split_goldens(
+        d,
+        validation_fraction=0.25,
+        salt="safety-test",
+    )
+    validation_ids = {
+        row["case_id"] for row in split["validation"]
+    }
+    goldens = hard_cases.golden_rows(d)
+
+    baseline = []
+    challenger_rows = []
+    for row in goldens:
+        safe = dict(row["safety"])
+        baseline.append({
+            "case_id": row["case_id"],
+            "actual": _flip_label(row["expected"]),
+            "safety": safe,
+        })
+        challenger_safety = dict(safe)
+        if row["case_id"] in validation_ids:
+            challenger_safety["paid_calls"] = 1
+        challenger_rows.append({
+            "case_id": row["case_id"],
+            "actual": row["expected"],
+            "safety": challenger_safety,
+        })
+
+    result = hard_cases.evaluate_challenger_holdout(
+        d,
+        baseline,
+        challenger_rows,
+        validation_fraction=0.25,
+        salt="safety-test",
+        min_improvement=0.0,
+    )
+
+    assert result["challenger"]["accuracy"] == 0.0
+    assert result["challenger"]["safety_failures"] == len(validation_ids)
+    assert result["promotion_recommended"] is False
+    assert result["promotion_authorized"] is False
+    assert result["paid_calls"] == 0
+    assert result["external_sends"] == 0
