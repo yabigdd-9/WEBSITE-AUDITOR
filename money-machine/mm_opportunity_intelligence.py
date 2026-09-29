@@ -538,6 +538,12 @@ def prospect_snapshot(d: sqlite3.Connection, business_id: int) -> dict:
             pipeline_payload = _safe_json(row["payload"])
 
     identity_ev = _latest_event_evidence(d, business_id, "IDENTITY_RESOLVED")
+    audit_pending_identity = _latest_event_evidence(
+        d, business_id, "AUDIT_PENDING"
+    )
+    for key, value in audit_pending_identity.items():
+        if key not in identity_ev:
+            identity_ev[key] = value
     audit_ev = _latest_event_evidence(d, business_id, "AUDITED")
     qualification_ev = _latest_event_evidence(d, business_id, "QUALIFICATION_PENDING")
     qualified_ev = _latest_event_evidence(d, business_id, "QUALIFIED")
