@@ -25,6 +25,7 @@ from urllib.parse import urlsplit, urlunsplit
 import mm_core as core
 import mm_pipeline
 import mm_search_backend
+import mm_discovery_quality
 
 
 class SearchBlocked(RuntimeError):
@@ -150,6 +151,8 @@ def normalize_candidate(row, default_region="", default_source="import"):
     source = _first(row, ("source",)) or str(default_source or "import").strip()
     normalized_name = name.strip().casefold()
     provenance = _source_provenance(row, source)
+    quality = row.get("discovery_quality")
+    quality = dict(quality) if isinstance(quality, dict) else None
     provenance_sources = row.get("provenance_sources")
     if isinstance(provenance_sources, list):
         cleaned = _normalize_provenance_sources(provenance_sources)
@@ -173,6 +176,7 @@ def normalize_candidate(row, default_region="", default_source="import"):
             {key: provenance[key] for key in ("lane", "record_id", "source_url")}
         ]),
         "provenance": provenance,
+        "discovery_quality": quality,
     }
 
 
@@ -309,6 +313,7 @@ def ingest(d, candidates, actor="discovery-v2", dry_run=False):
                     "trading_name": candidate.get("trading_name"),
                     "nzbn": candidate.get("nzbn"),
                     "nzbn_name": candidate.get("nzbn_name"),
+                    "discovery_quality": candidate.get("discovery_quality"),
                     "actor": actor,
                 },
                 sort_keys=True,
@@ -326,6 +331,7 @@ def ingest(d, candidates, actor="discovery-v2", dry_run=False):
                 "nzbn": candidate.get("nzbn"),
                 "nzbn_name": candidate.get("nzbn_name"),
                 "canonical_host": host,
+                "discovery_quality": candidate.get("discovery_quality"),
                 "contact_eligibility": "UNASSESSED",
             },
         )
@@ -465,9 +471,19 @@ def _collect_search_source(query, region, endpoint, limit):
         candidates = searxng_candidates(query, region, endpoint, limit)
     except (SearchBlocked, ValueError) as exc:
         return [], {"source": f"searxng:{query_ref}", "kind": "search",
-                    "candidates": 0, "error": str(exc)[:240]}
-    return candidates, {"source": f"searxng:{query_ref}", "kind": "search",
-                        "candidates": len(candidates)}
+                    "candidates": 0, "error": str(exc)[:240]}, []
+
+    quality = mm_discovery_quality.filter_candidates(candidates, region)
+    accepted = quality["accepted"]
+    report = {
+        "source": f"searxng:{query_ref}",
+        "kind": "search",
+        "candidates": len(accepted),
+        "quality_rejected": quality["counts"]["rejected"],
+        "quality_review": quality["counts"]["review"],
+        "quality_rule_version": "discovery-quality-v1",
+    }
+    return accepted, report, quality["rejected"]
 
 
 def collect_multi_source(files=(), queries=(), region="", endpoint="http://127.0.0.1:8888", limit=20):
@@ -501,10 +517,15 @@ def collect_multi_source(files=(), queries=(), region="", endpoint="http://127.0
         source_rejections.extend(rejected)
 
     for query in queries:
-        candidates, report = _collect_search_source(query, region, endpoint, limit)
+        candidates, report, rejected = _collect_search_source(
+            query, region, endpoint, limit
+        )
         for candidate in candidates:
             _merge_batch_candidate(by_host, candidate, region)
         source_reports.append(report)
+        source_rejections.extend(
+            [{"source": report["source"], **item} for item in rejected]
+        )
 
     return {
         "candidates": list(by_host.values()),
