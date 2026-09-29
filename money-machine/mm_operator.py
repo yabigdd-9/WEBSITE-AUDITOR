@@ -362,6 +362,7 @@ def main(argv=None):
     q=s.add_parser('intelligence-challenger-holdout');q.add_argument('--baseline',required=True);q.add_argument('--challenger',required=True);q.add_argument('--limit',type=int,default=500);q.add_argument('--validation-fraction',type=float,default=0.25);q.add_argument('--salt',default='v45-hard-case-holdout');q.add_argument('--min-improvement',type=float,default=0.01)
     q=s.add_parser('intelligence-strategy');q.add_argument('--limit',type=int,default=5000);q.add_argument('--min-rule-samples',type=int,default=10);q.add_argument('--min-source-prospects',type=int,default=10);q.add_argument('--min-confirmed',type=int,default=5)
     q=s.add_parser('intelligence-drift');q.add_argument('--window',type=int,default=25);q.add_argument('--min-samples',type=int,default=10);q.add_argument('--accuracy-drop-threshold',type=float,default=0.15);q.add_argument('--brier-increase-threshold',type=float,default=0.10);q.add_argument('--confidence-shift-threshold',type=float,default=0.15);q.add_argument('--label-shift-threshold',type=float,default=0.25);q.add_argument('--limit',type=int,default=5000)
+    q=s.add_parser('intelligence-evidence-value');q.add_argument('--limit',type=int,default=5000);q.add_argument('--min-samples',type=int,default=5);q.add_argument('--high-confidence-threshold',type=float,default=0.80)
     q=s.add_parser('db-check')
     q=s.add_parser('safe-mode');q.add_argument('action',choices=['on','off','status'])
     a=p.parse_args(argv)
@@ -424,7 +425,7 @@ def main(argv=None):
                 with d:
                     result=mm_outcomes.record(d,a.id,a.outcome,a.evidence,a.sha256,a.actor,a.note)
         print(json.dumps(result,indent=2,default=str));return 0
-    if a.cmd in ('intelligence-prospect','intelligence-sources','intelligence-review','intelligence-summary','intelligence-errors','intelligence-calibration','intelligence-graph','intelligence-hard-cases','intelligence-challenger-eval','intelligence-challenger-holdout','intelligence-strategy','intelligence-drift'):
+    if a.cmd in ('intelligence-prospect','intelligence-sources','intelligence-review','intelligence-summary','intelligence-errors','intelligence-calibration','intelligence-graph','intelligence-hard-cases','intelligence-challenger-eval','intelligence-challenger-holdout','intelligence-strategy','intelligence-drift','intelligence-evidence-value'):
         import mm_opportunity_intelligence as opportunity_intelligence
         with contextlib.closing(connect(readonly=True)) as d:
             if a.cmd == 'intelligence-prospect':
@@ -492,6 +493,14 @@ def main(argv=None):
                     confidence_shift_threshold=a.confidence_shift_threshold,
                     label_shift_threshold=a.label_shift_threshold,
                     limit=a.limit,
+                )
+            elif a.cmd == 'intelligence-evidence-value':
+                import mm_intelligence_evidence_value
+                result = mm_intelligence_evidence_value.evidence_value_report(
+                    d,
+                    limit=a.limit,
+                    min_samples=a.min_samples,
+                    high_confidence_threshold=a.high_confidence_threshold,
                 )
             else:
                 result = opportunity_intelligence.source_query_summary(d)
