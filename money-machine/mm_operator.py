@@ -495,6 +495,7 @@ def main(argv=None):
         return 0 if a.action!='verify' or result.get('ok') else 2
     if a.cmd in ('discover-import','discover-search','discover-batch'):
         import mm_discovery
+        import mm_discovery_quality
         if a.cmd=='discover-import':
             candidates,rejected=mm_discovery.read_candidates(a.file,a.region,a.source)
         elif a.cmd=='discover-search':
@@ -506,7 +507,9 @@ def main(argv=None):
                                   'candidates':[],'blocked':{'code':e.code,'endpoint':e.endpoint,'detail':e.detail},
                                   'note':'Search lane is blocked in this environment; run on a host with a local SearXNG for ranked candidates.'},indent=2))
                 return 0
-            rejected=[]
+            quality=mm_discovery_quality.filter_candidates(candidates,a.region)
+            candidates=quality['accepted']
+            rejected=quality['rejected']
         else:
             collection=mm_discovery.collect_multi_source(
                 files=a.file,queries=a.query,region=a.region,endpoint=a.endpoint,limit=a.limit)
