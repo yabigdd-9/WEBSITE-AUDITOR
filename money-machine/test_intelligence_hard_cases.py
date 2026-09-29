@@ -227,3 +227,100 @@ def test_limit_is_bounded_and_deterministic():
 
     assert result["count"] == 2
     assert len(result["cases"]) == 2
+
+
+def test_integrated_challenger_can_recommend_but_never_authorize_promotion():
+    d = fresh_db()
+    decision(d, 8, "REJECTED", 0.9)
+    outcome(d, 8, "REJECTED", "WON")
+    decision(d, 9, "QUALIFIED", 0.9)
+    ledger.record_correction(d, 9, "Not a prospect", "REJECTED", 0.99)
+
+    goldens = hard_cases.golden_rows(d)
+    safety = {
+        "paid_calls": 0,
+        "external_sends": 0,
+        "auto_promoted": False,
+    }
+    baseline = [
+        {
+            "case_id": goldens[0]["case_id"],
+            "actual": "NEGATIVE",
+            "safety": safety,
+        },
+        {
+            "case_id": goldens[1]["case_id"],
+            "actual": goldens[1]["expected"],
+            "safety": safety,
+        },
+    ]
+    challenger_rows = [
+        {
+            "case_id": row["case_id"],
+            "actual": row["expected"],
+            "safety": safety,
+        }
+        for row in goldens
+    ]
+
+    result = hard_cases.evaluate_challenger(
+        d,
+        baseline,
+        challenger_rows,
+        min_improvement=0.1,
+    )
+
+    assert result["baseline"]["accuracy"] == 0.5
+    assert result["challenger"]["accuracy"] == 1.0
+    assert result["promotion_recommended"] is True
+    assert result["promotion_authorized"] is False
+    assert result["merge_authority"] is False
+    assert result["deployment_authorized"] is False
+    assert result["external_sends"] == 0
+    assert result["paid_calls"] == 0
+
+
+def test_integrated_challenger_safety_regression_blocks_recommendation():
+    d = fresh_db()
+    decision(d, 10, "REJECTED", 0.9)
+    outcome(d, 10, "REJECTED", "WON")
+
+    golden = hard_cases.golden_rows(d)[0]
+    safe = dict(golden["safety"])
+    baseline = [{
+        "case_id": golden["case_id"],
+        "actual": "NEGATIVE",
+        "safety": safe,
+    }]
+    unsafe = [{
+        "case_id": golden["case_id"],
+        "actual": golden["expected"],
+        "safety": {
+            "paid_calls": 1,
+            "external_sends": 0,
+            "auto_promoted": False,
+        },
+    }]
+
+    result = hard_cases.evaluate_challenger(
+        d,
+        baseline,
+        unsafe,
+        min_improvement=0.0,
+    )
+
+    assert result["challenger"]["safety_failures"] == 1
+    assert result["promotion_recommended"] is False
+    assert result["promotion_authorized"] is False
+
+
+def test_integrated_challenger_requires_confirmed_hard_cases():
+    d = fresh_db()
+    decision(d, 11, "REJECTED", 0.9)
+
+    try:
+        hard_cases.evaluate_challenger(d, [], [])
+    except ValueError as exc:
+        assert "No confirmed hard cases" in str(exc)
+    else:
+        raise AssertionError("Expected missing hard cases to fail closed")
