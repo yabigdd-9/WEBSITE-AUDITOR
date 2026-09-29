@@ -520,10 +520,11 @@ def prospect_snapshot(d: sqlite3.Connection, business_id: int) -> dict:
     if audit_ev:
         observed.add("audit")
     commercial = qualified_ev or qualification_ev
-    if commercial and any(
-        commercial.get(key) is not None
-        for key in ("commercial_score", "commercial_opportunity_score", "qualification_basis")
-    ):
+    commercial_opportunity = (
+        commercial.get("commercial_opportunity")
+        if isinstance(commercial, dict) else None
+    )
+    if isinstance(commercial_opportunity, dict) and commercial_opportunity:
         observed.add("commercial_evidence")
     if contact_ev:
         observed.add("contact_evidence")
