@@ -355,6 +355,7 @@ def main(argv=None):
     q=s.add_parser('intelligence-review');q.add_argument('--limit',type=int,default=50)
     q=s.add_parser('intelligence-summary');q.add_argument('--limit',type=int,default=500)
     s.add_parser('intelligence-errors')
+    q=s.add_parser('intelligence-calibration');q.add_argument('--bins',type=int,default=10);q.add_argument('--limit',type=int,default=5000);q.add_argument('--min-samples',type=int,default=30)
     q=s.add_parser('db-check')
     q=s.add_parser('safe-mode');q.add_argument('action',choices=['on','off','status'])
     a=p.parse_args(argv)
@@ -417,7 +418,7 @@ def main(argv=None):
                 with d:
                     result=mm_outcomes.record(d,a.id,a.outcome,a.evidence,a.sha256,a.actor,a.note)
         print(json.dumps(result,indent=2,default=str));return 0
-    if a.cmd in ('intelligence-prospect','intelligence-sources','intelligence-review','intelligence-summary','intelligence-errors'):
+    if a.cmd in ('intelligence-prospect','intelligence-sources','intelligence-review','intelligence-summary','intelligence-errors','intelligence-calibration'):
         import mm_opportunity_intelligence as opportunity_intelligence
         with contextlib.closing(connect(readonly=True)) as d:
             if a.cmd == 'intelligence-prospect':
@@ -429,6 +430,14 @@ def main(argv=None):
             elif a.cmd == 'intelligence-errors':
                 import mm_error_mining
                 result = mm_error_mining.mine_errors(d)
+            elif a.cmd == 'intelligence-calibration':
+                import mm_intelligence_calibration
+                result = mm_intelligence_calibration.calibration_report(
+                    d,
+                    bins=a.bins,
+                    limit=a.limit,
+                    min_samples=a.min_samples,
+                )
             else:
                 result = opportunity_intelligence.source_query_summary(d)
         print(json.dumps(result, indent=2, default=str)); return 0
