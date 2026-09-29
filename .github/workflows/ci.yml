@@ -67,6 +67,7 @@ jobs:
         run: |
           ruff check \
             money-machine/mm_opportunity_intelligence.py \
+            money-machine/mm_error_mining.py \
             money-machine/test_opportunity_intelligence.py
 
       - name: Run portable MoneyMachine regressions
