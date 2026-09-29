@@ -6,6 +6,7 @@ import json
 import sqlite3
 
 import mm_opportunity_intelligence as oi
+import mm_workers as workers
 
 
 def test_identity_confidence_high_with_aligned_first_party_signals():
@@ -213,3 +214,84 @@ def test_source_query_summary_works_without_optional_tables():
     result = oi.source_query_summary(d)
     assert result["business_count"] == 1
     assert result["sources"][0]["states"] == {"UNTRACKED": 1}
+
+
+def test_identity_worker_adds_shadow_without_changing_transition():
+    d = sqlite3.connect(":memory:")
+    d.row_factory = sqlite3.Row
+    d.execute(
+        """CREATE TABLE businesses(
+        id INTEGER PRIMARY KEY,name TEXT,public_website TEXT,region TEXT,
+        source TEXT,canonical_host TEXT,is_dummy INTEGER DEFAULT 0)"""
+    )
+    d.execute(
+        "INSERT INTO businesses VALUES(1,?,?,?,?,?,0)",
+        (
+            "Acme Plumbing",
+            "https://acmeplumbing.co.nz",
+            "Canterbury",
+            "searxng-local:q1",
+            None,
+        ),
+    )
+    nxt, reason, evidence = workers.identity_handler(d, {"business_id": 1}, None)
+    assert nxt == "AUDIT_PENDING"
+    assert reason == "identity resolved from declared website"
+    assert evidence["canonical_host"] == "acmeplumbing.co.nz"
+    assert evidence["shadow_intelligence"]["shadow_only"] is True
+    assert evidence["shadow_intelligence"]["identity"]["status"] == "HIGH"
+
+
+def test_qualification_shadow_marks_commercial_gap_without_changing_verdict(monkeypatch):
+    import mm_lead_qualifier as lq
+
+    d = sqlite3.connect(":memory:")
+    d.row_factory = sqlite3.Row
+    d.executescript(
+        """CREATE TABLE businesses(
+        id INTEGER PRIMARY KEY,name TEXT,public_website TEXT,region TEXT,
+        source TEXT,canonical_host TEXT,is_dummy INTEGER DEFAULT 0);
+        CREATE TABLE pipeline_events(
+        id INTEGER PRIMARY KEY,business_id INTEGER,from_state TEXT,to_state TEXT,
+        actor TEXT,reason TEXT,evidence TEXT,event_at TEXT);"""
+    )
+    d.execute(
+        "INSERT INTO businesses VALUES(1,?,?,?,?,?,0)",
+        (
+            "Acme Plumbing",
+            "https://acmeplumbing.co.nz",
+            "Canterbury",
+            "searxng-local:q1",
+            "acmeplumbing.co.nz",
+        ),
+    )
+    d.execute(
+        "INSERT INTO pipeline_events VALUES(1,1,'IDENTITY_PENDING','IDENTITY_RESOLVED','w','ok',?,?)",
+        (json.dumps({"canonical_host": "acmeplumbing.co.nz"}), "2026-09-30T00:00:00+00:00"),
+    )
+    d.execute(
+        "INSERT INTO pipeline_events VALUES(2,1,'AUDIT_PENDING','AUDITED','w','ok',?,?)",
+        (json.dumps({"score": 10, "defect_count": 1}), "2026-09-30T00:01:00+00:00"),
+    )
+    monkeypatch.setattr(
+        lq,
+        "qualify_lead",
+        lambda text, industry="": {
+            "qualification_score": 0,
+            "tier": "COLD",
+            "reasons": ["synthetic no commercial evidence"],
+        },
+    )
+    nxt, reason, evidence = workers.qualification_handler(
+        d, {"business_id": 1}, None
+    )
+    assert nxt == "REJECTED"
+    assert reason.startswith("not qualified:")
+    shadow = evidence["shadow_intelligence"]
+    assert "commercial_evidence" in shadow["evidence_completeness"]["missing"]
+    assert (
+        shadow["next_best_evidence"]["action"]
+        == "INSPECT_FIRST_PARTY_COMMERCIAL_PAGES"
+    )
+    assert shadow["paid_calls"] == 0
+    assert shadow["external_sends"] == 0
