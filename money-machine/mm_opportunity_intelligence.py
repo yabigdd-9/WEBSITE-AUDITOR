@@ -483,6 +483,42 @@ def _table_exists(d: sqlite3.Connection, name: str) -> bool:
     ).fetchone())
 
 
+def _infer_assessment_stage(
+    d: sqlite3.Connection,
+    business_id: int,
+    current_state: str,
+    identity_ev: dict,
+    audit_ev: dict,
+    qualification_ev: dict,
+    contact_ev: dict,
+) -> str:
+    """Map terminal/review states back to the stage whose evidence is incomplete."""
+    if current_state in _STAGE_REQUIREMENTS:
+        return current_state
+
+    try:
+        row = d.execute(
+            "SELECT from_state FROM pipeline_events "
+            "WHERE business_id=? AND to_state=? AND from_state IS NOT NULL "
+            "ORDER BY id DESC LIMIT 1",
+            (business_id, current_state),
+        ).fetchone()
+    except sqlite3.OperationalError:
+        row = None
+    if row and row["from_state"] in _STAGE_REQUIREMENTS:
+        return row["from_state"]
+
+    if current_state == "NO_VERIFIED_EMAIL":
+        return "CONTACT_PENDING"
+    if contact_ev:
+        return "CONTACT_PENDING"
+    if qualification_ev or audit_ev:
+        return "QUALIFICATION_PENDING"
+    if identity_ev:
+        return "AUDIT_PENDING"
+    return "DISCOVERED"
+
+
 def prospect_snapshot(d: sqlite3.Connection, business_id: int) -> dict:
     """Read-only shadow assessment for one existing prospect."""
     business = d.execute("SELECT * FROM businesses WHERE id=?", (business_id,)).fetchone()
@@ -516,6 +552,16 @@ def prospect_snapshot(d: sqlite3.Connection, business_id: int) -> dict:
             if key not in merged_identity and key in source:
                 merged_identity[key] = source[key]
 
+    assessment_stage = _infer_assessment_stage(
+        d,
+        business_id,
+        state,
+        identity_ev,
+        audit_ev,
+        qualification_ev,
+        contact_ev,
+    )
+
     observed = set()
     if b.get("name"):
         observed.add("business_name")
@@ -543,7 +589,7 @@ def prospect_snapshot(d: sqlite3.Connection, business_id: int) -> dict:
 
     assessment = shadow_assessment(
         b,
-        stage=state,
+        stage=assessment_stage,
         observed=observed,
         evidence=merged_identity,
     )
@@ -551,6 +597,7 @@ def prospect_snapshot(d: sqlite3.Connection, business_id: int) -> dict:
         "business_id": business_id,
         "business_name": b.get("name"),
         "state": state,
+        "assessment_stage": assessment_stage,
         "observed_evidence": sorted(observed),
         "derived": {
             "audit": audit_ev,
