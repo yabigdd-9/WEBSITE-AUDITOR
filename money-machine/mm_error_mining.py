@@ -49,6 +49,15 @@ def _table_exists(d: sqlite3.Connection, name: str) -> bool:
     )
 
 
+def _number(value) -> float | None:
+    if isinstance(value, bool) or value is None:
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
 # ---------------------------------------------------------------------------
 # Error detection functions
 # ---------------------------------------------------------------------------
@@ -81,9 +90,9 @@ def detect_false_negatives(d: sqlite3.Connection) -> list[dict]:
         if row["ledger_id"] in confirmed_ids:
             continue
         derived = json.loads(row["derived_evidence"] or "{}")
-        tech_score = derived.get("technical_score")
-        comm_score = derived.get("commercial_score")
-        # False negative: rejected but had strong technical or borderline commercial
+        tech_score = _number(derived.get("technical_score"))
+        comm_score = _number(derived.get("commercial_score"))
+        # Strong signals are review hints only; absent scores stay unknown.
         if (tech_score is not None and tech_score >= 70) or \
            (comm_score is not None and comm_score >= 25):
             candidates.append({
@@ -129,9 +138,14 @@ def detect_false_positives(d: sqlite3.Connection) -> list[dict]:
         if row["disposition"] == "OUTCOME_OBSERVED":
             continue
         derived = json.loads(row["derived_evidence"] or "{}")
-        evidence_conf = derived.get("evidence_confidence", 0)
-        tech_score = derived.get("technical_score")
-        if evidence_conf <= 0.3 and (tech_score is None or tech_score < 30):
+        evidence_conf = _number(derived.get("evidence_confidence"))
+        tech_score = _number(derived.get("technical_score"))
+        if (
+            evidence_conf is not None
+            and tech_score is not None
+            and evidence_conf <= 0.3
+            and tech_score < 30
+        ):
             candidates.append({
                 "type": "SUSPECTED_FALSE_POSITIVE",
                 "prospect_id": row["prospect_id"],
@@ -379,13 +393,7 @@ def _opportunity_score(derived: dict) -> float | None:
     value = derived.get("opportunity_score")
     if isinstance(value, dict):
         value = value.get("score")
-    if isinstance(value, bool):
-        return None
-    try:
-        score = float(value)
-    except (TypeError, ValueError):
-        return None
-    return score
+    return _number(value)
 
 
 def detect_score_inversions(d: sqlite3.Connection) -> list[dict]:
