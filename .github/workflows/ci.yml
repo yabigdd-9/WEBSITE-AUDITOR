@@ -74,13 +74,15 @@ jobs:
             money-machine/mm_intelligence_strategy.py \
             money-machine/mm_intelligence_drift.py \
             money-machine/mm_intelligence_evidence_value.py \
+            money-machine/mm_intelligence_readiness.py \
             money-machine/test_opportunity_intelligence.py \
             money-machine/test_intelligence_calibration.py \
             money-machine/test_intelligence_graph.py \
             money-machine/test_intelligence_hard_cases.py \
             money-machine/test_intelligence_strategy.py \
             money-machine/test_intelligence_drift.py \
-            money-machine/test_intelligence_evidence_value.py
+            money-machine/test_intelligence_evidence_value.py \
+            money-machine/test_intelligence_readiness.py
 
       - name: Run portable MoneyMachine regressions
         run: |
@@ -102,6 +104,7 @@ jobs:
             money-machine/test_intelligence_strategy.py \
             money-machine/test_intelligence_drift.py \
             money-machine/test_intelligence_evidence_value.py \
+            money-machine/test_intelligence_readiness.py \
             money-machine/test_intelligence_ledger.py \
             money-machine/test_preparation_worker.py \
             money-machine/test_dsh_harness_bridge.py \
