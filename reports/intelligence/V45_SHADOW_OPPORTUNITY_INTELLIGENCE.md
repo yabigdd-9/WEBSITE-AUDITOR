@@ -98,6 +98,8 @@ Both use read-only database connections.
 
 `intelligence-sources` returns source/query yield analytics.
 
+`intelligence-review --limit N` returns a read-only shadow review queue containing only current negative/review states where identity uncertainty, missing required evidence, or a near-threshold current score justifies human inspection. The queue never changes pipeline state, never resurrects a prospect, and sets `automatic_action: false` on every item.
+
 ## Counterfactual explanations
 
 `intelligence-prospect` now also returns an explanatory counterfactual block.
@@ -126,6 +128,7 @@ The system therefore explains what would have to be different without claiming t
 - No pipeline-state mutation from the intelligence module.
 - No source/query auto-promotion.
 - No hidden conversion of missing evidence into negative evidence.
+- Review-queue generation is read-only and cannot resurrect or transition a prospect.
 - Human review is required for conflicting identity evidence.
 
 ## Tests
