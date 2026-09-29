@@ -565,6 +565,56 @@ def _query_fingerprint(source: str) -> str:
     return ""
 
 
+def intelligence_summary(d: sqlite3.Connection, limit: int = 500) -> dict:
+    """Return one bounded read-only summary of the shadow intelligence layer."""
+    bounded_limit = max(1, min(int(limit), 2000))
+    rows = d.execute(
+        "SELECT id FROM businesses WHERE coalesce(is_dummy,0)=0 "
+        "ORDER BY id LIMIT ?",
+        (bounded_limit,),
+    ).fetchall()
+
+    identity_status = Counter()
+    completeness_status = Counter()
+    next_actions = Counter()
+    assessed = 0
+
+    for row in rows:
+        snapshot = prospect_snapshot(d, int(row["id"]))
+        assessed += 1
+        identity_status[str(snapshot["identity"].get("status") or "UNKNOWN")] += 1
+        completeness_status[
+            str(snapshot["evidence_completeness"].get("status") or "UNKNOWN")
+        ] += 1
+        next_actions[
+            str(snapshot["next_best_evidence"].get("action") or "UNKNOWN")
+        ] += 1
+
+    sources = source_query_summary(d)
+    diagnostics = Counter(
+        str(item.get("diagnostic", {}).get("signal") or "UNKNOWN")
+        for item in sources["sources"]
+    )
+    review = shadow_review_queue(d, limit=min(bounded_limit, 500))
+
+    return {
+        "prospects_assessed": assessed,
+        "identity_status": dict(sorted(identity_status.items())),
+        "evidence_completeness": dict(sorted(completeness_status.items())),
+        "next_best_evidence": dict(sorted(next_actions.items())),
+        "review_queue_count": review["count"],
+        "source_count": sources["source_count"],
+        "source_diagnostics": dict(sorted(diagnostics.items())),
+        "bounded_limit": bounded_limit,
+        "truncated": len(rows) == bounded_limit,
+        "automatic_action": False,
+        "shadow_only": True,
+        "rule_version": RULE_VERSION,
+        "paid_calls": 0,
+        "external_sends": 0,
+    }
+
+
 def shadow_review_queue(d: sqlite3.Connection, limit: int = 50) -> dict:
     """Return high-value human-review candidates without changing pipeline state.
 
