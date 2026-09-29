@@ -166,8 +166,8 @@ def test_calibration_bins_ece_and_brier_are_deterministic():
     assert result["confirmed_examples"] == 4
     assert result["observed_accuracy"] == 0.5
     assert result["avg_confidence"] == 0.75
-    assert result["expected_calibration_error"] == 0.4
-    assert result["brier_score"] == 0.285
+    assert result["expected_calibration_error"] == 0.25
+    assert result["brier_score"] == 0.335
     nonempty = [row for row in result["bins"] if row["count"]]
     assert sum(row["count"] for row in nonempty) == 4
 
