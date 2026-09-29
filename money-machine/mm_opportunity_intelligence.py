@@ -571,8 +571,10 @@ def intelligence_summary(d: sqlite3.Connection, limit: int = 500) -> dict:
     rows = d.execute(
         "SELECT id FROM businesses WHERE coalesce(is_dummy,0)=0 "
         "ORDER BY id LIMIT ?",
-        (bounded_limit,),
+        (bounded_limit + 1,),
     ).fetchall()
+    truncated = len(rows) > bounded_limit
+    rows = rows[:bounded_limit]
 
     identity_status = Counter()
     completeness_status = Counter()
@@ -606,7 +608,7 @@ def intelligence_summary(d: sqlite3.Connection, limit: int = 500) -> dict:
         "source_count": sources["source_count"],
         "source_diagnostics": dict(sorted(diagnostics.items())),
         "bounded_limit": bounded_limit,
-        "truncated": len(rows) == bounded_limit,
+        "truncated": truncated,
         "automatic_action": False,
         "shadow_only": True,
         "rule_version": RULE_VERSION,
