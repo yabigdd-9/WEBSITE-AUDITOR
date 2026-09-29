@@ -183,3 +183,37 @@ def golden_rows(d: sqlite3.Connection, limit: int = 500) -> list[dict]:
         }
         for case in report["cases"]
     ]
+
+
+def evaluate_challenger(
+    d: sqlite3.Connection,
+    baseline_rows: list[dict],
+    challenger_rows: list[dict],
+    limit: int = 500,
+    min_improvement: float = 0.01,
+) -> dict:
+    """Evaluate predictions against confirmed hard cases, never auto-promote."""
+    import mm_challenger
+
+    goldens = golden_rows(d, limit)
+    if not goldens:
+        raise ValueError(
+            "No confirmed hard cases are available for challenger evaluation"
+        )
+    result = mm_challenger.compare(
+        goldens,
+        baseline_rows,
+        challenger_rows,
+        min_improvement=min_improvement,
+    )
+    result.update({
+        "hard_case_count": len(goldens),
+        "hard_case_rule_version": RULE_VERSION,
+        "golden_source": "confirmed_intelligence_errors",
+        "promotion_authorized": False,
+        "merge_authority": False,
+        "deployment_authorized": False,
+        "external_sends": 0,
+        "paid_calls": 0,
+    })
+    return result
