@@ -65,6 +65,14 @@ It reports candidate count, pipeline state distribution, qualified-or-later coun
 
 It does not claim profitability unless verified outcome evidence exists.
 
+Each source also receives a conservative diagnostic:
+- `INSUFFICIENT_SAMPLE` below 10 non-dummy prospects,
+- `PROMISING` only when downstream engagement or won evidence exists,
+- `POOR_YIELD` only with a sufficiently large cohort plus high negative-terminal rate and low qualification yield,
+- `MIXED` otherwise.
+
+All diagnostics carry `automatic_action: false`; no source or query is auto-promoted, suppressed, or removed.
+
 ## Worker integration
 
 ### Identity worker
@@ -90,6 +98,24 @@ Both use read-only database connections.
 
 `intelligence-sources` returns source/query yield analytics.
 
+## Counterfactual explanations
+
+`intelligence-prospect` now also returns an explanatory counterfactual block.
+
+It can state, for example:
+- that commercial evidence is still missing,
+- that technical qualification remains unknown without a valid audit,
+- the current v45 commercial threshold (30) and technical threshold (40),
+- the numerical gap to a threshold when a valid score exists,
+- that contradictory identity evidence must be resolved by human review.
+
+These are explanations of the current rules only. Every counterfactual is marked:
+- `explanatory_only: true`,
+- `automatic_action: false`,
+- `guarantees_decision_change: false`.
+
+The system therefore explains what would have to be different without claiming that a new observation will necessarily be found or that a state transition should occur.
+
 ## Safety invariants
 
 - No paid model calls.
@@ -104,7 +130,7 @@ Both use read-only database connections.
 
 ## Tests
 
-`money-machine/test_opportunity_intelligence.py` covers aligned identity, missing identity, conflicting discovery identity, evidence-completeness semantics, next-best-evidence selection, human-review routing on conflict, prospect snapshots, source/query yield and outcome aggregation, operation without optional tables, and worker shadow integration without target-state or verdict changes.
+`money-machine/test_opportunity_intelligence.py` covers aligned identity, weak/missing identity staying unknown rather than conflicting, conflicting discovery identity, evidence-completeness semantics, next-best-evidence selection, explanatory counterfactuals, human-review routing on conflict, prospect snapshots, source/query yield and outcome aggregation, minimum-sample source diagnostics, operation without optional tables, and worker shadow integration without target-state or verdict changes.
 
 ## Promotion policy
 
