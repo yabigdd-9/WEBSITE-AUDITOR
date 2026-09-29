@@ -25,6 +25,9 @@ Public surfaces:
 - `shadow_assessment(business, stage, observed=(), evidence=None)`
 - `prospect_snapshot(d, business_id)`
 - `source_query_summary(d)`
+- `counterfactual_explanation(state, assessment, qualification=None)`
+- `shadow_review_queue(d, limit=50)`
+- `intelligence_summary(d, limit=500)`
 
 Rule version: `v45-shadow-intelligence-v1`
 
@@ -94,7 +97,7 @@ New commands:
 ./mm intelligence-summary --limit 500
 ```
 
-Both use read-only database connections.
+All four operator commands use read-only database connections.
 
 `intelligence-prospect` returns current pipeline state, the originating/assessment stage used for evidence-completeness analysis, observed evidence classes, identity confidence, evidence completeness, next-best-evidence action, counterfactual explanation, current audit/qualification derived evidence, paid calls = 0, and external sends = 0.
 
@@ -106,7 +109,7 @@ The assessment stage prefers the recorded transition's `from_state` when availab
 
 `intelligence-sources` returns source/query yield analytics.
 
-`intelligence-review --limit N` returns a read-only shadow review queue containing only current negative/review states where identity uncertainty, missing required evidence, or a near-threshold current score justifies human inspection. The queue never changes pipeline state, never resurrects a prospect, and sets `automatic_action: false` on every item.
+`intelligence-review --limit N` returns a read-only shadow review queue containing only current negative/review states where identity uncertainty, missing required evidence, or a near-threshold current score justifies human inspection. `SUPPRESSED` prospects are excluded entirely so suppression remains authoritative. The queue never changes pipeline state, never resurrects a prospect, and sets `automatic_action: false` on every item.
 
 `intelligence-summary --limit N` gives one bounded read-only overview of identity-status distribution, evidence-completeness distribution, next-best-evidence actions, review-queue size, source count, and source-diagnostic distribution. It fetches one extra row to report truncation accurately rather than treating an exact-limit result as truncated.
 
@@ -139,11 +142,12 @@ The system therefore explains what would have to be different without claiming t
 - No source/query auto-promotion.
 - No hidden conversion of missing evidence into negative evidence.
 - Review-queue generation is read-only and cannot resurrect or transition a prospect.
+- Suppression remains authoritative: `SUPPRESSED` prospects never enter the shadow review queue.
 - Human review is required for conflicting identity evidence.
 
 ## Tests
 
-`money-machine/test_opportunity_intelligence.py` covers aligned identity, weak/missing identity staying unknown rather than conflicting, conflicting discovery identity, evidence-completeness semantics, next-best-evidence selection, explanatory counterfactuals, human-review routing on conflict, prospect snapshots, source/query yield and outcome aggregation, minimum-sample source diagnostics, operation without optional tables, and worker shadow integration without target-state or verdict changes.
+`money-machine/test_opportunity_intelligence.py` covers aligned identity, discovery-payload identity signals, weak/missing identity staying unknown rather than conflicting, conflicting discovery identity, evidence-completeness semantics, legacy numeric commercial scores not counting as substantive evidence, next-best-evidence selection, explanatory counterfactuals, terminal originating-stage analysis, human-review routing on conflict, suppression authority, prospect snapshots, source/query yield and outcome aggregation, bounded summary reporting, minimum-sample source diagnostics, operation without optional tables, and worker shadow integration without target-state or verdict changes.
 
 ## Promotion policy
 
