@@ -162,6 +162,10 @@ class TestErrorMining:
         d = fresh_db()
         analysis = em.mine_errors(d)
         assert analysis['total_errors'] == 0
+        assert analysis['confirmed_errors'] == 0
+        assert analysis['suspected_errors'] == 0
+        assert analysis['high_confidence_confirmed'] == 0
+        assert analysis['errors'] == []
         assert analysis['cluster_count'] == 0
 
     def test_false_negative_detection(self):
@@ -322,11 +326,24 @@ class TestErrorMining:
 
     def test_record_error_clusters_persists(self):
         d = fresh_db()
+        rec = ledger.IntelligenceDecision(
+            prospect_id=30, business_name='Suspect', domain='suspect.co.nz',
+            decision='REJECTED',
+            primary_reason='INSUFFICIENT_COMMERCIAL_EVIDENCE',
+            confidence=0.7, rule_version='v45.1',
+            derived_evidence={'technical_score': 80, 'commercial_score': 20},
+        )
+        ledger.append_decision(d, rec)
         analysis = em.mine_errors(d)
-        assert analysis['total_errors'] == 0
-        # Should handle empty analysis gracefully
-        count = em.record_error_clusters(d, analysis)
-        assert count == 0
+        assert analysis['cluster_count'] >= 1
+
+        first = em.record_error_clusters(d, analysis)
+        second = em.record_error_clusters(d, analysis)
+
+        assert first >= 1
+        assert second == 0
+        unresolved = em.unresolved_clusters(d)
+        assert len(unresolved) == first
 
     def test_repeated_missing_evidence_detection(self):
         d = fresh_db()
@@ -406,6 +423,9 @@ class TestIntegration:
         ledger.append_decision(d, rec2)
         analysis = em.mine_errors(d)
         assert analysis['total_errors'] == 2
+        assert analysis['suspected_errors'] == 2
+        assert analysis['confirmed_errors'] == 0
+        assert analysis['high_confidence_confirmed'] == 0
         types = {c['cluster_type'] for c in analysis['clusters']}
         assert 'SUSPECTED_FALSE_NEGATIVE' in types
         assert 'SUSPECTED_FALSE_POSITIVE' in types
