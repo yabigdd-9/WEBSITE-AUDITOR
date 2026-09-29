@@ -381,6 +381,12 @@ def test_hard_case_holdout_split_is_deterministic_disjoint_and_complete():
     assert first_train.isdisjoint(first_validation)
     assert first_train | first_validation == all_cases
     assert first["training_count"] + first["validation_count"] == 8
+    assert (
+        first["training_prospect_count"]
+        + first["validation_prospect_count"]
+        == 8
+    )
+    assert first["prospect_disjoint"] is True
     assert first["deterministic"] is True
     assert first["read_only"] is True
 
@@ -420,7 +426,7 @@ def test_holdout_evaluation_requires_at_least_two_confirmed_cases():
     outcome(d, 200, "REJECTED", "WON")
 
     split = hard_cases.split_goldens(d)
-    assert split["status"] == "INSUFFICIENT_CASES"
+    assert split["status"] == "INSUFFICIENT_PROSPECTS"
     assert split["validation_count"] == 0
 
     golden = hard_cases.golden_rows(d)[0]
@@ -436,7 +442,7 @@ def test_holdout_evaluation_requires_at_least_two_confirmed_cases():
             prediction,
         )
     except ValueError as exc:
-        assert "At least two confirmed hard cases" in str(exc)
+        assert "At least two confirmed hard-case prospects" in str(exc)
     else:
         raise AssertionError("Expected insufficient holdout cases to fail")
 
@@ -540,3 +546,119 @@ def test_holdout_safety_failure_blocks_recommendation():
     assert result["promotion_authorized"] is False
     assert result["paid_calls"] == 0
     assert result["external_sends"] == 0
+
+
+def _add_two_hard_cases_for_same_prospect(d, prospect_id):
+    decision(
+        d,
+        prospect_id,
+        "REJECTED",
+        0.9,
+        rule_version="v45.1",
+    )
+    outcome(d, prospect_id, "REJECTED", "WON")
+    decision(
+        d,
+        prospect_id,
+        "QUALIFIED",
+        0.95,
+        rule_version="v45.2",
+    )
+    ledger.record_correction(
+        d,
+        prospect_id,
+        "v45.2 false positive",
+        "REJECTED",
+        0.99,
+        rule_version="v45.2",
+    )
+
+
+def test_holdout_split_is_prospect_disjoint_with_multiple_cases_per_prospect():
+    d = fresh_db()
+    _add_two_hard_cases_for_same_prospect(d, 300)
+
+    decision(d, 301, "REJECTED", 0.9)
+    outcome(d, 301, "REJECTED", "WON")
+
+    decision(d, 302, "QUALIFIED", 0.9)
+    ledger.record_correction(
+        d,
+        302,
+        "Verified negative",
+        "REJECTED",
+        0.99,
+    )
+
+    split = hard_cases.split_goldens(
+        d,
+        validation_fraction=0.5,
+        salt="prospect-disjoint-test",
+    )
+    case_rows = hard_cases.hard_cases(d)["cases"]
+    prospect_by_case = {
+        row["case_id"]: row["prospect_id"]
+        for row in case_rows
+    }
+    train_prospects = {
+        prospect_by_case[row["case_id"]]
+        for row in split["training"]
+    }
+    validation_prospects = {
+        prospect_by_case[row["case_id"]]
+        for row in split["validation"]
+    }
+
+    assert split["status"] == "READY"
+    assert split["prospect_disjoint"] is True
+    assert train_prospects.isdisjoint(validation_prospects)
+
+    prospect_300_cases = {
+        row["case_id"]
+        for row in case_rows
+        if row["prospect_id"] == 300
+    }
+    train_ids = {row["case_id"] for row in split["training"]}
+    validation_ids = {row["case_id"] for row in split["validation"]}
+    assert (
+        prospect_300_cases <= train_ids
+        or prospect_300_cases <= validation_ids
+    )
+    assert not (
+        prospect_300_cases & train_ids
+        and prospect_300_cases & validation_ids
+    )
+
+
+def test_multiple_cases_from_one_prospect_are_not_enough_for_holdout():
+    d = fresh_db()
+    _add_two_hard_cases_for_same_prospect(d, 400)
+
+    split = hard_cases.split_goldens(d)
+
+    assert split["status"] == "INSUFFICIENT_PROSPECTS"
+    assert split["training_count"] == 2
+    assert split["validation_count"] == 0
+    assert split["training_prospect_count"] == 1
+    assert split["validation_prospect_count"] == 0
+    assert split["prospect_disjoint"] is True
+
+    goldens = hard_cases.golden_rows(d)
+    predictions = [
+        {
+            "case_id": row["case_id"],
+            "actual": row["expected"],
+            "safety": dict(row["safety"]),
+        }
+        for row in goldens
+    ]
+    try:
+        hard_cases.evaluate_challenger_holdout(
+            d,
+            predictions,
+            predictions,
+        )
+    except ValueError as exc:
+        assert "At least two confirmed hard-case prospects" in str(exc)
+    else:
+        raise AssertionError("Expected one-prospect holdout to fail closed")
