@@ -148,12 +148,20 @@ def identity_confidence(business, evidence: dict | None = None) -> dict:
     host_tokens = _tokens(host.replace(".", " "))
     if name_tokens and host_tokens:
         overlap = name_tokens & host_tokens
+        host_compact = re.sub(r"[^a-z0-9]", "", host.casefold())
+        joined_name = "".join(sorted(name_tokens, key=lambda token: name.casefold().find(token)))
         if overlap:
             score += 0.20
             supporting.append("name_domain_alignment:" + sorted(overlap)[0])
+        elif joined_name and joined_name in host_compact:
+            score += 0.20
+            supporting.append("name_domain_alignment:compacted_name")
         else:
-            contradicting.append("name_domain_alignment_missing")
-            score -= 0.05
+            # Absence of a deterministic match is missing/unknown evidence,
+            # not proof of an identity conflict. Explicit contradictory
+            # evidence (for example a discovery-quality rejection) is handled
+            # separately below.
+            missing.append("name_domain_alignment")
     elif host and name:
         missing.append("name_domain_alignment")
 
