@@ -68,7 +68,9 @@ jobs:
           ruff check \
             money-machine/mm_opportunity_intelligence.py \
             money-machine/mm_error_mining.py \
-            money-machine/test_opportunity_intelligence.py
+            money-machine/mm_intelligence_calibration.py \
+            money-machine/test_opportunity_intelligence.py \
+            money-machine/test_intelligence_calibration.py
 
       - name: Run portable MoneyMachine regressions
         run: |
@@ -84,6 +86,7 @@ jobs:
             money-machine/test_pipeline.py \
             money-machine/test_opportunity_axes.py \
             money-machine/test_opportunity_intelligence.py \
+            money-machine/test_intelligence_calibration.py \
             money-machine/test_intelligence_ledger.py \
             money-machine/test_preparation_worker.py \
             money-machine/test_dsh_harness_bridge.py \
