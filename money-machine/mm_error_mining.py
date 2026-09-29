@@ -547,7 +547,7 @@ def mine_errors(d: sqlite3.Connection) -> dict[str, Any]:
     cluster_list.sort(key=lambda c: c.size, reverse=True)
 
     confirmed_types = {
-        "CONFIRMED_FALSE_NEGATIVE", "CONFIRMED_FALSE_POSITIVE", "HIGH_CONF_WRONG"
+        "CONFIRMED_FALSE_NEGATIVE", "CONFIRMED_FALSE_POSITIVE"
     }
     suspected_types = {
         "SUSPECTED_FALSE_NEGATIVE", "SUSPECTED_FALSE_POSITIVE",
@@ -558,6 +558,9 @@ def mine_errors(d: sqlite3.Connection) -> dict[str, Any]:
         "total_errors": len(errors),
         "confirmed_errors": sum(err["type"] in confirmed_types for err in errors),
         "suspected_errors": sum(err["type"] in suspected_types for err in errors),
+        "high_confidence_confirmed": sum(
+            err["type"] == "HIGH_CONF_WRONG" for err in errors
+        ),
         "errors": errors,
         "cluster_count": len(cluster_list),
         "clusters": [
