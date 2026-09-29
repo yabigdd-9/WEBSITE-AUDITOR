@@ -168,6 +168,30 @@ class TestErrorMining:
         assert analysis['errors'] == []
         assert analysis['cluster_count'] == 0
 
+    def test_error_analysis_does_not_migrate_or_mutate_schema(self):
+        d = fresh_db()
+        before = {
+            (row["type"], row["name"])
+            for row in d.execute(
+                "SELECT type,name FROM sqlite_master "
+                "WHERE name NOT LIKE 'sqlite_%'"
+            ).fetchall()
+        }
+        assert "intelligence_ledger" not in {name for _, name in before}
+
+        analysis = em.mine_errors(d)
+
+        after = {
+            (row["type"], row["name"])
+            for row in d.execute(
+                "SELECT type,name FROM sqlite_master "
+                "WHERE name NOT LIKE 'sqlite_%'"
+            ).fetchall()
+        }
+        assert analysis["total_errors"] == 0
+        assert after == before
+        assert "intelligence_ledger" not in {name for _, name in after}
+
     def test_false_negative_detection(self):
         d = fresh_db()
         # Strong signals alone are only a suspected false negative.
