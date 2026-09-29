@@ -697,7 +697,7 @@ def shadow_review_queue(d: sqlite3.Connection, limit: int = 50) -> dict:
            WHERE coalesce(b.is_dummy,0)=0
              AND p.state IN (
                'REJECTED','NO_VERIFIED_EMAIL','NEEDS_REVIEW',
-               'PERMANENT_FAILURE','SUPPRESSED'
+               'PERMANENT_FAILURE'
              )
            ORDER BY p.business_id
            LIMIT ?""",
