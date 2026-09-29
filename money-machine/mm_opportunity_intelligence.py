@@ -565,6 +565,98 @@ def _query_fingerprint(source: str) -> str:
     return ""
 
 
+def shadow_review_queue(d: sqlite3.Connection, limit: int = 50) -> dict:
+    """Return high-value human-review candidates without changing pipeline state.
+
+    Only current negative/review states are considered. Priority is based on
+    identity uncertainty, missing required evidence, and near-threshold current
+    qualification scores. The queue is diagnostic and read-only.
+    """
+    if not _table_exists(d, "pipeline_items"):
+        return {
+            "items": [],
+            "count": 0,
+            "automatic_action": False,
+            "shadow_only": True,
+            "rule_version": RULE_VERSION,
+            "paid_calls": 0,
+            "external_sends": 0,
+        }
+
+    bounded_limit = max(1, min(int(limit), 500))
+    rows = d.execute(
+        """SELECT p.business_id,p.state
+           FROM pipeline_items p
+           JOIN businesses b ON b.id=p.business_id
+           WHERE coalesce(b.is_dummy,0)=0
+             AND p.state IN (
+               'REJECTED','NO_VERIFIED_EMAIL','NEEDS_REVIEW',
+               'PERMANENT_FAILURE','SUPPRESSED'
+             )
+           ORDER BY p.updated_at, p.business_id
+           LIMIT ?""",
+        (bounded_limit * 4,),
+    ).fetchall()
+
+    items = []
+    for row in rows:
+        snapshot = prospect_snapshot(d, int(row["business_id"]))
+        reasons = []
+        priority = 0
+
+        identity = snapshot["identity"]
+        completeness = snapshot["evidence_completeness"]
+        qualification = snapshot.get("derived", {}).get("qualification") or {}
+
+        if identity.get("status") == "CONFLICTED":
+            priority += 50
+            reasons.append("identity_conflict")
+        elif identity.get("requires_review"):
+            priority += 30
+            reasons.append("low_identity_confidence")
+
+        missing = list(completeness.get("missing") or [])
+        if missing:
+            priority += min(30, 10 + 5 * len(missing))
+            reasons.append("missing_required_evidence:" + ",".join(sorted(missing)))
+
+        commercial = qualification.get("commercial_score")
+        technical = qualification.get("technical_score")
+        if row["state"] == "REJECTED":
+            if isinstance(commercial, (int, float)) and not isinstance(commercial, bool):
+                if 20 <= float(commercial) < 30:
+                    priority += 10
+                    reasons.append("commercial_near_current_threshold")
+            if isinstance(technical, (int, float)) and not isinstance(technical, bool):
+                if 30 <= float(technical) < 40:
+                    priority += 10
+                    reasons.append("technical_near_current_threshold")
+
+        if reasons:
+            items.append({
+                "business_id": snapshot["business_id"],
+                "business_name": snapshot["business_name"],
+                "state": snapshot["state"],
+                "priority": priority,
+                "reasons": reasons,
+                "next_best_evidence": snapshot["next_best_evidence"],
+                "counterfactual": snapshot["counterfactual"],
+                "automatic_action": False,
+            })
+
+    items.sort(key=lambda item: (-item["priority"], item["business_id"]))
+    items = items[:bounded_limit]
+    return {
+        "items": items,
+        "count": len(items),
+        "automatic_action": False,
+        "shadow_only": True,
+        "rule_version": RULE_VERSION,
+        "paid_calls": 0,
+        "external_sends": 0,
+    }
+
+
 def _source_diagnostic(total: int, qualification_yield: float,
                        negative_terminal_rate: float,
                        engagement_rate: float,
