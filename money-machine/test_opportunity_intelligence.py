@@ -92,6 +92,67 @@ def test_next_best_evidence_prefers_commercial_evidence_when_identity_is_strong(
     assert plan["information_gain"] >= 0.9
 
 
+def test_counterfactual_explains_current_thresholds_without_auto_action():
+    assessment = {
+        "identity": {
+            "status": "HIGH",
+            "confidence": 0.9,
+        },
+        "evidence_completeness": {
+            "missing": ["commercial_evidence"],
+        },
+    }
+    result = oi.counterfactual_explanation(
+        "REJECTED",
+        assessment,
+        {"commercial_score": 20, "technical_score": 35},
+    )
+    axes = {
+        item.get("axis"): item
+        for item in result["counterfactuals"]
+        if item.get("kind") == "CURRENT_RULE_THRESHOLD"
+    }
+    assert axes["commercial"]["threshold"] == 30.0
+    assert axes["commercial"]["gap"] == 10.0
+    assert axes["technical"]["threshold"] == 40.0
+    assert axes["technical"]["gap"] == 5.0
+    assert any(
+        item.get("field") == "commercial_evidence"
+        for item in result["counterfactuals"]
+    )
+    assert result["automatic_action"] is False
+    assert result["explanatory_only"] is True
+    assert all(
+        item["guarantees_decision_change"] is False
+        for item in result["counterfactuals"]
+    )
+
+
+def test_counterfactual_keeps_unknown_technical_axis_unknown():
+    assessment = {
+        "identity": {
+            "status": "HIGH",
+            "confidence": 0.9,
+        },
+        "evidence_completeness": {
+            "missing": ["audit"],
+        },
+    }
+    result = oi.counterfactual_explanation(
+        "REJECTED",
+        assessment,
+        {"commercial_score": 10, "technical_score": None},
+    )
+    assert any(
+        item.get("kind") == "UNKNOWN_AXIS" and item.get("axis") == "technical"
+        for item in result["counterfactuals"]
+    )
+    assert any(
+        item.get("field") == "audit"
+        for item in result["counterfactuals"]
+    )
+
+
 def test_next_best_evidence_conflict_requires_human_review():
     plan = oi.next_best_evidence(
         {
@@ -170,6 +231,8 @@ def test_prospect_snapshot_exposes_identity_completeness_and_planner():
     assert result["evidence_completeness"]["status"] == "INCOMPLETE"
     assert "commercial_evidence" in result["evidence_completeness"]["missing"]
     assert result["next_best_evidence"]["action"] == "INSPECT_FIRST_PARTY_COMMERCIAL_PAGES"
+    assert result["counterfactual"]["automatic_action"] is False
+    assert result["counterfactual"]["explanatory_only"] is True
     assert result["paid_calls"] == 0
     assert result["external_sends"] == 0
 
