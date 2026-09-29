@@ -63,6 +63,12 @@ jobs:
         run: python -m compileall -q auditor_toolkit website_auditor money-machine
       - name: Run canonical + upgrade regression suites
         run: python -m pytest toolkit_tests tests -v
+      - name: Lint v45 opportunity intelligence
+        run: |
+          ruff check \
+            money-machine/mm_opportunity_intelligence.py \
+            money-machine/test_opportunity_intelligence.py
+
       - name: Run portable MoneyMachine regressions
         run: |
           python -m pytest \
