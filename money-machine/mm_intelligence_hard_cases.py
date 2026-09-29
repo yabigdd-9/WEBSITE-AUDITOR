@@ -6,9 +6,10 @@ challenger, call a model, use the network, or send outreach.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import sqlite3
-from collections import Counter
+from collections import Counter, defaultdict
 
 import mm_intelligence_calibration as calibration
 
@@ -217,3 +218,159 @@ def evaluate_challenger(
         "paid_calls": 0,
     })
     return result
+
+
+def _stable_case_order(case: dict, salt: str) -> str:
+    payload = f"{salt}|{case['case_id']}".encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def split_goldens(
+    d: sqlite3.Connection,
+    limit: int = 500,
+    validation_fraction: float = 0.25,
+    salt: str = "v45-hard-case-holdout",
+) -> dict:
+    """Deterministically split confirmed goldens into tuning and holdout sets."""
+    fraction = float(validation_fraction)
+    if not 0.0 < fraction < 1.0:
+        raise ValueError("validation_fraction must be between 0 and 1")
+
+    goldens = golden_rows(d, limit)
+    if len(goldens) < 2:
+        return {
+            "training": list(goldens),
+            "validation": [],
+            "training_count": len(goldens),
+            "validation_count": 0,
+            "status": "INSUFFICIENT_CASES",
+            "validation_fraction": fraction,
+            "salt": str(salt),
+            "deterministic": True,
+            "read_only": True,
+        }
+
+    by_label: dict[str, list[dict]] = defaultdict(list)
+    for case in goldens:
+        by_label[str(case.get("expected") or "UNKNOWN")].append(case)
+
+    training: list[dict] = []
+    validation: list[dict] = []
+    for label in sorted(by_label):
+        rows = sorted(
+            by_label[label],
+            key=lambda case: _stable_case_order(case, str(salt)),
+        )
+        if len(rows) == 1:
+            training.extend(rows)
+            continue
+        validation_count = max(
+            1,
+            min(len(rows) - 1, int(round(len(rows) * fraction))),
+        )
+        validation.extend(rows[:validation_count])
+        training.extend(rows[validation_count:])
+
+    if not validation:
+        ordered = sorted(
+            training,
+            key=lambda case: _stable_case_order(case, str(salt)),
+        )
+        validation.append(ordered[0])
+        training = ordered[1:]
+
+    if not training:
+        ordered = sorted(
+            validation,
+            key=lambda case: _stable_case_order(case, str(salt)),
+        )
+        training.append(ordered[-1])
+        validation = ordered[:-1]
+
+    training.sort(key=lambda case: case["case_id"])
+    validation.sort(key=lambda case: case["case_id"])
+    return {
+        "training": training,
+        "validation": validation,
+        "training_count": len(training),
+        "validation_count": len(validation),
+        "status": "READY",
+        "validation_fraction": fraction,
+        "salt": str(salt),
+        "deterministic": True,
+        "read_only": True,
+    }
+
+
+def evaluate_challenger_holdout(
+    d: sqlite3.Connection,
+    baseline_rows: list[dict],
+    challenger_rows: list[dict],
+    limit: int = 500,
+    validation_fraction: float = 0.25,
+    salt: str = "v45-hard-case-holdout",
+    min_improvement: float = 0.01,
+) -> dict:
+    """Evaluate a challenger on deterministic unseen confirmed hard cases."""
+    import mm_challenger
+
+    split = split_goldens(
+        d,
+        limit=limit,
+        validation_fraction=validation_fraction,
+        salt=salt,
+    )
+    validation = split["validation"]
+    training = split["training"]
+    if not validation:
+        raise ValueError(
+            "At least two confirmed hard cases are required for holdout evaluation"
+        )
+
+    validation_result = mm_challenger.compare(
+        validation,
+        baseline_rows,
+        challenger_rows,
+        min_improvement=min_improvement,
+    )
+    baseline_training = (
+        mm_challenger.evaluate(training, baseline_rows)
+        if training
+        else None
+    )
+    challenger_training = (
+        mm_challenger.evaluate(training, challenger_rows)
+        if training
+        else None
+    )
+
+    generalization_gap = None
+    if challenger_training is not None:
+        generalization_gap = round(
+            validation_result["challenger"]["accuracy"]
+            - challenger_training["accuracy"],
+            6,
+        )
+
+    validation_result.update({
+        "training": {
+            "baseline": baseline_training,
+            "challenger": challenger_training,
+        },
+        "split": {
+            "training_count": split["training_count"],
+            "validation_count": split["validation_count"],
+            "validation_fraction": split["validation_fraction"],
+            "salt": split["salt"],
+            "deterministic": True,
+        },
+        "challenger_generalization_gap": generalization_gap,
+        "recommendation_basis": "validation_holdout_only",
+        "promotion_authorized": False,
+        "merge_authority": False,
+        "deployment_authorized": False,
+        "automatic_rule_change": False,
+        "external_sends": 0,
+        "paid_calls": 0,
+    })
+    return validation_result
