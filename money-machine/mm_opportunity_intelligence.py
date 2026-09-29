@@ -343,6 +343,113 @@ def next_best_evidence(identity: dict, completeness: dict) -> dict:
     }
 
 
+def counterfactual_explanation(state: str, assessment: dict,
+                               qualification: dict | None = None) -> dict:
+    """Explain what would have to change under the current v45 qualification rules.
+
+    This is explanatory only. It does not rescore the prospect, predict that
+    new evidence will be found, or authorize a state transition.
+    """
+    qualification = dict(qualification or {})
+    identity = dict(assessment.get("identity") or {})
+    completeness = dict(assessment.get("evidence_completeness") or {})
+    missing = list(completeness.get("missing") or [])
+    changes: list[dict] = []
+
+    if identity.get("status") == "CONFLICTED":
+        changes.append({
+            "kind": "IDENTITY",
+            "condition": "Resolve contradictory identity evidence with human review.",
+            "guarantees_decision_change": False,
+        })
+    elif identity.get("confidence", 0.0) < 0.50:
+        changes.append({
+            "kind": "IDENTITY",
+            "condition": "Add enough verified identity evidence to remove the low-confidence hold.",
+            "guarantees_decision_change": False,
+        })
+
+    for field in missing:
+        if field == "audit":
+            changes.append({
+                "kind": "EVIDENCE",
+                "field": field,
+                "condition": "Capture deterministic audit evidence before interpreting technical need.",
+                "guarantees_decision_change": False,
+            })
+        elif field == "commercial_evidence":
+            changes.append({
+                "kind": "EVIDENCE",
+                "field": field,
+                "condition": (
+                    "Capture substantive first-party service/booking/quote/commercial evidence "
+                    "before interpreting missing commercial evidence as low opportunity."
+                ),
+                "guarantees_decision_change": False,
+            })
+        elif field == "contact_evidence":
+            changes.append({
+                "kind": "EVIDENCE",
+                "field": field,
+                "condition": "Capture verified first-party contact evidence.",
+                "guarantees_decision_change": False,
+            })
+
+    commercial = qualification.get("commercial_score")
+    technical = qualification.get("technical_score")
+    if str(state or "") in {"REJECTED", "QUALIFICATION_PENDING"}:
+        if isinstance(commercial, (int, float)) and not isinstance(commercial, bool):
+            if commercial < 30:
+                changes.append({
+                    "kind": "CURRENT_RULE_THRESHOLD",
+                    "axis": "commercial",
+                    "current": float(commercial),
+                    "threshold": 30.0,
+                    "gap": round(30.0 - float(commercial), 1),
+                    "condition": (
+                        "A commercial qualification score at or above 30 would satisfy "
+                        "the current commercial axis."
+                    ),
+                    "guarantees_decision_change": False,
+                })
+        if isinstance(technical, (int, float)) and not isinstance(technical, bool):
+            if technical < 40:
+                changes.append({
+                    "kind": "CURRENT_RULE_THRESHOLD",
+                    "axis": "technical",
+                    "current": float(technical),
+                    "threshold": 40.0,
+                    "gap": round(40.0 - float(technical), 1),
+                    "condition": (
+                        "A supported technical score at or above 40 would satisfy "
+                        "the current technical axis."
+                    ),
+                    "guarantees_decision_change": False,
+                })
+        elif technical is None:
+            changes.append({
+                "kind": "UNKNOWN_AXIS",
+                "axis": "technical",
+                "condition": "Technical qualification remains unknown until valid audit evidence exists.",
+                "guarantees_decision_change": False,
+            })
+
+    if not changes:
+        changes.append({
+            "kind": "NONE_IDENTIFIED",
+            "condition": "No decision-changing counterfactual is justified by the current evidence.",
+            "guarantees_decision_change": False,
+        })
+
+    return {
+        "current_state": str(state or ""),
+        "counterfactuals": changes,
+        "explanatory_only": True,
+        "automatic_action": False,
+        "rule_version": RULE_VERSION,
+    }
+
+
 def shadow_assessment(business, stage: str, observed=(), evidence=None) -> dict:
     identity = identity_confidence(business, evidence=evidence)
     completeness = evidence_completeness(stage, observed)
@@ -443,6 +550,11 @@ def prospect_snapshot(d: sqlite3.Connection, business_id: int) -> dict:
             "qualification": commercial,
         },
     })
+    assessment["counterfactual"] = counterfactual_explanation(
+        state,
+        assessment,
+        commercial,
+    )
     return assessment
 
 
