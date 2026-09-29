@@ -281,6 +281,64 @@ def test_source_query_summary_tracks_yield_rejection_and_outcomes():
     assert result["external_sends"] == 0
 
 
+def test_intelligence_summary_is_bounded_read_only_and_zero_cost():
+    d = _db()
+    d.executemany(
+        "INSERT INTO businesses VALUES(?,?,?,?,?,?,?)",
+        [
+            (
+                1, "Acme Plumbing", "https://acmeplumbing.co.nz",
+                "Canterbury", "searxng-local:q1", "acmeplumbing.co.nz", 0,
+            ),
+            (
+                2, "Beta Electrical", "https://betaelectrical.co.nz",
+                "Canterbury", "import:manual", "betaelectrical.co.nz", 0,
+            ),
+        ],
+    )
+    d.executemany(
+        "INSERT INTO pipeline_items VALUES(?,?,?)",
+        [
+            (1, "REJECTED", "{}"),
+            (2, "QUALIFIED", "{}"),
+        ],
+    )
+
+    result = oi.intelligence_summary(d, limit=10)
+
+    assert result["prospects_assessed"] == 2
+    assert result["truncated"] is False
+    assert result["source_count"] == 2
+    assert result["automatic_action"] is False
+    assert result["shadow_only"] is True
+    assert result["paid_calls"] == 0
+    assert result["external_sends"] == 0
+    assert sum(result["identity_status"].values()) == 2
+
+
+def test_intelligence_summary_reports_true_truncation_only():
+    d = _db()
+    d.executemany(
+        "INSERT INTO businesses VALUES(?,?,?,?,?,?,?)",
+        [
+            (
+                1, "A", "https://a.co.nz", "Canterbury",
+                "import:a", "a.co.nz", 0,
+            ),
+            (
+                2, "B", "https://b.co.nz", "Canterbury",
+                "import:b", "b.co.nz", 0,
+            ),
+        ],
+    )
+    first = oi.intelligence_summary(d, limit=1)
+    all_rows = oi.intelligence_summary(d, limit=2)
+    assert first["prospects_assessed"] == 1
+    assert first["truncated"] is True
+    assert all_rows["prospects_assessed"] == 2
+    assert all_rows["truncated"] is False
+
+
 def test_shadow_review_queue_is_read_only_and_surfaces_incomplete_rejection():
     d = _db()
     d.execute(
