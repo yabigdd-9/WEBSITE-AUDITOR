@@ -61,6 +61,7 @@ def detect_false_negatives(d: sqlite3.Connection) -> list[dict]:
                   l.derived_evidence
            FROM intelligence_ledger l
            WHERE l.decision = 'REJECTED'
+             AND coalesce(l.disposition,'') != 'HUMAN_CORRECTED'
            ORDER BY l.recorded_at DESC LIMIT ?""",
         (1000,),
     ).fetchall()
@@ -158,41 +159,52 @@ def _ledger_rows(d: sqlite3.Connection) -> list[dict]:
     ]
 
 
+def _previous_real_decision(rows: list[dict], index: int) -> dict | None:
+    """Return the nearest prior non-correction/non-outcome decision row."""
+    for row in reversed(rows[:index]):
+        if row.get("disposition") in {"HUMAN_CORRECTED", "OUTCOME_OBSERVED"}:
+            continue
+        if row.get("decision"):
+            return row
+    return None
+
+
 def detect_confirmed_false_negatives(d: sqlite3.Connection) -> list[dict]:
-    """Return rejected decisions contradicted by later correction/outcome evidence."""
+    """Return rejected decisions contradicted by correction/outcome evidence."""
     rows = _ledger_rows(d)
     by_prospect: dict[int, list[dict]] = defaultdict(list)
     for row in rows:
         by_prospect[int(row["prospect_id"])].append(row)
 
     results = []
+    seen_original_ids = set()
     for prospect_rows in by_prospect.values():
-        for index, original in enumerate(prospect_rows):
-            if original["decision"] != "REJECTED":
-                continue
-            later = prospect_rows[index + 1:]
-            correction = next(
-                (
-                    row for row in later
-                    if row.get("disposition") == "HUMAN_CORRECTED"
-                    and row.get("decision") in POSITIVE_DECISIONS
-                ),
-                None,
-            )
-            outcome = (
-                original
-                if original.get("later_outcome") in POSITIVE_OUTCOMES
-                else next(
-                    (
-                        row for row in later
-                        if row.get("later_outcome") in POSITIVE_OUTCOMES
-                    ),
-                    None,
+        for index, evidence in enumerate(prospect_rows):
+            original = None
+            confirmation = None
+
+            if (
+                evidence.get("disposition") == "HUMAN_CORRECTED"
+                and evidence.get("decision") in POSITIVE_DECISIONS
+            ):
+                candidate = _previous_real_decision(prospect_rows, index)
+                if candidate and candidate.get("decision") == "REJECTED":
+                    original = candidate
+                    confirmation = "human_correction"
+
+            if evidence.get("later_outcome") in POSITIVE_OUTCOMES:
+                candidate = (
+                    evidence
+                    if evidence.get("decision") == "REJECTED"
+                    else _previous_real_decision(prospect_rows, index)
                 )
-            )
-            if not correction and not outcome:
+                if candidate and candidate.get("decision") == "REJECTED":
+                    original = candidate
+                    confirmation = "positive_later_outcome"
+
+            if not original or original["id"] in seen_original_ids:
                 continue
-            evidence = correction or outcome
+            seen_original_ids.add(original["id"])
             results.append({
                 "type": "CONFIRMED_FALSE_NEGATIVE",
                 "prospect_id": original["prospect_id"],
@@ -200,9 +212,7 @@ def detect_confirmed_false_negatives(d: sqlite3.Connection) -> list[dict]:
                 "domain": original["domain"],
                 "ledger_id": original["id"],
                 "confidence": original["confidence"],
-                "confirmation": (
-                    "human_correction" if correction else "positive_later_outcome"
-                ),
+                "confirmation": confirmation,
                 "confirmation_ledger_id": evidence["id"],
                 "corrected_decision": evidence.get("decision"),
                 "later_outcome": evidence.get("later_outcome"),
@@ -218,20 +228,22 @@ def detect_confirmed_false_positives(d: sqlite3.Connection) -> list[dict]:
         by_prospect[int(row["prospect_id"])].append(row)
 
     results = []
+    seen_original_ids = set()
     for prospect_rows in by_prospect.values():
-        for index, original in enumerate(prospect_rows):
-            if original["decision"] not in POSITIVE_DECISIONS:
+        for index, correction in enumerate(prospect_rows):
+            if (
+                correction.get("disposition") != "HUMAN_CORRECTED"
+                or correction.get("decision") not in NEGATIVE_DECISIONS
+            ):
                 continue
-            correction = next(
-                (
-                    row for row in prospect_rows[index + 1:]
-                    if row.get("disposition") == "HUMAN_CORRECTED"
-                    and row.get("decision") in NEGATIVE_DECISIONS
-                ),
-                None,
-            )
-            if not correction:
+            original = _previous_real_decision(prospect_rows, index)
+            if (
+                not original
+                or original.get("decision") not in POSITIVE_DECISIONS
+                or original["id"] in seen_original_ids
+            ):
                 continue
+            seen_original_ids.add(original["id"])
             results.append({
                 "type": "CONFIRMED_FALSE_POSITIVE",
                 "prospect_id": original["prospect_id"],
