@@ -649,7 +649,7 @@ def test_qualification_shadow_marks_commercial_gap_without_changing_verdict(monk
         ),
     )
     d.execute(
-        "INSERT INTO pipeline_events VALUES(1,1,'IDENTITY_PENDING','IDENTITY_RESOLVED','w','ok',?,?)",
+        "INSERT INTO pipeline_events VALUES(1,1,'IDENTITY_RESOLVED','AUDIT_PENDING','w','ok',?,?)",
         (json.dumps({"canonical_host": "acmeplumbing.co.nz"}), "2026-09-30T00:00:00+00:00"),
     )
     d.execute(
