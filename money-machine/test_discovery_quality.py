@@ -3,7 +3,9 @@
 Synthetic-only. No network, no model calls, no database writes, no sends.
 """
 import unittest
+from unittest.mock import patch
 
+import mm_discovery
 import mm_discovery_quality as q
 
 
@@ -126,6 +128,64 @@ class DiscoveryQualityClassifier(unittest.TestCase):
         batch = q.filter_candidates(["not-an-object"])
         self.assertEqual(batch["counts"]["rejected"], 1)
         self.assertEqual(batch["rejected"][0]["reason"], "candidate_not_object")
+
+    def test_batch_search_wrapper_filters_junk_without_network(self):
+        rows = [
+            {
+                "name": "goodplumber.co.nz",
+                "public_website": "https://goodplumber.co.nz/",
+                "source_url": "https://goodplumber.co.nz/",
+                "source": "searxng-local:test",
+            },
+            {
+                "name": "yellow.co.nz",
+                "public_website": "https://yellow.co.nz/",
+                "source_url": "https://yellow.co.nz/christchurch/plumbers",
+                "source": "searxng-local:test",
+            },
+            {
+                "name": "unknown-source.xyz",
+                "public_website": "https://unknown-source.xyz/",
+                "source_url": "https://unknown-source.xyz/unusual",
+                "source": "searxng-local:test",
+            },
+        ]
+        with patch.object(mm_discovery, "searxng_candidates", return_value=rows):
+            accepted, report, rejected = mm_discovery._collect_search_source(
+                "plumber christchurch",
+                "Canterbury",
+                "http://127.0.0.1:8888",
+                10,
+            )
+
+        self.assertEqual(len(accepted), 2)
+        self.assertEqual(report["quality_rejected"], 1)
+        self.assertEqual(report["quality_review"], 1)
+        self.assertEqual(rejected[0]["classification"], q.DIRECTORY)
+        self.assertIn("discovery_quality", accepted[0])
+        self.assertIn("discovery_quality", accepted[1])
+
+    def test_normalization_preserves_quality_provenance(self):
+        quality = q.classify_candidate({
+            "name": "Fixture Plumbing",
+            "source_url": "https://fixtureplumbing.co.nz/",
+            "region": "Canterbury",
+        })
+        candidate = mm_discovery.normalize_candidate({
+            "name": "Fixture Plumbing",
+            "website": "https://fixtureplumbing.co.nz/",
+            "region": "Canterbury",
+            "source": "fixture",
+            "discovery_quality": quality,
+        })
+        self.assertEqual(
+            candidate["discovery_quality"]["rule_version"],
+            "discovery-quality-v1",
+        )
+        self.assertEqual(
+            candidate["discovery_quality"]["classification"],
+            q.BUSINESS_HOME,
+        )
 
 
 if __name__ == "__main__":
