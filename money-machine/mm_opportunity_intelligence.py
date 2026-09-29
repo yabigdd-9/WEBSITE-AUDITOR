@@ -645,7 +645,7 @@ def shadow_review_queue(d: sqlite3.Connection, limit: int = 50) -> dict:
                'REJECTED','NO_VERIFIED_EMAIL','NEEDS_REVIEW',
                'PERMANENT_FAILURE','SUPPRESSED'
              )
-           ORDER BY p.updated_at, p.business_id
+           ORDER BY p.business_id
            LIMIT ?""",
         (bounded_limit * 4,),
     ).fetchall()
