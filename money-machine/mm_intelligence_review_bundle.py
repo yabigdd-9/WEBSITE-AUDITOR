@@ -190,3 +190,120 @@ def verify_review_bundle(bundle: dict) -> dict:
         "actual_sha256": actual,
         "reason": "ok" if actual == claimed else "fingerprint_mismatch",
     }
+
+
+def _gate_map(bundle: dict) -> dict[str, dict]:
+    manifest = bundle.get("manifest")
+    if not isinstance(manifest, dict):
+        return {}
+    gates = manifest.get("gates")
+    if not isinstance(gates, list):
+        return {}
+    result = {}
+    for gate in gates:
+        if not isinstance(gate, dict):
+            continue
+        name = str(gate.get("gate") or "")
+        if name:
+            result[name] = gate
+    return result
+
+
+def diff_review_bundles(before: dict, after: dict) -> dict:
+    """Describe deterministic review-bundle changes without any database I/O."""
+    before_verify = verify_review_bundle(before)
+    after_verify = verify_review_bundle(after)
+
+    before_manifest = before.get("manifest")
+    after_manifest = after.get("manifest")
+    if not isinstance(before_manifest, dict) or not isinstance(after_manifest, dict):
+        return {
+            "valid": False,
+            "reason": "missing_manifest",
+            "before_verification": before_verify,
+            "after_verification": after_verify,
+        }
+
+    before_gates = _gate_map(before)
+    after_gates = _gate_map(after)
+    gate_names = sorted(set(before_gates) | set(after_gates))
+    gate_changes = []
+    for name in gate_names:
+        old = before_gates.get(name)
+        new = after_gates.get(name)
+        if old == new:
+            continue
+        gate_changes.append({
+            "gate": name,
+            "before": old,
+            "after": new,
+        })
+
+    before_config = before_manifest.get("configuration") or {}
+    after_config = after_manifest.get("configuration") or {}
+    config_keys = sorted(set(before_config) | set(after_config))
+    configuration_changes = {
+        key: {
+            "before": before_config.get(key),
+            "after": after_config.get(key),
+        }
+        for key in config_keys
+        if before_config.get(key) != after_config.get(key)
+    }
+
+    before_evidence = before_manifest.get("evidence") or {}
+    after_evidence = after_manifest.get("evidence") or {}
+    evidence_keys = sorted(set(before_evidence) | set(after_evidence))
+    evidence_changes = {
+        key: {
+            "before": before_evidence.get(key),
+            "after": after_evidence.get(key),
+        }
+        for key in evidence_keys
+        if before_evidence.get(key) != after_evidence.get(key)
+    }
+
+    before_failed = {
+        name for name, gate in before_gates.items()
+        if gate.get("passed") is False
+    }
+    after_failed = {
+        name for name, gate in after_gates.items()
+        if gate.get("passed") is False
+    }
+
+    fingerprints_equal = (
+        before.get("fingerprint_sha256") == after.get("fingerprint_sha256")
+    )
+    integrity_ok = (
+        before_verify.get("valid") is True
+        and after_verify.get("valid") is True
+    )
+
+    return {
+        "valid": integrity_ok,
+        "reason": "ok" if integrity_ok else "bundle_integrity_failure",
+        "before_verification": before_verify,
+        "after_verification": after_verify,
+        "fingerprints_equal": fingerprints_equal,
+        "before_fingerprint_sha256": before.get("fingerprint_sha256"),
+        "after_fingerprint_sha256": after.get("fingerprint_sha256"),
+        "readiness_status": {
+            "before": before_manifest.get("readiness_status"),
+            "after": after_manifest.get("readiness_status"),
+        },
+        "candidate_rule_version": {
+            "before": before_manifest.get("candidate_rule_version"),
+            "after": after_manifest.get("candidate_rule_version"),
+        },
+        "blockers_added": sorted(after_failed - before_failed),
+        "blockers_resolved": sorted(before_failed - after_failed),
+        "gate_changes": gate_changes,
+        "configuration_changes": configuration_changes,
+        "evidence_changes": evidence_changes,
+        "changed": not fingerprints_equal,
+        "review_only": True,
+        "promotion_authorized": False,
+        "merge_authority": False,
+        "deployment_authorized": False,
+    }
