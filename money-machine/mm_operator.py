@@ -359,6 +359,7 @@ def main(argv=None):
     q=s.add_parser('intelligence-graph');q.add_argument('id',type=int)
     q=s.add_parser('intelligence-hard-cases');q.add_argument('--limit',type=int,default=500)
     q=s.add_parser('intelligence-challenger-eval');q.add_argument('--baseline',required=True);q.add_argument('--challenger',required=True);q.add_argument('--limit',type=int,default=500);q.add_argument('--min-improvement',type=float,default=0.01)
+    q=s.add_parser('intelligence-strategy');q.add_argument('--limit',type=int,default=5000);q.add_argument('--min-rule-samples',type=int,default=10);q.add_argument('--min-source-prospects',type=int,default=10);q.add_argument('--min-confirmed',type=int,default=5)
     q=s.add_parser('db-check')
     q=s.add_parser('safe-mode');q.add_argument('action',choices=['on','off','status'])
     a=p.parse_args(argv)
@@ -421,7 +422,7 @@ def main(argv=None):
                 with d:
                     result=mm_outcomes.record(d,a.id,a.outcome,a.evidence,a.sha256,a.actor,a.note)
         print(json.dumps(result,indent=2,default=str));return 0
-    if a.cmd in ('intelligence-prospect','intelligence-sources','intelligence-review','intelligence-summary','intelligence-errors','intelligence-calibration','intelligence-graph','intelligence-hard-cases','intelligence-challenger-eval'):
+    if a.cmd in ('intelligence-prospect','intelligence-sources','intelligence-review','intelligence-summary','intelligence-errors','intelligence-calibration','intelligence-graph','intelligence-hard-cases','intelligence-challenger-eval','intelligence-strategy'):
         import mm_opportunity_intelligence as opportunity_intelligence
         with contextlib.closing(connect(readonly=True)) as d:
             if a.cmd == 'intelligence-prospect':
@@ -456,6 +457,15 @@ def main(argv=None):
                     mm_challenger.load_jsonl(a.challenger),
                     limit=a.limit,
                     min_improvement=a.min_improvement,
+                )
+            elif a.cmd == 'intelligence-strategy':
+                import mm_intelligence_strategy
+                result = mm_intelligence_strategy.strategy_report(
+                    d,
+                    limit=a.limit,
+                    min_rule_samples=a.min_rule_samples,
+                    min_source_prospects=a.min_source_prospects,
+                    min_confirmed=a.min_confirmed,
                 )
             else:
                 result = opportunity_intelligence.source_query_summary(d)
