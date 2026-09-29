@@ -80,6 +80,7 @@ jobs:
             money-machine/mm_intelligence_selective.py \
             money-machine/mm_intelligence_review_efficiency.py \
             money-machine/mm_intelligence_label_quality.py \
+            money-machine/mm_intelligence_uncertainty.py \
             money-machine/test_opportunity_intelligence.py \
             money-machine/test_intelligence_calibration.py \
             money-machine/test_intelligence_graph.py \
@@ -92,7 +93,8 @@ jobs:
             money-machine/test_intelligence_consistency.py \
             money-machine/test_intelligence_selective.py \
             money-machine/test_intelligence_review_efficiency.py \
-            money-machine/test_intelligence_label_quality.py
+            money-machine/test_intelligence_label_quality.py \
+            money-machine/test_intelligence_uncertainty.py
 
       - name: Run portable MoneyMachine regressions
         run: |
@@ -120,6 +122,7 @@ jobs:
             money-machine/test_intelligence_selective.py \
             money-machine/test_intelligence_review_efficiency.py \
             money-machine/test_intelligence_label_quality.py \
+            money-machine/test_intelligence_uncertainty.py \
             money-machine/test_intelligence_ledger.py \
             money-machine/test_preparation_worker.py \
             money-machine/test_dsh_harness_bridge.py \
