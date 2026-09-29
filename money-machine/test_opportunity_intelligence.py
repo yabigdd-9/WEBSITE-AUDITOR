@@ -22,6 +22,18 @@ def test_identity_confidence_high_with_aligned_first_party_signals():
     assert "public_host_present" in result["supporting_signals"]
 
 
+def test_weak_name_domain_match_is_unknown_not_conflict():
+    result = oi.identity_confidence({
+        "name": "Acme Plumbing",
+        "public_website": "https://example-services.co.nz",
+        "region": "Canterbury",
+        "source": "searxng-local:abc123",
+    })
+    assert result["status"] != "CONFLICTED"
+    assert "name_domain_alignment" in result["missing_signals"]
+    assert result["contradicting_signals"] == []
+
+
 def test_identity_confidence_low_when_identity_is_missing():
     result = oi.identity_confidence({
         "name": "Unknown Business",
