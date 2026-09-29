@@ -547,6 +547,7 @@ def prospect_snapshot(d: sqlite3.Connection, business_id: int) -> dict:
     audit_ev = _latest_event_evidence(d, business_id, "AUDITED")
     qualification_ev = _latest_event_evidence(d, business_id, "QUALIFICATION_PENDING")
     qualified_ev = _latest_event_evidence(d, business_id, "QUALIFIED")
+    current_state_ev = _latest_event_evidence(d, business_id, state)
     contact_ev = _latest_event_evidence(d, business_id, "CONTACT_RESOLVED")
 
     merged_identity = dict(identity_ev)
@@ -577,12 +578,27 @@ def prospect_snapshot(d: sqlite3.Connection, business_id: int) -> dict:
         observed.add("canonical_host")
     if audit_ev:
         observed.add("audit")
-    commercial = qualified_ev or qualification_ev
-    commercial_opportunity = (
-        commercial.get("commercial_opportunity")
-        if isinstance(commercial, dict) else None
+    qualification_result_keys = {
+        "commercial_score", "technical_score", "qualification_basis",
+        "commercial_opportunity", "commercial_opportunity_score",
+    }
+    state_qualification_ev = (
+        current_state_ev
+        if isinstance(current_state_ev, dict)
+        and qualification_result_keys.intersection(current_state_ev)
+        else {}
     )
-    if isinstance(commercial_opportunity, dict) and commercial_opportunity:
+    commercial = state_qualification_ev or qualified_ev or qualification_ev
+    commercial_opportunity = None
+    if isinstance(commercial, dict):
+        raw_commercial = commercial.get("commercial_opportunity")
+        if isinstance(raw_commercial, dict) and raw_commercial:
+            commercial_opportunity = raw_commercial
+        else:
+            raw_opportunity = commercial.get("opportunity_score")
+            if isinstance(raw_opportunity, dict) and raw_opportunity:
+                commercial_opportunity = raw_opportunity
+    if commercial_opportunity:
         observed.add("commercial_evidence")
     if contact_ev:
         observed.add("contact_evidence")
@@ -608,6 +624,7 @@ def prospect_snapshot(d: sqlite3.Connection, business_id: int) -> dict:
         "derived": {
             "audit": audit_ev,
             "qualification": commercial,
+            "current_state_event": current_state_ev,
         },
     })
     assessment["counterfactual"] = counterfactual_explanation(
