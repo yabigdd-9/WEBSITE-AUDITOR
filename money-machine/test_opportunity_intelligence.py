@@ -502,6 +502,29 @@ def test_terminal_snapshot_prefers_recorded_originating_stage():
     assert result["evidence_completeness"]["stage"] == "QUALIFICATION_PENDING"
 
 
+def test_shadow_review_queue_never_resurfaces_suppressed_prospect():
+    d = _db()
+    d.execute(
+        "INSERT INTO businesses VALUES(1,?,?,?,?,?,0)",
+        (
+            "Suppressed Co",
+            "https://suppressed.co.nz",
+            "Canterbury",
+            "import:manual",
+            "suppressed.co.nz",
+        ),
+    )
+    d.execute(
+        "INSERT INTO pipeline_items VALUES(1,'SUPPRESSED','{}')"
+    )
+
+    result = oi.shadow_review_queue(d, limit=10)
+
+    assert result["items"] == []
+    assert result["count"] == 0
+    assert result["automatic_action"] is False
+
+
 def test_shadow_review_queue_ignores_active_qualified_prospect():
     d = _db()
     d.execute(
