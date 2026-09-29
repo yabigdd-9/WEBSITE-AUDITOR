@@ -166,7 +166,7 @@ class TestErrorMining:
 
     def test_false_negative_detection(self):
         d = fresh_db()
-        # A rejected candidate with high technical score → false negative
+        # Strong signals alone are only a suspected false negative.
         rec = ledger.IntelligenceDecision(
             prospect_id=1, business_name='Plumber', domain='plumber.co.nz',
             decision='REJECTED', primary_reason='INSUFFICIENT_COMMERCIAL_EVIDENCE',
@@ -178,11 +178,11 @@ class TestErrorMining:
         assert analysis['total_errors'] >= 1
         fn = [e for e in em.detect_false_negatives(d)]
         assert len(fn) == 1
-        assert fn[0]['type'] == 'FALSE_NEGATIVE'
+        assert fn[0]['type'] == 'SUSPECTED_FALSE_NEGATIVE'
 
     def test_false_positive_detection(self):
         d = fresh_db()
-        # An accepted candidate with weak evidence → false positive
+        # Weak evidence alone is only a suspected false positive.
         rec = ledger.IntelligenceDecision(
             prospect_id=2, business_name='Junk', domain='junk.co.nz',
             decision='QUALIFIED', primary_reason='',
@@ -192,7 +192,7 @@ class TestErrorMining:
         ledger.append_decision(d, rec)
         fp = em.detect_false_positives(d)
         assert len(fp) == 1
-        assert fp[0]['type'] == 'FALSE_POSITIVE'
+        assert fp[0]['type'] == 'SUSPECTED_FALSE_POSITIVE'
 
     def test_high_conf_wrong_detection(self):
         d = fresh_db()
@@ -200,12 +200,87 @@ class TestErrorMining:
             prospect_id=3, business_name='Confident', domain='conf.co.nz',
             decision='ACCEPTED', primary_reason='',
             confidence=0.95, rule_version='v45.1',
-            human_correction='This was actually junk',
         )
         ledger.append_decision(d, rec)
+        ledger.record_correction(
+            d, 3, 'This was actually junk', 'REJECTED', 0.95
+        )
         wrong = em.detect_high_conf_wrong(d)
         assert len(wrong) == 1
         assert wrong[0]['type'] == 'HIGH_CONF_WRONG'
+        assert wrong[0]['confirmed_error_type'] == 'CONFIRMED_FALSE_POSITIVE'
+
+    def test_confirmed_false_negative_requires_correction_or_outcome(self):
+        d = fresh_db()
+        rec = ledger.IntelligenceDecision(
+            prospect_id=10, business_name='Missed', domain='missed.co.nz',
+            decision='REJECTED', primary_reason='INSUFFICIENT_COMMERCIAL_EVIDENCE',
+            confidence=0.9, rule_version='v45.1', stage='qualification',
+            derived_evidence={'technical_score': 85, 'commercial_score': 20},
+        )
+        original_id = ledger.append_decision(d, rec)
+
+        # Before correction this remains suspicion only.
+        assert em.detect_confirmed_false_negatives(d) == []
+        suspected = em.detect_false_negatives(d)
+        assert suspected[0]['type'] == 'SUSPECTED_FALSE_NEGATIVE'
+
+        ledger.record_correction(
+            d, 10, 'Verified strong commercial fit', 'QUALIFIED', 0.95
+        )
+        confirmed = em.detect_confirmed_false_negatives(d)
+        assert len(confirmed) == 1
+        assert confirmed[0]['type'] == 'CONFIRMED_FALSE_NEGATIVE'
+        assert confirmed[0]['ledger_id'] == original_id
+        # Once confirmed, the same decision is no longer duplicated as suspected.
+        assert em.detect_false_negatives(d) == []
+
+    def test_confirmed_false_positive_requires_human_negative_correction(self):
+        d = fresh_db()
+        rec = ledger.IntelligenceDecision(
+            prospect_id=11, business_name='Weak', domain='weak.co.nz',
+            decision='QUALIFIED', confidence=0.9, rule_version='v45.1',
+            stage='qualification',
+            derived_evidence={'evidence_confidence': 0.1, 'technical_score': 10},
+        )
+        original_id = ledger.append_decision(d, rec)
+        assert em.detect_confirmed_false_positives(d) == []
+
+        ledger.record_correction(
+            d, 11, 'Verified directory/non-prospect', 'REJECTED', 0.95
+        )
+        confirmed = em.detect_confirmed_false_positives(d)
+        assert len(confirmed) == 1
+        assert confirmed[0]['type'] == 'CONFIRMED_FALSE_POSITIVE'
+        assert confirmed[0]['ledger_id'] == original_id
+        assert em.detect_false_positives(d) == []
+
+    def test_score_inversion_is_comparable_cohort_suspicion_only(self):
+        d = fresh_db()
+        base = dict(
+            source='searxng-local:q1',
+            query_fingerprint='q1',
+            stage='qualification',
+            rule_version='v45.1',
+            recorded_at='2026-09-30T01:00:00+00:00',
+        )
+        ledger.append_decision(d, ledger.IntelligenceDecision(
+            prospect_id=20, business_name='Rejected High', domain='high.co.nz',
+            decision='REJECTED',
+            derived_evidence={'opportunity_score': 80},
+            **base,
+        ))
+        ledger.append_decision(d, ledger.IntelligenceDecision(
+            prospect_id=21, business_name='Accepted Low', domain='low.co.nz',
+            decision='QUALIFIED',
+            derived_evidence={'opportunity_score': 40},
+            **base,
+        ))
+        inversions = em.detect_score_inversions(d)
+        assert len(inversions) == 1
+        assert inversions[0]['type'] == 'SUSPECTED_SCORE_INVERSION'
+        assert inversions[0]['score_gap'] == 40.0
+        assert inversions[0]['confirmed'] is False
 
     def test_source_failure_cluster_detection(self):
         d = fresh_db()
@@ -252,7 +327,7 @@ class TestErrorMining:
         # Insert a resolved and an unresolved cluster manually
         d.execute(
             "INSERT INTO intelligence_error_clusters (cluster_type, size, suspected_root_cause, discovered_at) VALUES (?, ?, ?, ?)",
-            ('FALSE_NEGATIVE', 5, 'test cause', c.now()),
+            ('CONFIRMED_FALSE_NEGATIVE', 5, 'test cause', c.now()),
         )
         d.commit()
         unresolved = em.unresolved_clusters(d)
@@ -310,8 +385,8 @@ class TestIntegration:
         analysis = em.mine_errors(d)
         assert analysis['total_errors'] == 2
         types = {c['cluster_type'] for c in analysis['clusters']}
-        assert 'FALSE_NEGATIVE' in types
-        assert 'FALSE_POSITIVE' in types
+        assert 'SUSPECTED_FALSE_NEGATIVE' in types
+        assert 'SUSPECTED_FALSE_POSITIVE' in types
 
 
 class TestExperienceLedger:
