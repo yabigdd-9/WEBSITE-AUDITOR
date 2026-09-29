@@ -90,15 +90,25 @@ New commands:
 ```bash
 ./mm intelligence-prospect BUSINESS_ID
 ./mm intelligence-sources
+./mm intelligence-review --limit 50
+./mm intelligence-summary --limit 500
 ```
 
 Both use read-only database connections.
 
-`intelligence-prospect` returns current pipeline state, observed evidence classes, identity confidence, evidence completeness, next-best-evidence action, current audit/qualification derived evidence, paid calls = 0, and external sends = 0.
+`intelligence-prospect` returns current pipeline state, the originating/assessment stage used for evidence-completeness analysis, observed evidence classes, identity confidence, evidence completeness, next-best-evidence action, counterfactual explanation, current audit/qualification derived evidence, paid calls = 0, and external sends = 0.
+
+For terminal/review states such as `REJECTED`, the report separates:
+- `state`: the actual current pipeline state,
+- `assessment_stage`: the stage whose evidence requirements are being evaluated.
+
+The assessment stage prefers the recorded transition's `from_state` when available, with deterministic evidence-based fallback otherwise. This prevents a terminal label from erasing the context of why evidence was incomplete.
 
 `intelligence-sources` returns source/query yield analytics.
 
 `intelligence-review --limit N` returns a read-only shadow review queue containing only current negative/review states where identity uncertainty, missing required evidence, or a near-threshold current score justifies human inspection. The queue never changes pipeline state, never resurrects a prospect, and sets `automatic_action: false` on every item.
+
+`intelligence-summary --limit N` gives one bounded read-only overview of identity-status distribution, evidence-completeness distribution, next-best-evidence actions, review-queue size, source count, and source-diagnostic distribution. It fetches one extra row to report truncation accurately rather than treating an exact-limit result as truncated.
 
 ## Counterfactual explanations
 
