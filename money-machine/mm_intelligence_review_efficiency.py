@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import json
 import sqlite3
-from collections import defaultdict
 
 import mm_intelligence_calibration as calibration
 
