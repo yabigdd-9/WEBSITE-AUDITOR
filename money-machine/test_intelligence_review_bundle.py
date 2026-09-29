@@ -240,3 +240,106 @@ def test_hard_case_and_confirmed_hashes_are_present():
     assert len(evidence["confirmed_examples_sha256"]) == 64
     assert len(evidence["hard_cases_sha256"]) == 64
     assert len(evidence["holdout_result_sha256"]) == 64
+
+
+def test_diff_identical_bundles_is_unchanged():
+    d = stable_db()
+    first = bundle(d)
+    second = bundle(d)
+
+    diff = review_bundle.diff_review_bundles(first, second)
+
+    assert diff["valid"] is True
+    assert diff["fingerprints_equal"] is True
+    assert diff["changed"] is False
+    assert diff["gate_changes"] == []
+    assert diff["configuration_changes"] == {}
+    assert diff["evidence_changes"] == {}
+    assert diff["blockers_added"] == []
+    assert diff["blockers_resolved"] == []
+
+
+def test_diff_reports_evidence_change():
+    d = stable_db()
+    before = bundle(d)
+
+    add_decision(d, 9, "QUALIFIED", 0.8)
+    add_outcome(d, 9, "QUALIFIED", "WON")
+    after = bundle(d)
+
+    diff = review_bundle.diff_review_bundles(before, after)
+
+    assert diff["valid"] is True
+    assert diff["changed"] is True
+    assert "confirmed_examples_count" in diff["evidence_changes"]
+    assert "confirmed_examples_sha256" in diff["evidence_changes"]
+
+
+def test_diff_reports_configuration_change():
+    d = stable_db()
+    before = bundle(d, max_ece=0.25)
+    after = bundle(d, max_ece=0.30)
+
+    diff = review_bundle.diff_review_bundles(before, after)
+
+    assert diff["valid"] is True
+    assert diff["changed"] is True
+    assert diff["configuration_changes"]["max_ece"] == {
+        "before": 0.25,
+        "after": 0.30,
+    }
+
+
+def test_diff_reports_blocker_resolution():
+    d = stable_db()
+    blocked = bundle(d, holdout_result=None)
+    ready = bundle(d)
+
+    diff = review_bundle.diff_review_bundles(blocked, ready)
+
+    assert diff["valid"] is True
+    assert diff["readiness_status"] == {
+        "before": "NOT_READY_FOR_HUMAN_REVIEW",
+        "after": "READY_FOR_HUMAN_REVIEW",
+    }
+    assert "holdout_present" in diff["blockers_resolved"]
+    assert diff["blockers_added"] == []
+
+
+def test_diff_reports_new_blocker_regression():
+    d = stable_db()
+    ready = bundle(d)
+    blocked = bundle(d, holdout_result=None)
+
+    diff = review_bundle.diff_review_bundles(ready, blocked)
+
+    assert diff["valid"] is True
+    assert "holdout_present" in diff["blockers_added"]
+    assert diff["readiness_status"]["after"] == "NOT_READY_FOR_HUMAN_REVIEW"
+
+
+def test_diff_rejects_tampered_bundle_integrity():
+    d = stable_db()
+    before = bundle(d)
+    after = json.loads(json.dumps(bundle(d)))
+    after["manifest"]["configuration"]["max_ece"] = 999
+
+    diff = review_bundle.diff_review_bundles(before, after)
+
+    assert diff["valid"] is False
+    assert diff["reason"] == "bundle_integrity_failure"
+    assert diff["before_verification"]["valid"] is True
+    assert diff["after_verification"]["valid"] is False
+    assert diff["promotion_authorized"] is False
+    assert diff["merge_authority"] is False
+    assert diff["deployment_authorized"] is False
+
+
+def test_diff_missing_manifest_fails_closed():
+    d = stable_db()
+    valid = bundle(d)
+
+    diff = review_bundle.diff_review_bundles({}, valid)
+
+    assert diff["valid"] is False
+    assert diff["reason"] == "missing_manifest"
