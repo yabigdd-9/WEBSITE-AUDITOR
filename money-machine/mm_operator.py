@@ -371,6 +371,7 @@ def main(argv=None):
     q=s.add_parser('intelligence-selective');q.add_argument('--threshold',type=float,action='append',dest='thresholds');q.add_argument('--min-confirmed',type=int,default=30);q.add_argument('--max-risk',type=float,default=0.10);q.add_argument('--min-coverage',type=float,default=0.30);q.add_argument('--limit',type=int,default=5000)
     q=s.add_parser('intelligence-review-efficiency');q.add_argument('--limit',type=int,default=5000);q.add_argument('--min-confirmed',type=int,default=30);q.add_argument('--min-signal-samples',type=int,default=5);q.add_argument('--low-confidence-threshold',type=float,default=0.80)
     q=s.add_parser('intelligence-label-quality');q.add_argument('--limit',type=int,default=5000);q.add_argument('--min-confirmed',type=int,default=30);q.add_argument('--max-source-share',type=float,default=0.80)
+    q=s.add_parser('intelligence-uncertainty');q.add_argument('--limit',type=int,default=5000);q.add_argument('--min-confirmed',type=int,default=30);q.add_argument('--min-matched',type=int,default=10);q.add_argument('--confidence-level',type=float,default=0.95);q.add_argument('--alpha',type=float,default=0.05)
     q=s.add_parser('db-check')
     q=s.add_parser('safe-mode');q.add_argument('action',choices=['on','off','status'])
     a=p.parse_args(argv)
@@ -446,7 +447,7 @@ def main(argv=None):
                 with d:
                     result=mm_outcomes.record(d,a.id,a.outcome,a.evidence,a.sha256,a.actor,a.note)
         print(json.dumps(result,indent=2,default=str));return 0
-    if a.cmd in ('intelligence-prospect','intelligence-sources','intelligence-review','intelligence-summary','intelligence-errors','intelligence-calibration','intelligence-graph','intelligence-hard-cases','intelligence-challenger-eval','intelligence-challenger-holdout','intelligence-strategy','intelligence-drift','intelligence-evidence-value','intelligence-promotion-readiness','intelligence-review-bundle','intelligence-consistency','intelligence-selective','intelligence-review-efficiency','intelligence-label-quality'):
+    if a.cmd in ('intelligence-prospect','intelligence-sources','intelligence-review','intelligence-summary','intelligence-errors','intelligence-calibration','intelligence-graph','intelligence-hard-cases','intelligence-challenger-eval','intelligence-challenger-holdout','intelligence-strategy','intelligence-drift','intelligence-evidence-value','intelligence-promotion-readiness','intelligence-review-bundle','intelligence-consistency','intelligence-selective','intelligence-review-efficiency','intelligence-label-quality','intelligence-uncertainty'):
         import mm_opportunity_intelligence as opportunity_intelligence
         with contextlib.closing(connect(readonly=True)) as d:
             if a.cmd == 'intelligence-prospect':
@@ -600,6 +601,16 @@ def main(argv=None):
                     limit=a.limit,
                     min_confirmed=a.min_confirmed,
                     max_source_share=a.max_source_share,
+                )
+            elif a.cmd == 'intelligence-uncertainty':
+                import mm_intelligence_uncertainty
+                result = mm_intelligence_uncertainty.uncertainty_report(
+                    d,
+                    limit=a.limit,
+                    min_confirmed=a.min_confirmed,
+                    min_matched=a.min_matched,
+                    confidence_level=a.confidence_level,
+                    alpha=a.alpha,
                 )
             else:
                 result = opportunity_intelligence.source_query_summary(d)
