@@ -70,6 +70,7 @@ jobs:
             money-machine/mm_error_mining.py \
             money-machine/mm_intelligence_calibration.py \
             money-machine/mm_intelligence_graph.py \
+            money-machine/mm_intelligence_hard_cases.py \
             money-machine/test_opportunity_intelligence.py \
             money-machine/test_intelligence_calibration.py
 
@@ -89,6 +90,7 @@ jobs:
             money-machine/test_opportunity_intelligence.py \
             money-machine/test_intelligence_calibration.py \
             money-machine/test_intelligence_graph.py \
+            money-machine/test_intelligence_hard_cases.py \
             money-machine/test_intelligence_ledger.py \
             money-machine/test_preparation_worker.py \
             money-machine/test_dsh_harness_bridge.py \
