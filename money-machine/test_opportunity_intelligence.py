@@ -286,7 +286,7 @@ def test_numeric_commercial_score_alone_is_not_substantive_evidence():
         "INSERT INTO pipeline_items VALUES(1,'QUALIFICATION_PENDING','{}')"
     )
     d.execute(
-        "INSERT INTO pipeline_events VALUES(1,1,'IDENTITY_PENDING','IDENTITY_RESOLVED','w','ok',?,?)",
+        "INSERT INTO pipeline_events VALUES(1,1,'IDENTITY_RESOLVED','AUDIT_PENDING','w','ok',?,?)",
         (json.dumps({"canonical_host": "acmeplumbing.co.nz"}), "2026-09-30T00:00:00+00:00"),
     )
     d.execute(
@@ -666,12 +666,27 @@ def test_qualification_shadow_marks_commercial_gap_without_changing_verdict(monk
         },
     )
     nxt, reason, evidence = workers.qualification_handler(
-        d, {"business_id": 1}, None
+        d,
+        {
+            "business_id": 1,
+            "payload": json.dumps({
+                "canonical_host": "acmeplumbing.co.nz",
+                "legal_name": "Acme Plumbing Limited",
+                "nzbn": "9429000000000",
+                "discovery_quality": {
+                    "disposition": "ACCEPT",
+                    "classification": "BUSINESS_HOME",
+                },
+            }),
+        },
+        None,
     )
     assert nxt == "REJECTED"
     assert reason.startswith("not qualified:")
     shadow = evidence["shadow_intelligence"]
     assert "commercial_evidence" in shadow["evidence_completeness"]["missing"]
+    assert "nzbn_present" in shadow["identity"]["supporting_signals"]
+    assert "discovery_quality_accept" in shadow["identity"]["supporting_signals"]
     assert (
         shadow["next_best_evidence"]["action"]
         == "INSPECT_FIRST_PARTY_COMMERCIAL_PAGES"
