@@ -39,6 +39,16 @@ ERROR_TYPES = (
     "REGIONAL_FAILURE_CLUSTER",  # Failures clustered by region
 )
 
+
+def _table_exists(d: sqlite3.Connection, name: str) -> bool:
+    return bool(
+        d.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
+            (name,),
+        ).fetchone()
+    )
+
+
 # ---------------------------------------------------------------------------
 # Error detection functions
 # ---------------------------------------------------------------------------
@@ -51,10 +61,8 @@ def detect_false_negatives(d: sqlite3.Connection) -> list[dict]:
     They do not prove the rejection was wrong; confirmation requires a later
     human correction or contradictory observed outcome.
     """
-    from mm_intelligence_ledger import migrate as ledger_migrate
-    from mm_rejection_intelligence import migrate as rejection_migrate
-    ledger_migrate(d)
-    rejection_migrate(d)
+    if not _table_exists(d, "intelligence_ledger"):
+        return []
     rows = d.execute(
         """SELECT l.id as ledger_id, l.prospect_id, l.business_name, l.domain,
                   l.decision, l.primary_reason, l.confidence,
@@ -101,8 +109,8 @@ def detect_false_positives(d: sqlite3.Connection) -> list[dict]:
     Weak evidence is a review signal, not proof that acceptance was wrong.
     Confirmation requires a later human correction to a negative decision.
     """
-    from mm_intelligence_ledger import migrate as ledger_migrate
-    ledger_migrate(d)
+    if not _table_exists(d, "intelligence_ledger"):
+        return []
     rows = d.execute(
         """SELECT l.id as ledger_id, l.prospect_id, l.business_name, l.domain,
                   l.decision, l.disposition, l.confidence,
@@ -152,9 +160,8 @@ POSITIVE_OUTCOMES = frozenset({
 
 
 def _ledger_rows(d: sqlite3.Connection) -> list[dict]:
-    from mm_intelligence_ledger import migrate as ledger_migrate
-
-    ledger_migrate(d)
+    if not _table_exists(d, "intelligence_ledger"):
+        return []
     return [
         dict(row)
         for row in d.execute(
@@ -484,10 +491,6 @@ def mine_errors(d: sqlite3.Connection) -> dict[str, Any]:
     Returns:
         Dict with 'errors' list, 'clusters' list, 'total_errors', 'timestamp'
     """
-    from mm_intelligence_ledger import migrate as ledger_migrate
-    from mm_rejection_intelligence import migrate as rejection_migrate
-    ledger_migrate(d)
-    rejection_migrate(d)
     errors: list[dict] = []
     errors.extend(detect_confirmed_false_negatives(d))
     errors.extend(detect_confirmed_false_positives(d))
