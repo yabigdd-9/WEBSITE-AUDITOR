@@ -42,11 +42,21 @@ def identity_handler(d, it, worker):
     keys = b.keys() if hasattr(b, 'keys') else ()
     if 'source' in keys and b['source']:
         observed.add('source')
+    try:
+        payload = json.loads(it['payload'] or '{}')
+    except (KeyError, TypeError, ValueError):
+        payload = {}
+    payload = payload if isinstance(payload, dict) else {}
+    identity_evidence = {'canonical_host': host}
+    for key in ('legal_name', 'trading_name', 'nzbn', 'discovery_quality'):
+        value = payload.get(key)
+        if value:
+            identity_evidence[key] = value
     shadow = oi.shadow_assessment(
         b,
         'IDENTITY_RESOLVED',
         observed=observed,
-        evidence={'canonical_host': host},
+        evidence=identity_evidence,
     )
     return (
         'AUDIT_PENDING',
