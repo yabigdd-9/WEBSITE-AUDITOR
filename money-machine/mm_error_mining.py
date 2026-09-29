@@ -30,7 +30,7 @@ ERROR_TYPES = (
     "HIGH_CONF_WRONG",        # High-confidence decision contradicted by correction/outcome
     "CLASSIFICATION_DISAGREEMENT",  # Conflicting classifications from ensemble
     "IDENTITY_CONFLICT",      # Same evidence attributed to different businesses
-    "SCORE_INVERSION",        # Lower-score candidate ranked above higher-score
+    "SUSPECTED_SCORE_INVERSION",
     "UNEXPECTED_REJECT",      # Good business unexpectedly rejected
     "UNEXPECTED_ACCEPT",      # Junk unexpectedly accepted
     "REPEATED_MISSING_EVIDENCE",  # Same evidence missing across many candidates
@@ -71,6 +71,10 @@ def detect_false_negatives(d: sqlite3.Connection) -> list[dict]:
     candidates = []
     for row in rows:
         if row["ledger_id"] in confirmed_ids:
+            continue
+        if row["decision"] not in POSITIVE_DECISIONS:
+            continue
+        if row["disposition"] == "OUTCOME_OBSERVED":
             continue
         derived = json.loads(row["derived_evidence"] or "{}")
         tech_score = derived.get("technical_score")
@@ -514,8 +518,8 @@ def mine_errors(d: sqlite3.Connection) -> dict[str, Any]:
             root = "A positive decision was later corrected by a human to a negative state"
             hypothesis = "Add this case to the hard-case corpus and test evidence-gating challengers offline"
         elif err_type == "HIGH_CONF_WRONG":
-            root = "Overconfidence in deterministic heuristics"
-            hypothesis = "Reduce confidence ceiling for rule-based decisions"
+            root = "High-confidence decision contradicted by later correction/outcome evidence"
+            hypothesis = "Replay confidence calibration on confirmed hard cases before changing production confidence"
         elif err_type == "REPEATED_MISSING_EVIDENCE":
             root = "Missing evidence source for specific rejection categories"
             hypothesis = "Add evidence-gathering step for identified missing fields"
@@ -542,9 +546,19 @@ def mine_errors(d: sqlite3.Connection) -> dict[str, Any]:
     # Sort clusters by size (most errors first)
     cluster_list.sort(key=lambda c: c.size, reverse=True)
 
+    confirmed_types = {
+        "CONFIRMED_FALSE_NEGATIVE", "CONFIRMED_FALSE_POSITIVE", "HIGH_CONF_WRONG"
+    }
+    suspected_types = {
+        "SUSPECTED_FALSE_NEGATIVE", "SUSPECTED_FALSE_POSITIVE",
+        "SUSPECTED_SCORE_INVERSION",
+    }
     return {
         "timestamp": now(),
         "total_errors": len(errors),
+        "confirmed_errors": sum(err["type"] in confirmed_types for err in errors),
+        "suspected_errors": sum(err["type"] in suspected_types for err in errors),
+        "errors": errors,
         "cluster_count": len(cluster_list),
         "clusters": [
             {
@@ -596,6 +610,28 @@ def record_error_clusters(d: sqlite3.Connection, analysis: dict) -> int:
     migrate(d)
     count = 0
     for cluster in analysis.get("clusters", []):
+        supporting_examples = json.dumps(
+            cluster["supporting_examples"], sort_keys=True
+        )
+        existing = d.execute(
+            """SELECT 1 FROM intelligence_error_clusters
+               WHERE resolved=0
+                 AND cluster_type=?
+                 AND size=?
+                 AND coalesce(suspected_root_cause,'')=?
+                 AND coalesce(candidate_hypothesis,'')=?
+                 AND coalesce(supporting_examples,'')=?
+               LIMIT 1""",
+            (
+                cluster["cluster_type"],
+                cluster["size"],
+                cluster["suspected_root_cause"],
+                cluster["candidate_hypothesis"],
+                supporting_examples,
+            ),
+        ).fetchone()
+        if existing:
+            continue
         d.execute(
             """INSERT INTO intelligence_error_clusters (
                 cluster_type, size, suspected_root_cause,
@@ -609,7 +645,7 @@ def record_error_clusters(d: sqlite3.Connection, analysis: dict) -> int:
                 cluster["candidate_hypothesis"],
                 cluster["candidate_regression_fixture"],
                 cluster["candidate_challenger"],
-                json.dumps(cluster["supporting_examples"]),
+                supporting_examples,
                 analysis["timestamp"],
             ),
         )
