@@ -242,10 +242,15 @@ def test_integrated_challenger_can_recommend_but_never_authorize_promotion():
         "external_sends": 0,
         "auto_promoted": False,
     }
+    wrong_first = (
+        "NEGATIVE"
+        if goldens[0]["expected"] == "POSITIVE"
+        else "POSITIVE"
+    )
     baseline = [
         {
             "case_id": goldens[0]["case_id"],
-            "actual": "NEGATIVE",
+            "actual": wrong_first,
             "safety": safety,
         },
         {
