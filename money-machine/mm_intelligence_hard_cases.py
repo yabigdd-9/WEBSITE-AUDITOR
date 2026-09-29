@@ -383,7 +383,7 @@ def evaluate_challenger_holdout(
     training = split["training"]
     if not validation:
         raise ValueError(
-            "At least two confirmed hard cases are required for holdout evaluation"
+            "At least two confirmed hard-case prospects are required for holdout evaluation"
         )
 
     validation_result = mm_challenger.compare(
