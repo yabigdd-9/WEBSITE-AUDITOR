@@ -74,7 +74,9 @@ def stable_evidence_db():
     return d
 
 
-def good_holdout(validation_count=2):
+def good_holdout(validation_count=2, validation_prospect_count=None):
+    if validation_prospect_count is None:
+        validation_prospect_count = validation_count
     return {
         "baseline": {
             "accuracy": 0.5,
@@ -89,9 +91,12 @@ def good_holdout(validation_count=2):
         "split": {
             "training_count": 6,
             "validation_count": validation_count,
+            "training_prospect_count": 6,
+            "validation_prospect_count": validation_prospect_count,
             "validation_fraction": 0.25,
             "salt": "test",
             "deterministic": True,
+            "prospect_disjoint": True,
         },
         "promotion_authorized": False,
     }
@@ -280,3 +285,63 @@ def test_report_never_converts_readiness_into_authority():
         "automatic_source_change",
     ):
         assert result[key] is False
+
+
+def test_enough_cases_but_too_few_distinct_prospects_blocks_readiness():
+    d = stable_evidence_db()
+    holdout = good_holdout(
+        validation_count=5,
+        validation_prospect_count=1,
+    )
+
+    result = report(
+        d,
+        holdout_result=holdout,
+        min_validation_cases=2,
+        min_validation_prospects=2,
+    )
+
+    blockers = {item["gate"] for item in result["blockers"]}
+    assert result["status"] == "NOT_READY_FOR_HUMAN_REVIEW"
+    assert "holdout_validation_prospect_size" in blockers
+    assert "holdout_validation_size" not in blockers
+
+
+def test_non_disjoint_holdout_blocks_readiness():
+    d = stable_evidence_db()
+    holdout = good_holdout()
+    holdout["split"]["prospect_disjoint"] = False
+
+    result = report(d, holdout_result=holdout)
+
+    assert result["status"] == "NOT_READY_FOR_HUMAN_REVIEW"
+    assert "holdout_prospect_disjoint" in {
+        item["gate"] for item in result["blockers"]
+    }
+
+
+def test_non_deterministic_holdout_blocks_readiness():
+    d = stable_evidence_db()
+    holdout = good_holdout()
+    holdout["split"]["deterministic"] = False
+
+    result = report(d, holdout_result=holdout)
+
+    assert result["status"] == "NOT_READY_FOR_HUMAN_REVIEW"
+    assert "holdout_deterministic" in {
+        item["gate"] for item in result["blockers"]
+    }
+
+
+def test_legacy_holdout_without_prospect_metadata_fails_closed():
+    d = stable_evidence_db()
+    holdout = good_holdout()
+    holdout["split"].pop("validation_prospect_count")
+    holdout["split"].pop("prospect_disjoint")
+
+    result = report(d, holdout_result=holdout)
+
+    blockers = {item["gate"] for item in result["blockers"]}
+    assert result["status"] == "NOT_READY_FOR_HUMAN_REVIEW"
+    assert "holdout_validation_prospect_size" in blockers
+    assert "holdout_prospect_disjoint" in blockers
