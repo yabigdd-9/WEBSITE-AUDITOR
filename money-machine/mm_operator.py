@@ -353,6 +353,7 @@ def main(argv=None):
     q=s.add_parser('intelligence-prospect');q.add_argument('id',type=int)
     s.add_parser('intelligence-sources')
     q=s.add_parser('intelligence-review');q.add_argument('--limit',type=int,default=50)
+    q=s.add_parser('intelligence-summary');q.add_argument('--limit',type=int,default=500)
     q=s.add_parser('db-check')
     q=s.add_parser('safe-mode');q.add_argument('action',choices=['on','off','status'])
     a=p.parse_args(argv)
@@ -415,13 +416,15 @@ def main(argv=None):
                 with d:
                     result=mm_outcomes.record(d,a.id,a.outcome,a.evidence,a.sha256,a.actor,a.note)
         print(json.dumps(result,indent=2,default=str));return 0
-    if a.cmd in ('intelligence-prospect','intelligence-sources','intelligence-review'):
+    if a.cmd in ('intelligence-prospect','intelligence-sources','intelligence-review','intelligence-summary'):
         import mm_opportunity_intelligence as opportunity_intelligence
         with contextlib.closing(connect(readonly=True)) as d:
             if a.cmd == 'intelligence-prospect':
                 result = opportunity_intelligence.prospect_snapshot(d, a.id)
             elif a.cmd == 'intelligence-review':
                 result = opportunity_intelligence.shadow_review_queue(d, a.limit)
+            elif a.cmd == 'intelligence-summary':
+                result = opportunity_intelligence.intelligence_summary(d, a.limit)
             else:
                 result = opportunity_intelligence.source_query_summary(d)
         print(json.dumps(result, indent=2, default=str)); return 0
