@@ -8,11 +8,14 @@ import sqlite3
 import tempfile
 from pathlib import Path
 
+import pytest
+
 import mm_core as c
 import mm_intelligence_ledger as ledger
 import mm_rejection_intelligence as ri
 import mm_error_mining as em
 import mm_pipeline as p
+import mm_outcomes as outcomes
 
 
 def fresh_db():
@@ -309,3 +312,96 @@ class TestIntegration:
         types = {c['cluster_type'] for c in analysis['clusters']}
         assert 'FALSE_NEGATIVE' in types
         assert 'FALSE_POSITIVE' in types
+
+
+class TestExperienceLedger:
+    """P1: experience ledger — append-only mirror of prospect_outcomes."""
+
+    def _setup(self, tmp_path, monkeypatch):
+        root = tmp_path / "repo"
+        root.mkdir()
+        (root / "database").mkdir()
+        monkeypatch.setenv("MM_ROOT", str(root))
+        d = sqlite3.connect(root / "database" / "money_machine.db")
+        d.row_factory = sqlite3.Row
+        d.executescript(
+            """CREATE TABLE IF NOT EXISTS businesses(
+              id INTEGER PRIMARY KEY, name TEXT NOT NULL,
+              public_website TEXT, region TEXT, source TEXT,
+              discovered_at TEXT, current_status TEXT, is_dummy INTEGER DEFAULT 0);
+            CREATE TABLE IF NOT EXISTS mm_events(
+              id INTEGER PRIMARY KEY, event_at TEXT NOT NULL,
+              action TEXT NOT NULL, business_id INTEGER, detail TEXT);
+            CREATE TABLE IF NOT EXISTS prospect_outcomes(
+              id INTEGER PRIMARY KEY, business_id INTEGER NOT NULL,
+              outcome TEXT NOT NULL, observed_at TEXT NOT NULL,
+              actor TEXT NOT NULL, evidence_path TEXT NOT NULL,
+              evidence_hash TEXT NOT NULL, note TEXT DEFAULT '',
+              created_at TEXT NOT NULL);
+            CREATE INDEX IF NOT EXISTS prospect_outcomes_business
+              ON prospect_outcomes(business_id, observed_at DESC);
+            INSERT INTO businesses(id,name) VALUES(1,'Test Co');"""
+        )
+        outcomes.migrate(d)
+        return d, root
+
+    def test_experience_ledger_mirrors_outcome(self, tmp_path, monkeypatch):
+        d, root = self._setup(tmp_path, monkeypatch)
+        ev = root / "ev.txt"; ev.write_text("test evidence")
+        outcomes.record(d, 1, "REPLIED", ev, c.sha(ev.read_bytes()),
+                        actor="human-test", note="mirror check")
+        d.commit()
+        rows = d.execute("SELECT * FROM experience_ledger").fetchall()
+        assert len(rows) == 1
+        assert rows[0]["business_id"] == 1
+        assert rows[0]["outcome"] == "REPLIED"
+        assert rows[0]["actor"] == "human-test"
+        assert rows[0]["outcome_id"] > 0
+
+    def test_experience_ledger_append_only(self, tmp_path, monkeypatch):
+        d, root = self._setup(tmp_path, monkeypatch)
+        ev = root / "ev.txt"; ev.write_text("test evidence")
+        outcomes.record(d, 1, "REPLIED", ev, c.sha(ev.read_bytes()),
+                        actor="human-test")
+        d.commit()
+        with pytest.raises(sqlite3.DatabaseError, match="append-only"):
+            d.execute("UPDATE experience_ledger SET outcome='WON'")
+        with pytest.raises(sqlite3.DatabaseError, match="append-only"):
+            d.execute("DELETE FROM experience_ledger")
+        d.close()
+
+    def test_experience_ledger_multiple_outcomes(self, tmp_path, monkeypatch):
+        d, root = self._setup(tmp_path, monkeypatch)
+        ev = root / "ev.txt"; ev.write_text("test evidence")
+        h = c.sha(ev.read_bytes())
+        outcomes.record(d, 1, "PENDING", ev, h, actor="human-test")
+        outcomes.record(d, 1, "REPLIED", ev, h, actor="human-test")
+        outcomes.record(d, 1, "WON", ev, h, actor="human-test")
+        d.commit()
+        rows = d.execute(
+            "SELECT outcome FROM experience_ledger ORDER BY id"
+        ).fetchall()
+        assert [r["outcome"] for r in rows] == ["PENDING", "REPLIED", "WON"]
+
+    def test_summary_has_by_actor_and_trend(self, tmp_path, monkeypatch):
+        d, root = self._setup(tmp_path, monkeypatch)
+        ev = root / "ev.txt"; ev.write_text("test evidence")
+        h = c.sha(ev.read_bytes())
+        outcomes.record(d, 1, "REPLIED", ev, h, actor="human-a")
+        outcomes.record(d, 1, "WON", ev, h, actor="human-b")
+        outcomes.record(d, 1, "LOST", ev, h, actor="human-a")
+        d.commit()
+        s = outcomes.summary(d)
+        assert "by_actor" in s
+        assert s["by_actor"]["human-a"] == 2
+        assert s["by_actor"]["human-b"] == 1
+        assert "outcome_trend" in s
+        assert len(s["outcome_trend"]) >= 1
+
+    def test_pending_outcome_is_valid(self, tmp_path, monkeypatch):
+        d, root = self._setup(tmp_path, monkeypatch)
+        assert "PENDING" in outcomes.OUTCOMES
+        ev = root / "ev.txt"; ev.write_text("test evidence")
+        result = outcomes.record(d, 1, "PENDING", ev,
+                                c.sha(ev.read_bytes()), actor="human-test")
+        assert result["outcome"] == "PENDING"

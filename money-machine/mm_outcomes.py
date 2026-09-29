@@ -19,6 +19,7 @@ OUTCOMES = {
     "LOST",
     "BOUNCED",
     "UNSUBSCRIBED",
+    "PENDING",
 }
 
 DDL = """
@@ -41,6 +42,38 @@ END;
 CREATE TRIGGER IF NOT EXISTS prospect_outcomes_no_delete
 BEFORE DELETE ON prospect_outcomes BEGIN
   SELECT RAISE(ABORT,'prospect outcomes are append-only');
+END;
+CREATE TABLE IF NOT EXISTS experience_ledger(
+  id INTEGER PRIMARY KEY,
+  outcome_id INTEGER NOT NULL REFERENCES prospect_outcomes(id),
+  business_id INTEGER NOT NULL,
+  outcome TEXT NOT NULL,
+  observed_at TEXT NOT NULL,
+  actor TEXT NOT NULL,
+  evidence_path TEXT NOT NULL,
+  evidence_hash TEXT NOT NULL,
+  note TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL,
+  ledger_at TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS experience_ledger_business
+  ON experience_ledger(business_id, observed_at DESC);
+CREATE TRIGGER IF NOT EXISTS experience_ledger_populate
+AFTER INSERT ON prospect_outcomes BEGIN
+  INSERT INTO experience_ledger(
+    outcome_id, business_id, outcome, observed_at, actor,
+    evidence_path, evidence_hash, note, created_at, ledger_at)
+  VALUES(
+    NEW.id, NEW.business_id, NEW.outcome, NEW.observed_at, NEW.actor,
+    NEW.evidence_path, NEW.evidence_hash, NEW.note, NEW.created_at,
+    strftime('%Y-%m-%dT%H:%M:%fZ','now'));
+END;
+CREATE TRIGGER IF NOT EXISTS experience_ledger_no_update
+BEFORE UPDATE ON experience_ledger BEGIN
+  SELECT RAISE(ABORT,'experience ledger is append-only');
+END;
+CREATE TRIGGER IF NOT EXISTS experience_ledger_no_delete
+BEFORE DELETE ON experience_ledger BEGIN
+  SELECT RAISE(ABORT,'experience ledger is append-only');
 END;
 """
 
@@ -130,6 +163,25 @@ def summary(d):
         )
     }
     total = sum(by_outcome.values())
+    by_actor = {
+        r[0]: r[1]
+        for r in d.execute(
+            "SELECT actor,count(*) FROM prospect_outcomes GROUP BY actor"
+        )
+    }
+    outcome_trend = [
+        dict(r)
+        for r in d.execute(
+            "SELECT outcome,strftime('%Y-%m-%dT%H:%M:00Z',observed_at) AS ts,"
+            "count(*) AS n,"
+            "ROUND(AVG(CASE WHEN outcome IN ('WON','PROPOSAL_SENT','REPLIED',"
+            "'CALL_OR_DISCOVERY') THEN 1.0 ELSE 0.0 END),4) AS win_rate"
+            " FROM prospect_outcomes"
+            " WHERE observed_at IS NOT NULL"
+            " GROUP BY outcome,strftime('%Y-%m-%dT%H:%M:00Z',observed_at)"
+            " ORDER BY ts ASC"
+        )
+    ]
     latest = [
         dict(r)
         for r in d.execute(
@@ -141,6 +193,8 @@ def summary(d):
         "generated_at": core.now(),
         "total": total,
         "by_outcome": by_outcome,
+        "by_actor": by_actor,
+        "outcome_trend": outcome_trend,
         "latest": latest,
         "status": "ready",
         "automatic_learning_applied": False,
