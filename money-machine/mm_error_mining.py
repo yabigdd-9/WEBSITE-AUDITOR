@@ -337,14 +337,17 @@ def detect_repeated_missing_evidence(d: sqlite3.Connection) -> list[dict]:
     # Find evidence fields missing in >5 candidates for the same reason
     results = []
     for reason, counter in missing_by_reason.items():
-        for field, count in counter.most_common(10):
+        for missing_field, count in counter.most_common(10):
             if count > 5:
                 results.append({
                     "type": "REPEATED_MISSING_EVIDENCE",
                     "reason": reason,
-                    "missing_field": field,
+                    "missing_field": missing_field,
                     "count": count,
-                    "suggested_action": f"Gather {field} evidence for candidates rejected as {reason}",
+                    "suggested_action": (
+                        f"Gather {missing_field} evidence for candidates "
+                        f"rejected as {reason}"
+                    ),
                 })
     return results
 
