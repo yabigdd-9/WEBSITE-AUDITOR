@@ -11,10 +11,10 @@ promotes a prospect. It is advisory/shadow-only.
 """
 from __future__ import annotations
 
-from collections import Counter, defaultdict
 import json
 import re
 import sqlite3
+from collections import Counter, defaultdict
 from urllib.parse import urlsplit
 
 RULE_VERSION = "v45-shadow-intelligence-v1"
