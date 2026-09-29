@@ -212,8 +212,35 @@ def test_source_query_summary_tracks_yield_rejection_and_outcomes():
     assert q1["won_businesses"] == 1
     assert q1["qualification_yield"] == 0.5
     assert q1["negative_terminal_rate"] == 0.5
+    assert q1["diagnostic"]["signal"] == "INSUFFICIENT_SAMPLE"
+    assert q1["diagnostic"]["automatic_action"] is False
     assert result["paid_calls"] == 0
     assert result["external_sends"] == 0
+
+
+def test_source_diagnostic_does_not_judge_small_samples():
+    diagnostic = oi._source_diagnostic(
+        total=3,
+        qualification_yield=0.0,
+        negative_terminal_rate=1.0,
+        engagement_rate=0.0,
+        won_rate=0.0,
+    )
+    assert diagnostic["signal"] == "INSUFFICIENT_SAMPLE"
+    assert diagnostic["automatic_action"] is False
+
+
+def test_source_diagnostic_flags_poor_yield_only_with_enough_evidence():
+    diagnostic = oi._source_diagnostic(
+        total=20,
+        qualification_yield=0.05,
+        negative_terminal_rate=0.8,
+        engagement_rate=0.0,
+        won_rate=0.0,
+    )
+    assert diagnostic["signal"] == "POOR_YIELD"
+    assert diagnostic["sample_size"] == 20
+    assert diagnostic["automatic_action"] is False
 
 
 def test_source_query_summary_works_without_optional_tables():
