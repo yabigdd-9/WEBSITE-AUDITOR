@@ -300,8 +300,8 @@ def detect_repeated_missing_evidence(d: sqlite3.Connection) -> list[dict]:
     Scans the intelligence_ledger for decisions that list the same missing
     evidence field across multiple prospects with the same primary_reason.
     """
-    from mm_intelligence_ledger import migrate as ledger_migrate
-    ledger_migrate(d)
+    if not _table_exists(d, "intelligence_ledger"):
+        return []
     rows = d.execute(
         """SELECT l.primary_reason, l.derived_evidence
            FROM intelligence_ledger l
@@ -396,9 +396,8 @@ def detect_score_inversions(d: sqlite3.Connection) -> list[dict]:
     and both have numeric opportunity scores. It remains suspected because
     score ordering alone does not prove the decision was wrong.
     """
-    from mm_intelligence_ledger import migrate as ledger_migrate
-
-    ledger_migrate(d)
+    if not _table_exists(d, "intelligence_ledger"):
+        return []
     rows = d.execute(
         """SELECT l.id,l.prospect_id,l.business_name,l.domain,l.source,
                   l.query_fingerprint,l.stage,l.derived_evidence,l.decision,
