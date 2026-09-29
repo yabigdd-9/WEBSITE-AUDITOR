@@ -9,10 +9,10 @@ candidate hypotheses, candidate regression fixtures, and candidate challengers.
 """
 from __future__ import annotations
 
+import dataclasses
 import json
 import sqlite3
 from collections import Counter, defaultdict
-from dataclasses import dataclass, field
 from typing import Any
 
 from mm_core import now
@@ -483,13 +483,13 @@ def detect_score_inversions(d: sqlite3.Connection) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 
-@dataclass
+@dataclasses.dataclass
 class ErrorCluster:
     """A cluster of related errors with a suspected root cause."""
     cluster_type: str
     size: int
     suspected_root_cause: str
-    supporting_examples: list[dict] = field(default_factory=list)
+    supporting_examples: list[dict] = dataclasses.field(default_factory=list)
     candidate_hypothesis: str = ""
     candidate_regression_fixture: str = ""
     candidate_challenger: str = ""
