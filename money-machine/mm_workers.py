@@ -232,7 +232,26 @@ def qualification_handler(d, it, worker):
         'qualification_reasons': commercial_lead['reasons'],
     }
     import mm_opportunity_intelligence as oi
-    identity_evidence = _latest_pipeline_evidence(d, b['id'], 'IDENTITY_RESOLVED')
+    identity_evidence = _latest_pipeline_evidence(
+        d, b['id'], 'IDENTITY_RESOLVED'
+    )
+    audit_pending_identity = _latest_pipeline_evidence(
+        d, b['id'], 'AUDIT_PENDING'
+    )
+    for key, value in audit_pending_identity.items():
+        if key not in identity_evidence:
+            identity_evidence[key] = value
+    try:
+        intake_payload = json.loads(it['payload'] or '{}')
+    except (KeyError, TypeError, ValueError):
+        intake_payload = {}
+    intake_payload = intake_payload if isinstance(intake_payload, dict) else {}
+    for key in ('canonical_host', 'legal_name', 'trading_name', 'nzbn',
+                'discovery_quality'):
+        value = intake_payload.get(key)
+        if value and key not in identity_evidence:
+            identity_evidence[key] = value
+
     observed = {'business_name'}
     if identity_evidence.get('canonical_host') or b['public_website']:
         observed.add('canonical_host')
