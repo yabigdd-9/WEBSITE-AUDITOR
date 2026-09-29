@@ -453,6 +453,36 @@ def _query_fingerprint(source: str) -> str:
     return ""
 
 
+def _source_diagnostic(total: int, qualification_yield: float,
+                       negative_terminal_rate: float,
+                       engagement_rate: float,
+                       won_rate: float) -> dict:
+    """Return a conservative diagnostic signal for one discovery source.
+
+    This is advisory only. Small samples remain INSUFFICIENT_SAMPLE and no
+    source is automatically promoted, suppressed, or removed from discovery.
+    """
+    if total < 10:
+        signal = "INSUFFICIENT_SAMPLE"
+        reason = "Need at least 10 non-dummy prospects before judging source quality."
+    elif won_rate > 0 or engagement_rate >= 0.20:
+        signal = "PROMISING"
+        reason = "Observed downstream engagement/outcome evidence is present."
+    elif negative_terminal_rate >= 0.70 and qualification_yield <= 0.10:
+        signal = "POOR_YIELD"
+        reason = "High negative-terminal rate with very low qualification yield."
+    else:
+        signal = "MIXED"
+        reason = "Evidence is mixed; keep observing before changing discovery behavior."
+    return {
+        "signal": signal,
+        "reason": reason,
+        "minimum_sample": 10,
+        "sample_size": total,
+        "automatic_action": False,
+    }
+
+
 def source_query_summary(d: sqlite3.Connection) -> dict:
     """Read-only yield/rejection/outcome analytics by discovery source."""
     has_pipeline = _table_exists(d, "pipeline_items")
@@ -506,6 +536,16 @@ def source_query_summary(d: sqlite3.Connection) -> dict:
     sources = []
     for source, stats in grouped.items():
         total = stats["total"]
+        qualification_yield = round(
+            stats["qualified_businesses"] / total, 4
+        ) if total else 0.0
+        negative_terminal_rate = round(
+            stats["negative_terminal_businesses"] / total, 4
+        ) if total else 0.0
+        won_rate = round(stats["won_businesses"] / total, 4) if total else 0.0
+        engagement_rate = round(
+            stats["engaged_businesses"] / total, 4
+        ) if total else 0.0
         sources.append({
             "source": source,
             "query_fingerprint": _query_fingerprint(source),
@@ -514,10 +554,17 @@ def source_query_summary(d: sqlite3.Connection) -> dict:
             "negative_terminal_businesses": stats["negative_terminal_businesses"],
             "won_businesses": stats["won_businesses"],
             "engaged_businesses": stats["engaged_businesses"],
-            "qualification_yield": round(stats["qualified_businesses"] / total, 4) if total else 0.0,
-            "negative_terminal_rate": round(stats["negative_terminal_businesses"] / total, 4) if total else 0.0,
-            "won_rate": round(stats["won_businesses"] / total, 4) if total else 0.0,
-            "engagement_rate": round(stats["engaged_businesses"] / total, 4) if total else 0.0,
+            "qualification_yield": qualification_yield,
+            "negative_terminal_rate": negative_terminal_rate,
+            "won_rate": won_rate,
+            "engagement_rate": engagement_rate,
+            "diagnostic": _source_diagnostic(
+                total,
+                qualification_yield,
+                negative_terminal_rate,
+                engagement_rate,
+                won_rate,
+            ),
             "states": dict(sorted(stats["states"].items())),
         })
 
