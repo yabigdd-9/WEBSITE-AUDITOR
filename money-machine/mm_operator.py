@@ -369,6 +369,7 @@ def main(argv=None):
     q=s.add_parser('intelligence-review-bundle-diff');q.add_argument('--before',required=True);q.add_argument('--after',required=True)
     q=s.add_parser('intelligence-consistency');q.add_argument('--limit',type=int,default=10000);q.add_argument('--min-confidence',type=float,default=0.80)
     q=s.add_parser('intelligence-selective');q.add_argument('--threshold',type=float,action='append',dest='thresholds');q.add_argument('--min-confirmed',type=int,default=30);q.add_argument('--max-risk',type=float,default=0.10);q.add_argument('--min-coverage',type=float,default=0.30);q.add_argument('--limit',type=int,default=5000)
+    q=s.add_parser('intelligence-review-efficiency');q.add_argument('--limit',type=int,default=5000);q.add_argument('--min-confirmed',type=int,default=30);q.add_argument('--min-signal-samples',type=int,default=5);q.add_argument('--low-confidence-threshold',type=float,default=0.80)
     q=s.add_parser('db-check')
     q=s.add_parser('safe-mode');q.add_argument('action',choices=['on','off','status'])
     a=p.parse_args(argv)
@@ -444,7 +445,7 @@ def main(argv=None):
                 with d:
                     result=mm_outcomes.record(d,a.id,a.outcome,a.evidence,a.sha256,a.actor,a.note)
         print(json.dumps(result,indent=2,default=str));return 0
-    if a.cmd in ('intelligence-prospect','intelligence-sources','intelligence-review','intelligence-summary','intelligence-errors','intelligence-calibration','intelligence-graph','intelligence-hard-cases','intelligence-challenger-eval','intelligence-challenger-holdout','intelligence-strategy','intelligence-drift','intelligence-evidence-value','intelligence-promotion-readiness','intelligence-review-bundle','intelligence-consistency','intelligence-selective'):
+    if a.cmd in ('intelligence-prospect','intelligence-sources','intelligence-review','intelligence-summary','intelligence-errors','intelligence-calibration','intelligence-graph','intelligence-hard-cases','intelligence-challenger-eval','intelligence-challenger-holdout','intelligence-strategy','intelligence-drift','intelligence-evidence-value','intelligence-promotion-readiness','intelligence-review-bundle','intelligence-consistency','intelligence-selective','intelligence-review-efficiency'):
         import mm_opportunity_intelligence as opportunity_intelligence
         with contextlib.closing(connect(readonly=True)) as d:
             if a.cmd == 'intelligence-prospect':
@@ -579,6 +580,17 @@ def main(argv=None):
                     max_risk=a.max_risk,
                     min_coverage=a.min_coverage,
                     limit=a.limit,
+                )
+            elif a.cmd == 'intelligence-review-efficiency':
+                import mm_intelligence_review_efficiency
+                result = (
+                    mm_intelligence_review_efficiency.review_efficiency_report(
+                        d,
+                        limit=a.limit,
+                        min_confirmed=a.min_confirmed,
+                        min_signal_samples=a.min_signal_samples,
+                        low_confidence_threshold=a.low_confidence_threshold,
+                    )
                 )
             else:
                 result = opportunity_intelligence.source_query_summary(d)
