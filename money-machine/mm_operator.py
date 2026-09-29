@@ -350,6 +350,8 @@ def main(argv=None):
     q=s.add_parser('decision');q.add_argument('decision_id')
     q=s.add_parser('brain-replay');q.add_argument('decision_id')
     q=s.add_parser('brain-shadow');q.add_argument('--current',required=True);q.add_argument('--challenger',required=True)
+    q=s.add_parser('intelligence-prospect');q.add_argument('id',type=int)
+    s.add_parser('intelligence-sources')
     q=s.add_parser('db-check')
     q=s.add_parser('safe-mode');q.add_argument('action',choices=['on','off','status'])
     a=p.parse_args(argv)
@@ -412,6 +414,14 @@ def main(argv=None):
                 with d:
                     result=mm_outcomes.record(d,a.id,a.outcome,a.evidence,a.sha256,a.actor,a.note)
         print(json.dumps(result,indent=2,default=str));return 0
+    if a.cmd in ('intelligence-prospect','intelligence-sources'):
+        import mm_opportunity_intelligence as opportunity_intelligence
+        with contextlib.closing(connect(readonly=True)) as d:
+            if a.cmd == 'intelligence-prospect':
+                result = opportunity_intelligence.prospect_snapshot(d, a.id)
+            else:
+                result = opportunity_intelligence.source_query_summary(d)
+        print(json.dumps(result, indent=2, default=str)); return 0
     if a.cmd=='polish-status':
         report=json.loads((root()/'reports/polish-status.json').read_text())
         report.update(workspace=str(root()),python=sys.executable,snapshot_only=True)
