@@ -363,6 +363,7 @@ def main(argv=None):
     q=s.add_parser('intelligence-strategy');q.add_argument('--limit',type=int,default=5000);q.add_argument('--min-rule-samples',type=int,default=10);q.add_argument('--min-source-prospects',type=int,default=10);q.add_argument('--min-confirmed',type=int,default=5)
     q=s.add_parser('intelligence-drift');q.add_argument('--window',type=int,default=25);q.add_argument('--min-samples',type=int,default=10);q.add_argument('--accuracy-drop-threshold',type=float,default=0.15);q.add_argument('--brier-increase-threshold',type=float,default=0.10);q.add_argument('--confidence-shift-threshold',type=float,default=0.15);q.add_argument('--label-shift-threshold',type=float,default=0.25);q.add_argument('--limit',type=int,default=5000)
     q=s.add_parser('intelligence-evidence-value');q.add_argument('--limit',type=int,default=5000);q.add_argument('--min-samples',type=int,default=5);q.add_argument('--high-confidence-threshold',type=float,default=0.80)
+    q=s.add_parser('intelligence-promotion-readiness');q.add_argument('--candidate-rule-version');q.add_argument('--holdout-eval');q.add_argument('--min-confirmed',type=int,default=30);q.add_argument('--min-hard-cases',type=int,default=10);q.add_argument('--min-validation-cases',type=int,default=5);q.add_argument('--min-rule-samples',type=int,default=10);q.add_argument('--max-ece',type=float,default=0.15);q.add_argument('--max-brier',type=float,default=0.25);q.add_argument('--drift-window',type=int,default=25);q.add_argument('--drift-min-samples',type=int,default=10);q.add_argument('--limit',type=int,default=5000)
     q=s.add_parser('db-check')
     q=s.add_parser('safe-mode');q.add_argument('action',choices=['on','off','status'])
     a=p.parse_args(argv)
@@ -425,7 +426,7 @@ def main(argv=None):
                 with d:
                     result=mm_outcomes.record(d,a.id,a.outcome,a.evidence,a.sha256,a.actor,a.note)
         print(json.dumps(result,indent=2,default=str));return 0
-    if a.cmd in ('intelligence-prospect','intelligence-sources','intelligence-review','intelligence-summary','intelligence-errors','intelligence-calibration','intelligence-graph','intelligence-hard-cases','intelligence-challenger-eval','intelligence-challenger-holdout','intelligence-strategy','intelligence-drift','intelligence-evidence-value'):
+    if a.cmd in ('intelligence-prospect','intelligence-sources','intelligence-review','intelligence-summary','intelligence-errors','intelligence-calibration','intelligence-graph','intelligence-hard-cases','intelligence-challenger-eval','intelligence-challenger-holdout','intelligence-strategy','intelligence-drift','intelligence-evidence-value','intelligence-promotion-readiness'):
         import mm_opportunity_intelligence as opportunity_intelligence
         with contextlib.closing(connect(readonly=True)) as d:
             if a.cmd == 'intelligence-prospect':
@@ -501,6 +502,27 @@ def main(argv=None):
                     limit=a.limit,
                     min_samples=a.min_samples,
                     high_confidence_threshold=a.high_confidence_threshold,
+                )
+            elif a.cmd == 'intelligence-promotion-readiness':
+                import mm_intelligence_readiness
+                holdout_result = None
+                if a.holdout_eval:
+                    holdout_result = json.loads(
+                        Path(a.holdout_eval).read_text(encoding='utf-8')
+                    )
+                result = mm_intelligence_readiness.readiness_report(
+                    d,
+                    candidate_rule_version=a.candidate_rule_version,
+                    holdout_result=holdout_result,
+                    min_confirmed=a.min_confirmed,
+                    min_hard_cases=a.min_hard_cases,
+                    min_validation_cases=a.min_validation_cases,
+                    min_rule_samples=a.min_rule_samples,
+                    max_ece=a.max_ece,
+                    max_brier=a.max_brier,
+                    drift_window=a.drift_window,
+                    drift_min_samples=a.drift_min_samples,
+                    limit=a.limit,
                 )
             else:
                 result = opportunity_intelligence.source_query_summary(d)
