@@ -690,8 +690,10 @@ class StageHandlers(unittest.TestCase):
             'status': 'complete',
             'profile': 'static',
             'health_score': 72,
-            'defect_score': 28,
+            'score': 12,
+            'severity_score': 12,
             'defects': [{'defect_key': 'viewport'}],
+            'defect_count': 1,
             'artifacts': {'json': '/tmp/run-recent/report.json'},
         }
         p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
@@ -703,7 +705,7 @@ class StageHandlers(unittest.TestCase):
 
         self.assertEqual(nxt, 'AUDITED')
         self.assertEqual(ev['run_id'], 'run-recent')
-        self.assertEqual(ev['score'], 28)
+        self.assertEqual(ev['score'], 12)
         self.assertEqual(ev['audit_engine'], 'auditor_toolkit')
         self.assertEqual(ev['model_calls'], 0)
         self.assertEqual(ev['external_sends'], 0)
@@ -716,13 +718,15 @@ class StageHandlers(unittest.TestCase):
             'status': 'complete',
             'profile': 'static',
             'health_score': 61,
-            'defect_score': 39,
+            'score': 39,
+            'severity_score': 39,
             'defects': [
                 {'defect_key': 'viewport'},
                 {'defect_key': 'missing_title'},
             ],
+            'defect_count': 2,
             'artifacts': {'json': '/tmp/run-new/report.json'},
-            'checks': {'fetch': {'required': True, 'status': 'ok'}},
+            'checks': {'fetch': {'required': True, 'status': 'ok'}}
         }
         p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
         it = p.item(self.d, self.bid)
@@ -755,8 +759,10 @@ class StageHandlers(unittest.TestCase):
             'status': 'partial',
             'profile': 'static',
             'health_score': None,
-            'defect_score': 10,
+            'score': 10,
+            'severity_score': 10,
             'defects': [],
+            'defect_count': 0,
             'artifacts': {'json': '/tmp/run-partial/report.json'},
             'checks': {
                 'fetch': {'required': True, 'status': 'error'},
@@ -896,6 +902,77 @@ class StageHandlers(unittest.TestCase):
         self.assertEqual(nxt, 'NEEDS_REVIEW')
         self.assertEqual(ev['external_sends'], 0)
         finder.assert_not_called()
+
+    def test_qualification_passes_on_technical_need(self):
+        """Regression: audit evidence score must reach qualification.
+
+        Before the defect_score→score field-name fix, _audit_evidence
+        read report.get('defect_score') which is never produced by
+        score_findings() (it returns 'score'). This silently made
+        technical_score always None, failing the technical gate for
+        every business. This test proves the fix end-to-end: an audit
+        with sufficient defect severity passes the technical axis.
+        """
+        import mm_workers as w
+        p.enqueue(self.d, self.bid)
+        # Walk the declared forward chain up to QUALIFICATION_PENDING,
+        # injecting audit evidence (AUDITED) and understanding evidence.
+        p.transition(self.d, self.bid, 'IDENTITY_PENDING', 'w-id', 'resolved')
+        p.transition(self.d, self.bid, 'IDENTITY_RESOLVED', 'w-id', 'resolved')
+        p.transition(self.d, self.bid, 'AUDIT_PENDING', 'w-setup', 'ready')
+        audit_ev = w._audit_evidence({
+            'run_id': 'run-t',
+            'status': 'complete',
+            'score': 52,
+            'severity_score': 52,
+            'health_score': 48,
+            'defect_count': 4,
+            'defects': [{'defect_key': 'viewport'},
+                        {'defect_key': 'missing_title'},
+                        {'defect_key': 'no_canonical'},
+                        {'defect_key': 'no_schema'}],
+        })
+        p.transition(self.d, self.bid, 'AUDITED', 'w-audit',
+                     'audit captured', audit_ev)
+        p.transition(self.d, self.bid, 'QUALIFICATION_PENDING', 'w-understanding',
+                     'understood', {'opportunity_score': {'score': 10}})
+        it = p.item(self.d, self.bid)
+        nxt, reason, ev = w.qualification_handler(self.d, it, None)
+        self.assertIn('technical', ev['qualification_basis'])
+        self.assertIsNotNone(ev['technical_score'])
+        self.assertGreaterEqual(ev['technical_score'], 40)
+        self.assertEqual(nxt, 'CONTACT_PENDING')
+
+    def test_qualification_rejects_below_threshold(self):
+        """A low-severity audit should not pass the technical gate.
+
+        This proves the gate is not weakened: 28 < 40 threshold → rejected.
+        """
+        import mm_workers as w
+        p.enqueue(self.d, self.bid)
+        p.transition(self.d, self.bid, 'IDENTITY_PENDING', 'w-id', 'resolved')
+        p.transition(self.d, self.bid, 'IDENTITY_RESOLVED', 'w-id', 'resolved')
+        p.transition(self.d, self.bid, 'AUDIT_PENDING', 'w-setup', 'ready')
+        audit_ev = w._audit_evidence({
+            'run_id': 'run-l',
+            'status': 'complete',
+            'score': 28,
+            'severity_score': 28,
+            'health_score': 72,
+            'defect_count': 3,
+            'defects': [{'defect_key': 'viewport'},
+                        {'defect_key': 'missing_title'},
+                        {'defect_key': 'slow_tti'}],
+        })
+        p.transition(self.d, self.bid, 'AUDITED', 'w-audit',
+                     'audit captured', audit_ev)
+        p.transition(self.d, self.bid, 'QUALIFICATION_PENDING', 'w-understanding',
+                     'understood', {'opportunity_score': {'score': 10}})
+        it = p.item(self.d, self.bid)
+        nxt, reason, ev = w.qualification_handler(self.d, it, None)
+        self.assertEqual(nxt, 'REJECTED')
+        self.assertIsNotNone(ev['technical_score'])
+        self.assertLess(ev['technical_score'], 40)
 
     def test_demo_handler_requires_artifact(self):
         import mm_workers

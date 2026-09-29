@@ -49,7 +49,7 @@ def _audit_evidence(report):
         'report_path': artifacts.get('json'),
         'defect_count': len(defects),
         # Qualification treats higher values as greater technical opportunity.
-        'score': report.get('defect_score'),
+        'score': report.get('defect_score') or report.get('score'),
         'health_score': report.get('health_score'),
         'profile': report.get('profile'),
         'audit_engine': 'auditor_toolkit',
