@@ -491,6 +491,7 @@ def prospect_snapshot(d: sqlite3.Connection, business_id: int) -> dict:
     b = _row_dict(business)
 
     state = "DISCOVERED"
+    pipeline_payload = {}
     if _table_exists(d, "pipeline_items"):
         row = d.execute(
             "SELECT state,payload FROM pipeline_items WHERE business_id=?",
@@ -498,6 +499,7 @@ def prospect_snapshot(d: sqlite3.Connection, business_id: int) -> dict:
         ).fetchone()
         if row:
             state = row["state"]
+            pipeline_payload = _safe_json(row["payload"])
 
     identity_ev = _latest_event_evidence(d, business_id, "IDENTITY_RESOLVED")
     audit_ev = _latest_event_evidence(d, business_id, "AUDITED")
@@ -506,9 +508,13 @@ def prospect_snapshot(d: sqlite3.Connection, business_id: int) -> dict:
     contact_ev = _latest_event_evidence(d, business_id, "CONTACT_RESOLVED")
 
     merged_identity = dict(identity_ev)
-    for key in ("canonical_host", "legal_name", "trading_name", "nzbn", "discovery_quality"):
-        if key not in merged_identity and key in qualification_ev:
-            merged_identity[key] = qualification_ev[key]
+    for source in (pipeline_payload, qualification_ev):
+        for key in (
+            "canonical_host", "legal_name", "trading_name", "nzbn",
+            "discovery_quality",
+        ):
+            if key not in merged_identity and key in source:
+                merged_identity[key] = source[key]
 
     observed = set()
     if b.get("name"):
