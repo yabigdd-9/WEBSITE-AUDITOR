@@ -28,7 +28,14 @@ DEFAULT_PROBE_HOSTS = ("openrouter.ai:443", "github.com:443", "example.com:443")
 def disk_guard(root=None, min_free_mb=None):
     root = Path(root or core.root())
     minimum = int(min_free_mb if min_free_mb is not None else os.environ.get("MM_MIN_FREE_MB", "1024"))
-    usage = shutil.disk_usage(root)
+
+    # Health/status must remain read-only and work before a workspace exists.
+    # Walk upward to the nearest existing parent rather than creating MM_ROOT.
+    probe = root
+    while not probe.exists() and probe != probe.parent:
+        probe = probe.parent
+
+    usage = shutil.disk_usage(probe)
     free_mb = usage.free // (1024 * 1024)
     return {
         "ok": free_mb >= minimum,

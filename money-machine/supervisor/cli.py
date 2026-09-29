@@ -132,8 +132,15 @@ def cmd_health(args) -> dict:
     import datetime as dt
     db_path = root() / "database" / "money_machine.db"
     if not db_path.is_file():
-        return {"supervisor": cmd_status(args),
-                "pipeline": {"initialised": False, "note": "database not created yet"}}
+        return {
+            "supervisor": cmd_status(args),
+            "pipeline": {
+                "initialised": False,
+                "note": "database not created yet",
+            },
+            "network": network_status(),
+            "guards": guard_snapshot(probe_network=False),
+        }
     with contextlib.closing(connect(readonly=True)) as d:
         try:
             tables = {r[0] for r in d.execute(

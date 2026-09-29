@@ -171,7 +171,9 @@ class TypedSearchErrors(EvidenceOps):
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
             rc = mm_operator.main(['discover-search', '--query', 'heat pumps',
-                                   '--region', 'Canterbury', '--dry-run'])
+                                   '--region', 'Canterbury',
+                                   '--endpoint', 'http://127.0.0.1:1',
+                                   '--dry-run'])
         self.assertEqual(rc, 0)
         doc = json.loads(out.getvalue())
         self.assertEqual(doc['candidates'], [])
