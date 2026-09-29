@@ -281,6 +281,73 @@ def test_source_query_summary_tracks_yield_rejection_and_outcomes():
     assert result["external_sends"] == 0
 
 
+def test_shadow_review_queue_is_read_only_and_surfaces_incomplete_rejection():
+    d = _db()
+    d.execute(
+        "INSERT INTO businesses VALUES(1,?,?,?,?,?,0)",
+        (
+            "Acme Plumbing",
+            "https://acmeplumbing.co.nz",
+            "Canterbury",
+            "searxng-local:q1",
+            "acmeplumbing.co.nz",
+        ),
+    )
+    d.execute(
+        "INSERT INTO pipeline_items VALUES(1,'REJECTED','{}')"
+    )
+    d.execute(
+        "INSERT INTO pipeline_events VALUES(1,1,'IDENTITY_PENDING','IDENTITY_RESOLVED','w','ok',?,?)",
+        (json.dumps({"canonical_host": "acmeplumbing.co.nz"}), "2026-09-30T00:00:00+00:00"),
+    )
+    d.execute(
+        "INSERT INTO pipeline_events VALUES(2,1,'AUDIT_PENDING','AUDITED','w','ok',?,?)",
+        (json.dumps({"score": 35, "defect_count": 2}), "2026-09-30T00:01:00+00:00"),
+    )
+    before = d.execute(
+        "SELECT state FROM pipeline_items WHERE business_id=1"
+    ).fetchone()["state"]
+
+    result = oi.shadow_review_queue(d, limit=10)
+
+    after = d.execute(
+        "SELECT state FROM pipeline_items WHERE business_id=1"
+    ).fetchone()["state"]
+    assert before == "REJECTED"
+    assert after == "REJECTED"
+    assert result["count"] == 1
+    item = result["items"][0]
+    assert item["business_id"] == 1
+    assert item["state"] == "REJECTED"
+    assert item["automatic_action"] is False
+    assert any(
+        reason.startswith("missing_required_evidence:")
+        for reason in item["reasons"]
+    )
+    assert result["paid_calls"] == 0
+    assert result["external_sends"] == 0
+
+
+def test_shadow_review_queue_ignores_active_qualified_prospect():
+    d = _db()
+    d.execute(
+        "INSERT INTO businesses VALUES(1,?,?,?,?,?,0)",
+        (
+            "Acme Plumbing",
+            "https://acmeplumbing.co.nz",
+            "Canterbury",
+            "searxng-local:q1",
+            "acmeplumbing.co.nz",
+        ),
+    )
+    d.execute(
+        "INSERT INTO pipeline_items VALUES(1,'QUALIFIED','{}')"
+    )
+    result = oi.shadow_review_queue(d, limit=10)
+    assert result["items"] == []
+    assert result["automatic_action"] is False
+
+
 def test_source_diagnostic_does_not_judge_small_samples():
     diagnostic = oi._source_diagnostic(
         total=3,
