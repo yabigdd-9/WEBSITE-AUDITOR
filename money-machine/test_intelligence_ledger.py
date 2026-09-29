@@ -255,6 +255,28 @@ class TestErrorMining:
         assert confirmed[0]['ledger_id'] == original_id
         assert em.detect_false_positives(d) == []
 
+    def test_confirmation_pairs_only_to_immediately_preceding_real_decision(self):
+        d = fresh_db()
+        first_id = ledger.append_decision(d, ledger.IntelligenceDecision(
+            prospect_id=12, business_name='Multi', domain='multi.co.nz',
+            decision='QUALIFIED', confidence=0.8, rule_version='v45.1',
+            stage='qualification',
+        ))
+        second_id = ledger.append_decision(d, ledger.IntelligenceDecision(
+            prospect_id=12, business_name='Multi', domain='multi.co.nz',
+            decision='QUALIFIED', confidence=0.9, rule_version='v45.2',
+            stage='qualification',
+        ))
+        ledger.record_correction(
+            d, 12, 'Latest qualification was wrong', 'REJECTED', 0.95
+        )
+
+        confirmed = em.detect_confirmed_false_positives(d)
+
+        assert len(confirmed) == 1
+        assert confirmed[0]['ledger_id'] == second_id
+        assert confirmed[0]['ledger_id'] != first_id
+
     def test_score_inversion_is_comparable_cohort_suspicion_only(self):
         d = fresh_db()
         base = dict(
