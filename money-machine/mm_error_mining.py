@@ -64,8 +64,13 @@ def detect_false_negatives(d: sqlite3.Connection) -> list[dict]:
            ORDER BY l.recorded_at DESC LIMIT ?""",
         (1000,),
     ).fetchall()
+    confirmed_ids = {
+        item["ledger_id"] for item in detect_confirmed_false_negatives(d)
+    }
     candidates = []
     for row in rows:
+        if row["ledger_id"] in confirmed_ids:
+            continue
         derived = json.loads(row["derived_evidence"] or "{}")
         tech_score = derived.get("technical_score")
         comm_score = derived.get("commercial_score")
@@ -103,8 +108,13 @@ def detect_false_positives(d: sqlite3.Connection) -> list[dict]:
            ORDER BY l.recorded_at DESC LIMIT ?""",
         (1000,),
     ).fetchall()
+    confirmed_ids = {
+        item["ledger_id"] for item in detect_confirmed_false_positives(d)
+    }
     candidates = []
     for row in rows:
+        if row["ledger_id"] in confirmed_ids:
+            continue
         derived = json.loads(row["derived_evidence"] or "{}")
         evidence_conf = derived.get("evidence_confidence", 0)
         tech_score = derived.get("technical_score")
@@ -169,12 +179,16 @@ def detect_confirmed_false_negatives(d: sqlite3.Connection) -> list[dict]:
                 ),
                 None,
             )
-            outcome = next(
-                (
-                    row for row in later
-                    if row.get("later_outcome") in POSITIVE_OUTCOMES
-                ),
-                None,
+            outcome = (
+                original
+                if original.get("later_outcome") in POSITIVE_OUTCOMES
+                else next(
+                    (
+                        row for row in later
+                        if row.get("later_outcome") in POSITIVE_OUTCOMES
+                    ),
+                    None,
+                )
             )
             if not correction and not outcome:
                 continue
