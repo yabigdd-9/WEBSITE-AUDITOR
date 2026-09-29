@@ -80,10 +80,6 @@ def detect_false_negatives(d: sqlite3.Connection) -> list[dict]:
     for row in rows:
         if row["ledger_id"] in confirmed_ids:
             continue
-        if row["decision"] not in POSITIVE_DECISIONS:
-            continue
-        if row["disposition"] == "OUTCOME_OBSERVED":
-            continue
         derived = json.loads(row["derived_evidence"] or "{}")
         tech_score = derived.get("technical_score")
         comm_score = derived.get("commercial_score")
@@ -127,6 +123,10 @@ def detect_false_positives(d: sqlite3.Connection) -> list[dict]:
     candidates = []
     for row in rows:
         if row["ledger_id"] in confirmed_ids:
+            continue
+        if row["decision"] not in POSITIVE_DECISIONS:
+            continue
+        if row["disposition"] == "OUTCOME_OBSERVED":
             continue
         derived = json.loads(row["derived_evidence"] or "{}")
         evidence_conf = derived.get("evidence_confidence", 0)
