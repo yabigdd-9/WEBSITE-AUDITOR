@@ -220,9 +220,25 @@ def evaluate_challenger(
     return result
 
 
-def _stable_case_order(case: dict, salt: str) -> str:
-    payload = f"{salt}|{case['case_id']}".encode("utf-8")
+def _golden_from_case(case: dict) -> dict:
+    return {
+        "case_id": case["case_id"],
+        "expected": case["expected"],
+        "safety": dict(case["safety"]),
+    }
+
+
+def _stable_group_order(prospect_id: int, salt: str) -> str:
+    payload = f"{salt}|prospect:{prospect_id}".encode("utf-8")
     return hashlib.sha256(payload).hexdigest()
+
+
+def _label_signature(cases: list[dict]) -> str:
+    labels = sorted({
+        str(case.get("expected") or "UNKNOWN")
+        for case in cases
+    })
+    return "+".join(labels) if labels else "UNKNOWN"
 
 
 def split_goldens(
@@ -231,73 +247,116 @@ def split_goldens(
     validation_fraction: float = 0.25,
     salt: str = "v45-hard-case-holdout",
 ) -> dict:
-    """Deterministically split confirmed goldens into tuning and holdout sets."""
+    """Deterministically split hard cases by prospect, never by case.
+
+    All hard cases for one prospect remain on the same side of the split.
+    Grouping by expected-label signature preserves label coverage where the
+    available prospect groups permit it.
+    """
     fraction = float(validation_fraction)
     if not 0.0 < fraction < 1.0:
         raise ValueError("validation_fraction must be between 0 and 1")
 
-    goldens = golden_rows(d, limit)
-    if len(goldens) < 2:
+    report = hard_cases(d, limit)
+    cases = list(report["cases"])
+    by_prospect: dict[int, list[dict]] = defaultdict(list)
+    for case in cases:
+        by_prospect[int(case["prospect_id"])].append(case)
+
+    if len(by_prospect) < 2:
+        training = sorted(
+            (_golden_from_case(case) for case in cases),
+            key=lambda case: case["case_id"],
+        )
         return {
-            "training": list(goldens),
+            "training": training,
             "validation": [],
-            "training_count": len(goldens),
+            "training_count": len(training),
             "validation_count": 0,
-            "status": "INSUFFICIENT_CASES",
+            "training_prospect_count": len(by_prospect),
+            "validation_prospect_count": 0,
+            "status": "INSUFFICIENT_PROSPECTS",
             "validation_fraction": fraction,
             "salt": str(salt),
             "deterministic": True,
+            "prospect_disjoint": True,
             "read_only": True,
         }
 
-    by_label: dict[str, list[dict]] = defaultdict(list)
-    for case in goldens:
-        by_label[str(case.get("expected") or "UNKNOWN")].append(case)
-
-    training: list[dict] = []
-    validation: list[dict] = []
-    for label in sorted(by_label):
-        rows = sorted(
-            by_label[label],
-            key=lambda case: _stable_case_order(case, str(salt)),
+    by_signature: dict[str, list[tuple[int, list[dict]]]] = defaultdict(list)
+    for prospect_id, prospect_cases in by_prospect.items():
+        by_signature[_label_signature(prospect_cases)].append(
+            (prospect_id, prospect_cases)
         )
-        if len(rows) == 1:
-            training.extend(rows)
+
+    training_groups: list[tuple[int, list[dict]]] = []
+    validation_groups: list[tuple[int, list[dict]]] = []
+
+    for signature in sorted(by_signature):
+        groups = sorted(
+            by_signature[signature],
+            key=lambda item: _stable_group_order(item[0], str(salt)),
+        )
+        if len(groups) == 1:
+            training_groups.extend(groups)
             continue
-        validation_count = max(
+        validation_group_count = max(
             1,
-            min(len(rows) - 1, int(round(len(rows) * fraction))),
+            min(len(groups) - 1, int(round(len(groups) * fraction))),
         )
-        validation.extend(rows[:validation_count])
-        training.extend(rows[validation_count:])
+        validation_groups.extend(groups[:validation_group_count])
+        training_groups.extend(groups[validation_group_count:])
 
-    if not validation:
+    if not validation_groups:
         ordered = sorted(
-            training,
-            key=lambda case: _stable_case_order(case, str(salt)),
+            training_groups,
+            key=lambda item: _stable_group_order(item[0], str(salt)),
         )
-        validation.append(ordered[0])
-        training = ordered[1:]
+        validation_groups.append(ordered[0])
+        training_groups = ordered[1:]
 
-    if not training:
+    if not training_groups:
         ordered = sorted(
-            validation,
-            key=lambda case: _stable_case_order(case, str(salt)),
+            validation_groups,
+            key=lambda item: _stable_group_order(item[0], str(salt)),
         )
-        training.append(ordered[-1])
-        validation = ordered[:-1]
+        training_groups.append(ordered[-1])
+        validation_groups = ordered[:-1]
 
-    training.sort(key=lambda case: case["case_id"])
-    validation.sort(key=lambda case: case["case_id"])
+    training_prospects = {item[0] for item in training_groups}
+    validation_prospects = {item[0] for item in validation_groups}
+    if training_prospects & validation_prospects:
+        raise AssertionError("Prospect leakage across hard-case holdout split")
+
+    training = sorted(
+        (
+            _golden_from_case(case)
+            for _, prospect_cases in training_groups
+            for case in prospect_cases
+        ),
+        key=lambda case: case["case_id"],
+    )
+    validation = sorted(
+        (
+            _golden_from_case(case)
+            for _, prospect_cases in validation_groups
+            for case in prospect_cases
+        ),
+        key=lambda case: case["case_id"],
+    )
+
     return {
         "training": training,
         "validation": validation,
         "training_count": len(training),
         "validation_count": len(validation),
+        "training_prospect_count": len(training_prospects),
+        "validation_prospect_count": len(validation_prospects),
         "status": "READY",
         "validation_fraction": fraction,
         "salt": str(salt),
         "deterministic": True,
+        "prospect_disjoint": True,
         "read_only": True,
     }
 
@@ -360,9 +419,12 @@ def evaluate_challenger_holdout(
         "split": {
             "training_count": split["training_count"],
             "validation_count": split["validation_count"],
+            "training_prospect_count": split["training_prospect_count"],
+            "validation_prospect_count": split["validation_prospect_count"],
             "validation_fraction": split["validation_fraction"],
             "salt": split["salt"],
             "deterministic": True,
+            "prospect_disjoint": split["prospect_disjoint"],
         },
         "challenger_generalization_gap": generalization_gap,
         "recommendation_basis": "validation_holdout_only",
