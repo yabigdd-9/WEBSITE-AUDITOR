@@ -367,6 +367,7 @@ def main(argv=None):
     q=s.add_parser('intelligence-review-bundle');q.add_argument('--candidate-rule-version');q.add_argument('--holdout-eval');q.add_argument('--min-confirmed',type=int,default=30);q.add_argument('--min-hard-cases',type=int,default=10);q.add_argument('--min-validation-cases',type=int,default=5);q.add_argument('--min-rule-samples',type=int,default=10);q.add_argument('--max-ece',type=float,default=0.15);q.add_argument('--max-brier',type=float,default=0.25);q.add_argument('--drift-window',type=int,default=25);q.add_argument('--drift-min-samples',type=int,default=10);q.add_argument('--limit',type=int,default=5000)
     q=s.add_parser('intelligence-review-bundle-verify');q.add_argument('--file',required=True)
     q=s.add_parser('intelligence-review-bundle-diff');q.add_argument('--before',required=True);q.add_argument('--after',required=True)
+    q=s.add_parser('intelligence-consistency');q.add_argument('--limit',type=int,default=10000);q.add_argument('--min-confidence',type=float,default=0.80)
     q=s.add_parser('db-check')
     q=s.add_parser('safe-mode');q.add_argument('action',choices=['on','off','status'])
     a=p.parse_args(argv)
@@ -442,7 +443,7 @@ def main(argv=None):
                 with d:
                     result=mm_outcomes.record(d,a.id,a.outcome,a.evidence,a.sha256,a.actor,a.note)
         print(json.dumps(result,indent=2,default=str));return 0
-    if a.cmd in ('intelligence-prospect','intelligence-sources','intelligence-review','intelligence-summary','intelligence-errors','intelligence-calibration','intelligence-graph','intelligence-hard-cases','intelligence-challenger-eval','intelligence-challenger-holdout','intelligence-strategy','intelligence-drift','intelligence-evidence-value','intelligence-promotion-readiness','intelligence-review-bundle'):
+    if a.cmd in ('intelligence-prospect','intelligence-sources','intelligence-review','intelligence-summary','intelligence-errors','intelligence-calibration','intelligence-graph','intelligence-hard-cases','intelligence-challenger-eval','intelligence-challenger-holdout','intelligence-strategy','intelligence-drift','intelligence-evidence-value','intelligence-promotion-readiness','intelligence-review-bundle','intelligence-consistency'):
         import mm_opportunity_intelligence as opportunity_intelligence
         with contextlib.closing(connect(readonly=True)) as d:
             if a.cmd == 'intelligence-prospect':
@@ -560,6 +561,13 @@ def main(argv=None):
                     drift_window=a.drift_window,
                     drift_min_samples=a.drift_min_samples,
                     limit=a.limit,
+                )
+            elif a.cmd == 'intelligence-consistency':
+                import mm_intelligence_consistency
+                result = mm_intelligence_consistency.consistency_report(
+                    d,
+                    limit=a.limit,
+                    min_confidence=a.min_confidence,
                 )
             else:
                 result = opportunity_intelligence.source_query_summary(d)
