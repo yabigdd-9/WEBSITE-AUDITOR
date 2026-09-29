@@ -95,9 +95,10 @@ New commands:
 ./mm intelligence-sources
 ./mm intelligence-review --limit 50
 ./mm intelligence-summary --limit 500
+./mm intelligence-errors
 ```
 
-All four operator commands use read-only database connections.
+All five operator commands use read-only database connections.
 
 `intelligence-prospect` returns current pipeline state, the originating/assessment stage used for evidence-completeness analysis, observed evidence classes, identity confidence, evidence completeness, next-best-evidence action, counterfactual explanation, current audit/qualification derived evidence, paid calls = 0, and external sends = 0.
 
@@ -112,6 +113,23 @@ The assessment stage prefers the recorded transition's `from_state` when availab
 `intelligence-review --limit N` returns a read-only shadow review queue containing only current negative/review states where identity uncertainty, missing required evidence, or a near-threshold current score justifies human inspection. `SUPPRESSED` prospects are excluded entirely so suppression remains authoritative. The queue never changes pipeline state, never resurrects a prospect, and sets `automatic_action: false` on every item.
 
 `intelligence-summary --limit N` gives one bounded read-only overview of identity-status distribution, evidence-completeness distribution, next-best-evidence actions, review-queue size, source count, and source-diagnostic distribution. It fetches one extra row to report truncation accurately rather than treating an exact-limit result as truncated.
+
+## Error-mining safety hardening
+
+`./mm intelligence-errors` runs the P3 error miner through a read-only database connection.
+
+Error labels now distinguish evidence strength:
+
+- `SUSPECTED_FALSE_NEGATIVE`: a rejected candidate has strong heuristic signals, but no correction/outcome has proved the rejection wrong.
+- `SUSPECTED_FALSE_POSITIVE`: an accepted candidate has weak evidence, but no human correction has proved the acceptance wrong.
+- `CONFIRMED_FALSE_NEGATIVE`: a rejection is contradicted by the immediately linked human correction or by a positive later outcome such as `REPLIED`, `CALL_OR_DISCOVERY`, `PROPOSAL_SENT`, or `WON`.
+- `CONFIRMED_FALSE_POSITIVE`: a positive decision is later corrected by a human to a negative decision.
+- `HIGH_CONF_WRONG`: a confidence-severity tag applied only to an already confirmed contradiction with original confidence at least 0.8.
+- `SUSPECTED_SCORE_INVERSION`: a rejected candidate scored above an accepted candidate only within a comparable source/query/stage/day cohort; score ordering alone never confirms an error.
+
+A correction is paired only with the nearest preceding real decision for that prospect, preventing one correction from rewriting or condemning the entire decision history.
+
+Read-only error analysis does not run migrations and does not create intelligence tables. Explicit error-cluster persistence remains separate, and identical unresolved clusters are not inserted repeatedly.
 
 ## Counterfactual explanations
 
@@ -143,11 +161,15 @@ The system therefore explains what would have to be different without claiming t
 - No hidden conversion of missing evidence into negative evidence.
 - Review-queue generation is read-only and cannot resurrect or transition a prospect.
 - Suppression remains authoritative: `SUPPRESSED` prospects never enter the shadow review queue.
+- Heuristic error signals never become confirmed errors without correction/outcome evidence.
+- Read-only intelligence/error reporting does not migrate or mutate database schema.
 - Human review is required for conflicting identity evidence.
 
 ## Tests
 
 `money-machine/test_opportunity_intelligence.py` covers aligned identity, discovery-payload identity signals, weak/missing identity staying unknown rather than conflicting, conflicting discovery identity, evidence-completeness semantics, legacy numeric commercial scores not counting as substantive evidence, next-best-evidence selection, explanatory counterfactuals, terminal originating-stage analysis, human-review routing on conflict, suppression authority, prospect snapshots, source/query yield and outcome aggregation, bounded summary reporting, minimum-sample source diagnostics, operation without optional tables, and worker shadow integration without target-state or verdict changes.
+
+`money-machine/test_intelligence_ledger.py` additionally covers suspected-vs-confirmed error semantics, correction-to-nearest-decision pairing, comparable-cohort score inversions, high-confidence confirmed contradictions, schema-read-only analysis, and idempotent unresolved-cluster persistence.
 
 ## Promotion policy
 
