@@ -222,6 +222,18 @@ class TestErrorMining:
         assert len(fp) == 1
         assert fp[0]['type'] == 'SUSPECTED_FALSE_POSITIVE'
 
+    def test_missing_acceptance_evidence_stays_unknown_not_false_positive(self):
+        d = fresh_db()
+        rec = ledger.IntelligenceDecision(
+            prospect_id=22, business_name='Unknown Evidence',
+            domain='unknown.co.nz', decision='QUALIFIED',
+            confidence=0.5, rule_version='v45.1', stage='qualification',
+            derived_evidence={},
+        )
+        ledger.append_decision(d, rec)
+
+        assert em.detect_false_positives(d) == []
+
     def test_high_conf_wrong_detection(self):
         d = fresh_db()
         rec = ledger.IntelligenceDecision(
