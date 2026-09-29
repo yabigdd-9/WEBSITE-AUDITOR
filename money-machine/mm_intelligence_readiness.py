@@ -31,6 +31,7 @@ def _gate(name: str, passed: bool, detail: str, observed: Any = None,
 def _holdout_gate(
     holdout_result: dict | None,
     min_validation_cases: int,
+    min_validation_prospects: int,
 ) -> list[dict]:
     gates = []
     if not isinstance(holdout_result, dict):
@@ -46,6 +47,11 @@ def _holdout_gate(
     split = holdout_result.get("split") or {}
     challenger = holdout_result.get("challenger") or {}
     validation_count = int(split.get("validation_count") or 0)
+    validation_prospect_count = int(
+        split.get("validation_prospect_count") or 0
+    )
+    prospect_disjoint = split.get("prospect_disjoint") is True
+    deterministic = split.get("deterministic") is True
     safety_failures = int(challenger.get("safety_failures") or 0)
     recommendation_basis = holdout_result.get("recommendation_basis")
     recommended = holdout_result.get("promotion_recommended") is True
@@ -63,6 +69,27 @@ def _holdout_gate(
         "Holdout must contain enough unseen confirmed hard cases.",
         observed=validation_count,
         required=min_validation_cases,
+    ))
+    gates.append(_gate(
+        "holdout_validation_prospect_size",
+        validation_prospect_count >= min_validation_prospects,
+        "Holdout must contain enough distinct unseen hard-case prospects.",
+        observed=validation_prospect_count,
+        required=min_validation_prospects,
+    ))
+    gates.append(_gate(
+        "holdout_prospect_disjoint",
+        prospect_disjoint,
+        "Training and validation hard cases must be prospect-disjoint.",
+        observed=prospect_disjoint,
+        required=True,
+    ))
+    gates.append(_gate(
+        "holdout_deterministic",
+        deterministic,
+        "Holdout split must attest deterministic construction.",
+        observed=deterministic,
+        required=True,
     ))
     gates.append(_gate(
         "holdout_recommendation_basis",
@@ -96,6 +123,7 @@ def readiness_report(
     min_confirmed: int = 30,
     min_hard_cases: int = 10,
     min_validation_cases: int = 5,
+    min_validation_prospects: int | None = None,
     min_rule_samples: int = 10,
     max_ece: float = 0.15,
     max_brier: float = 0.25,
@@ -107,6 +135,14 @@ def readiness_report(
     minimum_confirmed = max(1, int(min_confirmed))
     minimum_hard = max(1, int(min_hard_cases))
     minimum_validation = max(1, int(min_validation_cases))
+    minimum_validation_prospects = max(
+        1,
+        int(
+            min_validation_cases
+            if min_validation_prospects is None
+            else min_validation_prospects
+        ),
+    )
     minimum_rule = max(1, int(min_rule_samples))
     maximum_ece = max(0.0, float(max_ece))
     maximum_brier = max(0.0, float(max_brier))
@@ -217,7 +253,11 @@ def readiness_report(
             required="candidate_rule_version",
         ))
 
-    gates.extend(_holdout_gate(holdout_result, minimum_validation))
+    gates.extend(_holdout_gate(
+        holdout_result,
+        minimum_validation,
+        minimum_validation_prospects,
+    ))
 
     blockers = [
         {
