@@ -34,6 +34,39 @@ def test_weak_name_domain_match_is_unknown_not_conflict():
     assert result["contradicting_signals"] == []
 
 
+def test_prospect_snapshot_uses_discovery_payload_identity_evidence():
+    d = _db()
+    d.execute(
+        "INSERT INTO businesses VALUES(1,?,?,?,?,?,0)",
+        (
+            "Acme Plumbing",
+            "https://acmeplumbing.co.nz",
+            "Canterbury",
+            "searxng-local:q1",
+            "acmeplumbing.co.nz",
+        ),
+    )
+    payload = {
+        "legal_name": "Acme Plumbing Limited",
+        "trading_name": "Acme Plumbing",
+        "nzbn": "9429000000000",
+        "discovery_quality": {
+            "disposition": "ACCEPT",
+            "classification": "BUSINESS_HOME",
+        },
+    }
+    d.execute(
+        "INSERT INTO pipeline_items VALUES(1,'IDENTITY_PENDING',?)",
+        (json.dumps(payload),),
+    )
+    result = oi.prospect_snapshot(d, 1)
+    signals = result["identity"]["supporting_signals"]
+    assert "legal_or_trading_name_present" in signals
+    assert "nzbn_present" in signals
+    assert "discovery_quality_accept" in signals
+    assert result["identity"]["status"] == "HIGH"
+
+
 def test_identity_confidence_low_when_identity_is_missing():
     result = oi.identity_confidence({
         "name": "Unknown Business",
@@ -235,6 +268,51 @@ def test_prospect_snapshot_exposes_identity_completeness_and_planner():
     assert result["counterfactual"]["explanatory_only"] is True
     assert result["paid_calls"] == 0
     assert result["external_sends"] == 0
+
+
+def test_numeric_commercial_score_alone_is_not_substantive_evidence():
+    d = _db()
+    d.execute(
+        "INSERT INTO businesses VALUES(1,?,?,?,?,?,0)",
+        (
+            "Acme Plumbing",
+            "https://acmeplumbing.co.nz",
+            "Canterbury",
+            "searxng-local:q1",
+            "acmeplumbing.co.nz",
+        ),
+    )
+    d.execute(
+        "INSERT INTO pipeline_items VALUES(1,'QUALIFICATION_PENDING','{}')"
+    )
+    d.execute(
+        "INSERT INTO pipeline_events VALUES(1,1,'IDENTITY_PENDING','IDENTITY_RESOLVED','w','ok',?,?)",
+        (json.dumps({"canonical_host": "acmeplumbing.co.nz"}), "2026-09-30T00:00:00+00:00"),
+    )
+    d.execute(
+        "INSERT INTO pipeline_events VALUES(2,1,'AUDIT_PENDING','AUDITED','w','ok',?,?)",
+        (json.dumps({"score": 25, "defect_count": 2}), "2026-09-30T00:01:00+00:00"),
+    )
+    d.execute(
+        "INSERT INTO pipeline_events VALUES(3,1,'AUDITED','QUALIFICATION_PENDING','w','legacy',?,?)",
+        (
+            json.dumps({
+                "commercial_score": 25,
+                "technical_score": 25,
+                "commercial_opportunity": None,
+            }),
+            "2026-09-30T00:02:00+00:00",
+        ),
+    )
+
+    result = oi.prospect_snapshot(d, 1)
+
+    assert "commercial_evidence" not in result["observed_evidence"]
+    assert "commercial_evidence" in result["evidence_completeness"]["missing"]
+    assert (
+        result["next_best_evidence"]["action"]
+        == "INSPECT_FIRST_PARTY_COMMERCIAL_PAGES"
+    )
 
 
 def test_source_query_summary_tracks_yield_rejection_and_outcomes():
@@ -461,12 +539,29 @@ def test_identity_worker_adds_shadow_without_changing_transition():
             None,
         ),
     )
-    nxt, reason, evidence = workers.identity_handler(d, {"business_id": 1}, None)
+    nxt, reason, evidence = workers.identity_handler(
+        d,
+        {
+            "business_id": 1,
+            "payload": json.dumps({
+                "legal_name": "Acme Plumbing Limited",
+                "nzbn": "9429000000000",
+                "discovery_quality": {
+                    "disposition": "ACCEPT",
+                    "classification": "BUSINESS_HOME",
+                },
+            }),
+        },
+        None,
+    )
     assert nxt == "AUDIT_PENDING"
     assert reason == "identity resolved from declared website"
     assert evidence["canonical_host"] == "acmeplumbing.co.nz"
     assert evidence["shadow_intelligence"]["shadow_only"] is True
-    assert evidence["shadow_intelligence"]["identity"]["status"] == "HIGH"
+    identity = evidence["shadow_intelligence"]["identity"]
+    assert identity["status"] == "HIGH"
+    assert "nzbn_present" in identity["supporting_signals"]
+    assert "discovery_quality_accept" in identity["supporting_signals"]
 
 
 def test_qualification_shadow_marks_commercial_gap_without_changing_verdict(monkeypatch):
