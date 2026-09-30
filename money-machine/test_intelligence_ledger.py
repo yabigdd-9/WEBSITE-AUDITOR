@@ -558,3 +558,185 @@ class TestExperienceLedger:
         result = outcomes.record(d, 1, "PENDING", ev,
                                 c.sha(ev.read_bytes()), actor="human-test")
         assert result["outcome"] == "PENDING"
+
+
+class TestLivePipelineLedgerWiring:
+    """Live deterministic workers append decisions without sending outreach."""
+
+    def _setup(self):
+        d = fresh_db()
+        d.execute(
+            "INSERT INTO businesses(id,name,public_website,region,source) "
+            "VALUES(1,'Test Co','https://test.example','NZ','synthetic-test')"
+        )
+        ledger.migrate(d)
+        ri.migrate(d)
+        d.commit()
+        return d
+
+    def test_ledger_migration_preserves_an_active_transaction(self):
+        d = self._setup()
+        d.execute("UPDATE businesses SET name='Uncommitted' WHERE id=1")
+        record = ledger.IntelligenceDecision(
+            prospect_id=1, business_name='Uncommitted', domain='test.example',
+            decision='QUALIFIED', disposition='ACCEPTED',
+            primary_reason='QUALIFIED', stage='qualification',
+        )
+        ledger.append_decision(d, record)
+        ri.record_rejection(d, ri.RejectionRecord(
+            prospect_id=1, business_name='Uncommitted', domain='test.example',
+            primary_reason='INSUFFICIENT_COMMERCIAL_EVIDENCE',
+            stage='qualification', confidence=0.9,
+        ))
+        assert d.in_transaction
+        d.rollback()
+        assert d.execute('SELECT name FROM businesses WHERE id=1').fetchone()[0] == 'Test Co'
+        assert ledger.count_decisions(d) == 0
+        assert ri.rejection_summary(d) == []
+        d.close()
+
+    def test_identity_resolution_appends_decision(self):
+        d = self._setup()
+        import mm_workers as workers
+        state, _, evidence = workers.identity_handler(
+            d, {'business_id': 1, 'payload': '{}'}, 'worker-test'
+        )
+        row = d.execute(
+            'SELECT decision, stage, domain FROM intelligence_ledger '
+            'WHERE prospect_id=1'
+        ).fetchone()
+        assert state == 'AUDIT_PENDING'
+        assert evidence['canonical_host'] == 'test.example'
+        assert tuple(row) == ('IDENTITY_RESOLVED', 'identity', 'test.example')
+        d.close()
+
+    def test_identity_rejection_is_recorded_before_permanent_failure(self):
+        d = self._setup()
+        d.execute('UPDATE businesses SET public_website=NULL WHERE id=1')
+        d.commit()
+        import mm_workers as workers
+        with pytest.raises(p.PermanentError):
+            workers.identity_handler(
+                d, {'business_id': 1, 'payload': '{}'}, 'worker-test'
+            )
+        row = d.execute(
+            'SELECT decision, primary_reason, stage FROM intelligence_ledger '
+            'WHERE prospect_id=1'
+        ).fetchone()
+        assert tuple(row) == (
+            'REJECTED', 'INSUFFICIENT_IDENTITY_EVIDENCE', 'identity'
+        )
+        rejection = d.execute(
+            'SELECT primary_reason,stage FROM intelligence_rejections '
+            'WHERE prospect_id=1'
+        ).fetchone()
+        assert tuple(rejection) == ('INSUFFICIENT_IDENTITY_EVIDENCE', 'identity')
+        d.close()
+
+    def test_qualification_records_pass_and_reject(self):
+        d = self._setup()
+        import mm_workers as workers
+        rejected_state, _, _ = workers.qualification_handler(
+            d, {'business_id': 1, 'payload': '{}'}, 'worker-test'
+        )
+        assert rejected_state == 'REJECTED'
+
+        d.execute(
+            "INSERT INTO pipeline_events(business_id,from_state,to_state,actor,"
+            "reason,evidence,event_at) VALUES(1,'AUDIT_PENDING','AUDITED',"
+            "'worker-test','synthetic audit',"
+            "'{\"defect_count\":1,\"score\":75}','2026-09-30T00:00:00Z')"
+        )
+        d.commit()
+        qualified_state, _, _ = workers.qualification_handler(
+            d, {'business_id': 1, 'payload': '{}'}, 'worker-test'
+        )
+        assert qualified_state == 'CONTACT_PENDING'
+        decisions = [
+            row['decision'] for row in d.execute(
+                'SELECT decision FROM intelligence_ledger WHERE prospect_id=1'
+            )
+        ]
+        assert 'REJECTED' in decisions
+        assert 'QUALIFIED' in decisions
+        rejection_count = d.execute(
+            'SELECT count(*) FROM intelligence_rejections WHERE prospect_id=1'
+        ).fetchone()[0]
+        assert rejection_count == 1
+        d.close()
+
+    def test_contact_release_hold_is_logged_as_human_review(self, monkeypatch):
+        d = self._setup()
+        import mm_workers as workers
+        monkeypatch.setattr(workers, '_current_verified_high', lambda *_: None)
+        monkeypatch.setattr(
+            workers, '_email_v2_release_state',
+            lambda *_: (False, {'release_mode': 'HELD'}),
+        )
+        state, _, evidence = workers.contact_handler(
+            d, {'business_id': 1, 'payload': '{}'}, 'worker-test'
+        )
+        row = d.execute(
+            'SELECT decision, disposition FROM intelligence_ledger '
+            'WHERE prospect_id=1'
+        ).fetchone()
+        assert state == 'NEEDS_REVIEW'
+        assert evidence['external_sends'] == 0
+        assert tuple(row) == ('NEEDS_REVIEW', 'REVIEW')
+        d.close()
+
+
+class TestIntelligenceOperatorCommands:
+    def test_reports_and_human_correction_use_synthetic_database(
+        self, tmp_path, monkeypatch, capsys
+    ):
+        root = tmp_path / 'repo'
+        (root / 'database').mkdir(parents=True)
+        db_path = root / 'database' / 'money_machine.db'
+        db_path.touch()
+        monkeypatch.setenv('MM_ROOT', str(root))
+
+        d = c.connect()
+        ledger.migrate(d)
+        ri.migrate(d)
+        em.migrate(d)
+        ledger.append_decision(d, ledger.IntelligenceDecision(
+            prospect_id=1, business_name='Synthetic Co', domain='synthetic.example',
+            decision='REJECTED', disposition='REJECTED',
+            primary_reason='INSUFFICIENT_COMMERCIAL_EVIDENCE',
+            confidence=0.9, stage='qualification',
+        ))
+        ri.record_rejection(d, ri.RejectionRecord(
+            prospect_id=1, business_name='Synthetic Co',
+            domain='synthetic.example',
+            primary_reason='INSUFFICIENT_COMMERCIAL_EVIDENCE',
+            stage='qualification', confidence=0.9,
+        ))
+        d.commit()
+        d.close()
+
+        import mm_operator
+        assert mm_operator.main(['intelligence-report']) == 0
+        report = json.loads(capsys.readouterr().out)
+        assert report['decisions'] == 1
+        assert report['external_sends'] == 0
+
+        assert mm_operator.main(['rejection-report', '--format', 'summary']) == 0
+        summary = capsys.readouterr().out
+        assert 'INSUFFICIENT_COMMERCIAL_EVIDENCE: 1' in summary
+        assert 'external sends: 0' in summary
+
+        assert mm_operator.main([
+            'human-correction', '1', '--correction', 'Synthetic review',
+            '--corrected-decision', 'QUALIFIED',
+        ]) == 0
+        correction = json.loads(capsys.readouterr().out)
+        assert correction['id'] > 0
+        assert correction['external_sends'] == 0
+
+        d = c.connect()
+        history = ledger.decision_history(d, 1)
+        assert len(history) == 2
+        assert history[-1]['decision'] == 'REJECTED'
+        assert history[0]['disposition'] == 'HUMAN_CORRECTED'
+        d.close()

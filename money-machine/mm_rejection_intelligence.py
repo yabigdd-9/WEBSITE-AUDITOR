@@ -209,8 +209,14 @@ CREATE INDEX IF NOT EXISTS idx_rejections_domain ON intelligence_rejections(doma
 
 
 def migrate(d: sqlite3.Connection) -> None:
-    """Idempotent DDL apply for rejection intelligence tables."""
-    d.executescript(REJECTION_DDL)
+    """Apply rejection DDL without committing the caller's transaction."""
+    # Worker decisions are recorded inside the pipeline transaction.
+    # executescript() commits an active sqlite transaction, so keep these
+    # simple table/index statements on the caller's transaction instead.
+    for statement in REJECTION_DDL.split(';'):
+        statement = statement.strip()
+        if statement:
+            d.execute(statement)
 
 
 def record_rejection(d: sqlite3.Connection, record: RejectionRecord) -> int:

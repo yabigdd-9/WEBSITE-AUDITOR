@@ -108,8 +108,15 @@ CREATE INDEX IF NOT EXISTS idx_ledger_primary_reason ON intelligence_ledger(prim
 
 
 def migrate(d: sqlite3.Connection) -> None:
-    """Idempotent DDL apply for the intelligence ledger."""
-    d.executescript(LEDGER_DDL)
+    """Idempotently apply ledger DDL without committing caller transactions."""
+    # sqlite3.Connection.executescript() commits any active transaction before
+    # running its script. Worker handlers call append_decision() inside the
+    # pipeline transaction, so execute the simple table/index statements one
+    # at a time to keep the decision and its state transition atomic.
+    for statement in LEDGER_DDL.split(';'):
+        statement = statement.strip()
+        if statement:
+            d.execute(statement)
 
 
 def append_decision(d: sqlite3.Connection, record: IntelligenceDecision) -> int:

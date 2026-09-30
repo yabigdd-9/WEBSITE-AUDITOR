@@ -23,6 +23,98 @@ REPO = Path(__file__).resolve().parents[1]
 AUDIT_TIMEOUT = 60
 
 
+def _record_intelligence_decision(d, business_id, decision, primary_reason,
+                                   confidence=1.0, stage="", source="",
+                                   candidate_url="", derived_evidence=None,
+                                   errors=None, disposition=None):
+    """Best-effort append of a pipeline decision to the V45 ledger."""
+    try:
+        import mm_intelligence_ledger as il
+
+        business = _business(d, business_id)
+        keys = set(business.keys()) if hasattr(business, 'keys') else set()
+        website = business['public_website'] if 'public_website' in keys else None
+        try:
+            domain = public_url(website) if website else ""
+        except (TypeError, ValueError):
+            domain = urlparse(website or "").hostname or ""
+        try:
+            score = float(confidence)
+        except (TypeError, ValueError, OverflowError):
+            score = 0.0
+        if not math.isfinite(score):
+            score = 0.0
+        score = min(1.0, max(0.0, score))
+        resolved_source = source or (
+            str(business['source']) if 'source' in keys and business['source'] else ""
+        )
+        rec = il.IntelligenceDecision(
+            prospect_id=business_id,
+            business_name=str(business['name'] or ''),
+            domain=domain,
+            candidate_url=candidate_url or (website or ""),
+            source=resolved_source,
+            region=str(business['region'] or '') if 'region' in keys else "",
+            derived_evidence=derived_evidence or {},
+            decision=decision,
+            disposition=disposition or (
+                'REJECTED' if decision == 'REJECTED' else 'ACCEPTED'
+            ),
+            primary_reason=primary_reason,
+            confidence=score,
+            rule_version=il.DECISION_LOGIC_VERSION,
+            stage=stage,
+            processing_cost=0.0,
+            latency_seconds=0.0,
+            errors=errors or [],
+        )
+        il.append_decision(d, rec)
+        if decision == 'REJECTED':
+            try:
+                import mm_rejection_intelligence as ri
+                rejection = ri.RejectionRecord(
+                    prospect_id=business_id,
+                    business_name=rec.business_name,
+                    domain=domain,
+                    primary_reason=primary_reason,
+                    stage=stage,
+                    disposition='REJECTED',
+                    confidence=score,
+                    rule_version=il.DECISION_LOGIC_VERSION,
+                    retryable=ri.is_retryable(primary_reason),
+                    decision_detail='; '.join(errors or []),
+                )
+                ri.record_rejection(d, rejection)
+            except Exception as exc:
+                try:
+                    from mm_pipeline import log
+                    log({
+                        'kind': 'intelligence_rejection_write_failed',
+                        'business_id': business_id,
+                        'stage': stage,
+                        'reason': primary_reason,
+                        'error': f'{type(exc).__name__}: {exc}'[:300],
+                    })
+                except Exception:
+                    pass
+        return True
+    except Exception as exc:
+        # The operational pipeline must keep running if optional learning
+        # storage is unavailable. Leave an operator-visible diagnostic.
+        try:
+            from mm_pipeline import log
+            log({
+                'kind': 'intelligence_ledger_write_failed',
+                'business_id': business_id,
+                'stage': stage,
+                'decision': decision,
+                'error': f'{type(exc).__name__}: {exc}'[:300],
+            })
+        except Exception:
+            pass
+        return False
+
+
 def _business(d, bid):
     r = d.execute("SELECT * FROM businesses WHERE id=?", (bid,)).fetchone()
     if not r:
@@ -36,6 +128,12 @@ def identity_handler(d, it, worker):
 
     b = _business(d, it['business_id'])
     if not b['public_website']:
+        _record_intelligence_decision(
+            d, b['id'], 'REJECTED', 'INSUFFICIENT_IDENTITY_EVIDENCE',
+            confidence=1.0, stage='identity', disposition='REJECTED',
+            derived_evidence={'reason': 'no public website'},
+            errors=['no public website; identity cannot be resolved'],
+        )
         raise PermanentError('no public website; identity cannot be resolved')
     host = public_url(b['public_website'])  # raises ValueError on private/odd
     observed = {'business_name', 'canonical_host'}
@@ -57,6 +155,12 @@ def identity_handler(d, it, worker):
         'IDENTITY_RESOLVED',
         observed=observed,
         evidence=identity_evidence,
+    )
+    _record_intelligence_decision(
+        d, b['id'], 'IDENTITY_RESOLVED', 'IDENTITY_RESOLVED',
+        confidence=0.95, stage='identity', disposition='ACCEPTED',
+        candidate_url=b['public_website'],
+        derived_evidence={'canonical_host': host, 'shadow_intelligence': shadow},
     )
     return (
         'AUDIT_PENDING',
@@ -272,6 +376,11 @@ def qualification_handler(d, it, worker):
     )
     if qualification_basis:
         axes = ' and '.join(qualification_basis)
+        _record_intelligence_decision(
+            d, b['id'], 'QUALIFIED', 'QUALIFIED', confidence=0.85,
+            stage='qualification', disposition='ACCEPTED',
+            derived_evidence=result,
+        )
         return (
             'CONTACT_PENDING',
             f'qualified on independent {axes} evidence',
@@ -281,6 +390,17 @@ def qualification_handler(d, it, worker):
     result['qualification_reasons'] = list(commercial_lead['reasons']) + [
         'No independent commercial or technical qualification threshold met'
     ]
+    primary_reason = (
+        'TECHNICAL_SCORE_TOO_LOW'
+        if technical_score is not None and technical_score < 40
+        else 'INSUFFICIENT_COMMERCIAL_EVIDENCE'
+    )
+    _record_intelligence_decision(
+        d, b['id'], 'REJECTED', primary_reason, confidence=1.0,
+        stage='qualification', disposition='REJECTED',
+        derived_evidence=result,
+        errors=[result['qualification_reasons'][-1]],
+    )
     return (
         'REJECTED',
         f'not qualified: commercial={commercial_score}, technical={technical_score}',
@@ -372,6 +492,14 @@ def contact_handler(d, it, worker):
 
     current = _current_verified_high(d, bid)
     if current:
+        _record_intelligence_decision(
+            d, bid, 'VERIFIED_HIGH_CONTACT', 'VERIFIED_HIGH',
+            confidence=1.0, stage='contact', disposition='ACCEPTED',
+            derived_evidence={
+                'verification_id': current.get('verification_id'),
+                'confidence': current.get('confidence'),
+            },
+        )
         return (
             'REMEDIATION_PENDING',
             'current VERIFIED_HIGH Email Finder V2 contact on record',
@@ -380,6 +508,12 @@ def contact_handler(d, it, worker):
 
     released, release = _email_v2_release_state(d)
     if not released:
+        _record_intelligence_decision(
+            d, bid, 'NEEDS_REVIEW', 'EMAIL_FINDER_RELEASE_HELD',
+            confidence=1.0, stage='contact', disposition='REVIEW',
+            derived_evidence={'email_finder': release},
+            errors=['Email Finder V2 production release gate is not open'],
+        )
         return (
             'NEEDS_REVIEW',
             'Email Finder V2 production release gate is not open',
@@ -399,6 +533,11 @@ def contact_handler(d, it, worker):
     try:
         status = mm_email_cli.find_one(d, bid)
     except ValueError as exc:
+        _record_intelligence_decision(
+            d, bid, 'NEEDS_REVIEW', 'EMAIL_FINDER_HELD',
+            confidence=1.0, stage='contact', disposition='REVIEW',
+            derived_evidence={'email_finder': release}, errors=[str(exc)[:240]],
+        )
         return (
             'NEEDS_REVIEW',
             'Email Finder V2 held: ' + str(exc)[:240],
@@ -411,6 +550,14 @@ def contact_handler(d, it, worker):
 
     current = _current_verified_high(d, bid)
     if current:
+        _record_intelligence_decision(
+            d, bid, 'VERIFIED_HIGH_CONTACT', 'VERIFIED_HIGH',
+            confidence=1.0, stage='contact', disposition='ACCEPTED',
+            derived_evidence={
+                'verification_id': current.get('verification_id'),
+                'confidence': current.get('confidence'),
+            },
+        )
         return (
             'REMEDIATION_PENDING',
             'Email Finder V2 produced current VERIFIED_HIGH contact',
@@ -419,6 +566,16 @@ def contact_handler(d, it, worker):
 
     candidates = status.get('candidates') if isinstance(status, dict) else []
     forms = status.get('contact_form_urls') if isinstance(status, dict) else []
+    _record_intelligence_decision(
+        d, bid, 'NO_VERIFIED_EMAIL', 'INSUFFICIENT_IDENTITY_EVIDENCE',
+        confidence=0.95, stage='contact', disposition='REVIEW',
+        derived_evidence={
+            'candidate_count': len(candidates or []),
+            'contact_form_count': len(forms or []),
+            'reason': 'Email Finder V2 completed with no current VERIFIED_HIGH contact',
+        },
+        errors=['no current VERIFIED_HIGH contact'],
+    )
     return (
         'NO_VERIFIED_EMAIL',
         'Email Finder V2 completed with no current VERIFIED_HIGH contact',

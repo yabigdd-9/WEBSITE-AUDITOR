@@ -312,6 +312,9 @@ def main(argv=None):
     q=s.add_parser('audit-backfill');q.add_argument('--id',type=int,action='append',dest='ids');q.add_argument('--no-delay',action='store_true')
     q=s.add_parser('discover-contacts');q.add_argument('--id',type=int,required=True);q.add_argument('--no-delay',action='store_true')
     q=s.add_parser('report');q.add_argument('granularity',nargs='?',choices=['daily'],default='daily');s.add_parser('alerts');s.add_parser('rotate-logs')
+    q=s.add_parser('intelligence-report',help='summarize append-only decisions and review signals');q.add_argument('--format',choices=['json','summary'],default='json')
+    q=s.add_parser('rejection-report',help='summarize classified rejections');q.add_argument('--format',choices=['json','summary'],default='json')
+    q=s.add_parser('human-correction',help='append a human correction to the decision ledger');q.add_argument('id',type=int);q.add_argument('--correction',required=True);q.add_argument('--corrected-decision',required=True);q.add_argument('--confidence',type=float,default=0.9);q.add_argument('--rule-version',default='v45.1')
     q=s.add_parser('intake');q.add_argument('--name',required=True);q.add_argument('--url',required=True);q.add_argument('--region',required=True);q.add_argument('--source',required=True)
     q=s.add_parser('audit');q.add_argument('id',type=int);q.add_argument('--url',required=True);q.add_argument('--observation',required=True);q.add_argument('--limitation',required=True);q.add_argument('--capture',required=True);q.add_argument('--status',choices=['verified','partial','refuted','unverified'],required=True);q.add_argument('--method',required=True);q.add_argument('--confidence',type=float,required=True);q.add_argument('--claim-type',choices=CLAIM_TYPES,default='observed_fact')
     q=s.add_parser('contact');q.add_argument('id',type=int);q.add_argument('--recipient',required=True);q.add_argument('--url',required=True);q.add_argument('--capture',required=True);q.add_argument('--relevance',required=True)
@@ -446,6 +449,79 @@ def main(argv=None):
             else:
                 with d:
                     result=mm_outcomes.record(d,a.id,a.outcome,a.evidence,a.sha256,a.actor,a.note)
+        print(json.dumps(result,indent=2,default=str));return 0
+    if a.cmd in ('intelligence-report', 'rejection-report'):
+        import mm_intelligence_ledger as ledger
+        import mm_rejection_intelligence as rejection
+        with contextlib.closing(connect()) as d, d:
+            ledger.migrate(d)
+            rejection.migrate(d)
+            if a.cmd == 'intelligence-report':
+                import mm_error_mining as error_mining
+                error_mining.migrate(d)
+                by_decision = {
+                    name: ledger.count_decisions(d, decision=name)
+                    for name in (
+                        'REJECTED', 'QUALIFIED', 'IDENTITY_RESOLVED',
+                        'VERIFIED_HIGH_CONTACT', 'NO_VERIFIED_EMAIL',
+                        'NEEDS_REVIEW', 'SUPPRESSED', 'HUMAN_CORRECTED',
+                    )
+                }
+                result = {
+                    'generated_at': now(),
+                    'decisions': ledger.count_decisions(d),
+                    'by_decision': by_decision,
+                    'rejection_summary': rejection.rejection_summary(d),
+                    'error_analysis': error_mining.mine_errors(d),
+                    'unresolved_error_clusters': error_mining.unresolved_clusters(d),
+                    'paid_cost_usd': 0,
+                    'external_sends': 0,
+                    'note': 'Review signals only; no thresholds or promotions changed.',
+                }
+                if a.format == 'summary':
+                    print('Decision records: %s' % result['decisions'])
+                    for name, count in by_decision.items():
+                        print('%s: %s' % (name, count))
+                    print('Classified rejection groups: %s' % len(result['rejection_summary']))
+                    print('Unresolved error clusters: %s' % len(result['unresolved_error_clusters']))
+                    print('Paid cost: $0 USD; external sends: 0')
+                    return 0
+            else:
+                result = {
+                    'generated_at': now(),
+                    'summary': rejection.rejection_summary(d),
+                    'categories': list(rejection.REJECTION_CATEGORIES),
+                    'retryable': sorted(rejection.RETRYABLE_CATEGORIES),
+                    'paid_cost_usd': 0,
+                    'external_sends': 0,
+                }
+                if a.format == 'summary':
+                    print('Classified rejection groups: %s' % len(result['summary']))
+                    for row in result['summary']:
+                        print('%s: %s' % (row['primary_reason'], row['n']))
+                    print('Paid cost: $0 USD; external sends: 0')
+                    return 0
+        print(json.dumps(result,indent=2,default=str));return 0
+    if a.cmd == 'human-correction':
+        if not 0.0 <= a.confidence <= 1.0:
+            raise ValueError('confidence must be between 0 and 1')
+        import mm_intelligence_ledger as ledger
+        with contextlib.closing(connect()) as d, d:
+            ledger.migrate(d)
+            row_id = ledger.record_correction(
+                d, a.id, a.correction, a.corrected_decision, a.confidence,
+                rule_version=a.rule_version,
+            )
+        result = {
+            'id': row_id,
+            'prospect_id': a.id,
+            'correction': a.correction,
+            'corrected_decision': a.corrected_decision,
+            'confidence': a.confidence,
+            'note': 'Recorded as a new append-only decision; no message was sent.',
+            'paid_cost_usd': 0,
+            'external_sends': 0,
+        }
         print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd in ('intelligence-prospect','intelligence-sources','intelligence-review','intelligence-summary','intelligence-errors','intelligence-calibration','intelligence-graph','intelligence-hard-cases','intelligence-challenger-eval','intelligence-challenger-holdout','intelligence-strategy','intelligence-drift','intelligence-evidence-value','intelligence-promotion-readiness','intelligence-review-bundle','intelligence-consistency','intelligence-selective','intelligence-review-efficiency','intelligence-label-quality','intelligence-uncertainty'):
         import mm_opportunity_intelligence as opportunity_intelligence

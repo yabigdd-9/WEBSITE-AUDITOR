@@ -111,14 +111,12 @@ Use only for:
 Use only where deterministic browser/API access is insufficient.
 Avoid using browser automation as the first solution if a stable API/connector exists.
 
-### n8n — Deterministic Workflow Nervous System
-Responsibilities:
-- schedules;
-- webhooks;
-- pipeline state changes;
-- CRM/event integration;
-- notifications;
-- deterministic automation around agents.
+### Local SQLite Pipeline — Workflow Execution
+Use the repository's `mm_pipeline` and supervisor for deterministic local work:
+- leased queue, retries and dead-letter handling;
+- pipeline state changes and worker scheduling;
+- the approval engine routes external actions for human review.
+Do not install n8n or add an n8n bridge to the default runtime.
 
 ### Ollama — Local Inference Layer
 Best uses on limited hardware:
@@ -144,7 +142,7 @@ Preferred:
 - OpenHands CLI optional;
 - Browser Use optional;
 - Ollama optional;
-- Docker/n8n optional.
+- Docker is optional for isolated supporting services; workflow state stays in SQLite.
 
 ## Intel (`x86_64`)
 Important:
@@ -728,9 +726,8 @@ Only if macOS and free disk are suitable:
 - never download tens of GB automatically.
 
 ## Phase M7 — Workflow Layer
-- Docker runtime;
-- n8n persistent volume/container;
-- do not expose n8n publicly until authentication/networking are deliberately configured.
+- Use the local SQLite queue and supervisor for workflow execution.
+- Docker is optional for supporting services and is not required by the core runtime.
 
 ## Phase M8 — MoneyMachine Workspace
 Create directory structure.
@@ -770,9 +767,9 @@ Only if needed:
 - a harmless public test page can be opened.
 
 ## Gate 6 — Workflow
-n8n starts on localhost;
-- persistent volume survives restart;
-- no public internet exposure by default.
+- A synthetic business moves through the local SQLite pipeline;
+- a held external action stays in human review;
+- no message is sent automatically.
 
 ## Gate 7 — Business Pipeline
 One dummy business can move through:
@@ -1022,7 +1019,6 @@ Official/current sources checked when this plan was generated:
 - OpenHands docs: https://docs.openhands.dev/openhands/usage/cli/installation
 - Browser Use docs: https://docs.browser-use.com/open-source/browser-use-cli
 - Ollama macOS docs: https://github.com/ollama/ollama/blob/main/docs/macos.mdx
-- n8n repository/docs: https://github.com/n8n-io/n8n
 - Homebrew support/install docs: https://docs.brew.sh/Installation
 
 Re-verify commands before major future rebuilds because agent projects and free-provider terms change rapidly.
