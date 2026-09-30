@@ -1,8 +1,8 @@
 # Runtime readiness and fresh soak
 
 Use the selected service checkout and its Python 3.11 virtualenv. On this host,
-launchd owns the V44 supervisor under /Users/dd/WEBSITE-AUDITOR. V45 is a separate
-validation checkout; these shared repairs do not promote or merge it.
+launchd owns the V44 supervisor under /Users/dd/WEBSITE-AUDITOR. Both named branch heads contain the integrated V44/V45 kit. The service remains
+in the canonical checkout with its existing database and configuration.
 
 ## Before starting
 
@@ -77,11 +77,13 @@ an explicit unknown severity score. Historical append-only decisions are retaine
 Rejections produced with an absent technical score need evidence-backed human
 review before any live requeue.
 
-V45 retains its own outcome/experience-ledger schema and rejection-intelligence
-implementation. Its mm_outcomes.record migrates its append-only schema before
-recording; its pipeline appends intelligence/rejection records. Replacing these
-with V44's incompatible schemas would discard V45 behavior. Shared runtime
-repairs and V45 readiness tests are validation evidence, not promotion authority.
+The integrated kit retains V45 intelligence, freshness, confirmed labels,
+prospect-disjoint holdout and promotion gates alongside V44 core/rejection work.
+The experience ledger accepts both rejection experiences and outcome-linked
+metadata. V44 layouts gain nullable metadata; an existing V45 layout is archived
+intact while its rows are copied into the compatible layout. Exactly one trigger
+records each outcome and both active and archived records remain append-only.
+Successful integration or soak does not authorize external sends or paid routes.
 
 Before a restart, save the current source modules and service identity in a
 private state/soak-preflight directory. If acceptance fails, stop the monitor,

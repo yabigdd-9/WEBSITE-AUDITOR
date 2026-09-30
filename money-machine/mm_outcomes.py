@@ -13,13 +13,13 @@ import mm_core as core
 OUTCOMES = {
     "NO_RESPONSE",
     "REPLIED",
+    "PENDING",
     "CALL_OR_DISCOVERY",
     "PROPOSAL_SENT",
     "WON",
     "LOST",
     "BOUNCED",
     "UNSUBSCRIBED",
-    "PENDING",
 }
 
 DDL = """
@@ -43,43 +43,15 @@ CREATE TRIGGER IF NOT EXISTS prospect_outcomes_no_delete
 BEFORE DELETE ON prospect_outcomes BEGIN
   SELECT RAISE(ABORT,'prospect outcomes are append-only');
 END;
-CREATE TABLE IF NOT EXISTS experience_ledger(
-  id INTEGER PRIMARY KEY,
-  outcome_id INTEGER NOT NULL REFERENCES prospect_outcomes(id),
-  business_id INTEGER NOT NULL,
-  outcome TEXT NOT NULL,
-  observed_at TEXT NOT NULL,
-  actor TEXT NOT NULL,
-  evidence_path TEXT NOT NULL,
-  evidence_hash TEXT NOT NULL,
-  note TEXT NOT NULL DEFAULT '',
-  created_at TEXT NOT NULL,
-  ledger_at TEXT NOT NULL);
-CREATE INDEX IF NOT EXISTS experience_ledger_business
-  ON experience_ledger(business_id, observed_at DESC);
-CREATE TRIGGER IF NOT EXISTS experience_ledger_populate
-AFTER INSERT ON prospect_outcomes BEGIN
-  INSERT INTO experience_ledger(
-    outcome_id, business_id, outcome, observed_at, actor,
-    evidence_path, evidence_hash, note, created_at, ledger_at)
-  VALUES(
-    NEW.id, NEW.business_id, NEW.outcome, NEW.observed_at, NEW.actor,
-    NEW.evidence_path, NEW.evidence_hash, NEW.note, NEW.created_at,
-    strftime('%Y-%m-%dT%H:%M:%fZ','now'));
-END;
-CREATE TRIGGER IF NOT EXISTS experience_ledger_no_update
-BEFORE UPDATE ON experience_ledger BEGIN
-  SELECT RAISE(ABORT,'experience ledger is append-only');
-END;
-CREATE TRIGGER IF NOT EXISTS experience_ledger_no_delete
-BEFORE DELETE ON experience_ledger BEGIN
-  SELECT RAISE(ABORT,'experience ledger is append-only');
-END;
+
 """
 
 
 def migrate(d):
+    """Create the outcome schema for direct callers as well as core migrations."""
     d.executescript(DDL)
+    import mm_experience_ledger
+    mm_experience_ledger.migrate(d)
 
 
 def record(d, business_id, outcome, evidence_path, evidence_hash, actor, note="", observed_at=None):
@@ -163,25 +135,6 @@ def summary(d):
         )
     }
     total = sum(by_outcome.values())
-    by_actor = {
-        r[0]: r[1]
-        for r in d.execute(
-            "SELECT actor,count(*) FROM prospect_outcomes GROUP BY actor"
-        )
-    }
-    outcome_trend = [
-        dict(r)
-        for r in d.execute(
-            "SELECT outcome,strftime('%Y-%m-%dT%H:%M:00Z',observed_at) AS ts,"
-            "count(*) AS n,"
-            "ROUND(AVG(CASE WHEN outcome IN ('WON','PROPOSAL_SENT','REPLIED',"
-            "'CALL_OR_DISCOVERY') THEN 1.0 ELSE 0.0 END),4) AS win_rate"
-            " FROM prospect_outcomes"
-            " WHERE observed_at IS NOT NULL"
-            " GROUP BY outcome,strftime('%Y-%m-%dT%H:%M:00Z',observed_at)"
-            " ORDER BY ts ASC"
-        )
-    ]
     latest = [
         dict(r)
         for r in d.execute(
@@ -189,6 +142,24 @@ def summary(d):
             "FROM prospect_outcomes ORDER BY id DESC LIMIT 100"
         )
     ]
+    ledger_exists = d.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='experience_ledger'"
+    ).fetchone()
+    by_actor = {}
+    outcome_trend = []
+    if ledger_exists:
+        by_actor = {
+            r[0]: r[1] for r in d.execute(
+                "SELECT actor, count(*) FROM experience_ledger GROUP BY actor"
+            )
+        }
+        outcome_trend = [
+            dict(r) for r in d.execute(
+                "SELECT outcome, date(observed_at) as day, count(*) as n "
+                "FROM experience_ledger GROUP BY outcome, date(observed_at) "
+                "ORDER BY day DESC, outcome"
+            )
+        ]
     return {
         "generated_at": core.now(),
         "total": total,

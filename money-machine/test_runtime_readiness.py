@@ -209,3 +209,27 @@ def test_short_monitor_preserves_start_and_periodic_samples(tmp_path, monkeypatc
     assert summary["status"] == "completed"
     assert summary["soak_passed"] is False
     assert summary["actual_elapsed_seconds"] == 1
+
+
+def test_heartbeat_advancing_during_collection_is_not_falsely_stale(tmp_path, monkeypatch):
+    monkeypatch.setattr(soak, "ROOT", tmp_path)
+    valid = sample(3)
+    state = tmp_path / "state"
+    state.mkdir()
+    (state / "supervisor.heartbeat").write_text(json.dumps(sample(2)["heartbeat"]))
+    (state / "supervisor.pid").write_text("42")
+    for name, field in (
+        ("git_info", "git"), ("supervisor_processes", "supervisor_processes"),
+        ("service_config", "config"), ("database_diagnostics", "db"),
+    ):
+        monkeypatch.setattr(soak, name, lambda key=field: valid[key])
+    monkeypatch.setattr(soak, "run", lambda command: "state = running\npid = 42")
+    monkeypatch.setattr(guards, "accounting_snapshot", lambda root: valid["accounting"])
+    monkeypatch.setattr(guards, "disk_guard", lambda root: valid["disk"])
+    monkeypatch.setattr(guards, "network_guard", lambda **kw: valid["network_probe"])
+    readings = iter([sample(0)["collected_at_utc"], valid["collected_at_utc"]])
+    monkeypatch.setattr(core, "now", lambda: next(readings))
+    result = soak.collect_sample()
+    assert result["sampling_started_at_utc"] == sample(0)["collected_at_utc"]
+    assert result["collected_at_utc"] == valid["collected_at_utc"]
+    assert soak.detect_violations(result) == []

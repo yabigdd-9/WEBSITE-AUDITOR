@@ -97,7 +97,7 @@ def database_diagnostics():
 
 
 def collect_sample(label="sample"):
-    snapshot = {"label": label, "collected_at_utc": core.now(),
+    snapshot = {"label": label, "sampling_started_at_utc": core.now(),
                 "monitor_python": sys.executable, "errors": {}}
     readers = {
         "git": git_info,
@@ -124,6 +124,9 @@ def collect_sample(label="sample"):
     snapshot["launchd_running"] = bool(
         launchd and "state = running" in launchd
         and f"pid = {snapshot.get('pidfile')}" in launchd)
+    # The heartbeat may advance while the earlier readers are running.
+    # Timestamp the completed sample after reading it to avoid a negative age.
+    snapshot["collected_at_utc"] = core.now()
     return snapshot
 
 

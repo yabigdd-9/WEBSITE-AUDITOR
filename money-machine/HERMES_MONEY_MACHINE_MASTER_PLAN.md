@@ -725,8 +725,11 @@ Only if macOS and free disk are suitable:
 - begin with a small model;
 - never download tens of GB automatically.
 
-## Phase M7 — Workflow Layer
-- Use the local SQLite queue and supervisor for workflow execution.
+## Phase M7 — Local Workflow Layer
+- use the repository's SQLite pipeline and supervisor;
+- verify supervisor health and the dummy-business workflow;
+- keep external sends disabled and approval-required actions human-reviewed;
+- do not install n8n or add an n8n bridge to the default runtime.
 - Docker is optional for supporting services and is not required by the core runtime.
 
 ## Phase M8 — MoneyMachine Workspace
@@ -767,9 +770,11 @@ Only if needed:
 - a harmless public test page can be opened.
 
 ## Gate 6 — Workflow
+- The local supervisor is healthy with one owned process;
 - A synthetic business moves through the local SQLite pipeline;
 - a held external action stays in human review;
 - no message is sent automatically.
+- External sends remain disabled.
 
 ## Gate 7 — Business Pipeline
 One dummy business can move through:
