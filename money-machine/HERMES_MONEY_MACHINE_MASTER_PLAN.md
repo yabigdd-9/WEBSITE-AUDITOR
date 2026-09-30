@@ -111,14 +111,13 @@ Use only for:
 Use only where deterministic browser/API access is insufficient.
 Avoid using browser automation as the first solution if a stable API/connector exists.
 
-### n8n — Deterministic Workflow Nervous System
-Responsibilities:
-- schedules;
-- webhooks;
-- pipeline state changes;
-- CRM/event integration;
-- notifications;
-- deterministic automation around agents.
+### Local SQLite Pipeline — Workflow Execution
+Use the repository's Money Machine pipeline and supervisor for deterministic local work:
+- queue processing, retries, and dead-letter handling;
+- pipeline state changes and worker scheduling;
+- human review for external actions.
+
+Do not install n8n or add an n8n bridge to the default runtime.
 
 ### Ollama — Local Inference Layer
 Best uses on limited hardware:
@@ -144,7 +143,6 @@ Preferred:
 - OpenHands CLI optional;
 - Browser Use optional;
 - Ollama optional;
-- Docker/n8n optional.
 
 ## Intel (`x86_64`)
 Important:
@@ -727,10 +725,11 @@ Only if macOS and free disk are suitable:
 - begin with a small model;
 - never download tens of GB automatically.
 
-## Phase M7 — Workflow Layer
-- Docker runtime;
-- n8n persistent volume/container;
-- do not expose n8n publicly until authentication/networking are deliberately configured.
+## Phase M7 — Local Workflow Layer
+- use the repository's SQLite pipeline and supervisor;
+- verify supervisor health and the dummy-business workflow;
+- keep external sends disabled and approval-required actions human-reviewed;
+- do not install n8n or add an n8n bridge to the default runtime.
 
 ## Phase M8 — MoneyMachine Workspace
 Create directory structure.
@@ -770,9 +769,9 @@ Only if needed:
 - a harmless public test page can be opened.
 
 ## Gate 6 — Workflow
-n8n starts on localhost;
-- persistent volume survives restart;
-- no public internet exposure by default.
+- the local supervisor is healthy;
+- one dummy business moves through `discovered → audited → scored → offer drafted → human review`;
+- external sends remain disabled.
 
 ## Gate 7 — Business Pipeline
 One dummy business can move through:
@@ -1022,7 +1021,6 @@ Official/current sources checked when this plan was generated:
 - OpenHands docs: https://docs.openhands.dev/openhands/usage/cli/installation
 - Browser Use docs: https://docs.browser-use.com/open-source/browser-use-cli
 - Ollama macOS docs: https://github.com/ollama/ollama/blob/main/docs/macos.mdx
-- n8n repository/docs: https://github.com/n8n-io/n8n
 - Homebrew support/install docs: https://docs.brew.sh/Installation
 
 Re-verify commands before major future rebuilds because agent projects and free-provider terms change rapidly.

@@ -81,11 +81,9 @@ OPENHANDS:
 BROWSER_USE:
 - browser execution only when an API/connector is unavailable or inadequate.
 
-N8N:
-- deterministic workflows;
-- schedules;
-- webhooks;
-- state transitions.
+LOCAL_WORKFLOW:
+- the SQLite-backed Money Machine pipeline and supervisor manage queue work, retries, and state transitions;
+- external actions remain disabled or require human review.
 
 OLLAMA:
 - low-cost/local repetitive tasks suitable for the available hardware.
