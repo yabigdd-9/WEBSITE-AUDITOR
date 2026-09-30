@@ -11,6 +11,7 @@ while continuously degraded) so a sandboxed/offline host cannot flood errors.
 """
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import shutil
@@ -233,6 +234,7 @@ def network_status(cache_path=None):
 
 
 def snapshot(root=None, probe_network=True):
+    accounting = accounting_snapshot(root)
     return {
         "checked_at": core.now(),
         "disk": disk_guard(root),
@@ -241,6 +243,49 @@ def snapshot(root=None, probe_network=True):
             "scope": "not probed",
             "action": "unknown",
         },
-        "paid_calls": 0,
-        "external_sends": 0,
+        "paid_calls": accounting.get("paid_calls"),
+        "external_sends": accounting.get("external_sends"),
+        "accounting": accounting,
     }
+
+
+def accounting_snapshot(root=None):
+    """Measured local ledger counts. Missing evidence remains unknown.
+
+    This does not attest to activity that was never recorded in this database.
+    Both sent timestamps and receipts count, including partial send records.
+    """
+    result = {"status": "unknown", "source": "local SQLite ledger",
+              "checked_at": core.now(), "paid_calls": None,
+              "external_sends": None, "model_cost_usd": None,
+              "limitation": "database records only; unrecorded activity is not measured"}
+    path = Path(root or core.root()) / "database" / "money_machine.db"
+    try:
+        with contextlib.closing(core.connect(path, readonly=True)) as d:
+            d.execute("BEGIN")
+            row = d.execute(
+                "SELECT count(*), coalesce(sum(cost_usd),0), "
+                "coalesce(sum(cost_usd>0),0), "
+                "coalesce(sum(cost_usd IS NULL OR cost_usd<0 OR "
+                "typeof(cost_usd) NOT IN ('real','integer')),0) "
+                "FROM mm_model_invocations").fetchone()
+            sends = d.execute(
+                "SELECT count(*), coalesce(sum(sent_at IS NOT NULL),0), "
+                "coalesce(sum(send_receipt IS NOT NULL),0) FROM mm_messages "
+                "WHERE sent_at IS NOT NULL OR send_receipt IS NOT NULL").fetchone()
+            proposals = d.execute(
+                "SELECT count(*), coalesce(sum(sent_at IS NOT NULL),0), "
+                "coalesce(sum(send_receipt IS NOT NULL),0) FROM mm_proposals "
+                "WHERE sent_at IS NOT NULL OR send_receipt IS NOT NULL").fetchone()
+            result.update(status="measured", model_invocations_count=row[0],
+                          model_cost_usd=float(row[1]), paid_calls=row[2],
+                          invalid_cost_records=row[3],
+                          external_sends=sends[0] + proposals[0],
+                          message_sends=sends[0], proposal_sends=proposals[0],
+                          sent_timestamps=sends[1] + proposals[1],
+                          send_receipts=sends[2] + proposals[2])
+            if row[3]:
+                result.update(status="error", error="invalid or missing model cost records")
+    except Exception as exc:
+        result.update(status="error", error=f"{type(exc).__name__}: {exc}")
+    return result
