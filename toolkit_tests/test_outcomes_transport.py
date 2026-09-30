@@ -198,6 +198,7 @@ def test_outcome_summary_includes_experience_ledger_metrics(tmp_path, monkeypatc
     d.commit()
     r3 = outcomes.record(d, 1, "REPLIED", evidence, digest, actor="human-a", note="")
     d.commit()
+    assert len({r1["id"], r2["id"], r3["id"]}) == 3
 
     s = outcomes.summary(d)
     assert s["total"] == 3

@@ -9,6 +9,7 @@ from typing import Any, List, Optional
 
 from bs4 import BeautifulSoup
 
+
 @dataclass
 class Technology:
     technology: str
