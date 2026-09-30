@@ -45,5 +45,6 @@ def test_snapshot_can_skip_network_probe(tmp_path, monkeypatch):
         result = guards.snapshot(probe_network=False)
     assert result["disk"]["ok"] is True
     assert result["network"]["ok"] is None
-    assert result["paid_calls"] == 0
-    assert result["external_sends"] == 0
+    assert result["paid_calls"] is None
+    assert result["external_sends"] is None
+    assert result["accounting"]["status"] == "error"

@@ -68,10 +68,11 @@ class DailyReport(ReportingBase):
     def test_daily_report_contains_safety_attestation(self):
         result = r.daily_report()
         text = (Path(self.tmp.name) / 'reports' / Path(result['report']).name).read_text()
-        self.assertIn('external_sends: 0', text)
-        self.assertIn('model_calls: 0', text)
-        self.assertIn('model_cost_usd: 0.0', text)
-        self.assertIn('Nothing was sent', text)
+        self.assertIn('recorded_external_sends: unknown', text)
+        self.assertIn('recorded_model_cost_usd: unknown', text)
+        self.assertIn('report_operation_model_calls: 0', text)
+        self.assertIn('report_operation_external_sends: 0', text)
+        self.assertIn('Ledger records do not measure unrecorded activity', text)
 
     def test_daily_report_funnel_delta_on_second_run(self):
         r.daily_report(quiet=True)

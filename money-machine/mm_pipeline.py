@@ -15,11 +15,12 @@ Design rules:
 """
 import datetime as dt
 import json
+import math
 import os
 import random
 import socket
 import sqlite3
-import traceback
+import time
 from pathlib import Path
 
 from mm_core import now, root, sha, timestamp
@@ -224,8 +225,12 @@ class RetryableError(Exception):
 class PermanentError(Exception):
     """Unrecoverable failure for this item: dead-letter immediately."""
 
-class BlockedCost(Exception):
+class BlockedCostError(Exception):
     """No free model/provider route: defer, never fall back to paid."""
+
+
+# Public compatibility name used by model routers and injected handlers.
+BlockedCost = BlockedCostError
 
 
 # ---------------------------------------------------------------------------
@@ -707,7 +712,24 @@ def run_pipelineloop(d, workers, sleep_seconds=60, max_cycles=None,
     metrics but never takes external actions by itself (sends/approvals are
     still gated by the approval engine).
     """
-    metrics_sink = log_destination or (root() / 'state' / 'worker-logs')
+    if not math.isfinite(sleep_seconds) or not 0 <= sleep_seconds <= 3600:
+        raise ValueError('sleep_seconds must be finite and between 0 and 3600')
+    if max_cycles is not None and not 1 <= max_cycles <= 100000:
+        raise ValueError('max_cycles must be between 1 and 100000')
+    if max_cycles is None and sleep_seconds == 0:
+        raise ValueError('continuous loops require a positive sleep_seconds')
+    if not 1 <= report_every <= 100000:
+        raise ValueError('report_every must be between 1 and 100000')
+
+    def emit(record):
+        log(record)
+        if log_destination is not None:
+            destination = Path(log_destination)
+            if not destination.is_absolute():
+                destination = root() / destination
+            destination.mkdir(parents=True, exist_ok=True)
+            with (destination / 'pipeline-loop.jsonl').open('a') as fh:
+                fh.write(json.dumps({**record, 'at': now()}, sort_keys=True) + '\n')
     migrate(d)
     for idx, w in enumerate(workers):
         register_worker(d, w.worker_id, w.kind, lease_seconds=w.lease_seconds)
@@ -720,17 +742,20 @@ def run_pipelineloop(d, workers, sleep_seconds=60, max_cycles=None,
                                  'processed': w.run_once(d)})
             drain_expired_leases(d)
             report(d, snapshot)
+            d.commit()
             cycles += 1
-            log({'kind': 'loop_cycle', 'cycle': cycles,
+            emit({'kind': 'loop_cycle', 'cycle': cycles,
                  'snapshot': snapshot, 'sleep_before_next': sleep_seconds})
             if cycles % report_every == 0:
-                log({'kind': 'loop_checkpoint', 'cycle': cycles,
+                emit({'kind': 'loop_checkpoint', 'cycle': cycles,
                      'elapsed_hint': 'agent-local'})
+            if max_cycles is None or cycles < max_cycles:
+                time.sleep(sleep_seconds)
     except Exception as ex:
-        log({'kind': 'loop_stopped', 'reason': '%s: %s' % (type(ex).__name__, ex),
+        emit({'kind': 'loop_stopped', 'reason': '%s: %s' % (type(ex).__name__, ex),
              'cycles_completed': cycles})
         raise
-    log({'kind': 'loop_ended', 'cycles_completed': cycles,
+    emit({'kind': 'loop_ended', 'cycles_completed': cycles,
          'report_every': report_every})
     return cycles
 
@@ -743,12 +768,29 @@ def run_pipelineloop_cli(argv=None):
     p.add_argument('--sleep', type=float, default=60)
     p.add_argument('--cycles', type=int, default=None)
     p.add_argument('--report-every', type=int, default=10)
-    args = p.parse_known_args(argv)[0]
+    args = p.parse_args(argv)
     from mm_workers import WORKERS
-    names = set(args.workers) if args.workers else set(WORKERS)
-    workers = [p.Worker('w-' + n, *WORKERS[n]) for n in sorted(names)]
-    return run_pipelineloop(d, workers, sleep_seconds=args.sleep,
-                            max_cycles=args.cycles, report_every=args.report_every)
+    names = list(dict.fromkeys(args.workers)) if args.workers else sorted(WORKERS)
+    unknown = sorted(set(names) - set(WORKERS))
+    if unknown:
+        p.error('unknown worker(s): ' + ', '.join(unknown))
+    if not math.isfinite(args.sleep) or not 0 <= args.sleep <= 3600:
+        p.error('--sleep must be between 0 and 3600 seconds')
+    if args.cycles is not None and not 1 <= args.cycles <= 100000:
+        p.error('--cycles must be between 1 and 100000')
+    if args.cycles is None and args.sleep == 0:
+        p.error('continuous loops require a positive --sleep')
+    if not 1 <= args.report_every <= 100000:
+        p.error('--report-every must be between 1 and 100000')
+    workers = [Worker('w-' + n, *WORKERS[n]) for n in names]
+    from mm_core import connect
+    d = connect()
+    try:
+        with d:
+            return run_pipelineloop(d, workers, sleep_seconds=args.sleep,
+                                    max_cycles=args.cycles, report_every=args.report_every)
+    finally:
+        d.close()
 
 
 def drain_expired_leases(d):
