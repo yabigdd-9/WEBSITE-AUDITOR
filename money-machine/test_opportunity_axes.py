@@ -10,8 +10,8 @@ MM_DIR = ROOT / "money-machine"
 if str(MM_DIR) not in sys.path:
     sys.path.insert(0, str(MM_DIR))
 
-import mm_pipeline
-import mm_workers
+import mm_pipeline  # noqa: E402 - explicit standalone test import path
+import mm_workers  # noqa: E402 - explicit standalone test import path
 
 
 def database():
@@ -116,3 +116,21 @@ def test_audit_handler_persists_canonical_defect_score_field():
     assert evidence["audit_engine"] == "auditor_toolkit"
     assert evidence["model_calls"] == 0
     assert evidence["external_sends"] == 0
+
+
+def test_audit_adapter_uses_current_canonical_severity_score():
+    report = {
+        "run_id": "current-schema", "status": "complete", "defects": [{}],
+        "severity_score": 44, "score": 44, "health_score": 56,
+    }
+    evidence = mm_workers._audit_evidence(report)
+    assert evidence["score"] == 44
+    assert evidence["score_source"] == "severity_score"
+    assert mm_workers._technical_opportunity(evidence) == (44.0, 1)
+
+
+def test_explicit_unknown_severity_does_not_fall_back_to_health_or_legacy_score():
+    evidence = mm_workers._audit_evidence({
+        "defects": [{}], "severity_score": None, "score": 99, "health_score": 1,
+    })
+    assert mm_workers._technical_opportunity(evidence) == (None, 1)

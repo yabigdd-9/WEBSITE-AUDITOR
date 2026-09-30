@@ -9,13 +9,12 @@ items to APPROVAL_PENDING, where the evidence-gated approval engine decides.
 """
 import json
 import math
-import subprocess
 from pathlib import Path
 from urllib.parse import urlparse
 
-from mm_core import root, public_url
+from mm_core import public_url
 from mm_management_worker import management_worker_handler
-from mm_pipeline import RetryableError, PermanentError, BlockedCost
+from mm_pipeline import PermanentError, RetryableError
 from mm_preparation_worker import preparation_worker_handler
 from mm_understanding_worker import understanding_worker_handler
 
@@ -178,7 +177,11 @@ def _audit_evidence(report):
         'report_path': artifacts.get('json'),
         'defect_count': len(defects),
         # Qualification treats higher values as greater technical opportunity.
-        'score': report.get('defect_score') or report.get('score'),
+        'score': report.get('severity_score', report.get('defect_score', report.get('score'))),
+        'score_source': (
+            'severity_score' if 'severity_score' in report else
+            'defect_score' if 'defect_score' in report else 'score'
+        ),
         'health_score': report.get('health_score'),
         'profile': report.get('profile'),
         'audit_engine': 'auditor_toolkit',
