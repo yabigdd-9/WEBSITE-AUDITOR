@@ -31,6 +31,8 @@ from mm_runtime_guards import (
     disk_guard,
     network_guard_event,
     network_status,
+)
+from mm_runtime_guards import (
     snapshot as guard_snapshot,
 )
 
@@ -42,6 +44,12 @@ LEASE_SECONDS = 300
 
 from supervisor.daemon import rotate_logs  # noqa: E402
 from supervisor.pid import PIDFile  # noqa: E402
+
+# launchd starts this module from money-machine/, so expose the repository root
+# before workers import the sibling auditor_toolkit package.
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 # ---------------------------------------------------------------------------
 # helpers
