@@ -150,9 +150,15 @@ class Fetcher:
                         raise ValueError("Response exceeded configured byte/time limit")
                     chunks.append(chunk)
                 body = b"".join(chunks)
+                # iter_bytes() has already decoded any Content-Encoding. Do not
+                # pass the stale encoding or compressed length to the new
+                # response, which would make httpx decode the body a second time.
+                decoded_headers = httpx.Headers(response.headers)
+                decoded_headers.pop("content-encoding", None)
+                decoded_headers.pop("content-length", None)
                 result = httpx.Response(
                     response.status_code,
-                    headers=response.headers,
+                    headers=decoded_headers,
                     content=body,
                     request=response.request,
                 )

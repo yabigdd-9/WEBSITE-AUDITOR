@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gzip
 import json
 import socket
 from pathlib import Path
@@ -47,6 +48,31 @@ def test_redirect_to_private_destination_is_rejected(monkeypatch):
     )
     with pytest.raises(ValueError):
         Fetcher(transport=transport).get("https://example.com")
+
+
+def test_fetcher_does_not_decode_compressed_response_twice():
+    body = b"<html><title>compressed response</title></html>"
+
+    def respond(request):
+        encoded = gzip.compress(body)
+        return httpx.Response(
+            200,
+            content=encoded,
+            headers={
+                "content-encoding": "gzip",
+                "content-length": str(len(encoded)),
+            },
+            request=request,
+        )
+
+    response = Fetcher(
+        transport=httpx.MockTransport(respond), min_interval=0
+    ).get("https://example.com")
+
+    assert response.content == body
+    assert response.text == body.decode()
+    assert "content-encoding" not in response.headers
+    assert response.headers["content-length"] == str(len(body))
 
 
 def test_analyse_html_avoids_ordinary_checked_box_false_positive():
