@@ -157,8 +157,8 @@ def _write_review_packet(d, business_id, report, workspace, qa):
     draft_status = "NOT_GENERATED_RATE_REQUIRED"
 
     if rate:
-        from auditor_toolkit.quote import calculate_quote
         from auditor_toolkit.packet import build_packet
+        from auditor_toolkit.quote import calculate_quote
 
         try:
             quote = calculate_quote(report, rate)
@@ -203,7 +203,7 @@ def _write_review_packet(d, business_id, report, workspace, qa):
         "website": report.get("url"),
         "audit": {
             "health_score": report.get("health_score"),
-            "defect_score": report.get("defect_score"),
+            "defect_score": report.get("severity_score", report.get("defect_score", report.get("score"))),
             "defect_count": len(report.get("defects") or []),
             "report_path": (report.get("artifacts") or {}).get("json"),
         },
