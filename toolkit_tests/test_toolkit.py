@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gzip
 import json
 import socket
 from pathlib import Path
@@ -62,6 +63,31 @@ def test_fetcher_requests_identity_encoding_to_avoid_broken_deflate_replies():
     )
 
     assert headers["accept-encoding"] == "identity"
+
+
+def test_fetcher_does_not_decode_compressed_response_twice():
+    body = b"<html><title>compressed response</title></html>"
+
+    def respond(request):
+        encoded = gzip.compress(body)
+        return httpx.Response(
+            200,
+            content=encoded,
+            headers={
+                "content-encoding": "gzip",
+                "content-length": str(len(encoded)),
+            },
+            request=request,
+        )
+
+    response = Fetcher(
+        transport=httpx.MockTransport(respond), min_interval=0
+    ).get("https://example.com")
+
+    assert response.content == body
+    assert response.text == body.decode()
+    assert "content-encoding" not in response.headers
+    assert response.headers["content-length"] == str(len(body))
 
 
 def test_detected_technology_is_evidence_not_a_defect():

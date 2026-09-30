@@ -601,8 +601,19 @@ def transition(d, business_id, to_state, actor, reason, evidence=None):
         raise ValueError('Terminal state %s has no outgoing transitions' % frm)
     if to_state not in TRANSITIONS.get(frm, ()):  # fail closed on illegal edge
         raise ValueError('Illegal transition %s -> %s' % (frm, to_state))
-    d.execute("UPDATE pipeline_items SET state=?,last_error=NULL,updated_at=? "
-              "WHERE business_id=?", (to_state, now(), business_id))
+    if to_state in {'RETRYABLE_FAILURE', 'PERMANENT_FAILURE'}:
+        # Keep the diagnostic on the item as well as in the append-only event
+        # log so root-cause queries remain useful after a worker dead-letters it.
+        d.execute("UPDATE pipeline_items SET state=?,updated_at=? "
+                  "WHERE business_id=?", (to_state, now(), business_id))
+    elif frm == 'RETRYABLE_FAILURE' and to_state.endswith('_PENDING'):
+        # An operator-approved retry starts a fresh bounded attempt budget.
+        d.execute("UPDATE pipeline_items SET state=?,attempts=0,next_retry_at=NULL,"
+                  "lease_owner=NULL,lease_until=NULL,last_error=NULL,updated_at=? "
+                  "WHERE business_id=?", (to_state, now(), business_id))
+    else:
+        d.execute("UPDATE pipeline_items SET state=?,last_error=NULL,updated_at=? "
+                  "WHERE business_id=?", (to_state, now(), business_id))
     _record(d, business_id, frm, to_state, actor, reason, evidence)
     return item(d, business_id)
 
