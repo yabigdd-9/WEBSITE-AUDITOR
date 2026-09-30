@@ -107,7 +107,10 @@ class Fetcher:
             timeout=httpx.Timeout(timeout),
             follow_redirects=False,
             trust_env=False,
-            headers={"user-agent": "WebsiteAuditorToolkit/2"},
+            headers={
+                "user-agent": "WebsiteAuditorToolkit/2",
+                "accept-encoding": "identity",
+            },
             transport=transport,
         )
 

@@ -13,6 +13,7 @@ import mm_core as core
 OUTCOMES = {
     "NO_RESPONSE",
     "REPLIED",
+    "PENDING",
     "CALL_OR_DISCOVERY",
     "PROPOSAL_SENT",
     "WON",
@@ -46,6 +47,7 @@ END;
 
 
 def migrate(d):
+    """Create the outcome schema for direct callers as well as core migrations."""
     d.executescript(DDL)
 
 
@@ -137,11 +139,31 @@ def summary(d):
             "FROM prospect_outcomes ORDER BY id DESC LIMIT 100"
         )
     ]
+    ledger_exists = d.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='experience_ledger'"
+    ).fetchone()
+    by_actor = {}
+    outcome_trend = []
+    if ledger_exists:
+        by_actor = {
+            r[0]: r[1] for r in d.execute(
+                "SELECT actor, count(*) FROM experience_ledger GROUP BY actor"
+            )
+        }
+        outcome_trend = [
+            dict(r) for r in d.execute(
+                "SELECT outcome, date(observed_at) as day, count(*) as n "
+                "FROM experience_ledger GROUP BY outcome, date(observed_at) "
+                "ORDER BY day DESC, outcome"
+            )
+        ]
     return {
         "generated_at": core.now(),
         "total": total,
         "by_outcome": by_outcome,
         "latest": latest,
+        "by_actor": by_actor,
+        "outcome_trend": outcome_trend,
         "status": "ready",
         "automatic_learning_applied": False,
         "promotion_requires_p18_evaluation": True,

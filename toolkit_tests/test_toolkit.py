@@ -11,6 +11,7 @@ from auditor_toolkit.ai import fallback_drafts
 from auditor_toolkit.checks import Finding, analyse_html, score_findings
 from auditor_toolkit.common import Fetcher
 from auditor_toolkit.pipeline import AuditOptions, run_audit
+from auditor_toolkit.tech import analyse_html as analyse_technology
 
 PUBLIC_ADDR = [(socket.AF_INET, socket.SOCK_STREAM, 0, "", ("93.184.216.34", 443))]
 
@@ -47,6 +48,31 @@ def test_redirect_to_private_destination_is_rejected(monkeypatch):
     )
     with pytest.raises(ValueError):
         Fetcher(transport=transport).get("https://example.com")
+
+
+def test_fetcher_requests_identity_encoding_to_avoid_broken_deflate_replies():
+    headers = {}
+
+    def respond(request):
+        headers.update(request.headers)
+        return httpx.Response(200, text="<html></html>", request=request)
+
+    Fetcher(transport=httpx.MockTransport(respond), min_interval=0).get(
+        "https://example.com"
+    )
+
+    assert headers["accept-encoding"] == "identity"
+
+
+def test_detected_technology_is_evidence_not_a_defect():
+    findings, evidence = analyse_technology(
+        '<meta name="generator" content="WordPress 6.7">',
+        "https://example.com",
+        {},
+    )
+
+    assert findings == []
+    assert evidence["technologies"][0]["technology"] == "WordPress"
 
 
 def test_analyse_html_avoids_ordinary_checked_box_false_positive():
