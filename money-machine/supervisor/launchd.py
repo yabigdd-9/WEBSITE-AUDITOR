@@ -23,10 +23,13 @@ PLIST_PATH = Path.home() / "Library" / "LaunchAgents" / (LABEL + ".plist")
 def python_path() -> Path:
     configured = os.environ.get("MM_PYTHON", "").strip()
     if configured:
-        return Path(configured).expanduser().resolve()
+        candidate = Path(configured).expanduser()
+        return candidate if candidate.is_absolute() else REPO_ROOT / candidate
     preferred = REPO_ROOT / ".venv-email" / "bin" / "python"
     fallback = REPO_ROOT / ".venv" / "bin" / "python"
-    return (preferred if preferred.is_file() else fallback).resolve()
+    # Keep the venv entry-point path intact. Resolving its symlink to the base
+    # interpreter bypasses pyvenv.cfg and launches without the venv packages.
+    return preferred if preferred.is_file() else fallback
 
 
 def plist_payload(sleep: float = 5, lease: int = 300, rotate_every: int = 60) -> dict:

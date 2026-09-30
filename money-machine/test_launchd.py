@@ -58,6 +58,22 @@ def test_money_machine_python_path_prefers_project_venvs():
     assert ".venv-email" in names or ".venv" in names or top.name.startswith("cpython-3.11")
 
 
+def test_money_machine_python_path_preserves_venv_entrypoint(monkeypatch):
+    monkeypatch.delenv("MM_PYTHON", raising=False)
+    preferred = ROOT / ".venv-email" / "bin" / "python"
+    fallback = ROOT / ".venv" / "bin" / "python"
+    expected = preferred if preferred.is_file() else fallback
+
+    assert launchd.python_path() == expected
+
+
+def test_configured_python_path_does_not_resolve_symlink(monkeypatch):
+    candidate = ROOT / ".venv-email" / "bin" / "python"
+    monkeypatch.setenv("MM_PYTHON", str(candidate))
+
+    assert launchd.python_path() == candidate
+
+
 def test_fcc_wrapper_forces_loopback_after_env_loading():
     wrapper = (ROOT / "scripts" / "fcc-server-wrapper.sh").read_text()
     last_env_load = wrapper.index('load_env_file "$ROOT/.env.fcc"')
