@@ -144,6 +144,23 @@ def identity_handler(d, it, worker):
     except (KeyError, TypeError, ValueError):
         payload = {}
     payload = payload if isinstance(payload, dict) else {}
+    discovery_quality = payload.get('discovery_quality')
+    if (
+        isinstance(discovery_quality, dict)
+        and discovery_quality.get('disposition') == 'REVIEW'
+    ):
+        evidence = {
+            'canonical_host': host,
+            'discovery_quality': discovery_quality,
+            'audit_run': False,
+            'external_sends': 0,
+        }
+        _record_intelligence_decision(
+            d, b['id'], 'NEEDS_REVIEW', 'DISCOVERY_IDENTITY_REVIEW_REQUIRED',
+            confidence=1.0, stage='identity', disposition='REVIEW',
+            candidate_url=b['public_website'], derived_evidence=evidence,
+        )
+        return ('NEEDS_REVIEW', 'discovery identity evidence requires review', evidence)
     identity_evidence = {'canonical_host': host}
     for key in ('legal_name', 'trading_name', 'nzbn', 'discovery_quality'):
         value = payload.get(key)

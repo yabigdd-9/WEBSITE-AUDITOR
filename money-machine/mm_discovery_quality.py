@@ -9,10 +9,9 @@ here.
 """
 from __future__ import annotations
 
+import re
 from pathlib import PurePosixPath
 from urllib.parse import urlsplit
-import re
-
 
 BUSINESS_HOME = "BUSINESS_HOME"
 BUSINESS_LOCATION = "BUSINESS_LOCATION"
@@ -70,6 +69,7 @@ _DOMAIN_CLASSES = (
         "finda.co.nz",
         "nzs.com",
         "zenbu.co.nz",
+        "yelp.com",
     )),
     (MARKETPLACE, (
         "trademe.co.nz",

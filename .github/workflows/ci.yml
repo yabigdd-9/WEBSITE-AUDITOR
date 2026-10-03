@@ -102,6 +102,8 @@ jobs:
             money-machine/test_search_backend.py \
             money-machine/test_discovery.py \
             money-machine/test_discovery_batch.py \
+            money-machine/test_discovery_quality.py \
+            money-machine/test_soak_discovery_recovery.py \
             money-machine/test_recurring_discovery.py \
             money-machine/test_observability_discovery.py \
             money-machine/test_launchd.py \
