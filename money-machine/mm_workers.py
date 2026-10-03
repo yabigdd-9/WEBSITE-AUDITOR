@@ -8,18 +8,110 @@ The outreach worker NEVER sends: it performs the eligibility chain and moves
 items to APPROVAL_PENDING, where the evidence-gated approval engine decides.
 """
 import json
-import subprocess
+import math
 from pathlib import Path
 from urllib.parse import urlparse
 
-from mm_core import root, public_url
+from mm_core import public_url
 from mm_management_worker import management_worker_handler
-from mm_pipeline import RetryableError, PermanentError, BlockedCost
+from mm_pipeline import PermanentError, RetryableError
 from mm_preparation_worker import preparation_worker_handler
 from mm_understanding_worker import understanding_worker_handler
 
 REPO = Path(__file__).resolve().parents[1]
 AUDIT_TIMEOUT = 60
+
+
+def _record_intelligence_decision(d, business_id, decision, primary_reason,
+                                   confidence=1.0, stage="", source="",
+                                   candidate_url="", derived_evidence=None,
+                                   errors=None, disposition=None):
+    """Best-effort append of a pipeline decision to the V45 ledger."""
+    try:
+        import mm_intelligence_ledger as il
+
+        business = _business(d, business_id)
+        keys = set(business.keys()) if hasattr(business, 'keys') else set()
+        website = business['public_website'] if 'public_website' in keys else None
+        try:
+            domain = public_url(website) if website else ""
+        except (TypeError, ValueError):
+            domain = urlparse(website or "").hostname or ""
+        try:
+            score = float(confidence)
+        except (TypeError, ValueError, OverflowError):
+            score = 0.0
+        if not math.isfinite(score):
+            score = 0.0
+        score = min(1.0, max(0.0, score))
+        resolved_source = source or (
+            str(business['source']) if 'source' in keys and business['source'] else ""
+        )
+        rec = il.IntelligenceDecision(
+            prospect_id=business_id,
+            business_name=str(business['name'] or ''),
+            domain=domain,
+            candidate_url=candidate_url or (website or ""),
+            source=resolved_source,
+            region=str(business['region'] or '') if 'region' in keys else "",
+            derived_evidence=derived_evidence or {},
+            decision=decision,
+            disposition=disposition or (
+                'REJECTED' if decision == 'REJECTED' else 'ACCEPTED'
+            ),
+            primary_reason=primary_reason,
+            confidence=score,
+            rule_version=il.DECISION_LOGIC_VERSION,
+            stage=stage,
+            processing_cost=0.0,
+            latency_seconds=0.0,
+            errors=errors or [],
+        )
+        il.append_decision(d, rec)
+        if decision == 'REJECTED':
+            try:
+                import mm_rejection_intelligence as ri
+                rejection = ri.RejectionRecord(
+                    prospect_id=business_id,
+                    business_name=rec.business_name,
+                    domain=domain,
+                    primary_reason=primary_reason,
+                    stage=stage,
+                    disposition='REJECTED',
+                    confidence=score,
+                    rule_version=il.DECISION_LOGIC_VERSION,
+                    retryable=ri.is_retryable(primary_reason),
+                    decision_detail='; '.join(errors or []),
+                )
+                ri.record_rejection(d, rejection)
+            except Exception as exc:
+                try:
+                    from mm_pipeline import log
+                    log({
+                        'kind': 'intelligence_rejection_write_failed',
+                        'business_id': business_id,
+                        'stage': stage,
+                        'reason': primary_reason,
+                        'error': f'{type(exc).__name__}: {exc}'[:300],
+                    })
+                except Exception:
+                    pass
+        return True
+    except Exception as exc:
+        # The operational pipeline must keep running if optional learning
+        # storage is unavailable. Leave an operator-visible diagnostic.
+        try:
+            from mm_pipeline import log
+            log({
+                'kind': 'intelligence_ledger_write_failed',
+                'business_id': business_id,
+                'stage': stage,
+                'decision': decision,
+                'error': f'{type(exc).__name__}: {exc}'[:300],
+            })
+        except Exception:
+            pass
+        return False
 
 
 def _business(d, bid):
@@ -31,132 +123,489 @@ def _business(d, bid):
 
 def identity_handler(d, it, worker):
     """Resolve canonical identity from the declared public website."""
+    import mm_opportunity_intelligence as oi
+
     b = _business(d, it['business_id'])
     if not b['public_website']:
+        _record_intelligence_decision(
+            d, b['id'], 'REJECTED', 'INSUFFICIENT_IDENTITY_EVIDENCE',
+            confidence=1.0, stage='identity', disposition='REJECTED',
+            derived_evidence={'reason': 'no public website'},
+            errors=['no public website; identity cannot be resolved'],
+        )
         raise PermanentError('no public website; identity cannot be resolved')
     host = public_url(b['public_website'])  # raises ValueError on private/odd
-    return ('AUDIT_PENDING', 'identity resolved from declared website',
-            {'canonical_host': host})
+    observed = {'business_name', 'canonical_host'}
+    keys = b.keys() if hasattr(b, 'keys') else ()
+    if 'source' in keys and b['source']:
+        observed.add('source')
+    try:
+        payload = json.loads(it['payload'] or '{}')
+    except (KeyError, TypeError, ValueError):
+        payload = {}
+    payload = payload if isinstance(payload, dict) else {}
+    discovery_quality = payload.get('discovery_quality')
+    if (
+        isinstance(discovery_quality, dict)
+        and discovery_quality.get('disposition') == 'REVIEW'
+    ):
+        evidence = {
+            'canonical_host': host,
+            'discovery_quality': discovery_quality,
+            'audit_run': False,
+            'external_sends': 0,
+        }
+        _record_intelligence_decision(
+            d, b['id'], 'NEEDS_REVIEW', 'DISCOVERY_IDENTITY_REVIEW_REQUIRED',
+            confidence=1.0, stage='identity', disposition='REVIEW',
+            candidate_url=b['public_website'], derived_evidence=evidence,
+        )
+        return ('NEEDS_REVIEW', 'discovery identity evidence requires review', evidence)
+    identity_evidence = {'canonical_host': host}
+    for key in ('legal_name', 'trading_name', 'nzbn', 'discovery_quality'):
+        value = payload.get(key)
+        if value:
+            identity_evidence[key] = value
+    shadow = oi.shadow_assessment(
+        b,
+        'IDENTITY_RESOLVED',
+        observed=observed,
+        evidence=identity_evidence,
+    )
+    _record_intelligence_decision(
+        d, b['id'], 'IDENTITY_RESOLVED', 'IDENTITY_RESOLVED',
+        confidence=0.95, stage='identity', disposition='ACCEPTED',
+        candidate_url=b['public_website'],
+        derived_evidence={'canonical_host': host, 'shadow_intelligence': shadow},
+    )
+    return (
+        'AUDIT_PENDING',
+        'identity resolved from declared website',
+        {'canonical_host': host, 'shadow_intelligence': shadow},
+    )
+
+
+def _audit_evidence(report):
+    """Project a canonical toolkit report into pipeline evidence."""
+    defects = report.get('defects') or []
+    artifacts = report.get('artifacts') or {}
+    return {
+        'run_id': report.get('run_id'),
+        'report_path': artifacts.get('json'),
+        'defect_count': len(defects),
+        # Qualification treats higher values as greater technical opportunity.
+        'score': report.get('severity_score', report.get('defect_score', report.get('score'))),
+        'score_source': (
+            'severity_score' if 'severity_score' in report else
+            'defect_score' if 'defect_score' in report else 'score'
+        ),
+        'health_score': report.get('health_score'),
+        'profile': report.get('profile'),
+        'audit_engine': 'auditor_toolkit',
+        'model_calls': 0,
+        'external_sends': 0,
+    }
 
 
 def audit_handler(d, it, worker):
-    """Run the deterministic Website Rescue detector for the business site."""
+    """Run/reuse the canonical deterministic auditor_toolkit report.
+
+    Continuous operation must emit the same saved report schema consumed by
+    remediation, demo, quote and proof-package builders. AI, browser rendering
+    and external local tools are disabled in this always-on pass.
+    """
     b = _business(d, it['business_id'])
     url = b['public_website']
     host = urlparse(url).netloc if url else None
+    if not url or not host:
+        raise PermanentError('public website required for audit')
 
-    # Check for recent valid audit to reuse
-    if host:
-        from auditor_toolkit.storage import History
-        history = History(str(REPO / 'outputs' / 'toolkit'))
-        # Look for audit from last 7 days
-        recent_audit = history.get_latest_valid_audit(host, max_age_days=7)
-        if recent_audit:
-            # Reuse existing audit results
-            defects = recent_audit.get('defects', [])
-            score = recent_audit.get('score', recent_audit.get('defect_score', 0))
-            return ('AUDITED', 'audit reused (recent)',
-                    {'defect_count': len(defects), 'score': score})
+    output_root = REPO / 'outputs' / 'toolkit'
+    from auditor_toolkit.storage import History
+    history = History(output_root)
+    recent_audit = history.get_latest_valid_audit(host, max_age_days=7)
+    if recent_audit:
+        return (
+            'AUDITED',
+            'canonical toolkit audit reused (recent)',
+            _audit_evidence(recent_audit),
+        )
 
-    # No recent audit found, run new detection
+    from auditor_toolkit.pipeline import AuditOptions, run_audit
+    options = AuditOptions(
+        output_root=output_root,
+        profile='static',
+        browser=False,
+        deep=False,
+        external_tools=False,
+        ai=False,
+        timeout=min(float(AUDIT_TIMEOUT), 60.0),
+    )
     try:
-        r = subprocess.run(
-            ['python3', str(REPO / 'engines' / 'detect.py'), url],
-            capture_output=True, text=True, timeout=AUDIT_TIMEOUT)
-    except subprocess.TimeoutExpired:
-        raise RetryableError('audit timed out')
-    if r.returncode != 0 or not r.stdout.strip():
-        raise RetryableError('detector failed: ' + (r.stderr or '')[-200:])
+        report = run_audit(url, options)
+    except Exception as exc:
+        raise RetryableError(
+            'auditor_toolkit failed: ' + str(exc)[:240]
+        ) from exc
+
+    if report.get('status') != 'complete':
+        required_errors = [
+            name for name, value in (report.get('checks') or {}).items()
+            if value.get('required') and value.get('status') != 'ok'
+        ]
+        detail = ','.join(required_errors[:8]) or 'required checks incomplete'
+        raise RetryableError('auditor_toolkit incomplete: ' + detail)
+
+    return ('AUDITED', 'canonical toolkit audit captured', _audit_evidence(report))
+
+
+def _latest_pipeline_evidence(d, business_id, to_state):
+    """Load the newest append-only stage evidence without trusting item payload."""
+    row = d.execute(
+        "SELECT evidence FROM pipeline_events WHERE business_id=? AND to_state=? "
+        "AND evidence IS NOT NULL ORDER BY id DESC LIMIT 1",
+        (business_id, to_state),
+    ).fetchone()
+    if not row:
+        return {}
     try:
-        result = json.loads(r.stdout)
-    except ValueError:
-        raise RetryableError('detector output not JSON')
-    result = result[0] if isinstance(result, list) else result
-    if isinstance(result, dict) and result.get('error'):
-        raise RetryableError('site unreachable: ' + str(result['error'])[:200])
-    defects = result.get('defects', result.get('findings', []))
-    return ('AUDITED', 'audit captured',
-            {'defect_count': len(defects), 'score': result.get('score')})
+        decoded = json.loads(row['evidence'])
+    except (KeyError, TypeError, ValueError):
+        return {}
+    return decoded if isinstance(decoded, dict) else {}
+
+
+def _bounded_score(value):
+    if isinstance(value, bool):
+        return None
+    try:
+        score = float(value)
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(score):
+        return None
+    return round(min(100.0, max(0.0, score)), 1)
+
+
+def _technical_opportunity(audit_evidence):
+    """Use the audit stage's own score; missing audit evidence stays unknown."""
+    try:
+        defect_count = max(0, int(audit_evidence.get('defect_count', 0)))
+    except (OverflowError, TypeError, ValueError):
+        defect_count = 0
+    if defect_count == 0:
+        return None, defect_count
+    return _bounded_score(audit_evidence.get('score')), defect_count
 
 
 def qualification_handler(d, it, worker):
-    """Deterministic qualification: separate commercial relevance from technical fitness."""
+    """Keep commercial qualification and technical need as separate evidence axes."""
     import mm_lead_qualifier as lq
     b = _business(d, it['business_id'])
 
-    # Get audit results from payload (set by audit_handler)
-    audit_payload = it.get('payload', {})
-    audit_score = audit_payload.get('score', 0)  # defect score from audit (higher = more defects)
-    defect_count = audit_payload.get('defect_count', 0)
-    has_audit_evidence = defect_count > 0  # Consider as evidence if we found defects
+    # Stage outputs live in the append-only event log. pipeline_items.payload is
+    # intake data and is not rewritten by worker transitions.
+    audit_evidence = _latest_pipeline_evidence(d, b['id'], 'AUDITED')
+    understanding = _latest_pipeline_evidence(d, b['id'], 'QUALIFICATION_PENDING')
+    technical_score, defect_count = _technical_opportunity(audit_evidence)
+    raw_opportunity = understanding.get('opportunity_score')
+    commercial_opportunity = (
+        raw_opportunity if isinstance(raw_opportunity, dict) else None
+    )
+    commercial_opportunity_score = (
+        _bounded_score(commercial_opportunity.get('score'))
+        if commercial_opportunity else None
+    )
 
-    # Calculate commercial relevance score from business signals
-    ev = d.execute("SELECT id FROM mm_evidence WHERE business_id=? "
-                   "ORDER BY id DESC LIMIT 1", (b['id'],)).fetchone()
     keys = b.keys() if hasattr(b, 'keys') else []
-    text = ' '.join(str(v) for v in (b['name'],
-                                     b['region'] if 'region' in keys else ''))
+    text = ' '.join(str(v) for v in (
+        b['name'], b['region'] if 'region' in keys else ''
+    ))
     commercial_lead = lq.qualify_lead(text, industry='')
-    commercial_score = commercial_lead['qualification_score']
+    commercial_score = _bounded_score(commercial_lead['qualification_score']) or 0.0
+    commercial_pass = commercial_score >= 30
+    technical_pass = technical_score is not None and technical_score >= 40
+    qualification_basis = []
+    if commercial_pass:
+        qualification_basis.append('commercial')
+    if technical_pass:
+        qualification_basis.append('technical')
 
-    # Calculate technical fitness score (invert defect score so higher = better)
-    # For website optimization business: more defects = more opportunity = better prospect
-    # We'll use the defect score directly as technical opportunity score
-    technical_opportunity_score = min(100, audit_score)  # Cap at 100
-
-    # Qualification logic:
-    # A prospect is qualified if they have either:
-    # 1. Sufficient commercial relevance (business signals indicate ability to pay/ready to buy)
-    # 2. Sufficient technical opportunity (website has issues we can fix)
-    # 3. Or both (ideal prospect)
-    if commercial_score >= 30 or technical_opportunity_score >= 40:
-        # Determine tier based on combined strength
-        combined_score = (commercial_score * 0.4) + (technical_opportunity_score * 0.6)
-        if combined_score >= 80:
-            tier = "HOT"
-        elif combined_score >= 55:
-            tier = "WARM"
-        else:
-            tier = "QUALIFIED"
-
-        return ('CONTACT_PENDING', f'qualified: commercial={commercial_score}, technical={technical_opportunity_score}',
-                {
-                    'commercial_score': commercial_score,
-                    'technical_score': technical_opportunity_score,
-                    'defect_count': defect_count,
-                    'tier': tier,
-                    'commercial_tier': commercial_lead['tier'],
-                    'qualification_reasons': commercial_lead['reasons']
-                })
+    if technical_score is not None and technical_score >= 70:
+        technical_tier = 'HIGH_NEED'
+    elif technical_pass:
+        technical_tier = 'QUALIFIED_NEED'
     else:
-        return ('REJECTED', f' insufficient commercial ({commercial_score}) and technical ({technical_opportunity_score}) scores',
-                {
-                    'commercial_score': commercial_score,
-                    'technical_score': technical_opportunity_score,
-                    'defect_count': defect_count
-                })
+        technical_tier = 'LOW_OR_UNKNOWN'
+
+    result = {
+        'commercial_score': commercial_score,
+        'commercial_qualification_score': commercial_score,
+        'commercial_opportunity_score': commercial_opportunity_score,
+        'commercial_opportunity': commercial_opportunity,
+        'commercial_tier': commercial_lead['tier'],
+        'technical_score': technical_score,
+        'technical_opportunity_score': technical_score,
+        'technical_tier': technical_tier,
+        'technical_evidence': {
+            'stage': 'AUDITED' if audit_evidence else 'MISSING',
+            'defect_count': defect_count,
+            'audit_score': audit_evidence.get('score'),
+        },
+        'qualification_basis': qualification_basis,
+        'qualification_reasons': commercial_lead['reasons'],
+    }
+    import mm_opportunity_intelligence as oi
+    identity_evidence = _latest_pipeline_evidence(
+        d, b['id'], 'IDENTITY_RESOLVED'
+    )
+    audit_pending_identity = _latest_pipeline_evidence(
+        d, b['id'], 'AUDIT_PENDING'
+    )
+    for key, value in audit_pending_identity.items():
+        if key not in identity_evidence:
+            identity_evidence[key] = value
+    try:
+        intake_payload = json.loads(it['payload'] or '{}')
+    except (KeyError, TypeError, ValueError):
+        intake_payload = {}
+    intake_payload = intake_payload if isinstance(intake_payload, dict) else {}
+    for key in ('canonical_host', 'legal_name', 'trading_name', 'nzbn',
+                'discovery_quality'):
+        value = intake_payload.get(key)
+        if value and key not in identity_evidence:
+            identity_evidence[key] = value
+
+    observed = {'business_name'}
+    if identity_evidence.get('canonical_host') or b['public_website']:
+        observed.add('canonical_host')
+    if 'source' in keys and b['source']:
+        observed.add('source')
+    if audit_evidence:
+        observed.add('audit')
+    # Do not claim commercial evidence merely because the legacy name+region
+    # heuristic emitted a numeric score. Only substantive opportunity evidence
+    # from the understanding stage satisfies this shadow completeness check.
+    if commercial_opportunity:
+        observed.add('commercial_evidence')
+    result['shadow_intelligence'] = oi.shadow_assessment(
+        b,
+        'QUALIFICATION_PENDING',
+        observed=observed,
+        evidence=identity_evidence,
+    )
+    if qualification_basis:
+        axes = ' and '.join(qualification_basis)
+        _record_intelligence_decision(
+            d, b['id'], 'QUALIFIED', 'QUALIFIED', confidence=0.85,
+            stage='qualification', disposition='ACCEPTED',
+            derived_evidence=result,
+        )
+        return (
+            'CONTACT_PENDING',
+            f'qualified on independent {axes} evidence',
+            result,
+        )
+
+    result['qualification_reasons'] = list(commercial_lead['reasons']) + [
+        'No independent commercial or technical qualification threshold met'
+    ]
+    primary_reason = (
+        'TECHNICAL_SCORE_TOO_LOW'
+        if technical_score is not None and technical_score < 40
+        else 'INSUFFICIENT_COMMERCIAL_EVIDENCE'
+    )
+    _record_intelligence_decision(
+        d, b['id'], 'REJECTED', primary_reason, confidence=1.0,
+        stage='qualification', disposition='REJECTED',
+        derived_evidence=result,
+        errors=[result['qualification_reasons'][-1]],
+    )
+    return (
+        'REJECTED',
+        f'not qualified: commercial={commercial_score}, technical={technical_score}',
+        result,
+    )
+
+def _email_v2_release_state(d):
+    """Return whether Email Finder V2 may persist production observations.
+
+    The email subsystem intentionally has two independent release gates:
+    email_policy.mode == v2 and email_release_policy.mode == PRODUCTION for the
+    exact verifier version. The contact worker must not weaken either gate just
+    to keep the pipeline moving.
+    """
+    import mm_email as email_engine
+    import mm_email_store as email_store
+
+    if not email_store.installed(d):
+        return False, {
+            'installed': False,
+            'email_policy': 'not_migrated',
+            'release_mode': 'not_migrated',
+            'verifier_version': email_engine.VERSION,
+        }
+
+    policy = d.execute(
+        "SELECT mode FROM email_policy WHERE id=1"
+    ).fetchone()
+    release_table = d.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' "
+        "AND name='email_release_policy'"
+    ).fetchone()
+    release = (
+        d.execute(
+            "SELECT mode,verifier_version FROM email_release_policy WHERE id=1"
+        ).fetchone()
+        if release_table else None
+    )
+    policy_mode = policy['mode'] if policy else 'missing'
+    release_mode = release['mode'] if release else 'missing'
+    verifier_version = release['verifier_version'] if release else None
+    ready = (
+        policy_mode == 'v2'
+        and release_mode == 'PRODUCTION'
+        and verifier_version == email_engine.VERSION
+    )
+    return ready, {
+        'installed': True,
+        'email_policy': policy_mode,
+        'release_mode': release_mode,
+        'verifier_version': verifier_version,
+        'required_verifier_version': email_engine.VERSION,
+    }
+
+
+def _current_verified_high(d, bid):
+    """Read only the authoritative Email Finder V2 current-selection view."""
+    view = d.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='view' AND name='email_current_high'"
+    ).fetchone()
+    if not view:
+        return None
+    row = d.execute(
+        "SELECT normalized_email,verification_id FROM email_current_high "
+        "WHERE prospect_id=? ORDER BY verification_id DESC LIMIT 1",
+        (bid,),
+    ).fetchone()
+    if not row:
+        return None
+    return {
+        'email': row['normalized_email'],
+        'verification_id': row['verification_id'],
+        'confidence': 'VERIFIED_HIGH',
+    }
 
 
 def contact_handler(d, it, worker):
-    """Contacts come only from Email Finder V2 evidence already recorded.
+    """Run Email Finder V2 when released, then trust only current VERIFIED_HIGH.
 
-    This handler never guesses or pattern-generates addresses. If no verified
-    observation exists the item routes to NO_VERIFIED_EMAIL (a valid final
-    result), not to a fabricated candidate.
+    No guessed/pattern-generated address can advance this worker. An existing
+    current selection from email_current_high may advance immediately.
+    Otherwise the worker invokes the existing Email Finder V2 workflow only
+    when its independent production-release gates are already open. A held or
+    uninstalled finder routes to recoverable NEEDS_REVIEW; after a legitimate
+    finder run, absence of a current VERIFIED_HIGH selection is the valid
+    NO_VERIFIED_EMAIL terminal outcome.
     """
     bid = it['business_id']
-    rows = d.execute("SELECT email,result_json FROM email_verifications "
-                     "WHERE prospect_id=? ORDER BY id DESC", (bid,)).fetchall()
-    for row in rows:
-        try:
-            res = json.loads(row['result_json'])
-        except (ValueError, TypeError):
-            continue
-        if res.get('confidence_label') == 'VERIFIED_HIGH':
-            return ('REMEDIATION_PENDING', 'verified contact on record',
-                    {'email': row['email'], 'confidence': 'VERIFIED_HIGH'})
-    return ('NO_VERIFIED_EMAIL', 'no VERIFIED_HIGH contact; final for email lane',
-            {'checked': len(rows)})
+
+    current = _current_verified_high(d, bid)
+    if current:
+        _record_intelligence_decision(
+            d, bid, 'VERIFIED_HIGH_CONTACT', 'VERIFIED_HIGH',
+            confidence=1.0, stage='contact', disposition='ACCEPTED',
+            derived_evidence={
+                'verification_id': current.get('verification_id'),
+                'confidence': current.get('confidence'),
+            },
+        )
+        return (
+            'REMEDIATION_PENDING',
+            'current VERIFIED_HIGH Email Finder V2 contact on record',
+            {**current, 'finder_run': False, 'external_sends': 0},
+        )
+
+    released, release = _email_v2_release_state(d)
+    if not released:
+        _record_intelligence_decision(
+            d, bid, 'NEEDS_REVIEW', 'EMAIL_FINDER_RELEASE_HELD',
+            confidence=1.0, stage='contact', disposition='REVIEW',
+            derived_evidence={'email_finder': release},
+            errors=['Email Finder V2 production release gate is not open'],
+        )
+        return (
+            'NEEDS_REVIEW',
+            'Email Finder V2 production release gate is not open',
+            {
+                'email_finder': release,
+                'finder_run': False,
+                'external_sends': 0,
+                'next_action': (
+                    'Complete the existing independent Email Finder V2 release '
+                    'review; do not bypass the production gate.'
+                ),
+            },
+        )
+
+    import mm_email_cli
+
+    try:
+        status = mm_email_cli.find_one(d, bid)
+    except ValueError as exc:
+        _record_intelligence_decision(
+            d, bid, 'NEEDS_REVIEW', 'EMAIL_FINDER_HELD',
+            confidence=1.0, stage='contact', disposition='REVIEW',
+            derived_evidence={'email_finder': release}, errors=[str(exc)[:240]],
+        )
+        return (
+            'NEEDS_REVIEW',
+            'Email Finder V2 held: ' + str(exc)[:240],
+            {
+                'email_finder': release,
+                'finder_run': False,
+                'external_sends': 0,
+            },
+        )
+
+    current = _current_verified_high(d, bid)
+    if current:
+        _record_intelligence_decision(
+            d, bid, 'VERIFIED_HIGH_CONTACT', 'VERIFIED_HIGH',
+            confidence=1.0, stage='contact', disposition='ACCEPTED',
+            derived_evidence={
+                'verification_id': current.get('verification_id'),
+                'confidence': current.get('confidence'),
+            },
+        )
+        return (
+            'REMEDIATION_PENDING',
+            'Email Finder V2 produced current VERIFIED_HIGH contact',
+            {**current, 'finder_run': True, 'external_sends': 0},
+        )
+
+    candidates = status.get('candidates') if isinstance(status, dict) else []
+    forms = status.get('contact_form_urls') if isinstance(status, dict) else []
+    _record_intelligence_decision(
+        d, bid, 'NO_VERIFIED_EMAIL', 'INSUFFICIENT_IDENTITY_EVIDENCE',
+        confidence=0.95, stage='contact', disposition='REVIEW',
+        derived_evidence={
+            'candidate_count': len(candidates or []),
+            'contact_form_count': len(forms or []),
+            'reason': 'Email Finder V2 completed with no current VERIFIED_HIGH contact',
+        },
+        errors=['no current VERIFIED_HIGH contact'],
+    )
+    return (
+        'NO_VERIFIED_EMAIL',
+        'Email Finder V2 completed with no current VERIFIED_HIGH contact',
+        {
+            'finder_run': True,
+            'candidate_count': len(candidates or []),
+            'contact_form_count': len(forms or []),
+            'external_sends': 0,
+        },
+    )
 
 
 def demo_handler(d, it, worker):
@@ -207,7 +656,7 @@ WORKERS = {
     'understanding': (('AUDITED',), understanding_worker_handler),
     'qualification': (('QUALIFICATION_PENDING',), qualification_handler),
     'contact':       (('QUALIFIED', 'CONTACT_PENDING'), contact_handler),
-    'preparation':   (('VERIFIED', 'REMEDIATION_PENDING', 'DEMO_PENDING', 'QA_PENDING'), preparation_worker_handler),
+    'preparation':   (('VERIFIED', 'REMEDIATION_PENDING', 'DEMO_PENDING', 'DEMO_READY', 'QA_PENDING'), preparation_worker_handler),
     'outreach_gate': (('OUTREACH_PENDING',), outreach_handler),
     'management':    (('RESPONDED',), management_worker_handler),
 }

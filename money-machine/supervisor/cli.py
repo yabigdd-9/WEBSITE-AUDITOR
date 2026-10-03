@@ -31,6 +31,8 @@ from mm_runtime_guards import (
     disk_guard,
     network_guard_event,
     network_status,
+)
+from mm_runtime_guards import (
     snapshot as guard_snapshot,
 )
 
@@ -42,6 +44,12 @@ LEASE_SECONDS = 300
 
 from supervisor.daemon import rotate_logs  # noqa: E402
 from supervisor.pid import PIDFile  # noqa: E402
+
+# launchd starts this module from money-machine/, so expose the repository root
+# before workers import the sibling auditor_toolkit package.
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 # ---------------------------------------------------------------------------
 # helpers
@@ -132,8 +140,15 @@ def cmd_health(args) -> dict:
     import datetime as dt
     db_path = root() / "database" / "money_machine.db"
     if not db_path.is_file():
-        return {"supervisor": cmd_status(args),
-                "pipeline": {"initialised": False, "note": "database not created yet"}}
+        return {
+            "supervisor": cmd_status(args),
+            "pipeline": {
+                "initialised": False,
+                "note": "database not created yet",
+            },
+            "network": network_status(),
+            "guards": guard_snapshot(probe_network=False),
+        }
     with contextlib.closing(connect(readonly=True)) as d:
         try:
             tables = {r[0] for r in d.execute(
@@ -216,6 +231,14 @@ def cmd_run_foreground(args) -> int:
                     _log({"kind": "runtime_guard", "cycle": cycles, "disk": disk, "action": "pause_new_work"})
                     time.sleep(min(max(sleep_seconds, 1), 60))
                     continue
+                if cycles == 0 or cycles % 60 == 0:
+                    try:
+                        import mm_recurring_discovery
+                        discovery = mm_recurring_discovery.run_due(d)
+                        if discovery.get("ran") or discovery.get("reason") not in {"disabled_or_not_due"}:
+                            _log({"kind": "recurring_discovery", **discovery})
+                    except Exception as ex:
+                        _log({"kind": "recurring_discovery_error", "error": str(ex)[:500]})
                 snapshot = [{"worker": w.worker_id, "processed": w.run_once(d)} for w in workers]
                 mm_pipeline.drain_expired_leases(d)
                 d.commit()

@@ -6,7 +6,6 @@ no model calls, $0.
 import datetime as dt
 import gzip
 import json
-import re
 from pathlib import Path
 
 import mm_core as core
@@ -198,8 +197,14 @@ def daily_report(write=True, quiet=False):
             delta[k] = snap["counts"].get(k, 0) - prev_counts.get(k, 0)
     guard_doc = mm_observability.health().get("guards", {})
     alerts = evaluate_alerts()
-    attestation = (f"external_sends: {guard_doc.get('external_sends')} · "
-                   f"model_calls: 0 · model_cost_usd: 0.0")
+    accounting = guard_doc.get("accounting", {})
+    measured = accounting.get("status") == "measured"
+    sends = accounting.get("external_sends") if measured else "unknown"
+    cost = accounting.get("model_cost_usd") if measured else "unknown"
+    attestation = (f"ledger_status: {accounting.get('status', 'unknown')} · "
+                   f"recorded_external_sends: {sends} · recorded_model_cost_usd: {cost}\n\n"
+                   "report_operation_model_calls: 0 · report_operation_external_sends: 0\n\n"
+                   "Ledger records do not measure unrecorded activity.")
     recs = _recommendations(snap, alerts)
     lines = [
         f"# Daily report — {today}", "",
@@ -221,7 +226,7 @@ def daily_report(write=True, quiet=False):
         "## Top deterministic next actions", "",
     ]
     lines += [f"{i+1}. {r}" for i, r in enumerate(recs)]
-    lines += ["", "---", "", "Nothing was sent. Nothing was automated toward a customer.", ""]
+    lines += ["", "---", "", "This report operation made no model calls or external sends.", ""]
     text = "\n".join(lines)
     if write:
         out = core.root() / "reports" / f"{today}.md"

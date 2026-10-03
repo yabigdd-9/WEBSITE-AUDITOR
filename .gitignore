@@ -72,3 +72,10 @@ state/deployments.jsonl
 state/HERMES_EXECUTION_STATE.yaml
 reports/acceptance-results.json
 state/
+
+# Local zero-cost router evidence logs
+/logs/free-role-routing/
+
+# Generated fixture captures; regenerate from the audit/contact workflows.
+reports/audit-backfills/
+reports/contact-captures/

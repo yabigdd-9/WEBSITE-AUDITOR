@@ -27,23 +27,67 @@ transport = load("mm_transport")
 def db(path):
     d = sqlite3.connect(path)
     d.row_factory = sqlite3.Row
-    d.executescript(
-        """
-        CREATE TABLE businesses(
-          id INTEGER PRIMARY KEY,
-          name TEXT NOT NULL,
-          public_website TEXT,
-          is_dummy INTEGER NOT NULL DEFAULT 0);
-        CREATE TABLE mm_events(
-          id INTEGER PRIMARY KEY,
-          event_at TEXT NOT NULL,
-          action TEXT NOT NULL,
-          business_id INTEGER,
-          detail TEXT);
-        INSERT INTO businesses(id,name,public_website,is_dummy)
-          VALUES(1,'Fixture','https://fixture.example',0);
-        """
+    sql = (
+        "CREATE TABLE businesses("
+        "  id INTEGER PRIMARY KEY,"
+        "  name TEXT NOT NULL,"
+        "  public_website TEXT,"
+        "  is_dummy INTEGER NOT NULL DEFAULT 0);"
+        "CREATE TABLE mm_events("
+        "  id INTEGER PRIMARY KEY,"
+        "  event_at TEXT NOT NULL,"
+        "  action TEXT NOT NULL,"
+        "  business_id INTEGER,"
+        "  detail TEXT);"
+        "CREATE TABLE prospect_outcomes("
+        "  id INTEGER PRIMARY KEY,"
+        "  business_id INTEGER NOT NULL,"
+        "  outcome TEXT NOT NULL,"
+        "  observed_at TEXT NOT NULL,"
+        "  actor TEXT NOT NULL,"
+        "  evidence_path TEXT NOT NULL,"
+        "  evidence_hash TEXT NOT NULL,"
+        "  note TEXT NOT NULL DEFAULT '',"
+        "  created_at TEXT NOT NULL);"
+        "CREATE INDEX IF NOT EXISTS prospect_outcomes_business"
+        "  ON prospect_outcomes(business_id, observed_at DESC);"
+        "CREATE TRIGGER IF NOT EXISTS prospect_outcomes_no_update"
+        "BEFORE UPDATE ON prospect_outcomes BEGIN"
+        "  SELECT RAISE(ABORT,'prospect outcomes are append-only');"
+        "END;"
+        "CREATE TRIGGER IF NOT EXISTS prospect_outcomes_no_delete"
+        "BEFORE DELETE ON prospect_outcomes BEGIN"
+        "  SELECT RAISE(ABORT,'prospect outcomes are append-only');"
+        "END;"
+        "CREATE TABLE experience_ledger("
+        "  id INTEGER PRIMARY KEY,"
+        "  outcome TEXT NOT NULL,"
+        "  actor TEXT NOT NULL,"
+        "  observed_at TEXT NOT NULL,"
+        "  business_id INTEGER NOT NULL,"
+        "  evidence_hash TEXT NOT NULL,"
+        "  created_at TEXT NOT NULL);"
+        "CREATE INDEX IF NOT EXISTS experience_ledger_outcome_time"
+        "  ON experience_ledger(outcome, observed_at DESC);"
+        "CREATE INDEX IF NOT EXISTS experience_ledger_actor"
+        "  ON experience_ledger(actor);"
+        "CREATE TRIGGER IF NOT EXISTS experience_ledger_on_outcome"
+        "AFTER INSERT ON prospect_outcomes BEGIN"
+        "  INSERT INTO experience_ledger(outcome, actor, observed_at, business_id, evidence_hash, created_at)"
+        "  SELECT NEW.outcome, NEW.actor, NEW.observed_at, NEW.business_id, NEW.evidence_hash, NEW.created_at;"
+        "END;"
+        "CREATE TRIGGER IF NOT EXISTS experience_ledger_no_update"
+        "BEFORE UPDATE ON experience_ledger BEGIN"
+        "  SELECT RAISE(ABORT,'experience ledger is append-only');"
+        "END;"
+        "CREATE TRIGGER IF NOT EXISTS experience_ledger_no_delete"
+        "BEFORE DELETE ON experience_ledger BEGIN"
+        "  SELECT RAISE(ABORT,'experience ledger is append-only');"
+        "END;"
+        "INSERT INTO businesses(id,name,public_website,is_dummy)"
+        "  VALUES(1,'Fixture','https://fixture.example',0);"
     )
+    d.executescript(sql)
     return d
 
 
@@ -136,3 +180,59 @@ def test_outcome_summary_is_read_only_when_uninitialised(tmp_path):
     assert result["status"] == "uninitialised"
     assert result["total"] == 0
     assert before == after
+
+
+def test_outcome_summary_includes_experience_ledger_metrics(tmp_path, monkeypatch):
+    root = tmp_path / "repo"
+    root.mkdir()
+    (root / "database").mkdir()
+    monkeypatch.setenv("MM_ROOT", str(root))
+    d = db(root / "database" / "money_machine.db")
+    evidence = root / "evidence.txt"
+    evidence.write_text("Customer replied yes", encoding="utf-8")
+    digest = outcomes.core.sha(evidence.read_bytes())
+
+    r1 = outcomes.record(d, 1, "REPLIED", evidence, digest, actor="human-a", note="")
+    d.commit()
+    r2 = outcomes.record(d, 1, "PENDING", evidence, digest, actor="human-b", note="")
+    d.commit()
+    r3 = outcomes.record(d, 1, "REPLIED", evidence, digest, actor="human-a", note="")
+    d.commit()
+    assert len({r1["id"], r2["id"], r3["id"]}) == 3
+
+    s = outcomes.summary(d)
+    assert s["total"] == 3
+    assert s["by_outcome"]["REPLIED"] == 2
+    assert s["by_outcome"]["PENDING"] == 1
+    assert s["by_actor"]["human-a"] == 2
+    assert s["by_actor"]["human-b"] == 1
+    assert len(s["outcome_trend"]) >= 2
+
+
+def test_experience_ledger_mirror_is_append_only(tmp_path, monkeypatch):
+    root = tmp_path / "repo"
+    root.mkdir()
+    (root / "database").mkdir()
+    monkeypatch.setenv("MM_ROOT", str(root))
+    d = db(root / "database" / "money_machine.db")
+    evidence = root / "evidence.txt"
+    evidence.write_text("mirror test", encoding="utf-8")
+    digest = outcomes.core.sha(evidence.read_bytes())
+
+    outcomes.record(d, 1, "WON", evidence, digest, actor="automation", note="")
+    d.commit()
+
+    row = d.execute(
+        "SELECT * FROM experience_ledger WHERE outcome='WON'"
+    ).fetchone()
+    assert row is not None
+    assert row["actor"] == "automation"
+
+    with pytest.raises(sqlite3.DatabaseError, match="append-only"):
+        d.execute(
+            "UPDATE experience_ledger SET actor='x' WHERE id=?",
+            (row["id"],),
+        )
+    with pytest.raises(sqlite3.DatabaseError, match="append-only"):
+        d.execute("DELETE FROM experience_ledger WHERE id=?", (row["id"],))
+    d.close()

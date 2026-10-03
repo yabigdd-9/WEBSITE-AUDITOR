@@ -13,6 +13,7 @@ import mm_core as core
 OUTCOMES = {
     "NO_RESPONSE",
     "REPLIED",
+    "PENDING",
     "CALL_OR_DISCOVERY",
     "PROPOSAL_SENT",
     "WON",
@@ -42,11 +43,15 @@ CREATE TRIGGER IF NOT EXISTS prospect_outcomes_no_delete
 BEFORE DELETE ON prospect_outcomes BEGIN
   SELECT RAISE(ABORT,'prospect outcomes are append-only');
 END;
+
 """
 
 
 def migrate(d):
+    """Create the outcome schema for direct callers as well as core migrations."""
     d.executescript(DDL)
+    import mm_experience_ledger
+    mm_experience_ledger.migrate(d)
 
 
 def record(d, business_id, outcome, evidence_path, evidence_hash, actor, note="", observed_at=None):
@@ -137,10 +142,30 @@ def summary(d):
             "FROM prospect_outcomes ORDER BY id DESC LIMIT 100"
         )
     ]
+    ledger_exists = d.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='experience_ledger'"
+    ).fetchone()
+    by_actor = {}
+    outcome_trend = []
+    if ledger_exists:
+        by_actor = {
+            r[0]: r[1] for r in d.execute(
+                "SELECT actor, count(*) FROM experience_ledger GROUP BY actor"
+            )
+        }
+        outcome_trend = [
+            dict(r) for r in d.execute(
+                "SELECT outcome, date(observed_at) as day, count(*) as n "
+                "FROM experience_ledger GROUP BY outcome, date(observed_at) "
+                "ORDER BY day DESC, outcome"
+            )
+        ]
     return {
         "generated_at": core.now(),
         "total": total,
         "by_outcome": by_outcome,
+        "by_actor": by_actor,
+        "outcome_trend": outcome_trend,
         "latest": latest,
         "status": "ready",
         "automatic_learning_applied": False,

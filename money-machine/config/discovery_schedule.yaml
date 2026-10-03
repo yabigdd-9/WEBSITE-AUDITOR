@@ -1,0 +1,31 @@
+# Always-on discovery schedule.
+# Search is loopback-only through local SearXNG; no direct public search API is used.
+enabled: true
+interval_minutes: 360
+region: New Zealand
+searxng_endpoint: http://127.0.0.1:8888
+results_per_query: 10
+inbox_dir: discovery-inbox
+
+# Bounded to 20 queries per cycle. Dedupe prevents re-enqueueing known hosts.
+queries:
+  - plumber Auckland NZ
+  - electrician Auckland NZ
+  - builder Auckland NZ
+  - HVAC Auckland NZ
+  - plumber Wellington NZ
+  - electrician Wellington NZ
+  - builder Wellington NZ
+  - HVAC Wellington NZ
+  - plumber Christchurch NZ
+  - electrician Christchurch NZ
+  - builder Christchurch NZ
+  - HVAC Christchurch NZ
+  - plumber Hamilton NZ
+  - electrician Hamilton NZ
+  - builder Hamilton NZ
+  - HVAC Hamilton NZ
+  - plumber Dunedin NZ
+  - electrician Dunedin NZ
+  - builder Dunedin NZ
+  - HVAC Dunedin NZ

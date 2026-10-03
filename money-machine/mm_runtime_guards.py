@@ -11,6 +11,7 @@ while continuously degraded) so a sandboxed/offline host cannot flood errors.
 """
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import shutil
@@ -22,13 +23,20 @@ import mm_core as core
 
 PROBE_TTL_SECONDS = int(os.environ.get("MM_NETWORK_PROBE_TTL", "60"))
 LOG_DEDUP_SECONDS = int(os.environ.get("MM_NETWORK_LOG_DEDUP", "3600"))
-DEFAULT_PROBE_HOSTS = "example.com:443"
+DEFAULT_PROBE_HOSTS = ("openrouter.ai:443", "github.com:443", "example.com:443")
 
 
 def disk_guard(root=None, min_free_mb=None):
     root = Path(root or core.root())
     minimum = int(min_free_mb if min_free_mb is not None else os.environ.get("MM_MIN_FREE_MB", "1024"))
-    usage = shutil.disk_usage(root)
+
+    # Health/status must remain read-only and work before a workspace exists.
+    # Walk upward to the nearest existing parent rather than creating MM_ROOT.
+    probe = root
+    while not probe.exists() and probe != probe.parent:
+        probe = probe.parent
+
+    usage = shutil.disk_usage(probe)
     free_mb = usage.free // (1024 * 1024)
     return {
         "ok": free_mb >= minimum,
@@ -54,7 +62,7 @@ def _parse_probe_hosts(hosts=None, host=None, port=443):
             raw = [part.strip() for part in env.split(",") if part.strip()]
         else:
             legacy = os.environ.get("MM_NETWORK_PROBE_HOST")
-            raw = ["%s:%s" % (legacy, port)] if legacy else [DEFAULT_PROBE_HOSTS]
+            raw = ["%s:%s" % (legacy, port)] if legacy else list(DEFAULT_PROBE_HOSTS)
     parsed = []
     for entry in raw:
         if isinstance(entry, (tuple, list)):
@@ -70,22 +78,32 @@ def _parse_probe_hosts(hosts=None, host=None, port=443):
 
 
 def _probe_once(host, port, timeout, resolver=None, connector=None):
-    """Attempt DNS + TCP connect to one host. Returns None on success, error str."""
+    """Attempt DNS + TCP connect across all resolved addresses for one host."""
     resolver = resolver or socket.getaddrinfo
     try:
         addresses = resolver(host, port, type=socket.SOCK_STREAM)
-        if not addresses:
-            raise OSError("no addresses")
-        family, socktype, proto, _, sockaddr = addresses[0]
-        if connector is not None:
-            connector(family, socktype, proto, sockaddr, timeout)
-        else:
-            with socket.socket(family, socktype, proto) as sock:
-                sock.settimeout(timeout)
-                sock.connect(sockaddr)
-        return None
     except OSError as exc:
         return "%s: %s" % (type(exc).__name__, str(exc)[:200])
+    if not addresses:
+        return "OSError: no addresses"
+
+    last_error = None
+    for family, socktype, proto, _, sockaddr in addresses:
+        try:
+            if connector is not None:
+                connector(family, socktype, proto, sockaddr, timeout)
+            else:
+                with socket.socket(family, socktype, proto) as sock:
+                    sock.settimeout(timeout)
+                    sock.connect(sockaddr)
+            return None
+        except OSError as exc:
+            last_error = exc
+
+    return "%s: %s" % (
+        type(last_error).__name__ if last_error is not None else "OSError",
+        str(last_error)[:200] if last_error is not None else "all addresses failed",
+    )
 
 
 def _cache_path(cache_path=None):
@@ -216,6 +234,7 @@ def network_status(cache_path=None):
 
 
 def snapshot(root=None, probe_network=True):
+    accounting = accounting_snapshot(root)
     return {
         "checked_at": core.now(),
         "disk": disk_guard(root),
@@ -224,6 +243,49 @@ def snapshot(root=None, probe_network=True):
             "scope": "not probed",
             "action": "unknown",
         },
-        "paid_calls": 0,
-        "external_sends": 0,
+        "paid_calls": accounting.get("paid_calls"),
+        "external_sends": accounting.get("external_sends"),
+        "accounting": accounting,
     }
+
+
+def accounting_snapshot(root=None):
+    """Measured local ledger counts. Missing evidence remains unknown.
+
+    This does not attest to activity that was never recorded in this database.
+    Both sent timestamps and receipts count, including partial send records.
+    """
+    result = {"status": "unknown", "source": "local SQLite ledger",
+              "checked_at": core.now(), "paid_calls": None,
+              "external_sends": None, "model_cost_usd": None,
+              "limitation": "database records only; unrecorded activity is not measured"}
+    path = Path(root or core.root()) / "database" / "money_machine.db"
+    try:
+        with contextlib.closing(core.connect(path, readonly=True)) as d:
+            d.execute("BEGIN")
+            row = d.execute(
+                "SELECT count(*), coalesce(sum(cost_usd),0), "
+                "coalesce(sum(cost_usd>0),0), "
+                "coalesce(sum(cost_usd IS NULL OR cost_usd<0 OR "
+                "typeof(cost_usd) NOT IN ('real','integer')),0) "
+                "FROM mm_model_invocations").fetchone()
+            sends = d.execute(
+                "SELECT count(*), coalesce(sum(sent_at IS NOT NULL),0), "
+                "coalesce(sum(send_receipt IS NOT NULL),0) FROM mm_messages "
+                "WHERE sent_at IS NOT NULL OR send_receipt IS NOT NULL").fetchone()
+            proposals = d.execute(
+                "SELECT count(*), coalesce(sum(sent_at IS NOT NULL),0), "
+                "coalesce(sum(send_receipt IS NOT NULL),0) FROM mm_proposals "
+                "WHERE sent_at IS NOT NULL OR send_receipt IS NOT NULL").fetchone()
+            result.update(status="measured", model_invocations_count=row[0],
+                          model_cost_usd=float(row[1]), paid_calls=row[2],
+                          invalid_cost_records=row[3],
+                          external_sends=sends[0] + proposals[0],
+                          message_sends=sends[0], proposal_sends=proposals[0],
+                          sent_timestamps=sends[1] + proposals[1],
+                          send_receipts=sends[2] + proposals[2])
+            if row[3]:
+                result.update(status="error", error="invalid or missing model cost records")
+    except Exception as exc:
+        result.update(status="error", error=f"{type(exc).__name__}: {exc}")
+    return result

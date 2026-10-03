@@ -31,6 +31,27 @@ def fresh_db(tmp):
 
 
 class MultiProbeGuard(unittest.TestCase):
+    def test_probe_tries_all_resolved_addresses(self):
+        calls = []
+
+        def resolver(host, port, type=None):
+            return [
+                (10, 1, 6, "", ("2001:db8::1", port, 0, 0)),
+                (2, 1, 6, "", ("203.0.113.10", port)),
+            ]
+
+        def connector(family, socktype, proto, sockaddr, timeout):
+            calls.append(sockaddr)
+            if family == 10:
+                raise OSError("IPv6 route unavailable")
+
+        result = guards._probe_once(
+            "multi.example", 443, 1.0,
+            resolver=resolver, connector=connector
+        )
+        self.assertIsNone(result)
+        self.assertEqual(len(calls), 2)
+
     def test_guard_multi_probe_fallback(self):
         """First probe fails, second succeeds -> guard reports ok via fallback."""
         def resolver(host, port, type=None):
@@ -60,6 +81,13 @@ class MultiProbeGuard(unittest.TestCase):
         self.assertFalse(result["ok"])
         self.assertIn("defer_or_retry", result["action"])
         self.assertEqual(len(result["attempts"]), 2)
+
+    def test_default_probe_hosts_are_resilient_multi_probe(self):
+        parsed = guards._parse_probe_hosts()
+        self.assertGreaterEqual(len(parsed), 3)
+        self.assertIn(("openrouter.ai", 443), parsed)
+        self.assertIn(("github.com", 443), parsed)
+        self.assertIn(("example.com", 443), parsed)
 
     def test_env_probe_hosts_order(self):
         with mock.patch.dict(os.environ,

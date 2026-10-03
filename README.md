@@ -69,7 +69,7 @@ discover
 → learn
 ```
 
-The current v32 transport remains disabled, so the flow stops at review unless a future live adapter is separately approved.
+The canonical transport remains disabled, so the flow stops at review unless a future live adapter is separately approved.
 
 ### Discovery
 
@@ -140,7 +140,7 @@ Observability snapshots are intentionally lightweight:
 
 ## Safety model
 
-The v32 branch is fail-closed:
+The current canonical branch is fail-closed:
 
 - no silent paid model fallback;
 - external free model routes require explicit opt-in and are restricted to public/non-confidential prompts;
