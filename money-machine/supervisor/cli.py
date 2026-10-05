@@ -242,6 +242,15 @@ def cmd_run_foreground(args) -> int:
                 snapshot = [{"worker": w.worker_id, "processed": w.run_once(d)} for w in workers]
                 mm_pipeline.drain_expired_leases(d)
                 d.commit()
+                try:
+                    import mm_recurring_contact_review
+                    contact_review = mm_recurring_contact_review.tick(d)
+                    if contact_review.get("ran") or contact_review.get("reason") not in {
+                        "not_due", "worker_running", "all_current", "disabled",
+                    }:
+                        _log({"kind": "recurring_contact_review", **contact_review})
+                except Exception as ex:
+                    _log({"kind": "recurring_contact_review_error", "error": str(ex)[:500]})
                 cycles += 1
                 _heartbeat(pid, "running")
                 _log({"kind": "loop_cycle", "cycle": cycles, "snapshot": snapshot, "disk": disk})
@@ -255,6 +264,11 @@ def cmd_run_foreground(args) -> int:
                         break
                     time.sleep(0.1)
     finally:
+        try:
+            import mm_recurring_contact_review
+            mm_recurring_contact_review.shutdown()
+        except Exception as ex:
+            _log({"kind": "contact_review_shutdown_error", "error": str(ex)[:300]})
         _heartbeat(pid, "stopped")
         _log({"kind": "supervisor_stop", "pid": pid, "cycles": cycles})
         try:

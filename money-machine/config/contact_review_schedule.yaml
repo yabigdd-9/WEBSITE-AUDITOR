@@ -1,0 +1,10 @@
+# Advisory evidence work only; pipeline/release/sending authority stays separate.
+enabled: true
+scan_interval_seconds: 60
+refresh_hours: 24
+max_businesses_per_job: 2
+job_timeout_seconds: 180
+max_pages: 3
+max_requests: 5
+max_dns_domains: 5
+model_execution_enabled: false
