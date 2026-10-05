@@ -7,30 +7,29 @@ items, modifies release policy, creates human labels, calls models or sends.
 from __future__ import annotations
 
 import argparse
-from datetime import datetime, timezone
 import fcntl
 import hashlib
 import json
 import os
-from pathlib import Path
 import signal
 import subprocess
 import sys
 import time
+from datetime import datetime, timezone
+from pathlib import Path
 from urllib.parse import urlsplit
 from urllib.robotparser import RobotFileParser
 
 import yaml
-
 from mm_core import connect, root
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-from mm_contact_review_pathway import review_case, report_html, safe_child  # noqa: E402
-from mm_email_network import Crawler, DNSChecks  # noqa: E402
 import mm_email as email  # noqa: E402
 from email_baseline_capture import get_public  # noqa: E402
+from mm_contact_review_pathway import report_html, review_case, safe_child  # noqa: E402
+from mm_email_network import Crawler, DNSChecks  # noqa: E402
 
 VERSION = "recurring-contact-review-v1.0"
 ELIGIBLE = {"IDENTITY_PENDING", "CONTACT_PENDING", "NEEDS_REVIEW"}
@@ -269,12 +268,29 @@ def collect_case(business, job, config):
     evidence = folder / "evidence"
     evidence.mkdir(parents=True, mode=0o700)
     robots, calls = {}, []
+    requests_remaining = config["max_requests"]
+
+    def bounded_get(url):
+        nonlocal requests_remaining
+        if requests_remaining <= 0:
+            raise ValueError("CONTACT_REVIEW_REQUEST_LIMIT")
+        # Reserve the worst-case redirect cost before fetching. On an error
+        # the reservation stays consumed because the final hop is unknown.
+        reserved = min(3, requests_remaining)
+        requests_remaining -= reserved
+        meta, raw = get_public(url, redirects=reserved - 1)
+        used = 1 + len(meta.get("redirects", []))
+        if used > reserved:
+            raise ValueError("CONTACT_REVIEW_REDIRECT_LIMIT")
+        requests_remaining += reserved - used
+        return meta, raw
+
     def fetch(url):
         split = urlsplit(url)
         origin = split.scheme + "://" + split.netloc
         if origin not in robots:
             try:
-                meta, raw = get_public(origin + "/robots.txt", redirects=2)
+                meta, raw = bounded_get(origin + "/robots.txt")
                 parser = RobotFileParser()
                 parser.parse(raw.decode("utf-8", "replace").splitlines())
                 robots[origin] = parser
@@ -288,7 +304,7 @@ def collect_case(business, job, config):
                 calls.append({"url": origin + "/robots.txt", "status": "unavailable"})
         if robots[origin] is False or (robots[origin] and not robots[origin].can_fetch("MoneyMachine-EvidenceReview", url)):
             raise ValueError("ACCESS_RESTRICTED_OR_ROBOTS_UNAVAILABLE")
-        meta, raw = get_public(url, redirects=2)
+        meta, raw = bounded_get(url)
         calls.append({"url": url, "status": "captured", "redirects": meta["redirects"]})
         return meta, raw
     pages, errors = Crawler(evidence, max_pages=config["max_pages"],
@@ -299,7 +315,10 @@ def collect_case(business, job, config):
     dns_results = {domain: dns.check(domain) for domain in domains}
     meta = [{key: p[key] for key in ("url", "requested_url", "captured_at", "sha256", "path", "content_type", "redirects") if key in p} for p in pages]
     doc = {"business": business, "pages": meta, "dns": dns_results, "errors": errors}
-    atomic(folder / "COLLECTION.json", {**doc, "public_fetch_calls": calls})
+    atomic(folder / "COLLECTION.json", {**doc, "public_fetch_calls": calls,
+           "request_budget": {"limit": config["max_requests"],
+                              "consumed_or_reserved": config["max_requests"] - requests_remaining,
+                              "remaining": requests_remaining}})
     return folder, doc, "PUBLIC_GET_DNS"
 
 
@@ -337,12 +356,22 @@ def process_job(job):
                 current = next((b for b in candidates(d) if b["live_business_id"] == bid), None)
             if current is None or fingerprint(current, request["source_hashes"]) != entry["fingerprint"]:
                 result["status"] = "STALE_LIVE_STATE"
+                if "row" in result:
+                    # Retain the captured decision, but never display it as a
+                    # current recommendation after the business has changed.
+                    row["judge_at_capture"] = dict(row["judge"])
+                    row["acceptance_current"] = False
+                    row["judge"] = {**row["judge"], "route": "STALE_LIVE_STATE",
+                                    "next_worker": "SCOUT",
+                                    "reason": "Business changed or left the eligible queue during review; current evidence is required"}
             atomic(job / (str(bid) + ".json"), result)
             atomic(root() / "state/contact-review/latest" / (str(bid) + ".json"), result)
             outcomes.append({"business_id": bid, "status": result["status"],
                              "route": (result.get("row") or {}).get("judge", {}).get("route")})
-        summary = {"cases": len(rows), "machine_supported": sum(r["proofer"]["passed"] for r in rows),
-                   "exceptions": sum(not r["proofer"]["passed"] for r in rows)}
+        supported = sum(r["judge"]["route"] == "MACHINE_SUPPORTED_RECOMMENDATION"
+                        for r in rows)
+        summary = {"cases": len(rows), "machine_supported": supported,
+                   "exceptions": len(rows) - supported}
         (job / "REVIEW.html").write_text(report_html(summary, rows), encoding="utf-8")
         status = "COMPLETE" if all(r["status"] == "COMPLETE" for r in outcomes) else "COMPLETED_WITH_ERRORS"
         atomic(job / "RESULT.json", {"status": status, "version": VERSION,

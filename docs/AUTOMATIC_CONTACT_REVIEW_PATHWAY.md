@@ -103,7 +103,29 @@ Human precision review, release policy and exact-item send permission remain
 separate. AI agreement cannot produce a human label. Existing user labels are
 left in their original append-only review records.
 
-No regression tests were added or run for this implementation request. The
-standalone pathway was executed against the existing 25-case packet. Runtime
-activation evidence is saved separately; these machine recommendations do not
-replace the completed historical soak or independent precision acceptance.
+The initial implementation was executed against an existing 25-case packet
+without a focused regression suite. Runtime activation evidence is saved
+separately; machine recommendations do not replace the historical soak or
+independent precision acceptance.
+
+## Focused offline worker checks
+
+`tests/test_contact_review_workers.py` exercises scheduling and cooldowns,
+single ownership, interrupted jobs, deadline handling, frozen/source hashes,
+stale records, publication/purpose/DNS gates and the default no-model/no-send
+path. It uses temporary local state, synthetic cases and mocked process/timer
+operations; network/model calls and access to non-temporary databases fail.
+No live supervisor, controller or collector is restarted by these tests.
+
+```sh
+rtk proxy env PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 MM_EXTERNAL_SEND_DISABLED=1 \
+  /absolute/path/to/python3.11 -B -m pytest tests/test_contact_review_workers.py -q
+```
+
+Collection limits count robots requests and redirect hops in the same request
+budget. Failed requests consume the reserved worst-case redirect allowance
+because the last attempted hop is unknown. Stale reviews retain their captured
+decision as history and are displayed as held cases requiring current evidence.
+
+These scoped checks do not constitute a new 24-hour runtime soak, validate an
+individual mailbox, create independent human labels, or open a release gate.
