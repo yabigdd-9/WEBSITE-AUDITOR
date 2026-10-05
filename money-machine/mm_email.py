@@ -307,6 +307,20 @@ def observation_matches_unit(observation, identity):
     return bool(scope.get('branch') and scope['branch'] in identity.get('matched_branches', []))
 
 
+def trim_hidden_markup(soup):
+    """Remove explicit hidden markup; this does not execute or resolve CSS."""
+    for node in soup.select('script,style,noscript,svg,template,[hidden],'
+                            '[aria-hidden="true"],input,textarea'):
+        node.decompose()
+    for node in soup.select('[style]'):
+        if node.attrs is None:
+            continue
+        style = re.sub(r'/\*.*?\*/', '', node.get('style', ''), flags=re.S)
+        if re.search(r'(?:^|;)\s*(?:display\s*:\s*none|visibility\s*:\s*(?:hidden|collapse))'
+                     r'\s*(?:!important)?\s*(?:;|$)', style, flags=re.I):
+            node.decompose()
+
+
 def parse_page(meta, raw):
     if hash_bytes(raw) != meta['sha256']: raise ValueError('Page capture hash mismatch')
     result = {**meta, 'observations': [], 'organization_names': [], 'social_links': [], 'phones': [], 'headings': [], 'contact_forms': [], 'links': []}
@@ -335,9 +349,9 @@ def parse_page(meta, raw):
                         if isinstance(v, (dict, list)): visit(v)
             visit(json.loads(node.get_text()))
         except (ValueError, TypeError, RecursionError): pass
-    for node in soup(['script', 'style', 'noscript', 'svg', 'template']): node.decompose()
-    for node in soup.select('[hidden],[aria-hidden="true"],input,textarea'):
-        node.decompose()
+    trim_hidden_markup(soup)
+    # Hidden headings must not supply prominent business identity signals.
+    result['headings'] = [h.get_text(' ', strip=True) for h in soup.select('h1,h2,h3,h4')][:60]
     text = soup.get_text(' ', strip=True); result['text'] = text
     result['phones'] = list(dict.fromkeys(re.findall(r'(?:\+64|0)[\d ()-]{7,18}\d', text)))[:15]
     for a in soup.select('a[href]'):

@@ -344,7 +344,7 @@ def test_current_supported_case_is_counted_and_still_has_no_release_authority(jo
     monkeypatch.setattr(recurring, "review_case", lambda *args: fake_row(job.business, True))
     recurring.process_job(job.path)
     result = recurring.read_json(job.path / "RESULT.json")
-    assert result["summary"] == {"cases": 1, "machine_supported": 1, "exceptions": 0}
+    assert result["summary"] == {"cases": 1, "attempted": 1, "machine_supported": 1, "exceptions": 0, "errors": 0, "stale": 0}
     row = recurring.read_json(job.path / "1.json")["row"]
     assert row["judge"]["outreach_eligible"] is False
     assert row["judge"]["human_precision_label"] is None
@@ -665,7 +665,7 @@ def test_dns_checks_are_capped_to_configured_domains(monkeypatch, tmp_path):
     assert len(checked) == len(doc["dns"]) == CONFIG["max_dns_domains"]
 
 
-def test_standalone_default_replay_never_calls_model_and_preserves_input(tmp_path):
+def test_standalone_reevaluation_never_calls_model_and_preserves_input(tmp_path):
     packet = tmp_path / "frozen-packet"
     b = business()
     doc = {"business": b, "pages": [], "dns": {}, "errors": []}
@@ -679,7 +679,7 @@ def test_standalone_default_replay_never_calls_model_and_preserves_input(tmp_pat
                 for p in packet.rglob("*") if p.is_file()}
     previous_umask = recurring.os.umask(0o077)
     try:
-        summary = pathway.run(packet, tmp_path / "replay-output", enable_ai=False)
+        summary = pathway.run(packet, tmp_path / "replay-output", enable_ai=False, mode="reevaluate")
     finally:
         recurring.os.umask(previous_umask)
     assert summary["cases"] == 1
