@@ -322,21 +322,16 @@ def latest_evidence(d,bid):
     return e[0]
 
 def opportunity_score_6_component(supported_problem,evidence_to_solution_fit,business_and_campaign_fit,bounded_delivery_feasibility,evidence_quality_freshness,supported_reason_to_act_now):
-    """Return a deterministic 0–100 score; it never changes state or sends."""
-    components={
-        'supported_problem':(supported_problem,25),
-        'evidence_to_solution_fit':(evidence_to_solution_fit,20),
-        'business_and_campaign_fit':(business_and_campaign_fit,20),
-        'bounded_delivery_feasibility':(bounded_delivery_feasibility,15),
-        'evidence_quality_freshness':(evidence_quality_freshness,10),
-        'supported_reason_to_act_now':(supported_reason_to_act_now,10),
-    }
-    breakdown={}
-    for name,(value,weight) in components.items():
-        if isinstance(value,bool) or not isinstance(value,(int,float)) or not 0<=value<=1:raise ValueError(name+' must be a number from 0 to 1')
-        breakdown[name]=round(value*weight,2)
-    score_value=round(sum(breakdown.values()),2)
-    return {'score':score_value,'is_shortlist':score_value>=65,'components':breakdown,'threshold':65,'basis':'Deterministic score; human review remains required.'}
+    """Compatibility wrapper around the canonical deterministic scorer."""
+    from auditor_toolkit.decision import six_component_opportunity
+    return six_component_opportunity(
+        supported_problem,
+        evidence_to_solution_fit,
+        business_and_campaign_fit,
+        bounded_delivery_feasibility,
+        evidence_quality_freshness,
+        supported_reason_to_act_now,
+    )
 
 def readiness(d,bid,eid,address):
     reasons=[]
