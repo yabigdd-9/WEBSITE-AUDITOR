@@ -301,7 +301,8 @@ def test_interrupted_child_finalizes_scheduled_case_without_losing_prior(schedul
     latest = recurring.read_json(scheduler.root / "state/contact-review/latest/1.json")
     assert latest["status"] == "INCOMPLETE"
     assert (job_path / "PRIOR_REVIEWS.json").read_bytes() == original
-    assert recurring._owned is None and recurring._lock is None
+    assert recurring._owned is None
+    assert recurring._lock is None
     scheduler.launches.assert_called_once()
 
 
@@ -312,7 +313,8 @@ def test_shutdown_signals_only_owned_fake_child(scheduler, monkeypatch):
     recurring.shutdown()
     scheduler.proc.terminate.assert_called_once()
     scheduler.proc.kill.assert_called_once()
-    assert recurring._owned is None and recurring._lock is None
+    assert recurring._owned is None
+    assert recurring._lock is None
 
 
 def test_job_keeps_database_readonly_and_writes_zero_send_receipt(job):
@@ -423,7 +425,9 @@ def test_hidden_or_partial_email_is_not_publication(raw):
 def test_exact_visible_and_encoded_mailto_publication():
     raw = b'<title>Contact</title><a href="mailto:info%40clear.nz?subject=Hello">Email</a><p>info@clear.nz</p>'
     proof = pathway.publication_proof(publication_meta(), raw, "info@clear.nz")
-    assert proof["mailto"] and proof["visible_text"] and proof["contact_page"]
+    assert proof["mailto"]
+    assert proof["visible_text"]
+    assert proof["contact_page"]
 
 
 def supported_result(at):
@@ -501,8 +505,9 @@ def test_replay_rejects_changed_bytes_and_path_escape(tmp_path):
     raw.write_bytes(b"Changed content")
     doc = {"business": b, "pages": [{"path": "page.html", "sha256": "original"}],
            "dns": {}, "errors": []}
+    at = datetime.now(timezone.utc)
     with pytest.raises(ValueError, match="digest mismatch"):
-        pathway.review_case(b, doc, tmp_path, datetime.now(timezone.utc))
+        pathway.review_case(b, doc, tmp_path, at)
     with pytest.raises(ValueError, match="escapes"):
         pathway.safe_child(tmp_path, "../outside")
 
@@ -517,11 +522,12 @@ def test_replay_rejects_oversized_capture(tmp_path):
 def test_replay_rejects_mismatched_case_and_excessive_pages(tmp_path):
     b = business()
     doc = {"business": {**b, "name": "Different"}, "pages": []}
+    at = datetime.now(timezone.utc)
     with pytest.raises(ValueError, match="frozen business"):
-        pathway.review_case(b, doc, tmp_path, datetime.now(timezone.utc))
+        pathway.review_case(b, doc, tmp_path, at)
     doc = {"business": b, "pages": [None] * 6}
     with pytest.raises(ValueError, match="bounded page count"):
-        pathway.review_case(b, doc, tmp_path, datetime.now(timezone.utc))
+        pathway.review_case(b, doc, tmp_path, at)
 
 
 def seed_packet(tmp_path, *, hours_old=0):
@@ -557,8 +563,10 @@ def test_seed_tampering_stops_review(tmp_path, tamper):
             "case": packet / "evidence/cases/seed-1.json",
             "manifest": packet / "PACKET_MANIFEST.json"}[tamper]
     path.write_text("changed")
+    frozen_business = business()
+    seeds = [seed]
     with pytest.raises(ValueError, match="changed"):
-        recurring.seed_case(business(), [seed])
+        recurring.seed_case(frozen_business, seeds)
 
 
 def test_seed_expired_or_for_old_name_is_not_reused(tmp_path):
@@ -634,13 +642,15 @@ def test_single_request_budget_cannot_fetch_page_after_robots(monkeypatch, tmp_p
     calls = []
     def public(url, *, redirects):
         calls.append(url)
-        assert redirects == 0 and url.endswith("/robots.txt")
+        assert redirects == 0
+        assert url.endswith("/robots.txt")
         return synthetic_response(url, b"User-agent: *\nAllow: /\n")
     monkeypatch.setattr(recurring, "get_public", public)
     monkeypatch.setattr(recurring.time, "sleep", lambda *args: None)
     _, doc, _ = recurring.collect_case(
         business(), tmp_path / "job", {**CONFIG, "max_pages": 1, "max_requests": 1})
-    assert len(calls) == 1 and doc["pages"] == []
+    assert len(calls) == 1
+    assert doc["pages"] == []
     assert "CONTACT_REVIEW_REQUEST_LIMIT" in doc["errors"][0]["reason"]
 
 
@@ -650,7 +660,8 @@ def test_dns_checks_are_capped_to_configured_domains(monkeypatch, tmp_path):
         {"email": f"info@company{i}.nz", "syntax_error": None} for i in range(9)]}
     class FakeCrawler:
         def __init__(self, evidence, **kwargs):
-            assert kwargs["max_pages"] == 3 and kwargs["max_requests"] == 5
+            assert kwargs["max_pages"] == 3
+            assert kwargs["max_requests"] == 5
         def crawl(self, website):
             return [page], []
     class FakeDNS:
@@ -703,4 +714,5 @@ def test_optional_advisor_cannot_invent_worker_or_override_judge(monkeypatch):
     assert advice["discarded_assignments"] == 1
     assert advice["can_change_judge_decisions"] is False
     assert len(calls) == 1
-    assert "Clear Plumbing" not in calls[0][0] and "clear.nz" not in calls[0][0]
+    assert "Clear Plumbing" not in calls[0][0]
+    assert "clear.nz" not in calls[0][0]

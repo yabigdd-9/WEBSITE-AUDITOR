@@ -93,8 +93,10 @@ def packet(tmp_path, *, engines=None, raw=None, cover_raw=True):
 def test_report_includes_attempt_errors_without_success_row(status):
     rendered = pathway.report_html({"cases": 0}, [], [{"business_id": 1, "company": "Held business",
                                                        "status": status, "error": "<script>unsafe</script>"}])
-    assert "1 cases attempted" in rendered and "0 supported recommendations" in rendered
-    assert "1 exceptions" in rendered and "Held business" in rendered
+    assert "1 cases attempted" in rendered
+    assert "0 supported recommendations" in rendered
+    assert "1 exceptions" in rendered
+    assert "Held business" in rendered
     assert "&lt;script&gt;unsafe&lt;/script&gt;" in rendered
     assert 'data-supported="true"' not in rendered
 
@@ -111,9 +113,12 @@ def test_report_counts_mixed_attempts_and_preserves_two_argument_call():
     rendered = pathway.report_html({}, [row()], [{"business_id": 1, "status": "COMPLETE"},
                                                  {"business_id": 2, "status": "REVIEW_ERROR"},
                                                  {"business_id": 3, "status": "INCOMPLETE"}])
-    assert "3 cases attempted" in rendered and "1 completed" in rendered
-    assert "1 errors" in rendered and "1 incomplete" in rendered
-    assert "1 supported recommendations" in rendered and "2 exceptions" in rendered
+    assert "3 cases attempted" in rendered
+    assert "1 completed" in rendered
+    assert "1 errors" in rendered
+    assert "1 incomplete" in rendered
+    assert "1 supported recommendations" in rendered
+    assert "2 exceptions" in rendered
     assert rendered.count("<details ") == 3
     assert "1 supported recommendations" in pathway.report_html({}, [row()])
 
@@ -132,7 +137,8 @@ def test_inline_hidden_contact_and_heading_rejected_in_parser_and_proofer(style)
     raw = f'<div style="{style}"><h1>Hidden Company</h1><a href="mailto:info@clearplumbing.nz">Email</a></div>'.encode()
     assert pathway.publication_proof(meta(raw), raw, "info@clearplumbing.nz") is None
     parsed = pathway.verifier.parse_page(meta(raw), raw)
-    assert parsed["observations"] == [] and parsed["headings"] == []
+    assert parsed["observations"] == []
+    assert parsed["headings"] == []
 
 
 @pytest.mark.parametrize("raw", [b'<style>.hidden{display:none}</style><p>info@clearplumbing.nz</p>',
@@ -159,7 +165,8 @@ def test_class_dependent_mailto_cannot_establish_publication_proof():
 def test_plain_markup_can_establish_publication_without_css_uncertainty():
     raw = b'<a href="mailto:info@clearplumbing.nz">Email</a>'
     proof = pathway.publication_proof(meta(raw), raw, "info@clearplumbing.nz")
-    assert proof["mailto"] and not proof["css_visibility_uncertain"]
+    assert proof["mailto"]
+    assert not proof["css_visibility_uncertain"]
 
 
 @pytest.mark.parametrize("engines", [{}, {pathway.REQUIRED_ENGINE_FILES[0]: "partial"}])
@@ -190,7 +197,8 @@ def test_replay_preserves_inputs_and_records_current_engine_snapshot(tmp_path, m
     assert summary["frozen_engine_fingerprints_verified"] == (mode == "frozen")
     assert summary["frozen_application_revision"] == ("historical-revision" if mode == "frozen" else None)
     assert set(pathway.REQUIRED_ENGINE_FILES) <= summary["current_engine_sha256"].keys()
-    assert (output / "ENGINE_SNAPSHOT.json").exists() and (output / "MANIFEST.json").exists()
+    assert (output / "ENGINE_SNAPSHOT.json").exists()
+    assert (output / "MANIFEST.json").exists()
     report = (output / "REVIEW.html").read_text()
     assert ("does not accept the historical application revision" in report) == (mode == "reevaluate")
     assert summary["external_sends"] == summary["paid_ai_cost"] == summary["pipeline_writes"] == summary["model_calls"] == 0
@@ -252,9 +260,13 @@ def test_judge_returns_fixed_actionable_requirements_without_release_authority(r
     proof = {"passed": route == "supported", "checks": {"exact_publication_reconfirmed": route == "supported"}}
     assignment = pathway.judge_worker(doc, result, proof)
     assert assignment["next_worker"] in pathway.WORKERS
-    assert assignment["reason_codes"] and assignment["required_evidence"] and assignment["permitted_action"]
-    assert assignment["pipeline_action"] == "NONE" and assignment["outreach_eligible"] is False
-    assert assignment["human_precision_label"] is None and assignment["precision_release_authority"] is False
+    assert assignment["reason_codes"]
+    assert assignment["required_evidence"]
+    assert assignment["permitted_action"]
+    assert assignment["pipeline_action"] == "NONE"
+    assert assignment["outreach_eligible"] is False
+    assert assignment["human_precision_label"] is None
+    assert assignment["precision_release_authority"] is False
     assert bool(assignment["blocking_checks"]) == (route != "supported")
 
 

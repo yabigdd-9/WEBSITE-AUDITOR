@@ -72,7 +72,8 @@ def test_robots_failure_is_not_retried_each_minute():
     receipt = {"status": "REVIEW_ERROR", "fingerprint": "same", "reviewed_at": at.isoformat(),
                "error": "ACCESS_RESTRICTED_OR_ROBOTS_UNAVAILABLE"}
     result = tasks.schedule(receipt, "same", at + timedelta(minutes=30))
-    assert result["reason"] == "ACCESS_HOLD" and not result["due"]
+    assert result["reason"] == "ACCESS_HOLD"
+    assert not result["due"]
 
 
 def test_task_fingerprint_and_authority_are_idempotent():
@@ -93,7 +94,8 @@ def test_error_case_is_in_total_and_offline_html(job, monkeypatch):
     assert result["summary"]["attempted"] == result["summary"]["cases"] == result["summary"]["errors"] == 1
     assert result["summary"]["machine_supported"] == 0
     html = (job.path / "REVIEW.html").read_text()
-    assert "synthetic capture error" in html and "Clear Plumbing" in html
+    assert "synthetic capture error" in html
+    assert "Clear Plumbing" in html
 
 
 def test_slow_first_case_does_not_omit_second_case(job, monkeypatch):
@@ -135,7 +137,8 @@ def cached_capture(tmp_path):
 def test_rule_only_refresh_reuses_pages_without_any_request(isolated):
     b, path, entry = cached_capture(isolated.root)
     packet, doc, method = cache.reuse(entry, b, "same", isolated.root)
-    assert packet == path and doc["business"] == b
+    assert packet == path
+    assert doc["business"] == b
     assert method == "HASH_VERIFIED_CAPTURE_REUSED"
     assert cache.reuse(entry, b, "changed-network-policy", isolated.root) is None
 
@@ -220,7 +223,8 @@ def test_identity_application_failure_releases_finished_child(scheduler, monkeyp
     monkeypatch.setattr(recurring, "consume_identity", broken)
     result = recurring.tick(None)
     assert result["reason"] == "worker_finished"
-    assert recurring._owned is None and recurring._lock is None
+    assert recurring._owned is None
+    assert recurring._lock is None
     assert list((scheduler.root / "state/contact-review/runs").rglob("*.identity-application.json"))
 
 

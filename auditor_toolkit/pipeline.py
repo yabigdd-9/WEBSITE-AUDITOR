@@ -9,18 +9,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import urlparse
 
-from . import (
-    browser_console,
-    cookie_consent,
-    hreflang,
-    images,
-    language,
-    social_meta,
-    structured_validation,
-    tech,
-    third_party,
-    vuln_js,
-)
+from . import structured_validation, tech, vuln_js
 from .browser import export_pdf, run_browser_checks
 from .checks import Finding, analyse_html, classify_response, dedupe_findings, score_findings
 from .common import Fetcher, atomic_write_json, atomic_write_text, validate_url
@@ -37,7 +26,14 @@ from .hygiene import (
     grade_security_headers,
     validate_links,
 )
-from .models import REGISTRY, SCHEMA_VERSION
+from .models import (
+    REGISTRY,
+    SCHEMA_VERSION,
+    UNIMPLEMENTED_RENDERED_CHECKS,
+    UNIMPLEMENTED_STATIC_CHECKS,
+    coverage_summary,
+    required_check_ids,
+)
 from .network import crawl, inspect_dns, inspect_headers, inspect_schema, inspect_tls
 from .quality_checks import run_quality_checks
 from .reporting import render_trend_svg, write_html_report
@@ -69,6 +65,10 @@ class AuditOptions:
 
     def __post_init__(self):
         self.output_root = Path(self.output_root).resolve()
+        if self.hourly_rate_nzd is not None:
+            from .quote import validate_hourly_rate
+
+            self.hourly_rate_nzd = float(validate_hourly_rate(self.hourly_rate_nzd))
         if not 1 <= self.max_pages <= 100 or not 0 <= self.max_depth <= 5:
             raise ValueError("Limits: 1–100 pages, depth 0–5")
         if not 0 < self.timeout <= 60 or not 1024 <= self.max_bytes <= 10_000_000:
@@ -126,6 +126,13 @@ def run_audit(url, options=None, fetcher=None):
     def skip(name, reason, required=False):
         checks[name] = {"status": "skipped", "reason": reason, "required": required}
 
+    # Placeholder analyzers return no observations. Never represent that as a
+    # successful check, including when fetching or browser rendering is absent.
+    for name in sorted(UNIMPLEMENTED_STATIC_CHECKS):
+        skip(name, "Not implemented", required=True)
+    for name in sorted(UNIMPLEMENTED_RENDERED_CHECKS):
+        skip(name, "Not implemented" if opts.browser else "Rendered mode required", opts.browser)
+
     def perform_parallel(specs):
         """Run independent local checks concurrently; merge deterministically.
 
@@ -171,6 +178,7 @@ def run_audit(url, options=None, fetcher=None):
             "url": str(response.url),
             "observed_at": fetched_at,
             "mode": "static",
+            "check_version": REGISTRY["fetch"].version,
             "data": {
                 "status_code": response.status_code,
                 "redirects": response.extensions.get("redirect_chain", []),
@@ -189,10 +197,6 @@ def run_audit(url, options=None, fetcher=None):
                 ("technology", lambda: tech.analyse_html(response.text, final_url, response.headers), True),
                 ("js_vulnerabilities", lambda: vuln_js.analyse_html(response.text, final_url, response.headers), True),
                 ("structured_validation", lambda: structured_validation.analyse_html(response.text, final_url, response.headers), True),
-                ("hreflang", lambda: hreflang.analyse_html(response.text, final_url, response.headers), True),
-                ("language", lambda: language.analyse_html(response.text, final_url, response.headers), True),
-                ("images", lambda: images.analyse_html(response.text, final_url, response.headers), True),
-                ("social_meta", lambda: social_meta.analyse_html(response.text, final_url, response.headers), True),
             ])
             def hygiene_checks():
                 robots_findings, robots_evidence = check_robots(client, final_url)
@@ -262,19 +266,28 @@ def run_audit(url, options=None, fetcher=None):
                 "required": opts.browser,
             }
             evidence["browser"] = result.get("evidence", {})
+            if result["status"] == "ok":
+                evidence["browser"].update(
+                    url=final_url,
+                    observed_at=timestamp,
+                    mode="rendered",
+                    check_version=REGISTRY["browser"].version,
+                    data=dict(result.get("evidence", {})),
+                )
             if opts.screenshot_diff and result.get("status") == "ok":
                 try:
                     history = History(opts.output_root)
-                    # Get previous complete runs for same URL and profile
+                    # Visual evidence can be compared even when unrelated
+                    # required analyzers leave the overall audit partial.
                     previous_runs = [
                         r for r in history.list(url, 1000)
                         if r["url"] == url
-                        and r["status"] == "complete"
+                        and r["status"] in {"complete", "partial"}
+                        and r.get("checks", {}).get("browser", {}).get("status") == "ok"
                         and r["profile"] == opts.profile
                         and r["run_id"] != run_id
                     ]
                     if previous_runs:
-                        previous_run = previous_runs[0]  # most recent
                         # Define screenshot types to check
                         screenshot_types = [
                             ("screenshot", "screenshot"),
@@ -282,10 +295,20 @@ def run_audit(url, options=None, fetcher=None):
                         ]
                         for evidence_key, artifact_key in screenshot_types:
                             current_path = evidence["browser"].get(evidence_key)
-                            if current_path and Path(current_path).exists():
-                                # Retrieve previous artifact
-                                prev_artifact = history.artifact(previous_run["run_id"], artifact_key)
-                                if prev_artifact and Path(prev_artifact).exists():
+                            if current_path and Path(current_path).is_file():
+                                # Prefer the latest usable, integrity-checked
+                                # artifact for this viewport. A failed capture
+                                # or missing artifact cannot be a baseline.
+                                prev_artifact = None
+                                for previous_run in previous_runs:
+                                    try:
+                                        candidate = history.artifact(previous_run["run_id"], artifact_key)
+                                    except (KeyError, OSError, ValueError):
+                                        continue
+                                    if Path(candidate).is_file():
+                                        prev_artifact = candidate
+                                        break
+                                if prev_artifact is not None:
                                     # Create diff image path
                                     diff_path = run_dir / "artifacts" / f"{evidence_key}-diff.png"
                                     # Run odiff
@@ -311,16 +334,20 @@ def run_audit(url, options=None, fetcher=None):
                     # Log warning but do not fail the audit
                     pass
             if opts.browser:
-                # Rendered checks
-                perform("cookie_consent", lambda: cookie_consent.analyse_html(response.text, final_url, response.headers))
-                perform("third_party", lambda: third_party.analyse_html(response.text, final_url, response.headers))
-                perform("browser_console", lambda: browser_console.analyse_html(response.text, final_url, response.headers))
                 axe = evidence["browser"].get("axe")
                 checks["axe"] = {
                     "status": "ok" if axe else "error",
                     "required": True,
                     "reason": evidence["browser"].get("axe_error", ""),
                 }
+                if axe:
+                    evidence["axe"] = {
+                        "url": final_url,
+                        "observed_at": timestamp,
+                        "mode": "rendered",
+                        "check_version": REGISTRY["axe"].version,
+                        "data": axe,
+                    }
                 for violation in (axe or {}).get("violations", []):
                     for node in violation["nodes"]:
                         findings.append(
@@ -359,6 +386,9 @@ def run_audit(url, options=None, fetcher=None):
                 "page",
                 "schema",
                 "headers",
+                "technology",
+                "js_vulnerabilities",
+                "structured_validation",
                 "hygiene",
                 "ux",
                 "links",
@@ -373,9 +403,10 @@ def run_audit(url, options=None, fetcher=None):
                 skip(
                     name,
                     "Fetch unavailable",
-                    name in {"page", "schema", "headers"}
-                    or opts.browser
-                    and name in {"browser", "axe"},
+                    name in required_check_ids(opts.browser)
+                    or opts.deep and name in {"links", "dns", "crawl"}
+                    or opts.tls and name == "tls"
+                    or opts.external_tools and name in {"lychee", "lighthouse"},
                 )
     finally:
         if fetcher is None:
@@ -409,6 +440,7 @@ def run_audit(url, options=None, fetcher=None):
     defects = [enrich_fault(defect) for defect in defects]
     report = {
         "schema_version": SCHEMA_VERSION,
+        "browser_requested": opts.browser,
         "performance": {
             "total_elapsed_ms": int((time.perf_counter() - started_at) * 1000) if "started_at" in locals() else 0,
             "checks": {name: value.get("elapsed_ms", 0) for name, value in checks.items()},
@@ -497,19 +529,9 @@ def run_audit(url, options=None, fetcher=None):
         for key, value in report.get("drafts", {}).get("drafts", {}).items()
         if isinstance(value, dict)
     }
-    report["proposal"] = {
-        "currency": "NZD",
-        "hourly_rate": opts.hourly_rate_nzd,
-        "assumptions": "Illustrative 1–3 hours per finding; scope and rates require review.",
-        "hours_low": len(defects),
-        "hours_high": len(defects) * 3,
-        "estimate_low": len(defects) * opts.hourly_rate_nzd
-        if opts.hourly_rate_nzd is not None
-        else None,
-        "estimate_high": len(defects) * 3 * opts.hourly_rate_nzd
-        if opts.hourly_rate_nzd is not None
-        else None,
-    }
+    from .quote import calculate_proposal
+
+    report["proposal"] = calculate_proposal(report, opts.hourly_rate_nzd)
     report["action_preview"] = preview_report(report, run_dir / "actions")
     report_path, html_path, trend_path = (
         run_dir / name for name in ("report.json", "report.html", "trend.svg")
@@ -538,16 +560,20 @@ def run_audit(url, options=None, fetcher=None):
             export_pdf(html_path, pdf_path, opts)
             report["artifacts"]["pdf"] = str(pdf_path)
             checks["pdf"] = {"status": "ok", "required": True}
+            evidence["pdf"] = {
+                "url": url,
+                "observed_at": timestamp,
+                "mode": "rendered",
+                "check_version": REGISTRY["pdf"].version,
+                "data": {"path": str(pdf_path)},
+            }
         except Exception as exc:
             checks["pdf"] = {"status": "error", "required": True, "reason": str(exc)}
     else:
         skip("pdf", "Rendered mode required")
     complete = all(c["status"] == "ok" for c in checks.values() if c["required"])
     report.update(score_findings(deduped, complete), status="complete" if complete else "partial")
-    report["coverage"] = {
-        "required": sum(c["required"] for c in checks.values()),
-        "passed": sum(c["required"] and c["status"] == "ok" for c in checks.values()),
-    }
+    report["coverage"] = coverage_summary(checks)
     report["comparison"] = history.compare(report)
     write_html_report(report, html_path)
     # Regenerate PDF with final coverage, status and comparison after successful browser export.
@@ -558,7 +584,7 @@ def run_audit(url, options=None, fetcher=None):
             report["artifacts"].pop("pdf")
             checks["pdf"].update(status="error", reason=str(exc))
             report.update(status="partial", health_score=None)
-            report["coverage"]["passed"] -= 1
+            report["coverage"] = coverage_summary(checks)
             report["comparison"] = history.compare(report)
             write_html_report(report, html_path)
     atomic_write_text(trend_path, render_trend_svg(report))

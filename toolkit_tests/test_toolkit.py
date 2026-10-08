@@ -31,7 +31,8 @@ def test_findings_are_deduplicated_in_pipeline(tmp_path, monkeypatch):
     report = run_audit(
         "https://example.com/", AuditOptions(output_root=tmp_path), Fetcher(transport=transport)
     )
-    assert report["status"] == "complete"
+    assert report["status"] == "partial"
+    assert report["health_score"] is None
     unique_defects = {(d["defect_key"], d["impact"]) for d in report["defects"]}
     assert report["defect_count"] == len(unique_defects)
     assert Path(report["artifacts"]["json"]).exists()
@@ -51,7 +52,8 @@ def test_redirect_to_private_destination_is_rejected(monkeypatch):
         Fetcher(transport=transport).get("https://example.com")
 
 
-def test_fetcher_requests_identity_encoding_to_avoid_broken_deflate_replies():
+def test_fetcher_requests_identity_encoding_to_avoid_broken_deflate_replies(monkeypatch):
+    monkeypatch.setattr(socket, "getaddrinfo", lambda *a, **k: PUBLIC_ADDR)
     headers = {}
 
     def respond(request):
@@ -65,7 +67,8 @@ def test_fetcher_requests_identity_encoding_to_avoid_broken_deflate_replies():
     assert headers["accept-encoding"] == "identity"
 
 
-def test_fetcher_does_not_decode_compressed_response_twice():
+def test_fetcher_does_not_decode_compressed_response_twice(monkeypatch):
+    monkeypatch.setattr(socket, "getaddrinfo", lambda *a, **k: PUBLIC_ADDR)
     body = b"<html><title>compressed response</title></html>"
 
     def respond(request):

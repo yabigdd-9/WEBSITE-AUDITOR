@@ -13,6 +13,8 @@ if str(MM_DIR) not in sys.path:
 import mm_pipeline  # noqa: E402 - explicit standalone test import path
 import mm_workers  # noqa: E402 - explicit standalone test import path
 
+from toolkit_tests.coverage_fixtures import with_current_coverage  # noqa: E402
+
 
 def database():
     d = sqlite3.connect(":memory:")
@@ -102,6 +104,7 @@ def test_audit_handler_persists_canonical_defect_score_field():
         "checks": {"fetch": {"required": True, "status": "ok"}},
         "artifacts": {"json": "/tmp/run-opportunity/report.json"},
     }
+    report = with_current_coverage(report)
 
     with patch("auditor_toolkit.storage.History") as history_cls, patch(
         "auditor_toolkit.pipeline.run_audit", return_value=report

@@ -91,7 +91,8 @@ def test_pipeline_report_links_every_deduction_to_a_defect(tmp_path, monkeypatch
     report = run_audit(
         "https://example.com/", AuditOptions(output_root=tmp_path), Fetcher(transport=transport)
     )
-    assert report["status"] == "complete"
+    assert report["status"] == "partial"
+    assert report["health_score"] is None
     defect_ids = {d["finding_id"] for d in report["defects"]}
     # every material defect has evidence
     for d in report["defects"]:

@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 
 
 @dataclass
-class Technology:
+class DetectedTechnology:
     technology: str
     category: str
     version: Optional[str] = None
@@ -20,8 +20,15 @@ class Technology:
     confidence: float = 0.0
 
 
+Technology = DetectedTechnology
+
+
 def detect_technology(html: str, url: str, headers: dict) -> List[Technology]:
-    """Detect technologies used by the website."""
+    """Detect technologies from HTML and headers.
+
+    The url parameter is retained for legacy positional and keyword call
+    compatibility; detection uses only HTML and headers.
+    """
     soup = BeautifulSoup(html, "html.parser")
     technologies = [
         technology

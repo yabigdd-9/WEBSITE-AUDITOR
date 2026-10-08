@@ -1,6 +1,6 @@
 """Tests for technology enrichment pipeline."""
 
-from auditor_toolkit.tech import detect_technology
+from auditor_toolkit.tech import Technology, analyse_html, detect_technology
 from auditor_toolkit.technology.pipeline import enrich_technology
 
 
@@ -53,3 +53,23 @@ def test_legacy_detector_extracts_generator_version():
     wordpress = next(item for item in result if item.technology == "WordPress")
     assert wordpress.version == "6.4.2"
     assert wordpress.version_confidence == 0.9
+
+
+def test_legacy_detector_preserves_constructor_calls_and_evidence_format():
+    technology = Technology(technology="WordPress", category="CMS")
+    assert technology.technology == "WordPress"
+    html = '<meta name="generator" content="WordPress 6.4.2">'
+    url = "https://example.com"
+    positional = detect_technology(html, url, {})
+    keyword = detect_technology(html=html, url=url, headers={})
+    assert positional == keyword
+    findings, evidence = analyse_html(html, url, {})
+    assert findings == []
+    assert evidence["technologies"] == [{
+        "technology": "WordPress",
+        "category": "CMS",
+        "version": "6.4.2",
+        "version_confidence": 0.9,
+        "evidence": "meta generator: wordpress 6.4.2",
+        "confidence": 0.9,
+    }]

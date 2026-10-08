@@ -175,9 +175,12 @@ def test_offline_page_has_exact_draft_and_unsigned_export(proof):
     saved = bridge.build_approval_page([result, {"status": "HELD", "technical_holds": ["Uncertain identity"]}], page)
     text = page.read_text()
     assert saved["drafts"] == 1
-    assert "connect-src 'none'" in text and "form-action 'none'" in text
-    assert "Uncertain identity" in text and "info@acme.co.nz" in text
-    assert "Permission basis" in text and "Download decisions" in text
+    assert "connect-src 'none'" in text
+    assert "form-action 'none'" in text
+    assert "Uncertain identity" in text
+    assert "info@acme.co.nz" in text
+    assert "Permission basis" in text
+    assert "Download decisions" in text
     assert "fetch(" not in text
     assert "signed_approval_created:false" in text
 
@@ -235,12 +238,14 @@ def test_trusted_import_is_idempotent_and_skip_survives_new_evidence(proof):
     packet = json.loads(Path(ready["packet_path"]).read_text())
     exported = decision_export(packet, "skip")
     result = bridge.import_decisions(exported, [ready], root, reviewer="Human reviewer")
-    assert result["external_sends"] == 0 and result["signed_approval_created"] is False
+    assert result["external_sends"] == 0
+    assert result["signed_approval_created"] is False
     assert result["decisions"][0]["action"] == "skip"
     assert bridge.import_decisions(exported, [ready], root, reviewer="Human reviewer")["decisions"][0]["duplicate"]
     receipt["row"]["verifier"]["selected"]["dns_checked_at"] = datetime.now(timezone.utc).isoformat()
     held = bridge.prepare_draft(business, receipt, root)
-    assert held["status"] == "HELD" and held["technical_holds"] == ["DRAFT_SKIPPED_BY_USER"]
+    assert held["status"] == "HELD"
+    assert held["technical_holds"] == ["DRAFT_SKIPPED_BY_USER"]
 
 
 def test_edit_preserves_original_and_requires_new_exact_approval(proof):
@@ -283,7 +288,8 @@ def test_stale_dns_is_one_hour_and_page_holds_one_damaged_package(proof):
     page = root / "review.html"
     result = bridge.build_approval_page([ready, {"status":"HELD", "technical_holds":["Missing contact"]}], page)
     assert result["drafts"] == 0
-    assert "Waiting for fresh evidence" in page.read_text() and "Missing contact" in page.read_text()
+    assert "Waiting for fresh evidence" in page.read_text()
+    assert "Missing contact" in page.read_text()
 
 
 def test_owned_review_handoff_reaches_draft_without_questions(proof, monkeypatch):

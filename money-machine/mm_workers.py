@@ -221,10 +221,11 @@ def audit_handler(d, it, worker):
         raise PermanentError('public website required for audit')
 
     output_root = REPO / 'outputs' / 'toolkit'
+    from auditor_toolkit.models import current_coverage_gaps, has_current_complete_coverage
     from auditor_toolkit.storage import History
     history = History(output_root)
     recent_audit = history.get_latest_valid_audit(host, max_age_days=7)
-    if recent_audit:
+    if recent_audit and has_current_complete_coverage(recent_audit):
         return (
             'AUDITED',
             'canonical toolkit audit reused (recent)',
@@ -248,9 +249,49 @@ def audit_handler(d, it, worker):
             'auditor_toolkit failed: ' + str(exc)[:240]
         ) from exc
 
-    if report.get('status') != 'complete':
+    checks = report.get('checks') or {}
+    # Execution failures remain retryable even when unimplemented analyzers
+    # also appear. A coverage hold must not hide a transient execution error.
+    if checks.get('fetch', {}).get('status') == 'error':
+        raise RetryableError('auditor_toolkit incomplete: fetch')
+    execution_errors = sorted(
+        name for name, check in checks.items()
+        if check.get('required') and check.get('status') == 'error'
+    )
+    if execution_errors:
+        raise RetryableError(
+            'auditor_toolkit incomplete: ' + ','.join(execution_errors[:8])
+        )
+
+    implementation_gaps = sorted(
+        name for name, check in checks.items()
+        if check.get('required')
+        and check.get('status') == 'skipped'
+        and check.get('reason') == 'Not implemented'
+    )
+    coverage_gaps = current_coverage_gaps(report)
+    if implementation_gaps or report.get('status') == 'complete' and coverage_gaps:
+        missing = implementation_gaps or coverage_gaps
+        evidence = {
+            **_audit_evidence(report),
+            'audit_status': report.get('status'),
+            'missing_checks': missing,
+            'coverage': report.get('coverage') or {},
+        }
+        _record_intelligence_decision(
+            d, b['id'], 'NEEDS_REVIEW', 'AUDIT_COVERAGE_INCOMPLETE',
+            confidence=1.0, stage='audit', disposition='REVIEW',
+            candidate_url=url, derived_evidence=evidence,
+        )
+        return (
+            'NEEDS_REVIEW',
+            'canonical toolkit coverage requires review: ' + ','.join(missing),
+            evidence,
+        )
+
+    if not has_current_complete_coverage(report):
         required_errors = [
-            name for name, value in (report.get('checks') or {}).items()
+            name for name, value in checks.items()
             if value.get('required') and value.get('status') != 'ok'
         ]
         detail = ','.join(required_errors[:8]) or 'required checks incomplete'
