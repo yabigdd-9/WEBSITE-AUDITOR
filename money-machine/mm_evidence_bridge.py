@@ -23,6 +23,10 @@ STATIC_CHECKS = (
     "hygiene", "ux",
 )
 MAX_REPORT_BYTES = 8 * 1024 * 1024
+_ANCHOR_COLUMNS = {
+    "id", "business_id", "run_id", "report_path", "report_hash", "captured_at",
+    "registered_at", "rule_version",
+}
 _DDL = (
     """CREATE TABLE IF NOT EXISTS mm_audit_evidence(
         id INTEGER PRIMARY KEY,
@@ -52,6 +56,48 @@ def _columns(d, table):
     return {row[1] for row in d.execute(f"PRAGMA table_info({table})")}
 
 
+class EvidenceSchemaError(ValueError):
+    """An existing evidence source cannot safely be read with this schema."""
+
+
+def _schema_columns(d, table, required):
+    columns = _columns(d, table)
+    if columns and not required <= columns:
+        missing = ", ".join(sorted(required - columns))
+        raise EvidenceSchemaError(f"incompatible evidence schema: {table} missing {missing}")
+    return columns
+
+
+def _check_schema(d):
+    if not _schema_columns(d, "businesses", {"id", "public_website"}):
+        raise EvidenceSchemaError("incompatible evidence schema: businesses missing")
+    for table, required in (
+        ("pipeline_items", {"business_id", "state"}),
+        ("mm_deals", {"business_id", "stage"}),
+        ("mm_holds", {"business_id"}),
+        ("contacts", {"business_id"}),
+        ("mm_contact_evidence", {"business_id"}),
+        ("mm_suppression", {"address"}),
+        ("mm_evidence", {"business_id"}),
+        ("mm_audit_evidence", _ANCHOR_COLUMNS),
+    ):
+        _schema_columns(d, table, required)
+    _event_columns(d)
+
+
+def _event_columns(d):
+    columns = _columns(d, "pipeline_events")
+    required = {"id", "business_id", "to_state", "evidence"}
+    if not columns or required <= columns:
+        return columns
+    legacy = {"id", "business_id", "stage", "event_at", "detail"}
+    if legacy <= columns and not {"to_state", "evidence"} & columns:
+        # The original event ledger has no canonical report projection. Keep
+        # it readable without performing the pipeline's separate migration.
+        return set()
+    return _schema_columns(d, "pipeline_events", required)
+
+
 def exclusion_reason(d, bid):
     """Check every existing terminal/hold source before any capture or write."""
     row = d.execute("SELECT * FROM businesses WHERE id=?", (bid,)).fetchone()
@@ -65,12 +111,12 @@ def exclusion_reason(d, bid):
     if str(business.get("current_status") or "").upper() in {"REJECTED", "SUPPRESSED"}:
         return "business rejected or suppressed"
     for table, column in (("pipeline_items", "state"), ("mm_deals", "stage")):
-        if column in _columns(d, table) and d.execute(
+        if _schema_columns(d, table, {"business_id", column}) and d.execute(
             f"SELECT 1 FROM {table} WHERE business_id=? "
             f"AND upper({column}) IN ('REJECTED','SUPPRESSED')", (bid,),
         ).fetchone():
             return "terminal rejected or suppressed business"
-    if "business_id" in _columns(d, "mm_holds") and d.execute(
+    if _schema_columns(d, "mm_holds", {"business_id"}) and d.execute(
         "SELECT 1 FROM mm_holds WHERE business_id=?", (bid,),
     ).fetchone():
         return "unresolved legacy hold"
@@ -78,13 +124,13 @@ def exclusion_reason(d, bid):
         ("contacts", "do_not_contact", "do_not_contact=1"),
         ("mm_contact_evidence", "unsubscribe_state", "lower(unsubscribe_state)='unsubscribed'"),
     ):
-        if {"business_id", flag} <= _columns(d, table) and d.execute(
+        if flag in _schema_columns(d, table, {"business_id"}) and d.execute(
             f"SELECT 1 FROM {table} WHERE business_id=? AND {predicate}", (bid,),
         ).fetchone():
             return "business has suppressed contact evidence"
-    if "address" in _columns(d, "mm_suppression"):
+    if _schema_columns(d, "mm_suppression", {"address"}):
         for table, address_column in (("contacts", "address_or_channel"), ("mm_contact_evidence", "recipient")):
-            if {"business_id", address_column} <= _columns(d, table) and d.execute(
+            if address_column in _schema_columns(d, table, {"business_id"}) and d.execute(
                 f"SELECT 1 FROM {table} c JOIN mm_suppression s "
                 f"ON lower(trim(c.{address_column}))=lower(trim(s.address)) WHERE c.business_id=?", (bid,),
             ).fetchone():
@@ -201,11 +247,18 @@ def register_audit(d, bid, report_path, toolkit_root=None, expected_run_id=None)
     reason = exclusion_reason(d, bid)
     if reason:
         raise ValueError(reason)
+    _check_schema(d)
     check = validate_report(d, bid, report_path, toolkit_root, expected_run_id)
     if check["status"] != "CURRENT":
         raise ValueError(check["status"] + ": " + check["reason"])
     d.execute("SAVEPOINT evidence_bridge_register")
     try:
+        # Eligibility and the write share the same SQLite snapshot. Suppression
+        # that arrived while reading artifacts must prevent even schema writes.
+        reason = exclusion_reason(d, bid)
+        if reason:
+            raise ValueError(reason)
+        _check_schema(d)
         for statement in _DDL:
             d.execute(statement)
         previous = d.execute(
@@ -233,21 +286,41 @@ def register_audit(d, bid, report_path, toolkit_root=None, expected_run_id=None)
     }
 
 
-def _event(d, bid):
-    if not {"business_id", "to_state", "evidence", "id"} <= _columns(d, "pipeline_events"):
-        return None
-    row = d.execute(
-        "SELECT * FROM pipeline_events WHERE business_id=? AND to_state='AUDITED' "
-        "AND evidence IS NOT NULL ORDER BY id DESC LIMIT 1", (bid,),
-    ).fetchone()
-    if row is None:
-        return None
+def _event_evidence(row):
     try:
         evidence = json.loads(row["evidence"])
     except (TypeError, ValueError):
         evidence = {}
     evidence = evidence if isinstance(evidence, dict) else {}
     return dict(evidence, event_at=dict(row).get("event_at"))
+
+
+def _events(d, bid):
+    if not _event_columns(d):
+        return []
+    return [_event_evidence(row) for row in d.execute(
+        "SELECT * FROM pipeline_events WHERE business_id=? AND to_state='AUDITED' "
+        "AND evidence IS NOT NULL ORDER BY id DESC", (bid,),
+    )]
+
+
+def _event(d, bid):
+    events = _events(d, bid)
+    return events[0] if events else None
+
+
+def _history_site_key(url):
+    try:
+        return json.dumps(_site_key(url), separators=(",", ":"))
+    except (ValueError, TypeError, AttributeError):
+        return None
+
+
+def _history_capture_time(value):
+    try:
+        return core.timestamp(value).timestamp()
+    except (ValueError, TypeError, AttributeError, OverflowError):
+        return None
 
 
 def _history_candidate(d, bid, toolkit_root):
@@ -257,25 +330,50 @@ def _history_candidate(d, bid, toolkit_root):
         return None
     b = d.execute("SELECT public_website FROM businesses WHERE id=?", (bid,)).fetchone()
     try:
-        site = _site_key(b[0])
+        site = _history_site_key(b[0])
         with contextlib.closing(sqlite3.connect(history.as_uri() + "?mode=ro", uri=True)) as h:
-            rows = h.execute("SELECT id,url,timestamp FROM runs ORDER BY julianday(timestamp) DESC,id DESC LIMIT 2000")
-            for run_id, url, captured_at in rows:
-                try:
-                    if _site_key(url) == site:
-                        return {"run_id": run_id, "captured_at": captured_at,
-                                "history_timestamp": captured_at,
-                                "report_path": str(_root(toolkit_root) / run_id / "report.json")}
-                except (ValueError, TypeError, AttributeError):
-                    continue
-    except (sqlite3.Error, ValueError, TypeError, AttributeError):
-        pass
+            if not _schema_columns(h, "runs", {"id", "url", "timestamp"}):
+                raise EvidenceSchemaError("incompatible evidence history schema: runs missing")
+            if h.execute("PRAGMA user_version").fetchone()[0] > 1:
+                raise EvidenceSchemaError("unsupported evidence history schema version")
+            h.create_function("evidence_site_key", 1, _history_site_key, deterministic=True)
+            h.create_function("evidence_capture_time", 1, _history_capture_time, deterministic=True)
+            row = h.execute(
+                "SELECT id,timestamp FROM runs WHERE evidence_site_key(url)=? "
+                # An unorderable exact-site row cannot silently fall behind a
+                # healthy older capture. Offset and fractional timestamps use
+                # the same UTC parser as report validation.
+                "ORDER BY (evidence_capture_time(timestamp) IS NOT NULL),"
+                "evidence_capture_time(timestamp) DESC,id DESC LIMIT 1", (site,),
+            ).fetchone()
+            if row:
+                run_id, captured_at = row
+                if _history_capture_time(captured_at) is None:
+                    raise EvidenceSchemaError("canonical history candidate timestamp invalid")
+                return {"run_id": run_id, "captured_at": captured_at,
+                        "history_timestamp": captured_at,
+                        "report_path": str(_root(toolkit_root) / run_id / "report.json")}
+    except sqlite3.Error as exc:
+        raise EvidenceSchemaError("unreadable evidence history: " + str(exc)) from exc
+    except (ValueError, TypeError, AttributeError) as exc:
+        if isinstance(exc, EvidenceSchemaError):
+            raise
+        raise EvidenceSchemaError("invalid evidence history candidate: " + str(exc)) from exc
     return None
+
+
+def _anchor_for_run(d, bid, run_id):
+    if not _schema_columns(d, "mm_audit_evidence", _ANCHOR_COLUMNS):
+        return None
+    row = d.execute(
+        "SELECT * FROM mm_audit_evidence WHERE business_id=? AND run_id=?", (bid, run_id),
+    ).fetchone()
+    return dict(row) if row else None
 
 
 def _candidate(d, bid, toolkit_root):
     linked = None
-    if "report_hash" in _columns(d, "mm_audit_evidence"):
+    if _schema_columns(d, "mm_audit_evidence", _ANCHOR_COLUMNS):
         row = d.execute(
             "SELECT * FROM mm_audit_evidence WHERE business_id=? "
             "ORDER BY julianday(captured_at) DESC,id DESC LIMIT 1", (bid,),
@@ -287,34 +385,46 @@ def _candidate(d, bid, toolkit_root):
         if linked and history and history["run_id"] != linked["run_id"]:
             if core.timestamp(history["captured_at"]) > core.timestamp(linked["captured_at"]):
                 candidate = history
-        event = _event(d, bid)
-        usable = event and event.get("audit_engine") == "auditor_toolkit" and event.get("run_id") and event.get("report_path")
-        if usable and (not candidate or event["run_id"] != candidate["run_id"]):
-            if candidate is None:
-                return event
+        for event in _events(d, bid):
+            if event.get("audit_engine") != "auditor_toolkit":
+                continue
+            if candidate and event.get("run_id") == candidate["run_id"]:
+                continue
             # Capture time determines supersession. A delayed stage event for
-            # an older run cannot hide a newer incomplete canonical report.
-            checked = validate_report(d, bid, event["report_path"], toolkit_root, event["run_id"])
-            event_time = core.timestamp(checked.get("captured_at") or event.get("event_at"))
-            if event_time > core.timestamp(candidate["captured_at"]):
-                return event
-        return candidate or event
+            # an older run cannot hide a newer incomplete canonical event.
+            anchor = _anchor_for_run(d, bid, event.get("run_id"))
+            expected_hash = anchor["report_hash"] if anchor else event.get("report_hash")
+            checked = validate_report(d, bid, event.get("report_path"), toolkit_root,
+                                      event.get("run_id"), expected_hash)
+            event_time = core.timestamp(checked.get("captured_at") or
+                                        (anchor or {}).get("captured_at") or event.get("event_at"))
+            if candidate is None or event_time > core.timestamp(candidate["captured_at"]):
+                candidate = dict(event, captured_at=event_time.isoformat())
+                if anchor:
+                    candidate.update(report_hash=anchor["report_hash"], registered_at=anchor["registered_at"])
+        return candidate or _event(d, bid)
     except (TypeError, ValueError, AttributeError):
         return {"invalid_reason": "canonical candidate timestamp invalid"}
 
 
 def audit_evidence_status(d, bid, toolkit_root=None):
-    legacy = 0
-    if "business_id" in _columns(d, "mm_evidence"):
-        legacy = d.execute("SELECT count(*) FROM mm_evidence WHERE business_id=?", (bid,)).fetchone()[0]
     result = {"business_id": bid, "status": "MISSING", "complete": False,
               "independently_verified": False, "claim_status": "unverified",
-              "legacy_observations": legacy, "stage_signal": bool(_event(d, bid)),
+              "legacy_observations": 0, "stage_signal": False,
               "reason": "no canonical audit capture", "rule_version": RULE_VERSION}
-    reason = exclusion_reason(d, bid)
-    if reason:
-        return dict(result, status="EXCLUDED", reason=reason)
-    candidate = _candidate(d, bid, toolkit_root)
+    try:
+        _check_schema(d)
+        if _columns(d, "mm_evidence"):
+            result["legacy_observations"] = d.execute(
+                "SELECT count(*) FROM mm_evidence WHERE business_id=?", (bid,),
+            ).fetchone()[0]
+        result["stage_signal"] = bool(_event(d, bid))
+        reason = exclusion_reason(d, bid)
+        if reason:
+            return dict(result, status="EXCLUDED", reason=reason)
+        candidate = _candidate(d, bid, toolkit_root)
+    except (EvidenceSchemaError, sqlite3.Error) as exc:
+        return dict(result, status="INVALID", schema_valid=False, reason=str(exc)[:240])
     if not candidate:
         return result
     if candidate.get("invalid_reason"):
@@ -357,14 +467,25 @@ def recover_evidence(d, ids=None, apply=False, toolkit_root=None, report_path=No
     results = []
     for bid in sorted(set(ids)):
         status = audit_evidence_status(d, bid, toolkit_root)
-        if report_path is not None and status["status"] != "EXCLUDED":
+        anchored_noop = False
+        if report_path is not None and status["status"] != "EXCLUDED" and status.get("schema_valid") is not False:
             check = validate_report(d, bid, report_path, toolkit_root)
-            status.update({key: value for key, value in check.items() if key != "report"})
-            status["complete"] = False
             if check["status"] == "CURRENT":
-                status.update(status="RECOVERABLE", complete=False)
+                anchor = _anchor_for_run(d, bid, check["run_id"])
+                if anchor and check["report_hash"] != anchor["report_hash"]:
+                    check.update(status="INVALID", reason="registered canonical report changed; new audit run required")
+                elif anchor:
+                    # An unchanged existing anchor is a no-op in both modes.
+                    # Preserve the latest-capture status if this explicit run
+                    # has since been superseded by a failed canonical capture.
+                    anchored_noop = True
+                else:
+                    check.update(status="RECOVERABLE")
+            if not anchored_noop:
+                status.update({key: value for key, value in check.items() if key != "report"})
+                status["complete"] = False
         status["recorded"] = False
-        if apply and status["status"] in {"RECOVERABLE", "CURRENT"}:
+        if apply and not anchored_noop and status["status"] in {"RECOVERABLE", "CURRENT"}:
             try:
                 status.update(register_audit(d, bid, status["report_path"], toolkit_root, status["run_id"]))
                 registered = status["recorded"]

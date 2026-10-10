@@ -66,7 +66,8 @@ class EvidenceOps(unittest.TestCase):
 
     def snapshot(self):
         names = ('businesses', 'mm_deals', 'mm_holds', 'pipeline_items',
-                 'mm_evidence', 'mm_evidence_meta', 'mm_contact_evidence', 'mm_events')
+                 'mm_evidence', 'mm_evidence_meta', 'mm_contact_evidence', 'mm_events',
+                 'mm_messages', 'mm_proposals')
         return {name: [tuple(r) for r in self.d.execute('SELECT * FROM ' + name)]
                 for name in names}
 
@@ -80,7 +81,63 @@ class EvidenceOps(unittest.TestCase):
         self.d.commit()
         return bid
 
+    def late_exclusion_fetch(self, bid, sql, observed):
+        def fetch(url):
+            with sqlite3.connect(self.path) as other:
+                other.execute(sql, (bid,))
+            observed['snapshot'] = self.snapshot()
+            observed['changes'] = self.d.total_changes
+            page = '<a href="mailto:fixture@example.invalid">Contact</a>'
+            return page, page.encode(), url
+        return fetch
+
+    @staticmethod
+    def exclusion_cases():
+        return {
+            'business_suppression': "UPDATE businesses SET suppression_reason='late opt out' WHERE id=?",
+            'business_rejected': "UPDATE businesses SET current_status='rejected' WHERE id=?",
+            'pipeline_rejected': "INSERT INTO pipeline_items VALUES(?,'REJECTED')",
+            'hold': "INSERT INTO mm_holds(business_id,reason) VALUES(?,'late hold')",
+        }
+
+
 class AuditBackfill(EvidenceOps):
+    def test_exclusion_committed_during_fetch_prevents_capture_and_all_writes(self):
+        for name, sql in self.exclusion_cases().items():
+            for existing_capture in (False, True):
+                with self.subTest(reason=name, existing_capture=existing_capture):
+                    bid = self._extra_business()
+                    capture = self.r / 'audit-backfills' / f'business-{bid}.txt'
+                    original = b'Synthetic earlier capture; preserve these bytes.'
+                    if existing_capture:
+                        capture.parent.mkdir(parents=True, exist_ok=True)
+                        capture.write_bytes(original)
+                    observed = {}
+                    result = self.backfill(
+                        ids=[bid], politeness=0,
+                        fetch=self.late_exclusion_fetch(bid, sql, observed))
+                    self.assertEqual(result['backfilled'], 0)
+                    self.assertEqual(result['moved_to_audited'], 0)
+                    self.assertEqual([r['id'] for r in result['skipped']], [bid])
+                    self.assertEqual(self.snapshot(), observed['snapshot'])
+                    self.assertEqual(self.d.total_changes, observed['changes'])
+                    self.assertFalse(self.d.in_transaction)
+                    if existing_capture:
+                        self.assertEqual(capture.read_bytes(), original)
+                    else:
+                        self.assertFalse(capture.exists())
+
+    def test_successful_backfill_retains_caller_commit_and_rollback_ownership(self):
+        bid = self._extra_business()
+        before = self.snapshot()
+        self.backfill(ids=[bid], politeness=0)
+        self.assertTrue(self.d.in_transaction)
+        with sqlite3.connect(self.path) as other:
+            self.assertEqual(other.execute(
+                'SELECT count(*) FROM mm_evidence WHERE business_id=?', (bid,)).fetchone()[0], 0)
+        self.d.rollback()
+        self.assertEqual(self.snapshot(), before)
+
     def test_unreachable_outcome_recorded_as_evidence_and_moves_stage(self):
         bid = self._extra_business()
         result = self.backfill(ids=[bid], politeness=0)
@@ -162,6 +219,41 @@ class AuditBackfill(EvidenceOps):
 
 
 class OwnSiteDiscovery(EvidenceOps):
+    def test_exclusion_committed_during_fetch_prevents_capture_and_all_writes(self):
+        for name, sql in self.exclusion_cases().items():
+            for existing_capture in (False, True):
+                with self.subTest(reason=name, existing_capture=existing_capture):
+                    bid = self._extra_business()
+                    capture = (self.r / 'contact-captures' / f'business-{bid}' /
+                               f'{c.public_url(c.business(self.d, bid)["public_website"])}.json')
+                    original = b'Synthetic earlier contact capture; preserve these bytes.'
+                    if existing_capture:
+                        capture.parent.mkdir(parents=True, exist_ok=True)
+                        capture.write_bytes(original)
+                    observed = {}
+                    with self.assertRaisesRegex(ValueError, 'Evidence discovery excluded:'):
+                        self.contacts(
+                            bid, paths=('',), politeness=0,
+                            fetch=self.late_exclusion_fetch(bid, sql, observed))
+                    self.assertEqual(self.snapshot(), observed['snapshot'])
+                    self.assertEqual(self.d.total_changes, observed['changes'])
+                    self.assertFalse(self.d.in_transaction)
+                    if existing_capture:
+                        self.assertEqual(capture.read_bytes(), original)
+                    else:
+                        self.assertFalse(capture.exists())
+
+    def test_successful_discovery_preserves_existing_caller_transaction(self):
+        bid = self._extra_business()
+        before = self.snapshot()
+        self.d.execute("UPDATE businesses SET source='caller pending change' WHERE id=?", (bid,))
+        page = '<a href="mailto:fixture@example.invalid">Contact</a>'
+        self.contacts(bid, fetch=lambda url: (page, page.encode(), url), paths=('',), politeness=0)
+        self.assertTrue(self.d.in_transaction)
+        self.assertEqual(c.business(self.d, bid)['source'], 'caller pending change')
+        self.d.rollback()
+        self.assertEqual(self.snapshot(), before)
+
     def test_contacts_recorded_with_provenance_never_verified(self):
         bid = self._extra_business()
         page = ('<html><a href="mailto:Info@Fix.example.co.nz">mail</a>'

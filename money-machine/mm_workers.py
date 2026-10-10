@@ -214,6 +214,7 @@ def audit_handler(d, it, worker):
     remediation, demo, quote and proof-package builders. AI, browser rendering
     and external local tools are disabled in this always-on pass.
     """
+    import mm_core as core
     import mm_evidence_bridge as evidence_bridge
 
     b = _business(d, it['business_id'])
@@ -229,7 +230,8 @@ def audit_handler(d, it, worker):
     except (TypeError, ValueError) as exc:
         raise PermanentError('public website required for audit: ' + str(exc)) from exc
 
-    output_root = REPO / 'outputs' / 'toolkit'
+    # Use the same selected data root as status, recovery and daily reporting.
+    output_root = core.root() / 'outputs' / 'toolkit'
     from auditor_toolkit.storage import History
     history = History(output_root)
     recent_audit = history.get_latest_valid_audit(host, max_age_days=7)

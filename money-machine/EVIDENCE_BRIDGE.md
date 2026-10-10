@@ -37,7 +37,10 @@ not hash its own JSON. Both run and original fetch observation must be within
 seven days, without future dates. A fresh run cannot renew stale cached source
 observations. Newer history or audit-event captures supersede older reports,
 including when the newer capture is partial, stale or missing. Replaying a
-delayed event cannot renew its older capture time.
+delayed event cannot renew its older capture time. Selection examines all
+canonical audit events and exact-site history, so unrelated history volume or
+event arrival order cannot hide a newer failed capture. Incompatible evidence
+schemas and unorderable history capture timestamps return INVALID.
 
 ## Deterministic saved-report recovery
 
@@ -67,7 +70,10 @@ To validate an explicitly identified existing report for one business:
 
 `--apply` requires explicit IDs. Each report is revalidated before writing; the
 original capture timestamp is retained. Repeating the same run is a no-op.
-Changed bytes for an already anchored run require a new audit run. Recovery
+Changed bytes for an already anchored run require a new audit run; preview
+checks the same existing anchor before reporting that a run is recoverable.
+Selecting an unchanged older anchor remains a no-op and preserves the latest
+capture's status. Recovery
 does not insert legacy `mm_evidence`, alter deal/pipeline stages, clear holds,
 rescore prospects, invalidate approvals, modify messages or contact records.
 
@@ -79,14 +85,18 @@ report path/hash, original capture time, registration time and rule version.
 The unique business/run key and insert/update/delete guards prevent replacement.
 Existing schemas, records and stage events are preserved. Reads work before the
 table exists; schema initialization runs only on successful eligible writes.
+Registration rechecks exclusions inside the write savepoint, including changes
+that arrived while validating report files.
 
-The audit worker validates fresh saved reports before reuse, registers valid
+The audit worker, status and recovery share the selected `MM_ROOT` toolkit
+directory. The worker validates fresh saved reports before reuse, registers valid
 ones, and adds the report hash to its existing stage-event projection. Invalid
 cached captures trigger the existing deterministic static audit with AI,
 browser rendering and external tools disabled. Exclusions are checked before
 history initialization, network or database writes. Legacy audit-backfill and
 contact discovery now use the same early exclusion guard while retaining their
-honest unverified-observation behavior.
+honest unverified-observation behavior. They also recheck exclusions after
+fetching, inside a savepoint and before saving capture files or database rows.
 
 ## Regression validation
 
@@ -94,7 +104,9 @@ The bridge tests use disposable SQLite databases and saved synthetic reports,
 including a real toolkit report built with an injected offline fetcher. Coverage
 includes unchanged stage completeness; current, missing, stale, partial,
 tampered and wrong-site reports; latest-run supersession; cached observation
-age; read-only preview; idempotent recovery; preserved timestamps, stages and
-approvals; append-only replacement; and every rejection/suppression source.
+age; delayed event replay; high-volume unrelated history; malformed schemas and
+timestamps; read-only preview; idempotent recovery; preserved timestamps, stages and
+approvals; append-only replacement; concurrent exclusion changes; selected data
+roots; and every rejection/suppression source.
 Legacy evidence tests no longer require a copy of the live database or public
 unreachable-site probes. CI includes the bridge, reporting and evidence suites.

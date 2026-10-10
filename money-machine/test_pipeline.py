@@ -692,6 +692,9 @@ class StageHandlers(unittest.TestCase):
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
+        root_env = patch.dict(os.environ, {'MM_ROOT': self.tmp.name})
+        root_env.start()
+        self.addCleanup(root_env.stop)
         self.d = fresh_db(self.tmp.name)
         self.bid = add_business(self.d)
 
@@ -726,8 +729,7 @@ class StageHandlers(unittest.TestCase):
         )
         p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
         it = p.item(self.d, self.bid)
-        with patch.object(mm_workers, 'REPO', Path(self.tmp.name)), \
-             patch('auditor_toolkit.storage.History') as history_cls, \
+        with patch('auditor_toolkit.storage.History') as history_cls, \
              patch('auditor_toolkit.pipeline.run_audit') as run_audit:
             history_cls.return_value.get_latest_valid_audit.return_value = recent
             nxt, reason, ev = mm_workers.audit_handler(self.d, it, None)
@@ -751,8 +753,7 @@ class StageHandlers(unittest.TestCase):
         )
         p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
         it = p.item(self.d, self.bid)
-        with patch.object(mm_workers, 'REPO', Path(self.tmp.name)), \
-             patch('auditor_toolkit.storage.History') as history_cls, \
+        with patch('auditor_toolkit.storage.History') as history_cls, \
              patch('auditor_toolkit.pipeline.run_audit', return_value=report) as run_audit:
             history_cls.return_value.get_latest_valid_audit.return_value = None
             nxt, reason, ev = mm_workers.audit_handler(self.d, it, None)
@@ -776,6 +777,58 @@ class StageHandlers(unittest.TestCase):
         self.assertFalse(options.deep)
         self.assertFalse(options.external_tools)
 
+    def test_audit_handler_capture_and_reuse_share_selected_data_root(self):
+        import mm_evidence_bridge as bridge
+        import mm_workers
+        from auditor_toolkit.storage import History
+
+        checkout = Path(self.tmp.name) / 'checkout'
+        checkout.mkdir()
+        sentinel = checkout / 'preserved.txt'
+        sentinel.write_text('existing checkout content', encoding='utf-8')
+        selected_root = (Path(self.tmp.name) / 'selected-data').resolve()
+        output_root = selected_root / 'outputs' / 'toolkit'
+        p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
+
+        def capture(url, options):
+            self.assertEqual(url, 'https://fixture.example.co.nz')
+            self.assertEqual(options.output_root, output_root)
+            self.assertEqual(options.profile, 'static')
+            self.assertFalse(options.ai)
+            self.assertFalse(options.browser)
+            self.assertFalse(options.deep)
+            self.assertFalse(options.external_tools)
+            report = saved_toolkit_report(selected_root, 'run-selected-root')
+            History(output_root).save(report)
+            return report
+
+        with patch.dict(os.environ, {'MM_ROOT': str(selected_root)}), \
+             patch.object(mm_workers, 'REPO', checkout), \
+             patch('auditor_toolkit.pipeline.run_audit', side_effect=capture) as run_audit:
+            item = p.item(self.d, self.bid)
+            first_state, first_reason, first = mm_workers.audit_handler(self.d, item, None)
+            first_status = bridge.audit_evidence_status(self.d, self.bid)
+            second_state, second_reason, second = mm_workers.audit_handler(self.d, item, None)
+            second_status = bridge.audit_evidence_status(self.d, self.bid)
+
+        self.assertEqual(first_state, 'AUDITED')
+        self.assertIn('captured', first_reason)
+        self.assertEqual(second_state, 'AUDITED')
+        self.assertIn('reused', second_reason)
+        self.assertEqual(first_status['status'], 'CURRENT')
+        self.assertEqual(second_status['status'], 'CURRENT')
+        self.assertTrue(first['audit_evidence']['recorded'])
+        self.assertFalse(second['audit_evidence']['recorded'])
+        self.assertEqual(first['report_hash'], second['report_hash'])
+        self.assertEqual(Path(first_status['report_path']).parent, output_root / 'run-selected-root')
+        self.assertTrue((output_root / 'history.sqlite3').is_file())
+        self.assertEqual(list(checkout.iterdir()), [sentinel])
+        self.assertEqual(sentinel.read_text(encoding='utf-8'), 'existing checkout content')
+        self.assertEqual(self.d.execute('SELECT count(*) FROM mm_audit_evidence').fetchone()[0], 1)
+        self.assertEqual(self.d.execute('SELECT count(*) FROM mm_evidence').fetchone()[0], 0)
+        self.assertEqual(p.item(self.d, self.bid)['state'], 'AUDIT_PENDING')
+        run_audit.assert_called_once()
+
     def test_audit_handler_incomplete_toolkit_report_retries(self):
         import mm_workers
         report = {
@@ -795,8 +848,7 @@ class StageHandlers(unittest.TestCase):
         }
         p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
         it = p.item(self.d, self.bid)
-        with patch.object(mm_workers, 'REPO', Path(self.tmp.name)), \
-             patch('auditor_toolkit.storage.History') as history_cls, \
+        with patch('auditor_toolkit.storage.History') as history_cls, \
              patch('auditor_toolkit.pipeline.run_audit', return_value=report):
             history_cls.return_value.get_latest_valid_audit.return_value = None
             with self.assertRaises(p.RetryableError):
@@ -808,8 +860,7 @@ class StageHandlers(unittest.TestCase):
         current = self._saved_report('run-current', severity_score=18,
                                      defects=[{'defect_key': 'viewport'}])
         p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
-        with patch.object(mm_workers, 'REPO', Path(self.tmp.name)), \
-             patch('auditor_toolkit.storage.History') as history_cls, \
+        with patch('auditor_toolkit.storage.History') as history_cls, \
              patch('auditor_toolkit.pipeline.run_audit', return_value=current) as run_audit:
             history_cls.return_value.get_latest_valid_audit.return_value = cached
             nxt, reason, evidence = mm_workers.audit_handler(self.d, p.item(self.d, self.bid), None)
@@ -824,8 +875,7 @@ class StageHandlers(unittest.TestCase):
         cached = self._saved_report('run-stale', timestamp=stale_at)
         current = self._saved_report('run-fresh')
         p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
-        with patch.object(mm_workers, 'REPO', Path(self.tmp.name)), \
-             patch('auditor_toolkit.storage.History') as history_cls, \
+        with patch('auditor_toolkit.storage.History') as history_cls, \
              patch('auditor_toolkit.pipeline.run_audit', return_value=current) as run_audit:
             history_cls.return_value.get_latest_valid_audit.return_value = cached
             _, _, evidence = mm_workers.audit_handler(self.d, p.item(self.d, self.bid), None)
@@ -843,8 +893,7 @@ class StageHandlers(unittest.TestCase):
         Path(cached['artifacts']['json']).write_text(json.dumps(cached), encoding='utf-8')
         current = self._saved_report('run-replacement', severity_score=30)
         p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
-        with patch.object(mm_workers, 'REPO', Path(self.tmp.name)), \
-             patch('auditor_toolkit.storage.History') as history_cls, \
+        with patch('auditor_toolkit.storage.History') as history_cls, \
              patch('auditor_toolkit.pipeline.run_audit', return_value=current) as run_audit:
             history_cls.return_value.get_latest_valid_audit.return_value = cached
             _, _, evidence = mm_workers.audit_handler(self.d, p.item(self.d, self.bid), None)
@@ -860,7 +909,6 @@ class StageHandlers(unittest.TestCase):
         p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
         for cached in (['malformed'], {'artifacts': ['malformed']}):
             with self.subTest(cache=cached), \
-                 patch.object(mm_workers, 'REPO', Path(self.tmp.name)), \
                  patch('auditor_toolkit.storage.History') as history_cls, \
                  patch('auditor_toolkit.pipeline.run_audit', return_value=current) as run_audit:
                 history_cls.return_value.get_latest_valid_audit.return_value = cached
@@ -873,7 +921,6 @@ class StageHandlers(unittest.TestCase):
         p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
         for report in (None, {'status': 'complete', 'artifacts': ['malformed']}):
             with self.subTest(report=report), \
-                 patch.object(mm_workers, 'REPO', Path(self.tmp.name)), \
                  patch('auditor_toolkit.storage.History') as history_cls, \
                  patch('auditor_toolkit.pipeline.run_audit', return_value=report):
                 history_cls.return_value.get_latest_valid_audit.return_value = None
@@ -886,8 +933,7 @@ class StageHandlers(unittest.TestCase):
         report = self._saved_report('run-tampered')
         Path(report['artifacts']['html']).write_text('Modified artifact')
         p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
-        with patch.object(mm_workers, 'REPO', Path(self.tmp.name)), \
-             patch('auditor_toolkit.storage.History') as history_cls, \
+        with patch('auditor_toolkit.storage.History') as history_cls, \
              patch('auditor_toolkit.pipeline.run_audit', return_value=report):
             history_cls.return_value.get_latest_valid_audit.return_value = None
             with self.assertRaises(p.RetryableError):
@@ -902,8 +948,7 @@ class StageHandlers(unittest.TestCase):
         report = self._saved_report('run-repeat')
         p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
         before_events = self.d.execute('SELECT count(*) FROM pipeline_events').fetchone()[0]
-        with patch.object(mm_workers, 'REPO', Path(self.tmp.name)), \
-             patch('auditor_toolkit.storage.History') as history_cls, \
+        with patch('auditor_toolkit.storage.History') as history_cls, \
              patch('auditor_toolkit.pipeline.run_audit') as run_audit:
             history_cls.return_value.get_latest_valid_audit.return_value = report
             _, _, first = mm_workers.audit_handler(self.d, p.item(self.d, self.bid), None)

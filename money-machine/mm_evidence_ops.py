@@ -4,6 +4,7 @@ Stdlib only. Evidence-first: even `unreachable` outcomes are recorded as honest
 evidence rows (never guessed into verified state). Safety: no external sends,
 no model calls, $0. Guessed patterns alone NEVER mark a contact verified.
 """
+import contextlib
 import json
 import re
 import time
@@ -89,6 +90,34 @@ def _capture(path, text):
     path.write_text(text)
     return path
 
+
+class _EvidenceExcluded(ValueError):
+    """Eligibility changed while fetching; no capture or database write allowed."""
+
+
+@contextlib.contextmanager
+def _capture_transaction(d, bid, prefix=""):
+    # Keep the caller's commit/rollback ownership. An outermost SAVEPOINT alone
+    # would commit on RELEASE, unlike these legacy evidence operations.
+    owns_transaction = not d.in_transaction
+    if owns_transaction:
+        d.execute("BEGIN IMMEDIATE")
+    d.execute("SAVEPOINT evidence_ops_capture")
+    try:
+        blocked = mm_evidence_bridge.exclusion_reason(d, bid)
+        if blocked:
+            raise _EvidenceExcluded(prefix + blocked)
+        yield
+    except BaseException:
+        d.execute("ROLLBACK TO evidence_ops_capture")
+        d.execute("RELEASE evidence_ops_capture")
+        if owns_transaction:
+            d.rollback()
+        raise
+    else:
+        d.execute("RELEASE evidence_ops_capture")
+
+
 def discover_own_site_contacts(d, bid, fetch=fetch_own_site, politeness=1.0,
                                paths=CRAWL_PATHS, capture_dir=CAPTURE_DIR):
     """Crawl the prospect's OWN site (homepage + contact/about pages) and record
@@ -122,32 +151,33 @@ def discover_own_site_contacts(d, bid, fetch=fetch_own_site, politeness=1.0,
             found.append({"kind": "form", "value": form.get("action") or "", "source_url": final})
         if politeness > 0 and len(pages) < len(paths):
             time.sleep(politeness)
-    capture = _capture(Path(capture_dir) / f"business-{bid}" / f"{mm_core.public_url(base)}.json",
-                       json.dumps({"business_id": bid, "site": base, "captured_at": mm_core.now(),
-                                   "pages": [p["url"] for p in pages], "attempts": attempts,
-                                   "contacts": [c["value"] for c in found]}, indent=2))
     recorded, seen = [], set()
-    for c in found:
-        key = (c["kind"], c["value"])
-        if not c["value"] or key in seen:
-            continue
-        seen.add(key)
-        existing = d.execute("SELECT unsubscribe_state FROM mm_contact_evidence WHERE business_id=? AND lower(recipient)=?",
-                             (bid, c["value"].casefold())).fetchone()
-        if existing and existing[0] == "unsubscribed":
-            continue  # unsubscribed contact cannot be reset by discovery
-        recipient = c["value"] if c["kind"] == "email" else f"{c['kind']}:{c['value']}"
-        d.execute("INSERT INTO mm_contact_evidence(business_id,recipient,source_url,checked_at,relevance,"
-                  "permission_basis,permission_verified_by,unsubscribe_state,confidence,capture_path,capture_hash) "
-                  "VALUES(?,?,?,?, 'own_site_crawl','Unconfirmed',NULL,'none_recorded',0.0,?,?) "
-                  "ON CONFLICT(business_id,recipient) DO UPDATE SET source_url=excluded.source_url,"
-                  "checked_at=excluded.checked_at,capture_path=excluded.capture_path,capture_hash=excluded.capture_hash",
-                  (bid, recipient, c["source_url"], mm_core.now(), str(capture), mm_core.sha(capture.read_bytes())))
-        recorded.append({"recipient": recipient, "kind": c["kind"], "source_url": c["source_url"],
-                         "verified": False, "confidence": 0.0})
-    mm_core.event(d, "own_site_contact_discovery", bid, json.dumps(
-        {"pages_fetched": len(pages), "blocked_attempts": len(attempts),
-         "recorded": len(recorded), "verified": 0}))
+    with _capture_transaction(d, bid, "Evidence discovery excluded: "):
+        capture = _capture(Path(capture_dir) / f"business-{bid}" / f"{mm_core.public_url(base)}.json",
+                           json.dumps({"business_id": bid, "site": base, "captured_at": mm_core.now(),
+                                       "pages": [p["url"] for p in pages], "attempts": attempts,
+                                       "contacts": [c["value"] for c in found]}, indent=2))
+        for c in found:
+            key = (c["kind"], c["value"])
+            if not c["value"] or key in seen:
+                continue
+            seen.add(key)
+            existing = d.execute("SELECT unsubscribe_state FROM mm_contact_evidence WHERE business_id=? AND lower(recipient)=?",
+                                 (bid, c["value"].casefold())).fetchone()
+            if existing and existing[0] == "unsubscribed":
+                continue  # unsubscribed contact cannot be reset by discovery
+            recipient = c["value"] if c["kind"] == "email" else f"{c['kind']}:{c['value']}"
+            d.execute("INSERT INTO mm_contact_evidence(business_id,recipient,source_url,checked_at,relevance,"
+                      "permission_basis,permission_verified_by,unsubscribe_state,confidence,capture_path,capture_hash) "
+                      "VALUES(?,?,?,?, 'own_site_crawl','Unconfirmed',NULL,'none_recorded',0.0,?,?) "
+                      "ON CONFLICT(business_id,recipient) DO UPDATE SET source_url=excluded.source_url,"
+                      "checked_at=excluded.checked_at,capture_path=excluded.capture_path,capture_hash=excluded.capture_hash",
+                      (bid, recipient, c["source_url"], mm_core.now(), str(capture), mm_core.sha(capture.read_bytes())))
+            recorded.append({"recipient": recipient, "kind": c["kind"], "source_url": c["source_url"],
+                             "verified": False, "confidence": 0.0})
+        mm_core.event(d, "own_site_contact_discovery", bid, json.dumps(
+            {"pages_fetched": len(pages), "blocked_attempts": len(attempts),
+             "recorded": len(recorded), "verified": 0}))
     return {"business_id": bid, "site": base, "pages_fetched": len(pages),
             "attempts": attempts, "contacts_found": len(found), "recorded": recorded,
             "capture_path": str(capture), "verified_count": 0,
@@ -190,16 +220,21 @@ def audit_backfill(d, ids=None, capture_dir=ROOT / "reports" / "audit-backfills"
             observation = f"Website unreachable during backfill: {e.code} ({e.detail})"
             text, final = json.dumps({"attempted": url, "code": e.code, "detail": e.detail,
                                       "at": mm_core.now()}), url
-        capture = _capture(Path(capture_dir) / f"business-{bid}.txt",
-                           observation + "\n\n" + text[:MAX_BYTES])
-        eid = mm_core.record_evidence(d, bid, final or url or "unknown", observation,
-                                      "Automated backfill; observed state may be stale.",
-                                      str(capture), "unverified", "direct_fetch", 0.0, "observed_fact")
-        stage_moved = False
-        cur = d.execute("SELECT stage FROM mm_deals WHERE business_id=?", (bid,)).fetchone()
-        if cur and cur[0] == "DISCOVERED":
-            mm_core.change_stage(d, bid, "AUDITED", "Evidence backfilled via audit-backfill")
-            stage_moved = True
+        try:
+            with _capture_transaction(d, bid):
+                capture = _capture(Path(capture_dir) / f"business-{bid}.txt",
+                                   observation + "\n\n" + text[:MAX_BYTES])
+                eid = mm_core.record_evidence(d, bid, final or url or "unknown", observation,
+                                              "Automated backfill; observed state may be stale.",
+                                              str(capture), "unverified", "direct_fetch", 0.0, "observed_fact")
+                stage_moved = False
+                cur = d.execute("SELECT stage FROM mm_deals WHERE business_id=?", (bid,)).fetchone()
+                if cur and cur[0] == "DISCOVERED":
+                    mm_core.change_stage(d, bid, "AUDITED", "Evidence backfilled via audit-backfill")
+                    stage_moved = True
+        except _EvidenceExcluded as e:
+            skipped.append({"id": bid, "name": b["name"], "reason": str(e)})
+            continue
         results.append({"id": bid, "name": b["name"], "evidence_id": eid,
                         "status": "unverified", "stage_moved_to_audited": stage_moved})
         if politeness > 0:

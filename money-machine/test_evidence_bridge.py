@@ -416,3 +416,219 @@ def test_operator_metrics_and_dashboard_keep_canonical_and_legacy_counts_separat
         assert "evidence-recover --ids ID" in dashboard.read_text()
     finally:
         fixture.tearDown()
+
+
+@pytest.mark.parametrize("anchored", [False, True])
+@pytest.mark.parametrize("newer_status", ["PARTIAL", "MISSING"])
+def test_delayed_old_event_cannot_hide_newer_failed_event_without_history(case, anchored, newer_status):
+    d, root, _ = case
+    old_path, older = saved_report(
+        root, timestamp=(dt.datetime.now(core.UTC) - dt.timedelta(hours=1)).isoformat(),
+    )
+    if anchored:
+        bridge.register_audit(d, 1, old_path, root)
+    newer_path, newer = saved_report(root, run_id="newer-event", status="partial")
+    audit_event(d, newer)
+    if newer_status == "MISSING":
+        newer_path.unlink()
+    assert bridge.audit_evidence_status(d, 1, root)["status"] == newer_status
+    audit_event(d, older)
+    before = snapshot(d)
+    status = bridge.audit_evidence_status(d, 1, root)
+    assert status["status"] == newer_status
+    assert status["stage_signal"] and not status["complete"]
+    result = bridge.recover_evidence(d, [1], apply=True, toolkit_root=root)
+    assert result["results"][0]["status"] == newer_status
+    assert result["recorded"] == 0
+    assert snapshot(d) == before
+
+
+def test_history_site_lookup_is_not_limited_by_unrelated_newer_runs(case):
+    d, root, _ = case
+    path, older = saved_report(
+        root, timestamp=(dt.datetime.now(core.UTC) - dt.timedelta(hours=2)).isoformat(),
+    )
+    bridge.register_audit(d, 1, path, root)
+    _, newer = saved_report(
+        root, run_id="buried-new-partial", status="partial",
+        timestamp=(dt.datetime.now(core.UTC) - dt.timedelta(hours=1)).isoformat(),
+    )
+    history_path = root / "history.sqlite3"
+    with sqlite3.connect(history_path) as history:
+        history.execute("CREATE TABLE runs(id TEXT,url TEXT,timestamp TEXT,report TEXT)")
+        history.execute("INSERT INTO runs VALUES(?,?,?,?)", (
+            newer["run_id"], "https://www.fixture.example.co.nz/", newer["timestamp"], json.dumps(newer),
+        ))
+        history.executemany("INSERT INTO runs VALUES(?,?,?,?)", [
+            (f"unrelated-{index}", "https://unrelated.example.co.nz", core.now(), "{}")
+            for index in range(2001)
+        ])
+    before = core.sha(history_path.read_bytes())
+    assert bridge.audit_evidence_status(d, 1, root)["status"] == "PARTIAL"
+    assert bridge.recover_evidence(d, [1], apply=True, toolkit_root=root)["recorded"] == 0
+    assert core.sha(history_path.read_bytes()) == before
+
+
+def test_explicit_preview_checks_registered_hash_and_matches_apply_without_writes(case):
+    d, root, _ = case
+    path, _ = saved_report(root)
+    bridge.register_audit(d, 1, path, root)
+    path.write_text(path.read_text() + " ")
+    before = snapshot(d)
+    preview = bridge.recover_evidence(d, [1], toolkit_root=root, report_path=path)
+    applied = bridge.recover_evidence(d, [1], apply=True, toolkit_root=root, report_path=path)
+    assert preview["results"][0]["status"] == applied["results"][0]["status"] == "INVALID"
+    assert "changed" in preview["results"][0]["reason"]
+    assert preview["recorded"] == applied["recorded"] == 0
+    assert snapshot(d) == before
+
+
+def test_explicit_unchanged_older_anchor_keeps_newer_failed_status_in_both_modes(case):
+    d, root, _ = case
+    path, _ = saved_report(
+        root, timestamp=(dt.datetime.now(core.UTC) - dt.timedelta(hours=1)).isoformat(),
+    )
+    bridge.register_audit(d, 1, path, root)
+    _, newer = saved_report(root, run_id="newer-partial", status="partial")
+    audit_event(d, newer)
+    before = snapshot(d)
+    for apply in (False, True):
+        result = bridge.recover_evidence(d, [1], apply=apply, toolkit_root=root, report_path=path)
+        assert result["results"][0]["status"] == "PARTIAL"
+        assert result["recorded"] == 0
+    assert snapshot(d) == before
+
+
+def test_legitimate_legacy_event_schema_remains_readable_without_migration(case):
+    d, root, _ = case
+    path, _ = saved_report(root)
+    d.execute("DROP TABLE pipeline_events")
+    d.execute("CREATE TABLE pipeline_events(id INTEGER PRIMARY KEY,business_id INTEGER,stage TEXT,event_at TEXT,detail TEXT)")
+    d.execute("INSERT INTO pipeline_events VALUES(1,1,'AUDITED',?,'legacy observation')", (core.now(),))
+    d.commit()
+    before = snapshot(d)
+    assert bridge.audit_evidence_status(d, 1, root)["status"] == "MISSING"
+    bridge.register_audit(d, 1, path, root)
+    assert bridge.audit_evidence_status(d, 1, root)["status"] == "CURRENT"
+    assert not bridge.audit_evidence_status(d, 1, root)["stage_signal"]
+    after = snapshot(d)
+    assert {table: after[table] for table in before} == before
+
+
+@pytest.mark.parametrize("table,columns", [
+    ("pipeline_items", "state TEXT"),
+    ("mm_deals", "business_id INTEGER"),
+    ("mm_holds", "reason TEXT"),
+    ("mm_evidence", "checked_at TEXT"),
+    ("pipeline_events", "business_id INTEGER,to_state TEXT,evidence TEXT"),
+    ("mm_audit_evidence", "report_hash TEXT"),
+    ("contacts", "do_not_contact INTEGER"),
+    ("mm_contact_evidence", "recipient TEXT"),
+    ("mm_suppression", "reason TEXT"),
+])
+def test_incompatible_optional_schema_fails_closed_without_artifact_reads_or_writes(case, table, columns):
+    d, root, _ = case
+    path, _ = saved_report(root)
+    d.execute(f"DROP TABLE IF EXISTS {table}")
+    d.execute(f"CREATE TABLE {table}({columns})")
+    d.commit()
+    before = snapshot(d)
+    with patch.object(bridge, "validate_report", side_effect=AssertionError("invalid schema must guard artifact reads")):
+        status = bridge.audit_evidence_status(d, 1, root)
+        assert status["status"] == "INVALID" and status["schema_valid"] is False
+        assert table in status["reason"]
+        for apply in (False, True):
+            result = bridge.recover_evidence(d, [1], apply=apply, toolkit_root=root, report_path=path)
+            assert result["results"][0]["status"] == "INVALID"
+            assert result["recorded"] == 0
+        with pytest.raises(bridge.EvidenceSchemaError, match=table):
+            bridge.register_audit(d, 1, path, root)
+    assert snapshot(d) == before
+
+
+@pytest.mark.parametrize("schema", ["missing", "incompatible", "unsupported", "corrupt"])
+def test_unreadable_history_cannot_fall_back_to_current_anchor(case, schema):
+    d, root, _ = case
+    path, _ = saved_report(root)
+    bridge.register_audit(d, 1, path, root)
+    history_path = root / "history.sqlite3"
+    if schema == "corrupt":
+        history_path.write_bytes(b"invalid SQLite history")
+    else:
+        with sqlite3.connect(history_path) as history:
+            if schema == "incompatible":
+                history.execute("CREATE TABLE runs(id TEXT,url TEXT)")
+            elif schema == "unsupported":
+                history.execute("CREATE TABLE runs(id TEXT,url TEXT,timestamp TEXT)")
+                history.execute("PRAGMA user_version=2")
+    before = snapshot(d)
+    history_hash = core.sha(history_path.read_bytes())
+    status = bridge.audit_evidence_status(d, 1, root)
+    assert status["status"] == "INVALID" and status["schema_valid"] is False
+    assert not status["complete"]
+    assert bridge.recover_evidence(d, [1], apply=True, toolkit_root=root)["recorded"] == 0
+    assert snapshot(d) == before
+    assert core.sha(history_path.read_bytes()) == history_hash
+
+
+def test_unorderable_exact_site_history_timestamp_cannot_hide_behind_current_anchor(case):
+    from auditor_toolkit.storage import History
+
+    d, root, _ = case
+    path, older = saved_report(
+        root, run_id="older-valid", timestamp=(dt.datetime.now(core.UTC) - dt.timedelta(hours=1)).isoformat(),
+    )
+    newer_path, newer = saved_report(root, run_id="newer-invalid", timestamp="broken")
+    history = History(root)
+    history.save(older)
+    history.save(newer)
+    bridge.register_audit(d, 1, path, root)
+    before = snapshot(d)
+    history_hash = core.sha(history.path.read_bytes())
+    assert bridge.validate_report(d, 1, newer_path, root)["status"] == "INVALID"
+    status = bridge.audit_evidence_status(d, 1, root)
+    assert status["status"] == "INVALID" and not status["complete"]
+    assert "timestamp" in status["reason"]
+    assert bridge.recover_evidence(d, [1], apply=True, toolkit_root=root)["recorded"] == 0
+    assert snapshot(d) == before
+    assert core.sha(history.path.read_bytes()) == history_hash
+
+
+def test_history_orders_mixed_timezone_timestamps_by_capture_time_and_ignores_other_sites(case):
+    d, root, _ = case
+    older_stamp = (dt.datetime.now(core.UTC) - dt.timedelta(hours=1)).astimezone(
+        dt.timezone(dt.timedelta(hours=13)),
+    ).isoformat()
+    path, older = saved_report(root, run_id="older-offset", timestamp=older_stamp)
+    bridge.register_audit(d, 1, path, root)
+    newer_stamp = (dt.datetime.now(core.UTC) - dt.timedelta(minutes=30)).astimezone(
+        dt.timezone(dt.timedelta(hours=-4)),
+    ).isoformat()
+    _, newer = saved_report(root, run_id="newer-offset", timestamp=newer_stamp, status="partial")
+    with sqlite3.connect(root / "history.sqlite3") as history:
+        history.execute("CREATE TABLE runs(id TEXT,url TEXT,timestamp TEXT,report TEXT)")
+        for report in (older, newer):
+            history.execute("INSERT INTO runs VALUES(?,?,?,?)", (
+                report["run_id"], report["url"], report["timestamp"], json.dumps(report),
+            ))
+        history.execute("INSERT INTO runs VALUES('unrelated-invalid','https://other.example.co.nz','broken','{}')")
+    status = bridge.audit_evidence_status(d, 1, root)
+    assert status["status"] == "PARTIAL" and status["run_id"] == newer["run_id"]
+
+
+@pytest.mark.parametrize("column,value", [("suppression_reason", "late suppression"), ("current_status", "REJECTED")])
+def test_concurrent_exclusion_during_validation_prevents_schema_and_anchor_write(case, column, value):
+    d, root, db_path = case
+    path, _ = saved_report(root)
+    validate = bridge.validate_report
+    def validate_then_exclude(*args, **kwargs):
+        checked = validate(*args, **kwargs)
+        with sqlite3.connect(db_path) as concurrent:
+            concurrent.execute(f"UPDATE businesses SET {column}=? WHERE id=1", (value,))
+        return checked
+    with patch.object(bridge, "validate_report", side_effect=validate_then_exclude):
+        with pytest.raises(ValueError, match="suppressed|rejected"):
+            bridge.register_audit(d, 1, path, root)
+    assert not bridge._columns(d, "mm_audit_evidence")
+    assert not d.execute("SELECT 1 FROM sqlite_master WHERE name LIKE 'mm_audit_evidence_%'").fetchone()
+    assert d.execute(f"SELECT {column} FROM businesses WHERE id=1").fetchone()[0] == value
