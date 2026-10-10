@@ -10,12 +10,13 @@ import http.client
 import ipaddress
 import json
 from pathlib import Path
+import re
 import socket
 import sqlite3
 import ssl
 import time
 import certifi
-from urllib.parse import urlsplit, urljoin, urlunsplit
+from urllib.parse import quote, unquote, urlsplit, urljoin, urlunsplit
 from bs4 import BeautifulSoup
 
 MAX_BYTES = 3_000_000
@@ -24,28 +25,84 @@ CONTACT_PATHS = ('/contact', '/contact-us', '/about', '/about-us', '/team',
 
 
 def clean_url(url):
-    p = urlsplit(url)
-    if p.scheme not in ('https', 'http') or not p.hostname or p.username or p.password or p.query or p.port not in (None, 80, 443):
+    """Prepare a public URL before any DNS or request-budget reservation.
+
+    Browsers encode ordinary spaces and Unicode in link paths. Preserve valid
+    escapes while refusing controls, ambiguous authority syntax and private
+    destinations, including their percent-encoded forms.
+    """
+    if not isinstance(url, str) or not url or url != url.lstrip():
         raise ValueError('Unsafe or parameterized URL')
-    if p.hostname == 'localhost' or p.hostname.endswith(('.local', '.internal')):
+    decoded = url
+    for _ in range(5):
+        if re.search(r'[\x00-\x1f\x7f-\x9f\\]', decoded):
+            raise ValueError('Unsafe URL control character')
+        next_decoded = unquote(decoded)
+        if next_decoded == decoded:
+            break
+        decoded = next_decoded
+    if re.search(r'[\x00-\x1f\x7f-\x9f\\]', decoded) or unquote(decoded) != decoded:
+        raise ValueError('Unsafe URL control character or nested encoding')
+    if re.search(r'%(?![0-9a-fA-F]{2})', url) or '?' in url:
+        raise ValueError('Unsafe or parameterized URL')
+    try:
+        p = urlsplit(url)
+        port = p.port
+        hostname = p.hostname
+    except ValueError as exc:
+        raise ValueError('Unsafe or parameterized URL') from exc
+    if p.scheme not in ('https', 'http') or not hostname or p.username is not None or p.password is not None or p.query or port not in (None, 80, 443):
+        raise ValueError('Unsafe or parameterized URL')
+    hostname = hostname.rstrip('.').lower()
+    if '%' in hostname:
+        raise ValueError('Unsafe hostname')
+    try:
+        address = ipaddress.ip_address(hostname)
+    except ValueError:
+        try:
+            hostname = hostname.encode('idna').decode('ascii')
+        except UnicodeError as exc:
+            raise ValueError('Unsafe hostname') from exc
+        labels = hostname.split('.')
+        if (len(hostname) > 253 or len(labels) < 2 or labels[-1].isdigit()
+                or any(not re.fullmatch(r'[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?', label) for label in labels)):
+            raise ValueError('Unsafe hostname')
+    else:
+        if not address.is_global:
+            raise ValueError('Private hostname')
+    if hostname == 'localhost' or hostname.endswith(('.local', '.internal', '.localhost', '.test', '.invalid', '.example', '.home', '.lan', '.onion')):
         raise ValueError('Private hostname')
-    return urlunsplit((p.scheme, p.netloc.lower(), p.path or '/', '', ''))
+    host = '[' + hostname + ']' if ':' in hostname else hostname
+    netloc = host + (':' + str(port) if port is not None else '')
+    path = quote(p.path or '/', safe="/%:@!$&'()*+,;=-._~")
+    return urlunsplit((p.scheme, netloc, path, '', ''))
 
 
-def get_public(url, redirects=4):
+def get_public(url, redirects=4, *, before_hop=None, on_attempt=None, deadline=None):
     """GET only; validate every hop and pin the socket to a checked public IP."""
     chain = []
     for _ in range(redirects + 1):
         url = clean_url(url); p = urlsplit(url)
+        if before_hop is not None:
+            before_hop(url)
+        remaining = None if deadline is None else deadline - time.monotonic()
+        if remaining is not None and remaining <= 0:
+            raise ValueError('CONTACT_REVIEW_COLLECTION_DEADLINE')
         addresses = socket.getaddrinfo(p.hostname, p.port or (443 if p.scheme == 'https' else 80), type=socket.SOCK_STREAM)
         if not addresses or any(not ipaddress.ip_address(a[4][0]).is_global for a in addresses):
             raise ValueError('Non-public DNS destination')
         ip = addresses[0][4][0]
-        conn = (http.client.HTTPSConnection(p.hostname, timeout=12, context=ssl.create_default_context(cafile=certifi.where()))
-                if p.scheme == 'https' else http.client.HTTPConnection(p.hostname, timeout=12))
+        remaining = None if deadline is None else deadline - time.monotonic()
+        if remaining is not None and remaining <= 0:
+            raise ValueError('CONTACT_REVIEW_COLLECTION_DEADLINE')
+        timeout = 12 if remaining is None else min(12, remaining)
+        conn = (http.client.HTTPSConnection(p.hostname, port=p.port, timeout=timeout, context=ssl.create_default_context(cafile=certifi.where()))
+                if p.scheme == 'https' else http.client.HTTPConnection(p.hostname, port=p.port, timeout=timeout))
         # HTTP Host and TLS SNI retain the original hostname; DNS cannot rebind.
         conn._create_connection = lambda address, timeout, *args, **kwargs: socket.create_connection((ip, address[1]), timeout)
         try:
+            if on_attempt is not None:
+                on_attempt(url)
             conn.request('GET', p.path or '/', headers={'User-Agent': 'MoneyMachine-EvidenceReview/2.0', 'Accept': 'text/html,application/pdf,text/plain,application/xml'})
             response = conn.getresponse()
             if response.status in (301, 302, 303, 307, 308):
@@ -54,6 +111,8 @@ def get_public(url, redirects=4):
             if response.status != 200:
                 raise ValueError('HTTP_' + str(response.status))
             data = response.read(MAX_BYTES + 1)
+            if deadline is not None and time.monotonic() >= deadline:
+                raise ValueError('CONTACT_REVIEW_COLLECTION_DEADLINE')
             if len(data) > MAX_BYTES: raise ValueError('Page exceeds byte limit')
             return {'url': url, 'redirects': chain, 'content_type': response.getheader('Content-Type', ''),
                     'captured_at': dt.datetime.now(dt.timezone.utc).isoformat(),

@@ -38,6 +38,20 @@ def mm_json(mm_root: Path, *argv: str, timeout: int = 60) -> dict:
     return json.loads(proc.stdout)
 
 
+def test_supervisor_import_path_from_launchd_working_directory():
+    env = dict(os.environ)
+    env.pop("PYTHONPATH", None)
+    code = (
+        "import sys; import supervisor.cli; import auditor_toolkit; "
+        f"assert sys.path[0] == {str(REPO)!r}, sys.path[:3]"
+    )
+    proc = subprocess.run(
+        [PY, "-c", code], cwd=str(REPO / "money-machine"), env=env,
+        capture_output=True, text=True, timeout=30,
+    )
+    assert proc.returncode == 0, proc.stderr[-2000:]
+
+
 def seed_pipeline(mm_root: Path, business_id: int = 9001, state: str = "DISCOVERED") -> None:
     db = mm_root / "database" / "money_machine.db"
     db.parent.mkdir(parents=True, exist_ok=True)
@@ -94,7 +108,8 @@ def test_supervisor_start_stop_lifecycle(tmp_path):
         heartbeat = status["heartbeat"]
         # A healthy supervisor may deliberately pause work when the runtime
         # disk guard is active; it is still alive and must remain controllable.
-        assert heartbeat and heartbeat["status"] in {"running", "paused_low_disk"}
+        assert heartbeat
+        assert heartbeat["status"] in {"running", "paused_low_disk"}
         # single-instance protection: second start must be refused
         again = mm_json(root, "supervisor", "start")
         assert again["started"] is False

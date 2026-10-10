@@ -63,12 +63,73 @@ jobs:
         run: python -m compileall -q auditor_toolkit website_auditor money-machine
       - name: Run canonical + upgrade regression suites
         run: python -m pytest toolkit_tests tests -v
+      - name: Lint v45 opportunity intelligence
+        run: |
+          ruff check \
+            money-machine/mm_workers.py \
+            money-machine/test_worker_audit_coverage.py \
+            money-machine/mm_opportunity_intelligence.py \
+            money-machine/mm_error_mining.py \
+            money-machine/mm_intelligence_calibration.py \
+            money-machine/mm_intelligence_graph.py \
+            money-machine/mm_intelligence_hard_cases.py \
+            money-machine/mm_intelligence_strategy.py \
+            money-machine/mm_intelligence_drift.py \
+            money-machine/mm_intelligence_evidence_value.py \
+            money-machine/mm_intelligence_readiness.py \
+            money-machine/mm_intelligence_review_bundle.py \
+            money-machine/mm_intelligence_consistency.py \
+            money-machine/mm_intelligence_selective.py \
+            money-machine/mm_intelligence_review_efficiency.py \
+            money-machine/mm_intelligence_label_quality.py \
+            money-machine/mm_intelligence_uncertainty.py \
+            money-machine/test_opportunity_intelligence.py \
+            money-machine/test_intelligence_calibration.py \
+            money-machine/test_intelligence_graph.py \
+            money-machine/test_intelligence_hard_cases.py \
+            money-machine/test_intelligence_strategy.py \
+            money-machine/test_intelligence_drift.py \
+            money-machine/test_intelligence_evidence_value.py \
+            money-machine/test_intelligence_readiness.py \
+            money-machine/test_intelligence_review_bundle.py \
+            money-machine/test_intelligence_consistency.py \
+            money-machine/test_intelligence_selective.py \
+            money-machine/test_intelligence_review_efficiency.py \
+            money-machine/test_intelligence_label_quality.py \
+            money-machine/test_intelligence_uncertainty.py
+
       - name: Run portable MoneyMachine regressions
         run: |
           python -m pytest \
+            money-machine/test_search_backend.py \
             money-machine/test_discovery.py \
+            money-machine/test_discovery_batch.py \
+            money-machine/test_discovery_quality.py \
+            money-machine/test_soak_discovery_recovery.py \
+            money-machine/test_recurring_discovery.py \
+            money-machine/test_observability_discovery.py \
+            money-machine/test_launchd.py \
+            money-machine/test_scanning_activation.py \
             money-machine/test_email_finder.py \
             money-machine/test_pipeline.py \
+            money-machine/test_worker_audit_coverage.py \
+            money-machine/test_opportunity_axes.py \
+            money-machine/test_opportunity_intelligence.py \
+            money-machine/test_intelligence_calibration.py \
+            money-machine/test_intelligence_graph.py \
+            money-machine/test_intelligence_hard_cases.py \
+            money-machine/test_intelligence_strategy.py \
+            money-machine/test_intelligence_drift.py \
+            money-machine/test_intelligence_evidence_value.py \
+            money-machine/test_intelligence_readiness.py \
+            money-machine/test_intelligence_review_bundle.py \
+            money-machine/test_intelligence_consistency.py \
+            money-machine/test_intelligence_selective.py \
+            money-machine/test_intelligence_review_efficiency.py \
+            money-machine/test_intelligence_label_quality.py \
+            money-machine/test_intelligence_uncertainty.py \
+            money-machine/test_intelligence_ledger.py \
+            money-machine/test_preparation_worker.py \
             money-machine/test_dsh_harness_bridge.py \
             money-machine/test_lead_qualifier.py \
             money-machine/test_polish.py \

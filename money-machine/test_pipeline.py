@@ -4,17 +4,20 @@ All fixtures are synthetic and disposable. No network, no model calls, no real
 businesses, no sends.
 """
 import datetime as dt
+import io
 import json
 import os
 from pathlib import Path
 import sqlite3
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import mm_core as c
 import mm_pipeline as p
 import mm_approval as appr
 import mm_model_router as router
+from toolkit_tests.coverage_fixtures import with_current_coverage
 
 
 def fresh_db(tmp):
@@ -34,6 +37,13 @@ def fresh_db(tmp):
         recipient TEXT, body TEXT, invalidated_reason TEXT, approved_hash TEXT);
     CREATE TABLE IF NOT EXISTS email_verifications(id INTEGER PRIMARY KEY,
         prospect_id INTEGER, email TEXT, result_json TEXT);
+    CREATE VIEW IF NOT EXISTS email_current_high AS
+        SELECT prospect_id,
+               email AS normalized_email,
+               id AS candidate_id,
+               id AS verification_id
+        FROM email_verifications
+        WHERE json_extract(result_json,'$.confidence_label')='VERIFIED_HIGH';
     CREATE TABLE IF NOT EXISTS mm_model_invocations(id INTEGER PRIMARY KEY,
         run_key TEXT UNIQUE, model TEXT, provider TEXT, purpose_hash TEXT,
         status TEXT, model_calls INTEGER DEFAULT 0, input_tokens INTEGER,
@@ -218,6 +228,52 @@ class ApprovalEngine(unittest.TestCase):
         self.d.execute("INSERT INTO mm_messages(business_id,recipient,body) VALUES(?,?,?)",
                        (self.bid, 'office@fixture.example.co.nz',
                         'Subject: fix\n\nFixture body.'))
+
+    def test_audit_gate_accepts_complete_canonical_toolkit_report(self):
+        toolkit_root = Path(self.tmp.name) / 'toolkit'
+        report_dir = toolkit_root / 'run-canonical'
+        report_dir.mkdir(parents=True)
+        report_path = report_dir / 'report.json'
+        report_path.write_text(json.dumps({
+            'run_id': 'run-canonical',
+            'status': 'complete',
+            'url': 'https://fixture.example.co.nz',
+        }))
+
+        p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
+        p.advance(
+            self.d,
+            self.bid,
+            'AUDITED',
+            'w-audit',
+            'canonical audit captured',
+            {
+                'run_id': 'run-canonical',
+                'report_path': str(report_path),
+                'audit_engine': 'auditor_toolkit',
+            },
+        )
+
+        with patch.object(appr, 'TOOLKIT_ROOT', toolkit_root.resolve()):
+            ok, evidence = appr._gate_audit_evidence(self.d, self.bid)
+
+        self.assertTrue(ok)
+        self.assertEqual(evidence['source'], 'auditor_toolkit')
+        self.assertEqual(evidence['run_id'], 'run-canonical')
+
+    def test_verified_email_gate_uses_current_high_view(self):
+        self.d.execute("INSERT INTO email_verifications(prospect_id,email,result_json) "
+                       "VALUES(?,?,?)", (self.bid, 'medium@fixture.example.co.nz',
+                       json.dumps({'confidence_label': 'VERIFIED_MEDIUM'})))
+        ok, evidence = appr._gate_verified_email(self.d, self.bid)
+        self.assertFalse(ok)
+        self.d.execute("INSERT INTO email_verifications(prospect_id,email,result_json) "
+                       "VALUES(?,?,?)", (self.bid, 'high@fixture.example.co.nz',
+                       json.dumps({'confidence_label': 'VERIFIED_HIGH'})))
+        ok, evidence = appr._gate_verified_email(self.d, self.bid)
+        self.assertTrue(ok)
+        self.assertEqual(evidence['email'], 'high@fixture.example.co.nz')
+        self.assertEqual(evidence['confidence'], 'VERIFIED_HIGH')
 
     def test_missing_evidence_never_approves(self):
         aid = appr.request_approval(self.d, self.bid)
@@ -404,12 +460,12 @@ class WorkerHandlers(unittest.TestCase):
                  workers.WORKERS['identity'][1]).run_once(self.d)
         self.assertEqual(p.item(self.d, bid)['state'], 'PERMANENT_FAILURE')
 
-    def test_contact_without_verified_email_is_a_valid_final_state(self):
+    def test_contact_without_released_v2_is_held_for_review(self):
         import mm_workers as workers
         bid = self._enqueue('CONTACT_PENDING')
         p.Worker('w-contact', workers.WORKERS['contact'][0],
                  workers.WORKERS['contact'][1]).run_once(self.d)
-        self.assertEqual(p.item(self.d, bid)['state'], 'NO_VERIFIED_EMAIL')
+        self.assertEqual(p.item(self.d, bid)['state'], 'NEEDS_REVIEW')
         n = self.d.execute("SELECT count(*) FROM email_verifications").fetchone()[0]
         self.assertEqual(n, 0)  # nothing fabricated into the evidence tables
 
@@ -446,83 +502,159 @@ class ModelRouter(unittest.TestCase):
         self.d.close(); self.tmp.cleanup()
 
     def test_paid_route_hard_refused(self):
-        self.assertIn('PAID_ROUTE_REFUSED',
-                      router.check_route('openrouter', 'anthropic/claude-sonnet-4'))
-        with self.assertRaises(router.PaidRouteRefused):
-            # plan() treats a non-free id in config as a hard error, never routes
-            router.PURPOSE_ROUTES['test-role'] = [('openrouter', 'paid/model-1')]
-            try:
-                router.plan(self.d, 'test-role')
-            finally:
-                router.PURPOSE_ROUTES.pop('test-role')
+        with patch.dict(os.environ, {router.FCC_FREE_MODELS_ENV: ''}, clear=False):
+            self.assertIn(
+                'PAID_ROUTE_REFUSED',
+                router.check_route(router.FCC_PROVIDER, 'claude-paid-model'),
+            )
+        self.assertIn(
+            'PAID_ROUTE_REFUSED',
+            router.check_route(router.HERMES_PROVIDER, 'paid/hermes-model'),
+        )
 
-    def test_free_routes_accepted(self):
-        self.assertIsNone(router.check_route('openrouter', 'meituan/longcat-2.0:free'))
-        self.assertIsNone(router.check_route('local:llamacpp', None))
+    def test_zero_cost_routes_accepted(self):
+        with patch.dict(os.environ, {
+            router.FCC_FREE_MODELS_ENV: 'claude-fcc-free',
+        }, clear=False):
+            self.assertIsNone(
+                router.check_route(router.FCC_PROVIDER, 'claude-fcc-free')
+            )
+        self.assertIsNone(
+            router.check_route(router.HERMES_PROVIDER, 'fixture/hermes:free')
+        )
 
     def test_unknown_provider_refused(self):
         self.assertIsNotNone(router.check_route('acme-paid-api', 'x:free'))
 
     def test_no_route_yields_blocked_cost_not_paid(self):
-        os.environ.pop('OPENROUTER_API_KEY', None)
-        res = router.plan(self.d, 'researcher', local_lookup=lambda kind: None)
+        res = router.plan(
+            self.d, 'researcher', local_lookup=lambda kind: None
+        )
         self.assertEqual(res['status'], 'blocked')
         self.assertEqual(res['cost_usd'], 0)
-        r = self.d.execute("SELECT * FROM mm_model_invocations WHERE run_key=?",
-                           (res['run_key'],)).fetchone()
-        self.assertEqual(r['status'], 'blocked')
-        self.assertEqual(r['cost_usd'], 0)
+        row = self.d.execute(
+            "SELECT * FROM mm_model_invocations WHERE run_key=?",
+            (res['run_key'],),
+        ).fetchone()
+        self.assertEqual(row['status'], 'blocked')
+        self.assertEqual(row['cost_usd'], 0)
 
-    def test_local_route_is_preferred_and_free(self):
-        """A local server must win over any external route, at zero cost."""
-        os.environ.pop('OPENROUTER_API_KEY', None)  # no external route available
-        res = router.plan(self.d, 'researcher',
-                          local_lookup=lambda kind: 'stub-local-4b' if kind == 'llamacpp' else None)
+    def test_fcc_claude_is_primary(self):
+        with patch.dict(os.environ, {
+            router.FCC_FREE_MODELS_ENV: 'claude-fcc-free',
+        }, clear=False):
+            res = router.plan(
+                self.d,
+                'researcher',
+                local_lookup=lambda kind: (
+                    'claude-fcc-free' if kind == 'fcc'
+                    else 'fixture/hermes:free'
+                ),
+            )
         self.assertEqual(res['status'], 'planned')
-        self.assertEqual(res['provider'], 'local:llamacpp')
-        self.assertEqual(res['model'], 'stub-local-4b')
+        self.assertEqual(res['provider'], router.FCC_PROVIDER)
+        self.assertEqual(res['model'], 'claude-fcc-free')
         self.assertEqual(res['cost_usd'], 0)
-        self.assertEqual(res['model_calls'], 0)
 
-    def test_external_route_used_only_when_no_local_route_exists(self):
-        os.environ['OPENROUTER_API_KEY'] = 'stub-key-never-called'
-        os.environ['MM_ALLOW_EXTERNAL_FREE_MODELS'] = '1'
-        try:
-            res = router.plan(self.d, 'judge', local_lookup=lambda kind: None)
-            self.assertEqual(res['status'], 'planned')
-            self.assertTrue(res['model'].endswith(':free'))
-            self.assertEqual(res['cost_usd'], 0)
-        finally:
-            os.environ.pop('OPENROUTER_API_KEY', None)
-            os.environ.pop('MM_ALLOW_EXTERNAL_FREE_MODELS', None)
+    def test_hermes_fallback_used_when_fcc_would_need_payment(self):
+        with patch.dict(os.environ, {
+            router.FCC_FREE_MODELS_ENV: '',
+        }, clear=False):
+            res = router.plan(
+                self.d,
+                'judge',
+                local_lookup=lambda kind: (
+                    'claude-paid-model' if kind == 'fcc'
+                    else 'fixture/hermes:free'
+                ),
+            )
+        self.assertEqual(res['status'], 'planned')
+        self.assertEqual(res['provider'], router.HERMES_PROVIDER)
+        self.assertEqual(res['model'], 'fixture/hermes:free')
+        self.assertEqual(res['cost_usd'], 0)
 
-    def test_external_free_route_requires_explicit_opt_in(self):
-        os.environ['OPENROUTER_API_KEY'] = 'stub-key-never-called'
-        os.environ.pop('MM_ALLOW_EXTERNAL_FREE_MODELS', None)
-        try:
-            res = router.plan(self.d, 'judge', local_lookup=lambda kind: None)
-            self.assertEqual(res['status'], 'blocked')
-            self.assertEqual(res['cost_usd'], 0)
-            self.assertIn('external free models disabled', res['reason'])
-        finally:
-            os.environ.pop('OPENROUTER_API_KEY', None)
+    def test_fcc_probe_requires_explicit_zero_cost_allowlist(self):
+        response = io.BytesIO(json.dumps({
+            'data': [{'id': 'auto'}, {'id': 'claude-fcc-free'}],
+        }).encode())
+        with patch.dict(os.environ, {
+            router.FCC_MODEL_ENV: 'auto',
+            router.FCC_FREE_MODELS_ENV: '',
+        }, clear=False), patch.object(
+            router, '_open_local', return_value=response
+        ):
+            self.assertIsNone(router.probe_fcc())
 
-    def test_llamacpp_probe_parses_openai_model_list(self):
-        original = router._get_json
-        router._get_json = lambda url, timeout=3: {'data': [{'id': 'ggml-org/Qwen3-4B-GGUF:Q4_K_M'}]}
-        try:
-            self.assertEqual(router.probe_llamacpp(),
-                             'ggml-org/Qwen3-4B-GGUF:Q4_K_M')
-        finally:
-            router._get_json = original
+        response = io.BytesIO(json.dumps({
+            'data': [{'id': 'claude-fcc-free'}],
+        }).encode())
+        with patch.dict(os.environ, {
+            router.FCC_MODEL_ENV: 'claude-fcc-free',
+            router.FCC_FREE_MODELS_ENV: 'claude-fcc-free',
+        }, clear=False), patch.object(
+            router, '_open_local', return_value=response
+        ):
+            self.assertEqual(router.probe_fcc(), 'claude-fcc-free')
 
-    def test_local_complete_blocks_cost_when_no_local_route(self):
+    def test_complete_uses_fcc_claude_first(self):
+        with patch.dict(os.environ, {
+            router.FCC_FREE_MODELS_ENV: 'claude-fcc-free',
+        }, clear=False), patch.object(
+            router,
+            '_fcc_complete',
+            return_value={
+                'text': 'fcc response',
+                'provider': router.FCC_PROVIDER,
+                'model': 'claude-fcc-free',
+                'cost_usd': 0,
+            },
+        ) as fcc, patch.object(router, '_hermes_complete') as hermes:
+            result = router.local_complete(
+                'synthetic public prompt',
+                lookup=lambda kind: (
+                    'claude-fcc-free' if kind == 'fcc'
+                    else 'fixture/hermes:free'
+                ),
+            )
+        self.assertEqual(result['provider'], router.FCC_PROVIDER)
+        fcc.assert_called_once()
+        hermes.assert_not_called()
+
+    def test_complete_falls_back_to_hermes_when_fcc_blocks(self):
+        with patch.dict(os.environ, {
+            router.FCC_FREE_MODELS_ENV: 'claude-fcc-free',
+        }, clear=False), patch.object(
+            router,
+            '_fcc_complete',
+            side_effect=router.BlockedCost('fcc unavailable or no longer free'),
+        ), patch.object(
+            router,
+            '_hermes_complete',
+            return_value={
+                'text': 'hermes response',
+                'provider': router.HERMES_PROVIDER,
+                'model': 'fixture/hermes:free',
+                'cost_usd': 0,
+            },
+        ) as hermes:
+            result = router.local_complete(
+                'synthetic public prompt',
+                purpose='researcher',
+                lookup=lambda kind: (
+                    'claude-fcc-free' if kind == 'fcc'
+                    else 'fixture/hermes:free'
+                ),
+            )
+        self.assertEqual(result['provider'], router.HERMES_PROVIDER)
+        hermes.assert_called_once()
+
+    def test_complete_blocks_cost_when_no_zero_cost_route(self):
         with self.assertRaises(router.BlockedCost):
-            router.local_complete('hello', lookup=lambda kind: None)
+            router.local_complete(
+                'synthetic public prompt',
+                lookup=lambda kind: None,
+            )
 
-
-if __name__ == '__main__':
-    unittest.main()
 
 class StageHandlers(unittest.TestCase):
     """Adapter handlers bridge the state machine to existing components."""
@@ -552,22 +684,298 @@ class StageHandlers(unittest.TestCase):
         self.assertEqual(nxt, 'AUDIT_PENDING')
         self.assertEqual(ev['canonical_host'], 'fixture.example.co.nz')
 
+    def test_audit_handler_reuses_recent_canonical_toolkit_report(self):
+        import mm_workers
+        recent = {
+            'run_id': 'run-recent',
+            'status': 'complete',
+            'profile': 'static',
+            'health_score': 72,
+            'score': 12,
+            'severity_score': 12,
+            'defects': [{'defect_key': 'viewport'}],
+            'defect_count': 1,
+            'artifacts': {'json': '/tmp/run-recent/report.json'},
+        }
+        recent = with_current_coverage(recent)
+        p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
+        it = p.item(self.d, self.bid)
+        with patch('auditor_toolkit.storage.History') as history_cls, \
+             patch('auditor_toolkit.pipeline.run_audit') as run_audit:
+            history_cls.return_value.get_latest_valid_audit.return_value = recent
+            nxt, reason, ev = mm_workers.audit_handler(self.d, it, None)
+
+        self.assertEqual(nxt, 'AUDITED')
+        self.assertEqual(ev['run_id'], 'run-recent')
+        self.assertEqual(ev['score'], 12)
+        self.assertEqual(ev['audit_engine'], 'auditor_toolkit')
+        self.assertEqual(ev['model_calls'], 0)
+        self.assertEqual(ev['external_sends'], 0)
+        run_audit.assert_not_called()
+
+    def test_audit_handler_runs_canonical_toolkit_with_safe_options(self):
+        import mm_workers
+        report = {
+            'run_id': 'run-new',
+            'status': 'complete',
+            'profile': 'static',
+            'health_score': 61,
+            'score': 39,
+            'severity_score': 39,
+            'defects': [
+                {'defect_key': 'viewport'},
+                {'defect_key': 'missing_title'},
+            ],
+            'defect_count': 2,
+            'artifacts': {'json': '/tmp/run-new/report.json'},
+            'checks': {'fetch': {'required': True, 'status': 'ok'}}
+        }
+        report = with_current_coverage(report)
+        p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
+        it = p.item(self.d, self.bid)
+        with patch('auditor_toolkit.storage.History') as history_cls, \
+             patch('auditor_toolkit.pipeline.run_audit', return_value=report) as run_audit:
+            history_cls.return_value.get_latest_valid_audit.return_value = None
+            nxt, reason, ev = mm_workers.audit_handler(self.d, it, None)
+
+        self.assertEqual(nxt, 'AUDITED')
+        self.assertEqual(ev['run_id'], 'run-new')
+        self.assertEqual(ev['defect_count'], 2)
+        self.assertEqual(ev['score'], 39)
+        self.assertEqual(ev['health_score'], 61)
+        self.assertEqual(ev['audit_engine'], 'auditor_toolkit')
+        self.assertEqual(ev['model_calls'], 0)
+        self.assertEqual(ev['external_sends'], 0)
+        args, kwargs = run_audit.call_args
+        self.assertEqual(args[0], 'https://fixture.example.co.nz')
+        options = args[1]
+        self.assertEqual(options.profile, 'static')
+        self.assertFalse(options.ai)
+        self.assertFalse(options.browser)
+        self.assertFalse(options.deep)
+        self.assertFalse(options.external_tools)
+
+    def test_audit_handler_incomplete_toolkit_report_retries(self):
+        import mm_workers
+        report = {
+            'run_id': 'run-partial',
+            'status': 'partial',
+            'profile': 'static',
+            'health_score': None,
+            'score': 10,
+            'severity_score': 10,
+            'defects': [],
+            'defect_count': 0,
+            'artifacts': {'json': '/tmp/run-partial/report.json'},
+            'checks': {
+                'fetch': {'required': True, 'status': 'error'},
+                'page': {'required': True, 'status': 'skipped'},
+            },
+        }
+        p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
+        it = p.item(self.d, self.bid)
+        with patch('auditor_toolkit.storage.History') as history_cls, \
+             patch('auditor_toolkit.pipeline.run_audit', return_value=report):
+            history_cls.return_value.get_latest_valid_audit.return_value = None
+            with self.assertRaises(p.RetryableError):
+                mm_workers.audit_handler(self.d, it, None)
+
     def test_contact_handler_never_fabricates(self):
         import mm_workers
         p.enqueue(self.d, self.bid, state='CONTACT_PENDING')
         it = p.item(self.d, self.bid)
         nxt, reason, ev = mm_workers.contact_handler(self.d, it, None)
-        self.assertEqual(nxt, 'NO_VERIFIED_EMAIL')
+        self.assertEqual(nxt, 'NEEDS_REVIEW')
+        self.assertEqual(ev['external_sends'], 0)
+        self.assertFalse(ev['finder_run'])
 
-    def test_contact_handler_uses_verified_high_only(self):
+    def test_contact_handler_legacy_medium_never_advances(self):
         import mm_workers
         self.d.execute("INSERT INTO email_verifications(prospect_id,email,result_json) "
                        "VALUES(?,?,?)", (self.bid, 'maybe@fixture.example.co.nz',
                        json.dumps({'confidence_label': 'VERIFIED_MEDIUM'})))
         p.enqueue(self.d, self.bid, state='CONTACT_PENDING')
         it = p.item(self.d, self.bid)
-        nxt, _, _ = mm_workers.contact_handler(self.d, it, None)
-        self.assertEqual(nxt, 'NO_VERIFIED_EMAIL')  # MEDIUM never routes to send lane
+        nxt, _, ev = mm_workers.contact_handler(self.d, it, None)
+        self.assertEqual(nxt, 'NEEDS_REVIEW')
+        self.assertEqual(ev['external_sends'], 0)
+
+    def test_contact_handler_runs_v2_finder_then_advances_from_authoritative_view(self):
+        import mm_workers
+        import mm_email_cli
+
+        p.enqueue(self.d, self.bid, state='CONTACT_PENDING')
+        it = p.item(self.d, self.bid)
+        current = {
+            'email': 'office@fixture.example.co.nz',
+            'verification_id': 77,
+            'confidence': 'VERIFIED_HIGH',
+        }
+        with patch.object(
+            mm_workers,
+            '_email_v2_release_state',
+            return_value=(True, {
+                'installed': True,
+                'email_policy': 'v2',
+                'release_mode': 'PRODUCTION',
+                'verifier_version': 'email-v2.0.1',
+            }),
+        ), patch.object(
+            mm_workers,
+            '_current_verified_high',
+            side_effect=[None, current],
+        ), patch.object(
+            mm_email_cli,
+            'find_one',
+            return_value={'candidates': [], 'contact_form_urls': []},
+        ) as finder:
+            nxt, reason, ev = mm_workers.contact_handler(self.d, it, None)
+
+        self.assertEqual(nxt, 'REMEDIATION_PENDING')
+        self.assertEqual(ev['email'], 'office@fixture.example.co.nz')
+        self.assertTrue(ev['finder_run'])
+        self.assertEqual(ev['external_sends'], 0)
+        finder.assert_called_once_with(self.d, self.bid)
+
+    def test_contact_handler_finder_completion_without_high_is_valid_terminal(self):
+        import mm_workers
+        import mm_email_cli
+
+        p.enqueue(self.d, self.bid, state='CONTACT_PENDING')
+        it = p.item(self.d, self.bid)
+        with patch.object(
+            mm_workers,
+            '_email_v2_release_state',
+            return_value=(True, {
+                'installed': True,
+                'email_policy': 'v2',
+                'release_mode': 'PRODUCTION',
+                'verifier_version': 'email-v2.0.1',
+            }),
+        ), patch.object(
+            mm_workers,
+            '_current_verified_high',
+            side_effect=[None, None],
+        ), patch.object(
+            mm_email_cli,
+            'find_one',
+            return_value={
+                'candidates': [
+                    {
+                        'email': 'maybe@fixture.example.co.nz',
+                        'confidence_label': 'VERIFIED_MEDIUM',
+                    }
+                ],
+                'contact_form_urls': ['https://fixture.example.co.nz/contact'],
+            },
+        ):
+            nxt, reason, ev = mm_workers.contact_handler(self.d, it, None)
+
+        self.assertEqual(nxt, 'NO_VERIFIED_EMAIL')
+        self.assertTrue(ev['finder_run'])
+        self.assertEqual(ev['candidate_count'], 1)
+        self.assertEqual(ev['contact_form_count'], 1)
+        self.assertEqual(ev['external_sends'], 0)
+
+    def test_contact_handler_release_hold_does_not_call_finder(self):
+        import mm_workers
+        import mm_email_cli
+
+        p.enqueue(self.d, self.bid, state='CONTACT_PENDING')
+        it = p.item(self.d, self.bid)
+        with patch.object(
+            mm_workers,
+            '_current_verified_high',
+            return_value=None,
+        ), patch.object(
+            mm_workers,
+            '_email_v2_release_state',
+            return_value=(False, {
+                'installed': True,
+                'email_policy': 'v2',
+                'release_mode': 'POST_DEPLOYMENT_OBSERVATION',
+                'verifier_version': 'email-v2.0.1',
+            }),
+        ), patch.object(
+            mm_email_cli,
+            'find_one',
+        ) as finder:
+            nxt, reason, ev = mm_workers.contact_handler(self.d, it, None)
+
+        self.assertEqual(nxt, 'NEEDS_REVIEW')
+        self.assertEqual(ev['external_sends'], 0)
+        finder.assert_not_called()
+
+    def test_qualification_passes_on_technical_need(self):
+        """Regression: audit evidence score must reach qualification.
+
+        Before the defect_score→score field-name fix, _audit_evidence
+        read report.get('defect_score') which is never produced by
+        score_findings() (it returns 'score'). This silently made
+        technical_score always None, failing the technical gate for
+        every business. This test proves the fix end-to-end: an audit
+        with sufficient defect severity passes the technical axis.
+        """
+        import mm_workers as w
+        p.enqueue(self.d, self.bid)
+        # Walk the declared forward chain up to QUALIFICATION_PENDING,
+        # injecting audit evidence (AUDITED) and understanding evidence.
+        p.transition(self.d, self.bid, 'IDENTITY_PENDING', 'w-id', 'resolved')
+        p.transition(self.d, self.bid, 'IDENTITY_RESOLVED', 'w-id', 'resolved')
+        p.transition(self.d, self.bid, 'AUDIT_PENDING', 'w-setup', 'ready')
+        audit_ev = w._audit_evidence({
+            'run_id': 'run-t',
+            'status': 'complete',
+            'score': 52,
+            'severity_score': 52,
+            'health_score': 48,
+            'defect_count': 4,
+            'defects': [{'defect_key': 'viewport'},
+                        {'defect_key': 'missing_title'},
+                        {'defect_key': 'no_canonical'},
+                        {'defect_key': 'no_schema'}],
+        })
+        p.transition(self.d, self.bid, 'AUDITED', 'w-audit',
+                     'audit captured', audit_ev)
+        p.transition(self.d, self.bid, 'QUALIFICATION_PENDING', 'w-understanding',
+                     'understood', {'opportunity_score': {'score': 10}})
+        it = p.item(self.d, self.bid)
+        nxt, reason, ev = w.qualification_handler(self.d, it, None)
+        self.assertIn('technical', ev['qualification_basis'])
+        self.assertIsNotNone(ev['technical_score'])
+        self.assertGreaterEqual(ev['technical_score'], 40)
+        self.assertEqual(nxt, 'CONTACT_PENDING')
+
+    def test_qualification_rejects_below_threshold(self):
+        """A low-severity audit should not pass the technical gate.
+
+        This proves the gate is not weakened: 28 < 40 threshold → rejected.
+        """
+        import mm_workers as w
+        p.enqueue(self.d, self.bid)
+        p.transition(self.d, self.bid, 'IDENTITY_PENDING', 'w-id', 'resolved')
+        p.transition(self.d, self.bid, 'IDENTITY_RESOLVED', 'w-id', 'resolved')
+        p.transition(self.d, self.bid, 'AUDIT_PENDING', 'w-setup', 'ready')
+        audit_ev = w._audit_evidence({
+            'run_id': 'run-l',
+            'status': 'complete',
+            'score': 28,
+            'severity_score': 28,
+            'health_score': 72,
+            'defect_count': 3,
+            'defects': [{'defect_key': 'viewport'},
+                        {'defect_key': 'missing_title'},
+                        {'defect_key': 'slow_tti'}],
+        })
+        p.transition(self.d, self.bid, 'AUDITED', 'w-audit',
+                     'audit captured', audit_ev)
+        p.transition(self.d, self.bid, 'QUALIFICATION_PENDING', 'w-understanding',
+                     'understood', {'opportunity_score': {'score': 10}})
+        it = p.item(self.d, self.bid)
+        nxt, reason, ev = w.qualification_handler(self.d, it, None)
+        self.assertEqual(nxt, 'REJECTED')
+        self.assertIsNotNone(ev['technical_score'])
+        self.assertLess(ev['technical_score'], 40)
 
     def test_demo_handler_requires_artifact(self):
         import mm_workers

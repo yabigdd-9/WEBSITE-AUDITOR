@@ -20,12 +20,12 @@ import ipaddress
 import json
 import sqlite3
 from pathlib import Path
-from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode, urlsplit, urlunsplit
-from urllib.request import Request, urlopen
+from urllib.parse import urlsplit, urlunsplit
 
 import mm_core as core
 import mm_pipeline
+import mm_search_backend
+import mm_discovery_quality
 
 
 class SearchBlocked(RuntimeError):
@@ -39,9 +39,7 @@ class SearchBlocked(RuntimeError):
 
 MAX_IMPORT_ROWS = 5000
 MAX_SEARCH_RESULTS = 50
-MAX_SEARCH_RESPONSE = 2 * 1024 * 1024
 SEARCH_TIMEOUT = 20
-USER_AGENT = "WEBSITE-AUDITOR-Discovery/1.0"
 
 
 def _first(row, names):
@@ -81,10 +79,13 @@ def _adapt_source_row(row, lane):
         }
     if lane == "nzbn" or any(k in row for k in ("nzbn", "entityName", "entity_name")):
         trading = row.get("tradingName") or row.get("trading_name") or ""
+        legal = row.get("entityName") or row.get("entity_name") or ""
         return {
-            "name": row.get("entityName") or row.get("entity_name") or trading or row.get("name") or "",
-            "legal_name": row.get("entityName") or row.get("entity_name") or "",
+            "name": legal or trading or row.get("name") or "",
+            "legal_name": legal,
             "trading_name": trading,
+            "nzbn": str(row.get("nzbn") or row.get("NZBN") or ""),
+            "nzbn_name": legal or trading or "",
             "website": (
                 row.get("website")
                 or row.get("websiteUrl")
@@ -109,6 +110,24 @@ def _source_provenance(row, source):
         "source_url": str(row.get("source_url") or "")[:500],
     }
 
+def _normalize_provenance_sources(raw_sources):
+    cleaned = []
+    seen = set()
+    for item in raw_sources:
+        if not isinstance(item, dict):
+            continue
+        normalized = {
+            "lane": str(item.get("lane") or "import")[:80],
+            "record_id": str(item.get("record_id") or "")[:160],
+            "source_url": str(item.get("source_url") or "")[:500],
+        }
+        key = json.dumps(normalized, sort_keys=True)
+        if key not in seen:
+            seen.add(key)
+            cleaned.append(normalized)
+    return cleaned[:20]
+
+
 def root_url(raw):
     value = str(raw or "").strip()
     if not value:
@@ -131,16 +150,33 @@ def normalize_candidate(row, default_region="", default_source="import"):
     region = _first(row, ("region", "city", "area")) or str(default_region or "").strip()
     source = _first(row, ("source",)) or str(default_source or "import").strip()
     normalized_name = name.strip().casefold()
+    provenance = _source_provenance(row, source)
+    quality = row.get("discovery_quality")
+    quality = dict(quality) if isinstance(quality, dict) else None
+    provenance_sources = row.get("provenance_sources")
+    if isinstance(provenance_sources, list):
+        cleaned = _normalize_provenance_sources(provenance_sources)
+        if cleaned:
+            provenance["sources"] = cleaned[:20]
     return {
         "name": name[:250],
         "normalized_name": normalized_name,
         "legal_name": _first(row, ("legal_name", "entityName", "entity_name"))[:250],
         "trading_name": _first(row, ("trading_name", "tradingName"))[:250],
+        "nzbn": _first(row, ("nzbn", "NZBN"))[:32],
+        "nzbn_name": _first(row, ("nzbn_name", "entityName", "entity_name", "tradingName", "trading_name"))[:250],
         "region": region[:160],
         "public_website": website,
         "canonical_host": host,
         "source": source[:160],
-        "provenance": _source_provenance(row, source),
+        "source_lane": str(row.get("source_lane") or provenance["lane"])[:80],
+        "source_record_id": str(row.get("source_record_id") or provenance["record_id"])[:160],
+        "source_url": str(row.get("source_url") or provenance["source_url"])[:500],
+        "provenance_sources": provenance.get("sources", [
+            {key: provenance[key] for key in ("lane", "record_id", "source_url")}
+        ]),
+        "provenance": provenance,
+        "discovery_quality": quality,
     }
 
 
@@ -275,6 +311,9 @@ def ingest(d, candidates, actor="discovery-v2", dry_run=False):
                     "provenance": candidate["provenance"],
                     "legal_name": candidate.get("legal_name"),
                     "trading_name": candidate.get("trading_name"),
+                    "nzbn": candidate.get("nzbn"),
+                    "nzbn_name": candidate.get("nzbn_name"),
+                    "discovery_quality": candidate.get("discovery_quality"),
                     "actor": actor,
                 },
                 sort_keys=True,
@@ -289,7 +328,10 @@ def ingest(d, candidates, actor="discovery-v2", dry_run=False):
                 "discovery_provenance": candidate["provenance"],
                 "legal_name": candidate.get("legal_name"),
                 "trading_name": candidate.get("trading_name"),
+                "nzbn": candidate.get("nzbn"),
+                "nzbn_name": candidate.get("nzbn_name"),
                 "canonical_host": host,
+                "discovery_quality": candidate.get("discovery_quality"),
                 "contact_eligibility": "UNASSESSED",
             },
         )
@@ -324,6 +366,7 @@ def _loopback_endpoint(endpoint):
 
 
 def searxng_candidates(query, region, endpoint="http://127.0.0.1:8888", limit=20):
+    """Return normalized discovery candidates through the typed local backend."""
     query = str(query or "").strip()
     if not query or len(query) > 200:
         raise ValueError("query must contain 1-200 characters")
@@ -333,51 +376,42 @@ def searxng_candidates(query, region, endpoint="http://127.0.0.1:8888", limit=20
     limit = max(1, min(int(limit), MAX_SEARCH_RESULTS))
     endpoint = _loopback_endpoint(endpoint)
 
-    # P5: typed BLOCKED_SEARCH_* failures instead of raw URLError tracebacks.
-    # The frozen signature and happy path are unchanged; only the failure mode
-    # is upgraded to a machine-readable, typed error.
-    params = urlencode({
-        "q": query,
-        "format": "json",
-        "categories": "general",
-        "language": "en-NZ",
-        "safesearch": "1",
-    })
-    request = Request(
-        endpoint + "/search?" + params,
-        headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+    result = mm_search_backend.search(
+        query,
+        region,
+        endpoint=endpoint,
+        limit=limit,
+        timeout=SEARCH_TIMEOUT,
     )
-    try:
-        with urlopen(request, timeout=SEARCH_TIMEOUT) as response:
-            body = response.read(MAX_SEARCH_RESPONSE + 1)
-    except HTTPError as e:
-        raise SearchBlocked("BLOCKED_SEARCH_BAD_STATUS", endpoint,
-                            f"SearXNG returned HTTP {e.code}") from e
-    except URLError as e:
-        reason = str(getattr(e, "reason", e))
-        code = ("BLOCKED_SEARCH_TIMEOUT" if "timed out" in reason.lower()
-                else "BLOCKED_SEARCH_SERVICE_ABSENT")
-        raise SearchBlocked(code, endpoint, reason) from e
-    except OSError as e:
-        raise SearchBlocked("BLOCKED_SEARCH_SERVICE_ABSENT", endpoint, str(e)) from e
-    if len(body) > MAX_SEARCH_RESPONSE:
-        raise SearchBlocked("BLOCKED_SEARCH_BAD_RESPONSE", endpoint, "response exceeds size limit")
-    try:
-        document = json.loads(body.decode("utf-8"))
-    except ValueError as e:
-        raise SearchBlocked("BLOCKED_SEARCH_BAD_RESPONSE", endpoint, f"invalid JSON: {e}") from e
-    results = document.get("results", [])
-    if not isinstance(results, list):
-        raise SearchBlocked("BLOCKED_SEARCH_BAD_RESPONSE", endpoint, "results not a list")
+    state = result.get("state")
+    if state != mm_search_backend.OK:
+        code_map = {
+            mm_search_backend.BLOCKED_NOT_LISTENING: "BLOCKED_SEARCH_SERVICE_ABSENT",
+            mm_search_backend.BLOCKED_TIMEOUT: "BLOCKED_SEARCH_TIMEOUT",
+            mm_search_backend.BLOCKED_HTTP_STATUS: "BLOCKED_SEARCH_BAD_STATUS",
+            mm_search_backend.BLOCKED_NOT_JSON: "BLOCKED_SEARCH_BAD_RESPONSE",
+            mm_search_backend.BLOCKED_TOO_LARGE: "BLOCKED_SEARCH_BAD_RESPONSE",
+            mm_search_backend.BLOCKED_INVALID_JSON: "BLOCKED_SEARCH_BAD_RESPONSE",
+            mm_search_backend.BLOCKED_CIRCUIT_OPEN: "BLOCKED_SEARCH_CIRCUIT_OPEN",
+        }
+        raise SearchBlocked(
+            code_map.get(state, "BLOCKED_SEARCH_BAD_RESPONSE"),
+            endpoint,
+            str(result.get("reason") or result.get("remedy") or state)[:240],
+        )
 
     candidates = []
     seen = set()
-    query_ref = hashlib.sha256(query.encode("utf-8")).hexdigest()[:12]
-    for result in results:
-        if len(candidates) >= limit or not isinstance(result, dict):
+    query_ref = str(result.get("query_ref") or hashlib.sha256(
+        query.encode("utf-8")
+    ).hexdigest()[:12])
+    for item in result.get("results") or []:
+        if not isinstance(item, dict):
+            continue
+        if len(candidates) >= limit:
             break
         try:
-            website, host = root_url(result.get("url"))
+            website, host = root_url(item.get("url"))
         except ValueError:
             continue
         if host in seen:
@@ -388,9 +422,123 @@ def searxng_candidates(query, region, endpoint="http://127.0.0.1:8888", limit=20
             "region": region,
             "public_website": website,
             "source": f"searxng-local:{query_ref}",
+            "source_lane": "searxng",
+            "source_record_id": query_ref,
+            "source_url": str(item.get("url") or "")[:500],
             "canonical_host": host,
         })
     return candidates
+
+
+MAX_BATCH_FILES = 20
+MAX_BATCH_QUERIES = 20
+
+
+def _merge_batch_candidate(by_host, raw_candidate, region):
+    candidate = normalize_candidate(
+        raw_candidate, region, raw_candidate.get("source") or "discovery-import")
+    host = candidate["canonical_host"]
+    source_list = candidate["provenance_sources"]
+    current = by_host.get(host)
+    if current is None:
+        current = candidate
+        current["provenance_sources"] = list(source_list)
+        by_host[host] = current
+        return
+    known = {json.dumps(item, sort_keys=True) for item in current["provenance_sources"]}
+    for item in source_list:
+        key = json.dumps(item, sort_keys=True)
+        if key not in known and len(current["provenance_sources"]) < 20:
+            current["provenance_sources"].append(item)
+            known.add(key)
+
+
+def _collect_import_source(raw_path, region):
+    path = Path(raw_path)
+    try:
+        candidates, rejected = read_candidates(path, region, path.stem[:80] or "import")
+    except (OSError, ValueError) as exc:
+        return [], {"source": path.name, "kind": "import", "candidates": 0,
+                    "error": str(exc)[:240]}, []
+    report = {"source": path.name, "kind": "import", "candidates": len(candidates),
+              "rejected": len(rejected)}
+    return candidates, report, [{"source": path.name, **item} for item in rejected]
+
+
+def _collect_search_source(query, region, endpoint, limit):
+    query_ref = hashlib.sha256(str(query).encode("utf-8")).hexdigest()[:12]
+    try:
+        candidates = searxng_candidates(query, region, endpoint, limit)
+    except (SearchBlocked, ValueError) as exc:
+        return [], {"source": f"searxng:{query_ref}", "kind": "search",
+                    "candidates": 0, "error": str(exc)[:240]}, []
+
+    quality = mm_discovery_quality.filter_candidates(candidates, region)
+    accepted = quality["accepted"]
+    report = {
+        "source": f"searxng:{query_ref}",
+        "kind": "search",
+        "candidates": len(accepted),
+        "quality_rejected": quality["counts"]["rejected"],
+        "quality_review": quality["counts"]["review"],
+        "quality_rule_version": "discovery-quality-v1",
+    }
+    return accepted, report, quality["rejected"]
+
+
+def collect_multi_source(files=(), queries=(), region="", endpoint="http://127.0.0.1:8888", limit=20):
+    """Collect and host-dedupe bounded local imports and local search results.
+
+    Failed lanes are reported independently so an unavailable optional source
+    does not discard results from the other sources. This function performs no
+    database writes; callers decide whether to dry-run or ingest the result.
+    """
+    files = list(files or ())
+    queries = list(queries or ())
+    region = str(region or "").strip()
+    if not files and not queries:
+        raise ValueError("at least one --file or --query source is required")
+    if len(files) > MAX_BATCH_FILES:
+        raise ValueError(f"batch exceeds {MAX_BATCH_FILES} import files")
+    if len(queries) > MAX_BATCH_QUERIES:
+        raise ValueError(f"batch exceeds {MAX_BATCH_QUERIES} search queries")
+    if queries and not region:
+        raise ValueError("region is required when search queries are used")
+
+    by_host = {}
+    source_reports = []
+    source_rejections = []
+
+    for raw_path in files:
+        candidates, report, rejected = _collect_import_source(raw_path, region)
+        for candidate in candidates:
+            _merge_batch_candidate(by_host, candidate, region)
+        source_reports.append(report)
+        source_rejections.extend(rejected)
+
+    for query in queries:
+        candidates, report, rejected = _collect_search_source(
+            query, region, endpoint, limit
+        )
+        for candidate in candidates:
+            _merge_batch_candidate(by_host, candidate, region)
+        source_reports.append(report)
+        source_rejections.extend(
+            [{"source": report["source"], **item} for item in rejected]
+        )
+
+    return {
+        "candidates": list(by_host.values()),
+        "sources": source_reports,
+        "source_rejections": source_rejections,
+        "counts": {
+            "sources": len(source_reports),
+            "candidates": sum(item["candidates"] for item in source_reports),
+            "unique_hosts": len(by_host),
+            "source_errors": sum("error" in item for item in source_reports),
+            "rejected_rows": len(source_rejections),
+        },
+    }
 
 
 def normalize_intake_url(url):

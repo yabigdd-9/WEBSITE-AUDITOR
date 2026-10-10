@@ -272,6 +272,11 @@ def main(argv=None):
     q.add_argument('--sleep',type=float,default=5)
     q.add_argument('--tail',type=int,default=50)
     q.add_argument('--timeout',type=float,default=15)
+    q=s.add_parser('searxng')
+    q.add_argument('action',choices=['status','probe','verify','install-plan'])
+    q.add_argument('--endpoint',default=os.environ.get('MM_SEARXNG_ENDPOINT','http://127.0.0.1:8888'))
+    q=s.add_parser('discovery-cycle',help='run one bounded recurring-discovery cycle')
+    q.add_argument('--force',action='store_true',help='bypass only the interval timer; disabled schedules remain disabled')
     q=s.add_parser('outreach-plan');q.add_argument('--brief',required=True)
     s.add_parser('polish-status')
     s.add_parser('module-status')
@@ -299,9 +304,17 @@ def main(argv=None):
     s.add_parser('email-rollback')
     q=s.add_parser('discover-import');q.add_argument('--file',required=True);q.add_argument('--region',default='');q.add_argument('--source',default='import');q.add_argument('--dry-run',action='store_true')
     q=s.add_parser('discover-search');q.add_argument('--query',required=True);q.add_argument('--region',required=True);q.add_argument('--endpoint',default='http://127.0.0.1:8888');q.add_argument('--limit',type=int,default=20);q.add_argument('--dry-run',action='store_true')
+    q=s.add_parser('discover-batch',help='combine bounded CSV/JSON imports and local SearXNG queries before one deduplicated intake')
+    q.add_argument('--file',action='append',default=[],help='CSV, JSON, or JSONL source file; repeat to combine sources')
+    q.add_argument('--query',action='append',default=[],help='local SearXNG query; repeat to combine searches')
+    q.add_argument('--region',default='');q.add_argument('--endpoint',default='http://127.0.0.1:8888')
+    q.add_argument('--limit',type=int,default=20);q.add_argument('--dry-run',action='store_true')
     q=s.add_parser('audit-backfill');q.add_argument('--id',type=int,action='append',dest='ids');q.add_argument('--no-delay',action='store_true')
     q=s.add_parser('discover-contacts');q.add_argument('--id',type=int,required=True);q.add_argument('--no-delay',action='store_true')
     q=s.add_parser('report');q.add_argument('granularity',nargs='?',choices=['daily'],default='daily');s.add_parser('alerts');s.add_parser('rotate-logs')
+    q=s.add_parser('intelligence-report',help='summarize append-only decisions and review signals');q.add_argument('--format',choices=['json','summary'],default='json')
+    q=s.add_parser('rejection-report',help='summarize classified rejections');q.add_argument('--format',choices=['json','summary'],default='json')
+    q=s.add_parser('human-correction',help='append a human correction to the decision ledger');q.add_argument('id',type=int);q.add_argument('--correction',required=True);q.add_argument('--corrected-decision',required=True);q.add_argument('--confidence',type=float,default=0.9);q.add_argument('--rule-version',default='v45.1')
     q=s.add_parser('intake');q.add_argument('--name',required=True);q.add_argument('--url',required=True);q.add_argument('--region',required=True);q.add_argument('--source',required=True)
     q=s.add_parser('audit');q.add_argument('id',type=int);q.add_argument('--url',required=True);q.add_argument('--observation',required=True);q.add_argument('--limitation',required=True);q.add_argument('--capture',required=True);q.add_argument('--status',choices=['verified','partial','refuted','unverified'],required=True);q.add_argument('--method',required=True);q.add_argument('--confidence',type=float,required=True);q.add_argument('--claim-type',choices=CLAIM_TYPES,default='observed_fact')
     q=s.add_parser('contact');q.add_argument('id',type=int);q.add_argument('--recipient',required=True);q.add_argument('--url',required=True);q.add_argument('--capture',required=True);q.add_argument('--relevance',required=True)
@@ -340,6 +353,28 @@ def main(argv=None):
     q=s.add_parser('decision');q.add_argument('decision_id')
     q=s.add_parser('brain-replay');q.add_argument('decision_id')
     q=s.add_parser('brain-shadow');q.add_argument('--current',required=True);q.add_argument('--challenger',required=True)
+    q=s.add_parser('intelligence-prospect');q.add_argument('id',type=int)
+    s.add_parser('intelligence-sources')
+    q=s.add_parser('intelligence-review');q.add_argument('--limit',type=int,default=50)
+    q=s.add_parser('intelligence-summary');q.add_argument('--limit',type=int,default=500)
+    s.add_parser('intelligence-errors')
+    q=s.add_parser('intelligence-calibration');q.add_argument('--bins',type=int,default=10);q.add_argument('--limit',type=int,default=5000);q.add_argument('--min-samples',type=int,default=30)
+    q=s.add_parser('intelligence-graph');q.add_argument('id',type=int)
+    q=s.add_parser('intelligence-hard-cases');q.add_argument('--limit',type=int,default=500)
+    q=s.add_parser('intelligence-challenger-eval');q.add_argument('--baseline',required=True);q.add_argument('--challenger',required=True);q.add_argument('--limit',type=int,default=500);q.add_argument('--min-improvement',type=float,default=0.01)
+    q=s.add_parser('intelligence-challenger-holdout');q.add_argument('--baseline',required=True);q.add_argument('--challenger',required=True);q.add_argument('--limit',type=int,default=500);q.add_argument('--validation-fraction',type=float,default=0.25);q.add_argument('--salt',default='v45-hard-case-holdout');q.add_argument('--min-improvement',type=float,default=0.01)
+    q=s.add_parser('intelligence-strategy');q.add_argument('--limit',type=int,default=5000);q.add_argument('--min-rule-samples',type=int,default=10);q.add_argument('--min-source-prospects',type=int,default=10);q.add_argument('--min-confirmed',type=int,default=5)
+    q=s.add_parser('intelligence-drift');q.add_argument('--window',type=int,default=25);q.add_argument('--min-samples',type=int,default=10);q.add_argument('--accuracy-drop-threshold',type=float,default=0.15);q.add_argument('--brier-increase-threshold',type=float,default=0.10);q.add_argument('--confidence-shift-threshold',type=float,default=0.15);q.add_argument('--label-shift-threshold',type=float,default=0.25);q.add_argument('--limit',type=int,default=5000)
+    q=s.add_parser('intelligence-evidence-value');q.add_argument('--limit',type=int,default=5000);q.add_argument('--min-samples',type=int,default=5);q.add_argument('--high-confidence-threshold',type=float,default=0.80)
+    q=s.add_parser('intelligence-promotion-readiness');q.add_argument('--candidate-rule-version');q.add_argument('--holdout-eval');q.add_argument('--min-confirmed',type=int,default=30);q.add_argument('--min-hard-cases',type=int,default=10);q.add_argument('--min-validation-cases',type=int,default=5);q.add_argument('--min-rule-samples',type=int,default=10);q.add_argument('--max-ece',type=float,default=0.15);q.add_argument('--max-brier',type=float,default=0.25);q.add_argument('--drift-window',type=int,default=25);q.add_argument('--drift-min-samples',type=int,default=10);q.add_argument('--limit',type=int,default=5000)
+    q=s.add_parser('intelligence-review-bundle');q.add_argument('--candidate-rule-version');q.add_argument('--holdout-eval');q.add_argument('--min-confirmed',type=int,default=30);q.add_argument('--min-hard-cases',type=int,default=10);q.add_argument('--min-validation-cases',type=int,default=5);q.add_argument('--min-rule-samples',type=int,default=10);q.add_argument('--max-ece',type=float,default=0.15);q.add_argument('--max-brier',type=float,default=0.25);q.add_argument('--drift-window',type=int,default=25);q.add_argument('--drift-min-samples',type=int,default=10);q.add_argument('--limit',type=int,default=5000)
+    q=s.add_parser('intelligence-review-bundle-verify');q.add_argument('--file',required=True)
+    q=s.add_parser('intelligence-review-bundle-diff');q.add_argument('--before',required=True);q.add_argument('--after',required=True)
+    q=s.add_parser('intelligence-consistency');q.add_argument('--limit',type=int,default=10000);q.add_argument('--min-confidence',type=float,default=0.80)
+    q=s.add_parser('intelligence-selective');q.add_argument('--threshold',type=float,action='append',dest='thresholds');q.add_argument('--min-confirmed',type=int,default=30);q.add_argument('--max-risk',type=float,default=0.10);q.add_argument('--min-coverage',type=float,default=0.30);q.add_argument('--limit',type=int,default=5000)
+    q=s.add_parser('intelligence-review-efficiency');q.add_argument('--limit',type=int,default=5000);q.add_argument('--min-confirmed',type=int,default=30);q.add_argument('--min-signal-samples',type=int,default=5);q.add_argument('--low-confidence-threshold',type=float,default=0.80)
+    q=s.add_parser('intelligence-label-quality');q.add_argument('--limit',type=int,default=5000);q.add_argument('--min-confirmed',type=int,default=30);q.add_argument('--max-source-share',type=float,default=0.80)
+    q=s.add_parser('intelligence-uncertainty');q.add_argument('--limit',type=int,default=5000);q.add_argument('--min-confirmed',type=int,default=30);q.add_argument('--min-matched',type=int,default=10);q.add_argument('--confidence-level',type=float,default=0.95);q.add_argument('--alpha',type=float,default=0.05)
     q=s.add_parser('db-check')
     q=s.add_parser('safe-mode');q.add_argument('action',choices=['on','off','status'])
     a=p.parse_args(argv)
@@ -392,6 +427,19 @@ def main(argv=None):
         import mm_transport
         result=mm_transport.status() if a.cmd=='transport-status' else mm_transport.preflight_packet(json.loads(Path(a.packet).read_text()))
         print(json.dumps(result,indent=2,default=str));return 0
+    if a.cmd in ('intelligence-review-bundle-verify','intelligence-review-bundle-diff'):
+        import mm_intelligence_review_bundle
+        if a.cmd == 'intelligence-review-bundle-verify':
+            payload = json.loads(Path(a.file).read_text(encoding='utf-8'))
+            result = mm_intelligence_review_bundle.verify_review_bundle(payload)
+        else:
+            before = json.loads(Path(a.before).read_text(encoding='utf-8'))
+            after = json.loads(Path(a.after).read_text(encoding='utf-8'))
+            result = mm_intelligence_review_bundle.diff_review_bundles(
+                before,
+                after,
+            )
+        print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd in ('outcomes','outcome-record'):
         import mm_outcomes
         readonly=a.cmd=='outcomes'
@@ -402,6 +450,247 @@ def main(argv=None):
                 with d:
                     result=mm_outcomes.record(d,a.id,a.outcome,a.evidence,a.sha256,a.actor,a.note)
         print(json.dumps(result,indent=2,default=str));return 0
+    if a.cmd in ('intelligence-report', 'rejection-report'):
+        import mm_intelligence_ledger as ledger
+        import mm_rejection_intelligence as rejection
+        with contextlib.closing(connect()) as d, d:
+            ledger.migrate(d)
+            rejection.migrate(d)
+            if a.cmd == 'intelligence-report':
+                import mm_error_mining as error_mining
+                error_mining.migrate(d)
+                by_decision = {
+                    name: ledger.count_decisions(d, decision=name)
+                    for name in (
+                        'REJECTED', 'QUALIFIED', 'IDENTITY_RESOLVED',
+                        'VERIFIED_HIGH_CONTACT', 'NO_VERIFIED_EMAIL',
+                        'NEEDS_REVIEW', 'SUPPRESSED', 'HUMAN_CORRECTED',
+                    )
+                }
+                result = {
+                    'generated_at': now(),
+                    'decisions': ledger.count_decisions(d),
+                    'by_decision': by_decision,
+                    'rejection_summary': rejection.rejection_summary(d),
+                    'error_analysis': error_mining.mine_errors(d),
+                    'unresolved_error_clusters': error_mining.unresolved_clusters(d),
+                    'paid_cost_usd': 0,
+                    'external_sends': 0,
+                    'note': 'Review signals only; no thresholds or promotions changed.',
+                }
+                if a.format == 'summary':
+                    print('Decision records: %s' % result['decisions'])
+                    for name, count in by_decision.items():
+                        print('%s: %s' % (name, count))
+                    print('Classified rejection groups: %s' % len(result['rejection_summary']))
+                    print('Unresolved error clusters: %s' % len(result['unresolved_error_clusters']))
+                    print('Paid cost: $0 USD; external sends: 0')
+                    return 0
+            else:
+                result = {
+                    'generated_at': now(),
+                    'summary': rejection.rejection_summary(d),
+                    'categories': list(rejection.REJECTION_CATEGORIES),
+                    'retryable': sorted(rejection.RETRYABLE_CATEGORIES),
+                    'paid_cost_usd': 0,
+                    'external_sends': 0,
+                }
+                if a.format == 'summary':
+                    print('Classified rejection groups: %s' % len(result['summary']))
+                    for row in result['summary']:
+                        print('%s: %s' % (row['primary_reason'], row['n']))
+                    print('Paid cost: $0 USD; external sends: 0')
+                    return 0
+        print(json.dumps(result,indent=2,default=str));return 0
+    if a.cmd == 'human-correction':
+        if not 0.0 <= a.confidence <= 1.0:
+            raise ValueError('confidence must be between 0 and 1')
+        import mm_intelligence_ledger as ledger
+        with contextlib.closing(connect()) as d, d:
+            ledger.migrate(d)
+            row_id = ledger.record_correction(
+                d, a.id, a.correction, a.corrected_decision, a.confidence,
+                rule_version=a.rule_version,
+            )
+        result = {
+            'id': row_id,
+            'prospect_id': a.id,
+            'correction': a.correction,
+            'corrected_decision': a.corrected_decision,
+            'confidence': a.confidence,
+            'note': 'Recorded as a new append-only decision; no message was sent.',
+            'paid_cost_usd': 0,
+            'external_sends': 0,
+        }
+        print(json.dumps(result,indent=2,default=str));return 0
+    if a.cmd in ('intelligence-prospect','intelligence-sources','intelligence-review','intelligence-summary','intelligence-errors','intelligence-calibration','intelligence-graph','intelligence-hard-cases','intelligence-challenger-eval','intelligence-challenger-holdout','intelligence-strategy','intelligence-drift','intelligence-evidence-value','intelligence-promotion-readiness','intelligence-review-bundle','intelligence-consistency','intelligence-selective','intelligence-review-efficiency','intelligence-label-quality','intelligence-uncertainty'):
+        import mm_opportunity_intelligence as opportunity_intelligence
+        with contextlib.closing(connect(readonly=True)) as d:
+            if a.cmd == 'intelligence-prospect':
+                result = opportunity_intelligence.prospect_snapshot(d, a.id)
+            elif a.cmd == 'intelligence-review':
+                result = opportunity_intelligence.shadow_review_queue(d, a.limit)
+            elif a.cmd == 'intelligence-summary':
+                result = opportunity_intelligence.intelligence_summary(d, a.limit)
+            elif a.cmd == 'intelligence-errors':
+                import mm_error_mining
+                result = mm_error_mining.mine_errors(d)
+            elif a.cmd == 'intelligence-calibration':
+                import mm_intelligence_calibration
+                result = mm_intelligence_calibration.calibration_report(
+                    d,
+                    bins=a.bins,
+                    limit=a.limit,
+                    min_samples=a.min_samples,
+                )
+            elif a.cmd == 'intelligence-graph':
+                import mm_intelligence_graph
+                result = mm_intelligence_graph.prospect_graph(d, a.id)
+            elif a.cmd == 'intelligence-hard-cases':
+                import mm_intelligence_hard_cases
+                result = mm_intelligence_hard_cases.hard_cases(d, a.limit)
+            elif a.cmd == 'intelligence-challenger-eval':
+                import mm_challenger
+                import mm_intelligence_hard_cases
+                result = mm_intelligence_hard_cases.evaluate_challenger(
+                    d,
+                    mm_challenger.load_jsonl(a.baseline),
+                    mm_challenger.load_jsonl(a.challenger),
+                    limit=a.limit,
+                    min_improvement=a.min_improvement,
+                )
+            elif a.cmd == 'intelligence-challenger-holdout':
+                import mm_challenger
+                import mm_intelligence_hard_cases
+                result = mm_intelligence_hard_cases.evaluate_challenger_holdout(
+                    d,
+                    mm_challenger.load_jsonl(a.baseline),
+                    mm_challenger.load_jsonl(a.challenger),
+                    limit=a.limit,
+                    validation_fraction=a.validation_fraction,
+                    salt=a.salt,
+                    min_improvement=a.min_improvement,
+                )
+            elif a.cmd == 'intelligence-strategy':
+                import mm_intelligence_strategy
+                result = mm_intelligence_strategy.strategy_report(
+                    d,
+                    limit=a.limit,
+                    min_rule_samples=a.min_rule_samples,
+                    min_source_prospects=a.min_source_prospects,
+                    min_confirmed=a.min_confirmed,
+                )
+            elif a.cmd == 'intelligence-drift':
+                import mm_intelligence_drift
+                result = mm_intelligence_drift.drift_report(
+                    d,
+                    window=a.window,
+                    min_samples=a.min_samples,
+                    accuracy_drop_threshold=a.accuracy_drop_threshold,
+                    brier_increase_threshold=a.brier_increase_threshold,
+                    confidence_shift_threshold=a.confidence_shift_threshold,
+                    label_shift_threshold=a.label_shift_threshold,
+                    limit=a.limit,
+                )
+            elif a.cmd == 'intelligence-evidence-value':
+                import mm_intelligence_evidence_value
+                result = mm_intelligence_evidence_value.evidence_value_report(
+                    d,
+                    limit=a.limit,
+                    min_samples=a.min_samples,
+                    high_confidence_threshold=a.high_confidence_threshold,
+                )
+            elif a.cmd == 'intelligence-promotion-readiness':
+                import mm_intelligence_readiness
+                holdout_result = None
+                if a.holdout_eval:
+                    holdout_result = json.loads(
+                        Path(a.holdout_eval).read_text(encoding='utf-8')
+                    )
+                result = mm_intelligence_readiness.readiness_report(
+                    d,
+                    candidate_rule_version=a.candidate_rule_version,
+                    holdout_result=holdout_result,
+                    min_confirmed=a.min_confirmed,
+                    min_hard_cases=a.min_hard_cases,
+                    min_validation_cases=a.min_validation_cases,
+                    min_rule_samples=a.min_rule_samples,
+                    max_ece=a.max_ece,
+                    max_brier=a.max_brier,
+                    drift_window=a.drift_window,
+                    drift_min_samples=a.drift_min_samples,
+                    limit=a.limit,
+                )
+            elif a.cmd == 'intelligence-review-bundle':
+                import mm_intelligence_review_bundle
+                holdout_result = None
+                if a.holdout_eval:
+                    holdout_result = json.loads(
+                        Path(a.holdout_eval).read_text(encoding='utf-8')
+                    )
+                result = mm_intelligence_review_bundle.build_review_bundle(
+                    d,
+                    candidate_rule_version=a.candidate_rule_version,
+                    holdout_result=holdout_result,
+                    min_confirmed=a.min_confirmed,
+                    min_hard_cases=a.min_hard_cases,
+                    min_validation_cases=a.min_validation_cases,
+                    min_rule_samples=a.min_rule_samples,
+                    max_ece=a.max_ece,
+                    max_brier=a.max_brier,
+                    drift_window=a.drift_window,
+                    drift_min_samples=a.drift_min_samples,
+                    limit=a.limit,
+                )
+            elif a.cmd == 'intelligence-consistency':
+                import mm_intelligence_consistency
+                result = mm_intelligence_consistency.consistency_report(
+                    d,
+                    limit=a.limit,
+                    min_confidence=a.min_confidence,
+                )
+            elif a.cmd == 'intelligence-selective':
+                import mm_intelligence_selective
+                result = mm_intelligence_selective.selective_report(
+                    d,
+                    thresholds=a.thresholds,
+                    min_confirmed=a.min_confirmed,
+                    max_risk=a.max_risk,
+                    min_coverage=a.min_coverage,
+                    limit=a.limit,
+                )
+            elif a.cmd == 'intelligence-review-efficiency':
+                import mm_intelligence_review_efficiency
+                result = (
+                    mm_intelligence_review_efficiency.review_efficiency_report(
+                        d,
+                        limit=a.limit,
+                        min_confirmed=a.min_confirmed,
+                        min_signal_samples=a.min_signal_samples,
+                        low_confidence_threshold=a.low_confidence_threshold,
+                    )
+                )
+            elif a.cmd == 'intelligence-label-quality':
+                import mm_intelligence_label_quality
+                result = mm_intelligence_label_quality.label_quality_report(
+                    d,
+                    limit=a.limit,
+                    min_confirmed=a.min_confirmed,
+                    max_source_share=a.max_source_share,
+                )
+            elif a.cmd == 'intelligence-uncertainty':
+                import mm_intelligence_uncertainty
+                result = mm_intelligence_uncertainty.uncertainty_report(
+                    d,
+                    limit=a.limit,
+                    min_confirmed=a.min_confirmed,
+                    min_matched=a.min_matched,
+                    confidence_level=a.confidence_level,
+                    alpha=a.alpha,
+                )
+            else:
+                result = opportunity_intelligence.source_query_summary(d)
+        print(json.dumps(result, indent=2, default=str)); return 0
     if a.cmd=='polish-status':
         report=json.loads((root()/'reports/polish-status.json').read_text())
         report.update(workspace=str(root()),python=sys.executable,snapshot_only=True)
@@ -451,11 +740,44 @@ def main(argv=None):
                 result={'mode':'v1_hold','history_retained':True,'new_approvals_held':True,'external_sends':0}
         print(email_cli.human_text(result) if a.cmd in ('email-status','email-find') and not a.json else json.dumps(result,indent=2))
         return 0
-    if a.cmd in ('discover-import','discover-search'):
+    if a.cmd=='discovery-cycle':
+        import mm_recurring_discovery
+        with contextlib.closing(connect()) as d,d:
+            result=mm_recurring_discovery.run_due(d,force=a.force)
+        print(json.dumps(result,indent=2,default=str))
+        return 0
+    if a.cmd=='searxng':
+        import mm_search_backend
+        if a.action=='install-plan':
+            result={
+                'action':'install-plan',
+                'executed':False,
+                'cost_usd':0,
+                'external_sends':0,
+                'commands':[
+                    'git clone --depth 1 https://github.com/searxng/searxng.git ~/searxng-src',
+                    'uv venv --python 3.11 ~/.local/share/searxng/.venv',
+                    'uv pip install --python ~/.local/share/searxng/.venv/bin/python --upgrade setuptools wheel pyyaml msgspec typing-extensions pybind11',
+                    'uv pip install --python ~/.local/share/searxng/.venv/bin/python --no-build-isolation --editable ~/searxng-src',
+                    'mkdir -p ~/.searxng && chmod 700 ~/.searxng',
+                    'create ~/.searxng/settings.yml with loopback bind and JSON search format',
+                    'python3 money-machine/supervisor/searxng_launchd.py install',
+                    './mm searxng verify',
+                ],
+                'note':'Plan only. No host installation or launchd mutation was performed.',
+            }
+            print(json.dumps(result,indent=2));return 0
+        result=mm_search_backend.probe(a.endpoint)
+        result['external_sends']=0
+        result['paid_calls']=0
+        print(json.dumps(result,indent=2,default=str))
+        return 0 if a.action!='verify' or result.get('ok') else 2
+    if a.cmd in ('discover-import','discover-search','discover-batch'):
         import mm_discovery
+        import mm_discovery_quality
         if a.cmd=='discover-import':
             candidates,rejected=mm_discovery.read_candidates(a.file,a.region,a.source)
-        else:
+        elif a.cmd=='discover-search':
             try:
                 candidates=mm_discovery.searxng_candidates(a.query,a.region,a.endpoint,a.limit)
             except mm_discovery.SearchBlocked as e:
@@ -464,10 +786,20 @@ def main(argv=None):
                                   'candidates':[],'blocked':{'code':e.code,'endpoint':e.endpoint,'detail':e.detail},
                                   'note':'Search lane is blocked in this environment; run on a host with a local SearXNG for ranked candidates.'},indent=2))
                 return 0
-            rejected=[]
+            quality=mm_discovery_quality.filter_candidates(candidates,a.region)
+            candidates=quality['accepted']
+            rejected=quality['rejected']
+        else:
+            collection=mm_discovery.collect_multi_source(
+                files=a.file,queries=a.query,region=a.region,endpoint=a.endpoint,limit=a.limit)
+            candidates=collection['candidates']
+            rejected=collection['source_rejections']
         with contextlib.closing(connect()) as d,d:
             result=mm_discovery.ingest(d,candidates,actor='mm-'+a.cmd,dry_run=a.dry_run)
         result['source_rejections']=rejected
+        if a.cmd=='discover-batch':
+            result['sources']=collection['sources']
+            result['collection_counts']=collection['counts']
         result['external_sends']=0
         print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd=='audit-backfill':

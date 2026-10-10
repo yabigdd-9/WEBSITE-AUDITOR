@@ -1,388 +1,47 @@
-# Hermes Money Engine Audit + Agent Execution Plan
+# Website Auditor agent execution plan
 
-## 1. Executive audit
+_Updated 8 October 2026. Canonical baseline b349cd9f / draft PR #52. Isolated candidate locally committed and unpublished._
 
-### Current status
+## Sources of truth
 
-The repo is in a credible operating state, but it is not yet fully polished for autonomous agent execution.
+Read [CURRENT_STATE.md](../CURRENT_STATE.md) for current project status, [MASTER_PLAN.yaml](../MASTER_PLAN.yaml) for canonical requirements, [the TODO register](../docs/GITHUB_TODO_REGISTER.md) for ordered work and acceptance, and [approval/APPROVAL_QUEUE.yaml](../approval/APPROVAL_QUEUE.yaml) for human approval records. The older `state/HERMES_EXECUTION_STATE.yaml` link is unavailable in this checkout and must not be used to assert current tasks, retries or sending capability.
 
-What is working well:
+SQLite and actual state evidence remain the runtime authority. The plan is not an approval record. APR-004 and APR-006 remain awaiting human action; APR-007 is partially complete in the inspected queue. These records are unchanged by this update, and older descriptions of active engines or mail transport do not establish current sending permission.
 
-- The system has a defined operating model and strong anti-risk guardrails in [money-machine/HERMES_MONEY_MACHINE_MASTER_PLAN.md](../money-machine/HERMES_MONEY_MACHINE_MASTER_PLAN.md).
-- The execution state is tracked in [state/HERMES_EXECUTION_STATE.yaml](../state/HERMES_EXECUTION_STATE.yaml).
-- Approval gating is explicit in [approval/APPROVAL_QUEUE.yaml](../approval/APPROVAL_QUEUE.yaml).
-- The legal/compliance risk path is documented carefully in [outreach/COMPLIANCE_BASIS.md](../outreach/COMPLIANCE_BASIS.md).
-- The UEMA consent gate is implemented and enforced in [outreach/consent_gate.py](../outreach/consent_gate.py).
-- The send path and operational constraints are documented in [outreach/send.py](../outreach/send.py).
+## Current objective
 
-The key operational reality is this:
+Produce a reviewable isolated update from GitHub/static suggestions while preserving the live combined V44/V45 runtime, $0 policy and human gates. Baseline PR #52 has 13 successful latest checks; CodeRabbit skipped draft review. The 39 Sonar maintenance suggestions and immediate safety TODOs are implemented locally with passing regression evidence; the local commit is recorded in the external review bundle, with no push or new hosted Sonar analysis.
 
-- The system is not blocked by lack of technical capability.
-- It is blocked by human approval and missing per-prospect consent evidence.
-- The repo still needs a polish pass so the agents can execute in a cleaner, more deterministic way.
+## Recorded local evidence
 
-### What is already complete
+Focused coverage/quote/worker tests: 82 passed. Portable suite: 424 passed and 45 subtests passed. Fresh full Chromium suite: six passed in 47.98 seconds. All 39 Sonar annotations were locally reverified against 19 current source hashes; no new hosted result exists. Tier-1: 29 tests OK. Scoped Ruff, compilation, pip check, wheel build and project/email dependency audits passed; audits reported no known vulnerabilities. Final canonical regression: 1,048 passed, three skips and three warnings. Two opt-in Chromium skips are covered by the six freshly passing journeys; the other is unavailable PIL.Image. The rebuilt wheel passed 17 installed imports, CLI help/local doctor and axe assets; operator CLI help passed. Doctor reports missing llama_cpp/model and no model generation was tested. A supplemental formerly skipped image test passed once with work-only Python 3.12.14/Pillow 12.3.0 and network denied; canonical Python 3.11 skips/counts remain unchanged and no host/source/environment was changed. Earlier 1,029-test canonical and 63-test focused receipts remain historical; portable/tier-1/dependency/image evidence is retained. The external review bundle records the exact local commit SHA and final receipts.
 
-From the project state and report files:
+T20 static assessment is complete: all 87 inputs from the exit-1 full-history scan were assessed individually, retaining duplicate-looking inputs. There are 71 not_actionable, 16 needs_review and 0 confirmed. Owner/restriction/purpose review remains open for 14 captured Maps-key observations, one historical Stripe test-key-shaped example and one WPForms form token. Read review-bundle `follow-up/HISTORICAL_SECRET_TRIAGE.md` and `historical-secrets-triage.json`. No credential value, provider call, rotation, history rewrite or allow-list expansion is included. This is not clearance; any later confirmed credential requires exact remediation/rotation authorization.
 
-- The project has extracted and scored the portfolio.
-- Three active engines are in play.
-- The consent gate is implemented and proven to block unsafe sends.
-- Gmail send capability is technically available via OAuth.
-- The state file clearly shows the repo is at a controlled "ready for next human approval" stage.
+## Confirmed precommit fixes
 
-### What is not clean yet
+Malformed falsey effort bands are rejected rather than silently defaulted; invalid JSON reaches handled CLI validation. Valid partial browser captures can supply integrity-checked screenshot baselines without claiming full audit acceptance. Stale verification/resolution records and contradictory rendered/browser metadata cannot bypass current coverage. These five fixes are included in the final local candidate and its focused validation.
 
-The main problems are process and clarity, not product absence:
+## Work order and roles
 
-1. Reporting drift
-   - The daily report still describes some tasks as not run, while the execution state already records those tasks as completed or in progress.
-   - This creates uncertainty for any agent starting work in the repo.
+| Owner | Work | Completion evidence |
+| --- | --- | --- |
+| Orchestrator | Reconcile baseline, current GitHub suggestions and runtime holds; assign one writer per file. | Exact baseline SHA, sources, full candidate diff and final report. |
+| Audit maintainer | Mark seven unimplemented modules skipped. Static language/hreflang/images/social stages are required; browser-only stages are required only in requested rendered mode. Preserve reports and artifacts. | Required skips yield partial status and unknown health; optional skips stay visible without falsely claiming measurement. No analyzer implementation is included. |
+| Pipeline maintainer | Add current coverage/version guards to audit History reuse and route unimplemented required audit coverage to `NEEDS_REVIEW`. | Legacy/incompatible/incomplete cached audits are rejected; audit-handler holds remain explicit instead of claiming completion. Contact-review cache and live prospects are unchanged. |
+| Safety/CLI maintainer | Make unsupported secret listing fail clearly without invoking Keychain or printing values; validate deterministic quote inputs. | Mocked CLI proves no credential lookup; quote tests reject non-finite/out-of-range rates and use shared effort bands. |
+| Maintenance reviewer | Resolve 33 compound assertions, four exception-assertion scope suggestions and two technology suggestions. | Preserve every original assertion; precompute helper arguments so `pytest.raises` contains one intended throwing invocation. Use `DetectedTechnology` with the `Technology` alias and retain documented `url`/constructor/wire compatibility. New Sonar analysis is separate from source edits. |
+| Documentation maintainer | Update canonical status, continuity dispositions and this plan; remove unavailable state links. | Sources and implementation/host/approval states agree; no approval record is changed. |
+| Integrator/reviewer | Inspect full diff and validate the final isolated candidate, including agreed CI and package build/import verification. | Actual test/lint/schema/build/import results and explicit skips in the final bundle; no baseline CI is counted as candidate CI. |
 
-2. Decision ambiguity
-   - The approval queue still contains open pricing and ratification items, which means the agent plan must respect human gating.
+## After local candidate validation
 
-3. Lack of a single operational playbook for agents
-   - The repo has role guidance, but no concise execution schedule for the actual agents to follow in sequence.
+Keep candidate code local and separate from the authoritative checkout until the requested promotion is authorized. Publishing a branch/PR, enabling review, synchronizing combined branches, merging into `master` and runtime rollout are distinct actions. Actual analyzer implementation is deferred separately; package build/import verification belongs to agreed candidate validation. Independent contact/intelligence acceptance remains held for its own evidence.
 
-4. Execution plan is not yet layered by agent responsibility
-   - Research, proof, compliance, outreach, and final approval are all logically present, but they need to be sequenced as a clear machine-readable flow.
+The b349 soak is terminal blocked after one public-network sample timed out; its 2-hour-21-minute incomplete attempt contributes no 24-hour acceptance. The accepted e83121b soak belongs to its earlier revision. A prepared controller recovery requires exact new authorization. Reuse the existing completion monitor, preserve all eight attempts and start a wholly new frozen window only after approved preflight. No supervisor restart is implied by the observed connectivity failure.
 
----
+## Human and commercial gates
 
-## 2. Audit findings by area
+Research, permitted evidence collection and local DRAFT_ONLY preparation can continue within existing policy. Machine corrections do not create human precision labels or independently verified contacts. Prices require an explicit valid operator rate; missing rates remain unpriced. Approval must bind the finished recipient/message/attachments/evidence/price and all production/sender/contact checks. Never infer consent or sending permission from public publication, a generated packet, a partially completed approval record or passing tests.
 
-### A. Governance and approvals
-
-The critical source of truth is [approval/APPROVAL_QUEUE.yaml](../approval/APPROVAL_QUEUE.yaml).
-
-Current gate status:
-
-- APR-004: pricing commitment is still open
-- APR-006: scope ratification is still open
-- APR-007: per-prospect consent ratification is still open
-- APR-005 is marked resolved by Dion, but the consent basis still requires proof at the prospect level before sending
-
-This means the operational rule is:
-
-- Research and drafting can continue.
-- Any actual sending requires explicit human sign-off and recorded consent evidence.
-
-### B. State and execution tracking
-
-The strongest current signal is [state/HERMES_EXECUTION_STATE.yaml](../state/HERMES_EXECUTION_STATE.yaml).
-
-This file shows:
-
-- execution phase is tracked
-- active tasks are listed
-- completed tasks are recorded
-- retry queue is empty
-- next action is clear
-
-This is a good foundation. The improvement needed is to make the execution queue more agent-friendly and less dependent on reading multiple files.
-
-### C. Risk and compliance
-
-The compliance layer is mature:
-
-- [outreach/COMPLIANCE_BASIS.md](../outreach/COMPLIANCE_BASIS.md) is strong and explicit
-- [outreach/consent_gate.py](../outreach/consent_gate.py) enforces default-deny logic
-- [money-machine/HERMES_MONEY_MACHINE_MASTER_PLAN.md](../money-machine/HERMES_MONEY_MACHINE_MASTER_PLAN.md) reinforces the no-paid-model default and no-destructive-action rule
-
-This is the right posture for a real business engine. The only remaining risk is not technical capability, but legal/operational proof quality at the prospect level.
-
-### D. Output quality and polish
-
-The project needs a polish pass to reduce drift between files:
-
-- [outputs/DAILY_OPERATOR_REPORT_2026-08-18.md](../outputs/DAILY_OPERATOR_REPORT_2026-08-18.md)
-- [outputs/ACTIVE_3_EXECUTION_QUEUE.md](../outputs/ACTIVE_3_EXECUTION_QUEUE.md)
-- [state/HERMES_EXECUTION_STATE.yaml](../state/HERMES_EXECUTION_STATE.yaml)
-- [approval/APPROVAL_QUEUE.yaml](../approval/APPROVAL_QUEUE.yaml)
-
-These documents should be reconciled into a single source-of-truth narrative for agent reads.
-
----
-
-## 3. Recommended polish pass
-
-### Priority 1 — reconcile the source-of-truth files
-
-Update the operational docs so that they all agree on:
-
-- current phase
-- active engine
-- next action
-- blocked approvals
-- ready-to-execute tasks
-- completed tasks
-
-This should be a documentation-only pass, not a behavior change.
-
-### Priority 2 — add an agent execution digest
-
-Create a short operational brief with:
-
-- objective
-- active agents
-- queued tasks
-- dependencies
-- human approvals required
-- success conditions
-- failure conditions
-
-This makes it easy for the agents to choose the next task without reading five files.
-
-### Priority 3 — formalize agent sequencing
-
-Agents should proceed in this order:
-
-1. Researcher
-2. Judge
-3. Proofer
-4. Compliance ratifier
-5. Outreach executor
-6. Human approval gate
-7. Send + record
-8. Revenue review
-
-This sequence keeps the chain compliant and prevents early send attempts.
-
----
-
-## 4. Agent execution plan
-
-### Agent 1 — Hermes Agent / Orchestrator
-
-Primary responsibilities:
-
-- maintain the global objective
-- triage all incoming work
-- enforce no-send without approval
-- choose the highest-value next action
-- assign research, proof, and drafting tasks
-- keep the canonical state current
-
-Tasks to execute:
-
-1. Reconcile current state against approvals and open blockers.
-2. Confirm which of the three active engines is priority for the next run.
-3. Decide whether the next work is website rescue, reputation review, or flooring routing.
-4. Queue the next batch only after approval constraints are satisfied.
-5. Validate that no external send or offer is created without pricing approval.
-
-Must not do:
-
-- send messages autonomously
-- publish offers without approved pricing bands
-- conclude consent from public publication alone
-
-### Agent 2 — Researcher / Goose
-
-Primary responsibilities:
-
-- identify prospects and collect evidence
-- verify business context
-- gather contact details and source URLs
-- record public evidence and publication context
-- collect proof assets for each business
-
-Tasks to execute:
-
-1. Compile a target list for the active engine.
-2. For each prospect, collect:
-   - exact address
-   - source URL
-   - surrounding wording
-   - whether the wording invites contact
-   - relevance to business function
-   - refusal/anti-marketing evidence
-3. Mark leads as valid, blocked, or rejected.
-4. Produce a per-prospect evidence packet ready for human ratification.
-5. Stop at any uncertain consent condition rather than guessing.
-
-Success condition:
-
-- evidence pack is complete enough for approval review
-
-### Agent 3 — Judge
-
-Primary responsibilities:
-
-- assess whether the prospect is commercially valid
-- judge relevance and quality of proof
-- evaluate whether the business problem is real and specific
-
-Tasks to execute:
-
-1. Review each business profile and evidence packet.
-2. Score the opportunity using the repo rubric.
-3. Reject weak, generic, or low-relevance leads.
-4. Identify the strongest prospects for the next outreach batch.
-5. Produce a judge decision record for the proofer and human approver.
-
-Success condition:
-
-- only strong, relevant prospects remain in the candidate set
-
-### Agent 4 — Proofer
-
-Primary responsibilities:
-
-- perform factual verification
-- validate the quality of the evidence
-- ensure the claim is supported by public evidence
-- verify that no unsupported statements enter the draft
-
-Tasks to execute:
-
-1. Check each prospect evidence packet for completeness.
-2. Confirm public source quality and specific business relevance.
-3. Identify missing proof before outreach is drafted.
-4. Flag any issue that breaks the compliance gate.
-
-Success condition:
-
-- every outreach candidate has a verified factual basis
-
-### Agent 5 — Compliance ratifier / consent gate owner
-
-Primary responsibilities:
-
-- validate the consent rationale per prospect
-- verify that the business has a legitimate reason for the contact
-- ensure the evidence meets the default-deny standard
-
-Tasks to execute:
-
-1. Review each prospect for consent basis.
-2. Require explicit ratification before the prospect is eligible for email.
-3. Block any ambiguous or borderline case.
-4. Route high-risk or unclear leads to phone or non-email contact only.
-
-Success condition:
-
-- each prospect either has a ratified consent basis or is excluded
-
-### Agent 6 — Outreach executor / sales agent
-
-Primary responsibilities:
-
-- build the final outreach draft
-- keep the message truthful and specific
-- attach the approval record
-- prepare only the approved candidate set
-
-Tasks to execute:
-
-1. Pull only ratified, approved prospects.
-2. Prepare one tailored draft per candidate.
-3. Keep the offer aligned to approved price bands.
-4. Ensure the final message respects the consent rationale.
-5. Queue only approved send actions.
-
-Success condition:
-
-- no draft is generated for unapproved or non-ratified leads
-
-### Agent 7 — Operational coder / maintainer
-
-Primary responsibilities:
-
-- keep scripts and state consistent
-- repair stale docs or mismatched runtime artifacts
-- ensure tool and output integrity
-- validate automation behavior against repo guardrails
-
-Tasks to execute:
-
-1. Reconcile the stale reports with the state file.
-2. Remove or fix contradictory statements across outputs.
-3. Keep execution scripts aligned with the legal/compliance gate.
-4. Verify output generation stays deterministic and reviewable.
-
-Success condition:
-
-- no contradictory operational files remain
-
-### Agent 8 — Finance / revenue reviewer
-
-Primary responsibilities:
-
-- check pricing bands
-- ensure offers do not exceed approved ranges
-- review MRR and one-off revenue models
-- keep the business side within the approved budget and policy
-
-Tasks to execute:
-
-1. Confirm approved sellable price bands for each active engine.
-2. Check whether one-off or recurring pricing matches the active offer.
-3. Reject any quote that is not explicitly approved.
-4. Record the final revenue model for each successful engagement.
-
-Success condition:
-
-- all final offers are within authorized pricing policy
-
----
-
-## 5. Recommended sequence for the next execution cycle
-
-### Phase 1 — Stabilize the operating story
-
-- reconcile report vs state
-- confirm active engine priority
-- confirm open approvals and blockers
-
-### Phase 2 — Complete evidence pack
-
-- research each prospect
-- collect source evidence
-- verify the contact method and publication context
-- score the prospect
-
-### Phase 3 — Compliance gate
-
-- run the consent gate
-- require per-prospect ratification
-- reject ambiguous cases
-
-### Phase 4 — Approved outreach
-
-- prepare final tailored drafts
-- verify price approval and offer scope
-- queue for the human approval step
-
-### Phase 5 — Execution and feedback loop
-
-- send only approved outreach
-- track replies, interest, and conversion
-- update the database and state file
-- capture revenue evidence and lessons learned
-
----
-
-## 6. Hard rules for agents
-
-- Never send a message without a clear human approval path.
-- Never infer consent from public publication alone.
-- Never use stale output as the source of truth when current state is available.
-- Never draft before the evidence packet is complete.
-- Never quote a price outside approved pricing bands.
-- Never treat a completed task as still open without updating the state file.
-
----
-
-## 7. Suggested next milestone
-
-The next milestone should be:
-
-- complete the audit polish pass
-- align the state and reports
-- resolve APR-004 and APR-007 as the gating human approvals
-- run one focused, fully evidence-backed prospect batch
-- only then move into the send stage
-
-This keeps the engine compliant, executable, and operationally clean without introducing unnecessary business risk.
+No outreach, provider/model calls, paid route, deployment, credential mutation or live database/queue change is part of this isolated update.

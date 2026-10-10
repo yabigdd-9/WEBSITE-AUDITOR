@@ -81,11 +81,12 @@ OPENHANDS:
 BROWSER_USE:
 - browser execution only when an API/connector is unavailable or inadequate.
 
-N8N:
-- deterministic workflows;
-- schedules;
-- webhooks;
-- state transitions.
+MM_PIPELINE:
+- deterministic local workflows and state transitions;
+- SQLite leases, retries and dead-letter handling;
+- supervisor-owned worker scheduling;
+- human approval for external actions;
+- no n8n runtime or bridge in the default stack.
 
 OLLAMA:
 - low-cost/local repetitive tasks suitable for the available hardware.
