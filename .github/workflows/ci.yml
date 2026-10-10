@@ -66,6 +66,8 @@ jobs:
       - name: Lint v45 opportunity intelligence
         run: |
           ruff check \
+            money-machine/mm_workers.py \
+            money-machine/test_worker_audit_coverage.py \
             money-machine/mm_opportunity_intelligence.py \
             money-machine/mm_error_mining.py \
             money-machine/mm_intelligence_calibration.py \
@@ -110,6 +112,7 @@ jobs:
             money-machine/test_scanning_activation.py \
             money-machine/test_email_finder.py \
             money-machine/test_pipeline.py \
+            money-machine/test_worker_audit_coverage.py \
             money-machine/test_opportunity_axes.py \
             money-machine/test_opportunity_intelligence.py \
             money-machine/test_intelligence_calibration.py \
