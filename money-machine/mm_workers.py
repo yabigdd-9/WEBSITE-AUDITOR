@@ -214,22 +214,50 @@ def audit_handler(d, it, worker):
     remediation, demo, quote and proof-package builders. AI, browser rendering
     and external local tools are disabled in this always-on pass.
     """
+    import mm_evidence_bridge as evidence_bridge
+
     b = _business(d, it['business_id'])
+    blocked = evidence_bridge.exclusion_reason(d, b['id'])
+    if blocked:
+        raise PermanentError('audit excluded: ' + blocked)
     url = b['public_website']
     host = urlparse(url).netloc if url else None
     if not url or not host:
         raise PermanentError('public website required for audit')
+    try:
+        public_url(url)
+    except (TypeError, ValueError) as exc:
+        raise PermanentError('public website required for audit: ' + str(exc)) from exc
 
     output_root = REPO / 'outputs' / 'toolkit'
     from auditor_toolkit.storage import History
     history = History(output_root)
     recent_audit = history.get_latest_valid_audit(host, max_age_days=7)
-    if recent_audit:
-        return (
-            'AUDITED',
-            'canonical toolkit audit reused (recent)',
-            _audit_evidence(recent_audit),
+    if isinstance(recent_audit, dict) and recent_audit:
+        artifacts = recent_audit.get('artifacts')
+        validation = evidence_bridge.validate_report(
+            d, b['id'], artifacts.get('json') if isinstance(artifacts, dict) else None,
+            toolkit_root=output_root, expected_run_id=recent_audit.get('run_id'),
         )
+        if validation['status'] == 'CURRENT':
+            try:
+                registration = evidence_bridge.register_audit(
+                    d, b['id'], validation['report_path'],
+                    toolkit_root=output_root, expected_run_id=validation['run_id'],
+                )
+            except ValueError:
+                # A cached run whose registered bytes changed needs a new run.
+                # Never overwrite the previous append-only evidence anchor.
+                pass
+            else:
+                evidence = _audit_evidence(validation['report'])
+                evidence.update(report_hash=registration['report_hash'],
+                                audit_evidence=registration)
+                return ('AUDITED', 'canonical toolkit audit reused (recent)', evidence)
+
+    blocked = evidence_bridge.exclusion_reason(d, b['id'])
+    if blocked:
+        raise PermanentError('audit excluded: ' + blocked)
 
     from auditor_toolkit.pipeline import AuditOptions, run_audit
     options = AuditOptions(
@@ -248,15 +276,35 @@ def audit_handler(d, it, worker):
             'auditor_toolkit failed: ' + str(exc)[:240]
         ) from exc
 
+    if not isinstance(report, dict):
+        raise RetryableError('auditor_toolkit report must be an object')
     if report.get('status') != 'complete':
+        checks = report.get('checks')
         required_errors = [
-            name for name, value in (report.get('checks') or {}).items()
-            if value.get('required') and value.get('status') != 'ok'
+            name for name, value in (checks.items() if isinstance(checks, dict) else ())
+            if isinstance(value, dict) and value.get('required') and value.get('status') != 'ok'
         ]
         detail = ','.join(required_errors[:8]) or 'required checks incomplete'
         raise RetryableError('auditor_toolkit incomplete: ' + detail)
 
-    return ('AUDITED', 'canonical toolkit audit captured', _audit_evidence(report))
+    artifacts = report.get('artifacts')
+    validation = evidence_bridge.validate_report(
+        d, b['id'], artifacts.get('json') if isinstance(artifacts, dict) else None,
+        toolkit_root=output_root, expected_run_id=report.get('run_id'),
+    )
+    if validation['status'] != 'CURRENT':
+        raise RetryableError('auditor_toolkit evidence invalid: ' + validation['reason'])
+    try:
+        registration = evidence_bridge.register_audit(
+            d, b['id'], validation['report_path'],
+            toolkit_root=output_root, expected_run_id=validation['run_id'],
+        )
+    except ValueError as exc:
+        raise RetryableError('auditor_toolkit registration failed: ' + str(exc)) from exc
+    evidence = _audit_evidence(validation['report'])
+    evidence.update(report_hash=registration['report_hash'],
+                    audit_evidence=registration)
+    return ('AUDITED', 'canonical toolkit audit captured', evidence)
 
 
 def _latest_pipeline_evidence(d, business_id, to_state):

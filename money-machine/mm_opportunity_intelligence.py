@@ -521,6 +521,8 @@ def _infer_assessment_stage(
 
 def prospect_snapshot(d: sqlite3.Connection, business_id: int) -> dict:
     """Read-only shadow assessment for one existing prospect."""
+    from mm_evidence_bridge import audit_evidence_status
+
     business = d.execute("SELECT * FROM businesses WHERE id=?", (business_id,)).fetchone()
     if not business:
         raise ValueError("Business not found: %s" % business_id)
@@ -621,6 +623,10 @@ def prospect_snapshot(d: sqlite3.Connection, business_id: int) -> dict:
         "state": state,
         "assessment_stage": assessment_stage,
         "observed_evidence": sorted(observed),
+        # Artifact validity is independent of the existing stage-signal
+        # completeness contract. A recorded AUDITED signal remains observed
+        # even when its canonical report is missing or expired.
+        "audit_evidence": audit_evidence_status(d, business_id),
         "derived": {
             "audit": audit_ev,
             "qualification": commercial,
@@ -655,6 +661,7 @@ def intelligence_summary(d: sqlite3.Connection, limit: int = 500) -> dict:
 
     identity_status = Counter()
     completeness_status = Counter()
+    audit_status = Counter()
     next_actions = Counter()
     assessed = 0
 
@@ -665,6 +672,7 @@ def intelligence_summary(d: sqlite3.Connection, limit: int = 500) -> dict:
         completeness_status[
             str(snapshot["evidence_completeness"].get("status") or "UNKNOWN")
         ] += 1
+        audit_status[str(snapshot["audit_evidence"].get("status") or "UNKNOWN")] += 1
         next_actions[
             str(snapshot["next_best_evidence"].get("action") or "UNKNOWN")
         ] += 1
@@ -680,6 +688,7 @@ def intelligence_summary(d: sqlite3.Connection, limit: int = 500) -> dict:
         "prospects_assessed": assessed,
         "identity_status": dict(sorted(identity_status.items())),
         "evidence_completeness": dict(sorted(completeness_status.items())),
+        "audit_evidence_status": dict(sorted(audit_status.items())),
         "next_best_evidence": dict(sorted(next_actions.items())),
         "review_queue_count": review["count"],
         "source_count": sources["source_count"],

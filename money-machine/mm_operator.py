@@ -56,6 +56,7 @@ def atomic_write(path,text):
         if os.path.exists(tmp):os.unlink(tmp)
 
 def metrics(d):
+    from mm_evidence_bridge import audit_evidence_summary
     get=lambda sql:d.execute(sql).fetchone()[0]
     proven=[]
     for m in d.execute('SELECT * FROM mm_messages WHERE sent_at IS NOT NULL AND send_receipt IS NOT NULL'):
@@ -77,7 +78,7 @@ def metrics(d):
         fresh_legacy+=fresh(checked)
         try:evidence(d,eid,bid);verified+=1
         except ValueError:pass
-    return {'real_prospects':get('SELECT count(*) FROM businesses WHERE is_dummy=0'),'fresh_legacy_observation_prospects':fresh_legacy,'independently_verified_current_claims':verified,'prospects_without_any_evidence':get('SELECT count(*) FROM businesses b WHERE is_dummy=0 AND NOT EXISTS(SELECT 1 FROM mm_evidence e WHERE e.business_id=b.id)'),
+    data = {'real_prospects':get('SELECT count(*) FROM businesses WHERE is_dummy=0'),'fresh_legacy_observation_prospects':fresh_legacy,'independently_verified_current_claims':verified,'prospects_without_any_evidence':get('SELECT count(*) FROM businesses b WHERE is_dummy=0 AND NOT EXISTS(SELECT 1 FROM mm_evidence e WHERE e.business_id=b.id)'),
         'verified_sends':len(proven),'verified_replies':sum(human_reply_verified(d,m['id'],m['business_id'],m['reply']) for m in proven),
         'legacy_claimed_sends_unverified':get('SELECT count(*) FROM outreach WHERE sent_at IS NOT NULL'),
         'suppressed_businesses':get("SELECT count(*) FROM mm_deals WHERE stage='SUPPRESSED'"),'suppressed_addresses':get('SELECT count(*) FROM mm_suppression'),
@@ -85,6 +86,10 @@ def metrics(d):
         'proposal_drafts':get('SELECT count(*) FROM mm_proposals WHERE sent_at IS NULL AND invalidated_reason IS NULL'),'gross_received_nzd':round(revenue/100,2),'refunded_nzd':round(refunds/100,2),'net_received_nzd':round(max(0,revenue-refunds)/100,2),
         'model_calls_this_workflow':0,'model_cost_this_workflow_usd':0,'models_enabled':False,
         'historical_billing_status':'Not reconciled against provider statements; zero ledger values are not proof of historical zero spend'}
+    data['prospects_without_legacy_observations'] = data['prospects_without_any_evidence']
+    data['audit_evidence'] = audit_evidence_summary(d)
+    data['eligible_without_current_audit_evidence'] = data['audit_evidence']['eligible_without_current_evidence']
+    return data
 
 def run_day(d,write=True):
     start=time.perf_counter();queue=[];blocked=[];stale=[]
@@ -121,6 +126,7 @@ def run_day(d,write=True):
     data={'project':'WEBSITES/BUISNESSaudits','workspace':str(root()),'generated_at':now(),'metrics':metrics(d),'email_contacts':email_contacts,'pipeline_stages':dict(d.execute('SELECT stage,count(*) FROM mm_deals GROUP BY stage')),'human_queue':queue,'blocked':blocked,'missing_or_stale':stale,'next_revenue_action':queue[0] if queue else None,'elapsed_ms':round((time.perf_counter()-start)*1000,2),'model_calls':0,'external_sends':0}
     from mm_outreach import health as outreach_health
     data['outreach_self_audit']=outreach_health(d)
+    data['audit_evidence'] = data['metrics']['audit_evidence']
     if write:
         out=root()/'reports/daily-operator'
         atomic_write(out/'dashboard.json',json.dumps(data,indent=2))
@@ -129,6 +135,7 @@ def run_day(d,write=True):
         email_rows=''.join('<tr><td>'+html.escape(x['business'])+'</td><td>'+html.escape(x['canonical_domain'] or 'Unconfirmed')+'</td><td>'+html.escape(x['email'])+'</td><td>'+html.escape(str(x['confidence'] or '—'))+'</td><td>'+str(x['evidence_count'])+'</td><td>Required</td></tr>' for x in email_contacts)
         html_doc=html_doc.replace('</html>','<h2>Verified contact evidence</h2><p>Public attribution with mail routing; mailbox existence and permission are separate. Use <code>mm email-status ID</code> for source evidence.</p><table><thead><tr><th>Business</th><th>Domain</th><th>Email</th><th>Confidence</th><th>Sources</th><th>Human review</th></tr></thead><tbody>'+email_rows+'</tbody></table></html>')
         html_doc=html_doc.replace('</html>','<h2>Outreach self-audit</h2><p>Copy issues: '+str(len(data['outreach_self_audit']['copy_issues']))+'. Delivery and bounce rates: unknown. No transport is connected.</p><p>Use <code>mm outreach-health</code> for details and <code>mm outreach-plan --brief PATH</code> for a relevant service portfolio.</p></html>')
+        html_doc=html_doc.replace('</html>','<h2>Canonical audit captures</h2><pre>'+html.escape(json.dumps(data['audit_evidence'],indent=2))+'</pre><p>Static captures are separate from stage signals and independent claim verification. Preview saved-report recovery with <code>mm evidence-recover --ids ID</code>.</p></html>')
         atomic_write(out/'index.html',html_doc)
         atomic_write(root()/'reports/DAILY_OPERATOR.md','# Current daily operator\n\nGenerated '+data['generated_at']+' by `mm run-day`.\n\n'+'\n'.join(f"{i+1}. **{q['name']}** — {q['action']}" for i,q in enumerate(queue))+'\n\nModel calls: 0. External sends: 0. Net received NZ$'+str(data['metrics']['net_received_nzd'])+'\n')
         atomic_write(root()/'reports/KPI_DASHBOARD.md','# Evidence-based KPI snapshot\n\n'+json.dumps(data['metrics'],indent=2)+'\n\nStages: '+json.dumps(data['pipeline_stages'])+'\n')
@@ -310,6 +317,10 @@ def main(argv=None):
     q.add_argument('--region',default='');q.add_argument('--endpoint',default='http://127.0.0.1:8888')
     q.add_argument('--limit',type=int,default=20);q.add_argument('--dry-run',action='store_true')
     q=s.add_parser('audit-backfill');q.add_argument('--id',type=int,action='append',dest='ids');q.add_argument('--no-delay',action='store_true')
+    q=s.add_parser('evidence-status',help='read-only canonical audit capture status');q.add_argument('id',type=int,nargs='?')
+    q=s.add_parser('evidence-recover',help='preview saved static report recovery; no scanning or stage changes')
+    q.add_argument('--ids',type=int,nargs='+');q.add_argument('--apply',action='store_true')
+    q.add_argument('--report',type=Path,help='existing canonical report for exactly one explicit ID')
     q=s.add_parser('discover-contacts');q.add_argument('--id',type=int,required=True);q.add_argument('--no-delay',action='store_true')
     q=s.add_parser('report');q.add_argument('granularity',nargs='?',choices=['daily'],default='daily');s.add_parser('alerts');s.add_parser('rotate-logs')
     q=s.add_parser('intelligence-report',help='summarize append-only decisions and review signals');q.add_argument('--format',choices=['json','summary'],default='json')
@@ -801,6 +812,20 @@ def main(argv=None):
             result['sources']=collection['sources']
             result['collection_counts']=collection['counts']
         result['external_sends']=0
+        print(json.dumps(result,indent=2,default=str));return 0
+    if a.cmd in ('evidence-status','evidence-recover'):
+        import mm_evidence_bridge as bridge
+        if a.cmd == 'evidence-recover' and a.apply and not a.ids:
+            p.error('evidence-recover --apply requires --ids')
+        readonly = a.cmd == 'evidence-status' or not a.apply
+        with contextlib.closing(connect(readonly=readonly)) as d:
+            if a.cmd == 'evidence-status':
+                result = bridge.audit_evidence_status(d,a.id) if a.id is not None else bridge.audit_evidence_summary(d)
+            elif readonly:
+                result = bridge.recover_evidence(d,a.ids,report_path=a.report)
+            else:
+                with d:
+                    result = bridge.recover_evidence(d,a.ids,apply=True,report_path=a.report)
         print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd=='audit-backfill':
         import mm_evidence_ops

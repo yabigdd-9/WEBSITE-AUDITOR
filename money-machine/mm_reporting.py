@@ -138,6 +138,8 @@ def rotate_jsonl(name, retention_days=30, archive_dir="archive"):
 
 
 def funnel_snapshot(d):
+    from mm_evidence_bridge import audit_evidence_summary
+
     stages = {r[0]: r[1] for r in d.execute("SELECT stage,count(*) FROM mm_deals GROUP BY stage")}
     counts = {
         "new_evidence_24h": d.execute(
@@ -150,7 +152,14 @@ def funnel_snapshot(d):
             "SELECT count(*) FROM businesses b WHERE is_dummy=0 AND NOT EXISTS"
             "(SELECT 1 FROM mm_evidence e WHERE e.business_id=b.id)").fetchone()[0],
     }
-    return {"stages": stages, "counts": counts}
+    audit_evidence = audit_evidence_summary(d)
+    # Keep the historical key as an alias, while exposing the two evidence
+    # sources explicitly. Legacy observations do not prove a canonical audit.
+    counts["prospects_without_legacy_observations"] = counts["prospects_without_evidence"]
+    counts["eligible_without_current_audit_evidence"] = audit_evidence[
+        "eligible_without_current_evidence"
+    ]
+    return {"stages": stages, "counts": counts, "audit_evidence": audit_evidence}
 
 
 def _prev_snapshot(today):
@@ -215,11 +224,16 @@ def daily_report(write=True, quiet=False):
         ("Delta vs last snapshot: `" + json.dumps(delta, sort_keys=True) + "`")
             if prev else "Delta: (first snapshot)", "",
         "## Last 24h", "",
-        f"- new evidence rows: {snap['counts']['new_evidence_24h']}",
+        f"- new legacy observation rows: {snap['counts']['new_evidence_24h']}",
         f"- new drafts: {snap['counts']['new_drafts_24h']}",
         f"- dead-lettered: {snap['counts']['dead_lettered']}",
-        f"- prospects without evidence: {snap['counts']['prospects_without_evidence']}",
+        f"- prospects without legacy observations: {snap['counts']['prospects_without_legacy_observations']}",
+        f"- eligible prospects without current canonical audit evidence: {snap['counts']['eligible_without_current_audit_evidence']}",
         f"- guard flaps in state/errors.jsonl (last file, 24h window heuristic): {_guard_flaps_24h()}",
+        "", "## Canonical audit evidence", "",
+        "Status counts: `" + json.dumps(snap["audit_evidence"]["status_counts"], sort_keys=True) + "`",
+        f"Excluded businesses: {snap['audit_evidence']['excluded']}",
+        "Canonical reports are deterministic audit evidence; independent verification of customer-facing claims remains required.",
         "", "## Alerts", "",
         (json.dumps(alerts["alerts"], indent=2) if alerts["alerts"]
          else f"none (rules: {alerts['rules_source']})"), "",
@@ -251,8 +265,17 @@ def _recommendations(snap, alerts):
     c = snap["counts"]
     if c["dead_lettered"]:
         recs.append(f"Triage {c['dead_lettered']} dead-lettered pipeline item(s) via `./mm dead-letter`.")
-    if c["prospects_without_evidence"]:
-        recs.append(f"Run `./mm audit-backfill` for {c['prospects_without_evidence']} prospect(s) without evidence.")
+    if c.get("eligible_without_current_audit_evidence", 0):
+        recs.append(
+            f"Review canonical evidence for {c['eligible_without_current_audit_evidence']} eligible prospect(s): "
+            "`./mm evidence-recover --ids ID` previews recovery from saved reports. "
+            "Use `--apply` with those exact IDs only after reviewing the preview."
+        )
+    elif c["prospects_without_evidence"]:
+        recs.append(
+            f"Review {c['prospects_without_evidence']} prospect(s) without legacy observations; "
+            "legacy observations and canonical audit evidence are separate."
+        )
     if any(a["rule"] == "heartbeat_age_seconds_max" for a in alerts["alerts"]):
         recs.append("Supervisor heartbeat stale: run `./mm supervisor ensure-running`.")
     recs.append("Capture current website evidence before any customer-facing claim.")

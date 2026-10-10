@@ -10,6 +10,7 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import mm_core as c
 import mm_reporting as r
@@ -81,6 +82,45 @@ class DailyReport(ReportingBase):
         result = r.daily_report(quiet=True)
         self.assertEqual(result['delta'].get('AUDITED'), 1)
         self.assertEqual(result['delta'].get('DISCOVERED'), -1)
+
+    def test_legacy_observation_does_not_hide_missing_canonical_audit(self):
+        canonical = {
+            'prospects_assessed': 1, 'status_counts': {'STALE': 1},
+            'eligible_without_current_evidence': 1, 'excluded': 0,
+            'independently_verified': False,
+        }
+        with patch('mm_evidence_bridge.audit_evidence_summary', return_value=canonical):
+            result = r.daily_report(quiet=True)
+        text = (Path(self.tmp.name) / result['report']).read_text()
+        counts = result['funnel']['counts']
+        self.assertEqual(counts['prospects_without_evidence'], 0)
+        self.assertEqual(counts['prospects_without_legacy_observations'], 0)
+        self.assertEqual(counts['eligible_without_current_audit_evidence'], 1)
+        self.assertEqual(result['funnel']['audit_evidence'], canonical)
+        self.assertIn('eligible prospects without current canonical audit evidence: 1', text)
+        self.assertIn('"STALE": 1', text)
+        self.assertIn('./mm evidence-recover --ids ID', text)
+        self.assertIn('previews recovery from saved reports', text)
+        self.assertIn('independent verification', text)
+        self.assertNotIn('./mm audit-backfill', text)
+
+    def test_current_canonical_audit_remains_separate_from_legacy_observations(self):
+        self.d.execute('DELETE FROM mm_evidence')
+        self.d.commit()
+        canonical = {
+            'prospects_assessed': 1, 'status_counts': {'CURRENT': 1},
+            'eligible_without_current_evidence': 0, 'excluded': 0,
+            'independently_verified': False,
+        }
+        changes_before = self.d.total_changes
+        with patch('mm_evidence_bridge.audit_evidence_summary', return_value=canonical):
+            result = r.daily_report(write=False, quiet=True)
+        self.assertEqual(result['funnel']['counts']['prospects_without_evidence'], 1)
+        self.assertEqual(result['funnel']['counts']['prospects_without_legacy_observations'], 1)
+        self.assertEqual(result['funnel']['counts']['eligible_without_current_audit_evidence'], 0)
+        self.assertFalse(result['funnel']['audit_evidence']['independently_verified'])
+        self.assertEqual(self.d.total_changes, changes_before)
+        self.assertFalse((Path(self.tmp.name) / 'reports').exists())
 
 
 class FunnelMetrics(ReportingBase):

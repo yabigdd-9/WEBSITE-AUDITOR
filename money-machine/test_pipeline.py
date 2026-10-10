@@ -59,6 +59,38 @@ def add_business(d, name='Fixture Co', site='https://fixture.example.co.nz'):
                      "VALUES(?,?,?)", (name, site, c.now())).lastrowid
 
 
+def saved_toolkit_report(root, run_id, **fields):
+    """Create a complete synthetic report and its hashed HTML artifact."""
+    from auditor_toolkit.models import SCHEMA_VERSION
+    from mm_evidence_bridge import STATIC_CHECKS
+
+    run_dir = Path(root) / 'outputs' / 'toolkit' / run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+    html = run_dir / 'report.html'
+    html.write_text('<html><p>Synthetic audit fixture.</p></html>', encoding='utf-8')
+    report_path = run_dir / 'report.json'
+    report = {
+        'schema_version': SCHEMA_VERSION,
+        'run_id': run_id,
+        'url': 'https://fixture.example.co.nz',
+        'timestamp': c.now(),
+        'status': 'complete',
+        'profile': 'static',
+        'checks': {name: {'required': True, 'status': 'ok'} for name in STATIC_CHECKS},
+        'defects': [],
+        'artifacts': {'json': str(report_path), 'html': str(html)},
+        'manifest': {'html': {'path': str(html), 'sha256': c.sha(html.read_bytes()),
+                              'size': html.stat().st_size}},
+    }
+    report.update(fields)
+    report.setdefault('evidence', {'fetch': {
+        'url': report['url'], 'observed_at': report['timestamp'], 'mode': 'static',
+        'data': {'status_code': 200},
+    }})
+    report_path.write_text(json.dumps(report), encoding='utf-8')
+    return report
+
+
 class StateMachine(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -666,6 +698,9 @@ class StageHandlers(unittest.TestCase):
     def tearDown(self):
         self.d.close(); self.tmp.cleanup()
 
+    def _saved_report(self, run_id, **fields):
+        return saved_toolkit_report(self.tmp.name, run_id, **fields)
+
     def test_identity_rejects_private_url(self):
         import mm_workers
         bid = add_business(self.d, 'Internal', 'http://192.168.1.10/x')
@@ -685,20 +720,14 @@ class StageHandlers(unittest.TestCase):
 
     def test_audit_handler_reuses_recent_canonical_toolkit_report(self):
         import mm_workers
-        recent = {
-            'run_id': 'run-recent',
-            'status': 'complete',
-            'profile': 'static',
-            'health_score': 72,
-            'score': 12,
-            'severity_score': 12,
-            'defects': [{'defect_key': 'viewport'}],
-            'defect_count': 1,
-            'artifacts': {'json': '/tmp/run-recent/report.json'},
-        }
+        recent = self._saved_report(
+            'run-recent', health_score=72, score=12, severity_score=12,
+            defects=[{'defect_key': 'viewport'}], defect_count=1,
+        )
         p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
         it = p.item(self.d, self.bid)
-        with patch('auditor_toolkit.storage.History') as history_cls, \
+        with patch.object(mm_workers, 'REPO', Path(self.tmp.name)), \
+             patch('auditor_toolkit.storage.History') as history_cls, \
              patch('auditor_toolkit.pipeline.run_audit') as run_audit:
             history_cls.return_value.get_latest_valid_audit.return_value = recent
             nxt, reason, ev = mm_workers.audit_handler(self.d, it, None)
@@ -709,28 +738,21 @@ class StageHandlers(unittest.TestCase):
         self.assertEqual(ev['audit_engine'], 'auditor_toolkit')
         self.assertEqual(ev['model_calls'], 0)
         self.assertEqual(ev['external_sends'], 0)
+        self.assertEqual(ev['report_hash'], c.sha(Path(recent['artifacts']['json']).read_bytes()))
+        self.assertTrue(ev['audit_evidence']['recorded'])
         run_audit.assert_not_called()
 
     def test_audit_handler_runs_canonical_toolkit_with_safe_options(self):
         import mm_workers
-        report = {
-            'run_id': 'run-new',
-            'status': 'complete',
-            'profile': 'static',
-            'health_score': 61,
-            'score': 39,
-            'severity_score': 39,
-            'defects': [
-                {'defect_key': 'viewport'},
-                {'defect_key': 'missing_title'},
-            ],
-            'defect_count': 2,
-            'artifacts': {'json': '/tmp/run-new/report.json'},
-            'checks': {'fetch': {'required': True, 'status': 'ok'}}
-        }
+        report = self._saved_report(
+            'run-new', health_score=61, score=39, severity_score=39,
+            defects=[{'defect_key': 'viewport'}, {'defect_key': 'missing_title'}],
+            defect_count=2,
+        )
         p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
         it = p.item(self.d, self.bid)
-        with patch('auditor_toolkit.storage.History') as history_cls, \
+        with patch.object(mm_workers, 'REPO', Path(self.tmp.name)), \
+             patch('auditor_toolkit.storage.History') as history_cls, \
              patch('auditor_toolkit.pipeline.run_audit', return_value=report) as run_audit:
             history_cls.return_value.get_latest_valid_audit.return_value = None
             nxt, reason, ev = mm_workers.audit_handler(self.d, it, None)
@@ -743,6 +765,8 @@ class StageHandlers(unittest.TestCase):
         self.assertEqual(ev['audit_engine'], 'auditor_toolkit')
         self.assertEqual(ev['model_calls'], 0)
         self.assertEqual(ev['external_sends'], 0)
+        self.assertEqual(ev['report_hash'], c.sha(Path(report['artifacts']['json']).read_bytes()))
+        self.assertTrue(ev['audit_evidence']['recorded'])
         args, kwargs = run_audit.call_args
         self.assertEqual(args[0], 'https://fixture.example.co.nz')
         options = args[1]
@@ -771,11 +795,142 @@ class StageHandlers(unittest.TestCase):
         }
         p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
         it = p.item(self.d, self.bid)
-        with patch('auditor_toolkit.storage.History') as history_cls, \
+        with patch.object(mm_workers, 'REPO', Path(self.tmp.name)), \
+             patch('auditor_toolkit.storage.History') as history_cls, \
              patch('auditor_toolkit.pipeline.run_audit', return_value=report):
             history_cls.return_value.get_latest_valid_audit.return_value = None
             with self.assertRaises(p.RetryableError):
                 mm_workers.audit_handler(self.d, it, None)
+
+    def test_audit_handler_rejects_invalid_cached_artifacts_before_reusing(self):
+        import mm_workers
+        cached = self._saved_report('run-invalid', url='https://other.example.co.nz')
+        current = self._saved_report('run-current', severity_score=18,
+                                     defects=[{'defect_key': 'viewport'}])
+        p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
+        with patch.object(mm_workers, 'REPO', Path(self.tmp.name)), \
+             patch('auditor_toolkit.storage.History') as history_cls, \
+             patch('auditor_toolkit.pipeline.run_audit', return_value=current) as run_audit:
+            history_cls.return_value.get_latest_valid_audit.return_value = cached
+            nxt, reason, evidence = mm_workers.audit_handler(self.d, p.item(self.d, self.bid), None)
+        self.assertEqual(nxt, 'AUDITED')
+        self.assertIn('captured', reason)
+        self.assertEqual(evidence['run_id'], 'run-current')
+        run_audit.assert_called_once()
+
+    def test_audit_handler_rejects_stale_cached_report(self):
+        import mm_workers
+        stale_at = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=8)).isoformat()
+        cached = self._saved_report('run-stale', timestamp=stale_at)
+        current = self._saved_report('run-fresh')
+        p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
+        with patch.object(mm_workers, 'REPO', Path(self.tmp.name)), \
+             patch('auditor_toolkit.storage.History') as history_cls, \
+             patch('auditor_toolkit.pipeline.run_audit', return_value=current) as run_audit:
+            history_cls.return_value.get_latest_valid_audit.return_value = cached
+            _, _, evidence = mm_workers.audit_handler(self.d, p.item(self.d, self.bid), None)
+        self.assertEqual(evidence['run_id'], 'run-fresh')
+        run_audit.assert_called_once()
+
+    def test_audit_handler_changed_registered_cache_requires_new_run(self):
+        import mm_evidence_bridge as bridge
+        import mm_workers
+        cached = self._saved_report('run-anchored', severity_score=20)
+        root = Path(self.tmp.name) / 'outputs' / 'toolkit'
+        anchored = bridge.register_audit(self.d, self.bid, cached['artifacts']['json'],
+                                         toolkit_root=root, expected_run_id='run-anchored')
+        cached['severity_score'] = 30
+        Path(cached['artifacts']['json']).write_text(json.dumps(cached), encoding='utf-8')
+        current = self._saved_report('run-replacement', severity_score=30)
+        p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
+        with patch.object(mm_workers, 'REPO', Path(self.tmp.name)), \
+             patch('auditor_toolkit.storage.History') as history_cls, \
+             patch('auditor_toolkit.pipeline.run_audit', return_value=current) as run_audit:
+            history_cls.return_value.get_latest_valid_audit.return_value = cached
+            _, _, evidence = mm_workers.audit_handler(self.d, p.item(self.d, self.bid), None)
+        self.assertEqual(evidence['run_id'], 'run-replacement')
+        self.assertEqual(self.d.execute(
+            "SELECT report_hash FROM mm_audit_evidence WHERE run_id='run-anchored'",
+        ).fetchone()[0], anchored['report_hash'])
+        run_audit.assert_called_once()
+
+    def test_audit_handler_malformed_cache_falls_back_to_new_report(self):
+        import mm_workers
+        current = self._saved_report('run-malformed-replacement')
+        p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
+        for cached in (['malformed'], {'artifacts': ['malformed']}):
+            with self.subTest(cache=cached), \
+                 patch.object(mm_workers, 'REPO', Path(self.tmp.name)), \
+                 patch('auditor_toolkit.storage.History') as history_cls, \
+                 patch('auditor_toolkit.pipeline.run_audit', return_value=current) as run_audit:
+                history_cls.return_value.get_latest_valid_audit.return_value = cached
+                _, _, evidence = mm_workers.audit_handler(self.d, p.item(self.d, self.bid), None)
+            self.assertEqual(evidence['run_id'], current['run_id'])
+            run_audit.assert_called_once()
+
+    def test_audit_handler_malformed_new_report_retries_without_registration(self):
+        import mm_workers
+        p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
+        for report in (None, {'status': 'complete', 'artifacts': ['malformed']}):
+            with self.subTest(report=report), \
+                 patch.object(mm_workers, 'REPO', Path(self.tmp.name)), \
+                 patch('auditor_toolkit.storage.History') as history_cls, \
+                 patch('auditor_toolkit.pipeline.run_audit', return_value=report):
+                history_cls.return_value.get_latest_valid_audit.return_value = None
+                with self.assertRaises(p.RetryableError):
+                    mm_workers.audit_handler(self.d, p.item(self.d, self.bid), None)
+            self.assertEqual(p.item(self.d, self.bid)['state'], 'AUDIT_PENDING')
+
+    def test_audit_handler_cannot_register_tampered_new_report(self):
+        import mm_workers
+        report = self._saved_report('run-tampered')
+        Path(report['artifacts']['html']).write_text('Modified artifact')
+        p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
+        with patch.object(mm_workers, 'REPO', Path(self.tmp.name)), \
+             patch('auditor_toolkit.storage.History') as history_cls, \
+             patch('auditor_toolkit.pipeline.run_audit', return_value=report):
+            history_cls.return_value.get_latest_valid_audit.return_value = None
+            with self.assertRaises(p.RetryableError):
+                mm_workers.audit_handler(self.d, p.item(self.d, self.bid), None)
+        self.assertEqual(p.item(self.d, self.bid)['state'], 'AUDIT_PENDING')
+        tables = {r[0] for r in self.d.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        if 'mm_audit_evidence' in tables:
+            self.assertEqual(self.d.execute('SELECT count(*) FROM mm_audit_evidence').fetchone()[0], 0)
+
+    def test_audit_handler_repeated_saved_report_registration_is_idempotent(self):
+        import mm_workers
+        report = self._saved_report('run-repeat')
+        p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
+        before_events = self.d.execute('SELECT count(*) FROM pipeline_events').fetchone()[0]
+        with patch.object(mm_workers, 'REPO', Path(self.tmp.name)), \
+             patch('auditor_toolkit.storage.History') as history_cls, \
+             patch('auditor_toolkit.pipeline.run_audit') as run_audit:
+            history_cls.return_value.get_latest_valid_audit.return_value = report
+            _, _, first = mm_workers.audit_handler(self.d, p.item(self.d, self.bid), None)
+            _, _, second = mm_workers.audit_handler(self.d, p.item(self.d, self.bid), None)
+        self.assertTrue(first['audit_evidence']['recorded'])
+        self.assertFalse(second['audit_evidence']['recorded'])
+        self.assertEqual(first['report_hash'], second['report_hash'])
+        self.assertEqual(self.d.execute('SELECT count(*) FROM mm_audit_evidence').fetchone()[0], 1)
+        self.assertEqual(self.d.execute('SELECT count(*) FROM mm_evidence').fetchone()[0], 0)
+        self.assertEqual(self.d.execute('SELECT count(*) FROM pipeline_events').fetchone()[0], before_events)
+        self.assertEqual(p.item(self.d, self.bid)['state'], 'AUDIT_PENDING')
+        run_audit.assert_not_called()
+
+    def test_audit_handler_excluded_prospects_never_open_history_or_fetch(self):
+        import mm_workers
+        for state in ('REJECTED', 'SUPPRESSED'):
+            with self.subTest(state=state):
+                bid = add_business(self.d, name='Excluded fixture ' + state)
+                p.enqueue(self.d, bid, state=state)
+                before = self.d.total_changes
+                with patch('auditor_toolkit.storage.History') as history_cls, \
+                     patch('auditor_toolkit.pipeline.run_audit') as run_audit:
+                    with self.assertRaises(p.PermanentError):
+                        mm_workers.audit_handler(self.d, p.item(self.d, bid), None)
+                self.assertEqual(self.d.total_changes, before)
+                history_cls.assert_not_called()
+                run_audit.assert_not_called()
 
     def test_contact_handler_never_fabricates(self):
         import mm_workers

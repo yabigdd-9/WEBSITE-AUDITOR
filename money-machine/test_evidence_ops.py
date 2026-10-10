@@ -1,20 +1,18 @@
 """P5 tests: evidence throughput — audit backfill, own-site contact discovery,
 typed BLOCKED_SEARCH_* errors, and the guess-alone-never-verified policy.
 
-All fixtures synthetic/disposable. No external sends, no model calls, $0.
-Network use is loopback-only (a local http.server) plus typed-failure probes.
+All fixtures synthetic/disposable. No network, external sends or model calls, $0.
 """
 import contextlib
-import http.server
 import io
 import json
+import os
 from pathlib import Path
 import sqlite3
-import threading
+import tempfile
 import unittest
 from unittest.mock import patch
 
-import test_acceptance as legacy
 import mm_core as c
 import mm_discovery
 import mm_evidence_ops as ops
@@ -22,38 +20,55 @@ import mm_email_store as s
 import mm_operator
 
 
-class _Quiet(http.server.BaseHTTPRequestHandler):
-    body = b"<html><a href='mailto:Info@Fix.example.co.nz'>mail</a><form action='/c'></form></html>"
-
-    def do_GET(self):
-        if self.path.startswith('/dead'):
-            self.send_response(500); self.end_headers(); return
-        self.send_response(200)
-        self.send_header('Content-Type', 'text/html')
-        self.end_headers()
-        self.wfile.write(self.body)
-
-    def log_message(self, *a):  # keep test output clean
-        pass
-
-
-class LoopbackSite:
-    def __init__(self):
-        self.srv = http.server.HTTPServer(('127.0.0.1', 0), _Quiet)
-        self.port = self.srv.server_address[1]
-        self.thread = threading.Thread(target=self.srv.serve_forever, daemon=True)
-        self.thread.start()
-
-    def url(self, path=''):
-        return f'http://127.0.0.1:{self.port}/{path}'
-
-    def stop(self):
-        self.srv.shutdown(); self.srv.server_close(); self.thread.join(timeout=5)
-
-
 class EvidenceOps(unittest.TestCase):
-    setUp = legacy.Acceptance.setUp
-    tearDown = legacy.Acceptance.tearDown
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='mm-evidence-ops-')
+        self.r = Path(self.temp.name)
+        (self.r / 'database').mkdir()
+        self.path = self.r / 'database' / 'money_machine.db'
+        sqlite3.connect(self.path).close()
+        self.env = patch.dict(os.environ, {'MM_ROOT': str(self.r)})
+        self.env.start()
+        self.d = c.connect(self.path)
+        self.d.executescript((Path(__file__).parent / 'database' / 'schema.sql').read_text())
+        self.d.commit()
+        backup = c.backup(self.r)
+        c.migrate(self.d, backup)
+        c.ensure_business_columns(self.d)
+        s.migrate_email(self.d, backup)
+        self.d.execute('CREATE TABLE pipeline_items(business_id INTEGER PRIMARY KEY, state TEXT)')
+        self.bid = self._extra_business(site='https://fixture.example.co.nz')
+        capture = self.r / 'baseline.txt'
+        capture.write_text('Synthetic existing evidence; unverified.')
+        c.record_evidence(self.d, self.bid, 'https://fixture.example.co.nz',
+                          'Synthetic prior capture', 'Fixture only', capture,
+                          'unverified', 'fixture', 0.0)
+        self.d.commit()
+
+    def tearDown(self):
+        self.d.close()
+        self.env.stop()
+        self.temp.cleanup()
+
+    @staticmethod
+    def _blocked_fetch(url):
+        raise ops.OwnSiteBlocked('BLOCKED_SITE_UNREACHABLE', url, 'synthetic failure')
+
+    def backfill(self, **kwargs):
+        kwargs.setdefault('fetch', self._blocked_fetch)
+        kwargs.setdefault('capture_dir', self.r / 'audit-backfills')
+        return ops.audit_backfill(self.d, **kwargs)
+
+    def contacts(self, bid, **kwargs):
+        kwargs.setdefault('fetch', self._blocked_fetch)
+        kwargs.setdefault('capture_dir', self.r / 'contact-captures')
+        return ops.discover_own_site_contacts(self.d, bid, **kwargs)
+
+    def snapshot(self):
+        names = ('businesses', 'mm_deals', 'mm_holds', 'pipeline_items',
+                 'mm_evidence', 'mm_evidence_meta', 'mm_contact_evidence', 'mm_events')
+        return {name: [tuple(r) for r in self.d.execute('SELECT * FROM ' + name)]
+                for name in names}
 
     def _extra_business(self, site='https://unreachable-fixture.example.co.nz'):
         bid = self.d.execute(
@@ -68,7 +83,7 @@ class EvidenceOps(unittest.TestCase):
 class AuditBackfill(EvidenceOps):
     def test_unreachable_outcome_recorded_as_evidence_and_moves_stage(self):
         bid = self._extra_business()
-        result = ops.audit_backfill(self.d, ids=[bid], fetch=ops.fetch_own_site, politeness=0)
+        result = self.backfill(ids=[bid], politeness=0)
         self.assertEqual(result['backfilled'], 1)
         self.assertEqual(result['moved_to_audited'], 1)
         row = result['results'][0]
@@ -87,20 +102,63 @@ class AuditBackfill(EvidenceOps):
 
     def test_backfill_idempotent_second_run_zero(self):
         bid = self._extra_business()
-        ops.audit_backfill(self.d, ids=[bid], politeness=0)
-        again = ops.audit_backfill(self.d, ids=[bid], politeness=0)
+        self.backfill(ids=[bid], politeness=0)
+        again = self.backfill(ids=[bid], politeness=0)
         self.assertEqual(again['backfilled'], 0)
         # And a scoped default run skips businesses that already have evidence.
-        scoped = ops.audit_backfill(self.d, ids=[bid, self.bid], politeness=0)
+        scoped = self.backfill(ids=[bid, self.bid], politeness=0)
         self.assertEqual(scoped['backfilled'], 0)
 
     def test_backfill_never_marks_verified(self):
         bid = self._extra_business()
-        result = ops.audit_backfill(self.d, ids=[bid], politeness=0)
+        result = self.backfill(ids=[bid], politeness=0)
         eid = result['results'][0]['evidence_id']
         status = self.d.execute('SELECT status FROM mm_evidence_meta WHERE evidence_id=?',
                                 (eid,)).fetchone()[0]
         self.assertEqual(status, 'unverified')
+
+    def test_excluded_prospects_are_skipped_before_fetch_or_any_write(self):
+        cases = {
+            'business_suppression': "UPDATE businesses SET suppression_reason='fixture opt out' WHERE id=?",
+            'business_rejected': "UPDATE businesses SET current_status='rejected' WHERE id=?",
+            'hold': "INSERT INTO mm_holds(business_id,reason) VALUES(?,'fixture hold')",
+            'deal_suppressed': "UPDATE mm_deals SET stage='SUPPRESSED' WHERE business_id=?",
+            'pipeline_rejected': "INSERT INTO pipeline_items VALUES(?,'REJECTED')",
+            'pipeline_suppressed': "INSERT INTO pipeline_items VALUES(?,'SUPPRESSED')",
+        }
+
+        def forbidden(url):
+            self.fail('Excluded business fetched: ' + url)
+
+        for name, sql in cases.items():
+            with self.subTest(reason=name):
+                bid = self._extra_business()
+                self.d.execute(sql, (bid,))
+                self.d.commit()
+                before = self.snapshot()
+                result = self.backfill(ids=[bid], fetch=forbidden, politeness=0)
+                self.assertEqual(result['backfilled'], 0)
+                self.assertEqual(result['moved_to_audited'], 0)
+                self.assertEqual([r['id'] for r in result['skipped']], [bid])
+                self.assertTrue(result['skipped'][0]['reason'])
+                with self.assertRaises(ValueError):
+                    self.contacts(bid, fetch=forbidden, politeness=0)
+                self.assertEqual(self.snapshot(), before)
+                self.assertFalse((self.r / 'audit-backfills' / f'business-{bid}.txt').exists())
+                self.assertFalse((self.r / 'contact-captures' / f'business-{bid}').exists())
+
+    def test_default_backfill_excludes_rejected_and_held_businesses(self):
+        rejected = self._extra_business()
+        held = self._extra_business()
+        self.d.execute("UPDATE businesses SET current_status='rejected' WHERE id=?", (rejected,))
+        self.d.execute("INSERT INTO mm_holds VALUES(?,'fixture hold')", (held,))
+        self.d.commit()
+        before = self.snapshot()
+        result = self.backfill(politeness=0,
+                               fetch=lambda url: self.fail('Excluded business fetched: ' + url))
+        self.assertEqual(result['backfilled'], 0)
+        self.assertEqual({r['id'] for r in result['skipped']}, {rejected, held})
+        self.assertEqual(self.snapshot(), before)
 
 
 class OwnSiteDiscovery(EvidenceOps):
@@ -108,8 +166,8 @@ class OwnSiteDiscovery(EvidenceOps):
         bid = self._extra_business()
         page = ('<html><a href="mailto:Info@Fix.example.co.nz">mail</a>'
                 '<a href="tel:021 555 123">t</a><form action="/contact"></form></html>')
-        result = ops.discover_own_site_contacts(
-            self.d, bid, fetch=lambda url: (page, page.encode(), url), politeness=0)
+        result = self.contacts(
+            bid, fetch=lambda url: (page, page.encode(), url), politeness=0)
         self.assertGreaterEqual(result['pages_fetched'], 1)
         recipients = {r['recipient'] for r in result['recorded']}
         self.assertIn('info@fix.example.co.nz', recipients)
@@ -127,7 +185,7 @@ class OwnSiteDiscovery(EvidenceOps):
 
     def test_unreachable_site_records_typed_attempt(self):
         bid = self._extra_business()
-        result = ops.discover_own_site_contacts(self.d, bid, politeness=0)
+        result = self.contacts(bid, politeness=0)
         self.assertEqual(result['pages_fetched'], 0)
         codes = {a['blocked_code'] for a in result['attempts']}
         self.assertTrue(codes and all(code.startswith('BLOCKED_SITE_') for code in codes),
@@ -141,8 +199,8 @@ class GuessNeverVerified(EvidenceOps):
         email lane; require_email still fails closed."""
         bid = self._extra_business()
         page = '<a href="mailto:guess@unreachable-fixture.example.co.nz">x</a>'
-        ops.discover_own_site_contacts(
-            self.d, bid, fetch=lambda url: (page, page.encode(), url), politeness=0)
+        self.contacts(
+            bid, fetch=lambda url: (page, page.encode(), url), politeness=0)
         address = 'guess@unreachable-fixture.example.co.nz'
         self.assertTrue(self.d.execute(
             'SELECT 1 FROM mm_contact_evidence WHERE business_id=? AND recipient=?',
@@ -162,7 +220,10 @@ class GuessNeverVerified(EvidenceOps):
 
 class TypedSearchErrors(EvidenceOps):
     def test_searxng_absent_raises_typed_error(self):
-        with self.assertRaises(mm_discovery.SearchBlocked) as ctx:
+        backend = mm_discovery.mm_search_backend
+        with patch.object(backend, 'search', return_value={
+            'state': backend.BLOCKED_NOT_LISTENING, 'reason': 'Synthetic unavailable service',
+        }), self.assertRaises(mm_discovery.SearchBlocked) as ctx:
             mm_discovery.searxng_candidates('heat pumps christchurch', 'Canterbury',
                                             endpoint='http://127.0.0.1:1', limit=5)
         self.assertTrue(ctx.exception.code.startswith('BLOCKED_SEARCH_'))
@@ -184,16 +245,16 @@ class TypedSearchErrors(EvidenceOps):
         self.assertTrue(doc['blocked']['code'].startswith('BLOCKED_SEARCH_'))
 
     def test_frozen_signature_still_ranked_when_service_present(self):
-        site = LoopbackSite()
-        _Quiet.body = json.dumps({
+        backend = mm_discovery.mm_search_backend
+        result = {
+            'state': backend.OK,
             'results': [{'url': 'https://first.example.co.nz/x'},
                         {'url': 'https://first.example.co.nz/y'},
-                        {'url': 'https://second.example.co.nz'}]}).encode()
-        try:
+                        {'url': 'https://second.example.co.nz'}],
+        }
+        with patch.object(backend, 'search', return_value=result):
             cands = mm_discovery.searxng_candidates('q', 'Canterbury',
-                                                    endpoint=site.url(), limit=5)
-        finally:
-            site.stop()
+                                                    endpoint='http://127.0.0.1:8888', limit=5)
         self.assertEqual([x['canonical_host'] for x in cands],
                          ['first.example.co.nz', 'second.example.co.nz'])
 

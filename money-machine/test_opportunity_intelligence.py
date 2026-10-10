@@ -7,6 +7,7 @@ import sqlite3
 
 import mm_opportunity_intelligence as oi
 import mm_workers as workers
+import pytest
 
 
 def test_identity_confidence_high_with_aligned_first_party_signals():
@@ -270,6 +271,61 @@ def test_prospect_snapshot_exposes_identity_completeness_and_planner():
     assert result["external_sends"] == 0
 
 
+@pytest.mark.parametrize("canonical_status", ["CURRENT", "MISSING", "INVALID", "STALE"])
+def test_canonical_audit_status_preserves_existing_stage_signals(monkeypatch, canonical_status):
+    import mm_evidence_bridge
+
+    d = _db()
+    d.execute(
+        "INSERT INTO businesses VALUES(1,?,?,?,?,?,0)",
+        ("Acme Plumbing", "https://acmeplumbing.co.nz", "Canterbury", "fixture", "acmeplumbing.co.nz"),
+    )
+    d.execute("INSERT INTO pipeline_items VALUES(1,'QUALIFICATION_PENDING','{}')")
+    stage_evidence = {"score": 50, "defect_count": 3}
+    d.execute(
+        "INSERT INTO pipeline_events VALUES(1,1,'AUDIT_PENDING','AUDITED','worker','ok',?,?)",
+        (json.dumps(stage_evidence), "2026-09-30T00:00:00+00:00"),
+    )
+    canonical = {
+        "status": canonical_status,
+        "complete": canonical_status == "CURRENT",
+        "independently_verified": False,
+    }
+    monkeypatch.setattr(mm_evidence_bridge, "audit_evidence_status", lambda connection, business_id: canonical)
+
+    result = oi.prospect_snapshot(d, 1)
+
+    assert result["audit_evidence"] == canonical
+    assert result["derived"]["audit"] == stage_evidence
+    assert result["observed_evidence"] == ["audit", "business_name", "canonical_host", "source"]
+    assert result["evidence_completeness"] == oi.evidence_completeness(
+        "QUALIFICATION_PENDING", result["observed_evidence"]
+    )
+    assert result["evidence_completeness"]["completeness"] == 0.75
+    assert result["next_best_evidence"]["action"] == "INSPECT_FIRST_PARTY_COMMERCIAL_PAGES"
+
+
+def test_canonical_status_does_not_invent_an_audited_stage_signal(monkeypatch):
+    import mm_evidence_bridge
+
+    d = _db()
+    d.execute(
+        "INSERT INTO businesses VALUES(1,?,?,?,?,?,0)",
+        ("Acme Plumbing", "https://acmeplumbing.co.nz", "Canterbury", "fixture", "acmeplumbing.co.nz"),
+    )
+    d.execute("INSERT INTO pipeline_items VALUES(1,'QUALIFICATION_PENDING','{}')")
+    monkeypatch.setattr(mm_evidence_bridge, "audit_evidence_status", lambda connection, business_id: {
+        "status": "RECOVERABLE", "complete": False, "independently_verified": False,
+    })
+
+    result = oi.prospect_snapshot(d, 1)
+
+    assert result["audit_evidence"]["status"] == "RECOVERABLE"
+    assert "audit" not in result["observed_evidence"]
+    assert result["evidence_completeness"]["missing"] == ["audit", "commercial_evidence"]
+    assert result["derived"]["audit"] == {}
+
+
 def test_understanding_opportunity_score_counts_as_substantive_commercial_evidence():
     d = _db()
     d.execute(
@@ -477,6 +533,38 @@ def test_intelligence_summary_is_bounded_read_only_and_zero_cost():
     assert result["paid_calls"] == 0
     assert result["external_sends"] == 0
     assert sum(result["identity_status"].values()) == 2
+
+
+def test_intelligence_summary_counts_canonical_status_within_existing_bound(monkeypatch):
+    import mm_evidence_bridge
+
+    d = _db()
+    d.executemany(
+        "INSERT INTO businesses VALUES(?,?,?,?,?,?,?)",
+        [
+            (1, "Acme", "https://acme.co.nz", "Canterbury", "fixture", "acme.co.nz", 0),
+            (2, "Beta", "https://beta.co.nz", "Canterbury", "fixture", "beta.co.nz", 0),
+            (3, "Gamma", "https://gamma.co.nz", "Canterbury", "fixture", "gamma.co.nz", 0),
+        ],
+    )
+    inspected = []
+
+    def canonical_status(connection, business_id):
+        inspected.append(business_id)
+        status = {1: "CURRENT", 2: "MISSING", 3: "EXCLUDED"}[business_id]
+        return {"status": status, "complete": status == "CURRENT", "independently_verified": False}
+
+    monkeypatch.setattr(mm_evidence_bridge, "audit_evidence_status", canonical_status)
+    changes_before = d.total_changes
+
+    result = oi.intelligence_summary(d, limit=2)
+
+    assert result["audit_evidence_status"] == {"CURRENT": 1, "MISSING": 1}
+    assert result["evidence_completeness"] == {"COMPLETE": 2}
+    assert result["prospects_assessed"] == 2
+    assert result["truncated"] is True
+    assert inspected == [1, 2]
+    assert d.total_changes == changes_before
 
 
 def test_intelligence_summary_reports_true_truncation_only():

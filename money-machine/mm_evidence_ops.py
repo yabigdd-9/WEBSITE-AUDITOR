@@ -13,6 +13,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 
 import mm_core
+import mm_evidence_bridge
 
 UA = "MM-EvidenceOps/1.0 (local evidence capture; no sends, no models)"
 FETCH_TIMEOUT = 10
@@ -94,10 +95,9 @@ def discover_own_site_contacts(d, bid, fetch=fetch_own_site, politeness=1.0,
     contact evidence with URL+timestamp provenance. Never marks anything verified.
     """
     b = mm_core.business(d, bid)
-    cols = b.keys()
-    if ("suppression_reason" in cols and b["suppression_reason"]) or \
-       d.execute("SELECT 1 FROM mm_holds WHERE business_id=?", (bid,)).fetchone():
-        raise ValueError("Suppressed business / unresolved legacy hold")
+    blocked = mm_evidence_bridge.exclusion_reason(d, bid)
+    if blocked:
+        raise ValueError("Evidence discovery excluded: " + blocked)
     base = b["public_website"]
     mm_core.public_url(base)  # validator stays strict
     pages, attempts, found = [], [], []
@@ -176,6 +176,10 @@ def audit_backfill(d, ids=None, capture_dir=ROOT / "reports" / "audit-backfills"
     results, skipped = [], []
     for b in rows:
         bid, url = b["id"], b["public_website"]
+        blocked = mm_evidence_bridge.exclusion_reason(d, bid)
+        if blocked:
+            skipped.append({"id": bid, "name": b["name"], "reason": blocked})
+            continue
         if not url:
             skipped.append({"id": bid, "name": b["name"], "reason": "BLOCKED_SITE_NO_URL"})
             continue

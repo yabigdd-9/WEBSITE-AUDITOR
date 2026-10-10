@@ -90,20 +90,17 @@ def test_invalid_or_zero_finding_evidence_stays_unknown():
     assert mm_workers._technical_opportunity({"defect_count": 2, "score": 140}) == (100.0, 2)
 
 
-def test_audit_handler_persists_canonical_defect_score_field():
-    d = database()
-    report = {
-        "run_id": "run-opportunity",
-        "status": "complete",
-        "profile": "static",
-        "defects": [{"defect_key": "missing-title"}],
-        "defect_score": 75,
-        "health_score": 25,
-        "checks": {"fetch": {"required": True, "status": "ok"}},
-        "artifacts": {"json": "/tmp/run-opportunity/report.json"},
-    }
+def test_audit_handler_persists_canonical_defect_score_field(tmp_path):
+    from test_pipeline import saved_toolkit_report
 
-    with patch("auditor_toolkit.storage.History") as history_cls, patch(
+    d = database()
+    report = saved_toolkit_report(
+        tmp_path, 'run-opportunity', defects=[{"defect_key": "missing-title"}],
+        defect_score=75, health_score=25, url='https://fixture.example',
+    )
+
+    with patch.object(mm_workers, 'REPO', tmp_path), \
+         patch("auditor_toolkit.storage.History") as history_cls, patch(
         "auditor_toolkit.pipeline.run_audit", return_value=report
     ):
         history_cls.return_value.get_latest_valid_audit.return_value = None
