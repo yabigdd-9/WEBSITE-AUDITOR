@@ -69,7 +69,11 @@ def test_outcome_tracking_is_evidence_backed_and_append_only(tmp_path, monkeypat
     d.commit()
     assert result["outcome"] == "REPLIED"
     assert result["automatic_learning_applied"] is False
-    assert outcomes.summary(d)["by_outcome"]["REPLIED"] == 1
+    summary = outcomes.summary(d)
+    assert summary["by_outcome"]["REPLIED"] == 1
+    assert summary["rates"]["response_rate"] == 1.0
+    assert summary["learning_mode"] == "report_only"
+    assert summary["automatic_weight_changes"] is False
 
     with pytest.raises(sqlite3.DatabaseError, match="append-only"):
         d.execute("UPDATE prospect_outcomes SET outcome='WON' WHERE id=?", (result["id"],))

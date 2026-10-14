@@ -55,5 +55,6 @@ jobs:
           python -m pytest \
             toolkit_tests/test_browser_e2e.py \
             toolkit_tests/test_monthly_browser_e2e.py \
+            toolkit_tests/test_flow_e2e.py \
             tests/e2e/test_proof_browser_capture.py \
             -q
