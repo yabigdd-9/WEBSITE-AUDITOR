@@ -1,3 +1,23 @@
+# Current V44 integration verification — 15 October 2026
+
+The authoritative checkout is `/Users/dd/WEBSITE-AUDITOR`, branch `integration/v44-local-machine-convergence`. Verified application SHA `2bd7a12274ea3403329f45d0cc270bffc1fb2033` was normally pushed to origin; PR #52 is open, draft and mergeable. The three requested starting commits are preserved. Documentation-only descendants do not change the tested application source.
+
+- Audit repair `2cc0910b`: four required static analyzers and two rendered event analyzers now execute with version-3 evidence. Missing/failed observations retain partial coverage. Cookie-consent analysis is still explicitly unimplemented; rendered audit health remains unavailable while that requirement is missing.
+- Hermes repair `2bd7a122`: synthetic acceptance tests, staging alias protections, nonzero failure/timeout/placeholder results, corrected cumulative reporting and unknown-accounting handling. Live-mutating runner jobs are blocked pending separately approved staging work. Human review and no-send gates remain intact.
+- Frozen local validation: **1,096 canonical tests**, **662 MoneyMachine tests plus 77 subtests**, **30 Hermes tests** passed; **6 real Chromium journeys** and **29 tier-1 tests** passed. Canonical has 3 skips; MoneyMachine has 12 explicit fixture/acceptance skips. Counts overlap. Ruff, compile, pip check, wheel/import, staged whitespace and scoped secret checks passed.
+- Whole-module comparisons against fresh compilation verified loaded code and source remained unchanged during frozen validation. Receipts, exact skip reasons and historical metric reconciliation are under `reports/v44-integration/2026-10-15/`.
+- All 13 latest configured PR statuses passed on the application SHA. Website Auditor SonarCloud passed at **87.5% new-code coverage**. A separate `HERMES_MONEY_ENGINE` automatic analysis attached an earlier failed Security E/Reliability D check to the same commit; its 14 open bug/vulnerability annotations remain recorded for separate review and must not be hidden by the later same-name successful check.
+- Read-only live DB observation: integrity `ok`, 0 FK violations, 0 model invocation rows/calls/cost and 0 recorded message/proposal sends. Supervisor PID `66896` had a fresh heartbeat. This does not prove that the new revision is loaded or soak-accepted.
+- No live DB writes, outreach, paid calls, service restarts, provider/routing changes, merge, ready-for-review action or deployment command were performed. The untracked runner backup and separate dirty worktrees remain preserved.
+
+**Release readiness: HELD.** Remaining gates include secondary Sonar triage, independent model/provider/contact/receipt acceptance, missing fixture coverage, historical privacy/secret review and an explicitly authorized exact-revision runtime/soak acceptance. Publication and tests do not authorize production, outreach or spending.
+
+## Historical review snapshot retained below
+
+Everything below is the earlier review snapshot, retained as history. Its checkout, publication, CI and validation statements are superseded by the verified V44 record above; earlier runtime evidence does not transfer to this revision.
+
+---
+
 # WEBSITE-AUDITOR — Current State
 
 _Last updated: 2026-10-15 · branch `integration/v44-local-machine-convergence` · PR #52_
