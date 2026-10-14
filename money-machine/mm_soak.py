@@ -288,6 +288,10 @@ def main(argv=None):
         parser.error("invalid bounded duration, interval, gap, or heartbeat age")
     directory = args.directory or ROOT / "state" / (
         "soak-evidence-" + dt.datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ"))
+    directory = directory.resolve()
+    state_root = (ROOT / "state").resolve()
+    if not directory.is_relative_to(state_root) or directory == state_root:
+        parser.error("soak evidence directory must be inside repository state")
     (ROOT / "state").mkdir(exist_ok=True)
     with (ROOT / "state/soak-monitor.lock").open("a+") as lock:
         try:

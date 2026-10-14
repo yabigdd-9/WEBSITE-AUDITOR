@@ -86,11 +86,17 @@ def _sources():
 
 def _capture_path(value, receipt, runtime_root):
     path = Path(str(value))
-    if path.is_absolute():
-        return path.resolve()
     job = Path(str(receipt.get("job_directory", "")))
-    if not job.is_absolute() or not job.resolve().is_relative_to(runtime_root / "state/contact-review/runs"):
+    runs = (runtime_root / "state/contact-review/runs").resolve()
+    if not job.is_absolute() or not job.resolve().is_relative_to(runs) or job.resolve() == runs:
         raise ValueError("DRAFT_CAPTURE_ROOT_UNPROVEN")
+    if path.is_absolute():
+        resolved = path.resolve()
+        if not resolved.is_relative_to(job.resolve()) or resolved == job.resolve():
+            raise ValueError("DRAFT_CAPTURE_ESCAPES_JOB")
+        return resolved
+    if ".." in path.parts:
+        raise ValueError("DRAFT_CAPTURE_ESCAPES_JOB")
     matches = [p.resolve() for p in job.rglob(path.name) if p.is_file()
                and p.resolve().is_relative_to(job.resolve())]
     if len(matches) != 1:

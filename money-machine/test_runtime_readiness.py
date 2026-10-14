@@ -12,6 +12,29 @@ import mm_workers
 import pytest
 
 
+@pytest.mark.parametrize("kind", ["outside", "parent", "symlink", "state_root"])
+def test_soak_output_cannot_escape_repository_state(tmp_path, monkeypatch, kind):
+    monkeypatch.setattr(soak, "ROOT", tmp_path)
+    state = tmp_path / "state"
+    state.mkdir()
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    if kind == "symlink":
+        (state / "escape").symlink_to(outside, target_is_directory=True)
+        target = state / "escape/new"
+    elif kind == "parent":
+        target = state / "../outside/new"
+    elif kind == "state_root":
+        target = state
+    else:
+        target = outside / "new"
+    with pytest.raises(SystemExit) as error:
+        soak.main(["--directory", str(target)])
+    assert error.value.code == 2
+    assert not (outside / "new").exists()
+    assert not (state / "soak-monitor.lock").exists()
+
+
 @pytest.fixture
 def database(tmp_path, monkeypatch):
     monkeypatch.setenv("MM_ROOT", str(tmp_path))
@@ -203,7 +226,7 @@ def test_short_monitor_preserves_start_and_periodic_samples(tmp_path, monkeypatc
     monkeypatch.setattr(soak.time, "monotonic", lambda: next(clock))
     monkeypatch.setattr(soak.time, "sleep", lambda seconds: None)
     monkeypatch.setattr(soak.signal, "signal", lambda *args: None)
-    directory = tmp_path / "evidence"
+    directory = tmp_path / "state/evidence"
     assert soak.main(["--directory", str(directory), "--duration", "1",
                       "--interval", "1", "--max-gap", "2"]) == 1
     rows = (directory / "soak-samples.jsonl").read_text().splitlines()

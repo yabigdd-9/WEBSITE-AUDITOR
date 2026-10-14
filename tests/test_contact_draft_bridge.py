@@ -36,7 +36,9 @@ def offline(monkeypatch, tmp_path):
 def proof(tmp_path, monkeypatch):
     stamp = datetime.now(timezone.utc).isoformat()
     raw = b'<html lang="en"><head><title>Acme contact</title></head><body><h1>Acme</h1><a href="mailto:info@acme.co.nz">info@acme.co.nz</a></body></html>'
-    path = tmp_path / "capture.html"
+    job = tmp_path / "state/contact-review/runs/review"
+    job.mkdir(parents=True)
+    path = job / "capture.html"
     path.write_bytes(raw)
     digest = hashlib.sha256(raw).hexdigest()
     business = {"id": "business-1", "live_business_id": 1, "name": "Acme",
@@ -54,7 +56,8 @@ def proof(tmp_path, monkeypatch):
            "verifier": {"identity": {"status": "HIGH", "canonical_root_domain": "acme.co.nz", "page_evidence": [capture]}, "selected": selected},
            "proofer": {"passed": True, "checks": {key: True for key in bridge.PROOF_CHECKS},
                        "sources": [{"source_url": business["public_website"], "capture_sha256": digest}]}}
-    receipt = {"status": "COMPLETE", "reviewed_at": stamp, "live_business_id": 1, "row": row}
+    receipt = {"status": "COMPLETE", "reviewed_at": stamp, "live_business_id": 1,
+               "job_directory": str(job), "row": row}
     report = {"run_id": "test-static", "url": business["public_website"], "domain": "acme.co.nz",
               "status": "STATIC_CAPTURE_CONTENT_ONLY", "defects": [{"finding_id": "f1", "defect_key": "image-alt", "defect": "Image has no text alternative", "observed": "img#hero lacks an alt attribute", "severity": "medium", "confidence": "observed", "effort_band": "S", "source_url": business["public_website"]}]}
     monkeypatch.setattr(bridge, "_static_audit", lambda *args: (copy.deepcopy(report), "SYNTHETIC_AUDIT"))
@@ -102,6 +105,28 @@ def test_changed_capture_cannot_build_draft(proof):
     result = bridge.prepare_draft(business, receipt, root)
     assert result["status"] == "HELD"
     assert "DRAFT_CAPTURE_CHANGED_OR_STALE" in result["technical_holds"]
+
+
+@pytest.mark.parametrize("kind", ["absolute", "symlink", "relative_parent", "missing_job"])
+def test_capture_paths_cannot_escape_owned_job(proof, kind):
+    business, receipt, root, capture = proof
+    outside = root / "outside.html"
+    outside.write_bytes(capture.read_bytes())
+    if kind == "symlink":
+        link = capture.parent / "linked.html"
+        link.symlink_to(outside)
+        path = str(link)
+    elif kind == "relative_parent":
+        path = "../outside.html"
+    else:
+        path = str(outside)
+    if kind == "missing_job":
+        receipt.pop("job_directory")
+    receipt["row"]["verifier"]["identity"]["page_evidence"][0]["capture_path"] = path
+    result = bridge.prepare_draft(business, receipt, root)
+    assert result["status"] == "HELD"
+    assert any("DRAFT_CAPTURE_" in reason for reason in result["technical_holds"])
+    assert outside.read_bytes() == capture.read_bytes()
 
 
 def test_old_evidence_does_not_become_current_when_review_is_fresh(proof):
@@ -301,7 +326,7 @@ def test_owned_review_handoff_reaches_draft_without_questions(proof, monkeypatch
     config = recurring.load_config()
     hashes = recurring.source_hashes()
     origin = root / "state/contact-review/runs/review"
-    origin.mkdir(parents=True)
+    origin.mkdir(parents=True, exist_ok=True)
     receipt["job_directory"] = str(origin)
     recurring.atomic(origin / "1.json", receipt)
     recurring.write_manifest(origin)
