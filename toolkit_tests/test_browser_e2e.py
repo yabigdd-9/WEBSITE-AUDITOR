@@ -17,7 +17,7 @@ class FixtureHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-Type', 'text/html')
         self.end_headers()
-        self.wfile.write(b'<!doctype html><html lang="en"><head><title>Fixture</title></head><body><main><h1>Fixture audit</h1><img src="/missing.png"><p>Local evidence fixture.</p></main></body></html>')
+        self.wfile.write(b'<!doctype html><html lang="en"><head><title>Fixture</title></head><body><main><h1>Fixture audit</h1><img src="/missing.png"><p>Local evidence fixture.</p><script>console.error("V44 fixture console error");throw new Error("V44 fixture page error");</script></main></body></html>')
 
     def log_message(self, *args):
         pass
@@ -37,10 +37,13 @@ def test_real_browser_pdf_portal(tmp_path):
         assert report['checks']['browser']['status'] == 'ok'
         assert report['checks']['axe']['status'] == 'ok'
         assert report['checks']['pdf']['status'] == 'ok'
-        assert set(report['coverage']['missing_checks']) == {
-            'hreflang', 'language', 'images', 'social_meta',
-            'cookie_consent', 'third_party', 'browser_console',
-        }
+        assert set(report['coverage']['missing_checks']) == {'cookie_consent'}
+        assert report['checks']['third_party']['status'] == 'ok'
+        assert report['checks']['browser_console']['status'] == 'ok'
+        errors = report['evidence']['browser_console']['data']['errors']
+        assert 'V44 fixture console error' in errors
+        assert 'V44 fixture page error' in errors
+        assert report['evidence']['browser']['resource_requests']
         assert Path(report['artifacts']['pdf']).read_bytes().startswith(b'%PDF')
         assert Path(report['artifacts']['screenshot']).stat().st_size > 100
         assert report['evidence']['browser']['axe']['version'] == '4.10.3'

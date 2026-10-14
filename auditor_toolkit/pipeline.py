@@ -9,7 +9,17 @@ from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import urlparse
 
-from . import structured_validation, tech, vuln_js
+from . import (
+    browser_console,
+    hreflang,
+    images,
+    language,
+    social_meta,
+    structured_validation,
+    tech,
+    third_party,
+    vuln_js,
+)
 from .browser import export_pdf, run_browser_checks
 from .checks import Finding, analyse_html, classify_response, dedupe_findings, score_findings
 from .common import Fetcher, atomic_write_json, atomic_write_text, validate_url
@@ -195,6 +205,10 @@ def run_audit(url, options=None, fetcher=None):
                 ("technology", lambda: tech.analyse_html(response.text, final_url, response.headers), True),
                 ("js_vulnerabilities", lambda: vuln_js.analyse_html(response.text, final_url, response.headers), True),
                 ("structured_validation", lambda: structured_validation.analyse_html(response.text, final_url, response.headers), True),
+                ("hreflang", lambda: hreflang.analyse_html(response.text, final_url, response.headers), True),
+                ("language", lambda: language.analyse_html(response.text, final_url, response.headers), True),
+                ("images", lambda: images.analyse_html(response.text, final_url, response.headers), True),
+                ("social_meta", lambda: social_meta.analyse_html(response.text, final_url, response.headers), True),
             ])
             def hygiene_checks():
                 robots_findings, robots_evidence = check_robots(client, final_url)
@@ -272,6 +286,12 @@ def run_audit(url, options=None, fetcher=None):
                     check_version=REGISTRY["browser"].version,
                     data=dict(result.get("evidence", {})),
                 )
+            if opts.browser and result["status"] == "ok":
+                perform("third_party", lambda: third_party.analyse_rendered(evidence["browser"], final_url))
+                perform("browser_console", lambda: browser_console.analyse_rendered(evidence["browser"], final_url))
+            else:
+                for name in ("third_party", "browser_console"):
+                    skip(name, "Browser capture unavailable" if opts.browser else "Rendered mode required", opts.browser)
             if opts.screenshot_diff and result.get("status") == "ok":
                 try:
                     history = History(opts.output_root)
@@ -387,6 +407,7 @@ def run_audit(url, options=None, fetcher=None):
                 "technology",
                 "js_vulnerabilities",
                 "structured_validation",
+                "hreflang", "language", "images", "social_meta", "third_party", "browser_console",
                 "hygiene",
                 "ux",
                 "links",

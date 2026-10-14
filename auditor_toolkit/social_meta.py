@@ -3,9 +3,7 @@ Social media metadata analysis.
 """
 from __future__ import annotations
 
-import re
 from typing import Any
-from urllib.parse import urlsplit
 
 from auditor_toolkit.checks import Finding
 
@@ -15,36 +13,17 @@ def analyse_html(html: str, url: str, headers: dict) -> tuple[list[Finding], dic
     findings: list[Finding] = []
     evidence: dict[str, Any] = {"url": url, "og_tags": {}, "twitter_tags": {}}
 
-    # Extract Open Graph tags
-    og_tags: dict[str, str] = {}
-    for match in re.finditer(
-        r"""<meta\b[^>]*property=["']og:([\w:]+)["'][^>]*content=["']([^"']+)["']""",
-        html,
-        re.IGNORECASE,
-    ):
-        og_tags[match.group(1).lower()] = match.group(2)
-    # Also try reverse attribute order
-    for match in re.finditer(
-        r"""<meta\b[^>]*content=["']([^"']+)["'][^>]*property=["']og:([\w:]+)["']""",
-        html,
-        re.IGNORECASE,
-    ):
-        og_tags[match.group(2).lower()] = match.group(1)
+    from bs4 import BeautifulSoup
 
-    # Extract Twitter Card tags
+    og_tags: dict[str, str] = {}
     twitter_tags: dict[str, str] = {}
-    for match in re.finditer(
-        r"""<meta\b[^>]*name=["']twitter:([\w:]+)["'][^>]*content=["']([^"']+)["']""",
-        html,
-        re.IGNORECASE,
-    ):
-        twitter_tags[match.group(1).lower()] = match.group(2)
-    for match in re.finditer(
-        r"""<meta\b[^>]*content=["']([^"']+)["'][^>]*name=["']twitter:([\w:]+)["']""",
-        html,
-        re.IGNORECASE,
-    ):
-        twitter_tags[match.group(2).lower()] = match.group(1)
+    for tag in BeautifulSoup(html, "lxml").find_all("meta"):
+        key = str(tag.get("property", tag.get("name", ""))).lower()
+        value = str(tag.get("content", "")).strip()
+        if key.startswith("og:"):
+            og_tags[key[3:]] = value
+        elif key.startswith("twitter:"):
+            twitter_tags[key[8:]] = value
 
     evidence["og_tags"] = og_tags
     evidence["twitter_tags"] = twitter_tags

@@ -34,7 +34,7 @@ def run_browser_checks(url, output_dir, enabled=True, allow_private=False, axe_p
                 context = browser.new_context(
                     service_workers="block", viewport={"width": 1366, "height": 900}
                 )
-                blocked, failures = [], []
+                blocked, failures, requests = [], [], []
 
                 def guard(route):
                     try:
@@ -46,11 +46,13 @@ def run_browser_checks(url, output_dir, enabled=True, allow_private=False, axe_p
                         blocked.append({"reason": str(exc)})
                         route.abort()
 
+                context.on("request", lambda request: requests.append(request.url) if len(requests) < 1000 else None)
                 context.route("**/*", guard)
                 if hasattr(context, "route_web_socket"):
                     context.route_web_socket("**/*", lambda ws: ws.close())
                 page = context.new_page()
                 page.on("pageerror", lambda error: failures.append(str(error)[:500]))
+                page.on("console", lambda msg: failures.append(msg.text[:500]) if msg.type == "error" else None)
                 page.goto(url, wait_until="domcontentloaded", timeout=20_000)
                 page.wait_for_timeout(700)
                 screenshot = output_dir / "screenshot.png"
@@ -59,6 +61,7 @@ def run_browser_checks(url, output_dir, enabled=True, allow_private=False, axe_p
                     {
                         "screenshot": str(screenshot),
                         "console_errors": failures,
+                        "resource_requests": requests,
                         "blocked_requests": blocked,
                     }
                 )

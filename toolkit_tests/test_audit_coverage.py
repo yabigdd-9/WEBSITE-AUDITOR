@@ -11,7 +11,6 @@ import pytest
 
 from auditor_toolkit.common import Fetcher
 from auditor_toolkit.models import (
-    REGISTRY,
     UNIMPLEMENTED_RENDERED_CHECKS,
     UNIMPLEMENTED_STATIC_CHECKS,
     coverage_summary,
@@ -63,29 +62,24 @@ def assert_artifacts_preserved(report):
     assert stored["defects"] == report["defects"]
 
 
-def test_static_audit_skips_unimplemented_required_analyzers(tmp_path):
+def test_static_audit_runs_required_analyzers(tmp_path):
     report = audit(tmp_path)
-    assert report["status"] == "partial"
-    assert report["health_score"] is None
-    assert report["severity_score"] > 0
+    assert report["status"] == "complete"
+    assert report["health_score"] == max(0, 100 - report["severity_score"])
     assert report["defect_count"] == len(report["defects"])
-    assert set(report["coverage"]["missing_checks"]) == UNIMPLEMENTED_STATIC_CHECKS
-    assert set(current_coverage_gaps(report)) == UNIMPLEMENTED_STATIC_CHECKS
-    for name in UNIMPLEMENTED_STATIC_CHECKS:
-        assert report["checks"][name] == {
-            "status": "skipped", "reason": "Not implemented", "required": True,
-        }
-        assert name not in report["evidence"]
-        assert REGISTRY[name].version == "2"
-    for category in ("seo", "technical", "performance"):
-        assert report["category_scores"][category]["health_score"] is None
+    assert current_coverage_gaps(report) == []
+    for name in ("hreflang", "language", "images", "social_meta"):
+        assert report["checks"][name]["status"] == "ok"
+        assert report["checks"][name]["required"] is True
+        assert report["evidence"][name]["check_version"] == "3"
+        assert report["evidence"][name]["data"]
     assert_artifacts_preserved(report)
 
 
 def test_browser_disabled_rendered_checks_are_explicit_and_optional(tmp_path):
     report = audit(tmp_path, browser=False)
     assert report["browser_requested"] is False
-    for name in UNIMPLEMENTED_RENDERED_CHECKS | {"browser", "axe", "pdf"}:
+    for name in UNIMPLEMENTED_RENDERED_CHECKS | {"browser", "axe", "pdf", "third_party", "browser_console"}:
         assert report["checks"][name]["status"] == "skipped"
         assert report["checks"][name]["required"] is False
         assert report["checks"][name]["reason"]
@@ -100,6 +94,7 @@ def test_rendered_audit_retains_browser_findings_and_artifacts(tmp_path, monkeyp
             "screenshot": str(screenshot),
             "axe": {"version": "fixture", "violations": []},
             "images": [{"loaded": False, "src": "/broken.png"}],
+            "resource_requests": [], "console_errors": [],
         }}
 
     monkeypatch.setattr("auditor_toolkit.pipeline.run_browser_checks", browser)
@@ -108,7 +103,7 @@ def test_rendered_audit_retains_browser_findings_and_artifacts(tmp_path, monkeyp
     assert report["status"] == "partial"
     assert report["health_score"] is None
     assert report["browser_requested"] is True
-    missing = UNIMPLEMENTED_STATIC_CHECKS | UNIMPLEMENTED_RENDERED_CHECKS
+    missing = UNIMPLEMENTED_RENDERED_CHECKS
     assert set(report["coverage"]["missing_checks"]) == missing
     assert set(current_coverage_gaps(report)) == missing
     for name in UNIMPLEMENTED_RENDERED_CHECKS:

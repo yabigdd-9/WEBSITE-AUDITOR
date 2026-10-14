@@ -7,13 +7,13 @@ SCHEMA_VERSION = 2
 COVERAGE_VERSION = 1
 Status = Literal["ok", "error", "skipped"]
 
-UNIMPLEMENTED_STATIC_CHECKS = frozenset({"hreflang", "language", "images", "social_meta"})
-UNIMPLEMENTED_RENDERED_CHECKS = frozenset({"cookie_consent", "third_party", "browser_console"})
+UNIMPLEMENTED_STATIC_CHECKS = frozenset()
+UNIMPLEMENTED_RENDERED_CHECKS = frozenset({"cookie_consent"})
 STATIC_REQUIRED_CHECKS = frozenset({
     "fetch", "page", "schema", "headers", "hygiene", "ux", "technology",
-    "js_vulnerabilities", "structured_validation",
+    "js_vulnerabilities", "structured_validation", "hreflang", "language", "images", "social_meta",
 }) | UNIMPLEMENTED_STATIC_CHECKS
-RENDERED_REQUIRED_CHECKS = frozenset({"browser", "axe", "pdf"}) | UNIMPLEMENTED_RENDERED_CHECKS
+RENDERED_REQUIRED_CHECKS = frozenset({"browser", "axe", "pdf", "third_party", "browser_console"}) | UNIMPLEMENTED_RENDERED_CHECKS
 
 
 def required_check_ids(browser=False):
@@ -151,13 +151,13 @@ REGISTRY = {
         CheckDefinition("technology", "technical"),
         CheckDefinition("js_vulnerabilities", "security"),
         CheckDefinition("structured_validation", "local"),
-        CheckDefinition("hreflang", "seo", version="2", limitation="Not implemented"),
-        CheckDefinition("language", "technical", version="2", limitation="Not implemented"),
-        CheckDefinition("images", "performance", version="2", limitation="Not implemented"),
-        CheckDefinition("social_meta", "technical", version="2", limitation="Not implemented"),
+        CheckDefinition("hreflang", "seo", version="3", limitation="Bounded page observation; not exhaustive site coverage."),
+        CheckDefinition("language", "technical", version="3", limitation="Bounded page observation; not exhaustive site coverage."),
+        CheckDefinition("images", "performance", version="3", limitation="Bounded page observation; not exhaustive site coverage."),
+        CheckDefinition("social_meta", "technical", version="3", limitation="Bounded page observation; not exhaustive site coverage."),
         CheckDefinition("cookie_consent", "privacy", mode="rendered", version="2", limitation="Not implemented"),
-        CheckDefinition("third_party", "technical", mode="rendered", version="2", limitation="Not implemented"),
-        CheckDefinition("browser_console", "technical", mode="rendered", version="2", limitation="Not implemented"),
+        CheckDefinition("third_party", "technical", mode="rendered", version="3", limitation="Bounded page observation; not exhaustive site coverage."),
+        CheckDefinition("browser_console", "technical", mode="rendered", version="3", limitation="Bounded page observation; not exhaustive site coverage."),
         CheckDefinition("server_technology", "technical"),
     )
 }

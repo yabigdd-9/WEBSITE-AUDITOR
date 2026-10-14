@@ -31,8 +31,8 @@ def test_findings_are_deduplicated_in_pipeline(tmp_path, monkeypatch):
     report = run_audit(
         "https://example.com/", AuditOptions(output_root=tmp_path), Fetcher(transport=transport)
     )
-    assert report["status"] == "partial"
-    assert report["health_score"] is None
+    assert report["status"] == "complete"
+    assert report["health_score"] == max(0, 100 - report["severity_score"])
     unique_defects = {(d["defect_key"], d["impact"]) for d in report["defects"]}
     assert report["defect_count"] == len(unique_defects)
     assert Path(report["artifacts"]["json"]).exists()

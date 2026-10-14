@@ -12,8 +12,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import mm_pipeline as pipeline  # noqa: E402
 import mm_workers as workers  # noqa: E402
 
-from auditor_toolkit.models import UNIMPLEMENTED_STATIC_CHECKS, coverage_summary  # noqa: E402
+from auditor_toolkit.models import coverage_summary  # noqa: E402
 from toolkit_tests.coverage_fixtures import with_current_coverage  # noqa: E402
+
+FAILED_FIXTURE_CHECKS = frozenset({"hreflang", "language", "images", "social_meta"})
 
 
 @pytest.fixture
@@ -49,7 +51,7 @@ def report():
 def partial_report():
     result = report()
     result.update(status="partial", health_score=None)
-    for name in UNIMPLEMENTED_STATIC_CHECKS:
+    for name in FAILED_FIXTURE_CHECKS:
         result["checks"][name].update(status="skipped", reason="Not implemented")
         result["evidence"].pop(name)
     result["coverage"] = coverage_summary(result["checks"])
@@ -83,7 +85,7 @@ def test_audit_gap_stops_at_review_without_attempts_or_repeat_audit(database, mo
     assert len(calls) == 1
     event = database.execute("SELECT * FROM pipeline_events WHERE to_state='NEEDS_REVIEW'").fetchone()
     evidence = json.loads(event["evidence"])
-    assert set(evidence["missing_checks"]) == UNIMPLEMENTED_STATIC_CHECKS
+    assert set(evidence["missing_checks"]) == FAILED_FIXTURE_CHECKS
     assert evidence["run_id"] == returned["run_id"]
     assert evidence["report_path"] == returned["artifacts"]["json"]
     assert evidence["external_sends"] == 0

@@ -16,22 +16,39 @@ def analyse_html(html: str, url: str, headers: dict) -> tuple[list[Finding], dic
     origin = urlsplit(url)
     canonical_host = (origin.hostname or "").lower().removeprefix("www.")
 
-    # Extract hreflang links from <link rel="alternate" hreflang="..."> tags
-    hreflang_links: list[dict[str, str]] = []
-    for match in re.finditer(
-        r'<link\b[^>]*rel=["\']alternate["\'][^>]*hreflang=["\']([^"\']+)["\'][^>]*href=["\']([^"\']+)["\']',
-        html,
-        re.IGNORECASE,
-    ):
-        hreflang_links.append({"hreflang": match.group(1), "href": match.group(2)})
+    from bs4 import BeautifulSoup
 
-    # Also try the reverse attribute order
-    for match in re.finditer(
-        r'<link\b[^>]*href=["\']([^"\']+)["\'][^>]*hreflang=["\']([^"\']+)["\']',
-        html,
-        re.IGNORECASE,
-    ):
-        hreflang_links.append({"hreflang": match.group(2), "href": match.group(1)})
+    soup = BeautifulSoup(html, "lxml")
+    hreflang_links = [
+        {"hreflang": str(tag.get("hreflang", "")), "href": str(tag.get("href", ""))}
+        for tag in soup.find_all("link")
+        if "alternate" in [str(rel).lower() for rel in tag.get("rel", [])]
+        and tag.has_attr("hreflang")
+    ]
+    if not hreflang_links:
+        return [], {"url": url, "hreflang_links": [], "hreflang_count": 0,
+                    "limitation": "No multilingual annotations declared; reciprocity not fetched."}
+
+    invalid = []
+    valid_links = []
+    for link in hreflang_links:
+        lang = link["hreflang"].strip().lower()
+        try:
+            target = urlsplit(urljoin(url, link["href"]))
+            valid = bool(link["href"].strip()) and target.scheme in {"http", "https"} and bool(target.hostname)
+        except ValueError:
+            valid = False
+        if not valid or not re.fullmatch(r"(?:x-default|[a-z]{2,3}(?:-[a-z0-9]{2,8})*)", lang):
+            invalid.append(link)
+        else:
+            valid_links.append(link)
+    if invalid:
+        findings.append(Finding(
+            "hreflang-invalid", "Invalid hreflang annotation", f"{len(invalid)} invalid annotations",
+            "medium", url, check="hreflang", evidence_source="dom:link[rel=alternate]",
+            observed=str(invalid), remediation_action="Use valid language tags and HTTP(S) targets.",
+        ))
+    hreflang_links = valid_links
 
     # Deduplicate by hreflang
     seen: dict[str, str] = {}
@@ -46,6 +63,8 @@ def analyse_html(html: str, url: str, headers: dict) -> tuple[list[Finding], dic
             {"hreflang": lang, "href": href} for lang, href in seen.items()
         ],
         "hreflang_count": len(seen),
+        "invalid_links": invalid,
+        "limitation": "Declared annotations only; cross-page reciprocity was not fetched.",
     }
 
     # Check for x-default (recommended for multilingual sites)
@@ -73,10 +92,10 @@ def analyse_html(html: str, url: str, headers: dict) -> tuple[list[Finding], dic
     self_ref = None
     for lang, href in seen.items():
         try:
-            host = (urlsplit(href).hostname or "").lower().removeprefix("www.")
+            host = (urlsplit(urljoin(url, href)).hostname or "").lower().removeprefix("www.")
         except Exception:
             continue
-        if host == canonical_host:
+        if host == canonical_host and urljoin(url, href).split("#")[0] == url.split("#")[0]:
             self_ref = lang
             break
 
@@ -90,7 +109,7 @@ def analyse_html(html: str, url: str, headers: dict) -> tuple[list[Finding], dic
                 url,
                 check="hreflang",
                 evidence_source="dom:link[rel=alternate][hreflang]",
-                observed="No hreflang link has the same host as this page",
+                observed="No hreflang link points to this page URL",
                 business_impact="Search engines may not recognise this page as the "
                 "canonical version for its language.",
                 remediation_action="Add an hreflang link for this page's language that "

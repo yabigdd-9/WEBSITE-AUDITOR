@@ -25,7 +25,8 @@ def analyse_html(html: str, url: str, headers: dict) -> tuple[list[Finding], dic
     evidence["inline_script_count"] = len(inline_scripts)
 
     # Check for document.write (deprecates, can block parsing)
-    if re.search(r"document\.write\s*\(", html):
+    script_source = "\n".join(inline_scripts)
+    if re.search(r"document\.write\s*\(", script_source):
         findings.append(
             Finding(
                 "console-document-write",
@@ -45,12 +46,6 @@ def analyse_html(html: str, url: str, headers: dict) -> tuple[list[Finding], dic
             )
         )
         evidence["patterns"]["document_write"] = True
-
-    # Check for synchronous XHR (deprecated, blocks main thread)
-    if re.search(r"new\s+XMLHttpRequest\s*\(\s*\)", html) and not re.search(
-        r"\.open\s*\(\s*['\"]get|\.open\s*\(\s*['\"]post", html
-    ):
-        pass  # Only flag if synchronous pattern is clear
 
     # Check for http:// resources on https:// pages (mixed content warnings)
     if url.startswith("https://"):
@@ -77,15 +72,9 @@ def analyse_html(html: str, url: str, headers: dict) -> tuple[list[Finding], dic
             )
             evidence["patterns"]["mixed_content"] = http_resources
 
-    # Check for potential ReferenceError anti-patterns
-    if re.search(r"jQuery\s*\$", html) and not re.search(
-        r"(?:jQuery|\$)\s*\(\s*function", html
-    ):
-        pass  # jQuery short alias without document ready — informational only
-
     # Check for console.error / console.warn that may indicate known issues
     console_logs = re.findall(
-        r"console\.(error|warn|trace)\s*\(\s*['\"]([^'\"]+)['\"]", html, re.IGNORECASE
+        r"console\.(error|warn|trace)\s*\(\s*['\"]([^'\"]+)['\"]", script_source, re.IGNORECASE
     )
     if console_logs:
         evidence["console_log_calls"] = [
@@ -93,3 +82,19 @@ def analyse_html(html: str, url: str, headers: dict) -> tuple[list[Finding], dic
         ]
 
     return findings, evidence
+
+
+def analyse_rendered(data: dict, url: str) -> tuple[list[Finding], dict[str, Any]]:
+    """Use captured browser events; absent capture is an execution failure."""
+    if not isinstance(data.get("console_errors"), list):
+        raise ValueError("Browser console capture unavailable")
+    errors = data["console_errors"]
+    if not all(isinstance(error, str) for error in errors):
+        raise ValueError("Malformed browser console capture")
+    findings = [Finding(
+        "browser-console-error", "Browser JavaScript error", error, "medium", url,
+        check="browser_console", evidence_source="browser:pageerror/console.error",
+        observed=error, remediation_action="Investigate the captured JavaScript error.",
+    ) for error in sorted(set(errors))]
+    return findings, {"url": url, "errors": errors,
+                      "limitation": "Bounded lab visit; later interactions are not covered."}

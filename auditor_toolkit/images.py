@@ -3,7 +3,6 @@ Image optimization analysis.
 """
 from __future__ import annotations
 
-import re
 from typing import Any
 from urllib.parse import urlsplit
 
@@ -16,10 +15,9 @@ def analyse_html(html: str, url: str, headers: dict) -> tuple[list[Finding], dic
     origin = urlsplit(url)
     canonical_host = (origin.hostname or "").lower().removeprefix("www.")
 
-    # Extract img tags
-    img_tags = re.findall(
-        r"<img\b([^>]*?)>", html, re.IGNORECASE | re.DOTALL
-    )
+    from bs4 import BeautifulSoup
+
+    img_tags = BeautifulSoup(html, "lxml").find_all("img")
     evidence: dict[str, Any] = {
         "url": url,
         "image_count": len(img_tags),
@@ -31,20 +29,13 @@ def analyse_html(html: str, url: str, headers: dict) -> tuple[list[Finding], dic
     }
 
     for tag in img_tags:
-        src_match = re.search(r"""src=["']([^"']+)["']""", tag, re.IGNORECASE)
-        alt_match = re.search(r"""alt=["']([^"']*)["']""", tag, re.IGNORECASE)
-        width_match = re.search(r"""width=["'](\d+)["']""", tag, re.IGNORECASE)
-        height_match = re.search(r"""height=["'](\d+)["']""", tag, re.IGNORECASE)
-        loading_match = re.search(r"""loading=["'](\w+)["']""", tag, re.IGNORECASE)
-
-        src = src_match.group(1) if src_match else ""
-        alt = alt_match.group(1) if alt_match else None
-
-        if alt is None or not alt.strip():
+        src = str(tag.get("src", ""))
+        if not tag.has_attr("alt"):
             evidence["missing_alt"] += 1
-        if not width_match or not height_match:
+        dimensions = [str(tag.get(key, "")) for key in ("width", "height")]
+        if not all(value.isdigit() and int(value) > 0 for value in dimensions):
             evidence["missing_dimensions"] += 1
-        if not loading_match:
+        if not tag.has_attr("loading"):
             evidence["missing_loading"] += 1
         if src.startswith(("http://", "https://", "//")):
             try:
@@ -101,6 +92,7 @@ def analyse_html(html: str, url: str, headers: dict) -> tuple[list[Finding], dic
                 "low",
                 url,
                 check="images",
+                confidence="heuristic",
                 evidence_source="dom:img element",
                 observed=f"{evidence['missing_loading']} of {evidence['image_count']} images lack a loading attribute",
                 business_impact="Images without loading=\"lazy\" may delay page "

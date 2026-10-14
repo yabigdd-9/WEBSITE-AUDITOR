@@ -17,63 +17,40 @@ def analyse_html(html: str, url: str, headers: dict) -> tuple[list[Finding], dic
     canonical_host = (origin.hostname or "").lower().removeprefix("www.")
     is_nz = canonical_host.endswith(".nz")
 
-    # Detect html lang attribute
-    lang_match = re.search(
-        r'<html\b[^>]*\blang=["\']([a-zA-Z]{2,3}(?:-[a-zA-Z0-9]{2,8})?)["\']',
-        html,
-        re.IGNORECASE,
-    )
-    detected_lang = lang_match.group(1).lower() if lang_match else None
+    from bs4 import BeautifulSoup
 
-    # Detect content language via meta
-    content_lang_match = re.search(
-        r'<meta\b[^>]*http-equiv=["\']content-language["\'][^>]*content=["\']([^"\']+)["\']',
-        html,
-        re.IGNORECASE,
-    )
-    content_lang = content_lang_match.group(1) if content_lang_match else None
+    soup = BeautifulSoup(html, "lxml")
+    raw_lang = str(soup.html.get("lang", "")) if soup.html else ""
+    detected_lang = raw_lang.strip().lower() or None
+    if detected_lang and not re.fullmatch(r"[a-z]{2,3}(?:-[a-z0-9]{2,8})*", detected_lang):
+        detected_lang = None
+    meta = next((tag for tag in soup.find_all("meta")
+                 if str(tag.get("http-equiv", "")).lower() == "content-language"), None)
+    content_lang = str(meta.get("content", "")).strip() if meta else None
 
     evidence = {
         "url": url,
         "html_lang": detected_lang,
         "meta_content_language": content_lang,
         "is_nz_domain": is_nz,
+        "limitation": "Declared language only; content language is not inferred from the domain.",
     }
 
     if not detected_lang:
         findings.append(
             Finding(
-                "missing-html-lang",
+                "invalid-html-lang" if raw_lang.strip() else "missing-html-lang",
                 "Missing html lang attribute",
                 "No <html lang=\"...\"> attribute found",
                 "medium",
                 url,
                 check="language",
                 evidence_source="dom:html element",
-                observed="No lang attribute on the <html> element",
+                observed=f"Invalid lang declaration: {raw_lang}" if raw_lang.strip() else "No lang attribute on the <html> element",
                 business_impact="Screen readers and browsers cannot determine the "
                 "page language; accessibility and SEO suffer.",
                 remediation_action='Add a lang attribute to the <html> element, e.g. <html lang="en">',
                 remediation_automation="AUTO_PREVIEW",
-                effort_band="XS",
-            )
-        )
-
-    if is_nz and detected_lang and detected_lang != "en":
-        findings.append(
-            Finding(
-                "nz-domain-non-en-lang",
-                "NZ domain with non-English lang",
-                f"Domain .nz but lang={detected_lang}",
-                "low",
-                url,
-                check="language",
-                evidence_source="dom:html element",
-                observed=f"<html lang=\"{detected_lang}\"> on a .nz domain",
-                business_impact="NZ businesses typically serve English-speaking "
-                "customers; a non-English lang may be intentional but should be reviewed.",
-                remediation_action="Confirm the language is intentional for this NZ audience.",
-                remediation_automation="HUMAN_REVIEW",
                 effort_band="XS",
             )
         )
