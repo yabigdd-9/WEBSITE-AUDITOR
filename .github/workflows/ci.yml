@@ -109,6 +109,10 @@ jobs:
             money-machine/test_recurring_discovery.py \
             money-machine/test_observability_discovery.py \
             money-machine/test_launchd.py \
+            money-machine/test_runtime_bootstrap.py \
+            money-machine/test_runtime_readiness.py \
+            money-machine/test_pipeline_loop.py \
+            money-machine/test_email_hardening.py::HardeningEvidence \
             money-machine/test_scanning_activation.py \
             money-machine/test_email_finder.py \
             money-machine/test_pipeline.py \

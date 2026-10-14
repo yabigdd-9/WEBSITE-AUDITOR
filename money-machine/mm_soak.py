@@ -51,12 +51,47 @@ def supervisor_processes():
         fields = line.strip().split(None, 2)
         if len(fields) != 3 or fields[1].startswith("Z"):
             continue
-        if "supervisor.cli" not in fields[2] or "_run-foreground" not in fields[2]:
+        if "_run-foreground" not in fields[2] or not any(
+            marker in fields[2] for marker in ("supervisor.cli", "runtime_bootstrap.py")
+        ):
             continue
         tokens = shlex.split(fields[2])
-        if "supervisor.cli" in tokens and "_run-foreground" in tokens:
-            processes.append({"pid": int(fields[0]), "interpreter": tokens[0]})
+        legacy = "supervisor.cli" in tokens and "_run-foreground" in tokens
+        boot = str(ROOT / "money-machine/runtime_bootstrap.py") in tokens and "_run-foreground" in tokens
+        if legacy or boot:
+            expected = None
+            if boot and "--expected-sha" in tokens:
+                index = tokens.index("--expected-sha") + 1
+                expected = tokens[index] if index < len(tokens) else None
+            processes.append({"pid": int(fields[0]), "interpreter": tokens[0],
+                              "attested_bootstrap": boot and "-I" in tokens,
+                              "expected_sha": expected})
     return processes
+
+
+def startup_attestation():
+    """Read the process-owned execution receipt; retain no code or credentials."""
+    pid = int((ROOT / "state/supervisor.pid").read_text())
+    path = ROOT / "state/runtime-startup" / (str(pid) + ".json")
+    raw = path.read_bytes()
+    receipt = json.loads(raw)
+    modules = receipt.get("modules")
+    if not isinstance(modules, list) or not modules:
+        raise ValueError("Startup module evidence unavailable")
+    required = {"money-machine/runtime_bootstrap.py", "money-machine/supervisor/cli.py", "money-machine/mm_core.py"}
+    observed = set()
+    for entry in modules:
+        relative = entry.get("path", "")
+        source = (ROOT / relative).resolve()
+        if (not source.is_relative_to(ROOT.resolve()) or not relative.endswith(".py")
+                or not source.is_file() or hashlib.sha256(source.read_bytes()).hexdigest() != entry.get("sha256")):
+            raise ValueError("Startup source evidence changed or invalid")
+        observed.add(relative)
+    return {"verified": receipt.get("status") == "IMPORTS_VERIFIED" and required <= observed,
+            "pid": receipt.get("pid"), "expected_sha": receipt.get("expected_sha"),
+            "python_executable": receipt.get("python_executable"),
+            "isolated_python": receipt.get("isolated_python") is True,
+            "module_count": len(modules), "receipt_sha256": hashlib.sha256(raw).hexdigest()}
 
 
 def service_config():
@@ -101,6 +136,7 @@ def collect_sample(label="sample"):
                 "monitor_python": sys.executable, "errors": {}}
     readers = {
         "git": git_info,
+        "startup_attestation": startup_attestation,
         "supervisor_processes": supervisor_processes,
         "config": service_config,
         "db": database_diagnostics,
@@ -144,6 +180,13 @@ def detect_violations(snapshot, baseline=None, previous=None,
         violations.append("supervisor count or pidfile ownership mismatch")
     elif procs[0].get("interpreter") != PY:
         violations.append("supervisor interpreter differs from project virtualenv")
+    startup = snapshot.get("startup_attestation") or {}
+    if (startup.get("verified") is not True or startup.get("pid") != pid
+            or startup.get("expected_sha") != git.get("sha")
+            or startup.get("python_executable") != PY or startup.get("isolated_python") is not True
+            or not procs or procs[0].get("attested_bootstrap") is not True
+            or procs[0].get("expected_sha") != git.get("sha")):
+        violations.append("loaded revision execution attestation missing or invalid")
     if not snapshot.get("launchd_running"):
         violations.append("launchd does not own the running supervisor")
     config = snapshot.get("config") or {}

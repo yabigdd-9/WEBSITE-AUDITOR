@@ -139,7 +139,8 @@ def sample(seconds=0):
     return {
         "collected_at_utc": timestamp, "errors": {},
         "git": {"sha": "a" * 40, "branch": "synthetic", "working_tree_clean": True},
-        "supervisor_processes": [{"pid": 42, "interpreter": soak.PY}],
+        "supervisor_processes": [{"pid": 42, "interpreter": soak.PY, "attested_bootstrap": True, "expected_sha": "a" * 40}],
+        "startup_attestation": {"verified": True, "pid": 42, "expected_sha": "a" * 40, "python_executable": soak.PY, "isolated_python": True},
         "pidfile": 42, "launchd_running": True,
         "config": {"external_send_disabled": "1", "program": soak.PY,
                    "root": str(soak.ROOT), "working_directory": str(soak.ROOT / "money-machine")},
@@ -153,6 +154,8 @@ def sample(seconds=0):
 
 @pytest.mark.parametrize("change,fragment", [
     ({"accounting": None}, "accounting unavailable"),
+    ({"startup_attestation": None}, "execution attestation"),
+    ({"startup_attestation": {"verified": False}}, "execution attestation"),
     ({"heartbeat": None}, "heartbeat evidence"),
     ({"heartbeat": {"at": "2025-12-31T23:50:00+00:00", "pid": 42, "status": "running"}},
      "heartbeat stale"),
@@ -220,6 +223,7 @@ def test_heartbeat_advancing_during_collection_is_not_falsely_stale(tmp_path, mo
     (state / "supervisor.pid").write_text("42")
     for name, field in (
         ("git_info", "git"), ("supervisor_processes", "supervisor_processes"),
+        ("startup_attestation", "startup_attestation"),
         ("service_config", "config"), ("database_diagnostics", "db"),
     ):
         monkeypatch.setattr(soak, name, lambda key=field: valid[key])
@@ -233,3 +237,44 @@ def test_heartbeat_advancing_during_collection_is_not_falsely_stale(tmp_path, mo
     assert result["sampling_started_at_utc"] == sample(0)["collected_at_utc"]
     assert result["collected_at_utc"] == valid["collected_at_utc"]
     assert soak.detect_violations(result) == []
+
+
+def test_startup_receipt_checks_current_module_bytes_and_failure_state(tmp_path, monkeypatch):
+    import hashlib
+    monkeypatch.setattr(soak, "ROOT", tmp_path)
+    state = tmp_path / "state/runtime-startup"
+    state.mkdir(parents=True)
+    (tmp_path / "state/supervisor.pid").write_text("42")
+    records = []
+    for relative in ("money-machine/runtime_bootstrap.py", "money-machine/supervisor/cli.py", "money-machine/mm_core.py"):
+        path = tmp_path / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('VALUE = "synthetic"\n')
+        records.append({"path": relative, "sha256": hashlib.sha256(path.read_bytes()).hexdigest()})
+    receipt = {"pid": 42, "status": "IMPORTS_VERIFIED", "expected_sha": "a" * 40,
+               "python_executable": soak.PY, "isolated_python": True, "modules": records}
+    path = state / "42.json"
+    path.write_text(json.dumps(receipt))
+    assert soak.startup_attestation()["verified"] is True
+    receipt["status"] = "FAILED"
+    path.write_text(json.dumps(receipt))
+    assert soak.startup_attestation()["verified"] is False
+    (tmp_path / "money-machine/mm_core.py").write_text('VALUE = "changed"\n')
+    with pytest.raises(ValueError, match="changed or invalid"):
+        soak.startup_attestation()
+
+
+def test_soak_recognizes_attested_entry_without_accepting_shell_text(monkeypatch):
+    command = f'{soak.PY} -I {soak.ROOT}/money-machine/runtime_bootstrap.py --expected-sha {"a" * 40} -- _run-foreground'
+    monkeypatch.setattr(soak, "run", lambda args: f'44 S {command}\n45 S /bin/sh -c "{command}"\n')
+    processes = soak.supervisor_processes()
+    assert len(processes) == 1
+    assert processes[0]["pid"] == 44
+    assert processes[0]["attested_bootstrap"] is True
+    assert processes[0]["expected_sha"] == "a" * 40
+
+
+def test_soak_rejects_an_attestation_from_a_different_revision():
+    current = sample()
+    current["startup_attestation"]["expected_sha"] = "b" * 40
+    assert any("execution attestation" in error for error in soak.detect_violations(current))
