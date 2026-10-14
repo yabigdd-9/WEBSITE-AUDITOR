@@ -1,0 +1,50 @@
+{
+  "generated_at": "2026-10-14T10:11:33.365064+00:00",
+  "phase": "P2",
+  "blueprints_dir": "/Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/demo_blueprints",
+  "production_written": false,
+  "outbound_messages_sent": 0,
+  "blueprints_created": 5,
+  "details": [
+    {
+      "business_id": 14,
+      "name": "Butterfield Bathrooms",
+      "url": "https://www.butterfieldbathrooms.co.nz/",
+      "audit_id": 7,
+      "blueprint_path": "/Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/demo_blueprints/business-14-20261014T101133Z.md",
+      "status": "REVIEW_ONLY_NOT_DEPLOYED"
+    },
+    {
+      "business_id": 13,
+      "name": "Christchurch Renovations",
+      "url": "https://www.chchrenovations.nz/",
+      "audit_id": 6,
+      "blueprint_path": "/Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/demo_blueprints/business-13-20261014T101133Z.md",
+      "status": "REVIEW_ONLY_NOT_DEPLOYED"
+    },
+    {
+      "business_id": 12,
+      "name": "Superior Renovations",
+      "url": "https://superiorrenovations.co.nz/",
+      "audit_id": 5,
+      "blueprint_path": "/Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/demo_blueprints/business-12-20261014T101133Z.md",
+      "status": "REVIEW_ONLY_NOT_DEPLOYED"
+    },
+    {
+      "business_id": 4,
+      "name": "ATL Heat Pumps",
+      "url": "https://www.atlelectrical.co.nz/heat-pumps",
+      "audit_id": 4,
+      "blueprint_path": "/Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/demo_blueprints/business-4-20261014T101133Z.md",
+      "status": "REVIEW_ONLY_NOT_DEPLOYED"
+    },
+    {
+      "business_id": 3,
+      "name": "Trident Electrical & Air Conditioning",
+      "url": "https://trident.nz/heat-pumps",
+      "audit_id": 3,
+      "blueprint_path": "/Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/demo_blueprints/business-3-20261014T101133Z.md",
+      "status": "REVIEW_ONLY_NOT_DEPLOYED"
+    }
+  ]
+}

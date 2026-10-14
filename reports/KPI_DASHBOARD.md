@@ -1,10 +1,10 @@
 # Evidence-based KPI snapshot
 
 {
-  "real_prospects": 39,
+  "real_prospects": 366,
   "fresh_legacy_observation_prospects": 0,
   "independently_verified_current_claims": 0,
-  "prospects_without_any_evidence": 25,
+  "prospects_without_any_evidence": 346,
   "verified_sends": 0,
   "verified_replies": 0,
   "legacy_claimed_sends_unverified": 3,
@@ -22,4 +22,4 @@
   "historical_billing_status": "Not reconciled against provider statements; zero ledger values are not proof of historical zero spend"
 }
 
-Stages: {"AUDITED": 3, "DISCOVERED": 12, "SUPPRESSED": 3}
+Stages: {"AUDITED": 5, "DISCOVERED": 355, "SUPPRESSED": 3}

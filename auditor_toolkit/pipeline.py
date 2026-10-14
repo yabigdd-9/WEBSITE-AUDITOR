@@ -143,8 +143,6 @@ def run_audit(url, options=None, fetcher=None):
             started = time.perf_counter()
             try:
                 found, data = fn()
-            except Exception:
-                raise
             finally:
                 elapsed = time.perf_counter() - started
             return found, data, elapsed
