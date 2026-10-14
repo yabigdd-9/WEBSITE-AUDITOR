@@ -11,21 +11,18 @@ No network calls to hosted services.
 
 import json
 import os
-import sys
 import sqlite3
-from pathlib import Path
+import sys
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-os.chdir(PROJECT_ROOT)
 
 STATE_DIR = PROJECT_ROOT / "state" / "hermes_zero_token"
 REPORTS_DIR = PROJECT_ROOT / "reports" / "hermes_zero_token"
 DB_PATH = PROJECT_ROOT / "database" / "money_machine.db"
 
-STATE_DIR.mkdir(parents=True, exist_ok=True)
-REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Zero-token env enforcement
 os.environ["HERMES_ZERO_TOKEN_MODE"] = "ZERO_LLM"
@@ -52,13 +49,13 @@ def db_query(sql: str, params=tuple()) -> list:
         conn.close()
 
 
-def _safe_int(query: str, params=tuple()) -> int:
-    """Run a count query and return 0 on any error."""
+def _safe_int(query: str, params=tuple()) -> int | None:
+    """Unavailable accounting remains unknown rather than becoming zero."""
     try:
         rows = db_query(query, params)
         return int(rows[0][0]) if rows else 0
-    except Exception:
-        return 0
+    except (sqlite3.Error, ValueError, TypeError):
+        return None
 
 
 def collect_metrics() -> dict[str, Any]:
@@ -108,10 +105,12 @@ def collect_metrics() -> dict[str, Any]:
                 if rec.get("event") == "complete":
                     if rec.get("status") == "completed":
                         scripts_succeeded += 1
-                    elif rec.get("status") in ("failed", "error"):
+                    elif rec.get("status") in ("failed", "error", "timeout", "blocked"):
                         scripts_failed += 1
             except json.JSONDecodeError:
                 pass
+    metrics["script_counts_scope"] = "cumulative retained audit log"
+    metrics["test_counts_scope"] = "worker runs, not individual pytest cases"
     metrics["scripts_succeeded"] = scripts_succeeded
     metrics["scripts_failed"] = scripts_failed
 
@@ -122,10 +121,10 @@ def collect_metrics() -> dict[str, Any]:
         for line in reversed(audit_log.read_text().splitlines()):
             try:
                 rec = json.loads(line)
-                if rec.get("worker_id") == "testing_worker" and rec.get("event") == "complete":
+                if rec.get("worker_id") in {"testing", "testing_worker"} and rec.get("event") == "complete":
                     if rec.get("status") == "completed":
                         metrics["test_passed"] = metrics.get("test_passed", 0) + 1
-                    elif rec.get("status") in ("failed", "error"):
+                    elif rec.get("status") in ("failed", "error", "timeout", "blocked"):
                         metrics["test_failed"] = metrics.get("test_failed", 0) + 1
             except json.JSONDecodeError:
                 pass
@@ -140,17 +139,20 @@ def collect_metrics() -> dict[str, Any]:
     )
 
     # DB has CHECK(cost_usd=0), so this is provably zero
-    metrics["estimated_paid_cost_nzd"] = 0.0
+    metrics["estimated_paid_cost_nzd"] = (0.0 if metrics["paid_model_calls"] == 0 else None)
 
     metrics["outbound_messages_sent"] = _safe_int(
         "SELECT count(*) FROM mm_messages WHERE sent_at IS NOT NULL OR send_receipt IS NOT NULL"
     )
 
+    metrics["attestation_complete"] = all(metrics[key] is not None for key in (
+        "host_model_calls", "paid_model_calls", "outbound_messages_sent"))
     return metrics
 
 
 def write_daily_report(metrics: dict[str, Any]) -> Path:
     """Write DAILY_REPORT_YYYY-MM-DD.md to reports/hermes_zero_token/."""
+    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     date_str = _now_date()
     report_path = REPORTS_DIR / f"DAILY_REPORT_{date_str}.md"
     metrics_path = REPORTS_DIR / "daily_metrics.json"
@@ -162,11 +164,12 @@ def write_daily_report(metrics: dict[str, Any]) -> Path:
 
     # Write human-readable markdown report
     attestation_ok = (
-        metrics["host_model_calls"] == 0
+        metrics.get("attestation_complete", False)
+        and metrics["host_model_calls"] == 0
         and metrics["paid_model_calls"] == 0
         and metrics["outbound_messages_sent"] == 0
     )
-    attestation_str = "✅ PASS — all zero-token counts are zero" if attestation_ok else "❌ FAIL — non-zero count detected"
+    attestation_str = "✅ PASS — all zero-token counts are zero" if attestation_ok else "❌ FAIL — non-zero or unavailable accounting"
 
     lines = [
         f"# Daily Report — {date_str}",
@@ -199,6 +202,7 @@ def write_daily_report(metrics: dict[str, Any]) -> Path:
         f"- `duplicate_candidates_count` = {metrics['duplicate_candidates_count']}",
         "",
         "## Worker/Script Health",
+        "Counts cover the retained cumulative audit log; tests count worker runs, not pytest cases.",
         "",
         f"- `scripts_succeeded` = {metrics['scripts_succeeded']}",
         f"- `scripts_failed` = {metrics['scripts_failed']}",

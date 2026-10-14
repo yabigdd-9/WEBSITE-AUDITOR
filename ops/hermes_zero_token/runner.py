@@ -17,24 +17,21 @@ import os
 import subprocess
 import sys
 import time
-import yaml
-from pathlib import Path
 from datetime import datetime, timezone
+from pathlib import Path
+
+import yaml
 
 # ---------------------------------------------------------------------------
 # Paths and constants
 # ---------------------------------------------------------------------------
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-os.chdir(PROJECT_ROOT)
 
 STATE_DIR = PROJECT_ROOT / "state" / "hermes_zero_token"
 REPORTS_DIR = PROJECT_ROOT / "reports" / "hermes_zero_token"
 AUDIT_LOG = STATE_DIR / "audit.jsonl"
 
-# Ensure state and reports directories exist
-STATE_DIR.mkdir(parents=True, exist_ok=True)
-REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Zero-token environment values (always enforced)
 ZERO_TOKEN_ENV = {
@@ -42,6 +39,7 @@ ZERO_TOKEN_ENV = {
     "HERMES_ALLOW_HOSTED_LLM": "0",
     "HERMES_ALLOW_PAID_FALLBACK": "0",
     "WEBSITE_AUDITOR_OUTREACH_SEND": "0",
+    "MM_EXTERNAL_SEND_DISABLED": "1",
 }
 
 # Emergency kill switch
@@ -66,6 +64,7 @@ def _log_audit(worker_id, event, status="ok", task_id="", extra=None):
     }
     if extra:
         record.update(extra)
+    AUDIT_LOG.parent.mkdir(parents=True, exist_ok=True)
     with open(AUDIT_LOG, "a") as f:
         f.write(json.dumps(record, default=str) + "\n")
 
@@ -88,7 +87,7 @@ def run_mm_command(command, *args, timeout=180):
     mm_venv = PROJECT_ROOT / ".venv-email" / "bin" / "python"
     if not mm_venv.exists():
         mm_venv = PROJECT_ROOT / ".venv" / "bin" / "python"
-    
+
     cmd = [str(mm_venv), str(PROJECT_ROOT / "money-machine" / "mm_operator.py"), command] + list(args)
     result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
     return result.returncode, result.stdout, result.stderr
@@ -99,9 +98,9 @@ def run_toolkit_test(*args):
     venv_python = PROJECT_ROOT / ".venv" / "bin" / "python"
     if not venv_python.exists():
         venv_python = PROJECT_ROOT / ".venv-email" / "bin" / "python"
-    
+
     cmd = [str(venv_python), "-m", "pytest"] + list(args)
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    result = subprocess.run(cmd, cwd=PROJECT_ROOT, capture_output=True, text=True, timeout=300)
     return result.returncode, result.stdout, result.stderr
 
 
@@ -156,7 +155,7 @@ def run_identity_resolution():
 
 def run_site_auditor():
     """Run site auditor: audit existing businesses using mm audit-backfill.
-    
+
     Reuses the existing mm_operator.py audit-backfill command, which runs
     the auditor_toolkit audit handler (browser=False, ai=False) on existing
     businesses with known public websites. This is the tested, safe path.
@@ -166,7 +165,7 @@ def run_site_auditor():
 
 def run_scoring_judge():
     """Run scoring judge: process pending qualification items via the existing pipeline.
-    
+
     The supervisor already processes QUALIFICATION_PENDING items on its 5s loop.
     This cron worker acts as an independent health check by verifying the
     mm_workers qualification handler exists and is callable with deterministic
@@ -191,7 +190,7 @@ def run_scoring_judge():
 
 def run_evidence_proofer():
     """Run evidence QA: verify the mm_evidence table has consistent records.
-    
+
     The supervisor already runs the qa_handler on QA_PENDING items. This cron
     worker independently verifies that evidence records have source URLs,
     timestamps, and hashes — no fabricated or altered proof.
@@ -251,7 +250,7 @@ def run_screenshot_worker():
     """Run screenshot worker: capture desktop and mobile viewport on public pages."""
     print("Screenshot worker: placeholder - no direct command available")
     print("Use auditor_toolkit with browser=True for screenshots (not in zero-token mode).")
-    return 0, "Screenshot worker: placeholder - no implementation yet\n", ""
+    return 3, "Screenshot worker: placeholder - no implementation yet\n", ""
 
 
 def run_testing_worker():
@@ -274,32 +273,32 @@ def run_git_observer():
         output += "git status stderr: " + result1.stderr
     if result2.stderr:
         output += "git worktree stderr: " + result2.stderr
-    return 0, output, ""
+    return result1.returncode or result2.returncode, output, ""
 
 
 def run_competitor_research():
     """Run public competitor-feature inventory."""
     print("Competitor research worker: placeholder - no implementation yet")
-    return 0, "Competitor research worker: placeholder - no implementation yet\n", ""
+    return 3, "Competitor research worker: placeholder - no implementation yet\n", ""
 
 
 def run_demo_blueprint():
     """Run review-only demo briefs."""
     print("Demo blueprint worker: placeholder - no implementation yet")
-    return 0, "Demo blueprint worker: placeholder - no implementation yet\n", ""
+    return 3, "Demo blueprint worker: placeholder - no implementation yet\n", ""
 
 
 def run_outreach_draft():
     """Run human-review-only personalized pitches."""
     print("Outreach draft worker: placeholder - no implementation yet")
     print("No outreach is sent. Drafts are review-only.")
-    return 0, "Outreach draft worker: placeholder - no outreach sent\n", ""
+    return 3, "Outreach draft worker: placeholder - no outreach sent\n", ""
 
 
 def run_weekly_review():
     """Run weekly quality and value review."""
     print("Weekly review worker: placeholder - no implementation yet")
-    return 0, "Weekly review worker: placeholder - no implementation yet\n", ""
+    return 3, "Weekly review worker: placeholder - no implementation yet\n", ""
 
 
 def run_provider_monitor():
@@ -317,7 +316,7 @@ def run_daily_report():
     )
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
-    return 0, mod.main() or "", ""
+    return mod.main(), "", ""
 
 
 # ---------------------------------------------------------------------------
@@ -357,32 +356,39 @@ WORKER_MAP = {
 
 def handle_worker(worker_id, dry_run=False):
     """Handle a specific worker ID with audit logging."""
+    _enforce_zero_token()
     start = time.monotonic()
     start_iso = _now_iso()
-    
+
     if dry_run:
         msg = f"[DRY-RUN] Would run worker: {worker_id}"
         print(msg)
         _log_audit(worker_id, "dry_run", "skipped", extra={"duration_ms": int((time.monotonic() - start) * 1000)})
         return 0
-    
+
     _log_audit(worker_id, "start", "running", extra={"started_at": start_iso})
-    
+
     if worker_id not in WORKER_MAP:
         msg = f"Unknown worker: {worker_id}"
         print(msg, file=sys.stderr)
         _log_audit(worker_id, "complete", "error", extra={"duration_ms": int((time.monotonic() - start) * 1000), "error": msg})
         return 1
-    
+
+    if worker_id in {"discovery-cycle", "discover-batch", "daily", "queue_dispatcher",
+                     "identity_resolution", "site_auditor", "discover_nz_businesses"}:
+        _log_audit(worker_id, "complete", "blocked", extra={"exit_code": 3,
+                   "error": "Live database mutations require a separately approved staging workflow"})
+        return 3
+
     try:
         returncode, stdout, stderr = WORKER_MAP[worker_id]()
         duration_ms = int((time.monotonic() - start) * 1000)
-        
+
         if stdout:
             print(stdout, end="")
         if stderr:
             print(stderr, file=sys.stderr, end="")
-        
+
         status = "completed" if returncode == 0 else "failed"
         _log_audit(
             worker_id, "complete", status,
@@ -391,10 +397,10 @@ def handle_worker(worker_id, dry_run=False):
         return returncode
     except subprocess.TimeoutExpired:
         duration_ms = int((time.monotonic() - start) * 1000)
-        msg = f"Worker timed out after bounded window; will resume on next cron run"
+        msg = "Worker timed out after bounded window; will resume on next cron run"
         print(msg, file=sys.stderr)
-        _log_audit(worker_id, "complete", "timeout", extra={"duration_ms": duration_ms, "error": msg})
-        return 0  # timeout is expected for bounded workers; cron will retry
+        _log_audit(worker_id, "complete", "timeout", extra={"duration_ms": duration_ms, "exit_code": 124, "error": msg})
+        return 124  # incomplete work must not be reported as successful
     except Exception as ex:
         duration_ms = int((time.monotonic() - start) * 1000)
         msg = f"{type(ex).__name__}: {ex}"
@@ -407,16 +413,16 @@ def main():
     parser = argparse.ArgumentParser(description="HERMES_ZERO_TOKEN Worker Runner")
     parser.add_argument("--worker", required=True, help="Worker ID to run")
     parser.add_argument("--dry-run", action="store_true", help="Run in dry-run mode")
-    
+
     args = parser.parse_args()
-    
+
     # Enforce zero-token environment BEFORE any work
     _enforce_zero_token()
-    
+
     worker_id = args.worker
     if worker_id.startswith("za_"):
         worker_id = worker_id[3:]
-    
+
     return handle_worker(worker_id, args.dry_run)
 
 

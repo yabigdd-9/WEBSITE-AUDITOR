@@ -8,16 +8,14 @@ These tests prove that the zero-token workforce:
   4. Maintains database integrity.
   5. Survives worker failure and recovery.
 
-All tests are deterministic and run against the real SQLite database in the
-project root. They do NOT make any network calls to hosted services.
+All database tests use disposable synthetic databases. No live discovery or
+network calls are performed. Host configuration checks are read-only.
 """
 
-import json
 import os
 import sqlite3
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -32,7 +30,21 @@ SCRIPTS_DIR = Path.home() / ".hermes" / "scripts"
 
 def _db():
     """Open a read-only connection to the production database."""
-    return sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True)
+    return sqlite3.connect(DB_PATH)
+
+
+@pytest.fixture(autouse=True)
+def isolated_database(tmp_path, monkeypatch):
+    monkeypatch.setattr(sys.modules[__name__], "DB_PATH", tmp_path / "fixture.db")
+    with _db() as db:
+        db.executescript("""
+        CREATE TABLE businesses(id INTEGER PRIMARY KEY, name TEXT);
+        INSERT INTO businesses VALUES(1, 'Synthetic fixture');
+        CREATE TABLE pipeline_items(id INTEGER PRIMARY KEY);
+        CREATE TABLE mm_model_invocations(cost_usd REAL CHECK(cost_usd=0));
+        CREATE TABLE mm_messages(sent_at TEXT, send_receipt TEXT);
+        CREATE TABLE mm_proposals(sent_at TEXT, send_receipt TEXT);
+        """)
 
 
 def _run_worker(worker_name):
@@ -162,34 +174,32 @@ class TestNoOutreach:
 class TestIdempotentDiscovery:
     """Acceptance: idempotent_discovery — run identical discovery batches twice, confirm no duplicates."""
 
-    def test_discovery_does_not_create_duplicate_hosts(self):
-        """Re-running discovery-cycle should report duplicates, not new inserts."""
-        env = dict(os.environ)
-        env["HERMES_ZERO_TOKEN_MODE"] = "ZERO_LLM"
-        env["HERMES_ALLOW_HOSTED_LLM"] = "0"
-        env["WEBSITE_AUDITOR_OUTREACH_SEND"] = "0"
-        
-        result = subprocess.run(
-            [sys.executable, "-c",
-             "import sys; sys.path.insert(0, r'%s/money-machine')"
-             % PROJECT_ROOT
-             + "\nfrom mm_core import connect\n"
-             + "import mm_recurring_discovery as rd\n"
-             + "import json\n"
-             + "with connect() as d:\n"
-             + "    result = rd.run_due(d, force=True)\n"
-             + "    print(json.dumps(result, default=str))"],
-            capture_output=True, text=True, env=env, timeout=120,
-        )
-        try:
-            output = json.loads(result.stdout.strip().split("\n")[-1])
-        except (json.JSONDecodeError, IndexError):
-            pytest.skip("discovery-cycle returned non-JSON output (likely offline)")
-        
-        intake = output.get("intake_counts", {})
-        assert intake.get("duplicates", 0) >= intake.get("inserted", 0), (
-            f"Discovery inserted more than it deduped: {intake}"
-        )
+    def test_discovery_does_not_create_duplicate_hosts(self, tmp_path, monkeypatch):
+        """Identical synthetic inputs create one business and one queue item."""
+        sys.path.insert(0, str(PROJECT_ROOT / "money-machine"))
+        import mm_discovery as discovery
+
+        with sqlite3.connect(":memory:") as db:
+            db.row_factory = sqlite3.Row
+            db.executescript("""
+            CREATE TABLE businesses(id INTEGER PRIMARY KEY, name TEXT, region TEXT,
+                public_website TEXT, source TEXT, discovered_at TEXT,
+                current_status TEXT, is_dummy INTEGER DEFAULT 0);
+            CREATE TABLE mm_deals(id INTEGER PRIMARY KEY, business_id INTEGER,
+                stage TEXT, updated_at TEXT);
+            CREATE TABLE mm_events(id INTEGER PRIMARY KEY, event_at TEXT,
+                action TEXT, business_id INTEGER, detail TEXT);
+            """)
+            discovery.mm_pipeline.migrate(db)
+            candidates = [{"name": "Synthetic", "region": "Fixturetown",
+                           "public_website": "https://fixture.example/",
+                           "canonical_host": "fixture.example", "source": "fixture"}]
+            first = discovery.ingest(db, candidates)
+            second = discovery.ingest(db, candidates)
+            assert len(first["inserted"]) == 1
+            assert len(second["inserted"]) == 0
+            assert db.execute("SELECT count(*) FROM businesses").fetchone()[0] == 1
+            assert db.execute("SELECT count(*) FROM pipeline_items").fetchone()[0] == 1
 
 
 class TestDBIntegrity:

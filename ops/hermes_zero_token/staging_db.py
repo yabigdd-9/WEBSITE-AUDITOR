@@ -17,7 +17,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-os.chdir(PROJECT_ROOT)
 
 PROD_DB = PROJECT_ROOT / "database" / "money_machine.db"
 STAGING_DIR = PROJECT_ROOT / "state" / "hermes_zero_token" / "staging"
@@ -37,7 +36,20 @@ def _now():
     return datetime.now(timezone.utc).isoformat()
 
 
+def _validate_staging_path():
+    production = PROD_DB.resolve()
+    staging = STAGING_DB.resolve()
+    if staging == production or not staging.is_relative_to(STAGING_DIR.resolve()):
+        raise ValueError("Staging database must be isolated from production")
+    for suffix in ("", "-wal", "-shm"):
+        candidate = STAGING_DB.with_name(STAGING_DB.name + suffix)
+        if candidate.is_symlink() or (candidate.exists() and production.exists()
+                                      and os.path.samefile(candidate, production)):
+            raise ValueError("Staging database aliases production")
+
+
 def snapshot_db():
+    _validate_staging_path()
     STAGING_DIR.mkdir(parents=True, exist_ok=True)
     for suffix in ("", "-wal", "-shm"):
         p = STAGING_DB.with_name(STAGING_DB.name + suffix)
@@ -103,6 +115,7 @@ def get_next_batch(db_path, batch_size):
 
 
 def run_audit_batch_staging(ids):
+    _validate_staging_path()
     code = (
         "import sys; sys.path.insert(0, r'%s/money-machine')" % PROJECT_ROOT
         + "\nfrom mm_core import connect\n"
@@ -175,6 +188,7 @@ def main():
     }
 
     conn = sqlite3.connect(f"file:{STAGING_DB}?mode=ro", uri=True)
+    conn.row_factory = sqlite3.Row
     report["staging_integrity"] = conn.execute("PRAGMA integrity_check").fetchone()[0]
     report["staging_foreign_key_violations"] = [dict(r) for r in conn.execute("PRAGMA foreign_key_check").fetchall()]
     conn.close()
@@ -188,7 +202,10 @@ def main():
 
     REPORT_PATH.write_text(json.dumps(report, indent=2, default=str))
     print(json.dumps(report, indent=2, default=str))
-    return 0
+    return 0 if (report.get("audit_returncode", 0) == 0
+                 and report["schema_validation"]["ok"]
+                 and report["staging_integrity"] == "ok"
+                 and not report["staging_foreign_key_violations"]) else 1
 
 
 if __name__ == "__main__":
