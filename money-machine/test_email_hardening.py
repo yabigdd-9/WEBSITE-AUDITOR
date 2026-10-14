@@ -13,8 +13,8 @@ import mm_email_cli as cli
 
 
 def frozen_case(cid):
-    doc=json.loads((ROOT/'reports/email-observation-evidence/cases'/f'{cid}.json').read_text())
-    pages=[e.parse_page(p,(ROOT/p['path']).read_bytes()) for p in doc['pages']]
+    doc=json.loads((ROOT.parent/'reports/email-observation-evidence/cases'/f'{cid}.json').read_text())
+    pages=[e.parse_page(p,(ROOT.parent/p['path']).read_bytes()) for p in doc['pages']]
     at=dt.datetime.fromisoformat(doc['result']['results'][0]['checked_at'])
     return doc,e.evaluate(doc['case']['business'],pages,doc['dns'],at=at)
 
@@ -24,14 +24,15 @@ from mm_test_capabilities import HAS_EMAIL_CASE_FIXTURES
 _CASES_ABSENT=("BLOCKED_FIXTURE: reports/email-observation-evidence/cases corpus "
                "not present in this environment")
 
-@unittest.skipUnless(HAS_EMAIL_CASE_FIXTURES,_CASES_ABSENT)
 class HardeningEvidence(unittest.TestCase):
+    @unittest.skipUnless(HAS_EMAIL_CASE_FIXTURES,_CASES_ABSENT)
     def test_real_privacy_only_admin_rejected_legitimate_office_retained(self):
         _,r=frozen_case('new-039');v={v['email']:v for v in r['results']}
         self.assertEqual(v['admin@skilledelectrical.co.nz']['confidence_label'],'REJECTED')
         self.assertEqual(v['admin@skilledelectrical.co.nz']['role_account'],'privacy/legal')
         self.assertEqual(r['selected']['email'],'office@skilledelectrical.co.nz')
 
+    @unittest.skipUnless(HAS_EMAIL_CASE_FIXTURES,_CASES_ABSENT)
     def test_real_mixed_branch_and_locations_pages(self):
         _,r=frozen_case('new-094');v={v['email']:v for v in r['results']}
         self.assertEqual(r['selected']['email'],'sales@urban.co.nz')
