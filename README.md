@@ -11,7 +11,7 @@ The canonical stack is local-first and zero-paid-token:
 - **Supervisor:** `./mm supervisor` + launchd on the operator Mac
 - **Human workspace:** Obsidian, read-mostly and non-authoritative
 - **Paid model/API policy:** disabled; maximum paid model cost is **$0**
-- **Outreach:** draft/review only by default; no approved live transport exists in v32
+- **Outreach:** draft/review only by default; canonical live transport remains fail-closed
 
 ## Quick start
 
@@ -102,6 +102,23 @@ wa packet   outputs/toolkit/<run>/report.json   outputs/remediation/<run>/remedi
 ```
 
 Remediation artifacts are previews, demo renders are explicitly **local concepts**, quote bands are deterministic, and prospect packets remain `HUMAN_APPROVAL_REQUIRED`.
+
+## Simple decision intelligence
+
+The v43 upgrade adds a deterministic, side-effect-free decision layer:
+
+```python
+from auditor_toolkit.decision import priority_decision
+```
+
+It returns a versioned `priority_score`, `confidence`, `reason_codes`,
+`blockers`, and a recommended `next_action`. Weak identity or evidence routes
+to verification instead of being promoted by a model. Missing contactability
+does not erase a legitimate technical opportunity.
+
+Rendered audits can also run the safe transaction-flow probe. It may click
+same-origin CTAs and inspect forms, but it blocks cross-origin requests, write
+requests, form submission, payment, and checkout.
 
 ## Operator commands
 

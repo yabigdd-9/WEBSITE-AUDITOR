@@ -10,7 +10,7 @@ On 8 October, [PR #52](https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/52) rem
 
 The 8 October update is a **locally committed candidate in the isolated `codex/github-todo-update` checkout**. It marks seven unimplemented audit stages explicitly skipped and addresses audit-cache coverage guards, audit-handler review holds, secret-list behavior, quote safety, the 39 maintenance suggestions and planning drift. Precommit review also fixed five issues: malformed falsey effort bands, invalid JSON CLI handling, screenshot comparisons for valid partial browser captures, stale verification/resolution acceptance and contradictory rendered/browser coverage metadata. The external review bundle records the local commit SHA. Local validation passed as recorded below, including the final canonical-suite rerun and installed-wheel import smoke; the final report retains the receipts. Existing b349 checks do not validate this new diff, and the authoritative checkout, running service, database, configuration and approvals remain unchanged. See [the suggested TODO register](docs/GITHUB_TODO_REGISTER.md).
 
-## Canonical direction
+## Canonical stack
 
 - **Audit engine:** `auditor_toolkit/` with thin `wa` CLI; `./mm` is the operator interface.
 - **Runtime authority:** SQLite and state files; one launchd-owned Money Machine supervisor.

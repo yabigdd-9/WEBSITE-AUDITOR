@@ -14,6 +14,7 @@ from __future__ import annotations
 import hashlib
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlparse
 
 from .common import validate_url
 
@@ -65,6 +66,20 @@ _MAX_STEPS = 12
 _STEP_TIMEOUT_MS = 4_000
 
 
+def _origin(url: str) -> tuple[str, str | None, int | None]:
+    parsed = urlparse(url)
+    port = parsed.port
+    if port is None:
+        port = 443 if parsed.scheme == "https" else 80 if parsed.scheme == "http" else None
+    return parsed.scheme, parsed.hostname, port
+
+
+def _request_policy_reason(audited_url: str, target_url: str, method: str) -> str | None:
+    if method not in ("GET", "HEAD", "OPTIONS"):
+        return "Flow probe blocks write requests"
+    if _origin(target_url) != _origin(audited_url):
+        return "Flow probe blocks cross-origin requests"
+    return None
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -111,9 +126,10 @@ def run_flow_probe(url, output_dir, enabled=True, allow_private=False):
                 # anything not GET/HEAD/OPTIONS is aborted before it leaves.
                 def guard(route):
                     try:
+                        reason = _request_policy_reason(url, route.request.url, route.request.method)
+                        if reason:
+                            raise ValueError(reason)
                         validate_url(route.request.url, allow_private)
-                        if route.request.method not in ("GET", "HEAD", "OPTIONS"):
-                            raise ValueError("Flow probe blocks write requests")
                         route.continue_()
                     except Exception as exc:
                         evidence.setdefault("blocked_requests", []).append(
@@ -301,7 +317,25 @@ def flow_findings(evidence: dict, url: str, status: str = "ok"):
     findings: list = []
     states = evidence.get("states", {})
     outcome = evidence.get("outcome", {})
-    summary = {"states_reached": sum(1 for s in states.values() if s.get("reached")), "outcome": outcome}
+    health_weights = {
+        "LANDING": 10,
+        "CTA_VISIBLE": 15,
+        "CTA_ACTIVATED": 20,
+        "FORM_OR_BOOKING_REACHED": 20,
+        "REQUIRED_FIELDS_IDENTIFIED": 10,
+        "CLIENT_VALIDATION_WORKS": 15,
+    }
+    conversion_path_health = sum(
+        weight for state, weight in health_weights.items()
+        if states.get(state, {}).get("reached")
+    )
+    if evidence.get("steps") and evidence.get("started_at") and evidence.get("finished_at"):
+        conversion_path_health += 10
+    summary = {
+        "states_reached": sum(1 for s in states.values() if s.get("reached")),
+        "outcome": outcome,
+        "conversion_path_health": min(100, conversion_path_health),
+    }
 
     if status == "error" or evidence.get("status") == "error":
         findings.append(
