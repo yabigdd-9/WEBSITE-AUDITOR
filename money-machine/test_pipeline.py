@@ -17,6 +17,7 @@ import mm_core as c
 import mm_pipeline as p
 import mm_approval as appr
 import mm_model_router as router
+from toolkit_tests.coverage_fixtures import with_current_coverage
 
 
 def fresh_db(tmp):
@@ -696,6 +697,7 @@ class StageHandlers(unittest.TestCase):
             'defect_count': 1,
             'artifacts': {'json': '/tmp/run-recent/report.json'},
         }
+        recent = with_current_coverage(recent)
         p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
         it = p.item(self.d, self.bid)
         with patch('auditor_toolkit.storage.History') as history_cls, \
@@ -728,6 +730,7 @@ class StageHandlers(unittest.TestCase):
             'artifacts': {'json': '/tmp/run-new/report.json'},
             'checks': {'fetch': {'required': True, 'status': 'ok'}}
         }
+        report = with_current_coverage(report)
         p.enqueue(self.d, self.bid, state='AUDIT_PENDING')
         it = p.item(self.d, self.bid)
         with patch('auditor_toolkit.storage.History') as history_cls, \

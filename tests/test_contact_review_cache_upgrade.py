@@ -181,7 +181,8 @@ def test_stale_dns_refreshes_only_dns_and_preserves_immutable_html(tmp_path):
     _, doc, method = cache.reuse(saved.entry, BUSINESS, saved.acquisition, tmp_path,
                                 dns_factory=Checker)
     assert method == 'HASH_VERIFIED_CAPTURE_REUSED'
-    assert len(checks) == 1 and checks[0][0] == 'business.nz'
+    assert len(checks) == 1
+    assert checks[0][0] == 'business.nz'
     assert all(cache.sha(path) == digest for path, digest in before.items())
     assert doc['dns']['business.nz']['checked_at'] != saved.document['dns']['business.nz']['checked_at']
     assert doc['request_metrics']['actual_requests'] == 0
@@ -273,7 +274,8 @@ def test_transient_execution_failures_use_bounded_retry(status):
         latest = {'fingerprint': 'same', 'reviewed_at': at.isoformat(),
                   'status': status, 'retry_attempts': attempts}
         decision = tasks.schedule(latest, 'same', at=at)
-        assert decision['reason'] == 'TRANSIENT_RETRY' and decision['due'] is False
+        assert decision['reason'] == 'TRANSIENT_RETRY'
+        assert decision['due'] is False
         assert tasks.timestamp(decision['due_at']) == at + timedelta(seconds=seconds)
     exhausted = tasks.schedule({**latest, 'retry_attempts': 3}, 'same', at=at)
     assert exhausted['reason'] == 'RETRY_EXHAUSTED'
@@ -296,7 +298,8 @@ def test_changed_business_bypasses_failure_backoff_without_retry_storm():
     latest = {'fingerprint': 'old', 'reviewed_at': at.isoformat(), 'status': 'TIMEOUT',
               'retry_attempts': 3}
     decision = tasks.schedule(latest, 'new', at=at)
-    assert decision['due'] is True and decision['attempts'] == 0
+    assert decision['due'] is True
+    assert decision['attempts'] == 0
     assert decision['reason'] == 'EVIDENCE_CHANGED'
 
 
@@ -317,6 +320,7 @@ def test_duplicate_task_build_is_deterministic_and_never_mutates_input():
                       'proofer': {'checks': {'published': True}}}}
     original = copy.deepcopy(result)
     first, second = tasks.task_for(result), tasks.task_for(result)
-    assert first == second and result == original
+    assert first == second
+    assert result == original
     assert first['required_worker'] == 'DRAFT_PREPARATION'
     assert first['authority'] == 'DRAFT_ONLY'

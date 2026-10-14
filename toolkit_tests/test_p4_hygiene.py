@@ -174,7 +174,8 @@ def test_pipeline_includes_hygiene_ux_and_links(tmp_path, monkeypatch):
     fetcher = make_fetcher(routes, monkeypatch)
     monkeypatch.setattr("dns.resolver.Resolver.resolve", lambda self, name, kind: [])
     report = run_audit("https://example.com/", AuditOptions(output_root=tmp_path, deep=True), fetcher)
-    assert report["status"] == "complete"
+    assert report["status"] == "partial"
+    assert report["health_score"] is None
     assert report["checks"]["hygiene"]["status"] == "ok"
     assert "robots" in report["evidence"]["hygiene"]["data"]
     assert report["evidence"]["ux"]["data"]["signals"]["phone"] is True

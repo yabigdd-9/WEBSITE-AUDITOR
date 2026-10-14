@@ -173,8 +173,11 @@ def main(argv=None):
         from .common import atomic_write_json
         from .quote import calculate_quote
         report_path = workspace_path(args.report, must_exist=True, file_only=True)
-        report = json.loads(report_path.read_text())
-        result = calculate_quote(report, args.hourly_rate_nzd)
+        try:
+            report = json.loads(report_path.read_text())
+            result = calculate_quote(report, args.hourly_rate_nzd)
+        except ValueError as exc:
+            parser.error(str(exc))
         if args.output:
             atomic_write_json(workspace_path(args.output), result)
         print(json.dumps(result, indent=2))
@@ -253,7 +256,6 @@ def main(argv=None):
         return 1 if result.get("regressions") else 0
 
     if args.command == "secret":
-        root = Path(args.output_root)
         if args.secret_command == "set":
             subprocess.run([
                 "security", "add-generic-password",
@@ -276,19 +278,8 @@ def main(argv=None):
                 print(f"Error: Secret '{args.name}' not found.", file=sys.stderr)
                 return 1
         elif args.secret_command == "list":
-            # List all secrets for the service
-            try:
-                result = subprocess.run([
-                    "security", "find-generic-password", "-s", "website-auditor", "-g"
-                ], capture_output=True, text=True, check=True)
-                # The `-g` flag gets the password, but we don't want that for listing.
-                # Instead, we can try to get the list of accounts by parsing the output of
-                # `security find-generic-password -s website-auditor` without `-g` and `-w`.
-                # However, the output is intended for humans. For simplicity, we'll just note
-                # that listing is not implemented in this version.
-                print("Listing secrets is not yet implemented in this version.")
-            except subprocess.CalledProcessError:
-                print("No secrets found.")
+            print("Secret listing is not implemented; no Keychain access performed.", file=sys.stderr)
+            return 1
         elif args.secret_command == "delete":
             subprocess.run([
                 "security", "delete-generic-password",
@@ -323,8 +314,13 @@ def main(argv=None):
         parser.error("Provide a URL or --batch")
     if not 1 <= args.concurrency <= 4:
         parser.error("Concurrency must be between 1 and 4")
-    if args.hourly_rate_nzd is not None and args.hourly_rate_nzd < 0:
-        parser.error("Hourly rate must be non-negative")
+    if args.hourly_rate_nzd is not None:
+        from .quote import validate_hourly_rate
+
+        try:
+            validate_hourly_rate(args.hourly_rate_nzd)
+        except ValueError as exc:
+            parser.error(str(exc))
     batch_path = workspace_path(args.batch, must_exist=True, file_only=True) if args.batch else None
     options = AuditOptions(
         output_root=Path(args.output_root),

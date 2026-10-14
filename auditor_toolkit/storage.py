@@ -6,6 +6,9 @@ import sqlite3
 from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from urllib.parse import urlparse
+
+from .models import has_current_complete_coverage
 
 STATES = {
     "detected",
@@ -67,7 +70,7 @@ class History:
 
     def get_latest_valid_audit(self, domain, max_age_days=7):
         """
-        Get the latest valid (complete) audit for a domain, if it exists and is not too old.
+        Get the latest current-coverage complete audit within the age limit.
 
         Args:
             domain (str): The domain to lookup
@@ -84,17 +87,23 @@ class History:
             cutoff_str = cutoff.isoformat()
 
             # Get the latest complete audit for this domain that's newer than cutoff
-            row = db.execute("""
+            rows = db.execute("""
                 SELECT report FROM runs
                 WHERE url LIKE ?
                   AND timestamp >= ?
                   AND json_extract(report, '$.status') = 'complete'
                 ORDER BY timestamp DESC
-                LIMIT 1
-            """, (f"%{domain}%", cutoff_str)).fetchone()
+            """, (f"%{domain}%", cutoff_str)).fetchall()
 
-            if row:
-                return json.loads(row[0])
+            for row in rows:
+                report = json.loads(row[0])
+                # The LIKE query is a broad index/filter candidate search, not
+                # domain identity evidence: sibling names or URL paths can
+                # contain the requested domain too. Preserve explicit ports.
+                actual_domain = urlparse(report.get("url", "")).netloc.lower()
+                expected_domain = str(domain).lower()
+                if actual_domain == expected_domain and has_current_complete_coverage(report):
+                    return report
             return None
 
     def get(self, run_id):
@@ -120,13 +129,18 @@ class History:
         historic = {
             d["finding_id"] for r in previous if r["status"] == "complete" for d in r["defects"]
         }
+        resolution_assessed = (
+            has_current_complete_coverage(report)
+            and baseline is not None
+            and has_current_complete_coverage(baseline)
+        )
         return {
             "baseline": baseline["run_id"] if baseline else None,
             "new": sorted(current - old - historic),
             "persistent": sorted(current & old),
             "regressed": sorted((current - old) & historic),
-            "resolved": sorted(old - current) if report["status"] == "complete" else [],
-            "resolution_assessed": report["status"] == "complete" and baseline is not None,
+            "resolved": sorted(old - current) if resolution_assessed else [],
+            "resolution_assessed": resolution_assessed,
         }
 
     def save(self, report):
@@ -147,10 +161,10 @@ class History:
         metadata = metadata or {}
         if state == "verified":
             run = self.get(metadata.get("verification_run", ""))
-            if run["status"] != "complete" or any(
+            if not has_current_complete_coverage(run) or any(
                 d["finding_id"] == identity for d in run["defects"]
             ):
-                raise ValueError("Verification needs a complete run without the finding")
+                raise ValueError("Verification needs a complete run with current coverage without the finding")
             with self.connect() as db:
                 originals = [json.loads(r[0]) for r in db.execute("SELECT report FROM runs")]
             if not any(

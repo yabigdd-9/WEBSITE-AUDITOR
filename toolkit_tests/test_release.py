@@ -15,6 +15,7 @@ from auditor_toolkit.common import Fetcher, validate_url
 from auditor_toolkit.pipeline import AuditOptions, run_audit
 from auditor_toolkit.portal import create_app, setup_password
 from auditor_toolkit.storage import History
+from toolkit_tests.coverage_fixtures import with_current_coverage
 
 HEALTHY = (
     """<!doctype html><html lang="en"><head><title>Local services</title>
@@ -75,21 +76,41 @@ def fixture_audit(root, body=HEALTHY, **kwargs):
 
 def test_healthy_defective_history_and_counts(tmp_path):
     healthy = fixture_audit(tmp_path)
-    assert healthy["health_score"] == 100
+    assert healthy["health_score"] is None
+    assert healthy["severity_score"] == 0
     defective = fixture_audit(tmp_path, '<h1>Broken</h1><img src="a"><img src="b">')
-    assert defective["health_score"] < 100
+    assert defective["health_score"] is None
+    assert defective["severity_score"] > healthy["severity_score"]
     assert len({d["finding_id"] for d in defective["defects"]}) == defective["defect_count"]
     assert defective["action_preview"]["count"] == defective["defect_count"]
     fixed = fixture_audit(tmp_path)
-    assert len(fixed["comparison"]["resolved"]) == defective["defect_count"]
+    assert fixed["comparison"]["resolved"] == []
+    assert fixed["comparison"]["resolution_assessed"] is False
     regressed = fixture_audit(tmp_path, '<h1>Broken</h1><img src="a"><img src="b">')
-    assert regressed["comparison"]["regressed"]
+    assert regressed["comparison"]["baseline"] is None
     history = History(tmp_path)
     identity = defective["defects"][0]["finding_id"]
     with pytest.raises(ValueError):
         history.transition(identity, "verified", {"verification_run": defective["run_id"]})
-    history.transition(identity, "verified", {"verification_run": fixed["run_id"]})
+    with pytest.raises(ValueError, match="complete run"):
+        history.transition(identity, "verified", {"verification_run": fixed["run_id"]})
     assert history.get(regressed["run_id"])["defect_count"] == regressed["defect_count"]
+
+    # Preserve complete-history resolution/regression coverage using explicit
+    # synthetic records, rather than pretending unfinished checks succeeded.
+    complete_history = History(tmp_path / "complete-fixtures")
+    for original in (healthy, defective, fixed, regressed):
+        complete = with_current_coverage(original)
+        complete.update(status="complete", health_score=100 - complete["severity_score"])
+        comparison = complete_history.compare(complete)
+        if original is fixed:
+            assert len(comparison["resolved"]) == defective["defect_count"]
+        if original is regressed:
+            assert comparison["regressed"]
+        complete_history.save(complete)
+    with pytest.raises(ValueError):
+        complete_history.transition(identity, "verified", {"verification_run": defective["run_id"]})
+    complete_history.transition(identity, "verified", {"verification_run": fixed["run_id"]})
 
 
 def test_browser_plugin_failure_is_partial(tmp_path, monkeypatch):

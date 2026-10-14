@@ -1,80 +1,77 @@
 # WEBSITE-AUDITOR — Current State
 
-_Last updated: 2026-09-29 · branch `integration/v44-local-machine-convergence` · PR #52_
+_Last updated: 2026-10-08 (Pacific/Auckland). Verified baseline: `b349cd9fb23b6cf9c5a2e8a8c74691158e9cda8f`, PR #52._
+
+## Verified baseline and local candidate
+
+The authoritative service checkout is `/Users/dd/WEBSITE-AUDITOR`, on `integration/v44-local-machine-convergence`. The combined V44/V45 kit has a separate V45 branch; it has not been merged into `master`.
+
+On 8 October, [PR #52](https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/52) remains open and draft at **b349cd9f**. Its latest **13 check runs succeeded**. The [SonarCloud result](https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/52#issuecomment-6001612868) has **39 maintenance suggestions**: 33 compound assertions, four exception-assertion scopes and two technology-detection suggestions. There are no unresolved inline review threads or open repository issues in this inspection. CodeRabbit skipped review because the PR is draft; that is not completed review.
+
+The 8 October update is a **locally committed candidate in the isolated `codex/github-todo-update` checkout**. It marks seven unimplemented audit stages explicitly skipped and addresses audit-cache coverage guards, audit-handler review holds, secret-list behavior, quote safety, the 39 maintenance suggestions and planning drift. Precommit review also fixed five issues: malformed falsey effort bands, invalid JSON CLI handling, screenshot comparisons for valid partial browser captures, stale verification/resolution acceptance and contradictory rendered/browser coverage metadata. The external review bundle records the local commit SHA. Local validation passed as recorded below, including the final canonical-suite rerun and installed-wheel import smoke; the final report retains the receipts. Existing b349 checks do not validate this new diff, and the authoritative checkout, running service, database, configuration and approvals remain unchanged. See [the suggested TODO register](docs/GITHUB_TODO_REGISTER.md).
 
 ## Canonical direction
 
-- **Repository:** `/Users/dd/WEBSITE-AUDITOR`
-- **Audit engine:** `auditor_toolkit/` with thin `wa` CLI.
-- **Operator CLI:** `./mm` → `money-machine/mm`.
-- **Runtime authority:** SQLite + `./mm supervisor`.
-- **Supervisor:** user launchd, single-instance, heartbeat/lease recovery.
-- **FCC:** separate user launchd, loopback-only on `127.0.0.1:8082`.
-- **Model policy:** exact-certified FCC route first; otherwise Hermes live-verified `:free` role route; otherwise DEFER.
-- **FCC presets/catalog:** operator-controlled and preserved; Money Machine certification is separate from the FCC server's default preset.
-- **Local llama.cpp / Ollama:** not active Money Machine routes.
-- **Cost policy:** `paid_allowed=false`, `max_cost_usd=0`; no automatic paid fallback.
-- **External data policy:** repository default `data_collection: deny`; only explicitly attested public/synthetic prompts may opt into a data-collecting free endpoint per request.
-- **Outreach:** fail-closed; human review required; external sends default to zero.
-- **Human workspace:** Obsidian; n8n is not part of the default runtime.
+- **Audit engine:** `auditor_toolkit/` with thin `wa` CLI; `./mm` is the operator interface.
+- **Runtime authority:** SQLite and state files; one launchd-owned Money Machine supervisor.
+- **Human workspace:** Obsidian is a review view, never queue, pricing or sending authority.
+- **Model policy:** deterministic work first; exact-certified zero-cost FCC route, otherwise Hermes live-verified `:free` route, otherwise DEFER. Local llama.cpp and Ollama are not active Money Machine routes.
+- **Cost:** `paid_allowed=false`, `max_cost_usd=0`; no automatic paid fallback.
+- **Privacy:** repository default `data_collection: deny`; only explicitly attested public/synthetic requests may opt into a data-collecting free endpoint. Secrets and confidential/customer content remain held.
+- **Outreach:** `MM_EXTERNAL_SEND_DISABLED=1`; exact human approval and all contact, production and sender gates remain required.
+- **Optional services:** loopback SearXNG; n8n and Docker are not core runtime requirements.
 
-## v44 release-candidate status
+## Implementation and acceptance
 
-| Area | Status | Evidence / remaining acceptance |
+| Area | State | Evidence or remaining acceptance |
 | --- | --- | --- |
-| Automated CI | ✅ PASS | PR #52 head `a0ebdb38`: CI, Security, Local toolkit and SonarCloud all green. |
-| Local runtime | ✅ Implemented | Dual launchd runtime for FCC + Money Machine, loopback FCC boundary, restart/recovery and duplicate-worker protections. |
-| Network guard | ✅ Implemented | Multi-host probe plus all-resolved-address fallback; degraded mode does not block deterministic local work. |
-| Discovery | ✅ Implemented | Bounded recurring discovery, local imports + loopback SearXNG, provenance and dedupe before queueing. |
-| Identity | ✅ Implemented | Weighted deterministic NZBN/name/domain/contact evidence; weak single-signal matches cannot auto-elevate confidence. |
-| Opportunity scoring | ✅ Implemented | Commercial qualification remains separate from technical weakness. |
-| Model router | ✅ Implemented | FCC only when the exact route is explicitly certified zero-cost; Hermes `:free` fallback live-verifies catalog pricing; no paid fallback. |
-| Privacy boundary | ✅ Implemented | Secrets/contact details/local paths are redacted; secret-bearing prompts are held; repository default remains `data_collection: deny`. |
-| Outreach safety | ✅ Implemented | Paid calls and external sends are fail-closed at zero by default. |
-| Documentation | ◐ Updating | v44 state is canonical here; older reports are historical snapshots and must not be treated as current release state. |
-| Host acceptance | ◐ REQUIRED | Current-head doctor/health, current-head bounded live free-model smoke, real Chromium E2E, optional Lighthouse/Lychee, optional local SearXNG. |
-| 24h soak | ⏳ REQUIRED | Must complete on the exact final release-candidate head with no duplicate workers, healthy heartbeat/leases/DLQ, $0 paid usage and zero external sends. |
+| Configured GitHub checks | PASS at baseline | All 13 latest check runs succeeded at b349; candidate remains unpublished with no new hosted checks or Sonar analysis. |
+| Human/code review | OPEN | PR #52 is draft; CodeRabbit draft skip is not review. |
+| Supervisor/control plane | IMPLEMENTED | Single-instance protections, heartbeats, leases, recovery, health/log commands, rotation and DLQ triage exist. Current-revision full acceptance remains outstanding. |
+| Discovery and contact review | IMPLEMENTED | Bounded discovery and automatic first-party evidence collection; uncertain contacts remain held. Draft preparation does not release a contact or authorize sending. |
+| Lighthouse/Lychee | ADAPTERS IMPLEMENTED | `auditor_toolkit/external_tools.py` and fixture tests exist; exact-head real-tool host acceptance is separate. |
+| Audit coverage safety and maintenance | IMPLEMENTED LOCALLY | Seven no-op stages are marked skipped with explicit required/optional coverage; History rejects incompatible cached audits and incomplete required audit coverage routes to NEEDS_REVIEW. Analyzer implementations remain deferred; focused safety/quote/worker validation passed. |
+| Contact precision/intelligence | HELD | Human labels, independent release evidence and prospect-disjoint holdout acceptance are not replaced by machine corrections or CI. |
+| Earlier-revision soak | HISTORICAL PASS | e83121b, 86,405.524033 seconds, 1,420 samples, no violations. It grants no b349 or candidate acceptance. |
+| Current-revision soak | BLOCKED | b349 attempt failed an uncached public-network sample; active attempt is null and no valid new deadline exists. |
+| Production, publishing and sends | NOT AUTHORIZED | Separate human decisions, exact-item approval and relevant production checks remain necessary. |
 
-## Current release blockers
+## Local candidate validation
 
-There are no known failing repository gates on the current PR head. PR #52 remains **draft** until host acceptance and the final unattended soak are recorded.
+| Check | Recorded result |
+| --- | --- |
+| Canonical regression | 1,048 passed; 3 skipped; 3 warnings. Two opt-in Chromium skips are covered by six freshly passing browser journeys; one skip is unavailable PIL.Image. |
+| Focused coverage, quote and worker checks | 82 passed. Required browser/header/TLS failures retain retry handling before an implementation hold. Malformed falsey effort bands and invalid JSON produce handled CLI validation errors; stale/contradictory coverage cannot verify or resolve findings; valid partial rendered captures retain screenshot comparisons. |
+| Portable regression | 424 passed; 45 subtests passed. |
+| Real Chromium regression | Fresh full suite: 6 passed in 47.98 seconds. Earlier browser receipts remain historical. |
+| Local Sonar suggestion receipt | All 39 annotations reverified against 19 current source hashes; no new hosted Sonar result. |
+| Tier-1 regression | 29 tests OK. |
+| Supplemental image check | The formerly skipped image test passed once using work-only Python 3.12.14 and Pillow 12.3.0 with network denied. The canonical Python 3.11 skip and all prior suite counts remain unchanged; no host/source/environment change. |
+| Ruff / compile / dependencies | Canonical toolkit, V45 and changed worker Ruff passed; compile and pip check passed. |
+| Package build/import | Rebuilt final-candidate wheel and 17 installed imports passed, plus CLI help, local doctor and axe assets. Operator CLI help also passed. Local doctor reports missing llama_cpp/model; no generation was exercised. |
+| Dependency audits | Project and email environments passed with no known vulnerabilities reported. |
+| Historical secret scan / static assessment | Scan completed over 1,003 commits and 56.47 MB in 185.366 seconds, exit 1. All 87 inputs were individually assessed: 71 not_actionable, 16 needs_review, 0 confirmed; duplicate-looking inputs remain retained. T20 owner/restriction/purpose review stays open for 16. This is not historical-secret clearance. See review-bundle `follow-up/HISTORICAL_SECRET_TRIAGE.md` and `historical-secrets-triage.json`. |
 
-The remaining release blockers are:
+Earlier 1,029-test canonical and 63-test focused receipts remain historical in the review bundle; the counts above supersede them for this final candidate. Portable, tier-1, dependency-audit and supplemental-image receipts are retained evidence.
 
-1. Pull the exact final PR #52 head onto the Mac and run `./mm doctor` + `./mm health`.
-2. Run one bounded current-head live free-model smoke through the Money Machine route and verify `cost_usd=0`.
-3. Run real Chromium E2E on the same head; run Lighthouse/Lychee only if installed/required.
-4. If local SearXNG is part of the deployment, verify `127.0.0.1:8888` and one bounded discovery run; otherwise record it as optional/not enabled.
-5. Run a **24+ hour unattended soak** on the unchanged release-candidate head.
-6. Record final evidence, mark PR #52 ready for review, then merge only after human review.
+The candidate is committed locally and unpublished. Its exact commit SHA is recorded in the external review bundle rather than embedded in its own source; no push, deployment or runtime change is authorized. Local regression and dependency receipts do not establish runtime acceptance, production readiness or a clean historical secret scan.
 
-## Release acceptance criteria
+## Runtime evidence
 
-A release candidate is acceptable only when all of the following remain true:
+Read the authoritative checkout's `state/soak-control/status.json`, `expected.json`, `operational-policy.json`, `events.jsonl` and referenced evidence directory. Do not run health commands simply to refresh this document: some operator commands write state.
 
-- supervisor stays single-instance and heartbeating;
-- no unexpected lease growth or dead-letter growth;
-- network guard recovers correctly and does not produce false degraded state from one address family;
-- `paid_calls == 0`;
-- `external_sends == 0`;
-- `paid_model_fallback == false`;
-- FCC remains loopback-only;
-- FCC presets/provider catalog are not destructively pruned by Money Machine setup;
-- Money Machine does not treat an FCC model as usable unless it is explicitly certified;
-- Hermes external fallback uses only live-verified `:free` models with zero price caps;
-- no confidential/customer material is sent to data-collecting free endpoints;
-- working tree remains clean during the soak.
+The b349 attempt `state/soak-evidence-20261005T192940740852Z` ended incomplete on **6 October 2026 at 10:51:39 a.m. NZDT**. Sample 140 recorded uncached TCP timeouts to both `example.com:443` and `github.com:443`; the controller then stopped its owned collector. The finish sample recovered connectivity, but the persisted failure remains. Duration was **8,517.877019 seconds**, with **142 samples** and `soak_passed=false`. These observations do not establish the upstream cause of the network failure. Earlier deadlines are invalid, and there is no current `final-acceptance.json`.
 
-## PR #52
+The previous accepted run `state/soak-evidence-20261003T114403133502Z` froze **e83121b**, from **4 October 00:44 to 5 October 00:44 NZDT**. It proves local runtime acceptance at that revision only. Accounting measures local database records, not independent external provider receipts.
 
-- **Branch:** `integration/v44-local-machine-convergence`
-- **Base:** `master`
-- **State:** open draft
-- **Current verified head when this file was updated:** `a0ebdb38`
-- **Automated gates:** CI ✅ · Security ✅ · Local toolkit ✅ · SonarCloud ✅
-- **Merge policy:** do not merge merely because GitHub reports mergeable; finish host acceptance + soak, then mark ready for review.
+A prepared recovery proposal calls for fresh preflight, preservation of all eight attempts, rearming only the inactive controller and a new uninterrupted 86,400-second window. Its existing monitoring instructions prohibit controller restart/reconfiguration without exact new authorization. Do not restart the supervisor, duplicate a collector, weaken a gate or combine failed windows. Use the existing completion monitor after authorized recovery.
 
-## Historical material
+## Next decisions and release gates
 
-Older v32/v43 reports, FABLE reports, prior local-model experiments, and historical `reports/CURRENT_STATE.md` / `reports/phase-status.json` entries are retained as evidence. They are not authoritative for the current v44 release unless explicitly updated to reference this state.
+1. Preserve the final passing validation receipts, inspect the complete tested candidate diff and obtain owner/restriction/purpose review for the 16 historical-secret inputs still held after static assessment. See T20 in the TODO register; any later confirmed credential requires exact remediation/rotation authority.
+2. Keep the candidate separate from the clean live checkout until promotion and rollout are explicitly authorized. Recheck GitHub head/checks and preserve combined-branch alignment at that time.
+3. Complete exact-head host evidence where required: browser rendering, optional installed Lighthouse/Lychee, optional SearXNG and an explicitly authorized bounded free-model smoke.
+4. Obtain exact controller recovery authorization for the selected frozen revision, refresh preflight and require one wholly new accepted 24-hour window.
+5. Complete human contact/intelligence release evidence and code review; `master` integration, deployment and sending remain separate decisions.
 
+The project plan does not change [the approval queue](approval/APPROVAL_QUEUE.yaml), human labels, provider policy or real prospect state. Older reports and `state/HERMES_EXECUTION_STATE.yaml` references are historical; that state file is absent from the current checkout. This document is the current project status; SQLite/state evidence and the approval queue retain their own authority.

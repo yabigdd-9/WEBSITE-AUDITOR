@@ -32,7 +32,15 @@ def test_real_browser_pdf_portal(tmp_path):
     try:
         report = run_audit(f'http://127.0.0.1:{server.server_port}/', AuditOptions(
             output_root=tmp_path, allow_private=True, browser=True, profile='rendered'))
-        assert report['status'] == 'complete', report['checks']
+        assert report['status'] == 'partial', report['checks']
+        assert report['health_score'] is None
+        assert report['checks']['browser']['status'] == 'ok'
+        assert report['checks']['axe']['status'] == 'ok'
+        assert report['checks']['pdf']['status'] == 'ok'
+        assert set(report['coverage']['missing_checks']) == {
+            'hreflang', 'language', 'images', 'social_meta',
+            'cookie_consent', 'third_party', 'browser_console',
+        }
         assert Path(report['artifacts']['pdf']).read_bytes().startswith(b'%PDF')
         assert Path(report['artifacts']['screenshot']).stat().st_size > 100
         assert report['evidence']['browser']['axe']['version'] == '4.10.3'

@@ -1,11 +1,20 @@
 # WEBSITE-AUDITOR Master Plan v44.0
 
 **Status:** CANONICAL_EXECUTION_PLAN  
+**Reviewed:** 8 October 2026 · baseline `b349cd9f` · isolated candidate locally committed and unpublished
 **Workspace:** `/Users/dd/WEBSITE-AUDITOR`  
 **Mode:** local-first · zero-paid-token · evidence-first · supervised · Obsidian operator workspace  
 **Target release:** PR #52 — v44 local-machine convergence
 
-This file is the human-readable canonical companion to `MASTER_PLAN.yaml`.
+This file is the human-readable canonical companion to `MASTER_PLAN.yaml`. [CURRENT_STATE.md](CURRENT_STATE.md) records current acceptance; [docs/GITHUB_TODO_REGISTER.md](docs/GITHUB_TODO_REGISTER.md) records sourced follow-up work.
+
+## Current work order
+
+PR #52 remains open/draft at b349cd9f, with 13 successful latest GitHub checks. CodeRabbit skipped draft review. SonarCloud identified 39 maintenance suggestions: 33 compound assertions, four exception-assertion scopes and two technology suggestions. The 8 October isolated candidate covers these suggestions, explicit skipped statuses for seven audit stubs, audit-cache coverage guards, unsupported secret listing, quote safety and canonical documentation. Five precommit fixes cover malformed falsey effort bands, invalid JSON CLI errors, screenshot comparisons for valid partial browser captures, stale verification/resolution guards and contradictory rendered/browser coverage metadata. The seven analyzer bodies remain unimplemented; the candidate prevents their no-op results from appearing complete. Agreed CI validation includes package build/import verification. The candidate is implemented and tested locally, committed locally on the isolated branch, unpublished and separate from the authoritative service checkout. Recorded checks include 82 focused tests, 424 portable tests with 45 subtests, six freshly passing Chromium journeys, 29 retained tier-1 tests, scoped Ruff, compilation, pip check, wheel build and both dependency audits. Final canonical regression passed 1,048 tests with three skips and three warnings; the rebuilt wheel passed 17 installed imports, CLI help/local doctor and axe-asset checks. The fresh full Chromium suite passed in 47.98 seconds; all 39 Sonar suggestions were locally reverified against 19 current source hashes; the external bundle records the local commit SHA and retains earlier 1,029/63-test receipts as historical. Missing local llama_cpp/model remains explicit, and no model generation was tested; there is no new hosted candidate Sonar result.
+
+Supervisor, health/log/metrics, rotation, DLQ and Lighthouse/Lychee adapters already exist; remaining exact-head host evidence is not a request to rebuild them. Current b349 runtime acceptance is blocked after an uncached public-network timeout. The accepted e83121b 24-hour soak is historical and does not validate b349 or this candidate. Controller recovery requires exact new authorization and one new uninterrupted window. Independent human labels/holdout, future analyzer implementation, code review and `master` integration remain separately tracked.
+
+Historical secret static assessment is complete: the exit-1 full-history scan produced 87 inputs, all assessed individually with duplicate-looking inputs retained. Disposition is 71 not_actionable, 16 needs_review and 0 confirmed. The 16 comprise 14 captured Maps-key observations, one historical Stripe test-key-shaped example and one WPForms form token; owner/restriction/purpose review remains open. See review-bundle `follow-up/HISTORICAL_SECRET_TRIAGE.md` and `historical-secrets-triage.json`. This is not clearance. No credential values, provider calls, rotation, history rewrite or allow-list expansion are included; any confirmed credential requires exact remediation/rotation authorization.
 
 ## Non-negotiables
 
@@ -30,7 +39,7 @@ n8n is **not** part of the default stack. SearXNG is the optional zero-cost disc
 2. **P1 Green baseline** — Python 3.11, one dependency source, full tests, gitleaks, strict dependency audit, clean working tree.
 3. **P2 Consolidation** — one audit engine, one operator CLI, archived legacy paths.
 4. **P3 Continuous control plane** — leased SQLite queue, PID/single-instance protection, graceful shutdown, heartbeats, stale recovery, retries/backoff/jitter, circuit breakers, DLQ, log rotation, disk/network guards, crash recovery.
-5. **P4 Audit engine** — deterministic checks plus efficient HTTP/lightweight/Playwright fetch chain, Lighthouse, Lychee, schema/TLS/mobile checks.
+5. **P4 Audit engine** — deterministic checks plus efficient HTTP/lightweight/Playwright fetch chain, implemented Lighthouse/Lychee adapters, schema/TLS/mobile checks; record skipped coverage for unimplemented audit stages; future analyzer implementation and real-tool host acceptance are separate.
 6. **P5 Evidence-first findings** — evidence before scoring; every score deduction traces to a finding.
 7. **P6 NZ discovery** — NZBN, SearXNG, directories, public sites/search/OSM-derived sources, early dedupe.
 8. **P7 Identity** — weighted confidence across legal/trading identity, NZBN, domain, website, email domain, region.
@@ -68,4 +77,4 @@ discover → dedupe → identity → audit → verify → score → select → r
 
 ## Acceptance
 
-The system is complete only when it runs unattended for 24+ hours, survives restart without duplicate work, exposes dead-letter triage, produces evidence-backed findings and contact provenance, creates deterministic demo/quote/draft outputs, keeps paid spend at $0, keeps live outreach disabled by default, and has one canonical repo/auditor/control plane/master plan.
+The system is complete only when the exact final revision runs unattended in one independently verified 24+ hour window, survives restart without duplicate work, exposes dead-letter triage, produces evidence-backed findings and contact provenance, creates deterministic demo/quote/draft outputs, keeps paid spend at $0, keeps live outreach disabled by default, and has one canonical repo/auditor/control plane/master plan.
