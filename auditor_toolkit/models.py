@@ -8,12 +8,12 @@ COVERAGE_VERSION = 1
 Status = Literal["ok", "error", "skipped"]
 
 UNIMPLEMENTED_STATIC_CHECKS = frozenset()
-UNIMPLEMENTED_RENDERED_CHECKS = frozenset({"cookie_consent"})
+UNIMPLEMENTED_RENDERED_CHECKS = frozenset()
 STATIC_REQUIRED_CHECKS = frozenset({
     "fetch", "page", "schema", "headers", "hygiene", "ux", "technology",
     "js_vulnerabilities", "structured_validation", "hreflang", "language", "images", "social_meta",
 }) | UNIMPLEMENTED_STATIC_CHECKS
-RENDERED_REQUIRED_CHECKS = frozenset({"browser", "axe", "pdf", "third_party", "browser_console"}) | UNIMPLEMENTED_RENDERED_CHECKS
+RENDERED_REQUIRED_CHECKS = frozenset({"browser", "axe", "pdf", "third_party", "browser_console", "cookie_consent"}) | UNIMPLEMENTED_RENDERED_CHECKS
 
 
 def required_check_ids(browser=False):
@@ -155,7 +155,7 @@ REGISTRY = {
         CheckDefinition("language", "technical", version="3", limitation="Bounded page observation; not exhaustive site coverage."),
         CheckDefinition("images", "performance", version="3", limitation="Bounded page observation; not exhaustive site coverage."),
         CheckDefinition("social_meta", "technical", version="3", limitation="Bounded page observation; not exhaustive site coverage."),
-        CheckDefinition("cookie_consent", "privacy", mode="rendered", version="2", limitation="Not implemented"),
+        CheckDefinition("cookie_consent", "privacy", mode="rendered", version="3", limitation="Passive bounded observations only; cookie purpose and legal obligations require human review."),
         CheckDefinition("third_party", "technical", mode="rendered", version="3", limitation="Bounded page observation; not exhaustive site coverage."),
         CheckDefinition("browser_console", "technical", mode="rendered", version="3", limitation="Bounded page observation; not exhaustive site coverage."),
         CheckDefinition("server_technology", "technical"),

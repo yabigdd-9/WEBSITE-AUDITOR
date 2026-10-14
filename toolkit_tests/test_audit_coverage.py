@@ -79,7 +79,7 @@ def test_static_audit_runs_required_analyzers(tmp_path):
 def test_browser_disabled_rendered_checks_are_explicit_and_optional(tmp_path):
     report = audit(tmp_path, browser=False)
     assert report["browser_requested"] is False
-    for name in UNIMPLEMENTED_RENDERED_CHECKS | {"browser", "axe", "pdf", "third_party", "browser_console"}:
+    for name in UNIMPLEMENTED_RENDERED_CHECKS | {"browser", "axe", "pdf", "third_party", "browser_console", "cookie_consent"}:
         assert report["checks"][name]["status"] == "skipped"
         assert report["checks"][name]["required"] is False
         assert report["checks"][name]["reason"]
@@ -103,7 +103,7 @@ def test_rendered_audit_retains_browser_findings_and_artifacts(tmp_path, monkeyp
     assert report["status"] == "partial"
     assert report["health_score"] is None
     assert report["browser_requested"] is True
-    missing = UNIMPLEMENTED_RENDERED_CHECKS
+    missing = {"cookie_consent"}
     assert set(report["coverage"]["missing_checks"]) == missing
     assert set(current_coverage_gaps(report)) == missing
     for name in UNIMPLEMENTED_RENDERED_CHECKS:

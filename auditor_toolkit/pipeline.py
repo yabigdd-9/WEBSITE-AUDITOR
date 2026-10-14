@@ -11,6 +11,7 @@ from urllib.parse import urlparse
 
 from . import (
     browser_console,
+    cookie_consent,
     hreflang,
     images,
     language,
@@ -289,8 +290,9 @@ def run_audit(url, options=None, fetcher=None):
             if opts.browser and result["status"] == "ok":
                 perform("third_party", lambda: third_party.analyse_rendered(evidence["browser"], final_url))
                 perform("browser_console", lambda: browser_console.analyse_rendered(evidence["browser"], final_url))
+                perform("cookie_consent", lambda: cookie_consent.analyse_rendered(evidence["browser"], final_url))
             else:
-                for name in ("third_party", "browser_console"):
+                for name in ("third_party", "browser_console", "cookie_consent"):
                     skip(name, "Browser capture unavailable" if opts.browser else "Rendered mode required", opts.browser)
             if opts.screenshot_diff and result.get("status") == "ok":
                 try:
@@ -407,7 +409,7 @@ def run_audit(url, options=None, fetcher=None):
                 "technology",
                 "js_vulnerabilities",
                 "structured_validation",
-                "hreflang", "language", "images", "social_meta", "third_party", "browser_console",
+                "hreflang", "language", "images", "social_meta", "third_party", "browser_console", "cookie_consent",
                 "hygiene",
                 "ux",
                 "links",

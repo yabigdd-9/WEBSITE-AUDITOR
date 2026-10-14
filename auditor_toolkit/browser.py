@@ -107,6 +107,17 @@ def run_browser_checks(url, output_dir, enabled=True, allow_private=False, axe_p
                     'els=>els.slice(0,100).map(x=>({text:x.textContent,href:x.getAttribute("href")}))'
                 )
                 evidence["consent"] = {
+                    "visible_banners": page.locator(
+                        '[role="dialog"], [id*="cookie" i], [class*="cookie" i], '
+                        '[id*="consent" i], [class*="consent" i]'
+                    ).evaluate_all("""els => els.filter(el => {
+                        const r = el.getBoundingClientRect();
+                        const style = getComputedStyle(el);
+                        return r.width > 0 && r.height > 0 && style.visibility !== 'hidden'
+                            && style.display !== 'none' && /cookie|consent|tracking/i.test(el.innerText || '');
+                    }).slice(0,20).map(el => ({controls: [...el.querySelectorAll('button,a,[role=button],input[type=button]')]
+                        .filter(button => {const r=button.getBoundingClientRect(); const s=getComputedStyle(button); return r.width>0 && r.height>0 && s.visibility!=='hidden' && s.display!=='none';})
+                        .slice(0,20).map(button => (button.innerText || button.getAttribute('aria-label') || button.value || '').trim().slice(0,100))}))"""),
                     "interaction": "none",
                     "cookies_before_interaction": [
                         {k: c[k] for k in ("name", "domain", "secure", "httpOnly", "sameSite")}

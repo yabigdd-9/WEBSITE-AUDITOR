@@ -17,7 +17,7 @@ class FixtureHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-Type', 'text/html')
         self.end_headers()
-        self.wfile.write(b'<!doctype html><html lang="en"><head><title>Fixture</title></head><body><main><h1>Fixture audit</h1><img src="/missing.png"><p>Local evidence fixture.</p><script>console.error("V44 fixture console error");throw new Error("V44 fixture page error");</script></main></body></html>')
+        self.wfile.write(b"""<!doctype html><html lang="en"><head><title>Fixture</title></head><body><main><h1>Fixture audit</h1><img src="/missing.png"><p>Local evidence fixture.</p><div id="cookie-banner" role="dialog"><p>Cookie preferences</p><button onclick="document.cookie='choice_clicked=1'">Accept all</button><button>Reject optional</button></div><script>document.cookie="_ga=synthetic; SameSite=Lax";console.error("V44 fixture console error");throw new Error("V44 fixture page error");</script></main></body></html>""")
 
     def log_message(self, *args):
         pass
@@ -32,18 +32,27 @@ def test_real_browser_pdf_portal(tmp_path):
     try:
         report = run_audit(f'http://127.0.0.1:{server.server_port}/', AuditOptions(
             output_root=tmp_path, allow_private=True, browser=True, profile='rendered'))
-        assert report['status'] == 'partial', report['checks']
-        assert report['health_score'] is None
+        assert report['status'] == 'complete', report['checks']
+        assert report['health_score'] == max(0, 100 - report['severity_score'])
         assert report['checks']['browser']['status'] == 'ok'
         assert report['checks']['axe']['status'] == 'ok'
         assert report['checks']['pdf']['status'] == 'ok'
-        assert set(report['coverage']['missing_checks']) == {'cookie_consent'}
+        assert set(report['coverage']['missing_checks']) == set()
         assert report['checks']['third_party']['status'] == 'ok'
         assert report['checks']['browser_console']['status'] == 'ok'
         errors = report['evidence']['browser_console']['data']['errors']
         assert 'V44 fixture console error' in errors
         assert 'V44 fixture page error' in errors
         assert report['evidence']['browser']['resource_requests']
+        consent = report['evidence']['cookie_consent']['data']
+        assert consent['interaction'] == 'none'
+        assert consent['visible_banner_count'] >= 1
+        assert consent['accept_control_observed'] and consent['reject_control_observed']
+        assert consent['tracking_cookie_name_hints'] == ['_ga']
+        assert all(cookie['name'] != 'choice_clicked' for cookie in consent['cookies_before_interaction'])
+        assert all('value' not in cookie for cookie in consent['cookies_before_interaction'])
+        assert any(finding['defect_key'] == 'tracking-cookie-before-choice' for finding in report['defects'])
+
         assert Path(report['artifacts']['pdf']).read_bytes().startswith(b'%PDF')
         assert Path(report['artifacts']['screenshot']).stat().st_size > 100
         assert report['evidence']['browser']['axe']['version'] == '4.10.3'
