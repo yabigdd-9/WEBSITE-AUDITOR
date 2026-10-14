@@ -38,6 +38,9 @@ def create_evidence_brief(audit_report: Dict[str, Any]) -> Dict[str, Any]:
     total_defects = len(defects)
     critical_count = len(defects_by_severity["critical"])
     high_count = len(defects_by_severity["high"])
+
+    # Generate evidence summary
+    evidence_summary = _generate_evidence_summary(defects_by_severity)
     # Generate priority recommendations
     priority_recommendations = _generate_priority_recommendations(defects_by_severity)
 
@@ -59,6 +62,7 @@ def create_evidence_brief(audit_report: Dict[str, Any]) -> Dict[str, Any]:
             "overall_assessment": _get_overall_assessment(
                 audit_report.get("health_score", 0)
             ),
+            "evidence_summary": evidence_summary,
             "primary_concerns": _get_primary_concerns(defects_by_severity),
             "quick_wins": _get_quick_wins(defects_by_severity),
         },

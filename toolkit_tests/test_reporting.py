@@ -2,8 +2,8 @@
 
 Verify HTML report generation and SVG trend rendering.
 """
-from pathlib import Path
 from auditor_toolkit.reporting import render_html_report, render_trend_svg
+
 
 def test_render_html_report_smoke():
     report = {
@@ -21,7 +21,7 @@ def test_render_html_report_smoke():
 def test_render_trend_svg_smoke():
     report = {"health_score": 80}
     svg = render_trend_svg(report)
-    assert 'width="160"' in svg # health * 2
+    assert 'width="160"' in svg  # health * 2
     assert "Health 80" in svg
 
 def test_render_trend_svg_unavailable():

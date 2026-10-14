@@ -8,6 +8,11 @@ on:
       - 'toolkit_tests/**'
       - 'tests/**'
       - 'pyproject.toml'
+      - 'catalyx_web/**'
+      - 'money-machine/**'
+      - 'uv.lock'
+      - 'money-machine/requirements-email.txt'
+      - '.github/workflows/ci.yml'
       - '.github/workflows/toolkit-tests.yml'
   workflow_dispatch:
 
@@ -58,3 +63,8 @@ jobs:
             toolkit_tests/test_flow_e2e.py \
             tests/e2e/test_proof_browser_capture.py \
             -q
+
+      - name: Verify Catalyx browser flows
+        env:
+          WA_CATALYX_WEB_BROWSER_E2E: "1"
+        run: python -m pytest toolkit_tests/test_catalyx_web_browser_e2e.py -q

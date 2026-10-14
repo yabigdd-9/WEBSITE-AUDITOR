@@ -1,7 +1,7 @@
+"""Transaction-flow FSM probe tests: pure unit tests (no browser)."""
 import sys
 import types
 
-"""Transaction-flow FSM probe tests: pure unit tests (no browser)."""
 from auditor_toolkit.flows import (
     ACTION_POLICY,
     FLOW_STATES,
