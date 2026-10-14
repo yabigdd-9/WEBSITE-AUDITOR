@@ -79,3 +79,11 @@ state/
 # Generated fixture captures; regenerate from the audit/contact workflows.
 reports/audit-backfills/
 reports/contact-captures/
+
+# Local preserved worker backup; never publish it.
+/ops/hermes_zero_token/runner.py.bak
+
+# Future Hermes daily runtime output. Existing tracked snapshots remain intact
+# until their publication policy is explicitly reconciled.
+/reports/hermes_zero_token/DAILY_REPORT_*.md
+/reports/hermes_zero_token/daily_metrics.json

@@ -1,3 +1,22 @@
+# Remaining V44 gates — verified 15 October 2026
+
+Latest tested application commit: `7a6a4d50b9acbf4e4eb844fce97452733a1a9587`, normally pushed on `integration/v44-local-machine-convergence`. Documentation-only descendants do not alter that Python source.
+
+- Cookie-consent passive observation is implemented; complete rendered execution is possible with actual cookie/control evidence. It never clicks choices, retains cookie values, or asserts legal compliance.
+- All ten fixture skips were repaired: correct existing corpus/rollback paths, independently scoped synthetic tests and disposable loop database. Final local suites: **1,110 canonical passes**, **683 MoneyMachine passes plus 83 subtests**, six Chromium journeys; only two independent acceptance skips remain in MoneyMachine.
+- Exact module-execution startup proof and soak enforcement are implemented and tested but **not activated**. Help-only verification used exited PID `89903`; the actual supervisor remains PID `66896`. No service restart, controller rearm or new soak occurred.
+- Latest configured Website Auditor gate at `2e642d0a` passed with 88.2% new-code coverage. Hosted results for later exact commits are separate. The secondary project gate and human review remain open.
+- Current read-only independent readiness has 1/30 confirmed examples, 1/10 hard cases and eight unmet gates. The 16 historical owner/restriction inputs remain pending. No acceptance labels or receipts were manufactured.
+- Two tracked daily reports changed during the work and remain preserved, unstaged. The backup remains locally preserved and is now ignored. A strict clean-worktree soak cannot begin until runtime-output publication is reconciled.
+
+See `reports/v44-integration/2026-10-15/REMAINING_GATES.md`. **Full goal and release acceptance remain incomplete.** Original no-restart, no-live-DB-write, no-outreach, no-paid-call, no-provider-change and no-merge constraints remain enforced.
+
+## Earlier verification history
+
+The earlier text below is retained as history. Its cookie/fixture status and counts are superseded by the record above.
+
+---
+
 # Current V44 integration verification — 15 October 2026
 
 The authoritative checkout is `/Users/dd/WEBSITE-AUDITOR`, branch `integration/v44-local-machine-convergence`. Verified application SHA `2bd7a12274ea3403329f45d0cc270bffc1fb2033` was normally pushed to origin; PR #52 is open, draft and mergeable. The three requested starting commits are preserved. Documentation-only descendants do not change the tested application source.
