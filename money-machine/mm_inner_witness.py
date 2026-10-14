@@ -3,6 +3,7 @@ Implements self-observation, pattern analysis, and insight generation capabiliti
 """
 import json
 import sqlite3
+import contextlib
 from datetime import datetime, timezone
 from mm_core import now, connect
 from typing import Dict, List, Any, Optional
@@ -423,6 +424,3 @@ def get_self_awareness_metrics() -> Dict[str, Any]:
             "self_awareness_level": "unknown",
             "timestamp": now()
         }
-
-# Import contextlib at the top level to avoid issues
-import contextlib

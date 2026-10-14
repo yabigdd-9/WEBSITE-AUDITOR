@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from .common import atomic_write_text
+from ..common import atomic_write_text
 
 
 def render_html_report(report: dict[str, Any]) -> str:
@@ -90,3 +90,5 @@ def render_trend_svg(report: dict[str, Any]) -> str:
 
 def write_html_report(report: dict[str, Any], path: Path) -> None:
     atomic_write_text(path, render_html_report(report))
+
+__all__ = ["render_trend_svg", "write_html_report", "render_html_report"]

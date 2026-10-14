@@ -373,8 +373,8 @@ class MonthlyStore:
 
 
 def generate_monthly(root, config, client_id, month=None, pdf=True, policy=None):
-    from website_auditor.actions.policy import PolicyEngine
-    from website_auditor.models import Action, Risk
+    from auditor_toolkit.actions.policy import PolicyEngine
+    from auditor_toolkit.models import Action, Risk, RiskValue
 
     config = validate_config(config)
     client = get_client(config, client_id)
@@ -409,7 +409,7 @@ def generate_monthly(root, config, client_id, month=None, pdf=True, policy=None)
         action_id="monthly-" + content_key[:24],
         name="Generate monthly report draft",
         category="reporting",
-        risk=Risk.LOW,
+        risk=Risk(RiskValue.LOW, 1),
         connector="local",
         domain=client["url"],
         environment="local",

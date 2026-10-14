@@ -1,41 +1,35 @@
 # RUNBOOK — WEBSITE-AUDITOR / Money-Machine (v44 local-machine convergence)
 
-Human decisions only. Nothing in this runbook sends, publishes, or prices to a customer.
-Runtime: Python 3.11 in `.venv-email` (never "fix" with global 3.14). All commands run from `/Users/dd/WEBSITE-AUDITOR`.
 
-## 1. DLQ disposition decision tree
+# Dead-Letter Queue (DLQ) Triage
+When `mm health` reports dead_letter_count > 0:
+1.  **Identify:** Run `./mm dead-letter` to list items.
+2.  **Analyze:** Examine `state/errors.jsonl` and `worker-logs/` for the `business_id` in question.
+3.  **Triage:**
+    *   **Transient:** If network/temporary, use `./mm pipeline-enqueue` to retry.
+    *   **Malformed:** If input URL/data is corrupted, move to `data-quarantine` via `./mm data-quarantine`.
+    *   **Bug:** If reproducible code fault, report in GitHub.
+4.  **Clear:** Once resolved or quarantined, clear the DLQ status for the item.
 
-`./mm dead-letter` to list. For each item, in order:
+# Host Acceptance Evidence Gathering
 
-1. **Is it a test fixture?** (`source='test_import'`, names like `Acme Corporation`, `not-a-url`, ids formerly 29–40)
-   → `./mm dead-letter resolve --all --reason test_fixture` (never raw SQL). Fixtures are quarantined (`is_dummy=1`), never deleted.
-2. **Is the failure a bare-domain / malformed URL?** Intake-time normalizer (P2) now fixes this class.
-   If one appears anyway: record reason, fix at intake, resolve as `intake_url_defect`.
-3. **Is it `site unreachable` / network?** Check `./mm health` network mode. If degraded, wait for recovery
-   (guard self-heals; max 1 `network_degraded` row per 60s TTL). Resolve as `transient_network` only after the site
-   is reachable or the prospect is suppressed.
-4. **Real prospect, real failure** → fix root cause in code, then `./mm dead-letter resolve --id <id> --reason <root-cause-id>`.
-5. **Never** delete DLQ rows, never bulk-UPDATE outside the CLI, never resolve without a recorded reason (every transition stores reason + timestamp).
+Before merging to master, verify host compatibility and baseline integrity:
 
-## 2. Test-data quarantine
+1. **Doctor/Integrity:**
+   - `./mm doctor --profile research-only` (Verify DB, models disabled, tools)
+   - `./mm health` (Verify queue, pipeline health)
 
-- `./mm data-quarantine --source test_import` → sets `is_dummy=1` + suppression reason `test_fixture`; quarantined rows
-  are excluded from leased queue, funnel metrics, and reports. Idempotent; always run `./mm backup` first.
-- A quarantined prospect can never re-enter the queue; re-import of the same fixture adds 0 dupes (dedupe, P2).
+2. **Full Baseline Suite:**
+   - `.venv/bin/pytest toolkit_tests -q`
+   - `.venv/bin/pytest money-machine/test_acceptance.py -q`
+   - `WA_BROWSER_E2E=1 .venv/bin/pytest toolkit_tests/test_browser_e2e.py -q`
 
-## 3. Supervisor: restart / stale lease / PID lock
+3. **Discovery & Search (if SearXNG is configured):**
+   - Verify SearXNG is running at `http://127.0.0.1:8888`
+   - `./mm discover-search --query "..." --region "..." --endpoint "http://127.0.0.1:8888"`
 
-- Status: `./mm health` (shows pid, heartbeat age, network mode, alerts) or `ps aux | grep '[s]upervisor'`.
-- **Expected: exactly one supervisor process** running under `.venv-email` (Python 3.11).
-- Dead: `./mm supervisor start` (or `./mm supervisor ensure-running` — idempotent start-if-dead, no-op-if-alive).
-- **kill -9 recovery:** cron re-spawns within 5 min via the ensure-running line (below). No duplicate workers; no queue dupes.
-- **Stale lease:** leases expire (`lease_until`); a worker that died mid-lease releases after expiry. If a lease looks
-  stuck past expiry, check the worker heartbeat file under `state/worker-heartbeats/` before touching anything.
-- **PID lock removal:** only when `state/supervisor.pid` names a process that no longer exists
-  (`kill -0 $(cat state/supervisor.pid)` fails). Then `rm state/supervisor.pid` and `./mm supervisor ensure-running`.
-  Never remove the pidfile while a live process holds it.
-- Stale-process hygiene: `ps aux | grep '[s]upervisor'` may match multiple; confirm cwd with
-  `lsof -p <PID> | awk '$4=="cwd"'` before killing strays (e.g. pre-flock Python 3.14 leftovers).
+4. **Obsidian Sync:**
+   - `./mm obsidian-status` (Verify vault connectivity)
 
 ## 4. Always-on local runtime — launchd primary
 

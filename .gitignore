@@ -79,3 +79,4 @@ state/
 # Generated fixture captures; regenerate from the audit/contact workflows.
 reports/audit-backfills/
 reports/contact-captures/
+.vscode/

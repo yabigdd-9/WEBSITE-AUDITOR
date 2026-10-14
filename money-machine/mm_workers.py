@@ -9,6 +9,8 @@ items to APPROVAL_PENDING, where the evidence-gated approval engine decides.
 """
 import json
 import math
+import subprocess
+import sys
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -20,6 +22,8 @@ from mm_understanding_worker import understanding_worker_handler
 
 REPO = Path(__file__).resolve().parents[1]
 AUDIT_TIMEOUT = 60
+if str(REPO) not in sys.path:
+    sys.path.insert(0, str(REPO))
 
 
 def _record_intelligence_decision(d, business_id, decision, primary_reason,

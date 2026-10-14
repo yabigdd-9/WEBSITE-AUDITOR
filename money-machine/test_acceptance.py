@@ -21,6 +21,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parent/'scripts'))
 import mm_core as c
 import mm_intelligence as i
 import mm_operator as o
+from mm_operator import ValidationError
 import mm_email as email_engine
 import mm_email_store as email_store
 SOURCE=Path(os.environ.get('MM_TEST_SOURCE',str(Path(__file__).resolve().parents[1]/'database/money_machine.db')))
@@ -77,7 +78,7 @@ class Acceptance(unittest.TestCase):
     def test_02_modified_approved_body_invalidates_approval(self):
         self.approve();self.d.execute('UPDATE mm_messages SET body=body||? WHERE id=?',(' modified',self.mid));self.assertIsNone(self.d.execute('SELECT approved_hash FROM mm_messages WHERE id=?',(self.mid,)).fetchone()[0])
     def test_03_suppressed_prospect_cannot_enter_queue(self):
-        self.d.execute('INSERT INTO mm_holds VALUES(?,?)',(self.bid,'fixture hold'))
+        self.d.execute('INSERT INTO mm_holds(business_id, reason, created_at) VALUES(?,?,?)',(self.bid,'fixture hold',c.now()))
         with self.assertRaises(sqlite3.IntegrityError):self.d.execute("INSERT INTO mm_messages(business_id,evidence_id,recipient,body,digest,kind,created_at) VALUES(?,?,?,?,?,'followup',?)",(self.bid,self.eid,self.address,BODY,'new',c.now()))
     def test_04_duplicate_payment_cannot_inflate_revenue(self):
         pid,rid=self.pay()
@@ -124,7 +125,7 @@ class Acceptance(unittest.TestCase):
             self.assertNotEqual(run.returncode,0,f'archived script did not fail closed: {name}')
             self.assertIn('BLOCKED',run.stderr+run.stdout,f'archived script lacks BLOCKED diagnostic: {name}')
         self.demo.write_text('')
-        with self.assertRaises(ValueError):o.demo_qa(self.d,self.bid,self.demo)
+        with self.assertRaises(ValidationError):o.demo_qa(self.d,self.bid,self.demo)
     def test_13_migration_requires_verified_restorable_backup(self):
         with self.assertRaises(ValueError):c.migrate(self.d,self.r/'missing')
         backupdb=self.backup/'money_machine.db'
@@ -135,7 +136,7 @@ class Acceptance(unittest.TestCase):
         c.change_stage(self.d,self.bid,'VERIFIED','Evidence reviewed');c.change_stage(self.d,self.bid,'AUDITED','Scope fixture');c.change_stage(self.d,self.bid,'DRAFT_READY','Review fixture');self.proposal();c.change_stage(self.d,self.bid,'PROPOSAL_READY','Human review')
         self.assertEqual(o.metrics(self.d)['verified_sends'],0);self.assertEqual(self.d.execute('SELECT stage FROM mm_deals WHERE business_id=?',(self.bid,)).fetchone()[0],'PROPOSAL_READY')
     def test_16_suppression_overrides_approval(self):
-        h=self.approve();rid=self.proof('send',self.mid,h);self.d.execute('INSERT INTO mm_suppression VALUES(?,?,?)',(self.address,'fixture',c.now()))
+        h=self.approve();rid=self.proof('send',self.mid,h);self.d.execute('INSERT INTO mm_suppression(address, reason, created_at) VALUES(?,?,?)',(self.address,'fixture',c.now()))
         with self.assertRaises(ValueError):c.record_sent(self.d,self.mid,rid)
         self.assertIsNone(self.d.execute('SELECT approved_hash FROM mm_messages WHERE id=?',(self.mid,)).fetchone()[0])
     def test_17_recipient_change_invalidates_approval(self):
@@ -170,7 +171,7 @@ class Acceptance(unittest.TestCase):
         self.d.execute("UPDATE mm_jobs SET attempts=3,lease_until='2000-01-01' WHERE job_key='resume'")
         with self.assertRaises(ValueError):i.claim_job(self.d,'resume','status')
     def test_27_duplicate_prospect_is_flagged(self):
-        with self.assertRaisesRegex(ValueError,'Duplicate'):
+        with self.assertRaisesRegex(ValidationError,'Duplicate'):
             o.main(['intake','--name','Acceptance Fixture','--url','https://fixture.example.invalid','--region','fixture','--source','https://fixture.example.invalid'])
     def test_28_budget_cannot_record_positive_paid_cost(self):
         with self.assertRaises(sqlite3.IntegrityError):self.d.execute("INSERT INTO mm_model_invocations(run_key,model,provider,purpose_hash,status,cost_usd,created_at) VALUES('x','paid','nous','x','started',1,?)",(c.now(),))

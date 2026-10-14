@@ -1,7 +1,7 @@
 import pathlib
 
-pathlib.Path("website_auditor/advanced").mkdir(parents=True, exist_ok=True)
-pathlib.Path("website_auditor/advanced/__init__.py").touch()
+pathlib.Path("auditor_toolkit/advanced").mkdir(parents=True, exist_ok=True)
+pathlib.Path("auditor_toolkit/advanced/__init__.py").touch()
 
 # ==========================================
 # MODULE 1: NZ MARKET DOMINATOR (Path 3)
@@ -44,7 +44,7 @@ def lookup_nzbn(nzbn_number):
     # In production, this hits the public NZBN API
     return {"status": "verified_stub", "nzbn": nzbn_number, "entity_type": "NZ Limited Company"}
 """
-pathlib.Path("website_auditor/advanced/nz_dominator.py").write_text(nz_code)
+pathlib.Path("auditor_toolkit/advanced/nz_dominator.py").write_text(nz_code)
 
 
 # ==========================================
@@ -88,7 +88,7 @@ def fingerprint(headers, html_source):
                     break
     return {k: list(set(v)) for k, v in found.items()}
 """
-pathlib.Path("website_auditor/advanced/tech_fingerprint.py").write_text(intel_code)
+pathlib.Path("auditor_toolkit/advanced/tech_fingerprint.py").write_text(intel_code)
 
 
 # ==========================================
@@ -151,7 +151,7 @@ def run_browser_audit(url):
         browser.close()
         return {"status": "success", "data": results}
 """
-pathlib.Path("website_auditor/advanced/playwright_engine.py").write_text(pw_code)
+pathlib.Path("auditor_toolkit/advanced/playwright_engine.py").write_text(pw_code)
 
 
 # ==========================================
@@ -198,7 +198,7 @@ def ingest_remediation_to_db(json_path, db_path="outputs/portfolio.duckdb"):
     \"\"\", [domain, score, issues, "detected", None])
     con.close()
 """
-pathlib.Path("website_auditor/advanced/portfolio_db.py").write_text(db_code)
+pathlib.Path("auditor_toolkit/advanced/portfolio_db.py").write_text(db_code)
 
 print("✅ MASTERCLASS SUITE GENERATED SUCCESSFULLY!")
 print("   - NZ Dominator (Macrons & Fair Trading)")

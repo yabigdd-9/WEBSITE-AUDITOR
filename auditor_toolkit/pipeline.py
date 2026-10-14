@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 import time
+import traceback
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, replace
@@ -17,6 +19,7 @@ from .external_tools import run_lighthouse, run_lychee
 from .faults import enrich as enrich_fault
 from .faults import group_root_causes
 from .faults import regression as fault_regression
+from .flows import flow_findings, run_flow_probe
 from .hygiene import (
     check_mixed_content,
     check_robots,
@@ -87,6 +90,32 @@ class AuditOptions:
             raise ValueError("Unknown profile")
 
 
+logger = logging.getLogger(__name__)
+
+
+def _execute_check(name, fn, required, url, timestamp, findings, evidence, checks):
+    """Unified helper to execute, time, and record checks."""
+    started = time.perf_counter()
+    try:
+        found, data = fn()
+        findings.extend(found)
+        evidence[name] = {
+            "url": url,
+            "observed_at": timestamp,
+            "mode": REGISTRY[name].mode,
+            "data": data,
+            "check_version": REGISTRY[name].version,
+        }
+        checks[name] = {"status": "ok", "required": required}
+        return data
+    except Exception as exc:
+        logger.error(f"Check '{name}' failed: {exc}\n{traceback.format_exc()}")
+        checks[name] = {"status": "error", "reason": str(exc), "required": required}
+        return None
+    finally:
+        elapsed = int((time.perf_counter() - started) * 1000)
+        checks[name]["elapsed_ms"] = checks[name].get("elapsed_ms", 0) + elapsed
+
 def run_audit(url, options=None, fetcher=None):
     opts = options or AuditOptions()
     started_at = time.perf_counter()
@@ -104,24 +133,7 @@ def run_audit(url, options=None, fetcher=None):
     )
 
     def perform(name, fn, required=True):
-        started = time.perf_counter()
-        try:
-            found, data = fn()
-            findings.extend(found)
-            evidence[name] = {
-                "url": url,
-                "observed_at": timestamp,
-                "mode": REGISTRY[name].mode,
-                "data": data,
-                "check_version": REGISTRY[name].version,
-            }
-            checks[name] = {"status": "ok", "required": required}
-            return data
-        except Exception as exc:
-            checks[name] = {"status": "error", "reason": str(exc), "required": required}
-            return None
-        finally:
-            checks[name]["elapsed_ms"] = int((time.perf_counter() - started) * 1000)
+        return _execute_check(name, fn, required, url, timestamp, findings, evidence, checks)
 
     def skip(name, reason, required=False):
         checks[name] = {"status": "skipped", "reason": reason, "required": required}
@@ -260,6 +272,18 @@ def run_audit(url, options=None, fetcher=None):
                 )
             except Exception as exc:
                 result = {"status": "error", "reason": str(exc), "evidence": {}}
+            try:
+                if result["status"] != "skipped":
+                    flow_result = run_flow_probe(final_url, run_dir / "artifacts", enabled=True, allow_private=opts.allow_private)
+                    flow_evidence = flow_result.get("evidence", {})
+                    final_url_ev = result.get("final_url", final_url)
+                    if flow_result["status"] in ("ok", "error"):
+                        flow_evidence.setdefault("reason", flow_result.get("reason", ""))
+                        flow_findings_list, flow_summary = flow_findings(flow_evidence, final_url_ev, flow_result["status"])
+                        findings.extend(replace(f, source_url=final_url_ev) for f in flow_findings_list)
+                        flow_evidence["summary"] = flow_summary
+            except Exception as exc:
+                logger.debug(f"Flow probe failed for {final_url}: {exc}")
             checks["browser"] = {
                 "status": result["status"],
                 "reason": result.get("reason", ""),

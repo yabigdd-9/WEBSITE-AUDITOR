@@ -51,7 +51,7 @@ def run_nightly():
         
         # 3. Load defects and run Watchdog
         try:
-            from website_auditor.monitoring.watchdog import Watchdog
+            from auditor_toolkit.monitoring.watchdog import Watchdog
             wd = Watchdog()
             
             rem_file = Path(f"outputs/remediations/{clean_domain}-remediation.json")

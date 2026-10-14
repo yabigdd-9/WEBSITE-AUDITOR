@@ -5,8 +5,8 @@ import json
 import re
 from pathlib import Path
 
-from .common import atomic_write_json, atomic_write_text, workspace_path
-from .storage import finding_id
+from ..common import atomic_write_json, atomic_write_text, workspace_path
+from ..storage import finding_id
 
 
 def artifact_id(value):
