@@ -88,7 +88,11 @@ def metrics(d):
 
 def run_day(d,write=True):
     start=time.perf_counter();queue=[];blocked=[];stale=[]
-    for b in d.execute('SELECT b.id,b.name,m.stage,m.next_action,m.due FROM businesses b JOIN mm_deals m ON m.business_id=b.id WHERE b.is_dummy=0'):
+    for b in d.execute('''SELECT id,name,stage,next_action,due FROM (
+        SELECT b.id,b.name,m.stage,m.next_action,m.due,
+               ROW_NUMBER() OVER (PARTITION BY b.id ORDER BY m.id DESC) AS rn
+        FROM businesses b JOIN mm_deals m ON m.business_id=b.id
+        WHERE b.is_dummy=0) WHERE rn=1'''):
         bid=b['id'];name=b['name']
         try:eligible(d,bid)
         except ValueError as e:blocked.append({'id':bid,'name':name,'reason':str(e)});continue

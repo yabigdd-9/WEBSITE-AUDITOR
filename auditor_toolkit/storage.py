@@ -115,8 +115,8 @@ class History:
             ),
             None,
         )
-        current = {d["finding_id"] for d in report["defects"]}
-        old = {d["finding_id"] for d in baseline["defects"]} if baseline else set()
+        current = {d["finding_id"] for d in report.get("defects", [])}
+        old = {d["finding_id"] for d in baseline.get("defects", [])} if baseline else set()
         historic = {
             d["finding_id"] for r in previous if r["status"] == "complete" for d in r["defects"]
         }
@@ -152,7 +152,12 @@ class History:
             ):
                 raise ValueError("Verification needs a complete run without the finding")
             with self.connect() as db:
-                originals = [json.loads(r[0]) for r in db.execute("SELECT report FROM runs")]
+                originals = [
+                    json.loads(r[0])
+                    for r in db.execute(
+                        "SELECT report FROM runs WHERE url = ?", (run["url"],)
+                    )
+                ]
             if not any(
                 r["url"] == run["url"]
                 and r["profile"] == run["profile"]
