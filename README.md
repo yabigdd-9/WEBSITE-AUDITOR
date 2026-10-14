@@ -172,6 +172,37 @@ Obsidian is the human-facing operator workspace, not the runtime database or que
 
 Runtime → Obsidian synchronization is read-mostly. Closing Obsidian does not stop the pipeline.
 
+## Audit checks
+
+The `wa audit` command runs a deterministic check suite across every page. Each check returns findings with observed evidence, a remediation action, an effort band, and an automation classification.
+
+| Check | Category | Mode | What it detects |
+| --- | --- | --- | --- |
+| `fetch` | core | static | HTTP status, redirects, revalidation |
+| `page` | content | static | Title, meta description, headings, canonical, structured data |
+| `schema` | technical | static | JSON-LD validity and schema coverage |
+| `headers` | security | static | CSP, X-Content-Type-Options, HSTS, cookies |
+| `technology` | tech | static | CMS, frameworks, libraries, version detection |
+| `js_vulnerabilities` | security | static | Known vulnerable JS library patterns |
+| `hreflang` | seo | static | hreflang coverage, x-default, self-reference, duplicates |
+| `language` | accessibility | static | html lang, content-language, NZ domain checks |
+| `images` | performance | static | Missing alt text, dimensions, loading attribute, external hosting |
+| `social_meta` | technical | static | Open Graph and Twitter Card coverage |
+| `hygiene` | crawl | static | robots.txt, sitemap, security headers, mixed content, conversion signals |
+| `ux` | content | static | Conversion signals, contact methods, trust indicators |
+| `links` | crawl | deep | Internal link validation |
+| `lychee` | links | external | External link liveness (requires local Lychee) |
+| `lighthouse` | performance | external | Performance, accessibility, SEO, best practices (requires local Lighthouse) |
+| `tls` | security | optional | TLS configuration and certificate validity |
+| `dns` | network | deep | DNS records, MX, SPF/DKIM |
+| `crawl` | crawl | deep | Multi-page crawl with internal link discovery |
+| `browser` | rendered | rendered | Console errors, cookie consent, third-party requests, axe violations |
+| `cookie_consent` | privacy | rendered | Cookie consent banner detection |
+| `third_party` | privacy | rendered | Third-party domain inventory |
+| `browser_console` | rendered | rendered | Console error anti-patterns (document.write, mixed content) |
+
+Checks marked `rendered` only run when `--browser` is passed (or `--profile rendered`). Checks marked `external` require locally installed Lighthouse/Lychee and are gated behind `--external-tools`.
+
 ## Legacy compatibility
 
 `website_auditor.py`, `website_auditor_enhanced.py`, `ultimate_auditor.py`, and `full-pipeline.py` are legacy/compatibility paths. New work should use `wa` and `./mm`. They are retained temporarily because older helper scripts still reference them; they should be archived only after those callers are migrated and regression-tested.

@@ -339,7 +339,7 @@ WORKER_MAP = {
     # Zero-token specific workers
     "system_supervisor": lambda: run_supervisor_health(),
     "database_guard": lambda: run_database_integrity(),
-    "testing_worker": lambda: run_toolkit_test("toolkit_tests", "-q"),
+    "testing": lambda: run_toolkit_test("toolkit_tests", "-q"),
     "git_observer": lambda: run_git_observer(),
     "provider_monitor": lambda: run_provider_monitor(),
     "queue_dispatcher": lambda: run_queue_dispatcher(),

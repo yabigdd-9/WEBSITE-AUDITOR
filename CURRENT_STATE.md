@@ -1,14 +1,6 @@
 # WEBSITE-AUDITOR — Current State
 
-_Last updated: 2026-10-08 (Pacific/Auckland). Verified baseline: `b349cd9fb23b6cf9c5a2e8a8c74691158e9cda8f`, PR #52._
-
-## Verified baseline and local candidate
-
-The authoritative service checkout is `/Users/dd/WEBSITE-AUDITOR`, on `integration/v44-local-machine-convergence`. The combined V44/V45 kit has a separate V45 branch; it has not been merged into `master`.
-
-On 8 October, [PR #52](https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/52) remains open and draft at **b349cd9f**. Its latest **13 check runs succeeded**. The [SonarCloud result](https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/52#issuecomment-6001612868) has **39 maintenance suggestions**: 33 compound assertions, four exception-assertion scopes and two technology-detection suggestions. There are no unresolved inline review threads or open repository issues in this inspection. CodeRabbit skipped review because the PR is draft; that is not completed review.
-
-The 8 October update is a **locally committed candidate in the isolated `codex/github-todo-update` checkout**. It marks seven unimplemented audit stages explicitly skipped and addresses audit-cache coverage guards, audit-handler review holds, secret-list behavior, quote safety, the 39 maintenance suggestions and planning drift. Precommit review also fixed five issues: malformed falsey effort bands, invalid JSON CLI handling, screenshot comparisons for valid partial browser captures, stale verification/resolution acceptance and contradictory rendered/browser coverage metadata. The external review bundle records the local commit SHA. Local validation passed as recorded below, including the final canonical-suite rerun and installed-wheel import smoke; the final report retains the receipts. Existing b349 checks do not validate this new diff, and the authoritative checkout, running service, database, configuration and approvals remain unchanged. See [the suggested TODO register](docs/GITHUB_TODO_REGISTER.md).
+_Last updated: 2026-10-15 · branch `integration/v44-local-machine-convergence` · PR #52_
 
 ## Canonical direction
 
