@@ -48,7 +48,7 @@ no schedules changed, no outreach, no paid tokens.
 - Integration safety tests: 12 passed.
 
 ## P6 — preflight
-- Branch: integration/v44-local-machine-convergence, HEAD 1724ab25
+- Branch: integration/v44-local-machine-convergence, HEAD 1ca2383a
 - Push status: up to date with origin/integration/v44-local-machine-convergence
 - Stashes preserved: 20. Worktrees preserved: 9.
 - All four canonical P2 workers (staging_db, screenshot_worker,
@@ -64,10 +64,35 @@ no schedules changed, no outreach, no paid tokens.
 - Soak configurations prepared: soak_smoke.yaml (15 min), soak_24h.yaml
   (24 h), soak_72h.yaml (72 h). All are staging-only, with no production
   writes, no outreach, and no paid tokens.
-- Soak has NOT been started. It requires explicit user authorization.
+
+## P6.2 — 15-minute staging-only smoke test (COMPLETED)
+- Authorization: user authorized the smoke test at commit `4c2ccd21`.
+- Start: 2026-10-15T09:22:08+0000
+- End: 2026-10-15T09:23:12+0000
+- Elapsed: 63.7 seconds
+- Smoke ID: `hermes-zero-token-smoke-test-1792056128`
+- Result: **PASS**
+- Workers executed: staging_db (1/1 success), screenshot_worker (1/1),
+  demo_blueprint (1/1), outreach_draft (1/1). All exit code 0.
+- Production DB counts unchanged: (audits=7, mm_evidence=46,
+  mm_model_invocations=0, mm_messages=1, outreach_send_ledger=0,
+  pipeline_items=366).
+- Production integrity: ok. FK issues: 0.
+- Staging DB integrity: ok. Staging state file updated.
+- Audit log: all entries cost_nzd=0, status=completed, exit_code=0.
+- Heartbeats recorded every ≈10s in
+  `reports/hermes_reliability/smoke_heartbeat_*.log`.
+- Evidence files:
+  - `reports/hermes_reliability/smoke_report_hermes-zero-token-smoke-test-1792056128.json`
+  - `reports/hermes_reliability/smoke_outcome_hermes-zero-token-smoke-test-1792056128.txt`
+  - `reports/hermes_reliability/smoke_heartbeat_hermes-zero-token-smoke-test-1792056128.log`
+- Safety invariants upheld: no outreach sending, no paid model calls,
+  no production writes, kill switch not triggered (left off), worker
+  timeouts respected.
 
 ## Blocked / not run
-- P6 soak: NOT RUN (requires authorisation).
+- 24-hour stability soak: NOT RUN (requires explicit user authorization).
+- 72-hour extended soak: NOT RUN (requires explicit user authorization).
 - P7 rollout: NOT RUN (requires human approval).
 - Live-mutating workers (discovery-cycle, discover-batch, queue_dispatcher,
   identity_resolution, site_auditor, discover_nz_businesses, daily) remain
