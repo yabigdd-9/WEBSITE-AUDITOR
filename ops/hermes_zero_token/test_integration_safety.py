@@ -112,8 +112,11 @@ def test_report_cumulative_counts_testing_aliases_timeouts_and_unknown_accountin
     metrics = module.collect_metrics()
     assert metrics["scripts_succeeded"] == 1
     assert metrics["scripts_failed"] == 2
-    assert metrics["test_passed"] == 1
-    assert metrics["test_failed"] == 1
+    assert metrics["testing_runs_passed"] == 1
+    assert metrics["testing_runs_failed"] == 1
+    assert metrics["test_passed"] is None
+    assert metrics["test_failed"] is None
+    assert metrics["test_skipped"] is None
     assert metrics["host_model_calls"] is None
     assert metrics["attestation_complete"] is False
     report = module.write_daily_report(metrics)

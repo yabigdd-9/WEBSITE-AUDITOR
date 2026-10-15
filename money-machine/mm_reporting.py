@@ -58,7 +58,8 @@ def evaluate_alerts(rules=None):
             tables = {r[0] for r in d.execute("SELECT name FROM sqlite_master WHERE type='table'")}
             if "pipeline_items" in tables:
                 values["dead_lettered_total"] = d.execute(
-                    "SELECT count(*) FROM pipeline_items WHERE state='DEAD_LETTER'").fetchone()[0]
+                    "SELECT count(*) FROM pipeline_items "
+                    "WHERE state IN ('RETRYABLE_FAILURE','PERMANENT_FAILURE')").fetchone()[0]
     disk = _disk_free_mb()
     if disk is not None:
         values["disk_free_mb"] = disk
@@ -145,7 +146,8 @@ def funnel_snapshot(d):
         "new_drafts_24h": d.execute(
             "SELECT count(*) FROM mm_messages WHERE created_at >= datetime('now','-1 day')").fetchone()[0],
         "dead_lettered": d.execute(
-            "SELECT count(*) FROM pipeline_items WHERE state='DEAD_LETTER'").fetchone()[0],
+            "SELECT count(*) FROM pipeline_items "
+            "WHERE state IN ('RETRYABLE_FAILURE','PERMANENT_FAILURE')").fetchone()[0],
         "prospects_without_evidence": d.execute(
             "SELECT count(*) FROM businesses b WHERE is_dummy=0 AND NOT EXISTS"
             "(SELECT 1 FROM mm_evidence e WHERE e.business_id=b.id)").fetchone()[0],

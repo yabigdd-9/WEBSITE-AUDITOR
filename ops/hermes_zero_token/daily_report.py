@@ -16,6 +16,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -36,7 +37,7 @@ def _now() -> str:
 
 
 def _now_date() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    return datetime.now(ZoneInfo("Pacific/Auckland")).strftime("%Y-%m-%d")
 
 
 def db_query(sql: str, params=tuple()) -> list:
@@ -110,22 +111,36 @@ def collect_metrics() -> dict[str, Any]:
             except json.JSONDecodeError:
                 pass
     metrics["script_counts_scope"] = "cumulative retained audit log"
-    metrics["test_counts_scope"] = "worker runs, not individual pytest cases"
+    metrics["test_counts_scope"] = "latest recorded pytest suite; individual JUnit cases"
     metrics["scripts_succeeded"] = scripts_succeeded
     metrics["scripts_failed"] = scripts_failed
 
     # --- Tests (from last audit log test_worker runs) ---
-    metrics["test_passed"] = 0
-    metrics["test_failed"] = 0
+    metrics["test_passed"] = None
+    metrics["test_failed"] = None
+    metrics["test_skipped"] = None
+    metrics["testing_runs_passed"] = 0
+    metrics["testing_runs_failed"] = 0
+    latest_test_seen = False
     if audit_log.exists():
         for line in reversed(audit_log.read_text().splitlines()):
             try:
                 rec = json.loads(line)
                 if rec.get("worker_id") in {"testing", "testing_worker"} and rec.get("event") == "complete":
                     if rec.get("status") == "completed":
-                        metrics["test_passed"] = metrics.get("test_passed", 0) + 1
+                        metrics["testing_runs_passed"] += 1
                     elif rec.get("status") in ("failed", "error", "timeout", "blocked"):
-                        metrics["test_failed"] = metrics.get("test_failed", 0) + 1
+                        metrics["testing_runs_failed"] += 1
+                    if not latest_test_seen:
+                        latest_test_seen = True
+                        counts = rec.get("test_counts")
+                        if isinstance(counts, dict) and all(
+                            type(counts.get(key)) is int and counts[key] >= 0
+                            for key in ("passed", "failed", "skipped")
+                        ):
+                            metrics.update({"test_" + key: counts[key]
+                                            for key in ("passed", "failed", "skipped")})
+                        metrics["test_last_recorded_at"] = rec.get("timestamp")
             except json.JSONDecodeError:
                 pass
 
@@ -135,11 +150,11 @@ def collect_metrics() -> dict[str, Any]:
     )
 
     metrics["paid_model_calls"] = _safe_int(
-        "SELECT count(*) FROM mm_model_invocations WHERE cost_usd > 0 OR provider IS NOT NULL"
+        "SELECT COALESCE(SUM(model_calls),0) FROM mm_model_invocations WHERE cost_usd > 0"
     )
 
-    # DB has CHECK(cost_usd=0), so this is provably zero
-    metrics["estimated_paid_cost_nzd"] = (0.0 if metrics["paid_model_calls"] == 0 else None)
+    metrics["estimated_paid_cost_nzd"] = None
+    metrics["cost_telemetry_scope"] = "Recorded workflow ledger; provider statements and global Hermes not reconciled"
 
     metrics["outbound_messages_sent"] = _safe_int(
         "SELECT count(*) FROM mm_messages WHERE sent_at IS NOT NULL OR send_receipt IS NOT NULL"
@@ -202,12 +217,16 @@ def write_daily_report(metrics: dict[str, Any]) -> Path:
         f"- `duplicate_candidates_count` = {metrics['duplicate_candidates_count']}",
         "",
         "## Worker/Script Health",
-        "Counts cover the retained cumulative audit log; tests count worker runs, not pytest cases.",
+        "Worker counts cover the retained log; test counts use the latest recorded JUnit suite. Legacy case counts remain unknown.",
         "",
         f"- `scripts_succeeded` = {metrics['scripts_succeeded']}",
         f"- `scripts_failed` = {metrics['scripts_failed']}",
         f"- `test_passed` = {metrics['test_passed']}",
         f"- `test_failed` = {metrics['test_failed']}",
+        f"- `test_skipped` = {metrics['test_skipped']}",
+        f"- `testing_runs_passed` = {metrics['testing_runs_passed']}",
+        f"- `testing_runs_failed` = {metrics['testing_runs_failed']}",
+        f"- Cost scope: {metrics['cost_telemetry_scope']}",
         "",
         "## Next Operator Decisions",
         "",

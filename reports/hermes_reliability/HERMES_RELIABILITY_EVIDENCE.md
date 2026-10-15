@@ -65,7 +65,7 @@ no schedules changed, no outreach, no paid tokens.
   (24 h), soak_72h.yaml (72 h). All are staging-only, with no production
   writes, no outreach, and no paid tokens.
 
-## P6.2 — 15-minute staging-only smoke test (COMPLETED)
+## P6.2 — Bounded staging-only smoke test (63.7 seconds)
 - Authorization: user authorized the smoke test at commit `4c2ccd21`.
 - Start: 2026-10-15T09:22:08+0000
 - End: 2026-10-15T09:23:12+0000

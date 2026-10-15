@@ -24,7 +24,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-os.chdir(PROJECT_ROOT)
 
 SCREENSHOT_DIR = PROJECT_ROOT / "reports" / "hermes_zero_token" / "screenshots"
 MANIFEST_PATH = SCREENSHOT_DIR / "manifest_sha256.json"
@@ -65,14 +64,15 @@ def get_pending_businesses(limit=3):
 def capture_with_browser_toolkit(url, out_dir):
     """Use auditor_toolkit.browser.run_browser_checks (browser=True)."""
     code = (
-        "import sys; sys.path.insert(0, r'%s')" % str(PROJECT_ROOT)
+        "import sys; sys.path.insert(0, sys.argv[1])"
         + "\nfrom auditor_toolkit.browser import run_browser_checks\n"
         + "import json\n"
-        + "result = run_browser_checks(r'%s', r'%s', enabled=True)\n" % (url, str(out_dir))
+        + "result = run_browser_checks(sys.argv[2], sys.argv[3], enabled=True)\n"
         + "print(json.dumps(result, default=str))\n"
     )
     result = subprocess.run(
-        [str(PROJECT_ROOT / ".venv" / "bin" / "python"), "-c", code],
+        [str(PROJECT_ROOT / ".venv" / "bin" / "python"), "-c", code,
+         str(PROJECT_ROOT), url, str(out_dir)],
         capture_output=True, text=True, timeout=90,
     )
     return result.returncode, result.stdout, result.stderr
@@ -113,7 +113,19 @@ def main():
     for b in businesses:
         bid, name, url = b["id"], b["name"], b["public_website"]
         out_dir = SCREENSHOT_DIR / f"business-{bid}"
-        if out_dir.exists() and any(out_dir.glob("*.png")):
+        cached = False
+        for entry in manifest.get("screenshots", []):
+            if (entry.get("business_id") != bid or entry.get("url") != url
+                    or not isinstance(entry.get("path"), str)):
+                continue
+            cached_path = Path(entry["path"])
+            if (cached_path.parent == out_dir and cached_path.is_file()
+                    and not cached_path.is_symlink()
+                    and cached_path.stat().st_size > 0
+                    and _sha256(cached_path) == entry.get("sha256")):
+                cached = True
+                break
+        if cached:
             report["details"].append({
                 "business_id": bid, "name": name, "url": url,
                 "status": "already_captured", "path": str(out_dir),
@@ -124,7 +136,12 @@ def main():
             rc, stdout, stderr = capture_with_browser_toolkit(url, out_dir)
             out_dir.mkdir(parents=True, exist_ok=True)
             pngs = sorted(out_dir.glob("*.png"))
-            if pngs:
+            try:
+                capture = json.loads(stdout)
+            except (json.JSONDecodeError, TypeError):
+                capture = None
+            if (rc == 0 and isinstance(capture, dict)
+                    and capture.get("status") == "ok" and pngs):
                 latest = pngs[-1]
                 h = _sha256(latest)
                 entry = {
@@ -159,7 +176,7 @@ def main():
     report_path = SCREENSHOT_DIR / "screenshot_report.json"
     report_path.write_text(json.dumps(report, indent=2, default=str))
     print(json.dumps(report, indent=2, default=str))
-    return 0
+    return 1 if report["screenshots_failed"] else 0
 
 
 if __name__ == "__main__":

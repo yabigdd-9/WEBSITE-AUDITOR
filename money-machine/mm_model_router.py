@@ -12,17 +12,18 @@ import datetime as dt
 import ipaddress
 import json
 import os
-from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import urllib.error
 import urllib.request
+from decimal import Decimal, InvalidOperation
+from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
 
 import yaml
-
 from mm_core import now, sha
+from mm_core import root as runtime_root
 from mm_pipeline import BlockedCost
 from mm_redaction import prepare_prompt
 
@@ -77,6 +78,55 @@ PURPOSE_ROUTES = {
 
 class PaidRouteRefused(Exception):
     """A route that could bill was requested. Always a hard error."""
+
+
+class CostSafetyStop(BlockedCost):
+    """Billing evidence requires operator review before any further inference."""
+
+
+def _cost_stop_path():
+    return runtime_root() / "state" / "model-routing-cost-stop.json"
+
+
+def _check_cost_stop():
+    path = _cost_stop_path()
+    if path.exists() or path.is_symlink():
+        raise CostSafetyStop("Model routing stopped for billing review; inspect cost incident")
+
+
+def _stop_for_cost(provider, model, reason, observed_cost=None):
+    incident = {
+        "at": now(), "provider": provider, "model": model,
+        "reason": reason, "observed_cost_usd": observed_cost,
+        "action": "stop_all_model_routing_until_operator_review",
+    }
+    path = _cost_stop_path()
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            json.dump(incident, handle, sort_keys=True)
+            handle.flush()
+            os.fsync(handle.fileno())
+    except FileExistsError:
+        pass
+    except OSError as exc:
+        raise CostSafetyStop("Billing safety stop; incident could not be persisted") from exc
+    raise CostSafetyStop("Billing safety stop: " + reason)
+
+
+def _verify_reported_cost(usage, provider, model):
+    cost = usage.get("cost") if isinstance(usage, dict) else None
+    if cost is None or isinstance(cost, bool):
+        _stop_for_cost(provider, model, "reported_cost_unknown")
+    try:
+        amount = Decimal(str(cost))
+    except (InvalidOperation, ValueError, TypeError):
+        _stop_for_cost(provider, model, "reported_cost_invalid")
+    if not amount.is_finite() or amount < 0:
+        _stop_for_cost(provider, model, "reported_cost_invalid")
+    if amount != 0:
+        _stop_for_cost(provider, model, "reported_nonzero_cost", str(amount))
 
 
 def _loopback_url(url):
@@ -240,6 +290,7 @@ def _lookup_route(kind, purpose, lookup):
 
 def plan(d, purpose, at=None, local_lookup=None):
     """Plan FCC-Claude first, Hermes free-role second, otherwise BLOCKED_COST."""
+    _check_cost_stop()
     tried = []
     chosen = None
     for provider, _ in PURPOSE_ROUTES.get(
@@ -321,6 +372,7 @@ def prepare_external_prompt(prompt: str) -> dict:
 
 
 def _fcc_complete(prompt, model, max_tokens, timeout):
+    _check_cost_stop()
     if not _fcc_model_allowed(model):
         raise BlockedCost(
             "Claude/FCC model is not explicitly certified zero-cost; use Hermes fallback"
@@ -338,18 +390,21 @@ def _fcc_complete(prompt, model, max_tokens, timeout):
     try:
         with _open_local(req, timeout) as response:
             payload = json.loads(response.read().decode())
-    except (urllib.error.HTTPError, urllib.error.URLError, OSError, TimeoutError) as exc:
+    except (urllib.error.HTTPError, urllib.error.URLError, OSError, TimeoutError, ValueError) as exc:
         raise BlockedCost("Claude/FCC route unavailable without paid fallback") from exc
     elapsed = (dt.datetime.now(dt.timezone.utc) - started).total_seconds()
-    text = (payload.get("choices") or [{}])[0].get("message", {}).get("content", "")
-    if not isinstance(text, str) or not text.strip():
+    if not isinstance(payload, dict):
+        raise BlockedCost("Claude/FCC returned a malformed response")
+    _verify_reported_cost(payload.get("usage"), FCC_PROVIDER, model)
+    if payload.get("model") != model:
+        raise BlockedCost("Claude/FCC returned an unapproved response model")
+    choices = payload.get("choices")
+    choice = choices[0] if isinstance(choices, list) and choices else None
+    message = choice.get("message") if isinstance(choice, dict) else None
+    text = message.get("content") if isinstance(message, dict) else None
+    if (not isinstance(text, str) or not text.strip()
+            or choice.get("finish_reason") == "length"):
         raise BlockedCost("Claude/FCC returned no usable zero-cost answer")
-    usage = payload.get("usage") or {}
-    reported_cost = usage.get("cost")
-    if reported_cost not in (None, 0, 0.0, "0", "0.0"):
-        raise BlockedCost(
-            "FCC reported non-zero cost; stop Claude route and use Hermes fallback"
-        )
     return {
         "text": text,
         "provider": FCC_PROVIDER,
@@ -362,6 +417,7 @@ def _fcc_complete(prompt, model, max_tokens, timeout):
 
 def _hermes_complete(prompt, purpose, timeout):
     """Run the Hermes free-role dispatcher, which live-verifies catalog price=0."""
+    _check_cost_stop()
     configured = probe_hermes(purpose)
     if not configured:
         raise BlockedCost("Hermes zero-cost role fallback is not configured")
@@ -399,13 +455,13 @@ def _hermes_complete(prompt, purpose, timeout):
         payload = json.loads(result.stdout)
     except ValueError as exc:
         raise BlockedCost("Hermes fallback returned malformed output") from exc
+    if not isinstance(payload, dict):
+        raise BlockedCost("Hermes fallback returned malformed output")
     model = payload.get("actual_model") or payload.get("requested_model")
     answer = payload.get("answer")
-    cost = (payload.get("usage") or {}).get("cost")
+    _verify_reported_cost(payload.get("usage"), HERMES_PROVIDER, model)
     if not isinstance(model, str) or not model.endswith(":free"):
         raise BlockedCost("Hermes fallback did not prove a :free model")
-    if cost not in (None, 0, 0.0, "0", "0.0"):
-        raise BlockedCost("Hermes fallback reported non-zero cost")
     if not isinstance(answer, str) or not answer.strip():
         raise BlockedCost("Hermes fallback returned no usable answer")
     return {
@@ -425,6 +481,7 @@ def local_complete(
     lookup=None,
 ):
     """Execute Claude/FCC first; fall back to Hermes only if Claude is not free/usable."""
+    _check_cost_stop()
     prepared = prepare_external_prompt(prompt)
     if prepared.get("secret_detected"):
         raise BlockedCost("secret-bearing prompt is held for human review")
@@ -434,6 +491,8 @@ def local_complete(
     if fcc_model and check_route(FCC_PROVIDER, fcc_model) is None:
         try:
             return _fcc_complete(safe_prompt, fcc_model, max_tokens, timeout)
+        except CostSafetyStop:
+            raise
         except BlockedCost:
             pass
 

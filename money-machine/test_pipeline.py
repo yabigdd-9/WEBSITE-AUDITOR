@@ -496,10 +496,101 @@ class WorkerHandlers(unittest.TestCase):
 class ModelRouter(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
+        environment = patch.dict(os.environ, {'MM_ROOT': self.tmp.name})
+        environment.start()
+        self.addCleanup(environment.stop)
         self.d = fresh_db(self.tmp.name)
 
     def tearDown(self):
         self.d.close(); self.tmp.cleanup()
+
+    def _complete_response(self, payload):
+        response = io.BytesIO(payload if isinstance(payload, bytes) else json.dumps(payload).encode())
+        with patch.dict(os.environ, {
+            router.FCC_FREE_MODELS_ENV: 'synthetic-certified',
+        }), patch.object(router, '_open_local', return_value=response), patch.object(
+            router, '_hermes_complete', return_value={'provider': 'synthetic-fallback'},
+        ) as fallback:
+            result = router.local_complete(
+                'synthetic public prompt', lookup=lambda kind: (
+                    'synthetic-certified' if kind == 'fcc' else 'synthetic:free'
+                ),
+            )
+        return result, fallback.call_count
+
+    def test_fcc_zero_cost_and_exact_response_model(self):
+        result, fallback_calls = self._complete_response({
+            'model': 'synthetic-certified', 'usage': {'cost': '0.000'},
+            'choices': [{'message': {'content': 'synthetic answer'}}],
+        })
+        self.assertEqual(result['provider'], router.FCC_PROVIDER)
+        self.assertEqual(fallback_calls, 0)
+        self.assertFalse(router._cost_stop_path().exists())
+
+    def test_fcc_malformed_responses_use_safe_fallback(self):
+        for payload in (b'not JSON', [], {'usage': {'cost': 0}, 'model': 'synthetic-certified',
+                'choices': ['malformed']}, {'usage': {'cost': 0}, 'model': 'synthetic-certified',
+                'choices': [{'message': None}]}):
+            with self.subTest(payload=payload):
+                result, fallback_calls = self._complete_response(payload)
+                self.assertEqual(result['provider'], 'synthetic-fallback')
+                self.assertEqual(fallback_calls, 1)
+
+    def test_fcc_changed_or_missing_response_model_uses_safe_fallback(self):
+        for model in (None, 'unapproved-paid-model'):
+            with self.subTest(model=model):
+                result, fallback_calls = self._complete_response({
+                    'model': model, 'usage': {'cost': 0},
+                    'choices': [{'message': {'content': 'synthetic answer'}}],
+                })
+                self.assertEqual(result['provider'], 'synthetic-fallback')
+                self.assertEqual(fallback_calls, 1)
+
+    def test_fcc_unknown_and_invalid_cost_stop_without_fallback(self):
+        for cost in (None, True, 'invalid', 'NaN', 'Infinity', -1):
+            with self.subTest(cost=cost):
+                with self.assertRaises(router.CostSafetyStop):
+                    self._complete_response({
+                        'model': 'synthetic-certified', 'usage': {'cost': cost},
+                        'choices': [{'message': {'content': 'synthetic answer'}}],
+                    })
+                incident = json.loads(router._cost_stop_path().read_text())
+                self.assertIsNone(incident['observed_cost_usd'])
+                router._cost_stop_path().unlink()
+
+    def test_nonzero_cost_is_recorded_and_latches_all_routes(self):
+        with patch.object(router, '_hermes_complete') as fallback:
+            with self.assertRaises(router.CostSafetyStop):
+                self._complete_response({
+                    'model': 'synthetic-certified', 'usage': {'cost': '0.01'},
+                    'choices': [{'message': {'content': 'synthetic answer'}}],
+                })
+            fallback.assert_not_called()
+        path = router._cost_stop_path()
+        incident = json.loads(path.read_text())
+        self.assertEqual(incident['observed_cost_usd'], '0.01')
+        self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+        with patch.object(router, '_open_local') as transport, patch.object(
+            router, '_hermes_complete',
+        ) as fallback:
+            with self.assertRaises(router.CostSafetyStop):
+                router.local_complete('synthetic public prompt')
+            with self.assertRaises(router.CostSafetyStop):
+                router.plan(self.d, 'researcher', local_lookup=lambda kind: 'synthetic:free')
+            transport.assert_not_called()
+            fallback.assert_not_called()
+        self.assertEqual(self.d.execute('SELECT count(*) FROM mm_model_invocations').fetchone()[0], 0)
+
+    def test_first_cost_incident_is_preserved(self):
+        for amount in ('0.01', '0.02'):
+            with self.assertRaises(router.CostSafetyStop):
+                router._stop_for_cost(router.FCC_PROVIDER, 'synthetic', 'reported_nonzero_cost', amount)
+        self.assertEqual(json.loads(router._cost_stop_path().read_text())['observed_cost_usd'], '0.01')
+
+    def test_cost_stop_persistence_failure_still_stops(self):
+        with patch.object(router.os, 'open', side_effect=OSError('synthetic write failure')):
+            with self.assertRaises(router.CostSafetyStop):
+                router._stop_for_cost(router.FCC_PROVIDER, 'synthetic', 'reported_nonzero_cost', '0.01')
 
     def test_paid_route_hard_refused(self):
         with patch.dict(os.environ, {router.FCC_FREE_MODELS_ENV: ''}, clear=False):

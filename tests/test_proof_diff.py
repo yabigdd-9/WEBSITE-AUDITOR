@@ -1,14 +1,23 @@
 """Tests for proof diff generation."""
 
+from pathlib import Path
 from types import SimpleNamespace
 
 from auditor_toolkit.proof.render import diff as diff_module
 from auditor_toolkit.proof.render.diff import generate_diff
 
 
-def test_generate_diff_returns_dict():
-    result = generate_diff(before_path="", after_path="", output_dir="/tmp")
+def test_generate_diff_returns_dict(tmp_path):
+    before = tmp_path / "before.ppm"
+    after = tmp_path / "after.ppm"
+    pixels = b"P6\n1 1\n255\n\xff\xff\xff"
+    before.write_bytes(pixels)
+    after.write_bytes(pixels)
+    result = generate_diff(str(before), str(after), output_dir=str(tmp_path))
     assert isinstance(result, dict)
+    assert result["diff_percent"] == 0.0
+    if diff_module.HAS_PILLOW:
+        assert Path(result["diff_path"]).is_file()
 
 
 def test_generate_diff_uses_pixel_threshold_and_highlights_without_pillow(

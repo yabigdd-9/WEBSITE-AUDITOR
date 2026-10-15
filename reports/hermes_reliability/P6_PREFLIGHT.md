@@ -143,7 +143,7 @@ Scope: Final verification before staging-only soak. No production writes, no out
    - Worker timeouts respected: each worker completed well under its 10-second override timeout.
 
 ### 9.6 Decision
-**PASS** — The 15-minute staging-only smoke test completed successfully. All safety invariants were upheld, no production mutations occurred, all workers executed successfully, and audit logging confirms correct heartbeat and zero-cost operation.
+**PASS (historical bounded smoke)** — The staging-only smoke ran for approximately 63.7 seconds, from 2026-10-15T09:22:08+0000 to 2026-10-15T09:23:12+0000. This is not a 15-minute stability result. The historical worker results and accounting are unchanged; they do not establish provider billing or current-revision readiness.
 
 ## 10. Bottom Line
-The P6 preflight is complete. All tests pass, the staging-only soak is configured, and the 15-minute smoke test has passed. The system is ready for the 24-hour stability soak upon explicit authorization. The 24-hour and 72-hour soaks remain **not started** pending user authorization.
+The historical preflight and bounded 63.7-second smoke are recorded above. Current acceptance, loaded-revision verification and release gates must be checked again before expansion. The 24-hour and 72-hour soaks remain **not started** pending separate user authorization. The earlier missing-shell-timeout exit 127 was a harness failure, not a worker smoke-test failure.
