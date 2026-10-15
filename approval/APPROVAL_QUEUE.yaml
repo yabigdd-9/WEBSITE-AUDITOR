@@ -1,4 +1,4 @@
-generated_at: '2026-10-15T06:46:11.440583+00:00'
+generated_at: '2026-10-15T07:44:43.063458+00:00'
 policy: Nothing in this queue has been sent, published, purchased or committed.
 items: []
 existing_items:
@@ -503,6 +503,126 @@ existing_items:
   draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-17-20261015T064135Z.md
   blocked_until: Dion approval required
   status: NOT_SENT_AWAITING_APPROVAL
+- &id058
+  id: APR-ZT-22
+  type: cold_outreach_send
+  engine: Website Auditor Zero-Token
+  description: Send review-only outreach draft to Rise Residential
+  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-22-20261015T064611Z.md
+  blocked_until: Dion approval required
+  status: NOT_SENT_AWAITING_APPROVAL
+- &id059
+  id: APR-ZT-21
+  type: cold_outreach_send
+  engine: Website Auditor Zero-Token
+  description: Send review-only outreach draft to EnergySmart
+  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-21-20261015T064611Z.md
+  blocked_until: Dion approval required
+  status: NOT_SENT_AWAITING_APPROVAL
+- &id060
+  id: APR-ZT-20
+  type: cold_outreach_send
+  engine: Website Auditor Zero-Token
+  description: Send review-only outreach draft to Alpha Heat Pumps
+  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-20-20261015T064611Z.md
+  blocked_until: Dion approval required
+  status: NOT_SENT_AWAITING_APPROVAL
+- &id061
+  id: APR-ZT-19
+  type: cold_outreach_send
+  engine: Website Auditor Zero-Token
+  description: Send review-only outreach draft to Fendalton Construction
+  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-19-20261015T064611Z.md
+  blocked_until: Dion approval required
+  status: NOT_SENT_AWAITING_APPROVAL
+- &id062
+  id: APR-ZT-17
+  type: cold_outreach_send
+  engine: Website Auditor Zero-Token
+  description: Send review-only outreach draft to Kitchen Studio Christchurch
+  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-17-20261015T064611Z.md
+  blocked_until: Dion approval required
+  status: NOT_SENT_AWAITING_APPROVAL
+- &id063
+  id: APR-ZT-22
+  type: cold_outreach_send
+  engine: Website Auditor Zero-Token
+  description: Send review-only outreach draft to Rise Residential
+  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-22-20261015T072955Z.md
+  blocked_until: Dion approval required
+  status: NOT_SENT_AWAITING_APPROVAL
+- &id064
+  id: APR-ZT-21
+  type: cold_outreach_send
+  engine: Website Auditor Zero-Token
+  description: Send review-only outreach draft to EnergySmart
+  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-21-20261015T072955Z.md
+  blocked_until: Dion approval required
+  status: NOT_SENT_AWAITING_APPROVAL
+- &id065
+  id: APR-ZT-20
+  type: cold_outreach_send
+  engine: Website Auditor Zero-Token
+  description: Send review-only outreach draft to Alpha Heat Pumps
+  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-20-20261015T072955Z.md
+  blocked_until: Dion approval required
+  status: NOT_SENT_AWAITING_APPROVAL
+- &id066
+  id: APR-ZT-19
+  type: cold_outreach_send
+  engine: Website Auditor Zero-Token
+  description: Send review-only outreach draft to Fendalton Construction
+  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-19-20261015T072955Z.md
+  blocked_until: Dion approval required
+  status: NOT_SENT_AWAITING_APPROVAL
+- &id067
+  id: APR-ZT-17
+  type: cold_outreach_send
+  engine: Website Auditor Zero-Token
+  description: Send review-only outreach draft to Kitchen Studio Christchurch
+  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-17-20261015T072955Z.md
+  blocked_until: Dion approval required
+  status: NOT_SENT_AWAITING_APPROVAL
+- &id068
+  id: APR-ZT-22
+  type: cold_outreach_send
+  engine: Website Auditor Zero-Token
+  description: Send review-only outreach draft to Rise Residential
+  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-22-20261015T074203Z.md
+  blocked_until: Dion approval required
+  status: NOT_SENT_AWAITING_APPROVAL
+- &id069
+  id: APR-ZT-21
+  type: cold_outreach_send
+  engine: Website Auditor Zero-Token
+  description: Send review-only outreach draft to EnergySmart
+  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-21-20261015T074203Z.md
+  blocked_until: Dion approval required
+  status: NOT_SENT_AWAITING_APPROVAL
+- &id070
+  id: APR-ZT-20
+  type: cold_outreach_send
+  engine: Website Auditor Zero-Token
+  description: Send review-only outreach draft to Alpha Heat Pumps
+  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-20-20261015T074203Z.md
+  blocked_until: Dion approval required
+  status: NOT_SENT_AWAITING_APPROVAL
+- &id071
+  id: APR-ZT-19
+  type: cold_outreach_send
+  engine: Website Auditor Zero-Token
+  description: Send review-only outreach draft to Fendalton Construction
+  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-19-20261015T074203Z.md
+  blocked_until: Dion approval required
+  status: NOT_SENT_AWAITING_APPROVAL
+- &id072
+  id: APR-ZT-17
+  type: cold_outreach_send
+  engine: Website Auditor Zero-Token
+  description: Send review-only outreach draft to Kitchen Studio Christchurch
+  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-17-20261015T074203Z.md
+  blocked_until: Dion approval required
+  status: NOT_SENT_AWAITING_APPROVAL
 requires_dion_approval:
 - *id001
 - *id002
@@ -561,38 +681,53 @@ requires_dion_approval:
 - *id055
 - *id056
 - *id057
+- *id058
+- *id059
+- *id060
+- *id061
+- *id062
+- *id063
+- *id064
+- *id065
+- *id066
+- *id067
+- *id068
+- *id069
+- *id070
+- *id071
+- *id072
 - id: APR-ZT-22
   type: cold_outreach_send
   engine: Website Auditor Zero-Token
   description: Send review-only outreach draft to Rise Residential
-  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-22-20261015T064611Z.md
+  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-22-20261015T074443Z.md
   blocked_until: Dion approval required
   status: NOT_SENT_AWAITING_APPROVAL
 - id: APR-ZT-21
   type: cold_outreach_send
   engine: Website Auditor Zero-Token
   description: Send review-only outreach draft to EnergySmart
-  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-21-20261015T064611Z.md
+  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-21-20261015T074443Z.md
   blocked_until: Dion approval required
   status: NOT_SENT_AWAITING_APPROVAL
 - id: APR-ZT-20
   type: cold_outreach_send
   engine: Website Auditor Zero-Token
   description: Send review-only outreach draft to Alpha Heat Pumps
-  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-20-20261015T064611Z.md
+  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-20-20261015T074443Z.md
   blocked_until: Dion approval required
   status: NOT_SENT_AWAITING_APPROVAL
 - id: APR-ZT-19
   type: cold_outreach_send
   engine: Website Auditor Zero-Token
   description: Send review-only outreach draft to Fendalton Construction
-  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-19-20261015T064611Z.md
+  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-19-20261015T074443Z.md
   blocked_until: Dion approval required
   status: NOT_SENT_AWAITING_APPROVAL
 - id: APR-ZT-17
   type: cold_outreach_send
   engine: Website Auditor Zero-Token
   description: Send review-only outreach draft to Kitchen Studio Christchurch
-  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-17-20261015T064611Z.md
+  draft_path: /Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/outreach_drafts/business-17-20261015T074443Z.md
   blocked_until: Dion approval required
   status: NOT_SENT_AWAITING_APPROVAL

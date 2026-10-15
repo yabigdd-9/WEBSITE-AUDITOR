@@ -1,6 +1,7 @@
 """Synthetic Hermes worker, staging isolation and reporting regressions."""
 import importlib.util
 import json
+import os
 import sqlite3
 import subprocess
 from pathlib import Path
@@ -29,7 +30,6 @@ def runner(tmp_path, monkeypatch):
 def test_worker_exit_and_safe_flags(runner, monkeypatch, code, status):
     monkeypatch.setitem(runner.WORKER_MAP, "fixture", lambda: (code, "", ""))
     assert runner.handle_worker("fixture") == code
-    import os
     assert all(os.environ[key] == expected for key, expected in runner.ZERO_TOKEN_ENV.items())
     record = json.loads(runner.AUDIT_LOG.read_text().splitlines()[-1])
     assert record["status"] == status
