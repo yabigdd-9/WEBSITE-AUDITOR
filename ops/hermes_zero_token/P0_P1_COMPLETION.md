@@ -74,7 +74,7 @@ All wrappers auto-detect worker ID from script name and set zero-token env vars.
 - **testing_worker:** `pytest toolkit_tests -q`
 - **git_observer:** git status + worktree list
 - **provider_monitor:** reports ZERO_LLM mode, hosted LLM disabled
-- **screenshot_worker, demo_blueprint, outreach_draft, competitor_research, weekly_review:** placeholders (no direct MM command; review-only)
+- **screenshot_worker, demo_blueprint, outreach_draft, competitor_research:** placeholders (no direct MM command; review-only), **weekly_review:** not yet implemented (optional per plan)
 
 ### Verification
 

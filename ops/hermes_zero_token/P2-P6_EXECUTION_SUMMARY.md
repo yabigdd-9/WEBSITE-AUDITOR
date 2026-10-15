@@ -52,7 +52,8 @@
   - `screenshot_worker`: Real screenshots via `auditor_toolkit.browser.run_browser_checks` (browser=True)
   - `outreach_draft`: Review-only drafts + `APPROVAL_QUEUE.yaml` updates
   - `demo_blueprint`: Review-only demo blueprints from audit evidence
-  - `weekly_review`: Placeholder (no direct MM command)
+  - `weekly_review`: Not yet implemented (optional per plan)
+  - `staging_db`: Read-only snapshot and audit-backfill (script exists, no cron job yet)
 
 ### P2: Staging Audit & Artifact Workers — DONE
 - **Staging Database Worker** (`ops/hermes_zero_token/staging_db.py`):

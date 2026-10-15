@@ -247,10 +247,13 @@ def run_discover_nz_businesses():
 
 
 def run_screenshot_worker():
-    """Run screenshot worker: capture desktop and mobile viewport on public pages."""
-    print("Screenshot worker: placeholder - no direct command available")
-    print("Use auditor_toolkit with browser=True for screenshots (not in zero-token mode).")
-    return 3, "Screenshot worker: placeholder - no implementation yet\n", ""
+    """Real screenshot worker: capture desktop/mobile viewports via auditor_toolkit.
+
+    This is the canonical implementation.  The old placeholder stub is kept as
+    ``run_screenshot_worker_placeholder`` so that any schedule still wired to
+    the old behaviour fails loudly instead of silently capturing nothing.
+    """
+    return _run_module_worker("screenshot_worker")
 
 
 def run_testing_worker():
@@ -278,27 +281,28 @@ def run_git_observer():
 
 def run_competitor_research():
     """Run public competitor-feature inventory."""
-    print("Competitor research worker: placeholder - no implementation yet")
-    return 3, "Competitor research worker: placeholder - no implementation yet\n", ""
+    return 3, "Competitor research worker: not implemented; optional per plan\n", ""
 
 
 def run_demo_blueprint():
-    """Run review-only demo briefs."""
-    print("Demo blueprint worker: placeholder - no implementation yet")
-    return 3, "Demo blueprint worker: placeholder - no implementation yet\n", ""
+    """Real review-only demo blueprint worker (canonical)."""
+    return _run_module_worker("demo_blueprint")
 
 
 def run_outreach_draft():
-    """Run human-review-only personalized pitches."""
-    print("Outreach draft worker: placeholder - no implementation yet")
-    print("No outreach is sent. Drafts are review-only.")
-    return 3, "Outreach draft worker: placeholder - no outreach sent\n", ""
+    """Real review-only outreach draft worker (canonical; never sends)."""
+    return _run_module_worker("outreach_draft")
 
 
 def run_weekly_review():
-    """Run weekly quality and value review."""
-    print("Weekly review worker: placeholder - no implementation yet")
-    return 3, "Weekly review worker: placeholder - no implementation yet\n", ""
+    """Weekly quality and value review.
+
+    No standalone ``weekly_review`` module exists yet (documented as a
+    placeholder in P0_P1_COMPLETION.md / P2-P6_EXECUTION_SUMMARY.md), so this
+    fails closed with exit 3 rather than crashing with an unhandled
+    FileNotFoundError from a missing module file.
+    """
+    return 3, "Weekly review worker: not yet implemented; optional per plan\n", ""
 
 
 def run_provider_monitor():
@@ -317,6 +321,164 @@ def run_daily_report():
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod.main(), "", ""
+
+
+def _run_module_worker(module_name):
+    """Load and run a zero-token worker module's main() via importlib.
+
+    Uses importlib (not import) so the module's own PROJECT_ROOT resolution
+    and staging paths are used, and import-time side effects stay isolated
+    to this process.
+
+    Execution contract (single source of truth for all P2 workers):
+
+      * the worker module's ``main()`` returns an **int exit code** and prints
+        its structured JSON report to stdout (this is what every tracked
+        worker module actually does);
+      * this helper captures stdout/stderr, parses the trailing JSON object
+        from stdout, and returns the runner's
+        ``(returncode, stdout, stderr)`` tuple exactly like every other entry
+        in WORKER_MAP;
+      * a nonzero exit code is a failure even when a JSON report is present,
+        and malformed/empty JSON can never produce a false success.
+
+    Every P2 worker reports ``production_written``; the runner refuses any
+    worker whose report claims a production write.
+    """
+    import importlib.util
+    import io
+    import contextlib
+
+    path = PROJECT_ROOT / "ops" / "hermes_zero_token" / f"{module_name}.py"
+    spec = importlib.util.spec_from_file_location(module_name, path)
+    if spec is None or spec.loader is None:
+        return 2, "", f"worker module not found: {module_name}.py\n"
+
+    mod = importlib.util.module_from_spec(spec)
+    try:
+        spec.loader.exec_module(mod)
+    except Exception as ex:
+        return 2, "", f"{module_name}: import failed: {type(ex).__name__}: {ex}\n"
+
+    return _execute_worker_module(mod, module_name)
+
+
+def _execute_worker_module(mod, module_name):
+    """Run an already-loaded worker module through the execution contract.
+
+    Split out from ``_run_module_worker`` so the contract itself can be
+    unit-tested with synthetic modules that do not live under
+    ``ops/hermes_zero_token``.
+    """
+    import io
+    import contextlib
+
+    if not hasattr(mod, "main"):
+        return 2, "", f"{module_name}: module has no main()\n"
+
+    buf_out, buf_err = io.StringIO(), io.StringIO()
+    with contextlib.redirect_stdout(buf_out), contextlib.redirect_stderr(buf_err):
+        try:
+            returncode = mod.main()
+        except Exception as ex:
+            return 2, "", (
+                f"{module_name}: main() raised {type(ex).__name__}: {ex}\n"
+                f"{buf_err.getvalue()}")
+
+    captured_out = buf_out.getvalue()
+    captured_err = buf_err.getvalue()
+
+    if not isinstance(returncode, int):
+        return 2, captured_out, (
+            f"{module_name}: main() returned {type(returncode).__name__}, "
+            f"expected an int exit code\n{captured_err}")
+
+    report = _parse_worker_report(captured_out, module_name)
+    if report is None:
+        # Malformed or absent report: a successful exit code is not enough.
+        return 2, captured_out, (
+            f"{module_name}: exit {returncode} but stdout carried no valid "
+            f"JSON report\n{captured_err}")
+
+    if report.get("production_written") is True:
+        return 3, captured_out, (
+            f"{module_name}: report claims production_written=True — refusing\n"
+            f"{captured_err}")
+
+    if returncode != 0:
+        return returncode, captured_out, (
+            f"{module_name}: worker exited {returncode}\n{captured_err}")
+
+    return 0, captured_out, captured_err
+
+
+def _parse_worker_report(stdout, module_name):
+    """Extract the trailing JSON object a worker printed to stdout.
+
+    Workers are allowed to emit diagnostic lines before/after the report, so
+    the parser scans backwards for the last balanced ``{...}`` object rather
+    than assuming the whole buffer is JSON.  Returns ``None`` when no valid
+    report can be found — never a false positive.
+    """
+    if not stdout:
+        return None
+    text = stdout.rstrip()
+    for start in range(len(text), -1, -1):
+        if start > len(text) or text[start:start + 1] != "{":
+            continue
+        depth, end, in_str, esc = 0, start, False, False
+        for i in range(start, len(text)):
+            ch = text[i]
+            if esc:
+                esc = False
+                continue
+            if ch == "\\":
+                esc = True
+                continue
+            if ch == '"':
+                in_str = not in_str
+                continue
+            if in_str:
+                continue
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    end = i + 1
+                    break
+        if depth == 0 and end > start:
+            try:
+                obj = json.loads(text[start:end])
+                return obj if isinstance(obj, dict) else None
+            except json.JSONDecodeError:
+                return None
+    return None
+
+
+def run_staging_db():
+    """Run the staging database audit-backfill worker (read-only)."""
+    return _run_module_worker("staging_db")
+
+
+def run_screenshot_worker_placeholder():
+    """Deprecated stub.  Use ``run_screenshot_worker`` (real implementation)."""
+    return 3, "Screenshot worker: placeholder removed — use the real screenshot_worker\n", ""
+
+
+def run_demo_blueprint_placeholder():
+    """Deprecated stub.  Use ``run_demo_blueprint`` (real implementation)."""
+    return 3, "Demo blueprint worker: placeholder removed — use the real demo_blueprint\n", ""
+
+
+def run_outreach_draft_placeholder():
+    """Deprecated stub.  Use ``run_outreach_draft`` (real implementation)."""
+    return 3, "Outreach draft worker: placeholder removed — use the real outreach_draft\n", ""
+
+
+def run_weekly_review_placeholder():
+    """Deprecated stub.  Use ``run_weekly_review`` (deterministic summary)."""
+    return 3, "Weekly review worker: placeholder removed — use the real weekly_review\n", ""
 
 
 # ---------------------------------------------------------------------------
@@ -351,6 +513,13 @@ WORKER_MAP = {
     "demo_blueprint": lambda: run_demo_blueprint(),
     "outreach_draft": lambda: run_outreach_draft(),
     "weekly_review": lambda: run_weekly_review(),
+    "staging_db": lambda: run_staging_db(),
+    # Deprecated aliases: any schedule still wired to the old placeholder
+    # worker IDs fails loudly instead of silently capturing nothing.
+    "screenshot_worker_real": lambda: run_screenshot_worker_placeholder(),
+    "demo_blueprint_real": lambda: run_demo_blueprint_placeholder(),
+    "outreach_draft_real": lambda: run_outreach_draft_placeholder(),
+    "weekly_review_real": lambda: run_weekly_review_placeholder(),
 }
 
 
