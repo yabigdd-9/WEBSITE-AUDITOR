@@ -1,0 +1,18 @@
+{
+  "status": "PASS_SYNTHETIC_ONLY",
+  "started_at_utc": "2026-10-16T02:42:47.130485+00:00",
+  "duration_seconds": 0.095,
+  "core_source_sha256": "6a520d759f793f2f5c56ada7ac240262ee66c60ea062ed070bfbf7d4aab18da1",
+  "wal_present_during_backup": true,
+  "backup_manifest_hashes_match": true,
+  "restored_schema_and_rows_match": true,
+  "pending_and_suppression_preserved": true,
+  "partial_restore_rejected": true,
+  "source_logical_contents_unchanged": true,
+  "production_database_opened": false,
+  "limitations": [
+    "Synthetic schema only; no production schema restoration claim",
+    "Partial-file fault injection, not process-kill recovery",
+    "Not independent acceptance; no production restore or runtime activation"
+  ]
+}
