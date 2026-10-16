@@ -159,6 +159,34 @@ class WorkerBehaviour(unittest.TestCase):
         p.Worker('w-4', ('DISCOVERED',), bad).run_once(self.d)
         self.assertEqual(p.item(self.d, bid)['state'], 'PERMANENT_FAILURE')
 
+    def test_dead_letter_distinguishes_provider_outage_from_prospect_failure(self):
+        # A10: provider-outage dead letters carry provider_state + lane tags in
+        # the existing payload JSON (no schema change); prospect failures do not.
+        bid_outage = add_business(self.d, name='Outage Co', site='https://outage.example.co.nz')
+        bid_prospect = add_business(self.d, name='Prospect Co', site='https://prospect.example.co.nz')
+        p.enqueue(self.d, bid_outage, max_attempts=1)
+        p.enqueue(self.d, bid_prospect, max_attempts=1)
+        p.fail(self.d, bid_outage, 'w-search', p.RetryableError('search provider absent'),
+               retryable=False,
+               provider_state='BLOCKED_SEARCH_SERVICE_ABSENT', lane='search')
+        p.fail(self.d, bid_prospect, 'w-prepare', p.PermanentError('unfixable prospect'),
+               retryable=False)
+        self.assertEqual(p.item(self.d, bid_outage)['state'], 'PERMANENT_FAILURE')
+        self.assertEqual(p.item(self.d, bid_prospect)['state'], 'PERMANENT_FAILURE')
+        outage_payload = json.loads(p.item(self.d, bid_outage)['payload'])
+        prospect_payload = json.loads(p.item(self.d, bid_prospect)['payload'])
+        self.assertEqual(outage_payload.get('provider_state'), 'BLOCKED_SEARCH_SERVICE_ABSENT')
+        self.assertEqual(outage_payload.get('lane'), 'search')
+        self.assertNotIn('provider_state', prospect_payload)
+        self.assertNotIn('lane', prospect_payload)
+        rows = self.d.execute(
+            "SELECT business_id FROM pipeline_items "
+            "WHERE state='PERMANENT_FAILURE' "
+            "AND json_extract(payload, '$.provider_state') IS NOT NULL "
+            "AND json_extract(payload, '$.lane')='search'"
+        ).fetchall()
+        self.assertEqual([r[0] for r in rows], [bid_outage])
+
     def test_lease_blocks_double_claim_and_expires(self):
         bid = add_business(self.d)
         p.enqueue(self.d, bid)
