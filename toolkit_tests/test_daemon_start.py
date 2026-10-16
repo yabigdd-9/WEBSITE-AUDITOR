@@ -14,8 +14,8 @@ from __future__ import annotations
 
 import os
 import signal
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -23,8 +23,8 @@ MM = Path(__file__).resolve().parent.parent / "money-machine"
 if str(MM) not in sys.path:
     sys.path.insert(0, str(MM))
 
-import supervisor.daemon as daemon_mod
-from supervisor.daemon import SupervisorDaemon
+import supervisor.daemon as daemon_mod  # noqa: E402 - local source bootstrap above
+from supervisor.daemon import SupervisorDaemon  # noqa: E402 - local source bootstrap above
 
 
 @pytest.fixture
