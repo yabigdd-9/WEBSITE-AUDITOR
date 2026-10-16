@@ -1,0 +1,127 @@
+.................F.....s................................s............... [ 10%]
+..................................................................................F...... [ 23%]
+.................................................................... [ 32%]
+........................................................................ [ 43%]
+........................................................................ [ 53%]
+........................................................................ [ 64%]
+........................................................................................................................ [ 81%]
+........................................................................ [ 91%]
+.........................................................                [100%]
+=================================== FAILURES ===================================
+___________ Acceptance.test_05_historical_unverified_sends_excluded ____________
+
+self = <test_acceptance.Acceptance testMethod=test_05_historical_unverified_sends_excluded>
+
+    def test_05_historical_unverified_sends_excluded(self):
+>       self.assertEqual(o.metrics(self.d)['verified_sends'],0);self.assertEqual(o.metrics(self.d)['legacy_claimed_sends_unverified'],3)
+                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: 0 != 3
+
+money-machine/test_acceptance.py:87: AssertionError
+___ HardeningDatabase.test_replace_cannot_overwrite_event_or_archived_score ____
+
+self = <test_email_hardening.HardeningDatabase testMethod=test_replace_cannot_overwrite_event_or_archived_score>
+
+    def test_replace_cannot_overwrite_event_or_archived_score(self):
+        event = self.d.execute('SELECT * FROM mm_events ORDER BY id LIMIT 1').fetchone()
+        with self.assertRaisesRegex(sqlite3.IntegrityError,'replacement blocked'):
+            self.d.execute('INSERT OR REPLACE INTO mm_events VALUES(?,?,?,?,?)',
+                           (event['id'],e.utcnow(),'replaced',self.bid,'tampered'))
+        score = self.d.execute('SELECT * FROM mm_score_history ORDER BY id LIMIT 1').fetchone()
+        with self.assertRaisesRegex(sqlite3.IntegrityError,'replacement blocked'):
+            self.d.execute('INSERT OR REPLACE INTO mm_score_history VALUES(?,?,?,?,?,?,?)',
+>                          (score['id'],self.bid,self.eid,'{}','{}',e.utcnow(),e.utcnow()))
+                            ^^^^^^^^^^^
+E           TypeError: 'NoneType' object is not subscriptable
+
+money-machine/test_email_hardening.py:96: TypeError
+=========================== short test summary info ============================
+SKIPPED [1] money-machine/test_acceptance.py:105: BLOCKED: legacy/global Hermes calls cannot be reconciled to MoneyMachine agent_runs. Separate test covers all new local model requests.
+SKIPPED [1] money-machine/test_acceptance.py:223: BLOCKED: no live mail/bank receipt supplied or independent read-only provider verifier connected; local attestation importer is tested separately.
+FAILED money-machine/test_acceptance.py::Acceptance::test_05_historical_unverified_sends_excluded
+FAILED money-machine/test_email_hardening.py::HardeningDatabase::test_replace_cannot_overwrite_event_or_archived_score
+2 failed, 690 passed, 2 skipped, 83 subtests passed in 130.07s (0:02:10)
+{
+  "source_sha": "09ab41ab61656ae4b63110d4ee7d418f3fbf07b8",
+  "started_at_utc": "2026-10-16T03:02:03.329046+00:00",
+  "duration_seconds": 132.683,
+  "pytest_arguments": [
+    "-ra",
+    "--strict-markers",
+    "money-machine",
+    "-m",
+    "not slow",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=/Users/dd/WEBSITE-AUDITOR-codex/work/codex-r00/pytest-money-final",
+    "--junitxml=/Users/dd/WEBSITE-AUDITOR-codex/evidence/codex/q10-money.xml"
+  ],
+  "exit_code": 1,
+  "changed_during_run": [],
+  "verified_pytest_rewritten_modules": [
+    "money-machine/conftest.py",
+    "money-machine/scripts/test_free_role_router.py",
+    "money-machine/test_acceptance.py",
+    "money-machine/test_brain.py",
+    "money-machine/test_dedupe.py",
+    "money-machine/test_discovery.py",
+    "money-machine/test_discovery_batch.py",
+    "money-machine/test_discovery_quality.py",
+    "money-machine/test_dsh_harness_bridge.py",
+    "money-machine/test_email_finder.py",
+    "money-machine/test_email_hardening.py",
+    "money-machine/test_email_integration.py",
+    "money-machine/test_email_lifecycle.py",
+    "money-machine/test_email_lifecycle_cli.py",
+    "money-machine/test_email_tracking.py",
+    "money-machine/test_error_tracking.py",
+    "money-machine/test_evidence_ops.py",
+    "money-machine/test_experience_compatibility.py",
+    "money-machine/test_intelligence_calibration.py",
+    "money-machine/test_intelligence_consistency.py",
+    "money-machine/test_intelligence_drift.py",
+    "money-machine/test_intelligence_evidence_value.py",
+    "money-machine/test_intelligence_graph.py",
+    "money-machine/test_intelligence_hard_cases.py",
+    "money-machine/test_intelligence_label_quality.py",
+    "money-machine/test_intelligence_ledger.py",
+    "money-machine/test_intelligence_readiness.py",
+    "money-machine/test_intelligence_review_bundle.py",
+    "money-machine/test_intelligence_review_efficiency.py",
+    "money-machine/test_intelligence_selective.py",
+    "money-machine/test_intelligence_strategy.py",
+    "money-machine/test_intelligence_uncertainty.py",
+    "money-machine/test_launchd.py",
+    "money-machine/test_lead_qualifier.py",
+    "money-machine/test_module_registry.py",
+    "money-machine/test_network_guard.py",
+    "money-machine/test_observability_discovery.py",
+    "money-machine/test_opportunity_axes.py",
+    "money-machine/test_opportunity_intelligence.py",
+    "money-machine/test_opportunity_score.py",
+    "money-machine/test_outreach.py",
+    "money-machine/test_pipeline.py",
+    "money-machine/test_pipeline_loop.py",
+    "money-machine/test_pipeline_recovery.py",
+    "money-machine/test_polish.py",
+    "money-machine/test_preparation_worker.py",
+    "money-machine/test_qualification_corrections.py",
+    "money-machine/test_quarantine.py",
+    "money-machine/test_recurring_discovery.py",
+    "money-machine/test_redaction.py",
+    "money-machine/test_reporting.py",
+    "money-machine/test_runtime_bootstrap.py",
+    "money-machine/test_runtime_readiness.py",
+    "money-machine/test_scanning_activation.py",
+    "money-machine/test_search_backend.py",
+    "money-machine/test_soak_discovery_recovery.py",
+    "money-machine/test_worker_audit_coverage.py"
+  ],
+  "loaded_mismatches": [],
+  "limitations": [
+    "Execution attestation covers observed parent-process tracked Python modules",
+    "Child-process code and production runtime are not attested",
+    "Opt-in browser coverage retains its own skip conditions"
+  ]
+}
