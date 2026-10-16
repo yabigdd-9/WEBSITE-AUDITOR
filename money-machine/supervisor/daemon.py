@@ -27,7 +27,9 @@ class SupervisorDaemon:
         if self.pidfile.exists():
             try:
                 other_pid = int(self.pidfile.read_text().strip())
-                if Path(f"/proc/{other_pid}").exists():
+                try:
+                    os.kill(other_pid, 0)
+                except (ProcessLookupError, PermissionError):
                     return False  # dual-start blocked
             except Exception:
                 pass
