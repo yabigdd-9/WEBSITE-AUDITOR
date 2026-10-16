@@ -1,0 +1,326 @@
+{
+  "objective": "Complete all phases without bypassing dependencies, ownership or separate human approvals",
+  "integration_owner": "human operator, confirmed in chat",
+  "plan_path": "/Users/dd/Downloads/HERMES_WEBSITE_AUDITOR_MASTER_PLAN_v3.2.1_CORRECTED.zip",
+  "plan_zip_sha256": "58e98a7a0d0b25f5a62c868c6ba99e1a6565aec04ddfb9297a2c2cba906d30cb",
+  "source_base": "09ab41ab61656ae4b63110d4ee7d418f3fbf07b8",
+  "updated_at_utc": "2026-10-16T06:26:19.084055+00:00",
+  "direct_assignment_override": {
+    "R01": "Opus, per direct user instruction"
+  },
+  "packages": [
+    {
+      "id": "R00",
+      "title": "Reconcile actual repository and operating state",
+      "owner": "Codex",
+      "dependencies": [],
+      "status": "COMPLETE_VERIFIED",
+      "reason": "Current read-only inventory, command receipts, plan provenance and conflicts captured; runtime release blockers remain open",
+      "approval_required": []
+    },
+    {
+      "id": "R01",
+      "title": "Existing-component inventory and ownership map",
+      "owner": "Opus",
+      "dependencies": [
+        "R00"
+      ],
+      "status": "IMPLEMENTED_UNVERIFIED",
+      "reason": "Integration owner supplied completed Opus inventory; key paths reviewed with discrepancies. Missing named source-file ownership map and timestamped baseline receipts prevent full canonical R01 acceptance.",
+      "approval_required": [],
+      "evidence": [
+        "R01_RECEIVED_REVIEW.md"
+      ]
+    },
+    {
+      "id": "S10",
+      "title": "Historical credential exposure triage",
+      "owner": "Opus",
+      "dependencies": [
+        "R00"
+      ],
+      "status": "NOT_STARTED",
+      "reason": "Plan assigns Opus; no completion evidence received; do not modify its branch or certify work by assumption",
+      "approval_required": []
+    },
+    {
+      "id": "S20",
+      "title": "Approve and execute affected credential rotation",
+      "owner": "Human",
+      "dependencies": [
+        "S10"
+      ],
+      "status": "BLOCKED",
+      "reason": "Separate human-controlled gate with prerequisite evidence missing; general continue instruction does not supply exact action scope",
+      "approval_required": [
+        "SECRET_ROTATION_SCOPE"
+      ]
+    },
+    {
+      "id": "S30",
+      "title": "Add preventative secret and prompt-injection gates",
+      "owner": "Codex",
+      "dependencies": [
+        "R01",
+        "S10"
+      ],
+      "status": "NOT_STARTED",
+      "reason": "Awaiting prerequisites and explicit source ownership; no completion inferred from historical reports",
+      "approval_required": []
+    },
+    {
+      "id": "C10",
+      "title": "Verify FCC/Nous/local provider entitlement and billing",
+      "owner": "Opus",
+      "dependencies": [
+        "R00"
+      ],
+      "status": "NOT_STARTED",
+      "reason": "Plan assigns Opus; no completion evidence received; do not modify its branch or certify work by assumption",
+      "approval_required": [
+        "ENTITLEMENT_VERIFICATION_FOR_EXTERNAL_ROUTE"
+      ]
+    },
+    {
+      "id": "C20",
+      "title": "Extend shared fail-closed request admission",
+      "owner": "Codex",
+      "dependencies": [
+        "R01",
+        "C10"
+      ],
+      "status": "NOT_STARTED",
+      "reason": "Awaiting prerequisites and explicit source ownership; no completion inferred from historical reports",
+      "approval_required": []
+    },
+    {
+      "id": "C30",
+      "title": "Test rate-limit, failover and no-paid-route contracts",
+      "owner": "Codex",
+      "dependencies": [
+        "C20"
+      ],
+      "status": "NOT_STARTED",
+      "reason": "Awaiting prerequisites and explicit source ownership; no completion inferred from historical reports",
+      "approval_required": [
+        "MODEL_ROUTE_ACTIVATION_IF_EXTERNAL"
+      ]
+    },
+    {
+      "id": "A10",
+      "title": "Identify running code and configuration exactly",
+      "owner": "Codex",
+      "dependencies": [
+        "R00",
+        "R01"
+      ],
+      "status": "IN_PROGRESS",
+      "reason": "Specification completed in A10_SPEC.md. No implementation/source ownership assignment or live activation; running production revision remains unknown.",
+      "approval_required": [],
+      "evidence": [
+        "A10_SPEC.md"
+      ]
+    },
+    {
+      "id": "Q10",
+      "title": "Re-run current supported test baseline and reconcile historical reports",
+      "owner": "Codex",
+      "dependencies": [
+        "R00"
+      ],
+      "status": "COMPLETE_VERIFIED",
+      "reason": "Current-source canonical baseline 1124 passed/3 skipped and MoneyMachine 692 passed/2 skipped plus 83 subtests. Both final receipts exit 0 with unchanged tracked sources and no observed loaded-code mismatches. This records baseline evidence, not release acceptance or skipped capability clearance.",
+      "approval_required": [],
+      "evidence": [
+        "BASELINE_TESTS.md",
+        "q10-canonical-receipt.json",
+        "q10-money-receipt.json",
+        "q10-money-source-final.json"
+      ]
+    },
+    {
+      "id": "D10",
+      "title": "Prove isolated database backup and restore",
+      "owner": "Codex",
+      "dependencies": [
+        "R00"
+      ],
+      "status": "COMPLETE_VERIFIED",
+      "reason": "Isolated restore drill passed with observed canonical schema, synthetic planned/quarantined work and suppression; interrupted child restore rejected; source and backup preserved. Does not authorize production restore or provide independent release signoff.",
+      "approval_required": [],
+      "evidence": [
+        "d10-schema-fixture.json",
+        "d10-restore-receipt.json",
+        "d10-canonical-receipt.json"
+      ]
+    },
+    {
+      "id": "E10",
+      "title": "Verify outbound disabled and operator kill switches",
+      "owner": "Codex",
+      "dependencies": [
+        "R01"
+      ],
+      "status": "NOT_STARTED",
+      "reason": "Awaiting prerequisites and explicit source ownership; no completion inferred from historical reports",
+      "approval_required": []
+    },
+    {
+      "id": "E20",
+      "title": "Design/repair durable outbox with uncertain-delivery reconciliation",
+      "owner": "Codex",
+      "dependencies": [
+        "R01",
+        "E10"
+      ],
+      "status": "NOT_STARTED",
+      "reason": "Awaiting prerequisites and explicit source ownership; no completion inferred from historical reports",
+      "approval_required": []
+    },
+    {
+      "id": "B10",
+      "title": "Demonstrate one existing review-only NZ lead pipeline",
+      "owner": "Codex",
+      "dependencies": [
+        "R01",
+        "Q10",
+        "C30",
+        "D10",
+        "E10"
+      ],
+      "status": "NOT_STARTED",
+      "reason": "Awaiting prerequisites and explicit source ownership; no completion inferred from historical reports",
+      "approval_required": []
+    },
+    {
+      "id": "B20",
+      "title": "Audit evidence freshness and identity deduplication",
+      "owner": "Codex",
+      "dependencies": [
+        "B10"
+      ],
+      "status": "NOT_STARTED",
+      "reason": "Awaiting prerequisites and explicit source ownership; no completion inferred from historical reports",
+      "approval_required": []
+    },
+    {
+      "id": "B30",
+      "title": "Establish commercial baseline and realistic offer packages",
+      "owner": "Opus",
+      "dependencies": [
+        "B10"
+      ],
+      "status": "NOT_STARTED",
+      "reason": "Plan assigns Opus; no completion evidence received; do not modify its branch or certify work by assumption",
+      "approval_required": []
+    },
+    {
+      "id": "G10",
+      "title": "Aggregate non-bypassable release gate and manifest",
+      "owner": "Opus",
+      "dependencies": [
+        "S20",
+        "S30",
+        "C30",
+        "A10",
+        "Q10",
+        "D10",
+        "E10"
+      ],
+      "status": "NOT_STARTED",
+      "reason": "Plan assigns Opus; no completion evidence received; do not modify its branch or certify work by assumption",
+      "approval_required": [
+        "RELEASE_REVIEW_SIGNOFF"
+      ]
+    },
+    {
+      "id": "G20",
+      "title": "Dry-run rollback and staged canary with outbound off",
+      "owner": "Codex",
+      "dependencies": [
+        "G10",
+        "B10"
+      ],
+      "status": "NOT_STARTED",
+      "reason": "Awaiting prerequisites and explicit source ownership; no completion inferred from historical reports",
+      "approval_required": [
+        "STAGING_DEPLOY_IF_LOCAL_SERVICE_IMPACT"
+      ]
+    },
+    {
+      "id": "G30",
+      "title": "Authorise and complete mandated 24h/72h staging soaks",
+      "owner": "Human",
+      "dependencies": [
+        "G20"
+      ],
+      "status": "BLOCKED",
+      "reason": "Separate human-controlled gate with prerequisite evidence missing; general continue instruction does not supply exact action scope",
+      "approval_required": [
+        "SOAK_24H",
+        "SOAK_72H"
+      ]
+    },
+    {
+      "id": "G40",
+      "title": "Explicitly approved review-only production canary",
+      "owner": "Human",
+      "dependencies": [
+        "G10",
+        "G30"
+      ],
+      "status": "BLOCKED",
+      "reason": "Separate human-controlled gate with prerequisite evidence missing; general continue instruction does not supply exact action scope",
+      "approval_required": [
+        "PRODUCTION_CANARY_EXACT_SHA"
+      ]
+    },
+    {
+      "id": "G50",
+      "title": "Optional human-approved external outreach activation",
+      "owner": "Human",
+      "dependencies": [
+        "E20",
+        "G40"
+      ],
+      "status": "BLOCKED",
+      "reason": "Separate human-controlled gate with prerequisite evidence missing; general continue instruction does not supply exact action scope",
+      "approval_required": [
+        "LEGAL_ELIGIBILITY_REVIEW",
+        "OUTREACH_BATCH_AND_MESSAGE_APPROVAL"
+      ]
+    },
+    {
+      "id": "O10",
+      "title": "Profile local Mac resource limits and job completion",
+      "owner": "Hermes",
+      "dependencies": [
+        "B10"
+      ],
+      "status": "NOT_STARTED",
+      "reason": "Awaiting prerequisites and explicit source ownership; no completion inferred from historical reports",
+      "approval_required": []
+    },
+    {
+      "id": "O20",
+      "title": "Commercial feedback and reviewed continuous improvement",
+      "owner": "Opus",
+      "dependencies": [
+        "B30"
+      ],
+      "status": "NOT_STARTED",
+      "reason": "Plan assigns Opus; no completion evidence received; do not modify its branch or certify work by assumption",
+      "approval_required": []
+    }
+  ],
+  "current_batch": {
+    "status": "COMPLETE",
+    "scope": "R00/restore evidence finalized; Q10 synthetic baseline completed; A10 specification prepared; Opus d61306b isolated review completed",
+    "application_source_changed": false,
+    "production_activation": false,
+    "opus_uncommitted_work_excluded": [
+      "money-machine/mm_pipeline.py",
+      "money-machine/test_pipeline.py"
+    ]
+  }
+}
