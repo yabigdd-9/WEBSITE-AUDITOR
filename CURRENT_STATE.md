@@ -27,6 +27,8 @@ Latest tested application commit: `7a6a4d50b9acbf4e4eb844fce97452733a1a9587`, no
 
 See `reports/v44-integration/2026-10-15/REMAINING_GATES.md`. **Full goal and release acceptance remain incomplete.** Original no-restart, no-live-DB-write, no-outreach, no-paid-call, no-provider-change and no-merge constraints remain enforced.
 
+A10 (search DLQ tagging): `mm_pipeline.fail()` accepts `provider_state`/`lane` kwargs merged into existing `pipeline_items.payload` JSON (no DDL change, per A8). `test_dead_letter_distinguishes_provider_outage_from_prospect_failure` passes; evidence at `reports/search-service/a10-dlq-tag.txt`. Two categories separable by single query with no schema change. Committed locally as bfa4b31; no push.
+
 ## Earlier verification history
 
 The earlier text below is retained as history. Its cookie/fixture status and counts are superseded by the record above.
