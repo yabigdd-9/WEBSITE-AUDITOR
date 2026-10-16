@@ -3,6 +3,7 @@ import os
 import fcntl
 import signal
 import atexit
+from contextlib import suppress
 from pathlib import Path
 from typing import Optional
 
@@ -119,5 +120,3 @@ def is_process_alive(pid: int) -> bool:
         return False
 
 
-# Import suppress for use in PIDFile
-from contextlib import suppress

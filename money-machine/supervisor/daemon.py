@@ -27,10 +27,18 @@ class SupervisorDaemon:
         if self.pidfile.exists():
             try:
                 other_pid = int(self.pidfile.read_text().strip())
-                if Path(f"/proc/{other_pid}").exists():
-                    return False  # dual-start blocked
-            except Exception:
-                pass
+            except (ValueError, OSError):
+                other_pid = None  # malformed content -> stale, recover ownership below
+            if other_pid is not None:
+                try:
+                    os.kill(other_pid, 0)
+                except ProcessLookupError:
+                    other_pid = None  # stale PID -> recover stale ownership below
+                except PermissionError:
+                    return False  # fail closed: process may exist but we can't signal it
+                else:
+                    return False  # process alive -> block duplicate startup
+            # stale or malformed pidfile: recover ownership by overwriting
         self.pidfile.write_text(str(os.getpid()))
         self.heartbeat.write_text(json.dumps({"pid": os.getpid(), "started": datetime.now(timezone.utc).isoformat()}))
         return True

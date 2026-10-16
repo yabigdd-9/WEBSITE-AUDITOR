@@ -361,8 +361,15 @@ def backoff_seconds(attempts, base=30, cap=3600, jitter=0.2):
     return delay * (1 + random.uniform(-jitter, jitter))
 
 
-def fail(d, business_id, worker_id, error, retryable=True):
-    """Record a failure; schedule retry or dead-letter."""
+def fail(d, business_id, worker_id, error, retryable=True,
+         provider_state=None, lane=None):
+    """Record a failure; schedule retry or dead-letter.
+
+    When `provider_state` and/or `lane` are supplied (e.g. a search-lane
+    provider outage), they are merged into the item's existing payload JSON
+    so `./mm dead-letter` can separate infrastructure deferrals from
+    prospect-quality failures without a schema change (A10 / A8).
+    """
     r = item(d, business_id)
     attempts = r['attempts'] + 1
     msg = str(error)[:500]
@@ -383,6 +390,13 @@ def fail(d, business_id, worker_id, error, retryable=True):
         classification = 'unknown'
 
     now_time = now()
+
+    # Tags merged into the existing payload JSON (no DDL change).
+    tags = {}
+    if provider_state:
+        tags['provider_state'] = provider_state
+    if lane:
+        tags['lane'] = lane
 
     if retryable and attempts < r['max_attempts']:
         nxt = (dt.datetime.now(dt.timezone.utc)
@@ -411,9 +425,18 @@ def fail(d, business_id, worker_id, error, retryable=True):
                        'dead-lettered after %d attempts: %s' % (attempts, msg),
                        {'attempts': attempts})
         outcome = 'dead_lettered'
+    if tags:
+        try:
+            payload = json.loads(r['payload'] or '{}')
+        except (ValueError, TypeError):
+            payload = {}
+        payload.update(tags)
+        d.execute("UPDATE pipeline_items SET payload=? WHERE business_id=?",
+                  (json.dumps(payload, sort_keys=True), business_id))
     metric(d, 'pipeline.items.' + outcome)
     log({'kind': 'failure', 'business_id': business_id, 'worker': worker_id,
-         'error': msg, 'outcome': outcome, 'attempts': attempts})
+         'error': msg, 'outcome': outcome, 'attempts': attempts,
+         'provider_state': provider_state, 'lane': lane})
     return outcome
 
 

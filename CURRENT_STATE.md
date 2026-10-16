@@ -27,6 +27,8 @@ Latest tested application commit: `7a6a4d50b9acbf4e4eb844fce97452733a1a9587`, no
 
 See `reports/v44-integration/2026-10-15/REMAINING_GATES.md`. **Full goal and release acceptance remain incomplete.** Original no-restart, no-live-DB-write, no-outreach, no-paid-call, no-provider-change and no-merge constraints remain enforced.
 
+A10 (search DLQ tagging): `mm_pipeline.fail()` accepts `provider_state`/`lane` kwargs merged into existing `pipeline_items.payload` JSON (no DDL change, per A8). `test_dead_letter_distinguishes_provider_outage_from_prospect_failure` passes; evidence at `reports/search-service/a10-dlq-tag.txt`. Two categories separable by single query with no schema change. Committed locally as bfa4b31; no push.
+
 ## Earlier verification history
 
 The earlier text below is retained as history. Its cookie/fixture status and counts are superseded by the record above.
@@ -74,7 +76,7 @@ _Last updated: 2026-10-15 · branch `integration/v44-local-machine-convergence` 
 | --- | --- | --- |
 | Configured GitHub checks | PASS at baseline | All 13 latest check runs succeeded at b349; candidate remains unpublished with no new hosted checks or Sonar analysis. |
 | Human/code review | OPEN | PR #52 is draft; CodeRabbit draft skip is not review. |
-| Supervisor/control plane | IMPLEMENTED | Single-instance protections, heartbeats, leases, recovery, health/log commands, rotation and DLQ triage exist. Current-revision full acceptance remains outstanding. |
+| Supervisor/control plane | IMPLEMENTED | Single-instance protections, heartbeats, leases, recovery, health/log commands, rotation and DLQ triage exist. Four defects fixed on agents/opus-r01 (commit 5f461d43): pid.py import ordering, daemon.py macOS process check, mm_dashboard.py SQL typo, mm_ritual_cycles.py missing import. CAUTION: commit 5f461d43 inverted daemon.py.start() os.kill(pid,0) logic — it must NOT be integrated without corrective commit f12a83c7f028f52fca6d4b5c5e9c5d0495aeb586, which restores live-PID→blocked, dead-PID→recover+True, PermissionError→fail-closed-False, malformed→recover+True, adds regression tests (toolkit_tests/test_daemon_start.py: 6 passed), and notes daemon.py.start() is non-atomic (atomic guard remains cli.py's PIDFile flock+O_EXCL). Toolkit: 297 passed/2 skipped. Intelligence: 178 passed. Acceptance: 57 passed/1 pre-existing failure/2 skipped. Push blocked by sandbox (github.com:443 denied). |
 | Discovery and contact review | IMPLEMENTED | Bounded discovery and automatic first-party evidence collection; uncertain contacts remain held. Draft preparation does not release a contact or authorize sending. |
 | Lighthouse/Lychee | ADAPTERS IMPLEMENTED | `auditor_toolkit/external_tools.py` and fixture tests exist; exact-head real-tool host acceptance is separate. |
 | Audit coverage safety and maintenance | IMPLEMENTED LOCALLY | Seven no-op stages are marked skipped with explicit required/optional coverage; History rejects incompatible cached audits and incomplete required audit coverage routes to NEEDS_REVIEW. Analyzer implementations remain deferred; focused safety/quote/worker validation passed. |

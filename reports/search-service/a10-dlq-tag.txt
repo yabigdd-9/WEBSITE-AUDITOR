@@ -1,0 +1,48 @@
+A10 — DLQ provider-outage tagging evidence
+==========================================
+
+Mechanism: mm_pipeline.fail() accepts provider_state and lane kwargs; they are
+merged into the existing pipeline_items.payload JSON (no DDL/schema change).
+When a handler raises an error that dead-letters an item, the provider_state
+and lane tags are stored inside payload. ./mm dead-letter can then separate
+infrastructure deferrals from prospect-quality failures with a single query:
+
+  SELECT business_id FROM pipeline_items
+  WHERE state='PERMANENT_FAILURE'
+  AND json_extract(payload, '$.provider_state') IS NOT NULL
+  AND json_extract(payload, '$.lane')='search'
+
+Test: test_dead_letter_distinguishes_provider_outage_from_prospect_failure
+  Creates two businesses enqueued with max_attempts=1.
+  - Outage item: p.fail(..., RetryableError('search provider absent'),
+      retryable=False, provider_state='BLOCKED_SEARCH_SERVICE_ABSENT', lane='search')
+  - Prospect item: p.fail(..., PermanentError('unfixable prospect'), retryable=False)
+
+Assertions:
+  outage item state == PERMANENT_FAILURE
+  prospect item state == PERMANENT_FAILURE
+  outage payload.provider_state == 'BLOCKED_SEARCH_SERVICE_ABSENT'
+  outage payload.lane == 'search'
+  prospect payload has no provider_state
+  prospect payload has no lane
+  single json_extract query returns exactly [outage business_id]
+
+Result: PASSED (1 passed in 0.70s)
+
+No DDL change: payload TEXT column already exists; tags merged into existing JSON
+via json.loads/update/json.dumps. See A8 evidence (schema hash unchanged).
+
+Wiring status:
+  - mm_pipeline.fail(): provider_state/lane kwargs implemented (backward compatible).
+  - Worker.run_once: calls fail() with the raised error; callers pass
+    provider_state/lane when dead-lettering provider-outage items.
+  - discover-search CLI (mm_operator.py): catches SearchBlocked, prints
+    structured blocked JSON, returns 0 — no business created, so nothing to
+    dead-letter from this path.
+  - _collect_search_source / collect_multi_source: report source errors
+    independently (no dead-letter; no DB writes in collect layer).
+  - mm_recurring_discovery.run_due: ingests candidates; provider failures
+    surface as source errors, not dead letters.
+
+Two categories (provider outage vs prospect failure) are separable by a single
+query with no schema change. Done-when met.
