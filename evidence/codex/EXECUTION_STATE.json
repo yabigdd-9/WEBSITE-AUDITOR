@@ -4,7 +4,7 @@
   "plan_path": "/Users/dd/Downloads/HERMES_WEBSITE_AUDITOR_MASTER_PLAN_v3.2.1_CORRECTED.zip",
   "plan_zip_sha256": "58e98a7a0d0b25f5a62c868c6ba99e1a6565aec04ddfb9297a2c2cba906d30cb",
   "source_base": "09ab41ab61656ae4b63110d4ee7d418f3fbf07b8",
-  "updated_at_utc": "2026-10-16T06:26:19.084055+00:00",
+  "updated_at_utc": "2026-10-16T07:46:18.383604+00:00",
   "direct_assignment_override": {
     "R01": "Opus, per direct user instruction"
   },
@@ -322,5 +322,24 @@
       "money-machine/mm_pipeline.py",
       "money-machine/test_pipeline.py"
     ]
+  },
+  "local_integration": {
+    "status": "LOCAL_INTEGRATION_VERIFIED",
+    "merge_commit": "adec8b282f43f3f2918a4fe4aefcd9c54860324b",
+    "opus_pinned": "dfc5dc397504dc80e6d9ffc5f09f3c0c9682ab75",
+    "tested_application_sha": "b032c8c1d22d4000bb5db1d19fe5a4fa21f5d845",
+    "canonical": {
+      "passed": 1131,
+      "skipped": 3
+    },
+    "money": {
+      "passed": 693,
+      "skipped": 2,
+      "subtests_passed": 83
+    },
+    "evidence": "integration-dfc5dc39/INTEGRATION.md",
+    "shared_branch_changed": false,
+    "production_activated": false,
+    "canonical_A10_complete": false
   }
 }

@@ -1,3 +1,25 @@
+# 16 October 2026 — local Codex–Opus integration candidate
+
+Location: `/Users/dd/WEBSITE-AUDITOR-codex`, branch `agents/codex-r00`.
+Pinned Opus handoff: `dfc5dc397504dc80e6d9ffc5f09f3c0c9682ab75`.
+Tested application revision: `b032c8c1d22d4000bb5db1d19fe5a4fa21f5d845`.
+
+The corrected Opus chain and Codex evidence are combined locally. Focused
+integration checks passed 73 cases. Full canonical coverage passed 1,131 cases
+with three skips; MoneyMachine passed 693 cases with two skips and 83 passing
+subtests. Both full receipts have unchanged tracked sources and zero observed
+loaded-code mismatches. Canonical lint and dependency checks pass.
+
+See `evidence/codex/integration-dfc5dc39/INTEGRATION.md` and its exact-revision
+receipts for scope, changed files, isolated fixtures and remaining gates.
+The imported search-DLQ A10 label does not complete the canonical runtime-
+attestation A10. No shared integration branch update, remote push, deployment,
+service restart, production DB/configuration change, soak or outreach occurred.
+Earlier authorization statements below are historical, not activation approval
+for this local candidate.
+
+---
+
 # 15 October 2026 — authorized controlled rollout candidate
 
 The signed-in Sonar review resolved five findings with source-specific comments and independent API confirmation. The remaining nine were traced: five are explicit local operator input-file selectors with no lower-trust caller identified in the searched repository; their source-system findings remain open rather than assuming unknown deployment boundaries.

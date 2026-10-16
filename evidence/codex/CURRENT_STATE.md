@@ -98,3 +98,13 @@ scratch copy: seven committed tests passed and process signal handlers were
 restored. New uncommitted Opus pipeline edits are excluded. See
 OPUS_FINAL_REVIEW.md for exact commits and limits. These evidence-only Codex
 commits do not integrate any application source or attest production runtime.
+
+## Subsequent authorized local integration
+
+The integration owner subsequently asked Codex to combine the committed Opus
+handoff with this branch. Opus dfc5dc39 was merged locally as adec8b28; the
+compatibility-only source revision b032c8c1 passed 1,131 canonical cases (three
+skips) and 693 MoneyMachine cases (two skips), plus 83 passing subtests. See
+integration-dfc5dc39/INTEGRATION.md. The original evidence-only batch above
+remains historical; shared integration, production and canonical A10 activation
+remain outside the completed local integration scope.
