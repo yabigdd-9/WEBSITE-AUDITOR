@@ -3,10 +3,10 @@
 All fixtures are synthetic and disposable. No network, no model calls, no sends.
 """
 import os
-from pathlib import Path
 import sqlite3
 import tempfile
 import unittest
+from pathlib import Path
 
 import mm_core as c
 import mm_pipeline as p
@@ -86,11 +86,36 @@ class ErrorTracking(unittest.TestCase):
         self.assertEqual(row['state'], 'PERMANENT_FAILURE')
         self.assertEqual(row['classification'], 'permanent')
         self.assertEqual(row['component'], 'w-contract')
-        # transition clears last_error; the dead-letter event keeps the detail
+        self.assertIn('contract error', p.item(self.d, self.bid)['last_error'])
+        # The append-only event trail retains the same diagnostic.
         ev = self.d.execute(
             "SELECT reason FROM pipeline_events WHERE business_id=? "
             "AND to_state='PERMANENT_FAILURE'", (self.bid,)).fetchone()
         self.assertIn('contract error', ev['reason'])
+
+    def test_retryable_failure_preserves_diagnostic_and_requeue_resets_budget(self):
+        self.d.execute(
+            "UPDATE pipeline_items SET attempts=4,max_attempts=5 WHERE business_id=?",
+            (self.bid,),
+        )
+        outcome = p.fail(
+            self.d, self.bid, 'w-test', p.RetryableError('temporary fetch failure')
+        )
+        self.assertEqual(outcome, 'dead_lettered')
+        failed = p.item(self.d, self.bid)
+        self.assertEqual(failed['state'], 'RETRYABLE_FAILURE')
+        self.assertEqual(failed['last_error'], 'temporary fetch failure')
+        self.assertEqual(failed['attempts'], 5)
+
+        p.transition(
+            self.d, self.bid, 'AUDIT_PENDING', 'operator',
+            'retry after fetcher repair',
+        )
+        recovered = p.item(self.d, self.bid)
+        self.assertEqual(recovered['state'], 'AUDIT_PENDING')
+        self.assertEqual(recovered['attempts'], 0)
+        self.assertIsNone(recovered['next_retry_at'])
+        self.assertIsNone(recovered['last_error'])
 
     def test_schema_error_is_permanent(self):
         def missing_table_handler(d, it, w):
@@ -118,6 +143,7 @@ class ErrorTracking(unittest.TestCase):
         self.assertEqual(rc['classification'], 'permanent')
         self.assertTrue(rc['error_fingerprint'])
         self.assertEqual(rc['repeat_count'], 1)
+        self.assertEqual(rc['last_error'], 'hard failure 12345')
 
 
 

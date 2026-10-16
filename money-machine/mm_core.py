@@ -135,6 +135,26 @@ CREATE TABLE IF NOT EXISTS mm_jobs(job_key TEXT PRIMARY KEY,kind TEXT NOT NULL,b
 CREATE TABLE IF NOT EXISTS mm_model_invocations(id INTEGER PRIMARY KEY,run_key TEXT NOT NULL UNIQUE,model TEXT NOT NULL,provider TEXT NOT NULL,purpose_hash TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('blocked','started','failed','completed')),model_calls INTEGER NOT NULL DEFAULT 0 CHECK(model_calls>=0),input_tokens INTEGER,output_tokens INTEGER,cost_usd REAL NOT NULL DEFAULT 0 CHECK(cost_usd=0),created_at TEXT NOT NULL,finished_at TEXT,error TEXT);
 CREATE TABLE IF NOT EXISTS mm_experiments(id INTEGER PRIMARY KEY,business_id INTEGER NOT NULL REFERENCES businesses(id),message_id INTEGER NOT NULL UNIQUE REFERENCES mm_messages(id),industry TEXT NOT NULL,problem TEXT NOT NULL,offer TEXT NOT NULL,price_band TEXT NOT NULL,style TEXT NOT NULL,demo_type TEXT NOT NULL,variant TEXT NOT NULL,created_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS mm_learning(id INTEGER PRIMARY KEY,pattern TEXT NOT NULL,expected TEXT NOT NULL,actual TEXT NOT NULL,evidence_ref TEXT NOT NULL,confidence REAL NOT NULL CHECK(confidence BETWEEN 0 AND 1),recommended_change TEXT NOT NULL,created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS prospect_outcomes(
+  id INTEGER PRIMARY KEY,
+  business_id INTEGER NOT NULL REFERENCES businesses(id),
+  outcome TEXT NOT NULL,
+  observed_at TEXT NOT NULL,
+  actor TEXT NOT NULL,
+  evidence_path TEXT NOT NULL,
+  evidence_hash TEXT NOT NULL,
+  note TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS prospect_outcomes_business
+  ON prospect_outcomes(business_id, observed_at DESC);
+CREATE TRIGGER IF NOT EXISTS prospect_outcomes_no_update
+BEFORE UPDATE ON prospect_outcomes BEGIN
+  SELECT RAISE(ABORT,'prospect outcomes are append-only');
+END;
+CREATE TRIGGER IF NOT EXISTS prospect_outcomes_no_delete
+BEFORE DELETE ON prospect_outcomes BEGIN
+  SELECT RAISE(ABORT,'prospect outcomes are append-only');
+END;
 CREATE INDEX IF NOT EXISTS mm_evidence_business_date ON mm_evidence(business_id,checked_at DESC);
 CREATE INDEX IF NOT EXISTS mm_message_business ON mm_messages(business_id,kind,sent_at);
 CREATE INDEX IF NOT EXISTS mm_event_business_time ON mm_events(business_id,event_at);
@@ -143,6 +163,113 @@ CREATE INDEX IF NOT EXISTS mm_deal_queue ON mm_deals(stage,due);
 CREATE UNIQUE INDEX IF NOT EXISTS mm_one_initial ON mm_messages(business_id) WHERE kind='initial';
 CREATE UNIQUE INDEX IF NOT EXISTS mm_unique_send_receipt ON mm_messages(send_receipt) WHERE send_receipt IS NOT NULL;
 CREATE UNIQUE INDEX IF NOT EXISTS mm_unique_proposal_receipt ON mm_proposals(send_receipt) WHERE send_receipt IS NOT NULL;
+CREATE TABLE IF NOT EXISTS experience_ledger(
+  id INTEGER PRIMARY KEY,
+  outcome TEXT NOT NULL,
+  actor TEXT NOT NULL,
+  observed_at TEXT NOT NULL,
+  business_id INTEGER NOT NULL REFERENCES businesses(id),
+  evidence_hash TEXT NOT NULL,
+  created_at TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS experience_ledger_outcome_time
+  ON experience_ledger(outcome, observed_at DESC);
+CREATE INDEX IF NOT EXISTS experience_ledger_actor
+  ON experience_ledger(actor);
+CREATE TRIGGER IF NOT EXISTS experience_ledger_on_outcome
+AFTER INSERT ON prospect_outcomes BEGIN
+  INSERT INTO experience_ledger(outcome, actor, observed_at, business_id, evidence_hash, created_at)
+  SELECT NEW.outcome, NEW.actor, NEW.observed_at, NEW.business_id, NEW.evidence_hash, NEW.created_at;
+END;
+CREATE TRIGGER IF NOT EXISTS experience_ledger_no_update
+BEFORE UPDATE ON experience_ledger BEGIN
+  SELECT RAISE(ABORT,'experience ledger is append-only');
+END;
+CREATE TRIGGER IF NOT EXISTS experience_ledger_no_delete
+BEFORE DELETE ON experience_ledger BEGIN
+  SELECT RAISE(ABORT,'experience ledger is append-only');
+END;
+
+-- P2: terminal rejection intelligence. Every terminal rejection is recorded
+-- with its raw reason preserved verbatim and a canonical_reason assigned by the
+-- classification layer. original_decision_rows are never mutated by this layer.
+CREATE TABLE IF NOT EXISTS terminal_rejections(
+  id INTEGER PRIMARY KEY,
+  business_id INTEGER NOT NULL REFERENCES businesses(id),
+  terminal_state TEXT NOT NULL,
+  raw_reason TEXT NOT NULL,
+  canonical_reason TEXT NOT NULL,
+  source_query_stage TEXT NOT NULL,
+  evidence_refs TEXT NOT NULL DEFAULT '[]',
+  recorded_at TEXT NOT NULL,
+  actor TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS terminal_rejections_business
+  ON terminal_rejections(business_id, recorded_at DESC);
+CREATE INDEX IF NOT EXISTS terminal_rejections_canonical
+  ON terminal_rejections(canonical_reason, recorded_at DESC);
+CREATE INDEX IF NOT EXISTS terminal_rejections_state
+  ON terminal_rejections(terminal_state, recorded_at DESC);
+CREATE TRIGGER IF NOT EXISTS terminal_rejections_no_update
+BEFORE UPDATE ON terminal_rejections BEGIN
+  SELECT RAISE(ABORT,'terminal rejections are append-only');
+END;
+CREATE TRIGGER IF NOT EXISTS terminal_rejections_no_delete
+BEFORE DELETE ON terminal_rejections BEGIN
+  SELECT RAISE(ABORT,'terminal rejections are append-only');
+END;
+
+-- P3: error mining. False positives and false negatives are detected by
+-- comparing recorded outcomes against a human-corrected ground-truth label,
+-- then persisted as deduplicated clusters keyed by (canonical_reason, stage).
+CREATE TABLE IF NOT EXISTS error_clusters(
+  id INTEGER PRIMARY KEY,
+  canonical_reason TEXT NOT NULL,
+  terminal_state TEXT NOT NULL,
+  source_query_stage TEXT NOT NULL,
+  cluster_key TEXT NOT NULL,
+  fingerprint TEXT NOT NULL,
+  observed_count INTEGER NOT NULL DEFAULT 1,
+  false_positive INTEGER NOT NULL DEFAULT 0,
+  false_negative INTEGER NOT NULL DEFAULT 0,
+  first_seen TEXT NOT NULL,
+  last_seen TEXT NOT NULL,
+  latest_business_id INTEGER REFERENCES businesses(id),
+  latest_raw_reason TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS error_clusters_cluster_key
+  ON error_clusters(cluster_key);
+CREATE INDEX IF NOT EXISTS error_clusters_fingerprint
+  ON error_clusters(fingerprint);
+CREATE INDEX IF NOT EXISTS error_clusters_state_reason
+  ON error_clusters(terminal_state, canonical_reason);
+CREATE TRIGGER IF NOT EXISTS error_clusters_no_delete
+BEFORE DELETE ON error_clusters BEGIN
+  SELECT RAISE(ABORT,'error clusters are append-only');
+END;
+
+-- P3: human corrections. A human correction links a terminal_rejections row to
+-- a corrected ground-truth label. Corrections never auto-change thresholds or
+-- auto-promote a challenger; they are recorded for review and aggregate mining.
+CREATE TABLE IF NOT EXISTS human_corrections(
+  id INTEGER PRIMARY KEY,
+  rejection_id INTEGER NOT NULL REFERENCES terminal_rejections(id),
+  corrected_label TEXT NOT NULL,
+  correction_note TEXT NOT NULL DEFAULT '',
+  corrected_by TEXT NOT NULL,
+  corrected_at TEXT NOT NULL,
+  created_at TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS human_corrections_rejection
+  ON human_corrections(rejection_id);
+CREATE INDEX IF NOT EXISTS human_corrections_label
+  ON human_corrections(corrected_label, corrected_at DESC);
+CREATE TRIGGER IF NOT EXISTS human_corrections_no_update
+BEFORE UPDATE ON human_corrections BEGIN
+  SELECT RAISE(ABORT,'human corrections are append-only');
+END;
+CREATE TRIGGER IF NOT EXISTS human_corrections_no_delete
+BEFORE DELETE ON human_corrections BEGIN
+  SELECT RAISE(ABORT,'human corrections are append-only');
+END;
 '''
 
 def migrate(d, backup_path):
@@ -159,6 +286,8 @@ def migrate(d, backup_path):
     sql+=TRIGGERS
     try:
         d.executescript(sql)
+        import mm_experience_ledger
+        mm_experience_ledger.migrate(d)
         d.execute('INSERT OR IGNORE INTO mm_migrations VALUES(2,?,?)',(now(),str(backup_path)))
         d.commit()
     except Exception:d.rollback();raise

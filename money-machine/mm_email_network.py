@@ -10,7 +10,7 @@ import dns.resolver
 import dns.exception
 import ipaddress
 
-from email_baseline_capture import get_public, CONTACT_PATHS
+from email_baseline_capture import clean_url, get_public, CONTACT_PATHS
 from mm_email import domain_name, root_domain, parse_page, age_days, utcnow, hash_bytes
 
 
@@ -27,15 +27,23 @@ class DNSChecks:
         self.resolver.lifetime = 5; self.resolver.timeout = 3
         self.resolver.cache = dns.resolver.LRUCache(max_size=256)
 
-    def check(self, domain):
+    def check(self, domain, *, deadline=None):
         domain = domain_name(domain)
         old = self.cache.get(domain)
         if old and 0 <= age_days(old.get('checked_at')) <= 1 / 24:
             return old
         result = {'domain': domain, 'checked_at': utcnow(), 'domain_resolves': None, 'mx_present': None,
                   'mx_hosts': [], 'domain_accepts_mail': None, 'status': 'unknown', 'method': 'DNS MX and public MX target address resolution'}
+        def resolve(name, kind):
+            remaining = None if deadline is None else deadline - time.monotonic()
+            if remaining is not None and remaining <= 0:
+                result['budget_exhausted'] = True
+                raise dns.exception.Timeout
+            self.resolver.lifetime = 5 if remaining is None else min(5, remaining)
+            self.resolver.timeout = 3 if remaining is None else min(3, remaining)
+            return self.resolver.resolve(name, kind)
         try:
-            answer = self.resolver.resolve(domain, 'MX')
+            answer = resolve(domain, 'MX')
             records = sorted((int(r.preference), str(r.exchange).rstrip('.')) for r in answer)
             result['domain_resolves'] = True
             if any(not host for _, host in records):
@@ -48,7 +56,7 @@ class DNSChecks:
                 for _, host in records[:5]:
                     addresses = []
                     for kind in ('A', 'AAAA'):
-                        try: addresses.extend(str(a) for a in self.resolver.resolve(host, kind))
+                        try: addresses.extend(str(a) for a in resolve(host, kind))
                         except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer): pass
                         except dns.exception.DNSException: uncertain = True
                     if addresses and all(ipaddress.ip_address(a).is_global for a in addresses): routes.append(host)
@@ -131,7 +139,11 @@ class Crawler:
                 if page['url'] not in {p['url'] for p in parsed}: parsed.append(page); state['pages'].append(meta)
                 links = []
                 for link in page['links']:
-                    dest = urljoin(meta['url'], link['href']).split('#')[0]; part = urlsplit(dest)
+                    try:
+                        dest = clean_url(urljoin(meta['url'], link['href']).split('#')[0])
+                    except ValueError:
+                        continue
+                    part = urlsplit(dest)
                     if part.scheme not in ('http', 'https') or part.query or root_domain(dest) != canonical: continue
                     label = link['text'].lower(); path = part.path.lower()
                     if 'contact' in label or 'contact' in path: links.append((0, dest))
@@ -142,6 +154,8 @@ class Crawler:
                     base = urlsplit(meta['url']); state['pending'].append(base.scheme + '://' + base.netloc + '/sitemap.xml')
             except (OSError, ValueError, ET.ParseError, http.client.HTTPException) as e:
                 state['errors'].append({'url': url, 'reason': type(e).__name__ + ': ' + str(e)[:120]})
+                if str(e) in {'CONTACT_REVIEW_REQUEST_LIMIT', 'CONTACT_REVIEW_COLLECTION_DEADLINE'}:
+                    break
                 if isinstance(e, (OSError, http.client.HTTPException)) and attempts[url] < 2:
                     seen.discard(url); state['pending'].append(url)
                     time.sleep(.3 * 2 ** (attempts[url] - 1))
