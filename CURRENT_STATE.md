@@ -74,7 +74,7 @@ _Last updated: 2026-10-15 · branch `integration/v44-local-machine-convergence` 
 | --- | --- | --- |
 | Configured GitHub checks | PASS at baseline | All 13 latest check runs succeeded at b349; candidate remains unpublished with no new hosted checks or Sonar analysis. |
 | Human/code review | OPEN | PR #52 is draft; CodeRabbit draft skip is not review. |
-| Supervisor/control plane | IMPLEMENTED | Single-instance protections, heartbeats, leases, recovery, health/log commands, rotation and DLQ triage exist. Current-revision full acceptance remains outstanding. |
+| Supervisor/control plane | IMPLEMENTED | Single-instance protections, heartbeats, leases, recovery, health/log commands, rotation and DLQ triage exist. Four defects fixed on agents/opus-r01 (commit 5f461d43): pid.py import ordering, daemon.py macOS process check, mm_dashboard.py SQL typo, mm_ritual_cycles.py missing import. Toolkit: 297 passed/2 skipped. Intelligence: 178 passed. Acceptance: 57 passed/1 pre-existing failure/2 skipped. Push blocked by sandbox (github.com:443 denied). |
 | Discovery and contact review | IMPLEMENTED | Bounded discovery and automatic first-party evidence collection; uncertain contacts remain held. Draft preparation does not release a contact or authorize sending. |
 | Lighthouse/Lychee | ADAPTERS IMPLEMENTED | `auditor_toolkit/external_tools.py` and fixture tests exist; exact-head real-tool host acceptance is separate. |
 | Audit coverage safety and maintenance | IMPLEMENTED LOCALLY | Seven no-op stages are marked skipped with explicit required/optional coverage; History rejects incompatible cached audits and incomplete required audit coverage routes to NEEDS_REVIEW. Analyzer implementations remain deferred; focused safety/quote/worker validation passed. |
