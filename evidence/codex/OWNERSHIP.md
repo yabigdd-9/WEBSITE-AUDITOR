@@ -51,3 +51,12 @@ The other sixteen candidate paths remain excluded; original candidate retained.
 Dedicated new tests are money-machine/test_router_cost_stop.py,
 money-machine/test_worker_failure_metadata.py and
 tests/test_watchdog_delivery_policy.py.
+
+## Queue and bootstrap optimization assignment — 2026-10-17
+
+The integration owner explicitly instructed Codex to execute both additional
+packages. Sole source/test ownership on agents/codex-r00: money-machine/
+mm_pipeline.py, test_pipeline_lease_ownership.py, runtime_bootstrap.py and
+test_runtime_bootstrap.py. The approved afa51457 snapshot remains in history;
+new commits require their own review. Opus files/branch and shared integration
+remain untouched. No live schema, provider, service or deployment changes.
