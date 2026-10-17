@@ -17,73 +17,71 @@ class PIDFile:
         self._locked = False
     
     def acquire(self) -> bool:
-        """Acquire the PID lock. Returns True if successful, False if another process holds the lock."""
+        """Lock a stable inode before inspecting or writing process ownership.
+
+        Keep the file in place on release: unlinking a flock-protected file
+        permits a second inode, and consequently a second independent lock.
+        """
+        if self._locked:
+            return True
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Open with O_CREAT | O_EXCL for atomic creation attempt
+        fd = os.open(self.path, os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
         try:
-            self._fd = os.open(self.path, os.O_CREAT | os.O_EXCL | os.O_RDWR, 0o644)
-        except FileExistsError:
-            # PID file exists, check if process is still alive
-            if self._is_stale():
-                # Stale PID, remove and retry
-                self.path.unlink()
-                try:
-                    self._fd = os.open(self.path, os.O_CREAT | os.O_EXCL | os.O_RDWR, 0o644)
-                except FileExistsError:
-                    return False
-            else:
+            try:
+                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                os.close(fd)
                 return False
-        
-        # Lock the file
-        try:
-            fcntl.flock(self._fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            self._locked = True
-        except BlockingIOError:
-            os.close(self._fd)
+            # Respect live legacy owners which did not acquire flock.
+            self._fd = fd
+            if not self._is_stale():
+                self._fd = None
+                os.close(fd)
+                return False
+            os.ftruncate(fd, 0)
+            os.lseek(fd, 0, os.SEEK_SET)
+            os.write(fd, str(os.getpid()).encode())
+            os.fsync(fd)
+        except BaseException:
             self._fd = None
-            return False
-        
-        # Write our PID
-        pid = str(os.getpid())
-        os.write(self._fd, pid.encode())
-        os.fsync(self._fd)
-        
-        # Register cleanup
+            os.close(fd)
+            raise
+        self._locked = True
         atexit.register(self.release)
         return True
-    
+
     def _is_stale(self) -> bool:
-        """Check if the PID in the file corresponds to a dead process."""
+        """Only absent/malformed/dead ownership is recoverable."""
         try:
-            content = self.path.read_text().strip()
-            if not content:
-                return True
+            if self._fd is not None:
+                os.lseek(self._fd, 0, os.SEEK_SET)
+                content = os.read(self._fd, 128).decode().strip()
+            else:
+                content = self.path.read_text().strip()
             pid = int(content)
-            # Signal 0 doesn't send a signal but checks process existence
+            if pid <= 0:
+                return True
             os.kill(pid, 0)
-            return False  # Process exists
-        except (ValueError, OSError, ProcessLookupError):
-            return True  # Stale or invalid
-    
+            return False
+        except (ValueError, UnicodeError, FileNotFoundError, ProcessLookupError):
+            return True
+        except OSError:
+            # Permission errors and unknown inspection failures deny recovery.
+            return False
+
     def release(self) -> None:
-        """Release the PID lock and remove the file."""
-        if self._locked and self._fd is not None:
-            try:
-                fcntl.flock(self._fd, fcntl.LOCK_UN)
-            except OSError:
-                pass
-            self._locked = False
-        if self._fd is not None:
-            try:
-                os.close(self._fd)
-            except OSError:
-                pass
-            self._fd = None
-        # Remove the PID file
-        with suppress(FileNotFoundError):
-            self.path.unlink()
-    
+        """Clear only our locked descriptor; never unlink a replacement path."""
+        if not self._locked or self._fd is None:
+            return
+        fd = self._fd
+        self._fd = None
+        self._locked = False
+        try:
+            os.ftruncate(fd, 0)
+            os.fsync(fd)
+        finally:
+            os.close(fd)  # close releases flock, after clearing ownership
+
     def __enter__(self):
         if not self.acquire():
             raise RuntimeError(f"Could not acquire PID lock at {self.path}")

@@ -31,3 +31,16 @@ Opus branch or global configuration are assigned by this integration record.
 A10 runtime-attestation source implementation remains unassigned. The imported
 search DLQ change's A10 label does not complete the canonical A10 work package.
 The separate a365d6b1 candidate is not part of this local merge.
+
+## Authorized safety follow-up — 2026-10-17
+
+The integration owner instructed Codex to execute the five proposed review
+packages. Codex owns changes in its assigned branch only: supervisor/pid.py
+and toolkit_tests/test_pid_ownership.py; runtime_bootstrap.py and
+test_runtime_bootstrap.py; mm_pipeline.py, mm_discovery.py and dedicated
+worker failure tests; mm_model_router.py and dedicated admission tests;
+website_auditor/monitoring/watchdog.py and dedicated watchdog tests. All
+money-machine paths above are under money-machine/. Evidence stays here.
+Opus R01 and its checkout remain untouched. The separate a365d6b1 candidate
+must be inspected before overlapping router changes; no disposition or live
+activation is implied. Existing global provider/entitlement gates remain open.
