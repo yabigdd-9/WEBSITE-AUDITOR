@@ -1,3 +1,12 @@
+# Preserved application fixes adopted locally — 2026-10-17
+
+Source 0fe5047b contains the explicitly assigned registry and email-adapter
+fixes plus regression tests. Both frozen full suites pass; see
+preserved-adoption/REPORT.md, commits.json and receipts. New independent
+review is required before shared integration. Shared branch remains e68873c5
+with all original dirty state preserved; its launchd supervisor remains
+unloaded pending separate restart approval. Approval/report state excluded.
+
 # Queue ownership and source batching — 2026-10-17
 
 The separately authorized local upgrade batch is implemented and verified at

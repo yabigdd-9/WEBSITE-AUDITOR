@@ -1,0 +1,10 @@
+{
+  "baseline": {
+    "imported": false,
+    "missing_module": "email_baseline_capture"
+  },
+  "preserved_change": {
+    "imported": true,
+    "sibling_path_entries": 1
+  }
+}

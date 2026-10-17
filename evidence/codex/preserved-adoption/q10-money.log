@@ -1,0 +1,102 @@
+.......................s................................s............... [  9%]
+......................................................................................... [ 21%]
+.................................................................... [ 30%]
+........................................................................ [ 40%]
+........................................................................ [ 50%]
+........................................................................ [ 59%]
+........................................................................................................................ [ 75%]
+........................................................................ [ 85%]
+........................................................................ [ 95%]
+.....................................                                    [100%]
+=========================== short test summary info ============================
+SKIPPED [1] money-machine/test_acceptance.py:105: BLOCKED: legacy/global Hermes calls cannot be reconciled to MoneyMachine agent_runs. Separate test covers all new local model requests.
+SKIPPED [1] money-machine/test_acceptance.py:223: BLOCKED: no live mail/bank receipt supplied or independent read-only provider verifier connected; local attestation importer is tested separately.
+744 passed, 2 skipped, 83 subtests passed in 72.76s (0:01:12)
+{
+  "source_sha": "0fe5047b18df40e603b8f0bea20cb16fe2c95fac",
+  "started_at_utc": "2026-10-17T01:43:45.387758+00:00",
+  "duration_seconds": 73.908,
+  "pytest_arguments": [
+    "-ra",
+    "--strict-markers",
+    "money-machine",
+    "-m",
+    "not slow",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=/Users/dd/WEBSITE-AUDITOR-codex/work/codex-r00/integration/0fe5047b18df/pytest-money",
+    "--junitxml=/Users/dd/WEBSITE-AUDITOR-codex/evidence/codex/preserved-adoption/q10-money.xml"
+  ],
+  "exit_code": 0,
+  "changed_during_run": [],
+  "verified_pytest_rewritten_modules": [
+    "money-machine/conftest.py",
+    "money-machine/scripts/test_free_role_router.py",
+    "money-machine/test_acceptance.py",
+    "money-machine/test_brain.py",
+    "money-machine/test_dedupe.py",
+    "money-machine/test_discovery.py",
+    "money-machine/test_discovery_batch.py",
+    "money-machine/test_discovery_quality.py",
+    "money-machine/test_dsh_harness_bridge.py",
+    "money-machine/test_email_finder.py",
+    "money-machine/test_email_hardening.py",
+    "money-machine/test_email_integration.py",
+    "money-machine/test_email_lifecycle.py",
+    "money-machine/test_email_lifecycle_cli.py",
+    "money-machine/test_email_network_imports.py",
+    "money-machine/test_email_tracking.py",
+    "money-machine/test_error_tracking.py",
+    "money-machine/test_evidence_ops.py",
+    "money-machine/test_experience_compatibility.py",
+    "money-machine/test_intelligence_calibration.py",
+    "money-machine/test_intelligence_consistency.py",
+    "money-machine/test_intelligence_drift.py",
+    "money-machine/test_intelligence_evidence_value.py",
+    "money-machine/test_intelligence_graph.py",
+    "money-machine/test_intelligence_hard_cases.py",
+    "money-machine/test_intelligence_label_quality.py",
+    "money-machine/test_intelligence_ledger.py",
+    "money-machine/test_intelligence_readiness.py",
+    "money-machine/test_intelligence_review_bundle.py",
+    "money-machine/test_intelligence_review_efficiency.py",
+    "money-machine/test_intelligence_selective.py",
+    "money-machine/test_intelligence_strategy.py",
+    "money-machine/test_intelligence_uncertainty.py",
+    "money-machine/test_launchd.py",
+    "money-machine/test_lead_qualifier.py",
+    "money-machine/test_module_registry.py",
+    "money-machine/test_network_guard.py",
+    "money-machine/test_observability_discovery.py",
+    "money-machine/test_opportunity_axes.py",
+    "money-machine/test_opportunity_intelligence.py",
+    "money-machine/test_opportunity_score.py",
+    "money-machine/test_outreach.py",
+    "money-machine/test_pipeline.py",
+    "money-machine/test_pipeline_lease_ownership.py",
+    "money-machine/test_pipeline_loop.py",
+    "money-machine/test_pipeline_recovery.py",
+    "money-machine/test_polish.py",
+    "money-machine/test_preparation_worker.py",
+    "money-machine/test_qualification_corrections.py",
+    "money-machine/test_quarantine.py",
+    "money-machine/test_recurring_discovery.py",
+    "money-machine/test_redaction.py",
+    "money-machine/test_reporting.py",
+    "money-machine/test_router_cost_stop.py",
+    "money-machine/test_runtime_bootstrap.py",
+    "money-machine/test_runtime_readiness.py",
+    "money-machine/test_scanning_activation.py",
+    "money-machine/test_search_backend.py",
+    "money-machine/test_soak_discovery_recovery.py",
+    "money-machine/test_worker_audit_coverage.py",
+    "money-machine/test_worker_failure_metadata.py"
+  ],
+  "loaded_mismatches": [],
+  "limitations": [
+    "Execution attestation covers observed parent-process tracked Python modules",
+    "Child-process code and production runtime are not attested",
+    "Opt-in browser coverage retains its own skip conditions"
+  ]
+}

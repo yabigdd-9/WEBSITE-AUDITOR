@@ -1,0 +1,10 @@
+{
+  "source_sha": "0fe5047b18df40e603b8f0bea20cb16fe2c95fac",
+  "canonical_lint": "ruff check --no-cache auditor_toolkit toolkit_tests tests: passed",
+  "new_email_test_lint": "ruff check --no-cache money-machine/test_email_network_imports.py: passed",
+  "diff_check": "passed",
+  "preserved_shared_application_hashes": "unchanged from reviewed overlay fingerprints",
+  "shared_head": "e68873c509431f7132c754e2aeaee99fc9eb858e",
+  "shared_supervisor": "unloaded",
+  "approval_and_reports_modified_by_codex": false
+}

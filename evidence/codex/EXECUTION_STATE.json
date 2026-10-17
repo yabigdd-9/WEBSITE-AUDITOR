@@ -4,7 +4,7 @@
   "plan_path": "/Users/dd/Downloads/HERMES_WEBSITE_AUDITOR_MASTER_PLAN_v3.2.1_CORRECTED.zip",
   "plan_zip_sha256": "58e98a7a0d0b25f5a62c868c6ba99e1a6565aec04ddfb9297a2c2cba906d30cb",
   "source_base": "09ab41ab61656ae4b63110d4ee7d418f3fbf07b8",
-  "updated_at_utc": "2026-10-17T00:39:06.754333+00:00",
+  "updated_at_utc": "2026-10-17T01:45:39.310418+00:00",
   "direct_assignment_override": {
     "R01": "Opus, per direct user instruction"
   },
@@ -364,5 +364,14 @@
     "evidence": "queue-bootstrap-upgrade/REPORT.md",
     "independent_review": "REQUIRED_FOR_NEW_COMMITS",
     "production_activation": false
+  },
+  "preserved_application_adoption": {
+    "status": "LOCAL_IMPLEMENTED_AND_VERIFIED",
+    "base_sha": "e68873c509431f7132c754e2aeaee99fc9eb858e",
+    "source_sha": "0fe5047b18df40e603b8f0bea20cb16fe2c95fac",
+    "evidence": "preserved-adoption/REPORT.md",
+    "independent_review_required": true,
+    "shared_integration_performed": false,
+    "shared_supervisor": "unloaded; restart not authorized"
   }
 }
