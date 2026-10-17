@@ -1,3 +1,12 @@
+# Latest authorized safety follow-up — 2026-10-17
+
+The local upgrade batch is implemented and verified at application source
+c50fc9757d156fdce20a975f3ff0f04e98065af8. Exact commits/files, full-suite receipts,
+remaining gates and the corrected test-isolation incident are retained in
+safety-followup/REPORT.md. No shared integration, deployment or activation.
+A10 is a partial startup extension; global admission and runtime acceptance
+remain open. The historical records below retain their original scope.
+
 # R00 — current repository and operating state
 
 Integration owner: human operator, confirmed in chat. Execution worktree is

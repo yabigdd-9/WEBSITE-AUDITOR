@@ -1,0 +1,11 @@
+{
+  "test": "test_explicit_zero_cost_answer_remains_permitted",
+  "cause": "Synthetic FCC fixture omitted model field, so response identity rejection reached real Hermes fallback child.",
+  "child_log": "logs/free-role-routing/20261017T001019428761Z.json",
+  "child_status": "blocked",
+  "child_reason": "OpenRouter credential missing; connect using Hermes model/setup",
+  "recorded_model_attempts": [],
+  "network_scope": "Child attempted catalog access before credential refusal. Do not claim zero provider HTTP requests for initial test. No model dispatch recorded.",
+  "correction": "Added explicit matching response model and autouse prohibition on provider subprocesses. Subsequent suite environment removes inherited credential variables.",
+  "production_changes": "none"
+}

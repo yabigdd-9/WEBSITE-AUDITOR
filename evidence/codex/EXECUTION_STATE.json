@@ -4,7 +4,7 @@
   "plan_path": "/Users/dd/Downloads/HERMES_WEBSITE_AUDITOR_MASTER_PLAN_v3.2.1_CORRECTED.zip",
   "plan_zip_sha256": "58e98a7a0d0b25f5a62c868c6ba99e1a6565aec04ddfb9297a2c2cba906d30cb",
   "source_base": "09ab41ab61656ae4b63110d4ee7d418f3fbf07b8",
-  "updated_at_utc": "2026-10-16T07:46:18.383604+00:00",
+  "updated_at_utc": "2026-10-17T00:16:38.012717+00:00",
   "direct_assignment_override": {
     "R01": "Opus, per direct user instruction"
   },
@@ -114,8 +114,8 @@
         "R00",
         "R01"
       ],
-      "status": "IN_PROGRESS",
-      "reason": "Specification completed in A10_SPEC.md. No implementation/source ownership assignment or live activation; running production revision remains unknown.",
+      "status": "IMPLEMENTED_LOCAL_PARTIAL",
+      "reason": "Opt-in pinned startup manifest checks implemented; existing process identity remains UNKNOWN. Continuous runtime/config attestation, approved activation and independent review remain outstanding.",
       "approval_required": [],
       "evidence": [
         "A10_SPEC.md"
@@ -341,5 +341,14 @@
     "shared_branch_changed": false,
     "production_activated": false,
     "canonical_A10_complete": false
+  },
+  "safety_followup": {
+    "source_sha": "c50fc9757d156fdce20a975f3ff0f04e98065af8",
+    "status": "LOCAL_BATCH_IMPLEMENTED_AND_VERIFIED",
+    "ownership": "User explicitly authorized five scoped packages; router-only adaptation separately confirmed.",
+    "evidence_directory": "safety-followup",
+    "full_runtime_acceptance": false,
+    "global_financial_admission": false,
+    "validation_summary": "safety-followup/validation-summary.json"
   }
 }

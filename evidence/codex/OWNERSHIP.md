@@ -44,3 +44,10 @@ money-machine paths above are under money-machine/. Evidence stays here.
 Opus R01 and its checkout remain untouched. The separate a365d6b1 candidate
 must be inspected before overlapping router changes; no disposition or live
 activation is implied. Existing global provider/entitlement gates remain open.
+
+Router disposition: the integration owner explicitly assigned Codex adaptation
+of only a365d6b1's mm_model_router.py cost-stop changes and isolated tests.
+The other sixteen candidate paths remain excluded; original candidate retained.
+Dedicated new tests are money-machine/test_router_cost_stop.py,
+money-machine/test_worker_failure_metadata.py and
+tests/test_watchdog_delivery_policy.py.

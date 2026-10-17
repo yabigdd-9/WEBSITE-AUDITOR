@@ -1,6 +1,7 @@
 # A10 specification — extend existing runtime attestation
 
-Status: SPECIFICATION_COMPLETE; implementation and source ownership not assigned.
+Status: LOCAL_STARTUP_EXTENSION_IMPLEMENTED at c50fc975; independent review and
+full runtime acceptance remain outstanding. See safety-followup/REPORT.md.
 Integrator: human operator. No service changes or activation are included.
 
 ## Existing implementation and permitted scope
