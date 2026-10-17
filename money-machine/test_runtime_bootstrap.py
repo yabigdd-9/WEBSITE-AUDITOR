@@ -293,3 +293,18 @@ def test_manifest_duplicate_fields_deny_dispatch(checkout, nested):
     assert result.returncode == 3
     assert receipt["failure_code"] == "manifest_duplicate_field"
     assert "NEW" not in result.stdout
+
+
+def test_excessively_nested_manifest_has_bounded_failure_receipt(checkout):
+    import hashlib
+
+    manifest, _ = approved_manifest(checkout)
+    manifest.write_text('[' * 2000 + '0' + ']' * 2000)
+    result, receipt = start(checkout, manifest=manifest,
+                            manifest_digest=hashlib.sha256(manifest.read_bytes()).hexdigest())
+    assert result.returncode == 3
+    assert receipt["status"] == "FAILED"
+    assert receipt["identity_status"] == "FAILED"
+    assert receipt["failure_code"] == "manifest_unreadable_or_invalid"
+    assert "Traceback" not in result.stderr
+    assert "NEW" not in result.stdout

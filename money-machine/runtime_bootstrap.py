@@ -142,7 +142,7 @@ class ManifestGuard:
                 if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest) or hashlib.sha256(path.read_bytes()).hexdigest() != digest:
                     raise RevisionError("manifest_configuration_changed")
             self.document = doc
-        except (OSError, ValueError, TypeError, KeyError) as exc:
+        except (OSError, ValueError, TypeError, KeyError, RecursionError) as exc:
             raise RevisionError("manifest_unreadable_or_invalid") from exc
 
     def identity(self):
