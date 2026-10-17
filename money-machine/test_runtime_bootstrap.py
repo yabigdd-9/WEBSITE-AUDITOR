@@ -223,3 +223,55 @@ def test_strict_receipt_remains_compatible_with_existing_soak_reader(checkout, m
     receipt.update(status="FAILED", identity_status="FAILED")
     path.write_text(json.dumps(receipt))
     assert mm_soak.startup_attestation()["verified"] is False
+
+
+def test_batched_sources_match_git_for_unusual_paths(checkout):
+    import runtime_bootstrap as bootstrap
+    root, source, environment, _ = checkout
+    names = ["space name.py", "line\nbreak.py", "unicodé.py"]
+    for name in names:
+        (source / name).write_bytes(b"VALUE = 'synthetic'\n")
+    subprocess.run(["git", "add", "money-machine"], cwd=root, env=environment, check=True)
+    subprocess.run(["git", "commit", "-qm", "synthetic unusual paths"], cwd=root, env=environment, check=True)
+    revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, env=environment, text=True).strip()
+    observed = bootstrap.committed_sources(root, revision)
+    for name in names:
+        path = "money-machine/" + name
+        assert observed[path] == subprocess.check_output(["git", "show", revision + ":" + path], cwd=root)
+
+
+@pytest.mark.parametrize("body", [b"wrong header\n", b"a" * 40 + b" blob 3\nxy", b"a" * 40 + b" blob 3\nxyz\ntrailing"])
+def test_batched_sources_reject_malformed_output(tmp_path, monkeypatch, body):
+    import runtime_bootstrap as bootstrap
+    listing = b"100644 blob " + b"a" * 40 + b" 3\tmoney-machine/test.py\0"
+    monkeypatch.setattr(bootstrap, "git", lambda *args: listing)
+    monkeypatch.setattr(bootstrap.subprocess, "run", lambda *a, **kw: subprocess.CompletedProcess([], 0, body, b""))
+    with pytest.raises(bootstrap.RevisionError):
+        bootstrap.committed_sources(tmp_path, "a" * 40)
+
+
+@pytest.mark.parametrize("fault", [subprocess.TimeoutExpired("fixture", 30), subprocess.CalledProcessError(1, "fixture")])
+def test_batched_sources_reject_failed_reader(tmp_path, monkeypatch, fault):
+    import runtime_bootstrap as bootstrap
+    listing = b"100644 blob " + b"a" * 40 + b" 3\tmoney-machine/test.py\0"
+    monkeypatch.setattr(bootstrap, "git", lambda *args: listing)
+    def failed(*args, **kwargs):
+        raise fault
+    monkeypatch.setattr(bootstrap.subprocess, "run", failed)
+    with pytest.raises(bootstrap.RevisionError):
+        bootstrap.committed_sources(tmp_path, "a" * 40)
+
+
+def test_batched_sources_use_only_two_git_processes(checkout, monkeypatch):
+    import runtime_bootstrap as bootstrap
+    root, _, _, revision = checkout
+    original = bootstrap.subprocess.run
+    commands = []
+    def recorded(command, *args, **kwargs):
+        commands.append(command)
+        return original(command, *args, **kwargs)
+    monkeypatch.setattr(bootstrap.subprocess, "run", recorded)
+    assert bootstrap.committed_sources(root, revision)
+    assert len(commands) == 2
+    assert commands[0][3] == "ls-tree"
+    assert commands[1][3] == "cat-file"

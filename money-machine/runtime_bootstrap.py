@@ -10,6 +10,7 @@ import hashlib
 import importlib
 import importlib.abc
 import importlib.machinery
+import io
 import json
 import os
 import re
@@ -30,10 +31,47 @@ def git(root, *arguments):
 
 
 def committed_sources(root, revision):
-    names = git(root, "ls-tree", "-r", "--name-only", "-z", revision, "--",
-                "money-machine", "auditor_toolkit", "website_auditor").decode().split("\0")
-    return {name: git(root, "show", revision + ":" + name)
-            for name in names if name.endswith(".py")}
+    try:
+        listing = git(root, "ls-tree", "-r", "-l", "-z", revision, "--",
+                      "money-machine", "auditor_toolkit", "website_auditor")
+    except subprocess.SubprocessError as exc:
+        raise RevisionError("committed_source_read_failed") from exc
+    entries = []
+    try:
+        for raw in listing.split(b"\0"):
+            if not raw:
+                continue
+            metadata, name = raw.split(b"\t", 1)
+            if not name.endswith(b".py"):
+                continue
+            mode, kind, oid, size = metadata.split()
+            if kind != b"blob" or mode not in (b"100644", b"100755"):
+                raise RevisionError("committed_source_type_invalid")
+            count = int(size)
+            if not re.fullmatch(rb"(?:[0-9a-f]{40}|[0-9a-f]{64})", oid) or not 0 <= count <= 64 * 1024 * 1024:
+                raise RevisionError("committed_source_size_invalid")
+            entries.append((name.decode("utf-8", "surrogateescape"), oid, count))
+        if sum(size for _, _, size in entries) > 256 * 1024 * 1024:
+            raise RevisionError("committed_sources_too_large")
+        if not entries:
+            return {}
+        result = subprocess.run(["git", "-C", str(root), "cat-file", "--batch"],
+                                input=b"".join(oid + b"\n" for _, oid, _ in entries),
+                                capture_output=True, check=True, timeout=30)
+        stream = io.BytesIO(result.stdout)
+        sources = {}
+        for name, oid, size in entries:
+            if stream.readline() != oid + b" blob " + str(size).encode() + b"\n":
+                raise RevisionError("committed_source_batch_invalid")
+            data = stream.read(size)
+            if len(data) != size or stream.read(1) != b"\n":
+                raise RevisionError("committed_source_batch_truncated")
+            sources[name] = data
+        if stream.read(1):
+            raise RevisionError("committed_source_batch_trailing_data")
+        return sources
+    except (ValueError, subprocess.SubprocessError) as exc:
+        raise RevisionError("committed_source_read_failed") from exc
 
 
 class ManifestGuard:
