@@ -69,8 +69,11 @@ def supervisor_processes():
     return processes
 
 
-def startup_attestation():
-    """Read the process-owned execution receipt; retain no code or credentials."""
+def startup_attestation(*, manifest_path=None, manifest_sha256=None):
+    """Read startup evidence; optional approval inputs verify its identity.
+
+    This never establishes current process identity or full soak acceptance.
+    """
     pid = int((ROOT / "state/supervisor.pid").read_text())
     path = ROOT / "state/runtime-startup" / (str(pid) + ".json")
     raw = path.read_bytes()
@@ -87,11 +90,99 @@ def startup_attestation():
                 or not source.is_file() or hashlib.sha256(source.read_bytes()).hexdigest() != entry.get("sha256")):
             raise ValueError("Startup source evidence changed or invalid")
         observed.add(relative)
-    return {"verified": receipt.get("status") == "IMPORTS_VERIFIED" and required <= observed,
+    result = {"verified": receipt.get("status") == "IMPORTS_VERIFIED" and required <= observed,
             "pid": receipt.get("pid"), "expected_sha": receipt.get("expected_sha"),
             "python_executable": receipt.get("python_executable"),
             "isolated_python": receipt.get("isolated_python") is True,
-            "module_count": len(modules), "receipt_sha256": hashlib.sha256(raw).hexdigest()}
+            "module_count": len(modules), "receipt_sha256": hashlib.sha256(raw).hexdigest(),
+            "startup_identity_verified": False, "runtime_identity_status": "UNKNOWN",
+            "identity_failure_code": "approved_manifest_missing"}
+    if manifest_path is not None and manifest_sha256 is not None:
+        try:
+            verify_startup_identity(receipt, pid, manifest_path, manifest_sha256)
+            if not result["verified"]:
+                raise ValueError("startup_source_unverified")
+        except (ValueError, OSError, TypeError, KeyError, RecursionError):
+            result["identity_failure_code"] = "startup_identity_unverified"
+        else:
+            result.update(startup_identity_verified=True, identity_failure_code=None)
+    return result
+
+
+def verify_startup_identity(receipt, pid, manifest_path, manifest_sha256):
+    """Verify pinned startup evidence, never infer process liveness or PID age.
+
+    The independent caller supplies approval inputs. A receipt's own manifest
+    hash or scheduler string cannot approve itself. No database is opened.
+    """
+    import re
+
+    from runtime_bootstrap import ManifestGuard, RevisionError, committed_sources
+
+    raw = Path(manifest_path).read_bytes()
+    if (not isinstance(manifest_sha256, str)
+            or not re.fullmatch(r"[0-9a-f]{64}", manifest_sha256)
+            or hashlib.sha256(raw).hexdigest() != manifest_sha256):
+        raise ValueError("manifest_approval_mismatch")
+    try:
+        doc = json.loads(raw, object_pairs_hook=ManifestGuard.unique_fields)
+    except RevisionError as exc:
+        raise ValueError("manifest_duplicate_field") from exc
+    if (not isinstance(doc, dict) or set(doc) != ManifestGuard.FIELDS
+            or type(doc["schema_version"]) is not int or doc["schema_version"] != 1):
+        raise ValueError("manifest_schema_invalid")
+    if (type(receipt.get("pid")) is not int or receipt["pid"] != pid or pid <= 0
+            or receipt.get("identity_status") != "STARTUP_IDENTITY_VERIFIED"
+            or receipt.get("attestation_mode") != "PINNED_STARTUP"
+            or receipt.get("isolated_python") is not True
+            or receipt.get("manifest_sha256") != manifest_sha256):
+        raise ValueError("receipt_identity_mismatch")
+    if (not isinstance(doc["source_sha"], str)
+            or not re.fullmatch(r"[0-9a-f]{40}", doc["source_sha"])
+            or receipt.get("expected_sha") != doc["source_sha"]
+            or not isinstance(doc["release_id"], str)
+            or not re.fullmatch(r"[A-Za-z0-9_.-]{1,100}", doc["release_id"])
+            or not isinstance(doc["scheduler_identity"], str) or not doc["scheduler_identity"]):
+        raise ValueError("manifest_identity_invalid")
+    for field in ("release_id", "repository_realpath", "python_realpath", "database_realpath",
+                  "configuration", "scheduler_identity"):
+        if receipt.get(field) != doc[field]:
+            raise ValueError("receipt_manifest_mismatch")
+
+    def canonical(value):
+        if not isinstance(value, str) or not Path(value).is_absolute() or str(Path(value).resolve()) != value:
+            raise ValueError("manifest_path_invalid")
+        return Path(value)
+
+    root = ROOT.resolve()
+    if (canonical(doc["repository_realpath"]) != root
+            or canonical(doc["database_realpath"]) != root / "database/money_machine.db"
+            or canonical(doc["python_realpath"]) != Path(PY).resolve()
+            or not isinstance(receipt.get("python_executable"), str)
+            or Path(receipt["python_executable"]).resolve() != canonical(doc["python_realpath"])):
+        raise ValueError("manifest_target_mismatch")
+    configs = doc["configuration"]
+    if not isinstance(configs, list) or not configs:
+        raise ValueError("manifest_configuration_missing")
+    seen = set()
+    for config in configs:
+        if not isinstance(config, dict) or set(config) != {"realpath", "sha256"}:
+            raise ValueError("manifest_configuration_invalid")
+        path = canonical(config["realpath"])
+        digest = config["sha256"]
+        if (not path.is_relative_to(root) or path in seen or not isinstance(digest, str)
+                or not re.fullmatch(r"[0-9a-f]{64}", digest)
+                or hashlib.sha256(path.read_bytes()).hexdigest() != digest):
+            raise ValueError("manifest_configuration_changed")
+        seen.add(path)
+    try:
+        sources = committed_sources(root, doc["source_sha"])
+    except RevisionError as exc:
+        raise ValueError("approved_source_unavailable") from exc
+    for entry in receipt["modules"]:
+        committed = sources.get(entry["path"])
+        if committed is None or hashlib.sha256(committed).hexdigest() != entry["sha256"]:
+            raise ValueError("approved_source_mismatch")
 
 
 def service_config():

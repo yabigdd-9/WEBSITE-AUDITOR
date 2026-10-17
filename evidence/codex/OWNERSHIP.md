@@ -71,3 +71,11 @@ reviewed code diffs on agents/codex-r00 and add isolated regression coverage.
 The shared source files and their dirty state, approval YAML, generated reports,
 Opus checkout and the unloaded shared supervisor remain untouched. No restart
 or further shared integration is included in this assignment.
+
+## A10 reader assignment — 2026-10-17
+
+The integration owner explicitly assigned Codex sole ownership of money-machine/
+mm_soak.py and money-machine/test_runtime_attestation_contract.py for an offline
+reader upgrade. Use synthetic fixtures only; no monitor/soak activation, service
+restart, shared checkout changes or production database operations. Existing
+bootstrap source/test ownership remains with Codex.
