@@ -718,7 +718,9 @@ class Worker:
             except RetryableError as ex:
                 for svc in self.services:
                     breaker_failure(d, svc)
-                fail(d, bid, self.worker_id, ex)
+                fail(d, bid, self.worker_id, ex,
+                     provider_state=getattr(ex, "provider_state", None),
+                     lane=getattr(ex, "lane", None))
             except PermanentError as ex:
                 fail(d, bid, self.worker_id, ex, retryable=False)
             heartbeat(d, self.worker_id)

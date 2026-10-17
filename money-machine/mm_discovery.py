@@ -28,11 +28,13 @@ import mm_search_backend
 import mm_discovery_quality
 
 
-class SearchBlocked(RuntimeError):
+class SearchBlocked(mm_pipeline.RetryableError):
     """Typed SearXNG/search-lane failure (P5): code is BLOCKED_SEARCH_*."""
 
     def __init__(self, code, endpoint, detail):
         super().__init__(f"{code}: {endpoint}: {detail}")
+        self.provider_state = code
+        self.lane = "search"
         self.code = code
         self.endpoint = endpoint
         self.detail = detail
@@ -471,7 +473,9 @@ def _collect_search_source(query, region, endpoint, limit):
         candidates = searxng_candidates(query, region, endpoint, limit)
     except (SearchBlocked, ValueError) as exc:
         return [], {"source": f"searxng:{query_ref}", "kind": "search",
-                    "candidates": 0, "error": str(exc)[:240]}, []
+                    "candidates": 0, "error": str(exc)[:240],
+                    **({"provider_state": exc.provider_state, "lane": exc.lane}
+                       if isinstance(exc, SearchBlocked) else {})}, []
 
     quality = mm_discovery_quality.filter_candidates(candidates, region)
     accepted = quality["accepted"]
