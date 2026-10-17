@@ -191,7 +191,7 @@ def main(argv=None):
         save()
 
     def failure(code):
-        receipt.update(status="FAILED", failure_code=code)
+        receipt.update(status="FAILED", identity_status="FAILED", failure_code=code)
         save()
         raise RevisionError(code)
 
@@ -226,7 +226,8 @@ def main(argv=None):
             guard.verify()
             if any((root / name).read_bytes() != source for name, source in sources.items()):
                 raise RevisionError("application_source_changed")
-        receipt["status"] = "STARTUP_IDENTITY_VERIFIED" if guard else "IMPORTS_VERIFIED"
+        receipt["status"] = "IMPORTS_VERIFIED"
+        receipt["identity_status"] = "STARTUP_IDENTITY_VERIFIED" if guard else "SOURCE_ONLY"
         save()
         arguments = args.arguments[1:] if args.arguments[:1] == ["--"] else args.arguments
         result = module.main(arguments)
@@ -240,7 +241,7 @@ def main(argv=None):
         save()
         return result
     except (RevisionError, OSError) as exc:
-        receipt.update(status="FAILED", failure_code=str(exc) if isinstance(exc, RevisionError) else "runtime_identity_io_error")
+        receipt.update(status="FAILED", identity_status="FAILED", failure_code=str(exc) if isinstance(exc, RevisionError) else "runtime_identity_io_error")
         save()
         print("Runtime startup rejected: " + receipt["failure_code"], file=sys.stderr)
         return 3

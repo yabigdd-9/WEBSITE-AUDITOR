@@ -33,10 +33,18 @@ def checkout(tmp_path):
 def start(checkout, revision=None, manifest=None, manifest_digest=None):
     root, source, environment, expected = checkout
     extra = ["--manifest", str(manifest), "--manifest-sha256", manifest_digest] if manifest else []
-    result = subprocess.run([sys.executable, "-I", str(source / "runtime_bootstrap.py"),
-                             "--expected-sha", revision or expected, *extra, "--", "--help"],
-                            cwd=root, env=environment, capture_output=True, text=True, timeout=30)
-    receipt = json.loads(next((root / "state/runtime-startup").glob("*.json")).read_text())
+    command = [sys.executable, "-I", str(source / "runtime_bootstrap.py"),
+               "--expected-sha", revision or expected, *extra, "--", "--help"]
+    with subprocess.Popen(command, cwd=root, env=environment,
+                          stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True) as child:
+        try:
+            stdout, stderr = child.communicate(timeout=30)
+        except subprocess.TimeoutExpired:
+            child.kill()
+            child.communicate()
+            raise
+        result = subprocess.CompletedProcess(command, child.returncode, stdout, stderr)
+        receipt = json.loads((root / "state/runtime-startup" / (str(child.pid) + ".json")).read_text())
     return result, receipt
 
 
@@ -124,7 +132,8 @@ def test_manifest_startup_identity_never_attests_existing_runtime(checkout):
     manifest, digest = approved_manifest(checkout)
     result, receipt = start(checkout, manifest=manifest, manifest_digest=digest)
     assert result.returncode == 0, result.stderr
-    assert receipt["status"] == "STARTUP_IDENTITY_VERIFIED"
+    assert receipt["status"] == "IMPORTS_VERIFIED"
+    assert receipt["identity_status"] == "STARTUP_IDENTITY_VERIFIED"
     assert receipt["existing_runtime_status"] == "UNKNOWN"
     assert receipt["manifest_sha256"] == digest
     assert not (checkout[0] / "database").exists()  # target resolution never opens DB
@@ -187,3 +196,30 @@ def test_manifest_rejects_symlink_configuration_alias(checkout):
                             manifest_digest=hashlib.sha256(manifest.read_bytes()).hexdigest())
     assert result.returncode == 3
     assert receipt["failure_code"] == "manifest_path_alias"
+
+
+def test_strict_receipt_remains_compatible_with_existing_soak_reader(checkout, monkeypatch):
+    import mm_soak
+    root, source, environment, _ = checkout
+    (source / "mm_core.py").write_text('"""Synthetic core import."""\n')
+    (source / "supervisor/cli.py").write_text(
+        'import fixture_worker\nimport mm_core\ndef main(args):\n    return 0\n')
+    subprocess.run(["git", "add", "money-machine"], cwd=root, env=environment, check=True)
+    subprocess.run(["git", "commit", "-qm", "synthetic consumer contract"],
+                   cwd=root, env=environment, check=True)
+    revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root,
+                                       env=environment, text=True).strip()
+    current = root, source, environment, revision
+    manifest, digest = approved_manifest(current)
+    result, receipt = start(current, manifest=manifest, manifest_digest=digest)
+    assert result.returncode == 0, result.stderr
+    (root / "state/supervisor.pid").write_text(str(receipt["pid"]))
+    monkeypatch.setattr(mm_soak, "ROOT", root)
+    observed = mm_soak.startup_attestation()
+    assert observed["verified"] is True  # existing meaning: source imports only
+    assert receipt["identity_status"] == "STARTUP_IDENTITY_VERIFIED"
+    assert receipt["existing_runtime_status"] == "UNKNOWN"
+    path = root / "state/runtime-startup" / (str(receipt["pid"]) + ".json")
+    receipt.update(status="FAILED", identity_status="FAILED")
+    path.write_text(json.dumps(receipt))
+    assert mm_soak.startup_attestation()["verified"] is False
