@@ -1,3 +1,10 @@
+# Latest compatibility correction — 2026-10-17
+
+Application source 48d3fb5a preserves the existing startup receipt consumer
+contract and makes test receipts child-PID-specific. See
+runtime-compatibility/REPORT.md for exact scope and targeted replay. Full-suite
+results below belong to c50fc975, not this later source revision. No activation.
+
 # Latest authorized safety follow-up — 2026-10-17
 
 The local upgrade batch is implemented and verified at application source

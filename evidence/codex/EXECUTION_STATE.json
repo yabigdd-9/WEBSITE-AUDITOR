@@ -4,7 +4,7 @@
   "plan_path": "/Users/dd/Downloads/HERMES_WEBSITE_AUDITOR_MASTER_PLAN_v3.2.1_CORRECTED.zip",
   "plan_zip_sha256": "58e98a7a0d0b25f5a62c868c6ba99e1a6565aec04ddfb9297a2c2cba906d30cb",
   "source_base": "09ab41ab61656ae4b63110d4ee7d418f3fbf07b8",
-  "updated_at_utc": "2026-10-17T00:16:38.012717+00:00",
+  "updated_at_utc": "2026-10-17T00:20:14.023283+00:00",
   "direct_assignment_override": {
     "R01": "Opus, per direct user instruction"
   },
@@ -350,5 +350,11 @@
     "full_runtime_acceptance": false,
     "global_financial_admission": false,
     "validation_summary": "safety-followup/validation-summary.json"
+  },
+  "runtime_compatibility": {
+    "source_sha": "48d3fb5a5f10701affe0a21f6ed9d905f9800508",
+    "evidence": "runtime-compatibility/REPORT.md",
+    "full_suite_source_sha": "c50fc9757d156fdce20a975f3ff0f04e98065af8",
+    "scope": "Existing source-verification receipt compatibility; no broader soak acceptance"
   }
 }

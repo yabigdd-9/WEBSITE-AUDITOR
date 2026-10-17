@@ -1,0 +1,43 @@
+{
+  "source_sha": "48d3fb5a5f10701affe0a21f6ed9d905f9800508",
+  "started_at_utc": "2026-10-17T00:19:38.466106+00:00",
+  "duration_seconds": 22.329,
+  "pytest_arguments": [
+    "money-machine",
+    "-m",
+    "not slow",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=/Users/dd/WEBSITE-AUDITOR-codex/work/codex-r00/integration/48d3fb5a5f10/pytest-money",
+    "--junitxml=/Users/dd/WEBSITE-AUDITOR-codex/evidence/codex/runtime-compatibility/q10-money.xml"
+  ],
+  "exit_code": 0,
+  "changed_during_run": [],
+  "executed_module_comparisons": {
+    "money-machine/conftest.py": true,
+    "money-machine/mm_test_capabilities.py": true,
+    "money-machine/test_runtime_bootstrap.py": true,
+    "money-machine/test_runtime_readiness.py": true,
+    "money-machine/mm_core.py": true,
+    "money-machine/mm_pipeline.py": true,
+    "money-machine/mm_runtime_guards.py": true,
+    "money-machine/mm_soak.py": true,
+    "money-machine/mm_workers.py": true,
+    "money-machine/mm_management_worker.py": true,
+    "money-machine/mm_preparation_worker.py": true,
+    "money-machine/mm_understanding_worker.py": true,
+    "money-machine/mm_brain.py": true
+  },
+  "verified_pytest_rewritten_modules": [
+    "money-machine/conftest.py",
+    "money-machine/test_runtime_bootstrap.py",
+    "money-machine/test_runtime_readiness.py"
+  ],
+  "loaded_mismatches": [],
+  "limitations": [
+    "Execution attestation covers observed parent-process tracked Python modules",
+    "Child-process code and production runtime are not attested",
+    "Opt-in browser coverage retains its own skip conditions"
+  ]
+}
