@@ -1,0 +1,22 @@
+{
+  "application_revision": "c890cab41b0bb1ebb7e0af832beab788438a3dcb",
+  "application_files_sha256": {
+    "money-machine/mm_soak.py": "23a0528cafb8565468a68a705bf3fe402a8e1021ebcfaea45fd1c1f0c8627339",
+    "money-machine/test_runtime_attestation_contract.py": "323fc5eade03458b20449997428ee032539ee373f3470fb9d16f0677c28b4ee1"
+  },
+  "focused_result": "94 passed in 13.84s",
+  "pytest_exit": 0,
+  "scoped_ruff_exit": 0,
+  "diff_check_exit": 0,
+  "targets": [
+    "money-machine/test_runtime_attestation_contract.py",
+    "money-machine/test_runtime_bootstrap.py",
+    "money-machine/test_runtime_readiness.py"
+  ],
+  "verification_scope": "Tests ran before source commit on the same source bytes; committed bytes verified afterward. No loaded-code execution probe used in this targeted run. No full-suite replay claimed.",
+  "shared_sha": "ec86481ccd6c674c6dfee8d7856d71d97581d08f",
+  "shared_modified": 5,
+  "shared_untracked": 241,
+  "shared_job_loaded": false,
+  "opus_sha": "dfc5dc397504dc80e6d9ffc5f09f3c0c9682ab75"
+}
