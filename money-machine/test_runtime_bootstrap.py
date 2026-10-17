@@ -30,10 +30,11 @@ def checkout(tmp_path):
     return root, source, environment, revision
 
 
-def start(checkout, revision=None):
+def start(checkout, revision=None, manifest=None, manifest_digest=None):
     root, source, environment, expected = checkout
+    extra = ["--manifest", str(manifest), "--manifest-sha256", manifest_digest] if manifest else []
     result = subprocess.run([sys.executable, "-I", str(source / "runtime_bootstrap.py"),
-                             "--expected-sha", revision or expected, "--", "--help"],
+                             "--expected-sha", revision or expected, *extra, "--", "--help"],
                             cwd=root, env=environment, capture_output=True, text=True, timeout=30)
     receipt = json.loads(next((root / "state/runtime-startup").glob("*.json")).read_text())
     return result, receipt
@@ -99,3 +100,90 @@ def test_configured_runtime_root_must_match_verified_checkout(checkout):
     assert result.returncode == 3
     assert receipt["failure_code"] == "runtime_root_mismatch"
     assert "NEW" not in result.stdout
+
+
+def approved_manifest(checkout, **updates):
+    import hashlib
+    root, _, environment, revision = checkout
+    root = root.resolve()
+    config = root / "fixture-config.json"
+    config.write_text('{"synthetic": true}')
+    environment["MM_SCHEDULER_ID"] = "synthetic-operator"
+    doc = {"schema_version": 1, "release_id": "fixture-release", "source_sha": revision,
+           "repository_realpath": str(root), "python_realpath": str(Path(sys.executable).resolve()),
+           "database_realpath": str(root / "database/money_machine.db"),
+           "configuration": [{"realpath": str(config), "sha256": hashlib.sha256(config.read_bytes()).hexdigest()}],
+           "scheduler_identity": "synthetic-operator"}
+    doc.update(updates)
+    manifest = root / "manifest.json"
+    manifest.write_text(json.dumps(doc))
+    return manifest, hashlib.sha256(manifest.read_bytes()).hexdigest()
+
+
+def test_manifest_startup_identity_never_attests_existing_runtime(checkout):
+    manifest, digest = approved_manifest(checkout)
+    result, receipt = start(checkout, manifest=manifest, manifest_digest=digest)
+    assert result.returncode == 0, result.stderr
+    assert receipt["status"] == "STARTUP_IDENTITY_VERIFIED"
+    assert receipt["existing_runtime_status"] == "UNKNOWN"
+    assert receipt["manifest_sha256"] == digest
+    assert not (checkout[0] / "database").exists()  # target resolution never opens DB
+
+
+@pytest.mark.parametrize("updates,code", [
+    ({"schema_version": 2}, "manifest_schema_invalid"),
+    ({"source_sha": "0" * 40}, "manifest_revision_mismatch"),
+    ({"database_realpath": "/wrong/database.db"}, "manifest_database_mismatch"),
+    ({"python_realpath": "/wrong/python"}, "manifest_interpreter_mismatch"),
+    ({"scheduler_identity": "other"}, "manifest_scheduler_mismatch"),
+    ({"configuration": []}, "manifest_configuration_missing"),
+])
+def test_manifest_mismatch_denies_target_dispatch(checkout, updates, code):
+    manifest, digest = approved_manifest(checkout, **updates)
+    result, receipt = start(checkout, manifest=manifest, manifest_digest=digest)
+    assert result.returncode == 3
+    assert receipt["failure_code"] == code
+    assert "NEW" not in result.stdout
+
+
+def test_changed_config_and_unapproved_manifest_are_rejected(checkout):
+    manifest, digest = approved_manifest(checkout)
+    result, receipt = start(checkout, manifest=manifest, manifest_digest="0" * 64)
+    assert result.returncode == 3
+    assert receipt["failure_code"] == "manifest_approval_mismatch"
+    (checkout[0] / "fixture-config.json").write_text("secret fixture changed")
+    result, receipt = start(checkout, manifest=manifest, manifest_digest=digest)
+    assert result.returncode == 3
+    assert receipt["failure_code"] == "manifest_configuration_changed"
+    assert "secret fixture changed" not in result.stderr
+
+
+def test_manifest_change_during_target_invalidates_receipt(checkout):
+    root, source, environment, _ = checkout
+    (source / "supervisor/cli.py").write_text(
+        'from pathlib import Path\ndef main(args):\n'
+        '    Path(__file__).resolve().parents[2].joinpath("fixture-config.json").write_text("changed")\n'
+        '    return 0\n')
+    subprocess.run(["git", "add", "money-machine/supervisor/cli.py"], cwd=root, env=environment, check=True)
+    subprocess.run(["git", "commit", "-qm", "synthetic drift"], cwd=root, env=environment, check=True)
+    revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, env=environment, text=True).strip()
+    current = root, source, environment, revision
+    manifest, digest = approved_manifest(current)
+    result, receipt = start(current, manifest=manifest, manifest_digest=digest)
+    assert result.returncode == 3
+    assert receipt["status"] == "FAILED"
+    assert receipt["failure_code"] == "manifest_configuration_changed"
+
+
+def test_manifest_rejects_symlink_configuration_alias(checkout):
+    import hashlib
+    manifest, _ = approved_manifest(checkout)
+    alias = checkout[0] / "config-alias.json"
+    alias.symlink_to(checkout[0] / "fixture-config.json")
+    doc = json.loads(manifest.read_text())
+    doc["configuration"][0]["realpath"] = str(alias)
+    manifest.write_text(json.dumps(doc))
+    result, receipt = start(checkout, manifest=manifest,
+                            manifest_digest=hashlib.sha256(manifest.read_bytes()).hexdigest())
+    assert result.returncode == 3
+    assert receipt["failure_code"] == "manifest_path_alias"
