@@ -1,0 +1,35 @@
+{
+  "workers": [
+    {
+      "owner": "shared",
+      "pid": 22805,
+      "cwd": "/Users/dd/WEBSITE-AUDITOR/money-machine",
+      "observed_start_text": "Sat Oct 17 13:55:09 2026",
+      "observed_executable": "/Users/dd/WEBSITE-AUDITOR/.venv-email/bin/python",
+      "runtime_identity_status": "UNKNOWN",
+      "reason": "No independently accepted live process attestation"
+    },
+    {
+      "owner": "opus",
+      "pid": 48436,
+      "cwd": "/Users/dd/WEBSITE-AUDITOR-opus/money-machine",
+      "observed_start_text": "Fri Oct 16 16:42:18 2026",
+      "observed_executable": "/Users/dd/WEBSITE-AUDITOR/.venv/bin/python",
+      "runtime_identity_status": "UNKNOWN",
+      "reason": "No independently accepted live process attestation"
+    }
+  ],
+  "scope": "supervisor command candidates attributed by observed cwd; not an exhaustive OS worker inventory",
+  "attribution_errors": 0,
+  "shared_scheduler_job_loaded": false,
+  "shared": {
+    "sha": "ec86481ccd6c674c6dfee8d7856d71d97581d08f",
+    "modified": 5,
+    "untracked": 241
+  },
+  "opus": {
+    "sha": "dfc5dc397504dc80e6d9ffc5f09f3c0c9682ab75",
+    "modified": 0,
+    "untracked": 0
+  }
+}

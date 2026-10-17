@@ -1,3 +1,5 @@
+> Correction from later read-only inventory: the launchd job was absent, but a shared supervisor PID 22805 was subsequently observed with a start time predating this integration. The claim below that the supervisor remained stopped is not established. See ../review-8596aaf3/RUNTIME_TRUTH.md. File preservation evidence remains separate from runtime identity acceptance.
+
 # Authorized controlled integration completed
 
 Human operator explicitly authorized integration of ec86481c after fresh verified preservation, handling only registry/email-adapter overlaps and leaving the shared supervisor stopped.

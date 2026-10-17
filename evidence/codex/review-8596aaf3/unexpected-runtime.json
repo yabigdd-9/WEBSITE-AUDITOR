@@ -1,0 +1,27 @@
+{
+  "pid": 22805,
+  "parent_pid": 1,
+  "process_start": "Sat Oct 17 13:55:09 2026",
+  "parent_executable": "/sbin/launchd",
+  "state": "Ss",
+  "entrypoint": {
+    "bootstrap": false,
+    "supervisor_cli": true,
+    "foreground": true,
+    "isolated_python": false
+  },
+  "pidfile_matches": true,
+  "heartbeat_pid_matches": true,
+  "heartbeat_fields": [
+    "at",
+    "pid",
+    "status"
+  ],
+  "shared_db_handle_observed": true,
+  "startup_receipt_present": false,
+  "runtime_identity_status": "UNKNOWN",
+  "service_control_actions": [],
+  "observed_start_utc": "2026-10-17T00:55:09+00:00",
+  "observed_at_utc": "2026-10-17T06:19:03.718881+00:00",
+  "parent_one_is_not_scheduler_ownership_proof": true
+}
