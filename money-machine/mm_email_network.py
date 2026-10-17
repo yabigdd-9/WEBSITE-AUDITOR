@@ -2,6 +2,7 @@
 import datetime as dt
 import http.client
 import json
+import sys
 from pathlib import Path
 import time
 from urllib.parse import urljoin, urlsplit
@@ -10,8 +11,16 @@ import dns.resolver
 import dns.exception
 import ipaddress
 
-from email_baseline_capture import clean_url, get_public, CONTACT_PATHS
-from mm_email import domain_name, root_domain, parse_page, age_days, utcnow, hash_bytes
+# Resolve sibling modules (email_baseline_capture, mm_email) regardless of
+# entry point. Bare sibling imports work when money-machine/ is on sys.path
+# (e.g. run as a script) but fail when this module is imported from elsewhere;
+# insert our own directory defensively and idempotently.
+_MM_DIR = str(Path(__file__).resolve().parents[0])
+if _MM_DIR not in sys.path:
+    sys.path.insert(0, _MM_DIR)
+
+from email_baseline_capture import clean_url, get_public, CONTACT_PATHS  # noqa: E402
+from mm_email import domain_name, root_domain, parse_page, age_days, utcnow, hash_bytes  # noqa: E402
 
 
 def atomic_json(path, value):
