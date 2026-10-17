@@ -1,6 +1,7 @@
 """Synthetic regressions for queue eligibility and fenced worker writes."""
 import datetime as dt
 import sqlite3
+from types import SimpleNamespace
 
 import mm_pipeline as p
 import pytest
@@ -138,3 +139,45 @@ def test_worker_cost_block_preserves_typed_classification(queue, monkeypatch):
     assert row["classification"] == "blocked_cost"
     assert row["last_error"].startswith("BLOCKED_COST:")
     assert row["lease_owner"] is None
+
+
+def test_caller_context_can_rollback_successful_completion(queue):
+    d, bid = queue
+    token = owned(d, bid)
+    d.commit()
+    before = snapshot(d)
+    with pytest.raises(RuntimeError):
+        with d:
+            p.complete(d, bid, "owner", "IDENTITY_PENDING", expected_lease=token)
+            raise RuntimeError("later caller operation failed")
+    assert snapshot(d) == before
+
+
+def test_explicit_autocommit_connection_remains_autocommit(queue):
+    d, bid = queue
+    token = owned(d, bid)
+    d.commit()
+    d.isolation_level = None
+    result = p.complete(d, bid, "owner", "IDENTITY_PENDING", expected_lease=token)
+    assert result["state"] == "IDENTITY_PENDING"
+    assert not d.in_transaction
+
+
+def test_claim_rechecks_state_after_competing_connection_changes_it(queue, tmp_path):
+    d, bid = queue
+    d.commit()
+    second = sqlite3.connect(tmp_path / "t.db")
+    class Interleaved:
+        def execute(self, sql, arguments):
+            cursor = d.execute(sql, arguments)
+            if sql.startswith("SELECT * FROM pipeline_items WHERE state IN"):
+                selected = cursor.fetchall()
+                second.execute("UPDATE pipeline_items SET state='IDENTITY_PENDING' WHERE business_id=?", (bid,))
+                second.commit()
+                return SimpleNamespace(fetchall=lambda: selected)
+            return cursor
+    try:
+        assert p.claim(Interleaved(), ("DISCOVERED",), "stale-stage-worker") == []
+        assert p.item(d, bid)["lease_owner"] is None
+    finally:
+        second.close()

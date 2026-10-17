@@ -236,6 +236,10 @@ def guarded_mutation(function):
     """
     @functools.wraps(function)
     def guarded(d, business_id, worker_id, *args, expected_lease=None, **kwargs):
+        # Match ordinary DML transaction semantics even when a caller has
+        # entered `with d:` without issuing its first write yet.
+        if not d.in_transaction and d.isolation_level is not None:
+            d.execute("BEGIN")
         savepoint = "pipeline_" + uuid.uuid4().hex
         d.execute("SAVEPOINT " + savepoint)
         try:
@@ -359,8 +363,10 @@ def claim(d, states, worker_id, lease_seconds=300, limit=1):
         cur = d.execute(
             "UPDATE pipeline_items SET lease_owner=?,lease_until=?,"
             "heartbeat_at=?,updated_at=? WHERE business_id=? AND "
-            "(lease_until IS NULL OR lease_until<=?)",
-            (worker_id, until, now(), now(), r['business_id'], at.isoformat()))
+            "(lease_until IS NULL OR lease_until<=?) AND state=? "
+            "AND (next_retry_at IS NULL OR next_retry_at<=?)",
+            (worker_id, until, now(), now(), r['business_id'], at.isoformat(),
+             r['state'], at.isoformat()))
         if cur.rowcount:
             got.append(item(d, r['business_id']))
     return got
