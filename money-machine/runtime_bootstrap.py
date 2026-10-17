@@ -97,12 +97,21 @@ class ManifestGuard:
             raise RevisionError("manifest_path_alias")
         return path
 
+    @staticmethod
+    def unique_fields(pairs):
+        document = {}
+        for key, value in pairs:
+            if key in document:
+                raise RevisionError("manifest_duplicate_field")
+            document[key] = value
+        return document
+
     def verify(self):
         try:
             raw = self.path.read_bytes()
             if not re.fullmatch(r"[0-9a-f]{64}", self.digest) or hashlib.sha256(raw).hexdigest() != self.digest:
                 raise RevisionError("manifest_approval_mismatch")
-            doc = json.loads(raw)
+            doc = json.loads(raw, object_pairs_hook=self.unique_fields)
             if not isinstance(doc, dict) or set(doc) != self.FIELDS or type(doc["schema_version"]) is not int or doc["schema_version"] != 1:
                 raise RevisionError("manifest_schema_invalid")
             if not isinstance(doc["release_id"], str) or not re.fullmatch(r"[A-Za-z0-9_.-]{1,100}", doc["release_id"]):

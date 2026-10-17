@@ -275,3 +275,21 @@ def test_batched_sources_use_only_two_git_processes(checkout, monkeypatch):
     assert len(commands) == 2
     assert commands[0][3] == "ls-tree"
     assert commands[1][3] == "cat-file"
+
+
+@pytest.mark.parametrize("nested", [False, True])
+def test_manifest_duplicate_fields_deny_dispatch(checkout, nested):
+    import hashlib
+
+    manifest, _ = approved_manifest(checkout)
+    raw = manifest.read_text()
+    if nested:
+        raw = raw.replace('"sha256":', '"sha256": "' + "0" * 64 + '", "sha256":', 1)
+    else:
+        raw = raw.replace('"schema_version":', '"schema_version": 2, "schema_version":', 1)
+    manifest.write_text(raw)
+    result, receipt = start(checkout, manifest=manifest,
+                            manifest_digest=hashlib.sha256(manifest.read_bytes()).hexdigest())
+    assert result.returncode == 3
+    assert receipt["failure_code"] == "manifest_duplicate_field"
+    assert "NEW" not in result.stdout
