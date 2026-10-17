@@ -1,3 +1,11 @@
+# Queue ownership and source batching — 2026-10-17
+
+The separately authorized local upgrade batch is implemented and verified at
+source 191d85854cbbfc32e26bad3f189e45370026d191. See
+queue-bootstrap-upgrade/REPORT.md, commits.json and frozen suite receipts.
+Approved baseline afa51457 remains in history; new commits need review.
+No shared integration, service change, deployment or activation.
+
 # Latest compatibility correction — 2026-10-17
 
 Application source 48d3fb5a preserves the existing startup receipt consumer

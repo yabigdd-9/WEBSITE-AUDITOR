@@ -1,0 +1,42 @@
+{
+  "canonical": {
+    "source_sha": "191d85854cbbfc32e26bad3f189e45370026d191",
+    "pytest_summary": "1139 passed, 3 skipped, 2 warnings in 120.83s (0:02:00)",
+    "duration_seconds": 121.727,
+    "exit_code": 0,
+    "changed_during_run": [],
+    "loaded_mismatches": [],
+    "junit": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "3",
+        "tests": "1142",
+        "time": "120.511",
+        "timestamp": "2026-10-17T13:34:47.987199+13:00",
+        "hostname": "YabigDDs-Air"
+      }
+    ]
+  },
+  "money": {
+    "source_sha": "191d85854cbbfc32e26bad3f189e45370026d191",
+    "pytest_summary": "742 passed, 2 skipped, 83 subtests passed in 108.30s (0:01:48)",
+    "duration_seconds": 109.185,
+    "exit_code": 0,
+    "changed_during_run": [],
+    "loaded_mismatches": [],
+    "junit": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "2",
+        "tests": "827",
+        "time": "108.268",
+        "timestamp": "2026-10-17T13:36:51.239279+13:00",
+        "hostname": "YabigDDs-Air"
+      }
+    ]
+  }
+}

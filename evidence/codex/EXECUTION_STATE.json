@@ -4,7 +4,7 @@
   "plan_path": "/Users/dd/Downloads/HERMES_WEBSITE_AUDITOR_MASTER_PLAN_v3.2.1_CORRECTED.zip",
   "plan_zip_sha256": "58e98a7a0d0b25f5a62c868c6ba99e1a6565aec04ddfb9297a2c2cba906d30cb",
   "source_base": "09ab41ab61656ae4b63110d4ee7d418f3fbf07b8",
-  "updated_at_utc": "2026-10-17T00:20:14.023283+00:00",
+  "updated_at_utc": "2026-10-17T00:39:06.754333+00:00",
   "direct_assignment_override": {
     "R01": "Opus, per direct user instruction"
   },
@@ -356,5 +356,13 @@
     "evidence": "runtime-compatibility/REPORT.md",
     "full_suite_source_sha": "c50fc9757d156fdce20a975f3ff0f04e98065af8",
     "scope": "Existing source-verification receipt compatibility; no broader soak acceptance"
+  },
+  "queue_bootstrap_upgrade": {
+    "status": "LOCAL_IMPLEMENTED_AND_VERIFIED",
+    "approved_baseline": "afa514578f82c92305fc195bd4dd7ba080894176",
+    "source_sha": "191d85854cbbfc32e26bad3f189e45370026d191",
+    "evidence": "queue-bootstrap-upgrade/REPORT.md",
+    "independent_review": "REQUIRED_FOR_NEW_COMMITS",
+    "production_activation": false
   }
 }
