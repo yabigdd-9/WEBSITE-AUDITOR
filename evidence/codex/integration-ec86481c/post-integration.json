@@ -1,0 +1,11 @@
+{
+  "source_sha": "ec86481ccd6c674c6dfee8d7856d71d97581d08f",
+  "exit_code": 0,
+  "duration_seconds": 20.664,
+  "targets": [
+    "toolkit_tests/test_registry_integrity.py",
+    "money-machine/test_email_network_imports.py",
+    "money-machine/test_runtime_bootstrap.py"
+  ],
+  "isolated_scratch": "/var/folders/vq/3rn4742n6gdfq_b1zqm73gj00000gn/T/wa-post-ec86481c-3jmpxczx"
+}
