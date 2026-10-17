@@ -60,3 +60,14 @@ mm_pipeline.py, test_pipeline_lease_ownership.py, runtime_bootstrap.py and
 test_runtime_bootstrap.py. The approved afa51457 snapshot remains in history;
 new commits require their own review. Opus files/branch and shared integration
 remain untouched. No live schema, provider, service or deployment changes.
+
+## Preserved application-change adoption — 2026-10-17
+
+The integration owner explicitly assigned Codex exclusive ownership of
+auditor_toolkit/models.py, money-machine/mm_email_network.py,
+toolkit_tests/test_registry_integrity.py and
+money-machine/test_email_network_imports.py. Adopt only the two preserved,
+reviewed code diffs on agents/codex-r00 and add isolated regression coverage.
+The shared source files and their dirty state, approval YAML, generated reports,
+Opus checkout and the unloaded shared supervisor remain untouched. No restart
+or further shared integration is included in this assignment.
