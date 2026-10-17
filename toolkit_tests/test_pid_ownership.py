@@ -1,4 +1,5 @@
 """Isolated ownership regressions for the actual CLI PID guard."""
+import fcntl
 import importlib.util
 import os
 import subprocess
@@ -18,6 +19,7 @@ def test_empty_file_is_locked_before_recovery(tmp_path):
     path.touch()
     owner = PIDFile(path)
     assert owner.acquire()
+    inode = path.stat().st_ino
     try:
         competitor = PIDFile(path)
         assert not competitor.acquire()
@@ -26,6 +28,7 @@ def test_empty_file_is_locked_before_recovery(tmp_path):
     finally:
         owner.release()
     assert path.exists() and path.read_text() == ""
+    assert path.stat().st_ino == inode
     assert competitor.acquire()
     competitor.release()
 
@@ -63,7 +66,8 @@ def test_release_never_unlinks_replacement(tmp_path):
 
 def test_owned_child_excludes_other_process(tmp_path):
     path = tmp_path / "owner.pid"
-    code = """import importlib.util, sys
+    code = """import fcntl
+import importlib.util, sys
 s = importlib.util.spec_from_file_location('pid', sys.argv[1])
 m = importlib.util.module_from_spec(s); s.loader.exec_module(m)
 p = m.PIDFile(sys.argv[2]); print(p.acquire(), flush=True)
@@ -80,3 +84,18 @@ sys.stdin.readline(); p.release()
     owner = PIDFile(path)
     assert owner.acquire()
     owner.release()
+
+
+def test_empty_file_held_before_pid_write_cannot_be_replaced(tmp_path):
+    path = tmp_path / "owner.pid"
+    fd = os.open(path, os.O_CREAT | os.O_RDWR, 0o600)
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        inode = path.stat().st_ino
+        competitor = PIDFile(path)
+        assert not competitor.acquire()
+        competitor.release()
+        assert path.stat().st_ino == inode
+        assert path.read_text() == ""
+    finally:
+        os.close(fd)
