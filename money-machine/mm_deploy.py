@@ -134,7 +134,15 @@ def verify_backup_restore(bundle):
     import shutil
     import sqlite3
     import tempfile
+    from contextlib import closing
     from urllib.parse import quote
+
+    def file_hash(path):
+        digest = hashlib.sha256()
+        with path.open('rb') as reader:
+            for chunk in iter(lambda: reader.read(1024 * 1024), b''):
+                digest.update(chunk)
+        return digest.hexdigest()
 
     def blocked(reason):
         return {
@@ -178,11 +186,7 @@ def verify_backup_restore(bundle):
                 return blocked('manifest_path_escape')
             if not candidate.is_file():
                 return blocked('backup_file_missing')
-            digest = hashlib.sha256()
-            with candidate.open('rb') as src:
-                for chunk in iter(lambda: src.read(1024 * 1024), b''):
-                    digest.update(chunk)
-            if digest.hexdigest() != expected:
+            if file_hash(candidate) != expected:
                 return blocked('backup_checksum_mismatch')
             if candidate == database:
                 matches += 1
@@ -192,12 +196,10 @@ def verify_backup_restore(bundle):
         with tempfile.TemporaryDirectory(prefix='mm-restore-check-') as scratch:
             clone = Path(scratch) / 'restored.db'
             shutil.copyfile(database, clone)
-            if hashlib.sha256(clone.read_bytes()).digest() != hashlib.sha256(
-                database.read_bytes()
-            ).digest():
+            if file_hash(clone) != file_hash(database):
                 return blocked('staging_copy_checksum_mismatch')
             uri = f'file:{quote(str(clone))}?mode=ro&immutable=1'
-            with sqlite3.connect(uri, uri=True) as d:
+            with closing(sqlite3.connect(uri, uri=True)) as d:
                 integrity = d.execute('PRAGMA integrity_check').fetchone()
                 fk_violation = d.execute('PRAGMA foreign_key_check').fetchone()
                 tables = d.execute(
