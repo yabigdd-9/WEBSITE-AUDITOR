@@ -308,3 +308,37 @@ def test_excessively_nested_manifest_has_bounded_failure_receipt(checkout):
     assert receipt["failure_code"] == "manifest_unreadable_or_invalid"
     assert "Traceback" not in result.stderr
     assert "NEW" not in result.stdout
+
+
+def test_standalone_operator_can_import_canonical_toolkit_from_external_cwd(tmp_path):
+    """Direct-script imports must not depend on the shell's PYTHONPATH or cwd."""
+    operator = Path(__file__).with_name("mm_operator.py")
+    isolated_env = {
+        key: value for key, value in os.environ.items()
+        if key != "PYTHONPATH"
+        and not any(secret in key.upper() for secret in ("TOKEN", "KEY", "SECRET", "PASSWORD", "CREDENTIAL"))
+    }
+    isolated_env.update(
+        MM_ROOT=str(tmp_path),
+        MM_EXTERNAL_SEND_DISABLED="1",
+        MM_DISABLE_MODELS="1",
+    )
+    # Emulate the direct-script module path without implicitly making the
+    # repository root importable.  Importing the toolkit must still succeed.
+    probe = (
+        "import pathlib, runpy, sys; "
+        "operator = pathlib.Path(sys.argv[1]); "
+        "sys.path.insert(0, str(operator.parent)); "
+        "runpy.run_path(str(operator), run_name='mm_operator_import_probe'); "
+        "from importlib.util import find_spec; "
+        "spec = find_spec('auditor_toolkit'); "
+        "assert spec is not None and pathlib.Path(spec.origin).resolve().parent == operator.parent.parent / 'auditor_toolkit'; "
+        "print('CANONICAL_IMPORT_OK')"
+    )
+    result = subprocess.run(
+        [sys.executable, "-S", "-c", probe, str(operator)],
+        cwd=tmp_path, env=isolated_env, capture_output=True,
+        text=True, timeout=20,
+    )
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == "CANONICAL_IMPORT_OK"

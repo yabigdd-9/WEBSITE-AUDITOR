@@ -12,6 +12,13 @@ import sqlite3
 import sys
 import tempfile
 import time
+# This executable is also invoked directly from launchd and isolated test
+# working directories.  Python initially adds only money-machine/ to sys.path;
+# include the repository root so canonical auditor_toolkit imports resolve.
+_REPOSITORY_ROOT = str(Path(__file__).resolve().parent.parent)
+if _REPOSITORY_ROOT not in sys.path:
+    sys.path.insert(0, _REPOSITORY_ROOT)
+
 from mm_core import *
 from mm_intelligence import *
 # Keep the CLI's parser dependencies explicit.  The wildcard import above is
@@ -346,6 +353,7 @@ def main(argv=None):
     q=s.add_parser('challenger-eval');q.add_argument('--golden',required=True);q.add_argument('--baseline',required=True);q.add_argument('--challenger',required=True);q.add_argument('--min-improvement',type=float,default=0.01)
     q=s.add_parser('model-plan');q.add_argument('--purpose',required=True)
     q=s.add_parser('deploy-check');q.add_argument('--candidate');q.add_argument('--execute',action='store_true')
+    q=s.add_parser('restore-check');q.add_argument('--bundle',required=True,help='Explicit checksummed backup directory; verify in isolated staging only')
     s.add_parser('bottlenecks')
     q=s.add_parser('schedule');q.add_argument('--limit',type=int,default=10)
     q=s.add_parser('brain');q.add_argument('action',nargs='?',choices=['explain','next','health'],default='explain');q.add_argument('--limit',type=int,default=10)
@@ -365,6 +373,7 @@ def main(argv=None):
     q=s.add_parser('intelligence-challenger-holdout');q.add_argument('--baseline',required=True);q.add_argument('--challenger',required=True);q.add_argument('--limit',type=int,default=500);q.add_argument('--validation-fraction',type=float,default=0.25);q.add_argument('--salt',default='v45-hard-case-holdout');q.add_argument('--min-improvement',type=float,default=0.01)
     q=s.add_parser('intelligence-strategy');q.add_argument('--limit',type=int,default=5000);q.add_argument('--min-rule-samples',type=int,default=10);q.add_argument('--min-source-prospects',type=int,default=10);q.add_argument('--min-confirmed',type=int,default=5)
     q=s.add_parser('intelligence-drift');q.add_argument('--window',type=int,default=25);q.add_argument('--min-samples',type=int,default=10);q.add_argument('--accuracy-drop-threshold',type=float,default=0.15);q.add_argument('--brier-increase-threshold',type=float,default=0.10);q.add_argument('--confidence-shift-threshold',type=float,default=0.15);q.add_argument('--label-shift-threshold',type=float,default=0.25);q.add_argument('--limit',type=int,default=5000)
+    q=s.add_parser('intelligence-freshness');q.add_argument('--as-of');q.add_argument('--limit',type=int,default=5000);q.add_argument('--min-confirmed',type=int,default=30);q.add_argument('--stale-after-days',type=float,default=90.0);q.add_argument('--slow-confirmation-days',type=float,default=30.0)
     q=s.add_parser('intelligence-evidence-value');q.add_argument('--limit',type=int,default=5000);q.add_argument('--min-samples',type=int,default=5);q.add_argument('--high-confidence-threshold',type=float,default=0.80)
     q=s.add_parser('intelligence-promotion-readiness');q.add_argument('--candidate-rule-version');q.add_argument('--holdout-eval');q.add_argument('--min-confirmed',type=int,default=30);q.add_argument('--min-hard-cases',type=int,default=10);q.add_argument('--min-validation-cases',type=int,default=5);q.add_argument('--min-rule-samples',type=int,default=10);q.add_argument('--max-ece',type=float,default=0.15);q.add_argument('--max-brier',type=float,default=0.25);q.add_argument('--drift-window',type=int,default=25);q.add_argument('--drift-min-samples',type=int,default=10);q.add_argument('--limit',type=int,default=5000)
     q=s.add_parser('intelligence-review-bundle');q.add_argument('--candidate-rule-version');q.add_argument('--holdout-eval');q.add_argument('--min-confirmed',type=int,default=30);q.add_argument('--min-hard-cases',type=int,default=10);q.add_argument('--min-validation-cases',type=int,default=5);q.add_argument('--min-rule-samples',type=int,default=10);q.add_argument('--max-ece',type=float,default=0.15);q.add_argument('--max-brier',type=float,default=0.25);q.add_argument('--drift-window',type=int,default=25);q.add_argument('--drift-min-samples',type=int,default=10);q.add_argument('--limit',type=int,default=5000)
@@ -379,6 +388,11 @@ def main(argv=None):
     q=s.add_parser('safe-mode');q.add_argument('action',choices=['on','off','status'])
     a=p.parse_args(argv)
 
+    if a.cmd=='restore-check':
+        import mm_deploy
+        result=mm_deploy.verify_backup_restore(a.bundle)
+        print(json.dumps(result,indent=2,default=str))
+        return 0 if result['status']=='VERIFIED_STAGING_RESTORE' else 2
     if a.cmd=='dead-letter':
         if getattr(a,'dead_letter_action',None)=='resolve':
             result=cmd_dead_letter_resolve(a.reason)
@@ -523,7 +537,7 @@ def main(argv=None):
             'external_sends': 0,
         }
         print(json.dumps(result,indent=2,default=str));return 0
-    if a.cmd in ('intelligence-prospect','intelligence-sources','intelligence-review','intelligence-summary','intelligence-errors','intelligence-calibration','intelligence-graph','intelligence-hard-cases','intelligence-challenger-eval','intelligence-challenger-holdout','intelligence-strategy','intelligence-drift','intelligence-evidence-value','intelligence-promotion-readiness','intelligence-review-bundle','intelligence-consistency','intelligence-selective','intelligence-review-efficiency','intelligence-label-quality','intelligence-uncertainty'):
+    if a.cmd in ('intelligence-prospect','intelligence-sources','intelligence-review','intelligence-summary','intelligence-errors','intelligence-calibration','intelligence-graph','intelligence-hard-cases','intelligence-challenger-eval','intelligence-challenger-holdout','intelligence-strategy','intelligence-drift','intelligence-freshness','intelligence-evidence-value','intelligence-promotion-readiness','intelligence-review-bundle','intelligence-consistency','intelligence-selective','intelligence-review-efficiency','intelligence-label-quality','intelligence-uncertainty'):
         import mm_opportunity_intelligence as opportunity_intelligence
         with contextlib.closing(connect(readonly=True)) as d:
             if a.cmd == 'intelligence-prospect':
@@ -591,6 +605,16 @@ def main(argv=None):
                     confidence_shift_threshold=a.confidence_shift_threshold,
                     label_shift_threshold=a.label_shift_threshold,
                     limit=a.limit,
+                )
+            elif a.cmd == 'intelligence-freshness':
+                import mm_intelligence_freshness
+                result = mm_intelligence_freshness.freshness_report(
+                    d,
+                    as_of=a.as_of,
+                    limit=a.limit,
+                    min_confirmed=a.min_confirmed,
+                    stale_after_days=a.stale_after_days,
+                    slow_confirmation_days=a.slow_confirmation_days,
                 )
             elif a.cmd == 'intelligence-evidence-value':
                 import mm_intelligence_evidence_value
