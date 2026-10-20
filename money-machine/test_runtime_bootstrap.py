@@ -121,11 +121,13 @@ def test_standalone_operator_can_import_canonical_toolkit_from_external_cwd(tmp_
         "operator = pathlib.Path(sys.argv[1]); "
         "sys.path.insert(0, str(operator.parent)); "
         "runpy.run_path(str(operator), run_name='mm_operator_import_probe'); "
-        "import auditor_toolkit; "
+        "from importlib.util import find_spec; "
+        "spec = find_spec('auditor_toolkit'); "
+        "assert spec is not None and pathlib.Path(spec.origin).resolve().parent == operator.parent.parent / 'auditor_toolkit'; "
         "print('CANONICAL_IMPORT_OK')"
     )
     result = subprocess.run(
-        [sys.executable, "-c", probe, str(operator)],
+        [sys.executable, "-S", "-c", probe, str(operator)],
         cwd=tmp_path, env=isolated_env, capture_output=True,
         text=True, timeout=20,
     )
