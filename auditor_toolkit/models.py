@@ -93,7 +93,10 @@ REGISTRY = {
             limitation="Static checks do not establish conformance.",
         ),
         CheckDefinition(
-            "ux", "privacy", limitation="Observed behavior is not a legal determination."
+            "ux",
+            "privacy",
+            version="2",
+            limitation="Static choice/decline-copy hints; actual consent behaviour, accessible name and legal compliance are unverified.",
         ),
         CheckDefinition("headers", "security"),
         CheckDefinition(
@@ -107,7 +110,10 @@ REGISTRY = {
             limitation="Bounded same-origin link validation; not an exhaustive crawler.",
         ),
         CheckDefinition("tls", "security"),
-        CheckDefinition("dns", "technical"),
+        CheckDefinition(
+            "dns", "technical", version="2",
+            limitation="DNS observations plus optional SPF/DMARC checker; unknown record validation is explicit. Message authentication, DKIM and spoofing risk are unassessed.",
+        ),
         CheckDefinition("crawl", "technical"),
         CheckDefinition("hygiene", "technical"),
         CheckDefinition("links", "technical"),
@@ -135,12 +141,22 @@ REGISTRY = {
             limitation="Manual keyboard, screen-reader and content review remains necessary.",
         ),
         CheckDefinition("pdf", "reporting", "rendered"),
-        CheckDefinition("technology", "technical"),
+        CheckDefinition(
+            "technology",
+            "technical",
+            version="2",
+            limitation="Passive signature clues; no confirmed installation, calibrated confidence or vulnerability assessment.",
+        ),
         CheckDefinition("js_vulnerabilities", "security"),
         CheckDefinition("structured_validation", "local"),
         CheckDefinition("hreflang", "seo"),
         CheckDefinition("language", "technical"),
-        CheckDefinition("images", "performance"),
+        CheckDefinition(
+            "images",
+            "performance",
+            version="2",
+            limitation="Static image markup; no rendered placement, selected source, transfer size or field performance measurement.",
+        ),
         CheckDefinition("social_meta", "technical"),
         CheckDefinition("cookie_consent", "privacy", mode="rendered"),
         CheckDefinition("third_party", "technical", mode="rendered"),

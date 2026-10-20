@@ -1,15 +1,14 @@
 """Orchestrator: run enrichment and merge it into an audit dict.
 
-Contract (additive only — existing keys are never modified):
-- input:  audit dict from ``website_auditor.audit_one`` (needs ``url`` +
-  response headers; headers may be passed explicitly)
-- output: same dict + ``audit["enrichment"]`` with per-source results
-- grading defects from the local header grader are appended to
-  ``audit["defects"]`` using the auditor's own ``{defect, impact}`` shape,
-  so ``score_defects`` keeps working unchanged.
+Contract:
+- Attach per-source results to audit["enrichment"].
+- Canonical evidence-based reports retain their defects and all score fields;
+  enrichment is advisory pending a pipeline evidence adapter.
+- Legacy {defect, impact} reports may append new header-grading defects and
+  recompute the explicitly labelled compatibility score.
 
-Every source fails closed to ``{"status": "skipped", ...}`` — enrichment can
-never break an audit.
+Source failures are recorded as skipped; malformed grading is held explicitly.
+No source success or score update is inferred from an exception.
 """
 
 from __future__ import annotations
@@ -91,16 +90,58 @@ def enrich_audit(audit: dict, headers: dict | None = None,
     loop (e.g. ``website_auditor --enrich``). Prefer ``await enrich_async()``
     when you already have a loop.
     """
-    enrichment = _run_coro(enrich_async(audit.get("url", ""), headers, cache, include))
+    try:
+        enrichment = _run_coro(enrich_async(audit.get("url", ""), headers, cache, include))
+    except Exception as error:
+        audit["enrichment"] = {"status": "skipped", "reason": type(error).__name__}
+        return audit
     audit["enrichment"] = enrichment
     grading = (enrichment.get("security_headers") or {}).get("defects", [])
     if grading:
-        audit.setdefault("defects", []).extend(grading)
-        audit["defect_count"] = len(audit["defects"])
-        try:  # re-score with the auditor's own scorer; never fail the audit
-            import website_auditor as wa
+        if not isinstance(grading, list) or any(
+            not isinstance(row, dict)
+            or not isinstance(row.get("defect"), str)
+            or not isinstance(row.get("impact"), str)
+            for row in grading
+        ):
+            enrichment["scoring"] = {"status": "HELD", "reason": "Unsupported header-grading defect shape"}
+            return audit
+        canonical = any(key in audit for key in (
+            "schema_version", "severity_score", "health_score", "breakdown", "scoring",
+        ))
+        if canonical:
+            enrichment["scoring"] = {
+                "status": "ADVISORY_NOT_APPLIED",
+                "reason": "Canonical findings require evidence-linked pipeline integration; scores preserved",
+            }
+            return audit
+        from auditor_toolkit.legacy_scoring import LEGACY_SCORE_METHODS, score_legacy_defects
 
-            audit["score"] = wa.score_defects(audit["defects"])
-        except Exception:
-            pass
+        method = audit.get("legacy_score_method")
+        if method not in LEGACY_SCORE_METHODS:
+            enrichment["scoring"] = {
+                "status": "HELD",
+                "reason": "Legacy scoring method is unrecorded or unsupported; findings and score preserved",
+            }
+            return audit
+        existing = audit.get("defects", [])
+        if not isinstance(existing, list) or any(not isinstance(row, dict) for row in existing):
+            enrichment["scoring"] = {"status": "HELD", "reason": "Unsupported legacy defect shape"}
+            return audit
+        combined = list(existing)
+        seen = {(row.get("defect"), row.get("impact")) for row in existing
+                if isinstance(row.get("defect"), str) and isinstance(row.get("impact"), str)}
+        for row in grading:
+            identity = (row.get("defect"), row.get("impact"))
+            if identity not in seen:
+                combined.append(row)
+                seen.add(identity)
+        try:
+            value = score_legacy_defects(combined, method=method)
+            audit.update(defects=combined, defect_count=len(combined), score=value)
+            enrichment["scoring"] = {"status": "UPDATED", "method": method}
+        except (ValueError, TypeError):
+            enrichment["scoring"] = {
+                "status": "HELD", "reason": "Legacy score could not be recomputed; previous score preserved",
+            }
     return audit

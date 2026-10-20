@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 from .common import atomic_write_text
+from .markdown import render_markdown_report
 from .pipeline import AuditOptions, run_audit
 from .reporting import render_html_report
 
@@ -38,7 +39,7 @@ def legacy_main(argv=None):
     if args.format == "html":
         text = render_html_report(report)
     elif args.format == "md":
-        text = "# Website audit\n\n```json\n" + text + "\n```\n"
+        text = render_markdown_report(report)
     if args.output:
         atomic_write_text(args.output, text)
     else:

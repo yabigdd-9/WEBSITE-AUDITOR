@@ -7,8 +7,8 @@ from __future__ import annotations
 
 import contextlib
 import datetime as dt
+import hashlib
 import json
-import os
 from pathlib import Path
 
 import mm_core as core
@@ -25,7 +25,7 @@ def _open():
     return core.connect(path, readonly=True)
 
 
-def _discovery_health() -> dict:
+def _discovery_health(probe_service=True) -> dict:
     """Read recurring-discovery state and probe only the configured loopback service."""
     import mm_recurring_discovery as recurring
     import mm_search_backend
@@ -42,16 +42,20 @@ def _discovery_health() -> dict:
     endpoint = str(
         config.get("searxng_endpoint") or "http://127.0.0.1:8888"
     )
-    try:
-        probe = mm_search_backend.probe(endpoint, timeout=2)
-    except Exception as exc:
-        probe = {
-            "provider": "searxng",
-            "endpoint": endpoint,
-            "ok": False,
-            "state": "PROBE_ERROR",
-            "reason": "%s: %s" % (type(exc).__name__, exc),
-        }
+    if probe_service:
+        try:
+            probe = mm_search_backend.probe(endpoint, timeout=2)
+        except Exception as exc:
+            probe = {
+                "provider": "searxng",
+                "endpoint": endpoint,
+                "ok": False,
+                "state": "PROBE_ERROR",
+                "reason": "%s: %s" % (type(exc).__name__, exc),
+            }
+    else:
+        probe = {"provider": "searxng", "endpoint": endpoint, "ok": None,
+                 "state": "NOT_PROBED", "reason": "Automatic export performs no search/provider requests"}
 
     path = Path(recurring.DEFAULT_STATE)
     try:
@@ -103,16 +107,17 @@ def _discovery_health() -> dict:
     }
 
 
-def health() -> dict:
-    from supervisor.cli import cmd_health
+def health(probe_discovery=True) -> dict:
     from types import SimpleNamespace
+
+    from supervisor.cli import cmd_health
 
     result = cmd_health(SimpleNamespace())
     result["generated_at"] = core.now()
     result["authoritative"] = "SQLite + ./mm supervisor"
     result["paid_model_fallback"] = False
     result["live_outreach_default"] = False
-    result["recurring_discovery"] = _discovery_health()
+    result["recurring_discovery"] = _discovery_health() if probe_discovery else _discovery_health(probe_service=False)
     # P6: typed alert rules surfaced with every health snapshot.
     try:
         import mm_reporting
@@ -174,17 +179,28 @@ def queue(limit=100) -> dict:
 
 
 def dead_letter(limit=100) -> dict:
-    all_items = queue(1000)
-    items = [
-        row
-        for row in all_items.get("items", [])
-        if row.get("state") in {"RETRYABLE_FAILURE", "PERMANENT_FAILURE"}
-    ][: max(1, min(int(limit), 1000))]
+    limit = max(1, min(int(limit), 1000))
+    items = []
+    total = 0
+    d = _open()
+    if d is not None:
+        with contextlib.closing(d):
+            if "pipeline_items" in _tables(d):
+                # Filter before LIMIT so a large healthy queue cannot hide
+                # failures beyond its first 1,000 oldest entries.
+                where = "state IN ('RETRYABLE_FAILURE','PERMANENT_FAILURE')"
+                total = d.execute("SELECT count(*) FROM pipeline_items WHERE " + where).fetchone()[0]
+                items = [dict(row) for row in d.execute(
+                    "SELECT business_id,state,attempts,max_attempts,next_retry_at,lease_owner,"
+                    "lease_until,heartbeat_at,last_error,updated_at FROM pipeline_items WHERE "
+                    + where + " ORDER BY updated_at ASC,business_id ASC LIMIT ?", (limit,))]
     return {
         "generated_at": core.now(),
         "items": items,
         "count": len(items),
-        "triage_required": bool(items),
+        "total_count": total,
+        "truncated": total > len(items),
+        "triage_required": total > 0,
     }
 
 
@@ -272,25 +288,41 @@ def errors(limit=100, show_root_causes=False) -> dict:
 
 
 def _append_jsonl(path: Path, value: dict) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "a", encoding="utf-8") as handle:
-        handle.write(json.dumps(value, sort_keys=True, default=str) + "\n")
-        handle.flush()
-        os.fsync(handle.fileno())
+    from supervisor.logrotate import append_jsonl
+    append_jsonl(path, value)
 
 
-def write_snapshots() -> dict:
+def write_snapshots(probe_discovery=True) -> dict:
+    from supervisor.logrotate import directory_lock
+    if type(probe_discovery) is not bool:
+        raise ValueError("Explicit discovery-probe boolean required")
+    with directory_lock(core.root() / "state", ".observability-snapshot.lock"):
+        return _write_snapshots(probe_discovery)
+
+
+def _write_snapshots(probe_discovery) -> dict:
     from auditor_toolkit.common import atomic_write_json
 
     state = core.root() / "state"
     state.mkdir(parents=True, exist_ok=True)
-    health_doc = health()
+    health_doc = health() if probe_discovery else health(probe_discovery=False)
     metrics_doc = metrics()
     errors_doc = errors()
     dead_doc = dead_letter(1000)
     atomic_write_json(state / "health.json", health_doc)
     _append_jsonl(state / "metrics.jsonl", metrics_doc)
-    _append_jsonl(state / "errors.jsonl", errors_doc)
+    # Repeated unchanged historical errors are not appended every minute.
+    error_payload = {key: value for key, value in errors_doc.items() if key != "generated_at"}
+    error_hash = hashlib.sha256(json.dumps(error_payload, sort_keys=True, default=str).encode()).hexdigest()
+    cursor_path = state / "observability-error-cursor.json"
+    try:
+        cursor = json.loads(cursor_path.read_text())
+    except (OSError, ValueError):
+        cursor = {}
+    if not isinstance(cursor, dict) or cursor.get("sha256") != error_hash:
+        errors_doc["snapshot_sha256"] = error_hash
+        _append_jsonl(state / "errors.jsonl", errors_doc)
+        atomic_write_json(cursor_path, {"sha256": error_hash, "updated_at": core.now()})
 
     dead_dir = state / "dead-letter"
     dead_dir.mkdir(parents=True, exist_ok=True)

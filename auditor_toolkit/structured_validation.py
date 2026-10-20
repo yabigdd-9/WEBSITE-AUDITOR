@@ -36,27 +36,44 @@ def analyse_html(html: str, url: str, headers: dict) -> tuple[List[Finding], dic
 
 def _validate_structured_data(data: Any, url: str) -> list[Finding]:
     if isinstance(data, dict):
+        # W3C JSON-LD 1.1 section 4.9 permits @context + @graph without
+        # an entity @type on the container. Inspect graph nodes instead.
+        if "@graph" in data:
+            graph = data["@graph"]
+            if isinstance(graph, (dict, list)):
+                return _validate_structured_data(graph, url)
+            return [_finding(
+                "structured_data_invalid_graph_shape",
+                "JSON-LD graph has an unsupported value shape",
+                url,
+                "@graph is not an object or array",
+            )]
+        if "@value" in data or set(data).issubset({"@context", "@id"}):
+            return []
         if "@type" not in data:
             return [
                 _finding(
                     "structured_data_missing_type",
-                    "JSON-LD entity is missing @type",
+                    "No explicit entity type observed; review intended schema use",
                     url,
                     "JSON-LD object has no @type property",
+                    confidence="heuristic",
                 )
             ]
         return []
     if isinstance(data, list):
-        return [
-            _finding(
-                f"structured_data_item_missing_type_{index}",
-                "JSON-LD list item is missing @type",
-                url,
-                f"JSON-LD list item at index {index} is not an object with @type",
-            )
-            for index, item in enumerate(data)
-            if not isinstance(item, dict) or "@type" not in item
-        ]
+        findings = []
+        for index, item in enumerate(data):
+            if isinstance(item, dict):
+                findings.extend(_validate_structured_data(item, url))
+            else:
+                findings.append(_finding(
+                    f"structured_data_item_missing_type_{index}",
+                    "JSON-LD list item is not a node object",
+                    url,
+                    f"JSON-LD list item at index {index} is not an object",
+                ))
+        return findings
     return [
         _finding(
             "structured_data_not_dict_or_list",
@@ -67,15 +84,18 @@ def _validate_structured_data(data: Any, url: str) -> list[Finding]:
     ]
 
 
-def _finding(defect_key: str, defect: str, url: str, observed: str) -> Finding:
+def _finding(defect_key: str, defect: str, url: str, observed: str, *, confidence="observed") -> Finding:
     return Finding(
         defect_key=defect_key,
         defect=defect,
-        impact="Search engines may ignore or misinterpret the structured data.",
+        impact="Review intended structured-data use; rich-result eligibility is not assessed.",
         source_url=url,
         check="structured_data",
+        confidence=confidence,
         evidence_source="dom:script[type='application/ld+json']",
         observed=observed,
-        business_impact="Invalid structured data can prevent enhanced search results.",
-        remediation_action="Correct the JSON-LD syntax and provide a valid entity @type.",
+        business_impact=("Confirm intended schema use before treating an untyped node as a defect."
+                         if confidence == "heuristic" else "Invalid syntax can prevent structured data being parsed."),
+        remediation_action=("Review the intended entity and schema requirements before adding a type."
+                            if confidence == "heuristic" else "Correct the JSON-LD syntax or graph shape."),
     )

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 wa - WEBSITE-AUDITOR Master Command
-Runs the ENTIRE 18-module platform in one command.
+Legacy 17-module workflow plus an explicit canonical toolkit command route.
 
 Usage:
   python3 wa.py run <domain>     Run everything for one domain
@@ -10,37 +10,65 @@ Usage:
   python3 wa.py open             Open the command center
   python3 wa.py help             Show all commands
 """
-import subprocess, sys, os, time
-from pathlib import Path
-from datetime import datetime
 
-os.environ.setdefault("SSL_CERT_FILE", "/etc/ssl/cert.pem")
-os.environ.setdefault("REQUESTS_CA_BUNDLE", "/etc/ssl/cert.pem")
+import os
+import subprocess
+import sys
+import time
+from datetime import datetime
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
 
 MODULES = [
-    {"name": "Single-Site Audit",    "script": "website_auditor.py",    "args": ["{domain}"],  "phase": "AUDIT"},
-    {"name": "Batch Remediation",    "script": "remediation-engine.py", "args": ["--all", "--output-dir", "outputs/remediations"], "phase": "AUDIT"},
-    {"name": "Dashboard",            "script": "audit-dashboard.py",    "args": ["--output", "report.html"], "phase": "AUDIT"},
-    {"name": "Revenue Calculator",   "script": "revenue_report.py",     "args": [],            "phase": "REVENUE"},
-    {"name": "Monthly Reports",      "script": "monthly_report.py",     "args": [],            "phase": "REVENUE"},
-    {"name": "Prospect Scoring",     "script": "generate_outreach.py",  "args": [],            "phase": "SALES"},
-    {"name": "AI Sales Assistant",   "script": "ai_sales.py",           "args": ["{domain}"],  "phase": "SALES"},
-    {"name": "Approval Workflow",    "script": "approval_workflow.py",  "args": [],            "phase": "CLIENT"},
-    {"name": "Churn Predictor",      "script": "churn_predictor.py",    "args": [],            "phase": "CLIENT"},
-    {"name": "Nightly Watchdog",     "script": "nightly_watchdog.py",   "args": [],            "phase": "MONITOR"},
-    {"name": "SSL Monitor",          "script": "ssl_monitor.py",        "args": ["--days", "30"], "phase": "MONITOR"},
-    {"name": "Uptime Monitor",       "script": "uptime_monitor.py",     "args": [],            "phase": "MONITOR"},
-    {"name": "SEO Tracker",          "script": "seo_tracker.py",        "args": [],            "phase": "MONITOR"},
-    {"name": "Backup Checker",       "script": "backup_checker.py",     "args": [],            "phase": "MONITOR"},
-    {"name": "Legal Shield",         "script": "legal_shield.py",       "args": [],            "phase": "COMPLIANCE"},
-    {"name": "CRM Export",           "script": "crm_hub.py",            "args": ["--format", "generic"], "phase": "EXPORT"},
-    {"name": "Command Center",       "script": "command_center.py",     "args": [],            "phase": "DASHBOARD"},
+    {
+        "name": "Single-Site Audit",
+        "script": "website_auditor.py",
+        "args": ["{domain}"],
+        "phase": "AUDIT",
+    },
+    {
+        "name": "Batch Remediation",
+        "script": "remediation-engine.py",
+        "args": ["--all", "--output-dir", "outputs/remediations"],
+        "phase": "AUDIT",
+    },
+    {
+        "name": "Dashboard",
+        "script": "audit-dashboard.py",
+        "args": ["--output", "report.html"],
+        "phase": "AUDIT",
+    },
+    {"name": "Revenue Calculator", "script": "revenue_report.py", "args": [], "phase": "REVENUE"},
+    {"name": "Monthly Reports", "script": "monthly_report.py", "args": [], "phase": "REVENUE"},
+    {"name": "Prospect Scoring", "script": "generate_outreach.py", "args": [], "phase": "SALES"},
+    {"name": "AI Sales Assistant", "script": "ai_sales.py", "args": ["{domain}"], "phase": "SALES"},
+    {"name": "Approval Workflow", "script": "approval_workflow.py", "args": [], "phase": "CLIENT"},
+    {"name": "Churn Predictor", "script": "churn_predictor.py", "args": [], "phase": "CLIENT"},
+    {"name": "Nightly Watchdog", "script": "nightly_watchdog.py", "args": [], "phase": "MONITOR"},
+    {
+        "name": "SSL Monitor",
+        "script": "ssl_monitor.py",
+        "args": ["--days", "30"],
+        "phase": "MONITOR",
+    },
+    {"name": "Uptime Monitor", "script": "uptime_monitor.py", "args": [], "phase": "MONITOR"},
+    {"name": "SEO Tracker", "script": "seo_tracker.py", "args": [], "phase": "MONITOR"},
+    {"name": "Backup Checker", "script": "backup_checker.py", "args": [], "phase": "MONITOR"},
+    {"name": "Legal Shield", "script": "legal_shield.py", "args": [], "phase": "COMPLIANCE"},
+    {
+        "name": "CRM Export",
+        "script": "crm_hub.py",
+        "args": ["--format", "generic"],
+        "phase": "EXPORT",
+    },
+    {"name": "Command Center", "script": "command_center.py", "args": [], "phase": "DASHBOARD"},
 ]
 
 
 def run_module(module, domain=None):
     script = module["script"]
-    if not Path(script).exists():
+    if not (ROOT / script).is_file():
         return {"status": "skipped", "reason": script + " not found"}
 
     args = []
@@ -56,7 +84,10 @@ def run_module(module, domain=None):
     cmd = [sys.executable, script] + args
     try:
         start = time.time()
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        env = os.environ.copy()
+        env.setdefault("SSL_CERT_FILE", "/etc/ssl/cert.pem")
+        env.setdefault("REQUESTS_CA_BUNDLE", "/etc/ssl/cert.pem")
+        result = subprocess.run(cmd, cwd=ROOT, env=env, capture_output=True, text=True, timeout=120)
         elapsed = time.time() - start
         if result.returncode == 0:
             return {"status": "success", "time": round(elapsed, 1)}
@@ -106,13 +137,21 @@ def run_all(domain=None):
     failed = len([r for r in results if r["status"] in ["error", "timeout"]])
 
     print("\n" + sep)
-    print("#  EXECUTION COMPLETE")
-    print("#  Success: " + str(success) + "  |  Skipped: " + str(skipped) + "  |  Failed: " + str(failed))
+    print("#  WORKFLOW INCOMPLETE" if skipped or failed else "#  ALL MODULES COMPLETED")
+    print(
+        "#  Success: "
+        + str(success)
+        + "  |  Skipped: "
+        + str(skipped)
+        + "  |  Failed: "
+        + str(failed)
+    )
     print(sep + "\n")
 
-    rev_summary = Path("outputs/revenue/portfolio-summary.json")
+    rev_summary = ROOT / Path("outputs/revenue/portfolio-summary.json")
     if rev_summary.exists():
         import json
+
         data = json.loads(rev_summary.read_text())
         risk = data.get("total_revenue_at_risk_nzd", 0)
         cost = data.get("total_fix_cost_nzd", 0)
@@ -133,42 +172,55 @@ def run_all(domain=None):
 def show_status():
     eq = "=" * 60
     print("\n" + eq)
-    print("  WEBSITE-AUDITOR SYSTEM STATUS")
+    print("  SAVED LEGACY OUTPUT INVENTORY")
     print(eq + "\n")
 
+    print("Folder presence does not verify freshness, runtime health or acceptance.\n")
     checks = {
-        "Audit Data": Path("outputs/remediations").exists(),
-        "Revenue Data": Path("outputs/revenue").exists(),
-        "Monthly Reports": Path("outputs/reports").exists(),
-        "Outreach Pipeline": Path("outputs/outreach").exists(),
-        "Snapshots": Path("outputs/snapshots").exists(),
-        "Compliance": Path("outputs/compliance").exists(),
-        "SSL Reports": Path("outputs/ssl").exists(),
-        "Uptime Data": Path("outputs/uptime").exists(),
-        "SEO Data": Path("outputs/seo").exists(),
-        "CRM Export": Path("outputs/crm").exists(),
-        "Command Center": Path("outputs/command_center.html").exists(),
+        "Audit Data": (ROOT / Path("outputs/remediations")).exists(),
+        "Revenue Data": (ROOT / Path("outputs/revenue")).exists(),
+        "Monthly Reports": (ROOT / Path("outputs/reports")).exists(),
+        "Outreach Pipeline": (ROOT / Path("outputs/outreach")).exists(),
+        "Snapshots": (ROOT / Path("outputs/snapshots")).exists(),
+        "Compliance": (ROOT / Path("outputs/compliance")).exists(),
+        "SSL Reports": (ROOT / Path("outputs/ssl")).exists(),
+        "Uptime Data": (ROOT / Path("outputs/uptime")).exists(),
+        "SEO Data": (ROOT / Path("outputs/seo")).exists(),
+        "CRM Export": (ROOT / Path("outputs/crm")).exists(),
+        "Command Center": (ROOT / Path("outputs/command_center.html")).exists(),
     }
 
     for name, exists in checks.items():
-        icon = "[OK]" if exists else "[--]"
+        icon = "[PRESENT]" if exists else "[MISSING]"
         print("  " + icon + " " + name)
 
     print("\n" + eq + "\n")
 
 
 def open_command_center():
-    cc_path = Path("outputs/command_center.html")
-    if cc_path.exists():
+    cc_path = ROOT / "outputs/command_center.html"
+    if not cc_path.is_file():
+        print("Command center not found. The saved output has not been verified.", file=sys.stderr)
+        return 1
+    try:
         if sys.platform == "darwin":
-            subprocess.run(["open", str(cc_path)])
+            result = subprocess.run(["open", str(cc_path)], check=False)
         elif sys.platform == "linux":
-            subprocess.run(["xdg-open", str(cc_path)])
+            result = subprocess.run(["xdg-open", str(cc_path)], check=False)
         elif sys.platform == "win32":
-            subprocess.run(["start", str(cc_path)], shell=True)
-        print("  Opened: " + str(cc_path))
-    else:
-        print("  Command center not found. Run: python3 wa.py run --all")
+            os.startfile(str(cc_path))
+            result = None
+        else:
+            print("No supported viewer for this platform.", file=sys.stderr)
+            return 1
+    except OSError as exc:
+        print("Could not open saved command center: " + str(exc), file=sys.stderr)
+        return 1
+    if result is not None and result.returncode:
+        print("The command-center viewer failed.", file=sys.stderr)
+        return 1
+    print("Opened saved file: " + str(cc_path))
+    return 0
 
 
 def show_help():
@@ -180,7 +232,9 @@ def show_help():
     print("  USAGE:")
     print("    python3 wa.py run <domain>    Run full platform for one domain")
     print("    python3 wa.py run --all       Run full platform for all clients")
-    print("    python3 wa.py status          Show system status")
+    print("    python3 wa.py status          List saved legacy output paths")
+    print("    python3 wa.py toolkit <args>  Use the canonical audit commands")
+    print("    python3 wa.py toolkit --help  Canonical command reference")
     print("    python3 wa.py open            Open command center in browser")
     print("    python3 wa.py help            Show this help")
     print("")
@@ -202,28 +256,39 @@ def show_help():
     print(eq + "\n")
 
 
-def main():
-    if len(sys.argv) < 2:
+def main(argv=None):
+    args = list(sys.argv[1:] if argv is None else argv)
+    if not args:
         show_help()
-        return
+        return 0
+    cmd = args[0].lower()
+    if cmd == "toolkit":
+        from auditor_toolkit.cli import main as toolkit_main
 
-    cmd = sys.argv[1].lower()
-
+        return toolkit_main(args[1:])
     if cmd == "run":
-        domain = None
-        if len(sys.argv) > 2 and sys.argv[2] != "--all":
-            domain = sys.argv[2]
-        run_all(domain)
-    elif cmd == "status":
+        if len(args) != 2 or (args[1].startswith("-") and args[1] != "--all"):
+            print("Usage: python3 wa.py run <domain> | --all", file=sys.stderr)
+            return 2
+        results = run_all(None if args[1] == "--all" else args[1])
+        return 0 if results and all(r["status"] == "success" for r in results) else 1
+    if cmd not in {"status", "open", "help"}:
+        print(
+            "Unknown command: " + cmd + ". Use 'toolkit --help' for canonical commands.",
+            file=sys.stderr,
+        )
+        return 2
+    if len(args) != 1:
+        print("Unexpected arguments for " + cmd, file=sys.stderr)
+        return 2
+    if cmd == "status":
         show_status()
-    elif cmd == "open":
-        open_command_center()
-    elif cmd == "help":
-        show_help()
-    else:
-        print("Unknown command: " + cmd)
-        show_help()
+        return 0
+    if cmd == "open":
+        return open_command_center()
+    show_help()
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

@@ -7,6 +7,8 @@ queue state or database records.
 """
 from __future__ import annotations
 
+import datetime as dt
+import hashlib
 import json
 import os
 import tempfile
@@ -105,6 +107,51 @@ def _frontmatter(title: str) -> str:
     )
 
 
+def _dated_source(path: Path, fallback: str) -> str:
+    if not path.is_file():
+        return fallback
+    modified = dt.datetime.fromtimestamp(path.stat().st_mtime, dt.timezone.utc).isoformat()
+    return (f"> Saved source report, last modified {modified}. Its status claims may be historical; "
+            "this copy is not completion evidence.\n\n" + _read(path, fallback))
+
+
+def _master_plan_text(repo: Path) -> str:
+    """Render all canonical YAML requirements; never infer phase completion."""
+    source = repo / "MASTER_PLAN.yaml"
+    if not source.is_file():
+        return ("> Canonical YAML unavailable. Historical companion below; completion is unproven.\n\n"
+                + _read(repo / "MASTER_PLAN.md", "# Master Plan\n\nMissing canonical source.\n"))
+    import yaml
+    raw = source.read_text(encoding="utf-8")
+    document = yaml.safe_load(raw)
+    if not isinstance(document, dict):
+        raise ValueError("Canonical plan must be a mapping")
+    lines = ["# Canonical master plan requirements", "",
+             "Plan requirements only. No phase is marked complete by this export; consult current acceptance receipts.",
+             "", f"Source: {source}", f"SHA-256: {hashlib.sha256(raw.encode()).hexdigest()}", ""]
+
+    def render(name, value, depth=2):
+        label = str(name).replace("_", " ").replace("|", "\\|")
+        if isinstance(value, dict):
+            lines.extend(["#" * min(depth, 6) + " " + label, ""])
+            for key, item in value.items():
+                render(key, item, depth + 1)
+        elif isinstance(value, list):
+            lines.extend(["#" * min(depth, 6) + " " + label, ""])
+            for item in value:
+                if isinstance(item, (dict, list)):
+                    render("item", item, depth + 1)
+                else:
+                    lines.append("- " + str(item))
+            lines.append("")
+        else:
+            lines.extend([f"- **{label}:** {value}", ""])
+
+    for key, value in document.items():
+        render(key, value)
+    return "\n".join(lines) + "\n"
+
+
 def status() -> dict:
     vault = vault_root()
     missing_folders = [name for name in FOLDERS if not (vault / name).is_dir()]
@@ -132,8 +179,8 @@ def sync() -> dict:
     health = _json(repo / "state" / "health.json")
     latest_metrics = _last_jsonl(repo / "state" / "metrics.jsonl")
     latest_error = _last_jsonl(repo / "state" / "errors.jsonl")
-    daily = _read(repo / "reports" / "DAILY_OPERATOR.md", "_No daily operator report has been generated yet._\n")
-    kpi = _read(repo / "reports" / "KPI_DASHBOARD.md", "_No KPI dashboard has been generated yet._\n")
+    daily = _dated_source(repo / "reports" / "DAILY_OPERATOR.md", "_No daily operator report has been generated yet._\n")
+    kpi = _dated_source(repo / "reports" / "KPI_DASHBOARD.md", "_No KPI dashboard has been generated yet._\n")
 
     control = _frontmatter("WEBSITE-AUDITOR Control Centre") + """# WEBSITE-AUDITOR Control Centre
 
@@ -172,9 +219,9 @@ SQLite state, bypasses suppression, changes pricing, or overrides ./mm policy.
         _frontmatter("System Health") + "# System Health\n\n" + json.dumps(health_payload, indent=2, default=str) + "\n",
     )
 
-    _atomic_write(vault / "01-MASTER-PLAN" / "MASTER-PLAN.md", _frontmatter("Master Plan") + _read(repo / "MASTER_PLAN.md", "# Master Plan\n\nMissing canonical source.\n"))
-    _atomic_write(vault / "01-MASTER-PLAN" / "CURRENT-STATE.md", _frontmatter("Current State") + _read(repo / "CURRENT_STATE.md", "# Current State\n\nMissing canonical source.\n"))
-    _atomic_write(vault / "01-MASTER-PLAN" / "CHANGELOG.md", _frontmatter("Changelog") + _read(repo / "CHANGELOG.md", "# Changelog\n\nMissing canonical source.\n"))
+    _atomic_write(vault / "01-MASTER-PLAN" / "MASTER-PLAN.md", _frontmatter("Master Plan") + _master_plan_text(repo))
+    _atomic_write(vault / "01-MASTER-PLAN" / "CURRENT-STATE.md", _frontmatter("Current State") + _dated_source(repo / "CURRENT_STATE.md", "# Current State\n\nMissing canonical source.\n"))
+    _atomic_write(vault / "01-MASTER-PLAN" / "CHANGELOG.md", _frontmatter("Changelog") + _dated_source(repo / "CHANGELOG.md", "# Changelog\n\nMissing canonical source.\n"))
 
     roles = {
         "HERMES": "Orchestrator. Delegates bounded work; does not bypass policy gates.",

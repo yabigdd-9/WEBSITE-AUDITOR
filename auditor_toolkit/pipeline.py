@@ -19,11 +19,13 @@ from . import (
     structured_validation,
     tech,
     third_party,
+    ux_static,
     vuln_js,
 )
 from .browser import export_pdf, run_browser_checks
 from .checks import Finding, analyse_html, classify_response, dedupe_findings, score_findings
 from .common import Fetcher, atomic_write_json, atomic_write_text, validate_url
+from .comparison import build_trend, measurement_contract
 from .external_tools import run_lighthouse, run_lychee
 from .faults import enrich as enrich_fault
 from .faults import group_root_causes
@@ -89,6 +91,7 @@ class AuditOptions:
 
 def run_audit(url, options=None, fetcher=None):
     opts = options or AuditOptions()
+    contract = measurement_contract(opts)
     started_at = time.perf_counter()
     run_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%S") + "-" + uuid.uuid4().hex[:12]
     run_dir = opts.output_root / run_id
@@ -183,7 +186,7 @@ def run_audit(url, options=None, fetcher=None):
         if checks["fetch"]["status"] == "ok":
             final_url = str(response.url)
             perform_parallel([
-                ("page", lambda: analyse_html(response.text, final_url), True),
+                ("page", lambda: analyse_html(response.text, final_url, include_ux=False), True),
                 ("schema", lambda: inspect_schema(response.text, final_url, opts.profile), True),
                 ("headers", lambda: inspect_headers(response), True),
                 ("technology", lambda: tech.analyse_html(response.text, final_url, response.headers), True),
@@ -217,7 +220,14 @@ def run_audit(url, options=None, fetcher=None):
                 )
 
             perform("hygiene", hygiene_checks)
-            perform("ux", lambda: detect_conversion_signals(response.text, final_url))
+
+            def ux_checks():
+                static_findings, static_evidence = ux_static.analyse_html(response.text, final_url)
+                conversion_findings, conversion_evidence = detect_conversion_signals(response.text, final_url)
+                return (static_findings + conversion_findings,
+                        {**conversion_evidence, "static_choice_observations": static_evidence})
+
+            perform("ux", ux_checks, required=True)
             if opts.deep:
                 links = discover_internal_links(response.text, final_url, opts.max_links)
                 perform(
@@ -373,7 +383,7 @@ def run_audit(url, options=None, fetcher=None):
                 skip(
                     name,
                     "Fetch unavailable",
-                    name in {"page", "schema", "headers"}
+                    name in {"page", "schema", "headers", "ux"}
                     or opts.browser
                     and name in {"browser", "axe"},
                 )
@@ -419,6 +429,7 @@ def run_audit(url, options=None, fetcher=None):
         "domain": urlparse(url).hostname,
         "timestamp": timestamp,
         "profile": opts.profile,
+        "measurement_contract": contract,
         "brand": opts.brand,
         "status": "complete" if complete else "partial",
         **scores,
@@ -458,15 +469,23 @@ def run_audit(url, options=None, fetcher=None):
         )
         report["category_scores"][category] = score_findings(selected, available)
     history = History(opts.output_root)
-    report["comparison"] = history.compare(report)
-    previous_defects = []
-    baseline_id = report["comparison"].get("baseline")
-    if baseline_id:
-        try:
-            previous_defects = history.get(baseline_id).get("defects", [])
-        except KeyError:
-            previous_defects = []
-    report["fault_regression"] = fault_regression(defects, previous_defects)
+
+    def refresh_comparison():
+        report["comparison"] = history.compare(report)
+        comparison = report["comparison"]
+        if comparison["comparison_assessed"]:
+            baseline = history.get(comparison["baseline"])
+            report["fault_regression"] = {
+                **fault_regression(defects, baseline["defects"]), "assessed": True,
+                "baseline": comparison["baseline"], "held_reasons": [],
+            }
+        else:
+            report["fault_regression"] = {
+                "new": [], "resolved": [], "unchanged": [], "assessed": False,
+                "baseline": None, "held_reasons": comparison["held_reasons"],
+            }
+
+    refresh_comparison()
     from .actions import preview_report
     from .ai import generate_drafts
 
@@ -548,7 +567,8 @@ def run_audit(url, options=None, fetcher=None):
         "required": sum(c["required"] for c in checks.values()),
         "passed": sum(c["required"] and c["status"] == "ok" for c in checks.values()),
     }
-    report["comparison"] = history.compare(report)
+    refresh_comparison()
+    report["history_trend"] = build_trend(report, history.prior_observations(report))
     write_html_report(report, html_path)
     # Regenerate PDF with final coverage, status and comparison after successful browser export.
     if "pdf" in report["artifacts"]:
@@ -559,7 +579,8 @@ def run_audit(url, options=None, fetcher=None):
             checks["pdf"].update(status="error", reason=str(exc))
             report.update(status="partial", health_score=None)
             report["coverage"]["passed"] -= 1
-            report["comparison"] = history.compare(report)
+            refresh_comparison()
+            report["history_trend"] = build_trend(report, history.prior_observations(report))
             write_html_report(report, html_path)
     atomic_write_text(trend_path, render_trend_svg(report))
     report["manifest"] = {

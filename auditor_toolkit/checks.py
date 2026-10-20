@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import re
 from dataclasses import dataclass
 from typing import Any
@@ -55,7 +56,9 @@ def score_findings(findings: list[Finding], complete: bool = True) -> dict[str, 
     }
 
 
-def analyse_html(html: str, url: str) -> tuple[list[Finding], dict[str, Any]]:
+def analyse_html(
+    html: str, url: str, *, include_ux: bool = True
+) -> tuple[list[Finding], dict[str, Any]]:
     soup = BeautifulSoup(html, "lxml")
     findings: list[Finding] = []
     title = (soup.title.string or "").strip() if soup.title and soup.title.string else ""
@@ -205,30 +208,14 @@ def analyse_html(html: str, url: str) -> tuple[list[Finding], dict[str, Any]]:
                     effort_band="XS",
                 )
             )
-    for input_el in soup.find_all("input"):
-        input_type = (input_el.get("type") or "").lower()
-        name = " ".join(
-            filter(None, [input_el.get("name"), input_el.get("id"), input_el.get("value")])
-        ).lower()
-        marketing = re.search(r"marketing|subscribe|newsletter|promo", name)
-        if input_type in {"checkbox", "radio"} and input_el.has_attr("checked") and marketing:
-            findings.append(
-                Finding(
-                    "consent_prechecked",
-                    "Preselected marketing choice",
-                    name,
-                    "medium",
-                    url,
-                    check="ux",
-                    selector=f"input[name='{input_el.get('name') or input_el.get('id') or '?'}']",
-                    evidence_source="dom:checked marketing checkbox/radio",
-                    observed=f"pre-checked input: {name or '?'}",
-                    business_impact="Users may be opted into marketing unintentionally; trust risk.",
-                    remediation_action="Leave marketing choices unchecked by default.",
-                    remediation_automation="HUMAN_REVIEW",
-                    effort_band="XS",
-                )
-            )
+    ux_evidence = None
+    if include_ux:
+        from .ux_static import inspect_soup
+
+        ux_findings, ux_evidence = inspect_soup(
+            soup, url, hashlib.sha256(html.encode()).hexdigest()
+        )
+        findings.extend(ux_findings)
     links = [
         urljoin(url, a["href"].strip())
         for a in soup.find_all("a", href=True)
@@ -242,6 +229,8 @@ def analyse_html(html: str, url: str) -> tuple[list[Finding], dict[str, Any]]:
         "emails": sorted(set(re.findall(r"[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}", html))),
         "schema_count": len(schema),
     }
+    if ux_evidence is not None:
+        evidence["ux_observations"] = ux_evidence
     return dedupe_findings(findings), evidence
 
 

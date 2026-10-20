@@ -1,20 +1,21 @@
 """Explicit free-only model requests. No CRM connection, tool execution or outreach."""
 import argparse
 import base64
-from datetime import datetime, timezone
-from decimal import Decimal, InvalidOperation
 import hashlib
 import json
 import os
-from pathlib import Path
-import time
 import urllib.error
 import urllib.request
+from datetime import datetime, timezone
+from decimal import Decimal, InvalidOperation
+from pathlib import Path
 
 import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 API = "https://openrouter.ai/api/v1"
+DEFAULT_MAX_OUTPUT_TOKENS = 8192
+MAX_OUTPUT_TOKENS = 16384
 
 
 class RouteError(RuntimeError):
@@ -90,6 +91,18 @@ def free_model(model):
         return False
 
 
+def output_limit(config, role, requested=None):
+    """A bounded response allowance, including reasoning where applicable."""
+    if role not in config.get("roles", {}):
+        raise RouteError("Unknown role; no default model substitution")
+    spec = config["roles"][role]
+    value = requested if requested is not None else spec.get(
+        "max_output_tokens", config["policy"].get("max_output_tokens", DEFAULT_MAX_OUTPUT_TOKENS))
+    if type(value) is not int or not 1 <= value <= MAX_OUTPUT_TOKENS:
+        raise RouteError("Response limit must be an integer from 1 to 16384")
+    return value
+
+
 def validate(config):
     policy = config["policy"]
     if config.get("provider") != "openrouter" or policy.get("paid_tokens") is not False:
@@ -104,17 +117,21 @@ def validate(config):
         chain = [spec["preferred"], *spec.get("fallbacks", [])]
         if len(chain) != len(set(chain)) or not all(isinstance(m, str) and m.endswith(":free") for m in chain):
             raise RouteError("Invalid or non-free route for " + role)
+        output_limit(config, role)
 
 
 def route(config, role, prompt, key, catalog, transport=request, image_data=None,
-          creator_model=None, allow_data_collection=False):
+          creator_model=None, allow_data_collection=False, max_output_tokens=None):
     validate(config)
+    if type(allow_data_collection) is not bool:
+        raise RouteError("Public/synthetic data collection requires an explicit boolean")
     if not config.get("manual_role_requests_enabled"):
         raise RouteError("Explicit role requests are paused")
     if role not in config["roles"]:
         raise RouteError("Unknown role; no default model substitution")
     if not isinstance(prompt, str) or not prompt.strip() or len(prompt) > 24000:
         raise RouteError("A bounded, non-empty prompt of at most 24000 characters is required")
+    limit = output_limit(config, role, max_output_tokens)
     spec = config["roles"][role]
     chain = [spec["preferred"], *spec.get("fallbacks", [])]
     attempts = []
@@ -133,7 +150,7 @@ def route(config, role, prompt, key, catalog, transport=request, image_data=None
             {"type": "image_url", "image_url": {"url": image_data}},
         ]
         payload = {"model": slug, "messages": [{"role": "user", "content": content}],
-            "max_tokens": 2048, "stream": False,
+            "max_tokens": limit, "stream": False,
             "provider": {"require_parameters": True, "allow_fallbacks": True,
                 "sort": "price",
                 "data_collection": "allow" if allow_data_collection else "deny",
@@ -163,7 +180,8 @@ def route(config, role, prompt, key, catalog, transport=request, image_data=None
         choice = (body.get("choices") or [{}])[0]
         content = choice.get("message", {}).get("content")
         if not isinstance(content, str) or not content.strip() or choice.get("finish_reason") == "length":
-            attempts.append({"model": slug, "status": "empty_or_truncated_answer"})
+            attempts.append({"model": slug, "status": "empty_or_truncated_answer",
+                             "max_output_tokens": limit})
             continue
         actual = body.get("model", slug)
         if actual.removesuffix(":free") != slug.removesuffix(":free"):
@@ -171,6 +189,9 @@ def route(config, role, prompt, key, catalog, transport=request, image_data=None
         attempts.append({"model": slug, "status": "response", "http_status": code})
         return {"role": role, "requested_model": slug, "actual_model": actual,
             "answer": content, "usage": {k: usage.get(k) for k in ("prompt_tokens", "completion_tokens", "cost")},
+            "max_output_tokens": limit,
+            "finish_reason": choice.get("finish_reason"),
+            "data_collection": "allow" if allow_data_collection else "deny",
             "attempts": attempts, "fallback_used": slug != chain[0], "response_id": body.get("id"),
             "independent_review": None if role not in ("JUDGE", "CRITIC") or not creator_model else
                 actual.removesuffix(":free") != creator_model.removesuffix(":free"),
@@ -184,6 +205,8 @@ def main():
     parser.add_argument("--prompt-file", type=Path, required=True)
     parser.add_argument("--image", type=Path, help="Synthetic/public PNG or JPEG only")
     parser.add_argument("--creator-model", help="For JUDGE/CRITIC independent-review checks")
+    parser.add_argument("--max-output-tokens", type=int,
+        help="Total response allowance (including reasoning); integer 1–16384")
     parser.add_argument("--public-or-synthetic", action="store_true",
         help="Explicitly allow data-collecting free endpoints for public/synthetic prompts")
     args = parser.parse_args()
@@ -199,12 +222,13 @@ def main():
     log = {"at": stamp, "role": args.role, "prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest()}
     try:
         validate(config)
+        limit = output_limit(config, args.role, args.max_output_tokens)
         status, catalog = request("/models")
         if status != 200:
             raise RouteError("Cannot verify live catalog; no model request made")
         result = route(config, args.role, prompt, credential(), {m["id"]: m for m in catalog["data"]},
             image_data=image_data, creator_model=args.creator_model,
-            allow_data_collection=args.public_or_synthetic)
+            allow_data_collection=args.public_or_synthetic, max_output_tokens=limit)
         log.update({k: v for k, v in result.items() if k != "answer"}, status="response")
         print(json.dumps(result, indent=2))
         exit_code = 0

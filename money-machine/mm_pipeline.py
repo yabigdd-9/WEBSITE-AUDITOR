@@ -248,9 +248,9 @@ def log(record):
     try:
         record = dict(record)
         record.setdefault('at', now())
-        with open(_log_path(), 'a') as fh:
-            fh.write(json.dumps(record, sort_keys=True) + '\n')
-    except OSError:
+        from supervisor.logrotate import append_jsonl
+        append_jsonl(_log_path(), record)
+    except (OSError, ValueError, TypeError):
         pass
 
 

@@ -14,6 +14,8 @@ from urllib.parse import urlsplit
 import re
 
 
+RULE_VERSION = "discovery-quality-v1.1"
+
 BUSINESS_HOME = "BUSINESS_HOME"
 BUSINESS_LOCATION = "BUSINESS_LOCATION"
 BUSINESS_SERVICE_PAGE = "BUSINESS_SERVICE_PAGE"
@@ -66,6 +68,7 @@ _DOMAIN_CLASSES = (
         "youtube.com",
     )),
     (DIRECTORY, (
+        "yelp.com",  # Includes m.yelp.com via the existing DNS-label boundary matcher.
         "yellow.co.nz",
         "finda.co.nz",
         "nzs.com",
@@ -161,7 +164,7 @@ def classify_candidate(candidate: dict, region: str = "") -> dict:
     effective_region = _safe_text(candidate.get("region") or region, 160)
 
     parsed = urlsplit(str(raw_url or "").strip())
-    host = (parsed.hostname or "").casefold().removeprefix("www.")
+    host = (parsed.hostname or "").casefold().removeprefix("www.").removesuffix(".")
     path = parsed.path or "/"
     path_cf = path.casefold()
     segments = {
@@ -319,7 +322,7 @@ def _result(
             "snippet": _safe_text(snippet, 500),
             "region": _safe_text(region, 160),
         },
-        "rule_version": "discovery-quality-v1",
+        "rule_version": RULE_VERSION,
     }
 
 

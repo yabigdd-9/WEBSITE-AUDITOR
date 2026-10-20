@@ -180,7 +180,7 @@ class DiscoveryQualityClassifier(unittest.TestCase):
         })
         self.assertEqual(
             candidate["discovery_quality"]["rule_version"],
-            "discovery-quality-v1",
+            q.RULE_VERSION,
         )
         self.assertEqual(
             candidate["discovery_quality"]["classification"],

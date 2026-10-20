@@ -1,21 +1,22 @@
-from bs4 import BeautifulSoup
-import re
+"""Legacy issue-list adapter to canonical static UX evidence."""
 
-def scan_dark_patterns(html_content):
-    issues = []
-    soup = BeautifulSoup(html_content, 'html.parser')
-    text_content = soup.get_text().lower()
-    
-    shaming_keywords = ['no thanks, i', 'no, i prefer', 'i will pay full price', 'i hate saving']
-    for phrase in shaming_keywords:
-        if phrase in text_content:
-            issues.append({"type": "Confirmshaming", "severity": "High", "description": f"Found manipulative decline text: '{phrase}'"})
-            break
-            
-    checkboxes = soup.find_all('input', {'type': 'checkbox'})
-    for box in checkboxes:
-        if box.has_attr('checked'):
-            issues.append({"type": "Pre-ticked Consent", "severity": "High", "description": "Found a checkbox that is checked by default."})
-            break
+from dataclasses import asdict
 
-    return issues
+
+def scan_dark_patterns(html_content, url=""):
+    from auditor_toolkit.ux_static import analyse_html
+
+    findings, _ = analyse_html(html_content, url)
+    names = {"consent_prechecked": "Pre-ticked Consent", "confirmshaming_review": "Confirmshaming"}
+    return [
+        {
+            "type": names[finding.defect_key],
+            "severity": finding.severity.title(),
+            "description": finding.defect + ": " + finding.observed,
+            "finding": asdict(finding),
+            "method": "static-ux-choice-evidence-v2",
+            "consent_behaviour_verified": False,
+            "legal_compliance_assessed": False,
+        }
+        for finding in findings
+    ]

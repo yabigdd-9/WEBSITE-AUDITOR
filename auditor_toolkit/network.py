@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup
 
 from .checks import Finding, analyse_html, classify_response
 from .common import public_headers
+from .email_auth import inspect_email_auth
 
 
 def inspect_headers(response):
@@ -128,6 +129,7 @@ def inspect_dns(url, timeout):
     result["limitations"] = (
         "DKIM needs a supplied selector; absent email records do not prove a website defect."
     )
+    result["email_security"] = inspect_email_auth(url, timeout=timeout)
     return [], result
 
 

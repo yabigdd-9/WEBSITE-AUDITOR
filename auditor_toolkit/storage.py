@@ -7,6 +7,8 @@ from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+from .comparison import compare_finding_history, utc_timestamp, verification_evidence
+
 STATES = {
     "detected",
     "acknowledged",
@@ -52,6 +54,7 @@ class History:
     def connect(self):
         db = sqlite3.connect(self.path, timeout=10)
         try:
+            db.create_function("audit_instant_utc", 1, utc_timestamp, deterministic=True)
             with db:
                 yield db
         finally:
@@ -104,30 +107,30 @@ class History:
             raise KeyError(run_id)
         return json.loads(row[0])
 
+    def prior_observations(self, report, limit=99):
+        """Exact URL/profile, bounded older rows; never a domain substring match."""
+        if not 1 <= limit <= 99:
+            raise ValueError("History chart accepts 1–99 previous observations")
+        with self.connect() as db:
+            rows = db.execute(
+                "SELECT report FROM runs WHERE url=? AND id!=? AND json_extract(report, '$.profile')=? "
+                "AND (audit_instant_utc(timestamp)<=audit_instant_utc(?) OR audit_instant_utc(timestamp) IS NULL) "
+                "ORDER BY audit_instant_utc(timestamp) DESC, id DESC LIMIT ?",
+                (report["url"], report["run_id"], report["profile"], report["timestamp"], limit),
+            ).fetchall()
+        return [json.loads(row[0]) for row in rows]
+
+    def _finding_observations(self, report):
+        with self.connect() as db:
+            rows = db.execute(
+                "SELECT report FROM runs WHERE url=? AND audit_instant_utc(timestamp)<audit_instant_utc(?) AND id!=? "
+                "AND json_extract(report, '$.profile')=? ORDER BY audit_instant_utc(timestamp) DESC, id DESC LIMIT 1000",
+                (report["url"], report["timestamp"], report["run_id"], report["profile"]),
+            ).fetchall()
+        return [json.loads(row[0]) for row in rows]
+
     def compare(self, report):
-        previous = [r for r in self.list(report["url"], 1000) if r["url"] == report["url"]]
-        # A partial scan cannot establish resolution or a regression baseline.
-        baseline = next(
-            (
-                r
-                for r in previous
-                if r["status"] == "complete" and r["profile"] == report["profile"]
-            ),
-            None,
-        )
-        current = {d["finding_id"] for d in report["defects"]}
-        old = {d["finding_id"] for d in baseline["defects"]} if baseline else set()
-        historic = {
-            d["finding_id"] for r in previous if r["status"] == "complete" for d in r["defects"]
-        }
-        return {
-            "baseline": baseline["run_id"] if baseline else None,
-            "new": sorted(current - old - historic),
-            "persistent": sorted(current & old),
-            "regressed": sorted((current - old) & historic),
-            "resolved": sorted(old - current) if report["status"] == "complete" else [],
-            "resolution_assessed": report["status"] == "complete" and baseline is not None,
-        }
+        return compare_finding_history(report, self._finding_observations(report))
 
     def save(self, report):
         with self.connect() as db:
@@ -144,25 +147,12 @@ class History:
     def transition(self, identity, state, metadata=None):
         if state not in STATES:
             raise ValueError("Unknown remediation state")
-        metadata = metadata or {}
+        metadata = dict(metadata or {})
         if state == "verified":
             run = self.get(metadata.get("verification_run", ""))
-            if run["status"] != "complete" or any(
-                d["finding_id"] == identity for d in run["defects"]
-            ):
-                raise ValueError("Verification needs a complete run without the finding")
-            with self.connect() as db:
-                originals = [json.loads(r[0]) for r in db.execute("SELECT report FROM runs")]
-            if not any(
-                r["url"] == run["url"]
-                and r["profile"] == run["profile"]
-                and r["timestamp"] < run["timestamp"]
-                and any(d["finding_id"] == identity for d in r["defects"])
-                for r in originals
-            ):
-                raise ValueError(
-                    "Verification must cover the same site and profile after detection"
-                )
+            metadata.update(verification_evidence(run, self._finding_observations(run), identity))
+        metadata.pop("id", None)
+        metadata.pop("state", None)
         with self.connect() as db:
             if (
                 db.execute(
@@ -174,7 +164,7 @@ class History:
                 raise KeyError(identity)
             db.execute(
                 "INSERT INTO events(kind,payload) VALUES(?,?)",
-                ("remediation", json.dumps({"id": identity, "state": state, **metadata})),
+                ("remediation", json.dumps({**metadata, "id": identity, "state": state})),
             )
 
     def artifact(self, run_id, kind):

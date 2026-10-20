@@ -87,6 +87,10 @@ def main(argv=None):
     history.add_argument("--query", default="")
     history.add_argument("--output-root", default="outputs/toolkit")
     history.add_argument("--retention-preview", type=int, metavar="KEEP_LAST")
+    compare = sub.add_parser("compare", help="Compare saved canonical audits without fetching websites")
+    compare.add_argument("target", type=Path)
+    compare.add_argument("--against", type=Path, action="append", required=True)
+    compare.add_argument("--output-dir", type=Path, required=True)
 
     watchdog = sub.add_parser("watchdog")
     watchdog.add_argument("domain", help="Domain to check for regressions")
@@ -123,6 +127,11 @@ def main(argv=None):
     demo_cmd.add_argument("remediation", type=Path)
     demo_cmd.add_argument("--output-dir", type=Path, required=True)
     demo_cmd.add_argument("--render", action="store_true")
+    implementation = sub.add_parser("implementation-demo", help="Apply an explicit patch to an isolated static copy and capture repeat audits")
+    implementation.add_argument("source", type=Path)
+    implementation.add_argument("patch_plan", type=Path)
+    implementation.add_argument("--entrypoint", default="index.html")
+    implementation.add_argument("--output-dir", type=Path, required=True)
     quote_cmd = sub.add_parser("quote")
     quote_cmd.add_argument("report", type=Path)
     quote_cmd.add_argument("--hourly-rate-nzd", type=float, required=True)
@@ -133,18 +142,126 @@ def main(argv=None):
     packet_cmd.add_argument("demo", type=Path)
     packet_cmd.add_argument("quote", type=Path)
     packet_cmd.add_argument("--output-dir", type=Path, required=True)
+    identity_review = sub.add_parser(
+        "identity-review", help="Propose trading names from saved evidence for human review"
+    )
+    identity_review.add_argument("captures", type=Path)
+    identity_review.add_argument("--output", type=Path, required=True)
+    contact_review = sub.add_parser(
+        "contact-review", help="Compare independent labels with a frozen contact frame"
+    )
+    contact_review.add_argument("frame", type=Path)
+    contact_review.add_argument("captures", type=Path)
+    contact_review.add_argument("review", type=Path)
+    contact_review.add_argument("--dataset", type=Path, required=True)
+    contact_review.add_argument("--output", type=Path, required=True)
+    freeze_review = sub.add_parser(
+        "freeze-contact-review", help="Bind saved predictions and evidence before independent review"
+    )
+    freeze_review.add_argument("frame", type=Path)
+    freeze_review.add_argument("captures", type=Path)
+    freeze_review.add_argument("--output", type=Path, required=True)
     actions = sub.add_parser("actions")
     actions.add_argument("operation", choices=["preview", "cancel"])
     actions.add_argument("report", type=Path)
     actions.add_argument("--output-dir", type=Path, default=Path("outputs/action-previews"))
     add_commands(sub)
     args = parser.parse_args(argv)
+    if args.command == "audit" and args.competitor and (not args.url or args.batch):
+        parser.error("Competitor comparison requires one target URL and no --batch")
+    if args.command == "compare":
+        from .comparison import write_comparison
+
+        try:
+            paths = [workspace_path(path, must_exist=True, file_only=True)
+                     for path in [args.target, *args.against]]
+            if not 2 <= len(paths) <= 100 or len(set(paths)) != len(paths):
+                raise ValueError("Choose 2–100 distinct saved report files")
+            sizes = [path.stat().st_size for path in paths]
+            if max(sizes) > 10_000_000 or sum(sizes) > 20_000_000:
+                raise ValueError("Comparison inputs exceed 10 MB per file / 20 MB total")
+            output = workspace_path(args.output_dir)
+            if output.exists() or any(output.is_relative_to(path.parent) for path in paths):
+                raise ValueError("Choose a new comparison directory outside the input report folders")
+            inputs = []
+            total = 0
+            for path in paths:
+                with path.open("rb") as source:
+                    raw = source.read(10_000_001)
+                total += len(raw)
+                if len(raw) > 10_000_000 or total > 20_000_000:
+                    raise ValueError("Comparison inputs exceed 10 MB per file / 20 MB total")
+                inputs.append(json.loads(raw))
+            result = write_comparison(inputs, output)
+        except (ValueError, OSError, KeyError, TypeError) as exc:
+            parser.error(str(exc))
+        print(json.dumps(result, indent=2))
+        return 0 if result["status"] == "comparable" else 2
+    if args.command == "freeze-contact-review":
+        from .common import atomic_write_json
+        from .contact_review import freeze_contact_dataset
+        try:
+            frame = workspace_path(args.frame, must_exist=True, file_only=True)
+            captures = workspace_path(args.captures, must_exist=True)
+            output = workspace_path(args.output)
+            if output.exists() or output.is_relative_to(captures):
+                raise ValueError("A new freeze artifact outside the input captures is required")
+            result = freeze_contact_dataset(frame, captures)
+            atomic_write_json(output, result)
+        except (ValueError, OSError, KeyError, TypeError) as exc:
+            parser.error(str(exc))
+        print(json.dumps({"case_count": len(result["cases"]), "output": str(output), "production_approved": False}, indent=2))
+        return 0
+    if args.command == "contact-review":
+        from .common import atomic_write_json
+        from .contact_review import compare_contact_review
+        try:
+            frame = workspace_path(args.frame, must_exist=True, file_only=True)
+            captures = workspace_path(args.captures, must_exist=True)
+            review = workspace_path(args.review, must_exist=True, file_only=True)
+            dataset = workspace_path(args.dataset, must_exist=True, file_only=True)
+            output = workspace_path(args.output)
+            if output in {frame, review, dataset} or output.is_relative_to(captures):
+                raise ValueError("Comparison output must not overwrite review inputs")
+            result = compare_contact_review(frame, captures, review, dataset)
+            atomic_write_json(output, result)
+        except (ValueError, OSError, KeyError, TypeError) as exc:
+            parser.error(str(exc))
+        print(json.dumps({"status": result["status"], "counts": result["counts"], "output": str(output), "production_approved": False}, indent=2))
+        return 0
+    if args.command == "identity-review":
+        from .common import atomic_write_json
+        from .identity_review import build_identity_review
+        try:
+            captures = workspace_path(args.captures, must_exist=True)
+            output = workspace_path(args.output)
+            if output.is_relative_to(captures):
+                raise ValueError("Review output must be outside the input captures directory")
+            result = build_identity_review(captures)
+            atomic_write_json(output, result)
+        except (ValueError, OSError) as exc:
+            parser.error(str(exc))
+        print(json.dumps({"case_count": result["case_count"], "status_counts": result["status_counts"], "output": str(output), "production_applied": False}, indent=2))
+        return 0
     if args.command in {"revenue", "monthly"}:
         try:
             return run_command(args)
         except (ValueError, OSError, KeyError) as exc:
             parser.error(str(exc))
 
+    if args.command == "implementation-demo":
+        from .implementation_demo import build_implementation_demo
+        try:
+            source = workspace_path(args.source, must_exist=True)
+            plan_path = workspace_path(args.patch_plan, must_exist=True, file_only=True)
+            output = workspace_path(args.output_dir)
+            if output == plan_path or plan_path.is_relative_to(output):
+                raise ValueError("Output must not contain or overwrite the input patch plan")
+            result = build_implementation_demo(source, json.loads(plan_path.read_text()), output, entrypoint=args.entrypoint)
+        except (ValueError, OSError, KeyError, TypeError) as exc:
+            parser.error(str(exc))
+        print(json.dumps({"status": result["status"], "output": str(output), "source_unchanged": result["source_unchanged"], "production_changed": False, "removed_findings": result["removed_findings"], "new_findings": result["new_findings"]}, indent=2))
+        return 0 if result["local_improvement_observed"] else 2
     if args.command == "remediate":
         from .remediation import build_remediation
         report_path = workspace_path(args.report, must_exist=True, file_only=True)
@@ -354,8 +471,19 @@ def main(argv=None):
     urls = list(dict.fromkeys(urls))
     if len(urls) > 100:
         parser.error("Maximum batch size is 100 URLs")
+    if args.competitor and len(urls) < 2:
+        parser.error("Competitor comparison requires a distinct comparison URL")
+    comparison = None
     with ThreadPoolExecutor(max_workers=args.concurrency) as pool:
         reports = list(pool.map(lambda url: run_audit(url, options), urls))
+    if args.competitor:
+        from .comparison import write_comparison
+
+        comparison = write_comparison(reports, options.output_root / (reports[0]["run_id"] + "-comparison"))
+        # Keep the existing list-shaped CLI output; audit run artifacts remain immutable.
+        reports = [{**report, "artifacts": {**report["artifacts"],
+                    "comparison_json": comparison["json"], "comparison_html": comparison["html"]}}
+                   for report in reports]
     print(
         json.dumps(
             [
@@ -365,13 +493,15 @@ def main(argv=None):
                     "status": r["status"],
                     "health_score": r["health_score"],
                     "artifacts": r["artifacts"],
+                    **({"comparison": comparison} if comparison else {}),
                 }
                 for r in reports
             ],
             indent=2,
         )
     )
-    return 0 if all(r["status"] == "complete" for r in reports) else 2
+    return 0 if (all(r["status"] == "complete" for r in reports)
+                 and (comparison is None or comparison["status"] == "comparable")) else 2
 
 
 if __name__ == "__main__":

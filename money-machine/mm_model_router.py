@@ -12,22 +12,22 @@ import datetime as dt
 import ipaddress
 import json
 import os
-from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import urllib.error
 import urllib.request
+from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
 
 import yaml
-
 from mm_core import now, sha
 from mm_pipeline import BlockedCost
 from mm_redaction import prepare_prompt
 
 FCC_PROVIDER = "gateway:fcc-claude"
 HERMES_PROVIDER = "hermes:free-role"
+MAX_OUTPUT_TOKENS = 16384
 
 FCC_BASE = os.environ.get("MM_FCC_BASE", "http://127.0.0.1:8082")
 FCC_MODEL_ENV = "MM_FCC_MODEL"
@@ -341,15 +341,16 @@ def _fcc_complete(prompt, model, max_tokens, timeout):
     except (urllib.error.HTTPError, urllib.error.URLError, OSError, TimeoutError) as exc:
         raise BlockedCost("Claude/FCC route unavailable without paid fallback") from exc
     elapsed = (dt.datetime.now(dt.timezone.utc) - started).total_seconds()
-    text = (payload.get("choices") or [{}])[0].get("message", {}).get("content", "")
-    if not isinstance(text, str) or not text.strip():
-        raise BlockedCost("Claude/FCC returned no usable zero-cost answer")
     usage = payload.get("usage") or {}
     reported_cost = usage.get("cost")
     if reported_cost not in (None, 0, 0.0, "0", "0.0"):
-        raise BlockedCost(
-            "FCC reported non-zero cost; stop Claude route and use Hermes fallback"
+        raise PaidRouteRefused(
+            "FCC reported non-zero or unrecognised cost; stop all requests and investigate"
         )
+    choice = (payload.get("choices") or [{}])[0]
+    text = choice.get("message", {}).get("content", "")
+    if not isinstance(text, str) or not text.strip() or choice.get("finish_reason") == "length":
+        raise BlockedCost("Claude/FCC returned no complete usable zero-cost answer")
     return {
         "text": text,
         "provider": FCC_PROVIDER,
@@ -360,11 +361,15 @@ def _fcc_complete(prompt, model, max_tokens, timeout):
     }
 
 
-def _hermes_complete(prompt, purpose, timeout):
+def _hermes_complete(prompt, purpose, timeout, max_tokens=None, allow_data_collection=False):
     """Run the Hermes free-role dispatcher, which live-verifies catalog price=0."""
     configured = probe_hermes(purpose)
     if not configured:
         raise BlockedCost("Hermes zero-cost role fallback is not configured")
+    if max_tokens is not None and (type(max_tokens) is not int or not 1 <= max_tokens <= MAX_OUTPUT_TOKENS):
+        raise ValueError("Response limit must be an integer from 1 to 16384")
+    if type(allow_data_collection) is not bool:
+        raise ValueError("Public/synthetic data collection requires an explicit boolean")
     role = PURPOSE_ROLE.get(purpose, "FAST_RESEARCHER")
     with tempfile.NamedTemporaryFile(
         "w", encoding="utf-8", suffix=".txt", delete=False
@@ -372,16 +377,14 @@ def _hermes_complete(prompt, purpose, timeout):
         handle.write(prompt)
         prompt_path = handle.name
     try:
+        command = [sys.executable, str(HERMES_FREE_ROUTER), "--role", role,
+                   "--prompt-file", prompt_path]
+        if max_tokens is not None:
+            command.extend(["--max-output-tokens", str(max_tokens)])
+        if allow_data_collection:
+            command.append("--public-or-synthetic")
         result = subprocess.run(
-            [
-                sys.executable,
-                str(HERMES_FREE_ROUTER),
-                "--role",
-                role,
-                "--prompt-file",
-                prompt_path,
-                "--public-or-synthetic",
-            ],
+            command,
             capture_output=True,
             text=True,
             timeout=timeout,
@@ -405,7 +408,7 @@ def _hermes_complete(prompt, purpose, timeout):
     if not isinstance(model, str) or not model.endswith(":free"):
         raise BlockedCost("Hermes fallback did not prove a :free model")
     if cost not in (None, 0, 0.0, "0", "0.0"):
-        raise BlockedCost("Hermes fallback reported non-zero cost")
+        raise PaidRouteRefused("Hermes fallback reported non-zero or unrecognised cost; stop all requests")
     if not isinstance(answer, str) or not answer.strip():
         raise BlockedCost("Hermes fallback returned no usable answer")
     return {
@@ -420,11 +423,22 @@ def _hermes_complete(prompt, purpose, timeout):
 def local_complete(
     prompt,
     purpose="lightweight_worker",
-    max_tokens=64,
+    max_tokens=None,
     timeout=120,
     lookup=None,
+    *,
+    allow_data_collection=False,
 ):
-    """Execute Claude/FCC first; fall back to Hermes only if Claude is not free/usable."""
+    """FCC then Hermes, with explicit response and public-data allowances.
+
+    Omitted response limit retains the FCC 64-token default and lets Hermes
+    use its configured role allowance. Data collection remains denied unless
+    explicitly selected by a caller with authority for that public prompt.
+    """
+    if max_tokens is not None and (type(max_tokens) is not int or not 1 <= max_tokens <= MAX_OUTPUT_TOKENS):
+        raise ValueError("Response limit must be an integer from 1 to 16384")
+    if type(allow_data_collection) is not bool:
+        raise ValueError("Public/synthetic data collection requires an explicit boolean")
     prepared = prepare_external_prompt(prompt)
     if prepared.get("secret_detected"):
         raise BlockedCost("secret-bearing prompt is held for human review")
@@ -433,13 +447,14 @@ def local_complete(
     fcc_model = _lookup_route("fcc", purpose, lookup)
     if fcc_model and check_route(FCC_PROVIDER, fcc_model) is None:
         try:
-            return _fcc_complete(safe_prompt, fcc_model, max_tokens, timeout)
+            return _fcc_complete(safe_prompt, fcc_model, max_tokens if max_tokens is not None else 64, timeout)
         except BlockedCost:
             pass
 
     hermes_model = _lookup_route("hermes", purpose, lookup)
     if hermes_model and check_route(HERMES_PROVIDER, hermes_model) is None:
-        return _hermes_complete(safe_prompt, purpose, timeout)
+        return _hermes_complete(safe_prompt, purpose, timeout, max_tokens=max_tokens,
+                                allow_data_collection=allow_data_collection)
 
     raise BlockedCost(
         "no certified zero-cost inference route available; Claude/FCC was skipped "

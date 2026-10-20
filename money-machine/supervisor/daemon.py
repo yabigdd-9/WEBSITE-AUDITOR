@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """SupervisorDaemon — PID-lock, graceful shutdown, heartbeat, log rotation."""
 
-import os, signal, time, json, gzip
-from pathlib import Path
+import json
+import os
+import signal
 from datetime import datetime, timezone
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 PIDFILE = ROOT / "state" / "supervisor.pid"
@@ -50,14 +52,5 @@ class SupervisorDaemon:
         }
 
 def rotate_logs(log_dir: Path = LOG_DIR, max_size_mb: int = 50, retention_days: int = 30) -> list[str]:
-    rotated = []
-    if not log_dir.exists():
-        return rotated
-    for f in sorted(log_dir.glob("*.jsonl")):
-        if f.stat().st_size > max_size_mb * 1024 * 1024:
-            archive = f.with_suffix(f".jsonl.{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.gz")
-            with open(f, 'rb') as src, gzip.open(archive, 'wb') as dst:
-                dst.write(src.read())
-            f.unlink()
-            rotated.append(str(archive))
-    return rotated
+    from supervisor.logrotate import rotate_logs as maintain
+    return maintain(log_dir, max_size_mb, retention_days)

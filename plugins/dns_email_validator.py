@@ -1,20 +1,15 @@
-import subprocess
-import json
-import re
-import os
+"""Legacy output adapter for the canonical bounded email-record checker."""
+
+from auditor_toolkit.email_auth import inspect_email_auth
+
 
 def audit_email_security(url):
-    domain = re.sub(r'^https?://', '', url).split('/')[0]
-    
-    # Mac user-specific path to checkdmarc
-    checkdmarc_path = os.path.expanduser('~/Library/Python/3.9/bin/checkdmarc')
-    
-    try:
-        result = subprocess.run([checkdmarc_path, domain, '--format', 'json'], capture_output=True, text=True, timeout=30)
-        if result.returncode == 0:
-            data = json.loads(result.stdout)
-            spf = data.get("spf", {}).get("valid", False)
-            dmarc = data.get("dmarc", {}).get("valid", False)
-            return {"spf_valid": spf, "dmarc_valid": dmarc, "spoofing_risk": "Low" if dmarc else "Medium"}
-    except Exception: pass
-    return {"spf_valid": False, "dmarc_valid": False, "spoofing_risk": "Unknown/Error"}
+    observation = inspect_email_auth(url)
+    return {
+        "format_version": 2,
+        "spf_valid": observation["spf"]["valid"],
+        "dmarc_valid": observation["dmarc"]["valid"],
+        "spoofing_risk": "NOT_ASSESSED",
+        "status": observation["status"],
+        "observation": observation,
+    }

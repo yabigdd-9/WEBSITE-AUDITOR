@@ -1,0 +1,375 @@
+{
+  "checked_at_utc": "2026-10-02T23:05:27.336607+00:00",
+  "baseline_sha": "27b5b90277816e7a7174a05bed29061766d2ef98",
+  "method": "Static source and tracked-file review; no candidate execution",
+  "legacy_module_count": 17,
+  "missing_module_count": 11,
+  "legacy_workflow": [
+    {
+      "name": "Single-Site Audit",
+      "script": "website_auditor.py",
+      "args": [
+        "{domain}"
+      ],
+      "phase": "AUDIT",
+      "present_at_baseline": true,
+      "baseline_sha256": "abaee223bb26b99ef5ab8414d88860a47de0622e9b5700fac48a272010692955",
+      "canonical_command_candidate": "toolkit audit <url>",
+      "automatic_replacement": false,
+      "parity_accepted": false,
+      "limitation": "Existing legacy translator already delegates to canonical audit; full CLI parity pending."
+    },
+    {
+      "name": "Batch Remediation",
+      "script": "remediation-engine.py",
+      "args": [
+        "--all",
+        "--output-dir",
+        "outputs/remediations"
+      ],
+      "phase": "AUDIT",
+      "present_at_baseline": true,
+      "baseline_sha256": "93727e0bb430f4d7795a500bbfc6b261a27817531892902bd9b4cc00193f155f",
+      "canonical_command_candidate": "toolkit remediate <report> --output-dir <dir>",
+      "automatic_replacement": false,
+      "parity_accepted": false,
+      "limitation": "Per-report replacement available; legacy batch must explicitly enumerate reports and preserve review gates."
+    },
+    {
+      "name": "Dashboard",
+      "script": "audit-dashboard.py",
+      "args": [
+        "--output",
+        "report.html"
+      ],
+      "phase": "AUDIT",
+      "present_at_baseline": true,
+      "baseline_sha256": "137bad49466134c827039d00efc318403c467a0a02a608e7c608bfcf1f539b4f",
+      "canonical_command_candidate": "toolkit dashboard",
+      "automatic_replacement": false,
+      "parity_accepted": false,
+      "limitation": "Serving canonical report UI differs from writing a static legacy portfolio page; not interchangeable."
+    },
+    {
+      "name": "Revenue Calculator",
+      "script": "revenue_report.py",
+      "args": [],
+      "phase": "REVENUE",
+      "present_at_baseline": true,
+      "baseline_sha256": "fe73a03474f195cdb24e45c3b01d8b82611512bed843deff8780390e0c05aff0",
+      "canonical_command_candidate": null,
+      "automatic_replacement": false,
+      "parity_accepted": false,
+      "limitation": "Legacy revenue assumptions/scoring require evidence review; no validated equivalent declared."
+    },
+    {
+      "name": "Monthly Reports",
+      "script": "monthly_report.py",
+      "args": [],
+      "phase": "REVENUE",
+      "present_at_baseline": true,
+      "baseline_sha256": "9d22f5510e03a4a060be78718229ba0f0c9213bf46822372efb6c041e0fb48d5",
+      "canonical_command_candidate": null,
+      "automatic_replacement": false,
+      "parity_accepted": false,
+      "limitation": "Preserve extension reporting; legacy HTML/PDF and explicit --email are not canonical delivery acceptance."
+    },
+    {
+      "name": "Prospect Scoring",
+      "script": "generate_outreach.py",
+      "args": [],
+      "phase": "SALES",
+      "present_at_baseline": false,
+      "baseline_sha256": null,
+      "canonical_command_candidate": null,
+      "automatic_replacement": false,
+      "parity_accepted": false,
+      "limitation": "Referenced file absent at frozen baseline; no feature equivalence can be proven from this path."
+    },
+    {
+      "name": "AI Sales Assistant",
+      "script": "ai_sales.py",
+      "args": [
+        "{domain}"
+      ],
+      "phase": "SALES",
+      "present_at_baseline": false,
+      "baseline_sha256": null,
+      "canonical_command_candidate": null,
+      "automatic_replacement": false,
+      "parity_accepted": false,
+      "limitation": "Referenced file absent at frozen baseline; no feature equivalence can be proven from this path."
+    },
+    {
+      "name": "Approval Workflow",
+      "script": "approval_workflow.py",
+      "args": [],
+      "phase": "CLIENT",
+      "present_at_baseline": false,
+      "baseline_sha256": null,
+      "canonical_command_candidate": null,
+      "automatic_replacement": false,
+      "parity_accepted": false,
+      "limitation": "Referenced file absent at frozen baseline; no feature equivalence can be proven from this path."
+    },
+    {
+      "name": "Churn Predictor",
+      "script": "churn_predictor.py",
+      "args": [],
+      "phase": "CLIENT",
+      "present_at_baseline": false,
+      "baseline_sha256": null,
+      "canonical_command_candidate": null,
+      "automatic_replacement": false,
+      "parity_accepted": false,
+      "limitation": "Referenced file absent at frozen baseline; no feature equivalence can be proven from this path."
+    },
+    {
+      "name": "Nightly Watchdog",
+      "script": "nightly_watchdog.py",
+      "args": [],
+      "phase": "MONITOR",
+      "present_at_baseline": true,
+      "baseline_sha256": "0ce7a1b89fb9461e1af369427cc15f264cc3095f06011a3ed7c7b8d057c8b1cb",
+      "canonical_command_candidate": "toolkit watchdog <domain>",
+      "automatic_replacement": false,
+      "parity_accepted": false,
+      "limitation": "Per-domain regression command exists; client scheduling and alert policy still need acceptance."
+    },
+    {
+      "name": "SSL Monitor",
+      "script": "ssl_monitor.py",
+      "args": [
+        "--days",
+        "30"
+      ],
+      "phase": "MONITOR",
+      "present_at_baseline": false,
+      "baseline_sha256": null,
+      "canonical_command_candidate": null,
+      "automatic_replacement": false,
+      "parity_accepted": false,
+      "limitation": "Referenced file absent at frozen baseline; no feature equivalence can be proven from this path."
+    },
+    {
+      "name": "Uptime Monitor",
+      "script": "uptime_monitor.py",
+      "args": [],
+      "phase": "MONITOR",
+      "present_at_baseline": false,
+      "baseline_sha256": null,
+      "canonical_command_candidate": null,
+      "automatic_replacement": false,
+      "parity_accepted": false,
+      "limitation": "Referenced file absent at frozen baseline; no feature equivalence can be proven from this path."
+    },
+    {
+      "name": "SEO Tracker",
+      "script": "seo_tracker.py",
+      "args": [],
+      "phase": "MONITOR",
+      "present_at_baseline": false,
+      "baseline_sha256": null,
+      "canonical_command_candidate": null,
+      "automatic_replacement": false,
+      "parity_accepted": false,
+      "limitation": "Referenced file absent at frozen baseline; no feature equivalence can be proven from this path."
+    },
+    {
+      "name": "Backup Checker",
+      "script": "backup_checker.py",
+      "args": [],
+      "phase": "MONITOR",
+      "present_at_baseline": false,
+      "baseline_sha256": null,
+      "canonical_command_candidate": null,
+      "automatic_replacement": false,
+      "parity_accepted": false,
+      "limitation": "Referenced file absent at frozen baseline; no feature equivalence can be proven from this path."
+    },
+    {
+      "name": "Legal Shield",
+      "script": "legal_shield.py",
+      "args": [],
+      "phase": "COMPLIANCE",
+      "present_at_baseline": false,
+      "baseline_sha256": null,
+      "canonical_command_candidate": null,
+      "automatic_replacement": false,
+      "parity_accepted": false,
+      "limitation": "Referenced file absent at frozen baseline; no feature equivalence can be proven from this path."
+    },
+    {
+      "name": "CRM Export",
+      "script": "crm_hub.py",
+      "args": [
+        "--format",
+        "generic"
+      ],
+      "phase": "EXPORT",
+      "present_at_baseline": false,
+      "baseline_sha256": null,
+      "canonical_command_candidate": null,
+      "automatic_replacement": false,
+      "parity_accepted": false,
+      "limitation": "Referenced file absent at frozen baseline; no feature equivalence can be proven from this path."
+    },
+    {
+      "name": "Command Center",
+      "script": "command_center.py",
+      "args": [],
+      "phase": "DASHBOARD",
+      "present_at_baseline": false,
+      "baseline_sha256": null,
+      "canonical_command_candidate": null,
+      "automatic_replacement": false,
+      "parity_accepted": false,
+      "limitation": "Referenced file absent at frozen baseline; no feature equivalence can be proven from this path."
+    }
+  ],
+  "advanced_plugins": [
+    {
+      "legacy": "plugins/tech_stack_detector.py",
+      "canonical": [
+        "auditor_toolkit/tech.py",
+        "auditor_toolkit/technology/fingerprints.py",
+        "auditor_toolkit/server_technology.py"
+      ],
+      "status": "PARTIAL_OVERLAP",
+      "gap": "Pipeline uses tech.py; broader fingerprints and server analysis are not equivalent evidence that all plugin heuristics execute.",
+      "baseline_sha256": "08d0ba388967e774cef713086a86eb12ff873ed099fb9d1d451791322a7c059a",
+      "canonical_source_hashes": {
+        "auditor_toolkit/tech.py": "a411bb3f56542f0d2c8e4e7ea062aa66ff07a19ea42723f035f8263b021205b1",
+        "auditor_toolkit/technology/fingerprints.py": "4c55ccbc6ab0b9d2dceb53f4d5cc67f3a301982ed7ca88347785577bcaf0c0a5",
+        "auditor_toolkit/server_technology.py": "21f0f596b9c04fd75a237e8a75616f80d60bd15aebcf0bd2e47a8ed7c4ebff5d"
+      },
+      "parity_accepted": false,
+      "candidate_proposal": {
+        "status": "SHARED_CANONICAL_PASSIVE_INTERPRETER_UNTESTED",
+        "paths": [
+          "auditor_toolkit/technology/observations.py",
+          "auditor_toolkit/technology/signatures.py",
+          "auditor_toolkit/tech.py",
+          "auditor_toolkit/technology/fingerprints.py",
+          "plugins/tech_stack_detector.py",
+          "website_auditor/advanced/tech_fingerprint.py"
+        ],
+        "signature_rules": 118,
+        "baseline_literal_tables_preserved": true,
+        "confirmed_installation_or_vulnerability_claim": false,
+        "parity_accepted": false
+      }
+    },
+    {
+      "legacy": "plugins/dns_email_validator.py",
+      "canonical": [
+        "auditor_toolkit/network.py"
+      ],
+      "status": "VALIDATION_GAP",
+      "gap": "DNS observations include _dmarc TXT; SPF/DMARC validation and unknown/error handling are not equivalent to a record lookup. Hardcoded Python 3.9 checkdmarc path remains legacy.",
+      "baseline_sha256": "a3a57f15f10be77437c7a401b954cb2fe76725421bd6ae9ba40f4904ce0e8202",
+      "canonical_source_hashes": {
+        "auditor_toolkit/network.py": "dce22bd5cb006fef085c027a3007d78bf471a6550e511eba4d803b59a601f801"
+      },
+      "parity_accepted": false,
+      "candidate_proposal": {
+        "status": "SHARED_CANONICAL_BOUNDED_EMAIL_AUTH_UNTESTED",
+        "paths": [
+          "auditor_toolkit/email_auth.py",
+          "auditor_toolkit/email_auth_worker.py",
+          "auditor_toolkit/network.py",
+          "plugins/dns_email_validator.py",
+          "pyproject.toml"
+        ],
+        "checker_version": "6.0.3",
+        "checker_installed": false,
+        "unknown_validity_is_null": true,
+        "spoofing_risk_assessed": false,
+        "shared_resolver_call_limit": 64,
+        "maximum_child_seconds": 30,
+        "parity_accepted": false
+      }
+    },
+    {
+      "legacy": "plugins/ux_dark_pattern_scanner.py",
+      "canonical": [
+        "auditor_toolkit/checks.py"
+      ],
+      "status": "PARTIAL_OVERLAP",
+      "gap": "Canonical prechecked marketing input rule is narrower than any checked box. Confirmshaming heuristic needs explicit evidence/false-positive review.",
+      "baseline_sha256": "413eb57bcc17750de5f4af505b7ba265a2f66c90284041c50c6d57aa911f24a6",
+      "canonical_source_hashes": {
+        "auditor_toolkit/checks.py": "6bb285f72b8c355ad482e8f894f97cdb0049dbc140b643259e3a19b7430d4b11"
+      },
+      "parity_accepted": false,
+      "candidate_proposal": {
+        "status": "SHARED_CANONICAL_STATIC_UX_CHECKER_UNTESTED",
+        "paths": [
+          "auditor_toolkit/ux_static.py",
+          "auditor_toolkit/checks.py",
+          "auditor_toolkit/pipeline.py",
+          "plugins/ux_dark_pattern_scanner.py"
+        ],
+        "dedicated_required_check": "ux",
+        "legacy_decline_phrases_preserved": 4,
+        "ordinary_checkbox_blanket_flag_removed": true,
+        "actual_consent_or_legal_claim": false,
+        "parity_accepted": false
+      }
+    },
+    {
+      "legacy": "plugins/image_perf_auditor.py",
+      "canonical": [
+        "auditor_toolkit/images.py",
+        "auditor_toolkit/checks.py",
+        "auditor_toolkit/pipeline.py"
+      ],
+      "status": "IMPLEMENTATION_GAP",
+      "gap": "images.py remains a TODO; alt and broken rendered images do not cover responsive formats/lazy loading. Blanket lazy-loading advice must not target critical hero images.",
+      "baseline_sha256": "6055fa71627ff1b10ecac77441fdd6f6fd8716c3214f0d895b07b32ad6c80c89",
+      "canonical_source_hashes": {
+        "auditor_toolkit/images.py": "3e213564935230bef48b1b0c936329a26f306ee7655518443596be5ff5f35d4e",
+        "auditor_toolkit/checks.py": "6bb285f72b8c355ad482e8f894f97cdb0049dbc140b643259e3a19b7430d4b11",
+        "auditor_toolkit/pipeline.py": "acf558204cd364904d0f5d3cff63fb2f030e866f350643fcf5942a07db53a9eb"
+      },
+      "parity_accepted": false,
+      "candidate_proposal": {
+        "status": "SHARED_CANONICAL_MARKUP_IMPLEMENTATION_UNTESTED",
+        "paths": [
+          "auditor_toolkit/images.py",
+          "auditor_toolkit/models.py",
+          "plugins/image_perf_auditor.py",
+          "advanced_audit.py"
+        ],
+        "legacy_optimization_score_retired": true,
+        "rendered_image_performance_implemented": false,
+        "parity_accepted": false
+      }
+    }
+  ],
+  "whole_workflow_replaced": false,
+  "advanced_entrypoint_changed": true,
+  "p2_complete": false,
+  "tests_added": false,
+  "tests_run": false,
+  "candidate_progress_at_utc": "2026-10-03T00:16:14.528113+00:00",
+  "advanced_command_candidate": {
+    "path": "auditor_toolkit/advanced.py",
+    "legacy_wrapper": "advanced_audit.py",
+    "operator_route": "./mm toolkit advanced <url>",
+    "canonical_cli_route": "./mm toolkit <args>",
+    "four_canonical_calls_once": true,
+    "fetcher": "auditor_toolkit.common.Fetcher",
+    "required_checks": [
+      "fetch",
+      "technology",
+      "email_security",
+      "ux",
+      "images"
+    ],
+    "format_version": 2,
+    "unknown_or_error_exit_code": 2,
+    "candidate_executed": false,
+    "parity_accepted": false
+  }
+}

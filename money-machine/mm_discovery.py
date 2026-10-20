@@ -481,7 +481,7 @@ def _collect_search_source(query, region, endpoint, limit):
         "candidates": len(accepted),
         "quality_rejected": quality["counts"]["rejected"],
         "quality_review": quality["counts"]["review"],
-        "quality_rule_version": "discovery-quality-v1",
+        "quality_rule_version": mm_discovery_quality.RULE_VERSION,
     }
     return accepted, report, quality["rejected"]
 

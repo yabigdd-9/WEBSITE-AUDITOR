@@ -1,0 +1,138 @@
+{
+  "prepared_at_utc": "2026-10-02T22:29:43.961396+00:00",
+  "baseline_sha": "27b5b90277816e7a7174a05bed29061766d2ef98",
+  "source_archive_only": true,
+  "candidate_only": true,
+  "files": [
+    {
+      "path": "website_auditor.py",
+      "original_sha256": "abaee223bb26b99ef5ab8414d88860a47de0622e9b5700fac48a272010692955",
+      "archive": "docs/archive/audit-engines/website_auditor.py.txt",
+      "bytes": 19217,
+      "archive_matches_baseline": true
+    },
+    {
+      "path": "website_auditor_enhanced.py",
+      "original_sha256": "8649a22ac40cfd149d44a76551151c615f6ba88937e34215d63c8811de7c8576",
+      "archive": "docs/archive/audit-engines/website_auditor_enhanced.py.txt",
+      "bytes": 52138,
+      "archive_matches_baseline": true
+    },
+    {
+      "path": "wa.py",
+      "original_sha256": "da0b85b5c63cfadf0fe052c9260c8fcbe5727ad5487664e7872a9504d9920967",
+      "archive": "docs/archive/audit-engines/wa.py.txt",
+      "bytes": 9310,
+      "archive_matches_baseline": true
+    },
+    {
+      "path": "advanced_audit.py",
+      "original_sha256": "82867e7d0dac9e65451d1de13deb8a7e2fb6d1e28ceb916b8378ddd3ade5d1fb",
+      "archive": "docs/archive/audit-engines/advanced_audit.py.txt",
+      "bytes": 1031,
+      "archive_matches_baseline": true
+    },
+    {
+      "path": "plugins/image_perf_auditor.py",
+      "original_sha256": "6055fa71627ff1b10ecac77441fdd6f6fd8716c3214f0d895b07b32ad6c80c89",
+      "archive": "docs/archive/audit-engines/image_perf_auditor.py.txt",
+      "bytes": 772,
+      "archive_matches_baseline": true
+    },
+    {
+      "path": "auditor_toolkit/tech.py",
+      "original_sha256": "a411bb3f56542f0d2c8e4e7ea062aa66ff07a19ea42723f035f8263b021205b1",
+      "archive": "docs/archive/audit-engines/auditor_toolkit__tech.py.txt",
+      "bytes": 4711,
+      "archive_matches_baseline": true
+    },
+    {
+      "path": "auditor_toolkit/technology/fingerprints.py",
+      "original_sha256": "4c55ccbc6ab0b9d2dceb53f4d5cc67f3a301982ed7ca88347785577bcaf0c0a5",
+      "archive": "docs/archive/audit-engines/auditor_toolkit__technology__fingerprints.py.txt",
+      "bytes": 7448,
+      "archive_matches_baseline": true
+    },
+    {
+      "path": "plugins/tech_stack_detector.py",
+      "original_sha256": "08d0ba388967e774cef713086a86eb12ff873ed099fb9d1d451791322a7c059a",
+      "archive": "docs/archive/audit-engines/plugins__tech_stack_detector.py.txt",
+      "bytes": 1484,
+      "archive_matches_baseline": true
+    },
+    {
+      "path": "website_auditor/advanced/tech_fingerprint.py",
+      "original_sha256": "2fc3b3db3a777e5aabca1df15cf114d6a86d9c5c1faa4041190c6ccfe11334dd",
+      "archive": "docs/archive/audit-engines/website_auditor__advanced__tech_fingerprint.py.txt",
+      "bytes": 1273,
+      "archive_matches_baseline": true
+    },
+    {
+      "path": "auditor_toolkit/checks.py",
+      "original_sha256": "6bb285f72b8c355ad482e8f894f97cdb0049dbc140b643259e3a19b7430d4b11",
+      "archive": "docs/archive/audit-engines/auditor_toolkit__checks.py.txt",
+      "bytes": 11406,
+      "archive_matches_baseline": true
+    },
+    {
+      "path": "auditor_toolkit/pipeline.py",
+      "original_sha256": "acf558204cd364904d0f5d3cff63fb2f030e866f350643fcf5942a07db53a9eb",
+      "archive": "docs/archive/audit-engines/auditor_toolkit__pipeline.py.txt",
+      "bytes": 25406,
+      "archive_matches_baseline": true
+    },
+    {
+      "path": "plugins/ux_dark_pattern_scanner.py",
+      "original_sha256": "413eb57bcc17750de5f4af505b7ba265a2f66c90284041c50c6d57aa911f24a6",
+      "archive": "docs/archive/audit-engines/plugins__ux_dark_pattern_scanner.py.txt",
+      "bytes": 837,
+      "archive_matches_baseline": true
+    },
+    {
+      "path": "auditor_toolkit/network.py",
+      "original_sha256": "dce22bd5cb006fef085c027a3007d78bf471a6550e511eba4d803b59a601f801",
+      "archive": "docs/archive/audit-engines/auditor_toolkit__network.py.txt",
+      "bytes": 9673,
+      "archive_matches_baseline": true
+    },
+    {
+      "path": "plugins/dns_email_validator.py",
+      "original_sha256": "a3a57f15f10be77437c7a401b954cb2fe76725421bd6ae9ba40f4904ce0e8202",
+      "archive": "docs/archive/audit-engines/plugins__dns_email_validator.py.txt",
+      "bytes": 827,
+      "archive_matches_baseline": true
+    },
+    {
+      "path": "pyproject.toml",
+      "original_sha256": "6276f6b61c607ee5b5d4bd6395ceb746a0ff867103ae8035209bcae7619816b8",
+      "archive": "docs/archive/audit-engines/pyproject.toml.txt",
+      "bytes": 1756,
+      "archive_matches_baseline": true
+    },
+    {
+      "path": "money-machine/mm",
+      "original_sha256": "4eea49468949be3563c380cfd12e0c620b189b0eb7791f6f361b590b2937d161",
+      "archive": "docs/archive/audit-engines/money-machine__mm.txt",
+      "bytes": 1183,
+      "archive_matches_baseline": true
+    },
+    {
+      "path": "auditor_toolkit/cli.py",
+      "archive": "docs/archive/audit-engines/auditor_toolkit__cli.py.txt",
+      "original_sha256": "6a7bded32867a948046c63ae6f0c1aef78426fdaf4dab402587352f6cf9ae5a2"
+    },
+    {
+      "path": "auditor_toolkit/reporting.py",
+      "archive": "docs/archive/audit-engines/auditor_toolkit__reporting.py.txt",
+      "original_sha256": "175823cd21cc1430f40ef9affb3c25b41279548f8a72185ddee4306441b8ca21"
+    },
+    {
+      "path": "auditor_toolkit/storage.py",
+      "archive": "docs/archive/audit-engines/auditor_toolkit__storage.py.txt",
+      "original_sha256": "103526647b183d4f64554bcd4601afac44067d7b61a4ccfd2a47b2dd3454a375"
+    }
+  ],
+  "canonical_source_changed": false,
+  "legacy_import_library_parity_proven": false,
+  "expanded_at_utc": "2026-10-03T00:13:36.597561+00:00"
+}

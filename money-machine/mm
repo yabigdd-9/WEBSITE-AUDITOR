@@ -20,4 +20,12 @@ if [ "${1:-}" = '--runtime' ]; then
     exec "$MM_PYTHON" -c 'import json,os,pathlib,sys; print(json.dumps({"project":"WEBSITES/BUISNESSaudits","workspace":str(pathlib.Path(os.environ.get("MM_ROOT",sys.argv[1])).resolve()),"python":sys.executable}))' "$MM_COMMAND_DIR/.."
 fi
 if [ "$#" -eq 0 ]; then set -- --help; fi
+if [ "${1:-}" = 'toolkit' ]; then
+    shift
+    if [ "${1:-}" = 'advanced' ]; then
+        shift
+        exec "$MM_PYTHON" -B -c 'import sys; sys.path.insert(0,sys.argv.pop(1)); from auditor_toolkit.advanced import main; sys.exit(main())' "$MM_COMMAND_DIR/.." "$@"
+    fi
+    exec "$MM_PYTHON" -B -c 'import sys; sys.path.insert(0,sys.argv.pop(1)); from auditor_toolkit.cli import main; sys.exit(main())' "$MM_COMMAND_DIR/.." "$@"
+fi
 exec "$MM_PYTHON" "$MM_COMMAND_DIR/mm_operator.py" "$@"

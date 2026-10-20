@@ -41,6 +41,8 @@ LOG_DIR = STATE / "worker-logs"
 SUPERVISOR_LOG = LOG_DIR / "supervisor.jsonl"
 HEARTBEAT = STATE / "supervisor.heartbeat"
 LEASE_SECONDS = 300
+OPERATOR_EXPORT_INTERVAL = 60.0
+OPERATOR_EXPORT_TIMEOUT = 20.0
 
 from supervisor.daemon import rotate_logs  # noqa: E402
 from supervisor.pid import PIDFile  # noqa: E402
@@ -88,10 +90,9 @@ def _is_running() -> int | None:
 
 
 def _log(record: dict) -> None:
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    from supervisor.logrotate import append_jsonl
     record = {"at": now(), **record}
-    with open(SUPERVISOR_LOG, "a") as f:
-        f.write(json.dumps(record, default=str) + "\n")
+    append_jsonl(SUPERVISOR_LOG, record)
 
 
 def _heartbeat(pid: int, status: str) -> None:
@@ -196,6 +197,48 @@ def _rotate_and_report() -> None:
         _log({"kind": "logrotate_error", "error": str(ex)})
 
 
+def _export_operator_view(stop_requested=None) -> None:
+    """Run one owned, bounded export; failure cannot stop worker processing."""
+    record = None
+    child = None
+    try:
+        child = subprocess.Popen(
+            [sys.executable, str(REPO_ROOT / "money-machine/mm_operator_export.py"), "--once",
+             "--parent-pid", str(os.getpid())],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+        )
+        deadline = time.monotonic() + OPERATOR_EXPORT_TIMEOUT
+        while True:
+            if stop_requested is not None and stop_requested():
+                child.kill()
+                child.communicate()
+                break
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                child.kill()
+                child.communicate()
+                record = {"kind": "operator_export_timeout", "limit_seconds": OPERATOR_EXPORT_TIMEOUT}
+                break
+            try:
+                child.communicate(timeout=min(0.25, remaining))
+                if child.returncode:
+                    record = {"kind": "operator_export_error", "returncode": child.returncode}
+                break
+            except subprocess.TimeoutExpired:
+                continue
+    except Exception as error:
+        record = {"kind": "operator_export_error", "error_type": type(error).__name__}
+    finally:
+        if child is not None and child.poll() is None:
+            child.kill()
+            child.communicate()
+    if record is not None:
+        try:
+            _log(record)
+        except Exception:
+            print("operator export diagnostic could not be saved", file=sys.stderr)
+
+
 def cmd_run_foreground(args) -> int:
     """Run the supervisor loop in the foreground (used by start / tests)."""
     import mm_pipeline
@@ -217,6 +260,14 @@ def cmd_run_foreground(args) -> int:
     _heartbeat(pid, "running")
     _log({"kind": "supervisor_start", "pid": pid, "workers": [w.worker_id for w in workers]})
     cycles = 0
+    next_export_at = 0.0
+
+    def maybe_export():
+        nonlocal next_export_at
+        at = time.monotonic()
+        if at >= next_export_at:
+            next_export_at = at + OPERATOR_EXPORT_INTERVAL
+            _export_operator_view(stop_requested=lambda: stop["flag"])
     try:
         db_path = root() / "database" / "money_machine.db"
         db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -229,6 +280,7 @@ def cmd_run_foreground(args) -> int:
                     cycles += 1
                     _heartbeat(pid, "paused_low_disk")
                     _log({"kind": "runtime_guard", "cycle": cycles, "disk": disk, "action": "pause_new_work"})
+                    maybe_export()
                     time.sleep(min(max(sleep_seconds, 1), 60))
                     continue
                 if cycles == 0 or cycles % 60 == 0:
@@ -245,6 +297,7 @@ def cmd_run_foreground(args) -> int:
                 cycles += 1
                 _heartbeat(pid, "running")
                 _log({"kind": "loop_cycle", "cycle": cycles, "snapshot": snapshot, "disk": disk})
+                maybe_export()
                 if cycles % rotate_every == 0:
                     net_result, net_kind = network_guard_event()
                     if net_kind:

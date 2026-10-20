@@ -1,12 +1,24 @@
-from bs4 import BeautifulSoup
+"""Compatibility adapter to canonical image markup evidence; no separate score."""
 
-def audit_image_performance(html_content):
-    soup = BeautifulSoup(html_content, 'html.parser')
-    images = soup.find_all('img')
-    if not images: return {"score": 100, "issues": []}
-        
-    missing_lazy = sum(1 for img in images if img.get('loading', '').lower() != 'lazy')
-    missing_srcset = sum(1 for img in images if not img.has_attr('srcset') and img.parent.name != 'picture')
-    legacy_formats = sum(1 for img in images if img.get('src', '').lower().endswith(('.png', '.jpg', '.jpeg')))
+from dataclasses import asdict
 
-    return {"total_images": len(images), "missing_lazy_load": missing_lazy, "missing_responsive_srcset": missing_srcset, "legacy_formats_count": legacy_formats, "optimization_score": max(0, 100 - ((legacy_formats / len(images)) * 50))}
+
+def audit_image_performance(html_content, url=""):
+    from auditor_toolkit.images import analyse_html
+
+    findings, evidence = analyse_html(html_content, url, {})
+    return {
+        **evidence,
+        "findings": [asdict(finding) for finding in findings],
+        "legacy_compatibility": {
+            "format_version": 2,
+            "retired_fields": [
+                "score",
+                "optimization_score",
+                "missing_lazy_load",
+                "missing_responsive_srcset",
+                "legacy_formats_count",
+            ],
+            "reason": "Old arithmetic and missing-lazy counts did not measure performance or establish defects.",
+        },
+    }

@@ -1,37 +1,14 @@
+"""Legacy page-builder/cache/CDN view over canonical passive evidence."""
 
-"""
-Tech Fingerprinting: Detects CMS, Page Builders, Caching, and CDNs.
-"""
-import re
-
-SIGNATURES = {
-    "page_builder": {
-        "Elementor": ["elementor", "elementor-front", "elementor-widget"],
-        "Divi": ["et_pb_section", "divi", "et_builder"],
-        "WPBakery": ["vc_row", "wpb_row", "js_composer"],
-        "Bricks": ["bricks-page", "brxe-"],
-    },
-    "caching": {
-        "WP Rocket": ["wp-rocket", "rocket-loader"],
-        "LiteSpeed": ["litespeed", "lscache"],
-        "W3 Total Cache": ["w3tc", "w3-total-cache"],
-    },
-    "cdn": {
-        "Cloudflare": ["cf-ray", "cloudflare", "cf-cache-status"],
-        "Fastly": ["fastly", "x-served-by: cache-"],
-        "AWS CloudFront": ["x-amz-cf-id", "cloudfront.net"],
-    }
-}
 
 def fingerprint(headers, html_source):
+    from auditor_toolkit.technology.observations import observe_technologies
+
     found = {"page_builder": [], "caching": [], "cdn": []}
-    html_lower = (html_source or "").lower()
-    headers_str = str(headers or {}).lower()
-    
-    for category, tools in SIGNATURES.items():
-        for tool_name, sigs in tools.items():
-            for sig in sigs:
-                if sig.lower() in html_lower or sig.lower() in headers_str:
-                    found[category].append(tool_name)
-                    break
-    return {k: list(set(v)) for k, v in found.items()}
+    for row in observe_technologies(html_source or "", headers or {}):
+        if row["category"] not in found:
+            continue
+        name = "AWS CloudFront" if row["name"] == "CloudFront" else row["name"]
+        if name not in found[row["category"]]:
+            found[row["category"]].append(name)
+    return found

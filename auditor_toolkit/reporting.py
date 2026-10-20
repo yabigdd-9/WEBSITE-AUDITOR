@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from .common import atomic_write_text
+from .comparison import render_history_svg
 
 
 def render_html_report(report: dict[str, Any]) -> str:
@@ -43,6 +44,14 @@ def render_html_report(report: dict[str, Any]) -> str:
         f"({html.escape(str(item.get('sha256', ''))[:16])}…)</li>"
         for name, item in visual.get("viewports", {}).items()
     ) or "<li>No rendered visual pack; enable the rendered profile.</li>"
+    trend = report.get("history_trend")
+    history_chart = (
+        render_history_svg(trend)
+        + "<p>Series basis: " + html.escape(str(trend.get("basis_run_id")))
+        + ". " + html.escape(str(trend.get("limitation"))) + "</p>"
+        + "<pre>" + html.escape(json.dumps(trend.get("summary", {}), indent=2)) + "</pre>"
+        if trend else "<p>No recorded time series attached.</p>"
+    )
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -67,6 +76,7 @@ th,td {{ border-bottom: 1px solid #e6eef6; padding: .55rem; text-align: left; ve
 <pre>{html.escape(json.dumps(report.get("checks", {}), indent=2))}</pre>
 <h2>Category scores</h2><pre>{html.escape(json.dumps(report.get("category_scores", {}), indent=2))}</pre>
 <h2>Historical comparison</h2><pre>{html.escape(json.dumps(report.get("comparison", {}), indent=2))}</pre>
+<h2>Recorded health over time</h2>{history_chart}
 <h2>Evidence</h2><pre style="white-space:pre-wrap;overflow-wrap:anywhere">{html.escape(json.dumps(report.get("evidence", {}), indent=2, ensure_ascii=False))}</pre>
 <h2>Drafts for review</h2><pre style="white-space:pre-wrap">{html.escape(json.dumps(report.get("drafts", {}), indent=2, ensure_ascii=False))}</pre>
 <h2>Proposal Inputs</h2><pre>{html.escape(json.dumps(report.get("proposal", {}), indent=2))}</pre>
@@ -76,6 +86,8 @@ th,td {{ border-bottom: 1px solid #e6eef6; padding: .55rem; text-align: left; ve
 
 
 def render_trend_svg(report: dict[str, Any]) -> str:
+    if "history_trend" in report:
+        return render_history_svg(report["history_trend"])
     health = report.get("health_score")
     if health is None:
         return '<svg xmlns="http://www.w3.org/2000/svg" width="220" height="40"><text x="10" y="25">Health unavailable — partial audit</text></svg>'
@@ -84,7 +96,7 @@ def render_trend_svg(report: dict[str, Any]) -> str:
         '<svg xmlns="http://www.w3.org/2000/svg" width="220" height="40">'
         '<rect width="200" height="12" x="10" y="14" fill="#d9e2ec"/>'
         f'<rect width="{width}" height="12" x="10" y="14" fill="#0f766e"/>'
-        f'<text x="10" y="38" font-size="10">Health {health}</text></svg>\n'
+        f'<text x="10" y="38" font-size="10">Current health {health}; no history series</text></svg>\n'
     )
 
 
