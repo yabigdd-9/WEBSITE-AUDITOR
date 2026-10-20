@@ -198,3 +198,64 @@ def test_restore_command_does_not_connect_to_live_database(tmp_path, monkeypatch
         "restore-check", "--bundle", str(tmp_path / "absent")
     ]) == 2
     assert json.loads(capsys.readouterr().out)["status"] == "RESTORE_CHECK_BLOCKED"
+
+
+def test_deploy_gates_run_distinct_unit_and_integration_suites(tmp_path, monkeypatch):
+    import mm_approval
+
+    monkeypatch.setattr(mm_deploy, "root", lambda: tmp_path)
+    monkeypatch.setattr(mm_deploy, "backup", lambda _: tmp_path / "synthetic-backup")
+    monkeypatch.setattr(mm_deploy, "_record", lambda _: None)
+    monkeypatch.setattr(mm_deploy, "log", lambda _: None)
+    monkeypatch.setattr(mm_pipeline, "migrate", lambda _: None)
+    monkeypatch.setattr(mm_approval, "migrate", lambda _: None)
+    executed = []
+
+    def fake_run(cmd, cwd, timeout=120):
+        if cmd[:3] == ["python", "-m", "unittest"]:
+            executed.append(cmd[3:])
+            if "test_email_integration" in cmd:
+                return 1, "", "synthetic integration failure"
+            return 0, "synthetic unit pass", ""
+        if cmd[:3] == ["git", "rev-parse", "HEAD"]:
+            return 0, "known-sha\n", ""
+        return 0, "", ""
+
+    monkeypatch.setattr(mm_deploy, "_run", fake_run)
+    with sqlite3.connect(":memory:") as db:
+        result = mm_deploy.deploy(
+            db,
+            "python",
+            ["test_polish", "test_acceptance", "test_email_integration", "test_pipeline"],
+            candidate="synthetic",
+        )
+
+    assert executed == [
+        ["test_polish"],
+        ["test_acceptance", "test_email_integration", "test_pipeline"],
+    ]
+    assert result["status"] == "DEPLOYMENT_FAILED"
+    assert result["gates"]["unit_tests"]["passed"] is True
+    assert result["gates"]["integration_tests"]["passed"] is False
+    assert "integration_tests" in result["failed_gates"]
+
+
+def test_deploy_rejects_missing_independent_integration_suite(tmp_path, monkeypatch):
+    import mm_approval
+
+    monkeypatch.setattr(mm_deploy, "root", lambda: tmp_path)
+    monkeypatch.setattr(mm_deploy, "backup", lambda _: tmp_path / "synthetic-backup")
+    monkeypatch.setattr(mm_deploy, "_record", lambda _: None)
+    monkeypatch.setattr(mm_deploy, "log", lambda _: None)
+    monkeypatch.setattr(mm_pipeline, "migrate", lambda _: None)
+    monkeypatch.setattr(mm_approval, "migrate", lambda _: None)
+    monkeypatch.setattr(
+        mm_deploy, "_run", lambda *args, **kwargs: (0, "known-sha\n", "")
+    )
+    with sqlite3.connect(":memory:") as db:
+        result = mm_deploy.deploy(db, "python", ["test_polish"], candidate="synthetic")
+
+    assert result["status"] == "DEPLOYMENT_FAILED"
+    assert result["gates"]["unit_tests"]["passed"] is True
+    assert result["gates"]["integration_tests"]["passed"] is False
+    assert result["gates"]["integration_tests"]["modules"] == []
