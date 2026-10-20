@@ -12,6 +12,14 @@ import sqlite3
 import sys
 import tempfile
 import time
+
+# This executable is also invoked directly from launchd and isolated test
+# working directories.  Python initially adds only money-machine/ to sys.path;
+# include the repository root so canonical auditor_toolkit imports resolve.
+_REPOSITORY_ROOT = str(Path(__file__).resolve().parent.parent)
+if _REPOSITORY_ROOT not in sys.path:
+    sys.path.insert(0, _REPOSITORY_ROOT)
+
 from mm_core import *
 from mm_intelligence import *
 # Keep the CLI's parser dependencies explicit.  The wildcard import above is
