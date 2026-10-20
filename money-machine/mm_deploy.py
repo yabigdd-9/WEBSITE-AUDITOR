@@ -121,6 +121,108 @@ def deploy(d, python, test_modules, candidate=None):
     return _post_deploy(d, entry, gates)
 
 
+def verify_backup_restore(bundle):
+    """Verify a backup in a disposable copy, never against the live database.
+
+    A path is mandatory: this helper cannot select production databases or
+    discover credentials. It verifies every existing backup-manifest checksum,
+    refuses symlinks/manifest path escapes, then opens only an isolated SQLite
+    clone as immutable/read-only. This is a staging *readiness check*, not a
+    production rollback, and deliberately extracts no .tgz archives.
+    """
+    import hashlib
+    import shutil
+    import sqlite3
+    import tempfile
+    from urllib.parse import quote
+
+    def blocked(reason):
+        return {
+            'status': 'RESTORE_CHECK_BLOCKED',
+            'reason': reason,
+            'staging_only': True,
+            'source_modified': False,
+            'live_restore_performed': False,
+        }
+
+    try:
+        folder = Path(bundle).resolve(strict=True)
+        if not folder.is_dir():
+            return blocked('not_a_backup_directory')
+        manifest = folder / 'manifest.json'
+        database = folder / 'money_machine.db'
+        if manifest.is_symlink() or not manifest.is_file():
+            return blocked('manifest_missing_or_symlink')
+        if manifest.stat().st_size > 1_000_000:
+            return blocked('manifest_exceeds_limit')
+        payload = json.loads(manifest.read_text(encoding='utf-8'))
+        items = payload.get('items')
+        if not isinstance(items, list) or not items:
+            return blocked('manifest_items_missing')
+        matches = 0
+        for entry in items:
+            if not isinstance(entry, dict):
+                return blocked('malformed_manifest_entry')
+            raw_path = entry.get('path')
+            expected = entry.get('sha256')
+            if not isinstance(raw_path, str) or not isinstance(expected, str):
+                return blocked('malformed_manifest_entry')
+            if len(expected) != 64 or any(
+                char not in '0123456789abcdef' for char in expected
+            ):
+                return blocked('invalid_checksum')
+            candidate = Path(raw_path)
+            if not candidate.is_absolute():
+                candidate = folder / candidate
+            if candidate.is_symlink() or candidate.resolve() != folder / candidate.name:
+                return blocked('manifest_path_escape')
+            if not candidate.is_file():
+                return blocked('backup_file_missing')
+            digest = hashlib.sha256()
+            with candidate.open('rb') as src:
+                for chunk in iter(lambda: src.read(1024 * 1024), b''):
+                    digest.update(chunk)
+            if digest.hexdigest() != expected:
+                return blocked('backup_checksum_mismatch')
+            if candidate == database:
+                matches += 1
+        if matches != 1 or not database.is_file() or database.is_symlink():
+            return blocked('database_snapshot_missing_or_ambiguous')
+
+        with tempfile.TemporaryDirectory(prefix='mm-restore-check-') as scratch:
+            clone = Path(scratch) / 'restored.db'
+            shutil.copyfile(database, clone)
+            if hashlib.sha256(clone.read_bytes()).digest() != hashlib.sha256(
+                database.read_bytes()
+            ).digest():
+                return blocked('staging_copy_checksum_mismatch')
+            uri = f'file:{quote(str(clone))}?mode=ro&immutable=1'
+            with sqlite3.connect(uri, uri=True) as d:
+                integrity = d.execute('PRAGMA integrity_check').fetchone()
+                fk_violation = d.execute('PRAGMA foreign_key_check').fetchone()
+                tables = d.execute(
+                    "SELECT count(*) FROM sqlite_master WHERE type='table'"
+                ).fetchone()[0]
+            if integrity is None or integrity[0] != 'ok':
+                return blocked('staging_integrity_failed')
+            if fk_violation is not None:
+                return blocked('staging_foreign_keys_failed')
+            if tables < 1:
+                return blocked('staging_schema_missing')
+        return {
+            'status': 'VERIFIED_STAGING_RESTORE',
+            'verified_manifest_items': len(items),
+            'sqlite_integrity': 'ok',
+            'foreign_key_violations': 0,
+            'tables_observed': tables,
+            'staging_only': True,
+            'source_modified': False,
+            'live_restore_performed': False,
+        }
+    except (OSError, ValueError, TypeError, sqlite3.DatabaseError, KeyError):
+        return blocked('restore_validation_unavailable')
+
+
 def _post_deploy(d, entry, gates):
     """Verify local release gates; never claim deployment or rollback occurred.
 
