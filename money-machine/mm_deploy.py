@@ -9,8 +9,8 @@ Rules:
   * Every gate must pass or the deployment stops. Fail-closed.
   * A rollback point (verified DB backup + recorded git HEAD) is created first.
   * Secrets are never printed: credential checks report PRESENT/MISSING only.
-  * Post-deploy checks run immediately; critical failure triggers rollback
-    when a safe rollback point exists.
+  * Post-check failures block release and require operator recovery review.
+    No rollback, code deployment or release authorization occurs in this helper.
 """
 import json
 import subprocess
@@ -79,11 +79,32 @@ def deploy(d, python, test_modules, candidate=None):
         'passed': st[0] == 0, 'dirty_paths': len(dirty),
         'note': 'dirty paths preserved untouched' if dirty else 'clean'}
 
-    tcmd = [python, '-m', 'unittest'] + list(test_modules)
-    trc, tout, terr = _run(tcmd, r / 'money-machine', timeout=600)
-    ok = trc == 0
-    gates['unit_tests'] = {'passed': ok, 'tail': (terr or tout)[-400:]}
-    gates['integration_tests'] = dict(gates['unit_tests'])  # same suite is both
+    # Explicitly separate suites: copying the unit result into integration
+    # falsely claimed two distinct validations. No empty suite may pass.
+    integration_names = frozenset({
+        'test_acceptance', 'test_email_integration', 'test_pipeline',
+    })
+    units = [name for name in test_modules if name not in integration_names]
+    integrations = [name for name in test_modules if name in integration_names]
+    for gate, modules in (
+        ('unit_tests', units),
+        ('integration_tests', integrations),
+    ):
+        if not modules:
+            gates[gate] = {
+                'passed': False, 'modules': [],
+                'reason': 'No independent test modules selected',
+            }
+            continue
+        rc, stdout, stderr = _run(
+            [python, '-m', 'unittest', *modules],
+            r / 'money-machine', timeout=600,
+        )
+        gates[gate] = {
+            'passed': rc == 0,
+            'modules': modules,
+            'tail': (stderr or stdout)[-400:],
+        }
 
     lrc, lout, lerr = _run([python, '-m', 'compileall', '-q', 'money-machine'],
                            r, timeout=120)
