@@ -346,6 +346,7 @@ def main(argv=None):
     q=s.add_parser('challenger-eval');q.add_argument('--golden',required=True);q.add_argument('--baseline',required=True);q.add_argument('--challenger',required=True);q.add_argument('--min-improvement',type=float,default=0.01)
     q=s.add_parser('model-plan');q.add_argument('--purpose',required=True)
     q=s.add_parser('deploy-check');q.add_argument('--candidate');q.add_argument('--execute',action='store_true')
+    q=s.add_parser('restore-check');q.add_argument('--bundle',required=True,help='Explicit checksummed backup directory; verify in isolated staging only')
     s.add_parser('bottlenecks')
     q=s.add_parser('schedule');q.add_argument('--limit',type=int,default=10)
     q=s.add_parser('brain');q.add_argument('action',nargs='?',choices=['explain','next','health'],default='explain');q.add_argument('--limit',type=int,default=10)
@@ -379,6 +380,11 @@ def main(argv=None):
     q=s.add_parser('safe-mode');q.add_argument('action',choices=['on','off','status'])
     a=p.parse_args(argv)
 
+    if a.cmd=='restore-check':
+        import mm_deploy
+        result=mm_deploy.verify_backup_restore(a.bundle)
+        print(json.dumps(result,indent=2,default=str))
+        return 0 if result['status']=='VERIFIED_STAGING_RESTORE' else 2
     if a.cmd=='dead-letter':
         if getattr(a,'dead_letter_action',None)=='resolve':
             result=cmd_dead_letter_resolve(a.reason)
