@@ -13,8 +13,8 @@ Rules:
     when a safe rollback point exists.
 """
 import json
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
 from mm_core import backup, now, root
 from mm_pipeline import log
@@ -74,7 +74,7 @@ def deploy(d, python, test_modules, candidate=None):
         gates['create_rollback_point'] = {'passed': False, 'error': str(ex)[:200]}
 
     st = _run(['git', 'status', '--porcelain'], r)
-    dirty = [l for l in st[1].splitlines() if l.strip()]
+    dirty = [line for line in st[1].splitlines() if line.strip()]
     gates['git_state_clean_or_preserved'] = {
         'passed': st[0] == 0, 'dirty_paths': len(dirty),
         'note': 'dirty paths preserved untouched' if dirty else 'clean'}
@@ -96,7 +96,8 @@ def deploy(d, python, test_modules, candidate=None):
         'note': 'presence only; contents never read or logged'}
 
     try:
-        import mm_pipeline, mm_approval
+        import mm_approval
+        import mm_pipeline
         mm_pipeline.migrate(d)
         mm_approval.migrate(d)
         gates['database_migration_verified'] = {'passed': True}
