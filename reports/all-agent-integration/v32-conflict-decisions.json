@@ -1,0 +1,62 @@
+[
+  {
+    "file": "auditor_toolkit/pipeline.py",
+    "reason": "Retain helper imports without duplicate executor"
+  },
+  {
+    "file": "auditor_toolkit/pipeline.py",
+    "reason": "Retain current guarded implementation over older overlapping variant"
+  },
+  {
+    "file": "docs/RUNBOOK.md",
+    "reason": "Retain current guarded implementation over older overlapping variant"
+  },
+  {
+    "file": "docs/RUNBOOK.md",
+    "reason": "Retain current guarded implementation over older overlapping variant"
+  },
+  {
+    "file": "money-machine/mm_core.py",
+    "reason": "Retain outcome ledger and add draft table"
+  },
+  {
+    "file": "money-machine/mm_intelligence.py",
+    "reason": "Retain current guarded implementation over older overlapping variant"
+  },
+  {
+    "file": "money-machine/mm_operator.py",
+    "reason": "Remove Docker from diagnostic inventory"
+  },
+  {
+    "file": "money-machine/mm_pipeline.py",
+    "reason": "Retain current guarded implementation over older overlapping variant"
+  },
+  {
+    "file": "money-machine/mm_workers.py",
+    "reason": "Keep dependencies of both worker implementations"
+  },
+  {
+    "file": "money-machine/mm_workers.py",
+    "reason": "Retain current guarded implementation over older overlapping variant"
+  },
+  {
+    "file": "money-machine/scripts/fcc-bridge.py",
+    "reason": "Retain loopback configuration and no authentication override"
+  },
+  {
+    "file": "money-machine/supervisor/launchd.py",
+    "reason": "Retain current guarded implementation over older overlapping variant"
+  },
+  {
+    "file": "money-machine/test_acceptance.py",
+    "reason": "Retain current guarded implementation over older overlapping variant"
+  },
+  {
+    "file": "money-machine/test_acceptance.py",
+    "reason": "Retain current guarded implementation over older overlapping variant"
+  },
+  {
+    "file": "money-machine/test_acceptance.py",
+    "reason": "Retain current guarded implementation over older overlapping variant"
+  }
+]

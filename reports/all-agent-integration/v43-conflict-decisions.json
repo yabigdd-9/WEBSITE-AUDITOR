@@ -1,0 +1,74 @@
+[
+  {
+    "file": "CURRENT_STATE.md",
+    "reason": "Keep current status/API and approval safety"
+  },
+  {
+    "file": "CURRENT_STATE.md",
+    "reason": "Keep current status/API and approval safety"
+  },
+  {
+    "file": "README.md",
+    "reason": "Keep current status/API and approval safety"
+  },
+  {
+    "file": "README.md",
+    "reason": "Keep current status/API and approval safety"
+  },
+  {
+    "file": "auditor_toolkit/flows.py",
+    "reason": "Include same-origin and read-only request policy"
+  },
+  {
+    "file": "auditor_toolkit/flows.py",
+    "reason": "Include same-origin and read-only request policy"
+  },
+  {
+    "file": "auditor_toolkit/flows.py",
+    "reason": "Include same-origin and read-only request policy"
+  },
+  {
+    "file": "auditor_toolkit/flows.py",
+    "reason": "Preserve supported Playwright fill API and status argument"
+  },
+  {
+    "file": "auditor_toolkit/flows.py",
+    "reason": "Preserve supported Playwright fill API and status argument"
+  },
+  {
+    "file": "auditor_toolkit/flows.py",
+    "reason": "Preserve supported Playwright fill API and status argument"
+  },
+  {
+    "file": "auditor_toolkit/flows.py",
+    "reason": "Add conversion metric while retaining explicit error status"
+  },
+  {
+    "file": "auditor_toolkit/pipeline.py",
+    "reason": "Record flow errors explicitly and retain findings for failed probes"
+  },
+  {
+    "file": "money-machine/mm_outcomes.py",
+    "reason": "Keep both outcome aggregation surfaces"
+  },
+  {
+    "file": "nightly_watchdog.py",
+    "reason": "Include bounded canonical monitoring and independent safety regression coverage"
+  },
+  {
+    "file": "toolkit_tests/test_flow_e2e.py",
+    "reason": "Include bounded canonical monitoring and independent safety regression coverage"
+  },
+  {
+    "file": "toolkit_tests/test_flows.py",
+    "reason": "Include bounded canonical monitoring and independent safety regression coverage"
+  },
+  {
+    "file": "toolkit_tests/test_flows.py",
+    "reason": "Include bounded canonical monitoring and independent safety regression coverage"
+  },
+  {
+    "file": "toolkit_tests/test_flows.py",
+    "reason": "Include bounded canonical monitoring and independent safety regression coverage"
+  }
+]

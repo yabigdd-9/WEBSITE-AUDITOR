@@ -1,0 +1,263 @@
+diff --git a/approval/APPROVAL_QUEUE.yaml b/approval/APPROVAL_QUEUE.yaml
+index 313d689c..0164df10 100644
+--- a/approval/APPROVAL_QUEUE.yaml
++++ b/approval/APPROVAL_QUEUE.yaml
+@@ -88,6 +88,16 @@ requires_dion_approval:
+   current_state: 5 of 9 prospects permitted (clyne-bennie, jcconstruction, tbir, prodecorators, davidrobertson);
+     4 of 9 have no published email (NO_EMAIL_PUBLISHED) and route to phone/post — these cannot be emailed
+     by design. Gate check against prospect_dossier.json confirms 5 PERMITTED, 4 BLOCKED (no address).
++- id: APR-RELIABILITY-SYNTHETIC-20261015
++  type: synthetic_review_packet
++  engine: WEBSITE-AUDITOR reliability staging
++  description: Review the synthetic loopback audit, demo concept and exact draft.
++  status: NOT_SENT_AWAITING_APPROVAL
++  synthetic: true
++  human_approved: false
++  send_enabled: false
++  recipient: null
++  detail_ref: reports/reliability-review/sample/packet/APPROVAL_PACKET.md
+ autonomous_no_approval_needed:
+ - prospect research from public sources
+ - opportunity scoring
+diff --git a/money-machine/mm_pipeline.py b/money-machine/mm_pipeline.py
+index bbe9658f..5dc7302b 100644
+--- a/money-machine/mm_pipeline.py
++++ b/money-machine/mm_pipeline.py
+@@ -229,6 +229,10 @@ class BlockedCostError(Exception):
+     """No free model/provider route: defer, never fall back to paid."""
+ 
+ 
++class LeaseLostError(ValueError):
++    """An expired or replaced lease cannot author a worker outcome."""
++
++
+ # Public compatibility name used by model routers and injected handlers.
+ BlockedCost = BlockedCostError
+ 
+@@ -302,14 +306,17 @@ def heartbeat(d, worker_id, business_id=None):
+ 
+ def claim(d, states, worker_id, lease_seconds=300, limit=1):
+     """Claim up to `limit` items in `states`. Expired leases are recoverable."""
++    if not states or limit <= 0:
++        return []
+     at = dt.datetime.now(dt.timezone.utc)
+     until = (at + dt.timedelta(seconds=lease_seconds)).isoformat()
+     marks = ','.join('?' * len(states))
+     rows = d.execute(
+         "SELECT * FROM pipeline_items WHERE state IN (%s) "
+         "AND (next_retry_at IS NULL OR next_retry_at<=?) "
++        "AND (lease_until IS NULL OR lease_until<=?) "
+         "ORDER BY updated_at LIMIT ?" % marks,
+-        tuple(states) + (at.isoformat(), limit)).fetchall()
++        tuple(states) + (at.isoformat(), at.isoformat(), limit)).fetchall()
+     got = []
+     for r in rows:
+         if r['lease_until'] and timestamp(r['lease_until']) > at:
+@@ -317,8 +324,10 @@ def claim(d, states, worker_id, lease_seconds=300, limit=1):
+         cur = d.execute(
+             "UPDATE pipeline_items SET lease_owner=?,lease_until=?,"
+             "heartbeat_at=?,updated_at=? WHERE business_id=? AND "
+-            "(lease_until IS NULL OR lease_until<=?)",
+-            (worker_id, until, now(), now(), r['business_id'], at.isoformat()))
++            "(lease_until IS NULL OR lease_until<=?) AND state=? "
++            "AND (next_retry_at IS NULL OR next_retry_at<=?)",
++            (worker_id, until, now(), now(), r['business_id'], at.isoformat(),
++             r['state'], at.isoformat()))
+         if cur.rowcount:
+             got.append(item(d, r['business_id']))
+     return got
+@@ -361,11 +370,27 @@ def backoff_seconds(attempts, base=30, cap=3600, jitter=0.2):
+     return delay * (1 + random.uniform(-jitter, jitter))
+ 
+ 
+-def fail(d, business_id, worker_id, error, retryable=True):
++def _require_lease(d, business_id, worker_id, allow_unleased=False):
++    # Obtain the SQLite write lock before checking ownership. A stale result
++    # must not reset another worker's retry budget, release its lease or advance.
++    cur = d.execute(
++        "UPDATE pipeline_items SET heartbeat_at=heartbeat_at WHERE business_id=? "
++        "AND ((lease_owner=? AND lease_until>?) "
++        "OR (? AND lease_owner IS NULL AND lease_until IS NULL))",
++        (business_id, worker_id, now(), int(allow_unleased)))
++    if not cur.rowcount:
++        raise LeaseLostError('Worker lease no longer owned')
++
++
++def fail(d, business_id, worker_id, error, retryable=True, require_lease=False):
+     """Record a failure; schedule retry or dead-letter."""
++    # Preserve the explicit unleased diagnostic API used by operator tooling;
++    # the worker loop always requires its current lease.
++    _require_lease(d, business_id, worker_id, allow_unleased=not require_lease)
+     r = item(d, business_id)
+     attempts = r['attempts'] + 1
+-    msg = str(error)[:500]
++    msg = ('BLOCKED_COST: %s' % error if isinstance(error, BlockedCost)
++           else str(error))[:500]
+ 
+     # Generate error fingerprint and determine component
+     component = getattr(worker_id, 'kind', str(worker_id)) if hasattr(worker_id, 'kind') else str(worker_id)
+@@ -483,11 +508,22 @@ def mark_sent(d, business_id, actor, provider_message_id):
+ 
+ 
+ def complete(d, business_id, worker_id, to_state, reason='ok', evidence=None):
+-    release(d, business_id, worker_id)
+-    d.execute("UPDATE pipeline_items SET attempts=0,next_retry_at=NULL "
+-              "WHERE business_id=?", (business_id,))
+-    metric(d, 'pipeline.items.completed')
+-    return advance(d, business_id, to_state, worker_id, reason, evidence)
++    # Roll back partial state edges and counters when a completion is rejected.
++    # A savepoint preserves unrelated work in the caller's transaction.
++    d.execute('SAVEPOINT pipeline_completion')
++    try:
++        _require_lease(d, business_id, worker_id)
++        advance(d, business_id, to_state, worker_id, reason, evidence)
++        release(d, business_id, worker_id)
++        d.execute("UPDATE pipeline_items SET attempts=0,next_retry_at=NULL "
++                  "WHERE business_id=?", (business_id,))
++        metric(d, 'pipeline.items.completed')
++    except Exception:
++        d.execute('ROLLBACK TO pipeline_completion')
++        d.execute('RELEASE pipeline_completion')
++        raise
++    d.execute('RELEASE pipeline_completion')
++    return item(d, business_id)
+ 
+ 
+ 
+@@ -662,6 +698,14 @@ class Worker:
+         register_worker(d, self.worker_id, kind=','.join(self.states),
+                         lease_seconds=self.lease_seconds)
+         processed = 0
++        def record_failure(bid, error, retryable=True):
++            try:
++                fail(d, bid, self.worker_id, error, retryable=retryable,
++                     require_lease=True)
++            except LeaseLostError:
++                log({'kind': 'lease_lost', 'business_id': bid,
++                     'worker': self.worker_id})
++
+         for it in claim(d, self.states, self.worker_id,
+                         lease_seconds=self.lease_seconds, limit=limit):
+             bid = it['business_id']
+@@ -683,21 +727,26 @@ class Worker:
+                     breaker_success(d, svc)
+                 try:
+                     complete(d, bid, self.worker_id, nxt, reason, evidence)
++                except LeaseLostError:
++                    raise
+                 except Exception as ex:
+                     # A bad handler target must never crash the worker loop:
+                     # record it as a bounded retryable failure instead.
+                     raise classify_unexpected(ex, 'completion rejected: ')
+                 processed += 1
++            except LeaseLostError:
++                log({'kind': 'lease_lost', 'business_id': bid,
++                     'worker': self.worker_id})
+             except BlockedCost as ex:
+                 for svc in self.services:
+                     breaker_failure(d, svc)
+-                fail(d, bid, self.worker_id, 'BLOCKED_COST: %s' % ex)
++                record_failure(bid, ex)
+             except RetryableError as ex:
+                 for svc in self.services:
+                     breaker_failure(d, svc)
+-                fail(d, bid, self.worker_id, ex)
++                record_failure(bid, ex)
+             except PermanentError as ex:
+-                fail(d, bid, self.worker_id, ex, retryable=False)
++                record_failure(bid, ex, retryable=False)
+             heartbeat(d, self.worker_id)
+         return processed
+ 
+diff --git a/money-machine/supervisor/cli.py b/money-machine/supervisor/cli.py
+index 55242976..396efefa 100755
+--- a/money-machine/supervisor/cli.py
++++ b/money-machine/supervisor/cli.py
+@@ -137,7 +137,7 @@ def cmd_health(args) -> dict:
+     read-only connection; here we read the pipeline tables directly and only if
+     they already exist.
+     """
+-    import datetime as dt
++    from mm_queue_health import snapshot as queue_snapshot
+     db_path = root() / "database" / "money_machine.db"
+     if not db_path.is_file():
+         return {
+@@ -156,17 +156,7 @@ def cmd_health(args) -> dict:
+             if "pipeline_items" not in tables:
+                 snap = {"initialised": False, "note": "pipeline tables not created yet"}
+             else:
+-                at = dt.datetime.now(dt.timezone.utc).isoformat()
+-                states = {r[0]: r[1] for r in d.execute(
+-                    "SELECT state,count(*) FROM pipeline_items GROUP BY state")}
+-                leased = d.execute(
+-                    "SELECT count(*) FROM pipeline_items WHERE lease_until IS NOT NULL "
+-                    "AND lease_until>?", (at,)).fetchone()[0]
+-                dead = d.execute(
+-                    "SELECT count(*) FROM pipeline_items WHERE state IN "
+-                    "('RETRYABLE_FAILURE','PERMANENT_FAILURE')").fetchone()[0]
+-                snap = {"initialised": True, "states": states,
+-                        "active_leases": leased, "dead_lettered": dead}
++                snap = queue_snapshot(d)
+         except Exception as ex:
+             snap = {"error": str(ex)}
+     return {
+diff --git a/money-machine/supervisor/daemon.py b/money-machine/supervisor/daemon.py
+index 48b899b5..d159f3fb 100644
+--- a/money-machine/supervisor/daemon.py
++++ b/money-machine/supervisor/daemon.py
+@@ -2,6 +2,7 @@
+ """SupervisorDaemon — PID-lock, graceful shutdown, heartbeat, log rotation."""
+ 
+ import os, signal, time, json, gzip
++import shutil
+ from pathlib import Path
+ from datetime import datetime, timezone
+ 
+@@ -50,14 +51,24 @@ class SupervisorDaemon:
+         }
+ 
+ def rotate_logs(log_dir: Path = LOG_DIR, max_size_mb: int = 50, retention_days: int = 30) -> list[str]:
++    if max_size_mb <= 0 or retention_days <= 0:
++        raise ValueError('Log size and retention limits must be positive')
+     rotated = []
+     if not log_dir.exists():
+         return rotated
+     for f in sorted(log_dir.glob("*.jsonl")):
+-        if f.stat().st_size > max_size_mb * 1024 * 1024:
+-            archive = f.with_suffix(f".jsonl.{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.gz")
++        if f.is_symlink():
++            continue
++        stat = f.stat()
++        if (stat.st_size > max_size_mb * 1024 * 1024
++                or stat.st_mtime < time.time() - retention_days * 86400):
++            archive = f.with_suffix(f".jsonl.{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S_%f')}.gz")
+             with open(f, 'rb') as src, gzip.open(archive, 'wb') as dst:
+-                dst.write(src.read())
++                shutil.copyfileobj(src, dst)
+             f.unlink()
+             rotated.append(str(archive))
++    cutoff = time.time() - retention_days * 86400
++    for archive in log_dir.glob('*.jsonl.*.gz'):
++        if not archive.is_symlink() and archive.stat().st_mtime < cutoff:
++            archive.unlink()
+     return rotated
+diff --git a/money-machine/test_email_hardening.py b/money-machine/test_email_hardening.py
+index d293e843..81f987e5 100644
+--- a/money-machine/test_email_hardening.py
++++ b/money-machine/test_email_hardening.py
+@@ -89,7 +89,14 @@ class HardeningDatabase(unittest.TestCase):
+         with self.assertRaisesRegex(sqlite3.IntegrityError,'replacement blocked'):
+             self.d.execute('INSERT OR REPLACE INTO mm_events VALUES(?,?,?,?,?)',
+                            (event['id'],e.utcnow(),'replaced',self.bid,'tampered'))
+-        score = self.d.execute('SELECT * FROM mm_score_history ORDER BY id LIMIT 1').fetchone()
++        # Archive this test's synthetic score; an empty staging source must not
++        # depend on a historical customer score already being present.
++        self.d.execute('INSERT INTO mm_scores VALUES(?,?,?,?,?)',
++                       (self.bid,self.eid,'{}','{"score":1}',e.utcnow()))
++        self.d.execute('UPDATE mm_scores SET computed_json=? WHERE business_id=?',
++                       ('{"score":2}',self.bid))
++        score = self.d.execute('SELECT * FROM mm_score_history WHERE business_id=? ORDER BY id LIMIT 1',
++                               (self.bid,)).fetchone()
+         with self.assertRaisesRegex(sqlite3.IntegrityError,'replacement blocked'):
+             self.d.execute('INSERT OR REPLACE INTO mm_score_history VALUES(?,?,?,?,?,?,?)',
+                            (score['id'],self.bid,self.eid,'{}','{}',e.utcnow(),e.utcnow()))

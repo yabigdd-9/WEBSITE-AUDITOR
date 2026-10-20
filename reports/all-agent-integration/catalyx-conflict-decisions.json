@@ -1,0 +1,74 @@
+[
+  {
+    "file": ".github/workflows/ci.yml",
+    "reason": "Retain current coverage and safety behavior"
+  },
+  {
+    "file": ".github/workflows/sonarcloud.yml",
+    "reason": "Retain current coverage and safety behavior"
+  },
+  {
+    "file": ".github/workflows/toolkit-tests.yml",
+    "reason": "Cover all source paths in CI triggers"
+  },
+  {
+    "file": ".github/workflows/toolkit-tests.yml",
+    "reason": "Retain current coverage and safety behavior"
+  },
+  {
+    "file": "auditor_toolkit/common.py",
+    "reason": "Combine DNS pinning with decoded-response header correctness"
+  },
+  {
+    "file": "auditor_toolkit/evidence_brief.py",
+    "reason": "Include independent evidence summary generation"
+  },
+  {
+    "file": "auditor_toolkit/pipeline.py",
+    "reason": "Avoid duplicate logger definition"
+  },
+  {
+    "file": "auditor_toolkit/pipeline.py",
+    "reason": "Retain current coverage and safety behavior"
+  },
+  {
+    "file": "auditor_toolkit/storage.py",
+    "reason": "Retain current coverage and safety behavior"
+  },
+  {
+    "file": "pyproject.toml",
+    "reason": "Keep phone parsing and add Catalyx database/crypto dependencies"
+  },
+  {
+    "file": "requirements.txt",
+    "reason": "Retain current coverage and safety behavior"
+  },
+  {
+    "file": "toolkit_tests/test_toolkit.py",
+    "reason": "Retain current coverage and safety behavior"
+  },
+  {
+    "file": "uv.lock",
+    "reason": "Preserve current lock pending regeneration against combined dependencies"
+  },
+  {
+    "file": "website_auditor.egg-info/PKG-INFO",
+    "reason": "Keep generated build metadata untracked"
+  },
+  {
+    "file": "website_auditor.egg-info/SOURCES.txt",
+    "reason": "Keep generated build metadata untracked"
+  },
+  {
+    "file": "website_auditor.egg-info/entry_points.txt",
+    "reason": "Keep generated build metadata untracked"
+  },
+  {
+    "file": "website_auditor.egg-info/requires.txt",
+    "reason": "Keep generated build metadata untracked"
+  },
+  {
+    "file": "website_auditor.egg-info/top_level.txt",
+    "reason": "Keep generated build metadata untracked"
+  }
+]

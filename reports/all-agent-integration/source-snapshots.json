@@ -1,0 +1,2453 @@
+{
+  "primary": {
+    "root": "/Users/dd/WEBSITE-AUDITOR",
+    "head": "1695615263d3e10eaa4e94a98588dcca5d6eaae9",
+    "status": [
+      {
+        "status": " M",
+        "path": "CHANGELOG.md",
+        "sha256": "069521e69bbf0908447ad686380d2cdd8a373a5c483677cab96da00f283a7171"
+      },
+      {
+        "status": " M",
+        "path": "CURRENT_STATE.md",
+        "sha256": "ed94f920f65e3cb08efab2c4b955f432cab1a148cf0a8f56fba7238784d06932"
+      },
+      {
+        "status": " M",
+        "path": "README.md",
+        "sha256": "d1e93cd45706469a39baf0536fac841a2ae30f5d51bd5bca7559bbaa72efd873"
+      },
+      {
+        "status": "M ",
+        "path": "approval/APPROVAL_QUEUE.yaml",
+        "sha256": "aade99c2a499db9f3c83771bf6145e2a008df595ac0d8c9b853609ea63f36b1d"
+      },
+      {
+        "status": "M ",
+        "path": "auditor_toolkit/browser_console.py",
+        "sha256": "48751a47c0cf5664c76a2af8c2a56b1d60021611f2245fdaba23958dbbea6217"
+      },
+      {
+        "status": "M ",
+        "path": "auditor_toolkit/hreflang.py",
+        "sha256": "891cde5de2201ff3d5303de8cd93307574c1ba4e219aca99190b9dda83afadf5"
+      },
+      {
+        "status": " M",
+        "path": "auditor_toolkit/images.py",
+        "sha256": "f3fea6606613b1c7518e2b158b33dec842a2dc4e5ba12f776bb508fe7d932547"
+      },
+      {
+        "status": "M ",
+        "path": "auditor_toolkit/language.py",
+        "sha256": "e4e64e29394294e2de3681c862713a199fdda0ab4fa38560f3ddeacd53dc3071"
+      },
+      {
+        "status": "M ",
+        "path": "auditor_toolkit/pipeline.py",
+        "sha256": "4ffe33499ade3f5e04debdc47033b35778080cd22cb3adcd394601645252fa9a"
+      },
+      {
+        "status": " M",
+        "path": "auditor_toolkit/social_meta.py",
+        "sha256": "a3cf95097e8ba7380d64c0fe55cc78820c2145ea4a036ebf0e4e8af35e3ff224"
+      },
+      {
+        "status": "M ",
+        "path": "auditor_toolkit/storage.py",
+        "sha256": "e1c27a24be1166dc3e74f9c9b4787ee4b8baece95bf8b397b60ca68f78a4414a"
+      },
+      {
+        "status": "M ",
+        "path": "auditor_toolkit/third_party.py",
+        "sha256": "47f8f8ee66c8e9eee977e81bcb62b4e910fd5a1ed1fbf6565110783a5091f9d1"
+      },
+      {
+        "status": "A ",
+        "path": "integrations/CATALYX_GMAIL_BRIDGE.md",
+        "sha256": "68c9f9091261c27c2d2a2ed01c7ba9c622a09a1f0fd4f35ea19cb40ae27fe944"
+      },
+      {
+        "status": "A ",
+        "path": "integrations/catalyx_gmail_bridge.py",
+        "sha256": "4e8b6e41bef6e67a5eb59be8623002de07b10ea488b3eecdb9b8ca74c76bcddb"
+      },
+      {
+        "status": "A ",
+        "path": "integrations/requirements-gmail-bridge.txt",
+        "sha256": "3ea2db26c1b2575e86aedac9b1e218c0f705ef195c1eb5bd1e9eaf7ee2a3c7ee"
+      },
+      {
+        "status": "A ",
+        "path": "ops/hermes_zero_token/EXECUTION_CHAT_LOG.md",
+        "sha256": "9368d9117906655edcbc1dce7f0cc8bc931e70138f26c756183f7d3f7bd8a09e"
+      },
+      {
+        "status": "A ",
+        "path": "ops/hermes_zero_token/P0_P1_COMPLETION.md",
+        "sha256": "b3aea5a170288f6ab33c76d14266cb80d49cd7daa827bec05cc95ff78ccfd5e8"
+      },
+      {
+        "status": "A ",
+        "path": "ops/hermes_zero_token/baseline.json",
+        "sha256": "1471cd51c7f19734976c726f8fa042f17b0103c3e4f07145b17d797a6c753ec5"
+      },
+      {
+        "status": "A ",
+        "path": "ops/hermes_zero_token/daily_report.py",
+        "sha256": "4d42d77c0817d7b0bb0afaad2dcb4308e25cf9dd9bdb55cc1230424bccbed6e6"
+      },
+      {
+        "status": "A ",
+        "path": "ops/hermes_zero_token/demo_blueprint.py",
+        "sha256": "6f1e968a45e28952245871f61e07aef1a826a2c8d737530d58754199a53a96b4"
+      },
+      {
+        "status": "A ",
+        "path": "ops/hermes_zero_token/inventory.md",
+        "sha256": "9ba9de851480f83413fae3c04071598b36583a310bef0978a655d7ffa7693dde"
+      },
+      {
+        "status": "A ",
+        "path": "ops/hermes_zero_token/outreach_draft.py",
+        "sha256": "a77a87e8a52ee64cc35877f386bb84d1a35b0e4c1d154fb0340f338a0ba7460e"
+      },
+      {
+        "status": "AM",
+        "path": "ops/hermes_zero_token/runner.py",
+        "sha256": "a96384d90690d0519b5e43fc2759e081f74e2c9bd4edf01cdbf8e80610077574"
+      },
+      {
+        "status": "A ",
+        "path": "ops/hermes_zero_token/screenshot_worker.py",
+        "sha256": "6b9a715d1b1dfd7b1cb5b27342b90bbdc3a85568a4035129e06545cca7dbed9e"
+      },
+      {
+        "status": "A ",
+        "path": "ops/hermes_zero_token/staging_db.py",
+        "sha256": "773efb0e3c007e1511ee4408984a23167a36bbc25ad6133dd3af1efc57130f25"
+      },
+      {
+        "status": "A ",
+        "path": "ops/hermes_zero_token/test_zero_token_acceptance.py",
+        "sha256": "5eaf0a71c30f69dd6a82fede8a1cd3a20128f5d47ef4f96a37d83bd447529869"
+      },
+      {
+        "status": "M ",
+        "path": "reports/DAILY_OPERATOR.md",
+        "sha256": "dae86f0823eeba290501aa1f9a48c0e789777da4c0c9cbc5ab96bb2e597da266"
+      },
+      {
+        "status": "M ",
+        "path": "reports/KPI_DASHBOARD.md",
+        "sha256": "54fded52c811efdcb9e19811c05c69bfb16dd8f12f112e9ce204819b902c2f59"
+      },
+      {
+        "status": "M ",
+        "path": "reports/daily-operator/dashboard.json",
+        "sha256": "c46f006f8b25440e697361afe52b8cacba2541efe4907d48cf5f302ee6640b61"
+      },
+      {
+        "status": "M ",
+        "path": "reports/daily-operator/index.html",
+        "sha256": "421de6053d93d4978f727758b84827ca5983cd5b12baae6455d534b211e643cb"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/DAILY_REPORT_2026-10-13.md",
+        "sha256": "d2736a28471165861731d835d91853e75afb1ecf1d005a0515f29346e396d6e9"
+      },
+      {
+        "status": "AM",
+        "path": "reports/hermes_zero_token/daily_metrics.json",
+        "sha256": "af49b4a166ac91aa31ef0c8d920e613c68f6b4720e6a8ed10f4b5a917651c072"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/demo_blueprints/business-12-20261014T101133Z.md",
+        "sha256": "f4edf34167e76996263e26f6961ab8e12695e1ba32d21164e1f0dcee755f9c20"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/demo_blueprints/business-13-20261014T101133Z.md",
+        "sha256": "39592ea9a64a22bb162d332d070934031f8f3786124bd3afd7eaa993145230fd"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/demo_blueprints/business-14-20261014T101133Z.md",
+        "sha256": "b633c4cb1df7647788aab7df9ab0e34b1ba5384014904c4ebd45cfea16dbeb58"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/demo_blueprints/business-3-20261014T101133Z.md",
+        "sha256": "1c8502c09b3835f22f6bd9d0719731f433b420ead9c1ffd51668070538d1f669"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/demo_blueprints/business-4-20261014T101133Z.md",
+        "sha256": "56f4b5570481c967a1142016b1eb86f25c26ab8e6684bb7f99a8d2d894a960d3"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/demo_blueprints/demo_blueprint_report.json",
+        "sha256": "f7146f947fdf63f161ff67d52e277ed8596c5adf25ed87b759fa2df3d46f9e18"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/outreach_drafts/business-17-20261014T101132Z.md",
+        "sha256": "9593532c069c64b75c6dd994c2f3785ca4b139576bcea15989ed1b1c03d2f6c4"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/outreach_drafts/business-19-20261014T101132Z.md",
+        "sha256": "cbcd6b51e18f2e65057f25baa0b0b7efcfbba6361b4ca8da9860ff484a9f6cde"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/outreach_drafts/business-20-20261014T101132Z.md",
+        "sha256": "3865bcadf2dde70f7a8e22f1789f0fa660f96f6c9bbbf1641d08fc75bb77bfa9"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/outreach_drafts/business-21-20261014T101132Z.md",
+        "sha256": "0a6cd2a798dd91531016ea2e467ddc42ec00a2ccb5567d815c1dc1f44c4e5ac0"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/outreach_drafts/business-22-20261014T101132Z.md",
+        "sha256": "13466ddaebfd34c7f6d15c4bdae35a415aa6f13b5a0d8be174ee58674aa1788d"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/outreach_drafts/outreach_draft_report.json",
+        "sha256": "c4b12ae8f20e1ef74ee696f60281e828866cce22a92dd7ac8a1fe05f25bdd7cb"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/screenshots/business-2/crop-hero.png",
+        "sha256": "ac49ceba51f8398c3762f5a7253f14dafb819194f280f9e7c86b6b3c6ff366c2"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/screenshots/business-2/crop-primary_cta.png",
+        "sha256": "93a41083c33b49e49c494fe0de452ef82c07f8a3f76fc199d58a8b768901e275"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/screenshots/business-2/mobile.png",
+        "sha256": "51131540c53c2fbd186fd9f81a09dc31e6d2daf395b32e51367652b1d827e13c"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/screenshots/business-2/screenshot.png",
+        "sha256": "d80a106d30b126a346204c50e54d77a37d697543592eccdbbc266d7607a52a0e"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/screenshots/business-2/tablet.png",
+        "sha256": "ca33e53aa96db69687bebf8edb6411e0997f489543f806a930006a082abe8b6f"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/screenshots/business-3/crop-form.png",
+        "sha256": "f875f1a5ea9b15b04e6881aa2b9506190252aba1040a53fa84c197d97392b6ea"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/screenshots/business-3/crop-hero.png",
+        "sha256": "156c96e724952e9651bed2dadb74c8e431c43709bcdbbd0c0eadeb923c4be599"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/screenshots/business-3/crop-navigation.png",
+        "sha256": "a911da451f9140572207707fde58ecee52eee0a612a9be84824a70d1c630bbae"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/screenshots/business-3/crop-primary_cta.png",
+        "sha256": "a0811652b8c02eef2dae808868f988e1e60ae37cfb9f20e684d86047bd01b1b3"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/screenshots/business-3/mobile.png",
+        "sha256": "e04e72dba6cc9c2b458e20e884493c095bc7487b2e22d157300cbe8734ad6e8c"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/screenshots/business-3/screenshot.png",
+        "sha256": "69f3973811f11f894dc1128138e289ab4bbb45b65ee4047930150ac4a8d32461"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/screenshots/business-3/tablet.png",
+        "sha256": "cb9f01496f62712e2cad7d3f737cbe24a3f33de2b3f5db0a4ddf7783b2159a98"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/screenshots/business-4/crop-hero.png",
+        "sha256": "78899cfb4989748c57c89b5e3c62eedc998a87c00e43cb80f4605e4d8bf29d3f"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/screenshots/business-4/crop-navigation.png",
+        "sha256": "d9470faa762aa72e665dd33a80436a5d7d6c0f8272990f49ee3f120a598356e4"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/screenshots/business-4/crop-primary_cta.png",
+        "sha256": "a7e2691a23083c54244733b47aa9e2ab6d725da407bfe98ec47146223c465d2d"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/screenshots/business-4/mobile.png",
+        "sha256": "064249f8ae6cbf676fc6ffca1a767ce320c865e8d29e7b2b69e4c8e38d9b25ad"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/screenshots/business-4/screenshot.png",
+        "sha256": "607dbcbbfafc949c487b639c68c8d05c03e48a6df1da5629760b6d4023bbe9e5"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/screenshots/business-4/tablet.png",
+        "sha256": "ca4660ab3371ec01b96a55e030c539b00fb989b84e035bb968c1715edca9e52b"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/screenshots/manifest_sha256.json",
+        "sha256": "e77318f8d631ce4cdd0c32d22e3019d5579d8dfab2fec8b422d04b014de97fa0"
+      },
+      {
+        "status": "A ",
+        "path": "reports/hermes_zero_token/screenshots/screenshot_report.json",
+        "sha256": "49e66307456c7dcade45314cbefd6efe2853582735199380a491134748d07f4a"
+      },
+      {
+        "status": "A ",
+        "path": "toolkit_tests/test_catalyx_gmail_bridge.py",
+        "sha256": "6e209b747f1a4a1fbb1ff918231f482312df9602d9ea3d0906ccfc4fc37af378"
+      },
+      {
+        "status": "??",
+        "path": "ops/hermes_zero_token/P2-P6_EXECUTION_SUMMARY.md",
+        "sha256": "f8e23e135cd18c5697e6572ad076abd3ed626e05567629f83ba4383ac69d9028"
+      },
+      {
+        "status": "??",
+        "path": "ops/hermes_zero_token/runner.py.bak",
+        "sha256": "56231a4e165dde3f6cfefcea9b87cbe95c412706e0ab4502901e635e5c640b02"
+      },
+      {
+        "status": "??",
+        "path": "reports/hermes_zero_token/DAILY_REPORT_2026-10-14.md",
+        "sha256": "59401b140ee814926da0db932d772ffecdd67558be55d74713fe2e37a3704d11"
+      }
+    ],
+    "source_patch_sha256": "1b02d8f3dfde47be0713d8456b16ec312173a9a7676c8871bfbfd4f09a22c653"
+  },
+  "reliability": {
+    "root": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR",
+    "head": "1695615263d3e10eaa4e94a98588dcca5d6eaae9",
+    "status": [
+      {
+        "status": " M",
+        "path": "approval/APPROVAL_QUEUE.yaml",
+        "sha256": "fc973067b298b184f783c2e5d12f1047ac991769fe6d59f5a640966b2f2b1e44"
+      },
+      {
+        "status": " M",
+        "path": "money-machine/mm_pipeline.py",
+        "sha256": "ab0e4a5428b6c14b2ffff69bc4d4e71deb7c3754f1ebbc37c612e71ad9b54cf8"
+      },
+      {
+        "status": " M",
+        "path": "money-machine/supervisor/cli.py",
+        "sha256": "11a272cd7da6634b6014cc144b2873081832fb3cfa764e5dcffb50b278a4d7ee"
+      },
+      {
+        "status": " M",
+        "path": "money-machine/supervisor/daemon.py",
+        "sha256": "66ae98d59c9eabe6ca1e0086979a1ad8b98c34374290419874b4149564a8a220"
+      },
+      {
+        "status": " M",
+        "path": "money-machine/test_email_hardening.py",
+        "sha256": "03029ccb236ad72038c59ffb2f2f0f03e96bc8809116fb513e9edf0a9834965f"
+      },
+      {
+        "status": "??",
+        "path": "approval/reliability-review/",
+        "sha256": null
+      },
+      {
+        "status": "??",
+        "path": "money-machine/mm_queue_health.py",
+        "sha256": "50d2f9aa8d23a32f2b82a21228b4b959b5d4f71239afb2c4dc714096a8f8a280"
+      },
+      {
+        "status": "??",
+        "path": "money-machine/test_queue_reliability.py",
+        "sha256": "19f339c4b25d684bd42687db0ae718f28cc97a119a75760b16777e48c02947eb"
+      },
+      {
+        "status": "??",
+        "path": "ops/",
+        "sha256": null
+      },
+      {
+        "status": "??",
+        "path": "reports/reliability-review/",
+        "sha256": null
+      },
+      {
+        "status": "??",
+        "path": "toolkit_tests/test_supervisor_log_retention.py",
+        "sha256": "c220a14f657ef40ed2d3f7852dd7d2f805f92202fadd513724842bcf45290d07"
+      }
+    ],
+    "source_patch_sha256": "ed6e7625c55bfd6713f50fd8407f1823d779f94a6605a4088ff234f92dbd6617"
+  },
+  "codex_combined": {
+    "root": "/Users/dd/Documents/Codex/2026-10-11/wg/work/combined-candidate",
+    "head": "1695615263d3e10eaa4e94a98588dcca5d6eaae9",
+    "status": [
+      {
+        "status": "MM",
+        "path": ".github/workflows/ci.yml",
+        "sha256": "dfeb382658771d132f07390581e21626a727bd317727f493d5e7bdce9c9af9e0"
+      },
+      {
+        "status": "MM",
+        "path": "CONTINUITY_UPGRADE_PLAN.md",
+        "sha256": "61e0e01a5579ac48cb7cca610556257da37ae814e3e3e602fd7835f25c4d8760"
+      },
+      {
+        "status": "MM",
+        "path": "CURRENT_STATE.md",
+        "sha256": "394db278d79860f4651285c9060e9743b7b8c46a96700e56228d8c3b688979c7"
+      },
+      {
+        "status": "MM",
+        "path": "MASTER_PLAN.md",
+        "sha256": "c9556b8d6a8f877c8fa1388928e50a70dc636900651598e9d62b6572fd330a05"
+      },
+      {
+        "status": "MM",
+        "path": "MASTER_PLAN.yaml",
+        "sha256": "8bc2a1557ec409b1493cd68f8f5f0f617e22eb3b28cb504df2c0d5c72c418eeb"
+      },
+      {
+        "status": " M",
+        "path": "auditor_toolkit/browser.py",
+        "sha256": "7a5ae52e006a52ab01e147248636f55267f85d41f525651c3ac1656b9e548264"
+      },
+      {
+        "status": " M",
+        "path": "auditor_toolkit/browser_console.py",
+        "sha256": "2b826cb6c6746a7e61e0c5788941f46b5dccf23e66b7fb1df8c9d291b33c267b"
+      },
+      {
+        "status": "M ",
+        "path": "auditor_toolkit/cli.py",
+        "sha256": "28842d3a3e14603a797de99d716e9ecf8e5fc0729f236e6b64d1d8d32116e9bd"
+      },
+      {
+        "status": " M",
+        "path": "auditor_toolkit/cookie_consent.py",
+        "sha256": "b2b565fb5aa0797735087f85b6a1843a2a5223694ceb20ed5e657a4c7a34b3af"
+      },
+      {
+        "status": " M",
+        "path": "auditor_toolkit/hreflang.py",
+        "sha256": "ea3f823820e0b9e1959d5c7493a733493968cf984e95fb04a67ca6e585e976de"
+      },
+      {
+        "status": " M",
+        "path": "auditor_toolkit/images.py",
+        "sha256": "5ea9916197d98aea4c3cf9904eed230b36218a5591e7c98ac5ac1c4e0df2bdda"
+      },
+      {
+        "status": " M",
+        "path": "auditor_toolkit/language.py",
+        "sha256": "aea002c8f4c51d9d147f9b51a93cc20d52b0fc6a16f06f34f7e76329202d9ec5"
+      },
+      {
+        "status": "MM",
+        "path": "auditor_toolkit/models.py",
+        "sha256": "5c52ab610cbf01d638b3dd69a42ab9f24414219c4f8fac9459c4442544c2ed8f"
+      },
+      {
+        "status": "MM",
+        "path": "auditor_toolkit/pipeline.py",
+        "sha256": "c5ec04f9300693187f03f5e638b8342c43462a3bf923178c4de9121f889ef11e"
+      },
+      {
+        "status": "MM",
+        "path": "auditor_toolkit/quote.py",
+        "sha256": "5704b134720fc96ac8962f7ada36155025352bd56abc1fcd1e24621bf0881c00"
+      },
+      {
+        "status": " M",
+        "path": "auditor_toolkit/social_meta.py",
+        "sha256": "f024969f55f82bd9ad100cd28a7ca42edd058cb8d446048c64ce09b998dc1003"
+      },
+      {
+        "status": "M ",
+        "path": "auditor_toolkit/storage.py",
+        "sha256": "ef139724bbbed0bc481c97f97a13ab3a07aed53012c735bf58490f814500a6c0"
+      },
+      {
+        "status": "M ",
+        "path": "auditor_toolkit/tech.py",
+        "sha256": "7909ec79fc38c4aefb68ab2a451e37a6994a2ad3673cbd4af70469cc3ec0b1e2"
+      },
+      {
+        "status": " M",
+        "path": "auditor_toolkit/third_party.py",
+        "sha256": "41e823182d343294ad4d39c41118eb0a9418bacab0f5d43ceb3c5f60a7aa1724"
+      },
+      {
+        "status": "AM",
+        "path": "docs/GITHUB_TODO_REGISTER.md",
+        "sha256": "00e3aa82523cfd4fbce1a8bfdef866b4543646842cf6673241018f0dbf4d3368"
+      },
+      {
+        "status": "A ",
+        "path": "money-machine/EVIDENCE_BRIDGE.md",
+        "sha256": "4e574f99b6ff7c83a764875c263e63f96389a4ff03286b0fa162c9b6326c5ea0"
+      },
+      {
+        "status": "M ",
+        "path": "money-machine/config/discovery_schedule.yaml",
+        "sha256": "11984d0598cc3e77bab3772d7d2f7acd6b3dda171c12df6d4f4cd2e031c2a227"
+      },
+      {
+        "status": "MM",
+        "path": "money-machine/mm_approval.py",
+        "sha256": "3a0317f0c64cc93808bcf133c00b21831e8ce321217ba2b98efd4f5c6eb5ad99"
+      },
+      {
+        "status": "AM",
+        "path": "money-machine/mm_evidence_bridge.py",
+        "sha256": "780eefbe97194c9374829fa0adfc03a4b13bedca0ac5863f7fa86d134bcc5288"
+      },
+      {
+        "status": "M ",
+        "path": "money-machine/mm_evidence_ops.py",
+        "sha256": "4c47f4e9436096134a83838c2e55c3f9ed1a065a765d2556af550752902e1e7e"
+      },
+      {
+        "status": "M ",
+        "path": "money-machine/mm_operator.py",
+        "sha256": "8ca4ae2555670a84b6cf45c7f562cdafb8c07db72325e334e35d890263ff8f2d"
+      },
+      {
+        "status": "M ",
+        "path": "money-machine/mm_opportunity_intelligence.py",
+        "sha256": "0dc84c8f39b0f9306ac0456aa8752f6901f4d4ae88ce1c97a2956976d2900c25"
+      },
+      {
+        "status": "M ",
+        "path": "money-machine/mm_preparation_worker.py",
+        "sha256": "722cd163b30c8987d5b19ac12d0310d4ddc8da340d2fb9435bd0441747abc7b6"
+      },
+      {
+        "status": "M ",
+        "path": "money-machine/mm_recurring_discovery.py",
+        "sha256": "a483b8f37a9f82d63ddd6befbe77e82a436b4103b27b7ccfb5b8b77cc1961be9"
+      },
+      {
+        "status": "M ",
+        "path": "money-machine/mm_reporting.py",
+        "sha256": "027819e0aa923b0d0acd3777f013ab415794e2d1c05f1f01ac41403df89da83e"
+      },
+      {
+        "status": " M",
+        "path": "money-machine/mm_soak.py",
+        "sha256": "f599f8e2d283d5c1a2545362898c198e989547f825c8bfd6e9b05140d79cbb35"
+      },
+      {
+        "status": "MM",
+        "path": "money-machine/mm_workers.py",
+        "sha256": "6addc80a846842ff671d7ee9dc232e682ad99c221a4f5e3d74f22dbcd64ebab6"
+      },
+      {
+        "status": " M",
+        "path": "money-machine/supervisor/__init__.py",
+        "sha256": "1d885de8fd3877d5ef39683d1d002c676761bfa75dd01e0be08f7b737486dbc8"
+      },
+      {
+        "status": " M",
+        "path": "money-machine/supervisor/cli.py",
+        "sha256": "91d19dc85cf40bcb0b4d131f4d63186ce113620cd46e457da4a54666ff9608f5"
+      },
+      {
+        "status": " M",
+        "path": "money-machine/supervisor/pid.py",
+        "sha256": "f524023d1d65776c9cbdfc7987f6f0984a3c7b1dbfd9b69ec341f9659981f596"
+      },
+      {
+        "status": " M",
+        "path": "money-machine/test_acceptance.py",
+        "sha256": "504de5ac7450eea87104d322a44e34eac8249618b408e44b199920a0d4630cbd"
+      },
+      {
+        "status": "AM",
+        "path": "money-machine/test_evidence_bridge.py",
+        "sha256": "340a3607fb861fb9a9b28619394644f144632e08a5a78af5716b90aa18fc3764"
+      },
+      {
+        "status": "M ",
+        "path": "money-machine/test_evidence_ops.py",
+        "sha256": "505aec612b51c58baabdcfe43a009e6a3582e853a9ec0cc546712c4d1cb01113"
+      },
+      {
+        "status": "M ",
+        "path": "money-machine/test_opportunity_axes.py",
+        "sha256": "386f1e65c36a4963d683f37fc49eea31558d18f4bfaf1fc1d1ec4365b0d4159a"
+      },
+      {
+        "status": "M ",
+        "path": "money-machine/test_opportunity_intelligence.py",
+        "sha256": "43598842876781b66119863ddb4924967c8174bbdfc01d5b02e288a60cc66a9b"
+      },
+      {
+        "status": "MM",
+        "path": "money-machine/test_pipeline.py",
+        "sha256": "6934f133db69433c5d61d51accdca1c35cef7abaecd15de13db0ef3975e0983e"
+      },
+      {
+        "status": "M ",
+        "path": "money-machine/test_preparation_worker.py",
+        "sha256": "253dabd59e705c2fa4469946fd99e62d3e36007a38563aa94d672917ea867a40"
+      },
+      {
+        "status": "A ",
+        "path": "money-machine/test_recurring_discovery_rotation.py",
+        "sha256": "8be359789218e74ab3efd5756c8d237a2f66da0940e1f79a0f508a9c78651c90"
+      },
+      {
+        "status": "M ",
+        "path": "money-machine/test_reporting.py",
+        "sha256": "82391d52a15e0c275b9c8836c878b175aa13102ce3309555ca48c8a214b5fb9e"
+      },
+      {
+        "status": " M",
+        "path": "money-machine/test_runtime_readiness.py",
+        "sha256": "bde8034e62a072ac4156abf979fca1d739c80c74957787ffc8b2c584a7a1530c"
+      },
+      {
+        "status": "AM",
+        "path": "money-machine/test_send_plan_suppression.py",
+        "sha256": "9fc4791c2b55c48055443d24633c863be279d228a42fb93416079499fc2896e2"
+      },
+      {
+        "status": "AM",
+        "path": "money-machine/test_worker_audit_coverage.py",
+        "sha256": "1cc3e8932d0d46d67fc1e4eb0716318896c7a268f0ea4ac90ddcd9165d39954b"
+      },
+      {
+        "status": "MM",
+        "path": "outputs/AGENT_EXECUTION_PLAN.md",
+        "sha256": "bcd30233996a4ff1b15027603832ffd2f417718d969cce22b7c2b619f467beb6"
+      },
+      {
+        "status": " M",
+        "path": "pyproject.toml",
+        "sha256": "0d4670aa06768dc14fa0da09372fc14d897d4d1b8b8a4d91727b743ba6f5f4f5"
+      },
+      {
+        "status": " M",
+        "path": "requirements.txt",
+        "sha256": "a9898cdd3da9c6cfd4817542ed2dc59c2c5287c7b13a56e10f2ed7707dad0d5c"
+      },
+      {
+        "status": "M ",
+        "path": "tests/test_contact_draft_bridge.py",
+        "sha256": "bc74f03cbf6d2d026df1439b29f8c4fcca2c0d5952906ccbdadc101b5ff1c78a"
+      },
+      {
+        "status": "M ",
+        "path": "tests/test_contact_review_automation.py",
+        "sha256": "8f72847e00212dcc36cfa105a33617fe87bd741700be704a062e0a4dc3a0ead0"
+      },
+      {
+        "status": "M ",
+        "path": "tests/test_contact_review_cache_upgrade.py",
+        "sha256": "4774d085b17e62d1929aa0fd099c2e65e6634f311684183d68e09a147aeda96b"
+      },
+      {
+        "status": "M ",
+        "path": "tests/test_contact_review_pathway_upgrade.py",
+        "sha256": "213955cd5e96fb8e5edd3117038ab9a01c9a78730dac9ffcf77e09d8070372ad"
+      },
+      {
+        "status": "M ",
+        "path": "tests/test_contact_review_workers.py",
+        "sha256": "204e4e63392f84d441948257e081a8171dc9123048ef3ecf90fb29d3c7769cda"
+      },
+      {
+        "status": " M",
+        "path": "tests/test_proof_diff.py",
+        "sha256": "d5262414d58b1ba94e17906df80bcb68000b21478f7f69d72b163e6f2a695c8c"
+      },
+      {
+        "status": "M ",
+        "path": "tests/test_tech_pipeline.py",
+        "sha256": "7e0dcfcd422d376fb5bb5a6534673024cf6ab98dcdff4b0b42495056f157459b"
+      },
+      {
+        "status": "AM",
+        "path": "toolkit_tests/coverage_fixtures.py",
+        "sha256": "6fad212c90784f2749eebdf7481df90332cc0bbfcaf88b228e5acd9b353aedcf"
+      },
+      {
+        "status": "M ",
+        "path": "toolkit_tests/test_agency_revenue_monthly.py",
+        "sha256": "652b7dc5a4c21cb8927839ca6c29d156e1e85efa4e0338bd4d5df50bb690a8e0"
+      },
+      {
+        "status": "AM",
+        "path": "toolkit_tests/test_audit_coverage.py",
+        "sha256": "220030bf12f6caa7de1cc87f4b4995c89c6baa0bb8091950b9a1a8aca657eecf"
+      },
+      {
+        "status": "MM",
+        "path": "toolkit_tests/test_browser_e2e.py",
+        "sha256": "77a24e0f26d46e2599b438389dc1dce8dc7d47cd15367f466ac242a5d37b1972"
+      },
+      {
+        "status": "MM",
+        "path": "toolkit_tests/test_p4_hygiene.py",
+        "sha256": "17e0fda4b59245521b503109259740065a12b90627e96a5775ff663fe1461c17"
+      },
+      {
+        "status": "MM",
+        "path": "toolkit_tests/test_p5_evidence.py",
+        "sha256": "7a5d3e5667c18618c20fd743f43760621e228c8b927243eb88fb94020d253948"
+      },
+      {
+        "status": "AM",
+        "path": "toolkit_tests/test_quote_consistency.py",
+        "sha256": "4581395afead01b5c5cd183c5e485118eaafc1f209af87a986d121552a0c40d7"
+      },
+      {
+        "status": "MM",
+        "path": "toolkit_tests/test_release.py",
+        "sha256": "69d0bd90fafe521d6a694e0bc2fdfff419ad07955b649207e33ea4887edc68b1"
+      },
+      {
+        "status": "M ",
+        "path": "toolkit_tests/test_supervisor.py",
+        "sha256": "d70ea7d6ab083eed426d679098122c6c1ea29b07ffbf045b0d5a6a073c5e5549"
+      },
+      {
+        "status": "MM",
+        "path": "toolkit_tests/test_toolkit.py",
+        "sha256": "8d6104e34b4a389a0925f912c8789440e2cc68bbf2328d63e87057b6053f202c"
+      },
+      {
+        "status": "??",
+        "path": "auditor_toolkit/analyzer_common.py",
+        "sha256": "a83c2128ba2df18b0f6e7ab0b9feaa7a2bf72a616e232954275063b9b96ae29c"
+      },
+      {
+        "status": "??",
+        "path": "auditor_toolkit/visual_diff.py",
+        "sha256": "1c0a26a9ffb9cafd8a02f3d4d8963d74abdfd836c6409cd83eb59ee579110c5b"
+      },
+      {
+        "status": "??",
+        "path": "docs/analyzer-observations.md",
+        "sha256": "1817676fddb5a3ff327f9a49bb91f3aa1e97f354eda85e52c7efb5ffda7224ad"
+      },
+      {
+        "status": "??",
+        "path": "money-machine/supervisor/attestation.py",
+        "sha256": "5371da1bcf4caf43085c9dfba868039411d5e01f97def20ce2d6f00af5e7cded"
+      },
+      {
+        "status": "??",
+        "path": "money-machine/supervisor/process.py",
+        "sha256": "d4411954dca39c1efccff5f25dac435de789e16a93db7c38f55eacff979b786d"
+      },
+      {
+        "status": "??",
+        "path": "money-machine/supervisor/provenance.py",
+        "sha256": "03a094bbc55d47cfc58bc8788495adc33b3c0ea777ac11828c35be0506a2a859"
+      },
+      {
+        "status": "??",
+        "path": "money-machine/test_approval_audit_coverage.py",
+        "sha256": "4725dba9f3f22e48650c3cdfd6d1815c30dbd14446430531f02484d8b6d465d6"
+      },
+      {
+        "status": "??",
+        "path": "money-machine/test_startup_attestation.py",
+        "sha256": "c29a0bf301b0ee7fc05aebe38d3750ae650f93fbf85be8aee61c81caf8269fb6"
+      },
+      {
+        "status": "??",
+        "path": "toolkit_tests/test_analyzers.py",
+        "sha256": "cf06f65ffa878f356161355ed8d477d7dbff256791d9d8710aab61e3e41c08bd"
+      },
+      {
+        "status": "??",
+        "path": "toolkit_tests/test_supervisor_pid.py",
+        "sha256": "7bacccfff1e10953a0156715cdd4724c4f269f6201814be9f783a61033ea66c2"
+      },
+      {
+        "status": "??",
+        "path": "toolkit_tests/test_visual_diff.py",
+        "sha256": "030c1caf77593890c7b95cf3420227a18ece0ae684da0c5b1c0d047aa4efed9c"
+      }
+    ],
+    "source_patch_sha256": "8612ba861615c90829b0a020d8192ce779a28ced69b60b4618da79db6501ca28"
+  },
+  "claude_quizzical": {
+    "root": "/Users/dd/WEBSITE-AUDITOR/.claude/worktrees/quizzical-raman-5ad6c6",
+    "head": "4ae5cc2a706722a2177059c6289d83fe289cab6b",
+    "status": [
+      {
+        "status": " M",
+        "path": "money-machine/mm_intelligence.py",
+        "sha256": "a5758f4ec094bcb24b1741bb167ada01ebcc9502b0822343aef32f516157f47e"
+      },
+      {
+        "status": " M",
+        "path": "money-machine/mm_operator.py",
+        "sha256": "e8bf6ad5d38697060e93e881d9d03680fa28ad586f15ed488280e95e4d61c294"
+      },
+      {
+        "status": " M",
+        "path": "money-machine/supervisor/cli.py",
+        "sha256": "42d6c3e5eb27c7b110fbf871f3def849821e921338dac16753907d08dfd520a3"
+      },
+      {
+        "status": " M",
+        "path": "money-machine/test_acceptance.py",
+        "sha256": "e4658aa2faed0c5971a3c689fb23c0335856a5f407288d63745a82fe0da0f8ae"
+      }
+    ],
+    "source_patch_sha256": "d2ac9a798f0fbf2adfe1004530d79d73ee7ae66b5483bbffc000d1df4742312a"
+  },
+  "claude_happy": {
+    "root": "/Users/dd/WEBSITE-AUDITOR/.claude/worktrees/happy-sutherland-4f1b01",
+    "head": "4ae5cc2a706722a2177059c6289d83fe289cab6b",
+    "status": [
+      {
+        "status": " D",
+        "path": ".cline/mcp.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "DATA_GAP_ANALYSIS.md",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "INTEGRATIONS.md",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "MASTER_DATA_PLAN.md",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/actions.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/browser_console.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/cookie_consent.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/evaluation/__init__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/evaluation/adapters/__init__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/evaluation/adapters/browser_agent.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/evaluation/adapters/browsergym.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/evaluation/adapters/inspect_ai.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/evaluation/adapters/local_agent.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/evaluation/comparison.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/evaluation/graders.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/evaluation/policy.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/evaluation/promotion.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/evaluation/replay.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/evaluation/report.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/evaluation/runner.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/evaluation/schema.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/hreflang.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/images.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/language.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/local_seo/__init__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/local_seo/adapters/__init__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/local_seo/adapters/authorized_gbp.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/local_seo/adapters/nominatim.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/local_seo/adapters/overpass.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/local_seo/adapters/website.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/local_seo/address.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/local_seo/categories.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/local_seo/consistency.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/local_seo/corroboration.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/local_seo/geo.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/local_seo/hours.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/local_seo/identity.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/local_seo/local_schema.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/local_seo/location_pages.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/local_seo/nap.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/local_seo/phone.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/local_seo/pipeline.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/local_seo/report.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/local_seo/schema.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/local_seo/scoring.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/local_seo/service_area.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/proof/__init__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/proof/adapters/__init__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/proof/adapters/ai_generator.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/proof/adapters/local_renderer.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/proof/adapters/playwright.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/proof/adapters/v36_evaluator.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/proof/capture/__init__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/proof/capture/browser_capture.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/proof/capture/env_probe.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/proof/environment.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/proof/patches.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/proof/prototype.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/proof/regions.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/proof/render/__init__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/proof/render/demo.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/proof/render/diff.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/proof/render/package_builder.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/proof/render/report.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/proof/schema.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/proof/verify/__init__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/proof/verify/finder.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/proof/verify/verifier.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/reporting.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/runtime/__init__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/runtime/circuit_breaker.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/runtime/health.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/runtime/idempotency.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/runtime/quarantine.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/runtime/readiness.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/runtime/recovery.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/runtime/report.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/runtime/resource_limits.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/runtime/shutdown.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/runtime/soak.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/server_technology.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/social_meta.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/structured_validation.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/tech.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/technology/__init__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/technology/fingerprints.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/technology/pipeline.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/technology/report.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/technology/schema.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/technology/versions.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/technology/vulns.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/third_party.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "auditor_toolkit/vuln_js.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "config/runtime/health_checks.yaml",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "config/runtime/production.yaml",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "docs/P1_007_AI_EVALUATION_HARNESS.md",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "docs/P2_002_LOCAL_BUSINESS_SEO.md",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "docs/P2_003_PROOF_DEMO_GENERATION.md",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "docs/P2_004_TECH_VULN.md",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "integration-mcp",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "integration-omniroute-mcp",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "integration-status",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "integrations/__main__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "integrations/layer.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "integrations/server.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "integrations/service_runner.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "make_autopilot.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "make_branding.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "make_fix.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "make_fix2.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "make_master_command.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "make_masterclass.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "make_monthly_reporting.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "make_portal.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "make_print_fix.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "make_report_cli.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "make_revenue_calc.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "make_watchdog.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "opencode.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/clyne-bennie.co.nz_20260924_180117.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/clyne-bennie.co.nz_20260925_180729.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/clyne-bennie.co.nz_20260926_172703.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/clyne-bennie.co.nz_20260927_175751.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/clyne-bennie.co.nz_20260928_201800.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/clyne-bennie.co.nz_20260929_185714.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/clyne-bennie.co.nz_20260930_183903.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/clyne-bennie.co.nz_20261001_190643.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/clyne-bennie.co.nz_20261002_184603.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/clyne-bennie.co.nz_20261003_173956.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/clyne-bennie.co.nz_20261004_175331.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/clyne-bennie.co.nz_20261005_211617.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/clyne-bennie.co.nz_20261006_191007.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/clyne-bennie.co.nz_20261007_193714.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/clyne-bennie.co.nz_20261008_193305.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/clyne-bennie.co.nz_20261009_190726.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/davidrobertson.co.nz_20260924_180125.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/davidrobertson.co.nz_20260925_180759.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/davidrobertson.co.nz_20260926_172708.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/davidrobertson.co.nz_20260927_175758.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/davidrobertson.co.nz_20260928_201806.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/davidrobertson.co.nz_20260929_185721.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/davidrobertson.co.nz_20260930_183910.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/davidrobertson.co.nz_20261001_190653.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/davidrobertson.co.nz_20261002_184610.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/davidrobertson.co.nz_20261003_174003.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/davidrobertson.co.nz_20261004_175339.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/davidrobertson.co.nz_20261005_211624.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/davidrobertson.co.nz_20261006_191013.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/davidrobertson.co.nz_20261007_193722.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/davidrobertson.co.nz_20261008_193312.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/davidrobertson.co.nz_20261009_190732.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/jcconstruction.co.nz_20260924_180122.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/jcconstruction.co.nz_20260925_180748.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/jcconstruction.co.nz_20260926_172706.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/jcconstruction.co.nz_20260927_175754.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/jcconstruction.co.nz_20260928_201803.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/jcconstruction.co.nz_20260929_185717.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/jcconstruction.co.nz_20260930_183907.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/jcconstruction.co.nz_20261001_190646.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/jcconstruction.co.nz_20261002_184607.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/jcconstruction.co.nz_20261003_173959.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/jcconstruction.co.nz_20261004_175335.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/jcconstruction.co.nz_20261005_211619.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/jcconstruction.co.nz_20261006_191009.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/jcconstruction.co.nz_20261007_193718.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/jcconstruction.co.nz_20261008_193308.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/jcconstruction.co.nz_20261009_190729.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/prodecorators.co.nz_20260924_180118.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/prodecorators.co.nz_20260925_180745.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/prodecorators.co.nz_20260926_172703.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/prodecorators.co.nz_20260927_175752.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/prodecorators.co.nz_20260928_201801.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/prodecorators.co.nz_20260929_185714.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/prodecorators.co.nz_20260930_183904.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/prodecorators.co.nz_20261001_190643.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/prodecorators.co.nz_20261002_184604.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/prodecorators.co.nz_20261003_173957.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/prodecorators.co.nz_20261004_175332.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/prodecorators.co.nz_20261005_211617.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/prodecorators.co.nz_20261006_191008.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/prodecorators.co.nz_20261007_193715.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/prodecorators.co.nz_20261008_193305.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/prodecorators.co.nz_20261009_190726.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/tbir.co.nz_20260924_180123.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/tbir.co.nz_20260925_180749.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/tbir.co.nz_20260926_172706.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/tbir.co.nz_20260927_175756.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/tbir.co.nz_20260928_201804.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/tbir.co.nz_20260929_185718.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/tbir.co.nz_20260930_183908.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/tbir.co.nz_20261001_190650.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/tbir.co.nz_20261002_184608.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/tbir.co.nz_20261003_174000.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/tbir.co.nz_20261004_175336.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/tbir.co.nz_20261005_211620.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/tbir.co.nz_20261006_191010.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/tbir.co.nz_20261007_193719.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/tbir.co.nz_20261008_193310.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "outputs/snapshots/tbir.co.nz_20261009_190730.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "reports/evaluation/benchmarks/P1_007_V36_BENCHMARK.md",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "reports/evaluation/benchmarks/benchmark-v36.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "reports/local-seo/benchmarks/P2_002_V38_BENCHMARK.md",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "reports/local-seo/benchmarks/v38-baseline.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "reports/proof/benchmarks/P2_003_V39_BENCHMARK.md",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "reports/proof/benchmarks/v39-baseline.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/e2e/test_ai_eval_browser.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/e2e/test_local_seo_rendered_schema.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/e2e/test_proof_browser_capture.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/e2e/test_proof_demo_render.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/fixtures/evaluation/cases/broken_form.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/fixtures/evaluation/cases/conflicting_evidence.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/fixtures/evaluation/cases/insufficient_evidence.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/fixtures/evaluation/cases/prohibited_action.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/fixtures/evaluation/cases/unsupported_claim.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/fixtures/evaluation/cases/valid_finding.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/fixtures/evaluation/cases/wrong_business.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/fixtures/evaluation/cases/wrong_finding_id.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/fixtures/evaluation/expected/baseline_metrics.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/fixtures/evaluation/expected/deterministic_results.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/fixtures/proof/expected/capture.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/fixtures/proof/expected/verification.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/fixtures/proof/findings/verified-cta.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/fixtures/proof/findings/verified-form.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/fixtures/technology/expected/fingerprint-result.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/fixtures/technology/fingerprints/shopify.html",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/fixtures/technology/fingerprints/static.html",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/fixtures/technology/fingerprints/wordpress.html",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/fixtures/technology/versions/wp-outdated.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/fixtures/technology/vulns/sample-advisories.json",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/integration/test_ai_eval_harness.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/integration/test_local_seo_evidence_integration.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/integration/test_local_seo_identity_integration.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/integration/test_proof_evidence_integration.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/integration/test_proof_v36_eval.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/integration/test_tech_enrichment.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_eval_comparison.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_eval_graders.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_eval_policy.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_eval_promotion.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_eval_replay.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_eval_report.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_eval_runner.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_eval_schema.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_integration_layer.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_local_seo_adapters.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_local_seo_address.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_local_seo_categories.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_local_seo_consistency.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_local_seo_corroboration.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_local_seo_geo.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_local_seo_hours.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_local_seo_identity.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_local_seo_location_pages.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_local_seo_nap.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_local_seo_phone.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_local_seo_pipeline.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_local_seo_report.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_local_seo_schema.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_local_seo_scoring.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_local_seo_service_area.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_local_seo_structured_data.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_proof_diff.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_proof_env_probe.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_proof_environment.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_proof_patches.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_proof_prototype.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_proof_regions.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_proof_rendering.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_proof_schema.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_proof_verifier.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_runtime_circuit_breaker.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_runtime_health.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_runtime_quarantine.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_runtime_readiness.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_runtime_recovery.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_runtime_release_report.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_runtime_resource_limits.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_runtime_soak.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_structured_validation.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_tech_fingerprints.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_tech_pipeline.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_tech_report.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_tech_schema.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_tech_versions.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "tests/test_tech_vulns.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "uv.lock",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/__init__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/actions/__init__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/actions/approvals.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/actions/audit_log.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/actions/executor.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/actions/policy.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/actions/registry.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/advanced/__init__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/advanced/nz_dominator.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/advanced/playwright_engine.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/advanced/portfolio_db.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/advanced/tech_fingerprint.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/ai/__init__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/ai/summarizer.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/connectors/__init__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/connectors/git_connector.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/connectors/github_connector.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/connectors/wordpress_connector.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/control_center.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/models.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/monitoring/__init__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/monitoring/watchdog.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/outreach/__init__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/outreach/engine.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/portal/__init__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/portal/__main__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/portal/server.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/reporting/__init__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/reporting/email_sender.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/reporting/generator.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/reporting/pdf_export.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/revenue/__init__.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/revenue/calculator.py",
+        "sha256": null
+      },
+      {
+        "status": " D",
+        "path": "website_auditor/revenue/defect_values.py",
+        "sha256": null
+      }
+    ]
+  },
+  "claude_v32": {
+    "root": "/private/tmp/claude-501/v32-wt",
+    "head": "7afc6b1e2f70adcfa87fc5b45f5a6b0d7eee208c",
+    "status": [
+      {
+        "status": " M",
+        "path": "money-machine/test_acceptance.py",
+        "sha256": "ff9742fe7565894fc3549c4662145d585b1e29248da66b9b68bb95d1bc63b602"
+      }
+    ],
+    "source_patch_sha256": "54e953462a4d473eb677e98140189c72c9c370222b296aff906dc3f31525a5bf"
+  }
+}
