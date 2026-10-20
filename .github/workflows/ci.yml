@@ -67,6 +67,8 @@ jobs:
         run: |
           ruff check \
             money-machine/mm_workers.py \
+            money-machine/mm_deploy.py \
+            money-machine/test_release_gates.py \
             money-machine/test_worker_audit_coverage.py \
             money-machine/mm_opportunity_intelligence.py \
             money-machine/mm_error_mining.py \
@@ -111,6 +113,7 @@ jobs:
             money-machine/test_launchd.py \
             money-machine/test_runtime_bootstrap.py \
             money-machine/test_runtime_readiness.py \
+            money-machine/test_release_gates.py \
             money-machine/test_pipeline_loop.py \
             money-machine/test_email_hardening.py::HardeningEvidence \
             money-machine/test_scanning_activation.py \
