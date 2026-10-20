@@ -122,34 +122,66 @@ def deploy(d, python, test_modules, candidate=None):
 
 
 def _post_deploy(d, entry, gates):
-    """Post-deploy verification; critical failure triggers recorded rollback."""
+    """Verify local release gates; never claim deployment or rollback occurred.
+
+    This helper does not deploy code, restore the DB, quiesce workers or approve
+    promotion. Any missing/failed check fails closed and requires operator
+    recovery review against the previously recorded rollback point.
+    """
     post = {}
     try:
-        ic = d.execute('PRAGMA integrity_check').fetchone()[0]
-        post['database_integrity'] = ic == 'ok'
+        post['database_integrity'] = (
+            d.execute('PRAGMA integrity_check').fetchone()[0] == 'ok'
+        )
+        post['database_foreign_keys'] = (
+            d.execute('PRAGMA foreign_key_check').fetchone() is None
+        )
         d.execute('SELECT count(*) FROM businesses').fetchone()
         post['ledger_readable'] = True
+
         import mm_pipeline
         h = mm_pipeline.health(d)
         post['health_surface'] = isinstance(h, dict) and 'states' in h
-        deployed = _run(['git', 'rev-parse', 'HEAD'], root())
-        post['version_matches'] = deployed[1].strip() == \
-            gates['record_current_version'].get('commit')
+
+        revision = _run(['git', 'rev-parse', 'HEAD'], root())
+        post['version_matches'] = (
+            revision[0] == 0
+            and revision[1].strip() == gates['record_current_version'].get('commit')
+        )
     except Exception as ex:
-        post['post_check_error'] = str(ex)[:200]
+        post['post_check_error'] = f'{type(ex).__name__}: {ex}'[:200]
 
-    critical = [k for k in ('database_integrity', 'ledger_readable')
-                if post.get(k) is False]
+    required_checks = (
+        'database_integrity', 'database_foreign_keys', 'ledger_readable',
+        'health_surface', 'version_matches',
+    )
+    failed = [name for name in required_checks if post.get(name) is not True]
     entry['post_deploy_checks'] = post
-    if critical:
-        entry['status'] = 'ROLLED_BACK'
-        entry['rollback_reason'] = critical
-        log({'kind': 'deployment_rollback', 'reason': critical})
-    else:
-        entry['status'] = 'DEPLOYED'
-        log({'kind': 'deployed', 'candidate': entry['candidate']})
-    _record(entry)
-    return {'status': entry['status'], 'gates': gates,
-            'post_deploy_checks': post,
-            'rollback_point': gates['create_rollback_point'].get('backup')}
+    entry['release_authorized'] = False
+    entry['deployment_performed'] = False
+    entry['rollback_performed'] = False
 
+    if failed:
+        entry['status'] = 'RELEASE_BLOCKED'
+        entry['failed_post_checks'] = failed
+        entry['rollback_review_required'] = True
+        log({'kind': 'release_verification_blocked', 'failed_checks': failed,
+             'rollback_performed': False})
+    else:
+        entry['status'] = 'PRE_RELEASE_CHECKS_PASSED'
+        entry['rollback_review_required'] = False
+        log({'kind': 'pre_release_checks_passed', 'candidate': entry['candidate'],
+             'release_authorized': False})
+
+    _record(entry)
+    return {
+        'status': entry['status'],
+        'gates': gates,
+        'post_deploy_checks': post,
+        'failed_post_checks': failed,
+        'rollback_point': gates.get('create_rollback_point', {}).get('backup'),
+        'rollback_review_required': entry['rollback_review_required'],
+        'rollback_performed': False,
+        'deployment_performed': False,
+        'release_authorized': False,
+    }
