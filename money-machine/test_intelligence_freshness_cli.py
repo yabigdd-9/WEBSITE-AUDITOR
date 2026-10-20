@@ -3,10 +3,9 @@
 import json
 import sqlite3
 
-import pytest
-
 import mm_intelligence_ledger as ledger
 import mm_operator as operator
+import pytest
 
 
 def _read_only_conn(path):
