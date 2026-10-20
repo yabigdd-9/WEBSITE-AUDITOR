@@ -1,0 +1,106 @@
+{
+  "initialised": true,
+  "at": "2026-10-14T15:15:23.226512+00:00",
+  "states": {
+    "SUPPRESSED": 12,
+    "REJECTED": 327,
+    "NEEDS_REVIEW": 27
+  },
+  "eligible": 0,
+  "active_leases": 0,
+  "expired_leases": 0,
+  "waiting_retry": 0,
+  "dead_lettered": 0,
+  "held_or_terminal": 366,
+  "activity": "idle_no_eligible_work",
+  "workers": [
+    {
+      "worker_id": "worker-audit",
+      "kind": "AUDIT_PENDING",
+      "started_at": "2026-09-22T08:24:34.379091+00:00",
+      "heartbeat_at": "2026-10-14T15:14:56.490728+00:00",
+      "heartbeat_age_seconds": 26.735784,
+      "stale": false
+    },
+    {
+      "worker_id": "worker-contact",
+      "kind": "QUALIFIED,CONTACT_PENDING",
+      "started_at": "2026-09-22T08:24:34.380712+00:00",
+      "heartbeat_at": "2026-10-14T15:14:57.189721+00:00",
+      "heartbeat_age_seconds": 26.036791,
+      "stale": false
+    },
+    {
+      "worker_id": "worker-identity",
+      "kind": "DISCOVERED,IDENTITY_PENDING",
+      "started_at": "2026-09-22T08:24:34.381365+00:00",
+      "heartbeat_at": "2026-10-14T15:14:57.394504+00:00",
+      "heartbeat_age_seconds": 25.832008,
+      "stale": false
+    },
+    {
+      "worker_id": "worker-management",
+      "kind": "RESPONDED",
+      "started_at": "2026-09-22T08:24:34.388303+00:00",
+      "heartbeat_at": "2026-10-14T15:14:57.439357+00:00",
+      "heartbeat_age_seconds": 25.787155,
+      "stale": false
+    },
+    {
+      "worker_id": "worker-outreach_gate",
+      "kind": "OUTREACH_PENDING",
+      "started_at": "2026-09-22T08:24:34.389474+00:00",
+      "heartbeat_at": "2026-10-14T15:14:57.539328+00:00",
+      "heartbeat_age_seconds": 25.687184,
+      "stale": false
+    },
+    {
+      "worker_id": "worker-preparation",
+      "kind": "VERIFIED,REMEDIATION_PENDING,DEMO_PENDING,QA_PENDING",
+      "started_at": "2026-09-22T08:24:34.390359+00:00",
+      "heartbeat_at": "2026-10-14T15:14:57.940934+00:00",
+      "heartbeat_age_seconds": 25.285578,
+      "stale": false
+    },
+    {
+      "worker_id": "worker-qualification",
+      "kind": "QUALIFICATION_PENDING",
+      "started_at": "2026-09-22T08:24:34.392694+00:00",
+      "heartbeat_at": "2026-10-14T15:14:58.046723+00:00",
+      "heartbeat_age_seconds": 25.179789,
+      "stale": false
+    },
+    {
+      "worker_id": "worker-understanding",
+      "kind": "AUDITED",
+      "started_at": "2026-09-22T08:24:34.393720+00:00",
+      "heartbeat_at": "2026-10-14T15:14:58.094103+00:00",
+      "heartbeat_age_seconds": 25.132409,
+      "stale": false
+    }
+  ],
+  "metrics": {
+    "pipeline.items.retry_scheduled": 115,
+    "pipeline.items.dead_lettered": 28,
+    "pipeline.items.completed": 1387
+  },
+  "eligibility_basis": "registered worker input states",
+  "note": "Queue activity does not attest supervisor liveness or external safety.",
+  "quick_check": "ok",
+  "fk_violations": 0,
+  "model_rows": 0,
+  "cost_usd": 0,
+  "sent_ledger_rows": 0,
+  "supervisor": {
+    "pid": 96246,
+    "status": "running",
+    "at": "2026-10-14T15:15:11.838296+00:00"
+  },
+  "primary_head": "1695615263d3e10eaa4e94a98588dcca5d6eaae9",
+  "protected_source_matches_primary_head": {
+    "money-machine/mm_pipeline.py": true,
+    "money-machine/supervisor/cli.py": true,
+    "money-machine/supervisor/daemon.py": true,
+    "money-machine/test_email_hardening.py": true
+  }
+}

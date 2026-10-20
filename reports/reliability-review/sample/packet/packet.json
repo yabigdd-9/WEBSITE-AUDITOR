@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "kind": "prospect_packet",
+  "source_run_id": "20261014T144657-052d7d276c1f",
+  "business": {
+    "website": "http://127.0.0.1:59089/",
+    "domain": "127.0.0.1"
+  },
+  "contact": null,
+  "email_confidence": "NO_VERIFIED_EMAIL",
+  "audit_score": 0,
+  "opportunity_score": null,
+  "top_problems": [
+    {
+      "finding_id": "f9b282ba33771ffd2d6c5d63",
+      "defect_key": "missing_meta_description",
+      "defect": "Missing meta description",
+      "evidence": "no usable meta description content"
+    },
+    {
+      "finding_id": "4140f976d029fff9e97b8825",
+      "defect_key": "missing_canonical_url",
+      "defect": "Missing canonical URL",
+      "evidence": "no canonical href declared"
+    },
+    {
+      "finding_id": "72408dba6f708e9a5a639392",
+      "defect_key": "missing_open_graph_tags",
+      "defect": "Missing Open Graph tags",
+      "evidence": "zero Open Graph tags"
+    },
+    {
+      "finding_id": "997ce451e30e7e5ab464bc3c",
+      "defect_key": "thin_content_200_words",
+      "defect": "Thin content (<200 words)",
+      "evidence": "page body contains 13 words (<200 threshold)"
+    },
+    {
+      "finding_id": "1d608b241cf54ba720bb6d02",
+      "defect_key": "viewport",
+      "defect": "Missing viewport metadata",
+      "evidence": "no viewport meta tag"
+    }
+  ],
+  "before_images": [],
+  "after_images": [],
+  "recommended_package": null,
+  "quote_band": null,
+  "proof": {
+    "demo_status": "CONCEPT_ONLY",
+    "live_site_changed": false,
+    "improvement_claim_valid": false
+  },
+  "evidence": [
+    {
+      "kind": "audit",
+      "sha256": "48f1785f5a10de547b71ded8f0388549fbc3349ad0c24966529d3d2bff4362fb"
+    },
+    {
+      "kind": "remediation",
+      "sha256": "bab1a7d89dd167df0c3db2692b4b449fc46269174e6c3054c728d7a07b1ea6d9"
+    },
+    {
+      "kind": "demo",
+      "sha256": "84adf513f6d6d844849a3f279473035b1579bfd49fe973779cd998408795a337"
+    }
+  ],
+  "draft_message_path": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/packet/draft-message.txt",
+  "draft_message_sha256": "84262e2d7f2f8c9b335fbe6e6bebe1ea340aefe14a01b2d579a235421629dc1d",
+  "qa_status": "HUMAN_REVIEW_REQUIRED",
+  "approval_status": "HUMAN_APPROVAL_REQUIRED",
+  "human_approved": false,
+  "outreach_eligible": false,
+  "send_enabled": false,
+  "external_send_allowed": false,
+  "outbound_sent": 0,
+  "paid_ai_cost_usd": 0,
+  "review_required": true
+}

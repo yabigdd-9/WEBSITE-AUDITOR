@@ -137,7 +137,7 @@ def cmd_health(args) -> dict:
     read-only connection; here we read the pipeline tables directly and only if
     they already exist.
     """
-    import datetime as dt
+    from mm_queue_health import snapshot as queue_snapshot
     db_path = root() / "database" / "money_machine.db"
     if not db_path.is_file():
         return {
@@ -156,17 +156,7 @@ def cmd_health(args) -> dict:
             if "pipeline_items" not in tables:
                 snap = {"initialised": False, "note": "pipeline tables not created yet"}
             else:
-                at = dt.datetime.now(dt.timezone.utc).isoformat()
-                states = {r[0]: r[1] for r in d.execute(
-                    "SELECT state,count(*) FROM pipeline_items GROUP BY state")}
-                leased = d.execute(
-                    "SELECT count(*) FROM pipeline_items WHERE lease_until IS NOT NULL "
-                    "AND lease_until>?", (at,)).fetchone()[0]
-                dead = d.execute(
-                    "SELECT count(*) FROM pipeline_items WHERE state IN "
-                    "('RETRYABLE_FAILURE','PERMANENT_FAILURE')").fetchone()[0]
-                snap = {"initialised": True, "states": states,
-                        "active_leases": leased, "dead_lettered": dead}
+                snap = queue_snapshot(d)
         except Exception as ex:
             snap = {"error": str(ex)}
     return {

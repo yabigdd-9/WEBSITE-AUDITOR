@@ -1,0 +1,43 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+___________ test_archive_retention_preserves_recent_and_active_logs ____________
+
+tmp_path = PosixPath('/private/var/folders/vq/3rn4742n6gdfq_b1zqm73gj00000gn/T/pytest-of-dd/pytest-797/test_archive_retention_preserv0')
+
+    def test_archive_retention_preserves_recent_and_active_logs(tmp_path):
+        old = tmp_path / 'worker.jsonl.20000101_000000.gz'
+        recent = tmp_path / 'worker.jsonl.20990101_000000.gz'
+        active = tmp_path / 'supervisor.jsonl'
+        unrelated = tmp_path / 'evidence.gz'
+        for file in (old, recent, active, unrelated):
+            file.write_bytes(b'fixture')
+        os.utime(old, (time.time()-31*86400,) * 2)
+        rotate_logs(tmp_path, retention_days=30)
+>       assert not old.exists()
+E       AssertionError: assert not True
+E        +  where True = exists()
+E        +    where exists = PosixPath('/private/var/folders/vq/3rn4742n6gdfq_b1zqm73gj00000gn/T/pytest-of-dd/pytest-797/test_archive_retention_preserv0/worker.jsonl.20000101_000000.gz').exists
+
+toolkit_tests/test_supervisor_log_retention.py:16: AssertionError
+_________ test_old_daily_log_is_compressed_and_symbolic_links_ignored __________
+
+tmp_path = PosixPath('/private/var/folders/vq/3rn4742n6gdfq_b1zqm73gj00000gn/T/pytest-of-dd/pytest-797/test_old_daily_log_is_compress0')
+
+    def test_old_daily_log_is_compressed_and_symbolic_links_ignored(tmp_path):
+        import gzip
+        old = tmp_path / '2000-01-01.jsonl'
+        old.write_bytes(b'{"kind":"synthetic"}\n')
+        os.utime(old, (time.time()-31*86400,) * 2)
+        link = tmp_path / 'linked.jsonl'
+        link.symlink_to(old)
+        archives = rotate_logs(tmp_path)
+>       assert not old.exists() and link.is_symlink()
+E       AssertionError: assert (not True)
+E        +  where True = exists()
+E        +    where exists = PosixPath('/private/var/folders/vq/3rn4742n6gdfq_b1zqm73gj00000gn/T/pytest-of-dd/pytest-797/test_old_daily_log_is_compress0/2000-01-01.jsonl').exists
+
+toolkit_tests/test_supervisor_log_retention.py:28: AssertionError
+=========================== short test summary info ============================
+FAILED toolkit_tests/test_supervisor_log_retention.py::test_archive_retention_preserves_recent_and_active_logs
+FAILED toolkit_tests/test_supervisor_log_retention.py::test_old_daily_log_is_compressed_and_symbolic_links_ignored
+2 failed in 2.04s

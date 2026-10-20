@@ -1,0 +1,43 @@
+.F.                                                                      [100%]
+=================================== FAILURES ===================================
+__________ Acceptance.test_56_status_cli_persists_no_fixture_changes ___________
+
+self = <test_acceptance.Acceptance testMethod=test_56_status_cli_persists_no_fixture_changes>
+
+    def test_56_status_cli_persists_no_fixture_changes(self):
+        self.d.commit();before=self.d.execute('SELECT count(*) FROM mm_events').fetchone()[0]
+>       run=subprocess.run([sys.executable,str(OPERATOR),'status'],capture_output=True,text=True,timeout=10)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+money-machine/test_acceptance.py:260: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/Users/dd/.local/share/uv/python/cpython-3.11.16-macos-x86_64-none/lib/python3.11/subprocess.py:550: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/dd/.local/share/uv/python/cpython-3.11.16-macos-x86_64-none/lib/python3.11/subprocess.py:1209: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/dd/.local/share/uv/python/cpython-3.11.16-macos-x86_64-none/lib/python3.11/subprocess.py:2116: in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <Popen: returncode: -9 args: ['/Users/dd/WEBSITE-AUDITOR/.venv/bin/python', ...>
+endtime = 1131601.059151165, orig_timeout = 10, stdout_seq = [], stderr_seq = []
+skip_check_and_raise = False
+
+    def _check_timeout(self, endtime, orig_timeout, stdout_seq, stderr_seq,
+                       skip_check_and_raise=False):
+        """Convenience for checking if a timeout has expired."""
+        if endtime is None:
+            return
+        if skip_check_and_raise or _time() > endtime:
+>           raise TimeoutExpired(
+                    self.args, orig_timeout,
+                    output=b''.join(stdout_seq) if stdout_seq else None,
+                    stderr=b''.join(stderr_seq) if stderr_seq else None)
+E           subprocess.TimeoutExpired: Command '['/Users/dd/WEBSITE-AUDITOR/.venv/bin/python', '/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/money-machine/mm_operator.py', 'status']' timed out after 10 seconds
+
+/Users/dd/.local/share/uv/python/cpython-3.11.16-macos-x86_64-none/lib/python3.11/subprocess.py:1253: TimeoutExpired
+=========================== short test summary info ============================
+FAILED money-machine/test_acceptance.py::Acceptance::test_56_status_cli_persists_no_fixture_changes
+1 failed, 2 passed in 49.87s

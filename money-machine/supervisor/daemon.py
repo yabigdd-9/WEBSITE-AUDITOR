@@ -2,6 +2,7 @@
 """SupervisorDaemon — PID-lock, graceful shutdown, heartbeat, log rotation."""
 
 import os, signal, time, json, gzip
+import shutil
 from pathlib import Path
 from datetime import datetime, timezone
 
@@ -27,18 +28,10 @@ class SupervisorDaemon:
         if self.pidfile.exists():
             try:
                 other_pid = int(self.pidfile.read_text().strip())
-            except (ValueError, OSError):
-                other_pid = None  # malformed content -> stale, recover ownership below
-            if other_pid is not None:
-                try:
-                    os.kill(other_pid, 0)
-                except ProcessLookupError:
-                    other_pid = None  # stale PID -> recover stale ownership below
-                except PermissionError:
-                    return False  # fail closed: process may exist but we can't signal it
-                else:
-                    return False  # process alive -> block duplicate startup
-            # stale or malformed pidfile: recover ownership by overwriting
+                if Path(f"/proc/{other_pid}").exists():
+                    return False  # dual-start blocked
+            except Exception:
+                pass
         self.pidfile.write_text(str(os.getpid()))
         self.heartbeat.write_text(json.dumps({"pid": os.getpid(), "started": datetime.now(timezone.utc).isoformat()}))
         return True
@@ -58,14 +51,24 @@ class SupervisorDaemon:
         }
 
 def rotate_logs(log_dir: Path = LOG_DIR, max_size_mb: int = 50, retention_days: int = 30) -> list[str]:
+    if max_size_mb <= 0 or retention_days <= 0:
+        raise ValueError('Log size and retention limits must be positive')
     rotated = []
     if not log_dir.exists():
         return rotated
     for f in sorted(log_dir.glob("*.jsonl")):
-        if f.stat().st_size > max_size_mb * 1024 * 1024:
-            archive = f.with_suffix(f".jsonl.{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.gz")
+        if f.is_symlink():
+            continue
+        stat = f.stat()
+        if (stat.st_size > max_size_mb * 1024 * 1024
+                or stat.st_mtime < time.time() - retention_days * 86400):
+            archive = f.with_suffix(f".jsonl.{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S_%f')}.gz")
             with open(f, 'rb') as src, gzip.open(archive, 'wb') as dst:
-                dst.write(src.read())
+                shutil.copyfileobj(src, dst)
             f.unlink()
             rotated.append(str(archive))
+    cutoff = time.time() - retention_days * 86400
+    for archive in log_dir.glob('*.jsonl.*.gz'):
+        if not archive.is_symlink() and archive.stat().st_mtime < cutoff:
+            archive.unlink()
     return rotated
