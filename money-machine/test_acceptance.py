@@ -257,7 +257,14 @@ class Acceptance(unittest.TestCase):
         self.assertEqual(run.returncode,2);self.assertEqual(self.d.execute('SELECT count(*) FROM mm_model_invocations WHERE model=?',('test:free',)).fetchone()[0],1)
     def test_56_status_cli_persists_no_fixture_changes(self):
         self.d.commit();before=self.d.execute('SELECT count(*) FROM mm_events').fetchone()[0]
-        run=subprocess.run([sys.executable,str(OPERATOR),'status'],capture_output=True,text=True,timeout=10)
+        # Exercise the direct-script entry point from outside the repo; no
+        # implicit PYTHONPATH from a developer shell may mask missing imports.
+        isolated_env = os.environ.copy()
+        isolated_env.pop('PYTHONPATH', None)
+        run=subprocess.run(
+            [sys.executable,str(OPERATOR),'status'],
+            cwd=self.r, env=isolated_env, capture_output=True, text=True, timeout=10,
+        )
         self.assertEqual(run.returncode,0,run.stderr);self.assertEqual(json.loads(run.stdout)['model_calls'],0);self.assertEqual(before,self.d.execute('SELECT count(*) FROM mm_events').fetchone()[0])
 
     def test_57_raw_stage_update_cannot_bypass_demo_gate(self):
