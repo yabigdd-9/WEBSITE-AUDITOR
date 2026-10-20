@@ -1,0 +1,173 @@
+# OPUS PRIORITY UPGRADE QUEUE — P15
+
+programme: opus_enhancements
+branch: integration/v44-local-machine-convergence
+head_sha: 09ab41ab
+policy:
+  paid_allowed: false
+  max_cost_usd: 0
+  external_send_allowed: false
+  daily_cap: 0
+  outreach_default_enabled: false
+
+severity_order: [CRITICAL, HIGH, MEDIUM, LOW]
+
+queue:
+  - id: F-02
+    severity: HIGH
+    title: "Unimplemented analyzer stages not tracked as unimplemented"
+    location: "auditor_toolkit/models.py:10-11,160-161"
+    evidence: >
+      UNIMPLEMENTED_STATIC_CHECKS and UNIMPLEMENTED_RENDERED_CHECKS are empty
+      frozensets while CURRENT_STATE records seven analyzer bodies as
+      unimplemented. STATIC_REQUIRED_CHECKS/RENDERED_REQUIRED_CHECKS list
+      checks (third_party, browser_console, cookie_consent, axe, pdf,
+      lighthouse) with no marker separating unimplemented from executed.
+    root_cause: Unimplemented marker sets are empty; coverage reporting cannot
+      distinguish "check passes" from "stage unimplemented."
+    proposed_solution: >
+      Populate UNIMPLEMENTED_* sets with the unimplemented analyzer stage IDs;
+      gate current_coverage_gaps so an unimplemented required check is reported
+      as a coverage gap with an explicit "unimplemented" reason.
+    expected_benefit: Accurate coverage reporting; no unimplemented stage
+      mistaken for a passing check; matches documented explicit skipped
+      coverage contract.
+    risk: Low — additive markers only.
+    tests_required: >
+      test_audit_coverage asserts unimplemented checks appear in
+      current_coverage_gaps with reason; has_current_complete_coverage returns
+      False when unimplemented required checks exist.
+    dependencies: auditor_toolkit/models.py, storage.py, pipeline.py
+    overlaps_p0_p14: P4 audit engine (seven audit stages future implementation)
+    status: not_started
+
+  - id: F-01
+    severity: MEDIUM
+    title: "Fragile top-level module import: email_baseline_capture"
+    location: >
+      money-machine/mm_email_network.py:13;
+      mm_contact_review_network.py:16;
+      mm_recurring_contact_review.py:30;
+      email_fresh_validation.py:13
+    evidence: >
+      from email_baseline_capture import ... imports a sibling script as a
+      top-level module. Works only when money-machine/ is on sys.path or cwd
+      is money-machine/. Breaks under other entry points.
+    root_cause: Sibling scripts imported by bare module name, not
+      package-relative.
+    proposed_solution: Make the import robust across entry points (defensive
+      sys.path insertion guarded by ModuleNotFoundError, or package-relative
+      import consistent with mm_operator.py's path setup).
+    expected_benefit: Reliable imports across all entry points/cron; no
+      silent ModuleNotFoundError in workers.
+    risk: Low — behaviour-preserving import relocation.
+    tests_required: >
+      Import each affected module from a clean interpreter with cwd outside
+      money-machine/; run money-machine/test_email_integration.py.
+    dependencies: None
+    overlaps_p0_p14: No
+    status: not_started
+
+  - id: F-03
+    severity: MEDIUM
+    title: "Duplicate audit check definitions in registry"
+    location: "auditor_toolkit/models.py:118-126"
+    evidence: >
+      REGISTRY dict comprehension contains duplicate CheckDefinition entries:
+      "hygiene" (lines 117, 125) and "links" (lines 118, 126). Later
+      definition silently wins; earlier is dead/unreachable.
+    root_cause: Copy-paste in registry construction; dict comprehension hides
+      duplicates.
+    proposed_solution: Remove duplicate hygiene and links entries; add unit
+      test asserting registry uniqueness (no silent drops).
+    expected_benefit: Clean registry; no silent definition loss; clearer audit
+      coverage contract.
+    risk: Very low — duplicates are identical in intent.
+    tests_required: Test registry uniqueness and count.
+    dependencies: auditor_toolkit/models.py
+    overlaps_p0_p14: No
+    status: not_started
+
+  - id: F-05
+    severity: MEDIUM
+    title: "Discovery SearXNG lane blocked/deferred — record explicit state"
+    location: "money-machine/mm_discovery.py (searxng_candidates, SearchBlocked); mm_search_backend.py"
+    evidence: >
+      discover-search catches SearchBlocked and returns empty candidates with
+      a blocked note. mm_search_backend.probe targets 127.0.0.1:8888 only.
+      SearXNG not configured on this host (CLAUDE.md: optional, validate only
+      when configured).
+    root_cause: SearXNG optional lane unavailable in this environment.
+    proposed_solution: Record blocked/deferred state in OPUS_EXECUTION_STATE.yaml
+      and CURRENT_STATE.md; no code change. Current graceful degradation is
+      correct — no fabricated discovery results.
+    expected_benefit: Transparent blocked state; no fabricated discovery.
+    risk: None.
+    tests_required: test_search_backend.py / test_discovery.py already cover
+      probe/ingest behavior.
+    dependencies: None
+    overlaps_p0_p14: P6 NZ discovery (SearXNG optional lane)
+    status: not_started
+
+  - id: F-04
+    severity: CRITICAL
+    title: "Transport/approval fail-closed — preserve; add DEFER regression test"
+    location: >
+      outreach/execution_gate.py, catalyx_send.py, send.py;
+      money-machine/mm_core.py triggers; toolkit_tests/test_p14_transport_gate.py
+    evidence: >
+      test_external_release_gate_is_fail_closed asserts PermissionError;
+      SMTP sender never reaches network; legacy Gmail sender raises
+      HUMAN_APPROVAL_REQUIRED; legacy monthly generator retired. SQL triggers
+      block sends without exact approval/verified receipt/suppression checks.
+      mm_model_router refuses non-:free models, non-loopback FCC, redirects;
+      never falls back to paid.
+    root_cause: None — this is a strength.
+    proposed_solution: Preserve; do not weaken. Add regression test asserting
+      mm_model_router.local_complete raises BlockedCost when both FCC and
+      Hermes routes unavailable (DEFER path).
+    expected_benefit: Continued zero-cost guarantee and send safety.
+    risk: None.
+    tests_required: Extend test_p15_local_routing.py with DEFER test.
+    dependencies: None
+    overlaps_p0_p14: Preserves P14 outreach and P15 free model router
+    status: not_started
+
+  - id: F-06
+    severity: LOW
+    title: "Dead-letter production triage is manual — document"
+    location: "money-machine/mm_operator.py:153-251 (cmd_dead_letter_resolve); money-machine/mm_observability.py"
+    evidence: >
+      cmd_dead_letter_resolve resolves only test_import + is_dummy=1 rows
+      (explicitly no retry). Production DLQ in state/dead-letter/ is handled by
+      mm_observability.dead_letter() read-only listing; no operator command to
+      triage/resolve non-test dead letters.
+    root_cause: Deliberate safety scoping — production DLQ triage remains
+      human/Obsidian-driven.
+    proposed_solution: No code change. Document DLQ resolution as manual,
+      gated operator action via Obsidian review queue (P26 dashboard).
+    expected_benefit: Clarity that DLQ is human-triaged, not auto-resolved.
+    risk: None.
+    tests_required: test_p3_runtime_guards.py / test_supervisor.py cover DLQ
+      listing.
+    dependencies: None
+    overlaps_p0_p14: P3 continuous control plane (DLQ exists)
+    status: not_started
+
+immediate_safe_repairs:
+  - id: F-03
+    action: Remove duplicate hygiene/links entries in auditor_toolkit/models.py REGISTRY; add registry-uniqueness test.
+  - id: F-02
+    action: Populate UNIMPLEMENTED_STATIC_CHECKS/UNIMPLEMENTED_RENDERED_CHECKS; gate coverage reporting.
+  - id: F-01
+    action: Make email_baseline_capture import robust across entry points.
+  - id: F-04
+    action: Add DEFER regression test to test_p15_local_routing.py.
+
+no_code_change:
+  - id: F-04
+    reason: transport/approval already fail-closed; preserve only
+  - id: F-06
+    reason: production DLQ triage intentionally manual/human-gated
+  - id: F-05
+    reason: SearXNG optional lane; graceful degradation already correct

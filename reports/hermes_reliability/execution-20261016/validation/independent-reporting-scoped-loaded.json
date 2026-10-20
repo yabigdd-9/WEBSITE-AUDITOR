@@ -1,0 +1,17 @@
+{
+  "ops/hermes_zero_token/runner.py": {
+    "actual_sha256": "9e04eca9ed7c68ac2372907283c7e63db8544514fd771a791f98442509254403",
+    "fresh_sha256": "9e04eca9ed7c68ac2372907283c7e63db8544514fd771a791f98442509254403",
+    "matches_fresh_compile": true
+  },
+  "ops/hermes_zero_token/daily_report.py": {
+    "actual_sha256": "40453c2857c6b6ca69b4f8a2c64b6795a906d414097d0514db71a81325a35200",
+    "fresh_sha256": "40453c2857c6b6ca69b4f8a2c64b6795a906d414097d0514db71a81325a35200",
+    "matches_fresh_compile": true
+  },
+  "ops/hermes_zero_token/staging_db.py": {
+    "actual_sha256": "6b1adf0448d86c2793a39de10dc18e6582db1e67e208e58642a352ee26c74464",
+    "fresh_sha256": "6b1adf0448d86c2793a39de10dc18e6582db1e67e208e58642a352ee26c74464",
+    "matches_fresh_compile": true
+  }
+}
