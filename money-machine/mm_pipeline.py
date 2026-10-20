@@ -229,6 +229,10 @@ class BlockedCostError(Exception):
     """No free model/provider route: defer, never fall back to paid."""
 
 
+class LeaseLostError(ValueError):
+    """An expired or replaced lease cannot author a worker outcome."""
+
+
 # Public compatibility name used by model routers and injected handlers.
 BlockedCost = BlockedCostError
 
@@ -302,14 +306,17 @@ def heartbeat(d, worker_id, business_id=None):
 
 def claim(d, states, worker_id, lease_seconds=300, limit=1):
     """Claim up to `limit` items in `states`. Expired leases are recoverable."""
+    if not states or limit <= 0:
+        return []
     at = dt.datetime.now(dt.timezone.utc)
     until = (at + dt.timedelta(seconds=lease_seconds)).isoformat()
     marks = ','.join('?' * len(states))
     rows = d.execute(
         "SELECT * FROM pipeline_items WHERE state IN (%s) "
         "AND (next_retry_at IS NULL OR next_retry_at<=?) "
+        "AND (lease_until IS NULL OR lease_until<=?) "
         "ORDER BY updated_at LIMIT ?" % marks,
-        tuple(states) + (at.isoformat(), limit)).fetchall()
+        tuple(states) + (at.isoformat(), at.isoformat(), limit)).fetchall()
     got = []
     for r in rows:
         if r['lease_until'] and timestamp(r['lease_until']) > at:
@@ -317,8 +324,10 @@ def claim(d, states, worker_id, lease_seconds=300, limit=1):
         cur = d.execute(
             "UPDATE pipeline_items SET lease_owner=?,lease_until=?,"
             "heartbeat_at=?,updated_at=? WHERE business_id=? AND "
-            "(lease_until IS NULL OR lease_until<=?)",
-            (worker_id, until, now(), now(), r['business_id'], at.isoformat()))
+            "(lease_until IS NULL OR lease_until<=?) AND state=? "
+            "AND (next_retry_at IS NULL OR next_retry_at<=?)",
+            (worker_id, until, now(), now(), r['business_id'], at.isoformat(),
+             r['state'], at.isoformat()))
         if cur.rowcount:
             got.append(item(d, r['business_id']))
     return got
@@ -361,11 +370,27 @@ def backoff_seconds(attempts, base=30, cap=3600, jitter=0.2):
     return delay * (1 + random.uniform(-jitter, jitter))
 
 
-def fail(d, business_id, worker_id, error, retryable=True):
+def _require_lease(d, business_id, worker_id, allow_unleased=False):
+    # Obtain the SQLite write lock before checking ownership. A stale result
+    # must not reset another worker's retry budget, release its lease or advance.
+    cur = d.execute(
+        "UPDATE pipeline_items SET heartbeat_at=heartbeat_at WHERE business_id=? "
+        "AND ((lease_owner=? AND lease_until>?) "
+        "OR (? AND lease_owner IS NULL AND lease_until IS NULL))",
+        (business_id, worker_id, now(), int(allow_unleased)))
+    if not cur.rowcount:
+        raise LeaseLostError('Worker lease no longer owned')
+
+
+def fail(d, business_id, worker_id, error, retryable=True, require_lease=False):
     """Record a failure; schedule retry or dead-letter."""
+    # Preserve the explicit unleased diagnostic API used by operator tooling;
+    # the worker loop always requires its current lease.
+    _require_lease(d, business_id, worker_id, allow_unleased=not require_lease)
     r = item(d, business_id)
     attempts = r['attempts'] + 1
-    msg = str(error)[:500]
+    msg = ('BLOCKED_COST: %s' % error if isinstance(error, BlockedCost)
+           else str(error))[:500]
 
     # Generate error fingerprint and determine component
     component = getattr(worker_id, 'kind', str(worker_id)) if hasattr(worker_id, 'kind') else str(worker_id)
@@ -483,11 +508,22 @@ def mark_sent(d, business_id, actor, provider_message_id):
 
 
 def complete(d, business_id, worker_id, to_state, reason='ok', evidence=None):
-    release(d, business_id, worker_id)
-    d.execute("UPDATE pipeline_items SET attempts=0,next_retry_at=NULL "
-              "WHERE business_id=?", (business_id,))
-    metric(d, 'pipeline.items.completed')
-    return advance(d, business_id, to_state, worker_id, reason, evidence)
+    # Roll back partial state edges and counters when a completion is rejected.
+    # A savepoint preserves unrelated work in the caller's transaction.
+    d.execute('SAVEPOINT pipeline_completion')
+    try:
+        _require_lease(d, business_id, worker_id)
+        advance(d, business_id, to_state, worker_id, reason, evidence)
+        release(d, business_id, worker_id)
+        d.execute("UPDATE pipeline_items SET attempts=0,next_retry_at=NULL "
+                  "WHERE business_id=?", (business_id,))
+        metric(d, 'pipeline.items.completed')
+    except Exception:
+        d.execute('ROLLBACK TO pipeline_completion')
+        d.execute('RELEASE pipeline_completion')
+        raise
+    d.execute('RELEASE pipeline_completion')
+    return item(d, business_id)
 
 
 
@@ -662,6 +698,14 @@ class Worker:
         register_worker(d, self.worker_id, kind=','.join(self.states),
                         lease_seconds=self.lease_seconds)
         processed = 0
+        def record_failure(bid, error, retryable=True):
+            try:
+                fail(d, bid, self.worker_id, error, retryable=retryable,
+                     require_lease=True)
+            except LeaseLostError:
+                log({'kind': 'lease_lost', 'business_id': bid,
+                     'worker': self.worker_id})
+
         for it in claim(d, self.states, self.worker_id,
                         lease_seconds=self.lease_seconds, limit=limit):
             bid = it['business_id']
@@ -683,21 +727,26 @@ class Worker:
                     breaker_success(d, svc)
                 try:
                     complete(d, bid, self.worker_id, nxt, reason, evidence)
+                except LeaseLostError:
+                    raise
                 except Exception as ex:
                     # A bad handler target must never crash the worker loop:
                     # record it as a bounded retryable failure instead.
                     raise classify_unexpected(ex, 'completion rejected: ')
                 processed += 1
+            except LeaseLostError:
+                log({'kind': 'lease_lost', 'business_id': bid,
+                     'worker': self.worker_id})
             except BlockedCost as ex:
                 for svc in self.services:
                     breaker_failure(d, svc)
-                fail(d, bid, self.worker_id, 'BLOCKED_COST: %s' % ex)
+                record_failure(bid, ex)
             except RetryableError as ex:
                 for svc in self.services:
                     breaker_failure(d, svc)
-                fail(d, bid, self.worker_id, ex)
+                record_failure(bid, ex)
             except PermanentError as ex:
-                fail(d, bid, self.worker_id, ex, retryable=False)
+                record_failure(bid, ex, retryable=False)
             heartbeat(d, self.worker_id)
         return processed
 

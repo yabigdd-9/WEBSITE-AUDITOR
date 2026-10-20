@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+# REVIEW_REQUIRED: add canonical sitemap URL

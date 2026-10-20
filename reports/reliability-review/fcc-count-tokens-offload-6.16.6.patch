@@ -1,0 +1,36 @@
+diff --git a/src/free_claude_code/api/routes.py b/src/free_claude_code/api/routes.py
+index 599d766..b1fe88b 100644
+--- a/src/free_claude_code/api/routes.py
++++ b/src/free_claude_code/api/routes.py
+@@ -1,6 +1,7 @@
+ """FastAPI route handlers."""
+ 
+ from collections.abc import Mapping
++from functools import partial
+ from typing import Annotated, Any, cast
+ 
+ from fastapi import APIRouter, Body, Depends, Header, HTTPException, Request, Response
+@@ -24,6 +25,7 @@ from free_claude_code.core.anthropic.native import (
+     validate_messages_json,
+ )
+ from free_claude_code.core.anthropic.passthrough import NativeMessagesRequest
++from free_claude_code.core.async_tasks import run_sync_owned
+ from free_claude_code.core.json_types import JsonObject
+ from free_claude_code.core.openai_responses import OpenAIResponsesRequest
+ from free_claude_code.core.trace import trace_event
+@@ -250,8 +252,13 @@ async def count_tokens(
+         handler = TokenCountHandler(
+             lease.settings, model_router=model_router, token_counter=get_token_count
+         )
+-        return handler.count(
+-            counted, request_id=get_request_id(request), resolved=resolved
++        return await run_sync_owned(
++            partial(
++                handler.count,
++                counted,
++                request_id=get_request_id(request),
++                resolved=resolved,
++            )
+         )
+     finally:
+         await lease.release()

@@ -1,0 +1,378 @@
+{
+  "at": "2026-10-14T14:54:14.810709+00:00",
+  "mode": "read_only_no_recovery",
+  "samples": [
+    {
+      "initialised": true,
+      "at": "2026-10-14T14:53:49.759767+00:00",
+      "states": {
+        "DEMO_READY": 100,
+        "RETRYABLE_FAILURE": 2
+      },
+      "eligible": 0,
+      "active_leases": 0,
+      "expired_leases": 0,
+      "waiting_retry": 0,
+      "dead_lettered": 2,
+      "held_or_terminal": 102,
+      "activity": "idle_no_eligible_work",
+      "workers": [
+        {
+          "worker_id": "staging-a",
+          "kind": "DEMO_PENDING",
+          "started_at": "2026-10-14T14:43:48.524291+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.680057+00:00",
+          "heartbeat_age_seconds": 599.07971,
+          "stale": false
+        },
+        {
+          "worker_id": "staging-b",
+          "kind": "DEMO_PENDING",
+          "started_at": "2026-10-14T14:43:50.497299+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.690937+00:00",
+          "heartbeat_age_seconds": 599.06883,
+          "stale": false
+        },
+        {
+          "worker_id": "restarted",
+          "kind": "DEMO_PENDING",
+          "started_at": "2026-10-14T14:43:50.792087+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.792118+00:00",
+          "heartbeat_age_seconds": 598.967649,
+          "stale": false
+        },
+        {
+          "worker_id": "retry-probe",
+          "kind": "DISCOVERED",
+          "started_at": "2026-10-14T14:43:50.806685+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.825575+00:00",
+          "heartbeat_age_seconds": 598.934192,
+          "stale": false
+        }
+      ],
+      "metrics": {
+        "pipeline.items.completed": 100,
+        "pipeline.items.retry_scheduled": 2,
+        "pipeline.items.dead_lettered": 2
+      },
+      "eligibility_basis": "registered worker input states",
+      "note": "Queue activity does not attest supervisor liveness or external safety.",
+      "quick_check": "ok",
+      "foreign_key_violations": 0,
+      "disk_free_bytes": 11609481216,
+      "sample_monotonic_seconds": 0.017
+    },
+    {
+      "initialised": true,
+      "at": "2026-10-14T14:53:54.776464+00:00",
+      "states": {
+        "DEMO_READY": 100,
+        "RETRYABLE_FAILURE": 2
+      },
+      "eligible": 0,
+      "active_leases": 0,
+      "expired_leases": 0,
+      "waiting_retry": 0,
+      "dead_lettered": 2,
+      "held_or_terminal": 102,
+      "activity": "idle_no_eligible_work",
+      "workers": [
+        {
+          "worker_id": "staging-a",
+          "kind": "DEMO_PENDING",
+          "started_at": "2026-10-14T14:43:48.524291+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.680057+00:00",
+          "heartbeat_age_seconds": 604.096407,
+          "stale": true
+        },
+        {
+          "worker_id": "staging-b",
+          "kind": "DEMO_PENDING",
+          "started_at": "2026-10-14T14:43:50.497299+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.690937+00:00",
+          "heartbeat_age_seconds": 604.085527,
+          "stale": true
+        },
+        {
+          "worker_id": "restarted",
+          "kind": "DEMO_PENDING",
+          "started_at": "2026-10-14T14:43:50.792087+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.792118+00:00",
+          "heartbeat_age_seconds": 603.984346,
+          "stale": true
+        },
+        {
+          "worker_id": "retry-probe",
+          "kind": "DISCOVERED",
+          "started_at": "2026-10-14T14:43:50.806685+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.825575+00:00",
+          "heartbeat_age_seconds": 603.950889,
+          "stale": true
+        }
+      ],
+      "metrics": {
+        "pipeline.items.completed": 100,
+        "pipeline.items.retry_scheduled": 2,
+        "pipeline.items.dead_lettered": 2
+      },
+      "eligibility_basis": "registered worker input states",
+      "note": "Queue activity does not attest supervisor liveness or external safety.",
+      "quick_check": "ok",
+      "foreign_key_violations": 0,
+      "disk_free_bytes": 11609387008,
+      "sample_monotonic_seconds": 5.025
+    },
+    {
+      "initialised": true,
+      "at": "2026-10-14T14:53:59.780734+00:00",
+      "states": {
+        "DEMO_READY": 100,
+        "RETRYABLE_FAILURE": 2
+      },
+      "eligible": 0,
+      "active_leases": 0,
+      "expired_leases": 0,
+      "waiting_retry": 0,
+      "dead_lettered": 2,
+      "held_or_terminal": 102,
+      "activity": "idle_no_eligible_work",
+      "workers": [
+        {
+          "worker_id": "staging-a",
+          "kind": "DEMO_PENDING",
+          "started_at": "2026-10-14T14:43:48.524291+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.680057+00:00",
+          "heartbeat_age_seconds": 609.100677,
+          "stale": true
+        },
+        {
+          "worker_id": "staging-b",
+          "kind": "DEMO_PENDING",
+          "started_at": "2026-10-14T14:43:50.497299+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.690937+00:00",
+          "heartbeat_age_seconds": 609.089797,
+          "stale": true
+        },
+        {
+          "worker_id": "restarted",
+          "kind": "DEMO_PENDING",
+          "started_at": "2026-10-14T14:43:50.792087+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.792118+00:00",
+          "heartbeat_age_seconds": 608.988616,
+          "stale": true
+        },
+        {
+          "worker_id": "retry-probe",
+          "kind": "DISCOVERED",
+          "started_at": "2026-10-14T14:43:50.806685+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.825575+00:00",
+          "heartbeat_age_seconds": 608.955159,
+          "stale": true
+        }
+      ],
+      "metrics": {
+        "pipeline.items.completed": 100,
+        "pipeline.items.retry_scheduled": 2,
+        "pipeline.items.dead_lettered": 2
+      },
+      "eligibility_basis": "registered worker input states",
+      "note": "Queue activity does not attest supervisor liveness or external safety.",
+      "quick_check": "ok",
+      "foreign_key_violations": 0,
+      "disk_free_bytes": 11609354240,
+      "sample_monotonic_seconds": 10.032
+    },
+    {
+      "initialised": true,
+      "at": "2026-10-14T14:54:04.792611+00:00",
+      "states": {
+        "DEMO_READY": 100,
+        "RETRYABLE_FAILURE": 2
+      },
+      "eligible": 0,
+      "active_leases": 0,
+      "expired_leases": 0,
+      "waiting_retry": 0,
+      "dead_lettered": 2,
+      "held_or_terminal": 102,
+      "activity": "idle_no_eligible_work",
+      "workers": [
+        {
+          "worker_id": "staging-a",
+          "kind": "DEMO_PENDING",
+          "started_at": "2026-10-14T14:43:48.524291+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.680057+00:00",
+          "heartbeat_age_seconds": 614.112554,
+          "stale": true
+        },
+        {
+          "worker_id": "staging-b",
+          "kind": "DEMO_PENDING",
+          "started_at": "2026-10-14T14:43:50.497299+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.690937+00:00",
+          "heartbeat_age_seconds": 614.101674,
+          "stale": true
+        },
+        {
+          "worker_id": "restarted",
+          "kind": "DEMO_PENDING",
+          "started_at": "2026-10-14T14:43:50.792087+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.792118+00:00",
+          "heartbeat_age_seconds": 614.000493,
+          "stale": true
+        },
+        {
+          "worker_id": "retry-probe",
+          "kind": "DISCOVERED",
+          "started_at": "2026-10-14T14:43:50.806685+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.825575+00:00",
+          "heartbeat_age_seconds": 613.967036,
+          "stale": true
+        }
+      ],
+      "metrics": {
+        "pipeline.items.completed": 100,
+        "pipeline.items.retry_scheduled": 2,
+        "pipeline.items.dead_lettered": 2
+      },
+      "eligibility_basis": "registered worker input states",
+      "note": "Queue activity does not attest supervisor liveness or external safety.",
+      "quick_check": "ok",
+      "foreign_key_violations": 0,
+      "disk_free_bytes": 11608580096,
+      "sample_monotonic_seconds": 15.042
+    },
+    {
+      "initialised": true,
+      "at": "2026-10-14T14:54:09.798607+00:00",
+      "states": {
+        "DEMO_READY": 100,
+        "RETRYABLE_FAILURE": 2
+      },
+      "eligible": 0,
+      "active_leases": 0,
+      "expired_leases": 0,
+      "waiting_retry": 0,
+      "dead_lettered": 2,
+      "held_or_terminal": 102,
+      "activity": "idle_no_eligible_work",
+      "workers": [
+        {
+          "worker_id": "staging-a",
+          "kind": "DEMO_PENDING",
+          "started_at": "2026-10-14T14:43:48.524291+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.680057+00:00",
+          "heartbeat_age_seconds": 619.11855,
+          "stale": true
+        },
+        {
+          "worker_id": "staging-b",
+          "kind": "DEMO_PENDING",
+          "started_at": "2026-10-14T14:43:50.497299+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.690937+00:00",
+          "heartbeat_age_seconds": 619.10767,
+          "stale": true
+        },
+        {
+          "worker_id": "restarted",
+          "kind": "DEMO_PENDING",
+          "started_at": "2026-10-14T14:43:50.792087+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.792118+00:00",
+          "heartbeat_age_seconds": 619.006489,
+          "stale": true
+        },
+        {
+          "worker_id": "retry-probe",
+          "kind": "DISCOVERED",
+          "started_at": "2026-10-14T14:43:50.806685+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.825575+00:00",
+          "heartbeat_age_seconds": 618.973032,
+          "stale": true
+        }
+      ],
+      "metrics": {
+        "pipeline.items.completed": 100,
+        "pipeline.items.retry_scheduled": 2,
+        "pipeline.items.dead_lettered": 2
+      },
+      "eligibility_basis": "registered worker input states",
+      "note": "Queue activity does not attest supervisor liveness or external safety.",
+      "quick_check": "ok",
+      "foreign_key_violations": 0,
+      "disk_free_bytes": 11608309760,
+      "sample_monotonic_seconds": 20.048
+    },
+    {
+      "initialised": true,
+      "at": "2026-10-14T14:54:14.807683+00:00",
+      "states": {
+        "DEMO_READY": 100,
+        "RETRYABLE_FAILURE": 2
+      },
+      "eligible": 0,
+      "active_leases": 0,
+      "expired_leases": 0,
+      "waiting_retry": 0,
+      "dead_lettered": 2,
+      "held_or_terminal": 102,
+      "activity": "idle_no_eligible_work",
+      "workers": [
+        {
+          "worker_id": "staging-a",
+          "kind": "DEMO_PENDING",
+          "started_at": "2026-10-14T14:43:48.524291+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.680057+00:00",
+          "heartbeat_age_seconds": 624.127626,
+          "stale": true
+        },
+        {
+          "worker_id": "staging-b",
+          "kind": "DEMO_PENDING",
+          "started_at": "2026-10-14T14:43:50.497299+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.690937+00:00",
+          "heartbeat_age_seconds": 624.116746,
+          "stale": true
+        },
+        {
+          "worker_id": "restarted",
+          "kind": "DEMO_PENDING",
+          "started_at": "2026-10-14T14:43:50.792087+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.792118+00:00",
+          "heartbeat_age_seconds": 624.015565,
+          "stale": true
+        },
+        {
+          "worker_id": "retry-probe",
+          "kind": "DISCOVERED",
+          "started_at": "2026-10-14T14:43:50.806685+00:00",
+          "heartbeat_at": "2026-10-14T14:43:50.825575+00:00",
+          "heartbeat_age_seconds": 623.982108,
+          "stale": true
+        }
+      ],
+      "metrics": {
+        "pipeline.items.completed": 100,
+        "pipeline.items.retry_scheduled": 2,
+        "pipeline.items.dead_lettered": 2
+      },
+      "eligibility_basis": "registered worker input states",
+      "note": "Queue activity does not attest supervisor liveness or external safety.",
+      "quick_check": "ok",
+      "foreign_key_violations": 0,
+      "disk_free_bytes": 11608141824,
+      "sample_monotonic_seconds": 25.058
+    }
+  ],
+  "elapsed_seconds": 25.041,
+  "counter_deltas": {
+    "pipeline.items.dead_lettered": 0,
+    "pipeline.items.completed": 0,
+    "pipeline.items.retry_scheduled": 0
+  },
+  "jobs_processed_per_hour": 0.0,
+  "completion_rate": null,
+  "retry_rate": null,
+  "failure_rate": null,
+  "recovery_attempts_by_observer": 0,
+  "note": "Idle rates are null when no outcomes occur; zero work is not a worker failure."
+}

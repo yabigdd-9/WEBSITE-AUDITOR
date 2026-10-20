@@ -89,7 +89,14 @@ class HardeningDatabase(unittest.TestCase):
         with self.assertRaisesRegex(sqlite3.IntegrityError,'replacement blocked'):
             self.d.execute('INSERT OR REPLACE INTO mm_events VALUES(?,?,?,?,?)',
                            (event['id'],e.utcnow(),'replaced',self.bid,'tampered'))
-        score = self.d.execute('SELECT * FROM mm_score_history ORDER BY id LIMIT 1').fetchone()
+        # Archive this test's synthetic score; an empty staging source must not
+        # depend on a historical customer score already being present.
+        self.d.execute('INSERT INTO mm_scores VALUES(?,?,?,?,?)',
+                       (self.bid,self.eid,'{}','{"score":1}',e.utcnow()))
+        self.d.execute('UPDATE mm_scores SET computed_json=? WHERE business_id=?',
+                       ('{"score":2}',self.bid))
+        score = self.d.execute('SELECT * FROM mm_score_history WHERE business_id=? ORDER BY id LIMIT 1',
+                               (self.bid,)).fetchone()
         with self.assertRaisesRegex(sqlite3.IntegrityError,'replacement blocked'):
             self.d.execute('INSERT OR REPLACE INTO mm_score_history VALUES(?,?,?,?,?,?,?)',
                            (score['id'],self.bid,self.eid,'{}','{}',e.utcnow(),e.utcnow()))
