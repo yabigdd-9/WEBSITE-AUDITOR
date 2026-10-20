@@ -1,0 +1,146 @@
+[
+  {
+    "case_id": "business-1",
+    "live_business_id": 1,
+    "company": "Clear Plumbing",
+    "website": "https://clear.nz/",
+    "scout": {
+      "worker": "SCOUT",
+      "pages_hash_verified": 0,
+      "acquisition_errors": [],
+      "new_requests": 0
+    },
+    "identity": {
+      "worker": "IDENTITY",
+      "status": "AMBIGUOUS",
+      "reasons": [
+        "Business name not confirmed in title/headings/organization",
+        "Business name not confirmed in visible page text",
+        "Location/phone/address/structured corroboration missing"
+      ],
+      "name_suggestions": [],
+      "unit_scope": "Recorded business and region",
+      "scope_note": "Named business website; no inference of an unrecorded branch"
+    },
+    "verifier": {
+      "business_id": "business-1",
+      "business": "Clear Plumbing",
+      "website": "https://clear.nz/",
+      "identity": {
+        "canonical_business_name": "Clear Plumbing",
+        "trading_name": null,
+        "legal_name": null,
+        "website_url_discovered": "https://clear.nz/",
+        "canonical_root_domain": null,
+        "proposed_root_domain": "clear.nz",
+        "redirected_destination": null,
+        "page_titles": [],
+        "organization_names": [],
+        "physical_location": "Auckland",
+        "phone": null,
+        "observed_phones": [],
+        "social_links": [],
+        "evidence_urls": [],
+        "checked_at": null,
+        "page_evidence": [],
+        "status": "AMBIGUOUS",
+        "signals": {
+          "prominent_name": false,
+          "body_name": false,
+          "region": false,
+          "phone": false,
+          "address": false,
+          "structured_name": false
+        },
+        "reasons": [
+          "Business name not confirmed in title/headings/organization",
+          "Business name not confirmed in visible page text",
+          "Location/phone/address/structured corroboration missing"
+        ],
+        "weighted_confidence": {
+          "version": "identity-v1",
+          "confidence": 0.0,
+          "status": "LOW",
+          "outreach_identity_eligible": false,
+          "positive_signals": [],
+          "conflicts": [
+            "domain_name_match",
+            "region_match"
+          ],
+          "unknown_signals": [],
+          "observed_weight": 0.28,
+          "weights": {
+            "domain_name_match": 0.2,
+            "website_brand_match": 0.18,
+            "nzbn_match": 0.3,
+            "email_domain_match": 0.14,
+            "region_match": 0.08,
+            "address_match": 0.05,
+            "phone_match": 0.05
+          },
+          "business_name": "Clear Plumbing",
+          "legal_name": null,
+          "trading_name": null,
+          "nzbn_name": null,
+          "canonical_domain": "clear.nz",
+          "signals": {
+            "domain_name_match": false,
+            "website_brand_match": null,
+            "nzbn_match": null,
+            "email_domain_match": null,
+            "region_match": false,
+            "address_match": null,
+            "phone_match": null
+          },
+          "eligibility_basis": "weighted confidence is advisory; strict first-party identity checks also apply"
+        },
+        "accepted_roots": [],
+        "branch_sensitive": false,
+        "observed_branches": [],
+        "matched_branches": [],
+        "unit_targets": [
+          "Auckland"
+        ],
+        "entity_key": "37ed76ecf197fccc61c1f1e2237c39bc34d7ec0f1aca72d3b30bceff10e43cdc"
+      },
+      "results": [],
+      "selected": null,
+      "selection_status": "NO_VERIFIED_EMAIL",
+      "contact_form_urls": [],
+      "email_review_required": true,
+      "human_review": "Human relevance, permission and exact-item approval still required",
+      "external_sends": 0,
+      "model_calls": 0,
+      "verifier_version": "email-v2.0.1"
+    },
+    "proofer": {
+      "worker": "EVIDENCE_PROOFER",
+      "passed": false,
+      "checks": {},
+      "sources": [],
+      "reason": "No selected contact to prove"
+    },
+    "judge": {
+      "worker": "JUDGE",
+      "route": "EVIDENCE_NEEDED",
+      "next_worker": "SCOUT",
+      "reason": "No captured first-party pages",
+      "reason_codes": [
+        "EVIDENCE_NEEDED"
+      ],
+      "blocking_checks": [
+        "first_party_captures_missing"
+      ],
+      "required_evidence": [
+        "Fresh permitted first-party page captures"
+      ],
+      "permitted_action": "COLLECT_PERMITTED_PUBLIC_EVIDENCE",
+      "pipeline_state_at_capture": "NEEDS_REVIEW",
+      "pipeline_action": "NONE",
+      "outreach_eligible": false,
+      "human_precision_label": null,
+      "precision_release_authority": false,
+      "note": "A supported recommendation cannot clear a rejection, suppression or release hold"
+    }
+  }
+]

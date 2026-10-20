@@ -1,0 +1,2 @@
+# Add to existing robots.txt after review:
+Sitemap: REVIEW_REQUIRED

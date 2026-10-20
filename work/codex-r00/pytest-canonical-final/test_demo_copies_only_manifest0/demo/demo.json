@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "kind": "local_demo_concept",
+  "source_run_id": "run-cli-fixture",
+  "source_url": "https://example.co.nz/",
+  "demo_html": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_demo_copies_only_manifest0/demo/index.html",
+  "demo_html_sha256": "b83837bfc4be05f315566e73b47fe9f640ba5e6fc45a22a6158fc46f506fef0b",
+  "before": {
+    "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_demo_copies_only_manifest0/demo/before-source.png",
+    "sha256": "294ad7145322ec19f8250cca8480a933f1ce8c9e2ad1038e7ae8930d55a6598a",
+    "kind": "captured_source"
+  },
+  "after": {
+    "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_demo_copies_only_manifest0/demo/concept-render.png",
+    "sha256": "83b3601b1dca1b7e66cf4c7f73c59975fe6153b1acf59a2bf7f2d946a0aa1739",
+    "kind": "local_concept_render"
+  },
+  "status": "CONCEPT_ONLY",
+  "local_concept": true,
+  "live_site_changed": false,
+  "improvement_claim_valid": false,
+  "external_deploy": false,
+  "review_required": true,
+  "verification_required": "Approved implementation + repeat audit of actual source website."
+}

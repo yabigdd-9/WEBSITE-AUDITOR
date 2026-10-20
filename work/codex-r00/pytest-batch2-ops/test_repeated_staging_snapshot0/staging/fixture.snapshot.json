@@ -1,0 +1,13 @@
+{
+  "generation": "c175b82d03654bc397d054187f27750e",
+  "created_at": "2026-10-20T08:32:06.268638+00:00",
+  "source": {
+    "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-batch2-ops/test_repeated_staging_snapshot0/production.db",
+    "device": 16777221,
+    "inode": 22380241
+  },
+  "target": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-batch2-ops/test_repeated_staging_snapshot0/staging/fixture.db",
+  "prepared_path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-batch2-ops/test_repeated_staging_snapshot0/staging/.snapshot-k8ozuw5b.db",
+  "initial_sha256": "50ecbc0935b42b4c46cfa290ed34b773273447ff83cf206300d08f91507a5cc5",
+  "initial_evidence_max_id": 0
+}

@@ -1,0 +1,27 @@
+{
+  "legacy_import_failure": {
+    "tests_failed": 4,
+    "cause": "Existing full-pipeline.py dependency tenacity missing",
+    "resolution": "Actual held function body tested in isolation; full legacy CLI remains unverified",
+    "application_validation_weakened": false
+  },
+  "fragment_attestation_mismatch": {
+    "pytest_exit_code": 0,
+    "loaded_mismatches": [
+      "full-pipeline.py"
+    ],
+    "cause": "A compiled AST fragment used the complete source file as its filename",
+    "resolution": "Fixture code now has an explicit fragment filename; unchanged module attestation probe retained",
+    "probe_or_allowlist_changed": false
+  },
+  "final_source_verified": true,
+  "full_suite_counts": {
+    "canonical_passed": 1150,
+    "canonical_skipped": 3,
+    "money_passed": 806,
+    "money_skipped": 2,
+    "money_subtests_passed": 83,
+    "ops_passed": 116
+  },
+  "suite_counts_overlap": true
+}

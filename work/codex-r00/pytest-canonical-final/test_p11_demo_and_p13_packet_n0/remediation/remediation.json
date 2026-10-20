@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "kind": "remediation_preview",
+  "source_run_id": "run-fixture",
+  "source_url": "https://example.co.nz/",
+  "items": [
+    {
+      "finding_id": "f1",
+      "defect_key": "viewport",
+      "source_url": "https://example.co.nz/",
+      "classification": "AUTO_SAFE",
+      "action": "Add viewport metadata.",
+      "review_required": true,
+      "production_applied": false,
+      "verified_fixed": false,
+      "artifact": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_p11_demo_and_p13_packet_n0/remediation/001-viewport.html",
+      "artifact_kind": "html",
+      "artifact_status": "preview_only"
+    },
+    {
+      "finding_id": "f2",
+      "defect_key": "header-hsts",
+      "source_url": "https://example.co.nz/",
+      "classification": "HUMAN_REVIEW",
+      "action": "Review deployment and add HSTS safely.",
+      "review_required": true,
+      "production_applied": false,
+      "verified_fixed": false,
+      "artifact": null
+    }
+  ],
+  "counts": {
+    "AUTO_PREVIEW": 0,
+    "AUTO_SAFE": 1,
+    "CLIENT_ACCESS_REQUIRED": 0,
+    "HUMAN_REVIEW": 1,
+    "UNSUPPORTED": 0
+  },
+  "review_required": true,
+  "external_dispatch": false,
+  "production_changes": 0,
+  "verification_rule": "Re-run the same audit profile after an independently approved implementation."
+}

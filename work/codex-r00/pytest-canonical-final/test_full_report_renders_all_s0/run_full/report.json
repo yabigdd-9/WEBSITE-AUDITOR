@@ -1,0 +1,78 @@
+{
+  "run_id": "run_full",
+  "generated_at": "2026-10-20T09:05:55.182420+00:00",
+  "site_url": "https://example.test",
+  "total_findings": 3,
+  "high_findings": 1,
+  "contradictions_count": 1,
+  "findings": [
+    {
+      "impact": "HIGH",
+      "title": "Missing address",
+      "confidence": 0.9,
+      "page_url": "https://example.test/contact",
+      "detail": "Address is absent."
+    },
+    {
+      "impact": "INFO",
+      "defect_key": "schema-note",
+      "confidence": 0.6
+    },
+    {
+      "impact": "OTHER",
+      "title": "Unclassified",
+      "confidence": 0.5
+    }
+  ],
+  "contradictions": [
+    {
+      "field": "phone",
+      "status": "CONTRADICTION",
+      "schema_value": "+6431111111",
+      "visible_value": "+6432222222"
+    }
+  ],
+  "location_pages": [
+    {
+      "url": "https://example.test/locations",
+      "classification": "REAL",
+      "confidence": 0.8
+    }
+  ],
+  "service_area_classification": {
+    "classification": "SERVICE_AREA",
+    "confidence": 0.85,
+    "reasons": [
+      "No storefront listed"
+    ]
+  },
+  "entity": {},
+  "corroboration": {
+    "overall_confidence": 0.7,
+    "matches": [
+      {
+        "provider": "osm"
+      }
+    ],
+    "conflicts": []
+  },
+  "geo_corroboration": [
+    {
+      "status": "MATCH",
+      "distance_km": 0.1234,
+      "detail": "Within expected radius"
+    }
+  ],
+  "scoring_summary": {
+    "avg_confidence": 0.8
+  },
+  "confidence_metrics": {
+    "avg_confidence": 0.67,
+    "high_confidence_pct": 33.3,
+    "external_confidence": 0.7,
+    "total_findings": 3
+  },
+  "metadata": {
+    "source": "unit-test"
+  }
+}

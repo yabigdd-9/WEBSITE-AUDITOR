@@ -1,3 +1,13 @@
+# 20 October 2026 — completion work in progress
+
+The current isolated candidate is `codex/completion-20261020`, based on
+`ec86481c`. [The current completion register](docs/COMPLETION_STATUS.md) records
+new implementation, verification and every remaining gate. The shared checkout
+and live processes were preserved. Local tests do not establish release or
+runtime acceptance. All earlier records below are historical snapshots.
+
+---
+
 # 16 October 2026 — local Codex–Opus integration candidate
 
 Location: `/Users/dd/WEBSITE-AUDITOR-codex`, branch `agents/codex-r00`.

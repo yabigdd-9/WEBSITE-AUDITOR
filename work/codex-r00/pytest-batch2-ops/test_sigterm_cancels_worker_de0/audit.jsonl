@@ -1,0 +1,2 @@
+{"timestamp": "2026-10-20T08:32:10.315549+00:00", "job_id": "za-staging_db", "worker_id": "staging_db", "task_id": "n/a", "event": "start", "status": "running", "duration_ms": 0, "cost_nzd": 0, "started_at": "2026-10-20T08:32:10.312569+00:00"}
+{"timestamp": "2026-10-20T08:32:10.467158+00:00", "job_id": "za-staging_db", "worker_id": "staging_db", "task_id": "n/a", "event": "complete", "status": "cancelled", "duration_ms": 0, "cost_nzd": 0, "exit_code": 143}

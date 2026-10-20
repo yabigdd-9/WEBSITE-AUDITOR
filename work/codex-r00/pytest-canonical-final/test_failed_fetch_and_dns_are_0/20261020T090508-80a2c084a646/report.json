@@ -1,0 +1,724 @@
+{
+  "schema_version": 2,
+  "browser_requested": false,
+  "performance": {
+    "total_elapsed_ms": 1,
+    "checks": {
+      "fetch": 0,
+      "page": 0,
+      "schema": 0,
+      "headers": 0,
+      "technology": 0,
+      "js_vulnerabilities": 0,
+      "structured_validation": 0,
+      "hreflang": 0,
+      "language": 0,
+      "images": 0,
+      "social_meta": 0,
+      "third_party": 0,
+      "browser_console": 0,
+      "cookie_consent": 0,
+      "hygiene": 0,
+      "ux": 0,
+      "links": 0,
+      "tls": 0,
+      "dns": 0,
+      "crawl": 0,
+      "lychee": 0,
+      "lighthouse": 0,
+      "browser": 0,
+      "axe": 0
+    },
+    "slowest_checks": [
+      [
+        "fetch",
+        0
+      ],
+      [
+        "page",
+        0
+      ],
+      [
+        "schema",
+        0
+      ],
+      [
+        "headers",
+        0
+      ],
+      [
+        "technology",
+        0
+      ]
+    ]
+  },
+  "run_id": "20261020T090508-80a2c084a646",
+  "url": "https://example.com/",
+  "domain": "example.com",
+  "timestamp": "2026-10-20T09:05:08.340804+00:00",
+  "profile": "static",
+  "brand": "Website Auditor",
+  "status": "partial",
+  "score": 30,
+  "severity_score": 30,
+  "health_score": null,
+  "breakdown": {
+    "health_score": null,
+    "severity_total": 30,
+    "heuristic_count": 1,
+    "method": "severity sum capped at 100; health = 100 - severity",
+    "deductions": [
+      {
+        "finding_id": "7bc4c6941bb510222618325a",
+        "defect_key": "server_error",
+        "severity": "critical",
+        "points": 30,
+        "confidence": "heuristic",
+        "evidence_summary": "page"
+      }
+    ]
+  },
+  "defects": [
+    {
+      "defect_key": "server_error",
+      "defect": "Server error response",
+      "impact": "HTTP 503",
+      "severity": "critical",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "fetch",
+      "selector": "",
+      "confidence": "heuristic",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "7bc4c6941bb510222618325a",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-20T09:05:08.340804+00:00",
+      "evidence_summary": "page",
+      "fault_taxonomy": "availability",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "origin_or_delivery_failure"
+    }
+  ],
+  "defect_count": 1,
+  "fault_taxonomy": {
+    "root_causes": [
+      {
+        "root_cause_id": "origin_or_delivery_failure",
+        "taxonomy": [
+          "availability"
+        ],
+        "finding_ids": [
+          "7bc4c6941bb510222618325a"
+        ],
+        "symptom_count": 1,
+        "likely": false,
+        "confidence": "WEAK",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      }
+    ],
+    "reproducible_count": 1,
+    "weak_or_unknown_count": 1
+  },
+  "checks": {
+    "fetch": {
+      "status": "error",
+      "required": true,
+      "reason": "HTTP 503"
+    },
+    "page": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": true
+    },
+    "schema": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": true
+    },
+    "headers": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": true
+    },
+    "technology": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": true
+    },
+    "js_vulnerabilities": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": true
+    },
+    "structured_validation": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": true
+    },
+    "hreflang": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": true
+    },
+    "language": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": true
+    },
+    "images": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": true
+    },
+    "social_meta": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": true
+    },
+    "third_party": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": false
+    },
+    "browser_console": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": false
+    },
+    "cookie_consent": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": false
+    },
+    "hygiene": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": true
+    },
+    "ux": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": true
+    },
+    "links": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": false
+    },
+    "tls": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": false
+    },
+    "dns": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": false
+    },
+    "crawl": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": false
+    },
+    "lychee": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": false
+    },
+    "lighthouse": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": false
+    },
+    "browser": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": false
+    },
+    "axe": {
+      "status": "skipped",
+      "reason": "Fetch unavailable",
+      "required": false
+    },
+    "pdf": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    }
+  },
+  "evidence": {},
+  "check_registry": {
+    "fetch": {
+      "id": "fetch",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "page": {
+      "id": "page",
+      "category": "seo",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Content and conversion observations require editorial review."
+    },
+    "schema": {
+      "id": "schema",
+      "category": "local",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Presence does not establish eligibility or business identity."
+    },
+    "accessibility_static": {
+      "id": "accessibility_static",
+      "category": "accessibility",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Static checks do not establish conformance."
+    },
+    "ux": {
+      "id": "ux",
+      "category": "privacy",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Observed behavior is not a legal determination."
+    },
+    "headers": {
+      "id": "headers",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "hygiene": {
+      "id": "hygiene",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Deterministic robots, sitemap, header and mixed-content checks."
+    },
+    "links": {
+      "id": "links",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Bounded same-origin link validation; not an exhaustive crawler."
+    },
+    "tls": {
+      "id": "tls",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "dns": {
+      "id": "dns",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "crawl": {
+      "id": "crawl",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "lychee": {
+      "id": "lychee",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "External local CLI check; bounded by Lychee configuration and network conditions."
+    },
+    "lighthouse": {
+      "id": "lighthouse",
+      "category": "performance",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Laboratory result; not field Core Web Vitals."
+    },
+    "browser": {
+      "id": "browser",
+      "category": "performance",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Laboratory observations, not field Core Web Vitals."
+    },
+    "axe": {
+      "id": "axe",
+      "category": "accessibility",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Manual keyboard, screen-reader and content review remains necessary."
+    },
+    "pdf": {
+      "id": "pdf",
+      "category": "reporting",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "technology": {
+      "id": "technology",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "js_vulnerabilities": {
+      "id": "js_vulnerabilities",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "structured_validation": {
+      "id": "structured_validation",
+      "category": "local",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "hreflang": {
+      "id": "hreflang",
+      "category": "seo",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "language": {
+      "id": "language",
+      "category": "technical",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "images": {
+      "id": "images",
+      "category": "performance",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "social_meta": {
+      "id": "social_meta",
+      "category": "technical",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "cookie_consent": {
+      "id": "cookie_consent",
+      "category": "privacy",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Passive bounded observations only; cookie purpose and legal obligations require human review."
+    },
+    "third_party": {
+      "id": "third_party",
+      "category": "technical",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "browser_console": {
+      "id": "browser_console",
+      "category": "technical",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "server_technology": {
+      "id": "server_technology",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    }
+  },
+  "scoring": {
+    "method": "severity sum capped at 100; health = 100 - severity",
+    "weights": {
+      "low": 4,
+      "medium": 8,
+      "high": 16,
+      "critical": 30
+    },
+    "limitation": "Heuristic prioritization, not certification"
+  },
+  "financial_assumptions": [
+    "No fines or measured lost revenue. Estimates require explicit rates."
+  ],
+  "artifacts": {
+    "json": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_failed_fetch_and_dns_are_0/20261020T090508-80a2c084a646/report.json",
+    "html": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_failed_fetch_and_dns_are_0/20261020T090508-80a2c084a646/report.html",
+    "trend": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_failed_fetch_and_dns_are_0/20261020T090508-80a2c084a646/trend.svg",
+    "actions": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_failed_fetch_and_dns_are_0/20261020T090508-80a2c084a646/actions/preview.json"
+  },
+  "category_scores": {
+    "accessibility": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": null
+    },
+    "local": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": null
+    },
+    "performance": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": null
+    },
+    "privacy": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": null
+    },
+    "security": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": null
+    },
+    "seo": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": null
+    },
+    "technical": {
+      "score": 30,
+      "severity_score": 30,
+      "health_score": null
+    }
+  },
+  "comparison": {
+    "baseline": null,
+    "new": [
+      "7bc4c6941bb510222618325a"
+    ],
+    "persistent": [],
+    "regressed": [],
+    "resolved": [],
+    "resolution_assessed": false
+  },
+  "fault_regression": {
+    "new": [
+      "7bc4c6941bb510222618325a"
+    ],
+    "resolved": [],
+    "unchanged": []
+  },
+  "claim_ledger": [
+    {
+      "claim_id": "finding:7bc4c6941bb510222618325a",
+      "claim": "Server error response",
+      "claim_type": "hypothesis",
+      "finding_id": "7bc4c6941bb510222618325a",
+      "evidence_ref": "page",
+      "evidence": "page",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:05:08.340804+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    }
+  ],
+  "drafts": {
+    "status": "fallback",
+    "review_required": true,
+    "drafts": {
+      "metadata": {
+        "text": "Title: Example services\nDescription: [review required]",
+        "source": "template",
+        "review_required": true
+      },
+      "platform_fix": {
+        "text": "Prepare an evidence-backed fix draft for review.",
+        "source": "template",
+        "review_required": true
+      },
+      "outreach": {
+        "text": "Prepare factual outreach from verified findings.",
+        "source": "template",
+        "review_required": true
+      },
+      "content_expansion": {
+        "text": "Outline services, proof, FAQs, and contact details.",
+        "source": "template",
+        "review_required": true
+      },
+      "bilingual": {
+        "text": "EN: [English draft]\nMI: [te reo Māori review required]",
+        "source": "template",
+        "review_required": true
+      }
+    },
+    "reason": "Local generation not requested"
+  },
+  "proofing": {
+    "metadata": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 1,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "platform_fix": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 1,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "outreach": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 1,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "content_expansion": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 1,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "bilingual": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 1,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    }
+  },
+  "proposal": {
+    "currency": "NZD",
+    "hourly_rate": null,
+    "assumptions": "Versioned effort bands with shared setup for repeated defects and 15% contingency; scope and rates require human review.",
+    "hours_low": 4.0,
+    "hours_high": 11.5,
+    "estimate_low": null,
+    "estimate_high": null,
+    "rules_version": "quote-v1",
+    "review_required": true,
+    "llm_determined_price": false
+  },
+  "action_preview": {
+    "count": 1,
+    "status": "preview",
+    "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_failed_fetch_and_dns_are_0/20261020T090508-80a2c084a646/actions/preview.json"
+  },
+  "coverage": {
+    "version": 1,
+    "required": 13,
+    "passed": 0,
+    "required_checks": [
+      "fetch",
+      "headers",
+      "hreflang",
+      "hygiene",
+      "images",
+      "js_vulnerabilities",
+      "language",
+      "page",
+      "schema",
+      "social_meta",
+      "structured_validation",
+      "technology",
+      "ux"
+    ],
+    "missing_checks": [
+      "fetch",
+      "headers",
+      "hreflang",
+      "hygiene",
+      "images",
+      "js_vulnerabilities",
+      "language",
+      "page",
+      "schema",
+      "social_meta",
+      "structured_validation",
+      "technology",
+      "ux"
+    ]
+  },
+  "manifest": {
+    "html": {
+      "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_failed_fetch_and_dns_are_0/20261020T090508-80a2c084a646/report.html",
+      "size": 9903,
+      "sha256": "d9b2d1a2afddcbba69bbd6d548ffb572018e8721e434fbb127ec11c8fce9eb08"
+    },
+    "trend": {
+      "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_failed_fetch_and_dns_are_0/20261020T090508-80a2c084a646/trend.svg",
+      "size": 133,
+      "sha256": "cfdf803ffa080bbfafb7385fcd332ddc1537423530a28fc95c2499aed5afa41e"
+    },
+    "actions": {
+      "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_failed_fetch_and_dns_are_0/20261020T090508-80a2c084a646/actions/preview.json",
+      "size": 1698,
+      "sha256": "886102d86bad371b4cbe954269a8cfb75ec2feb2182d98b45e986a4cb02e1045"
+    }
+  }
+}

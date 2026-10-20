@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "kind": "prospect_packet",
+  "source_run_id": "r",
+  "business": {
+    "website": "https://acme.co.nz/",
+    "domain": null
+  },
+  "contact": null,
+  "email_confidence": "NO_VERIFIED_EMAIL",
+  "audit_score": null,
+  "opportunity_score": null,
+  "top_problems": [],
+  "before_images": [],
+  "after_images": [],
+  "recommended_package": null,
+  "quote_band": null,
+  "proof": {
+    "demo_status": "CONCEPT_ONLY",
+    "live_site_changed": false,
+    "improvement_claim_valid": false
+  },
+  "evidence": [
+    {
+      "kind": "audit",
+      "sha256": "91748cb87f1cbcbd9405b617b7fc39568ac07b6df6fb55742e9d6cf325d49d4d"
+    },
+    {
+      "kind": "remediation",
+      "sha256": "d5bc5509232798251866aaa416324e978466fac8198d87d61bcb858669eb35b9"
+    },
+    {
+      "kind": "demo",
+      "sha256": "7bcade3a15c25402b21015223b0b9015996213ecd4737c396dfea5512dbfd5ac"
+    }
+  ],
+  "draft_message_path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_packet_builder_accepts_no0/packet/draft-message.txt",
+  "draft_message_sha256": "40452a02d2d6fc66e83ddfa824331b97f35c600044a4dc8ee423d290c516c971",
+  "qa_status": "HUMAN_REVIEW_REQUIRED",
+  "approval_status": "HUMAN_APPROVAL_REQUIRED",
+  "human_approved": false,
+  "outreach_eligible": false,
+  "send_enabled": false,
+  "external_send_allowed": false,
+  "outbound_sent": 0,
+  "paid_ai_cost_usd": 0,
+  "review_required": true
+}

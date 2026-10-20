@@ -1,0 +1,45 @@
+{
+  "generated_at": "2026-10-20T08:32:12.088717+00:00",
+  "phase": "P2",
+  "staging_db": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-batch2-ops/test_restarts_preserve_generat0/staging/staging.db",
+  "production_db": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-batch2-ops/test_restarts_preserve_generat0/production.db",
+  "production_written": false,
+  "batch_size": 1,
+  "snapshot_generation": "4fcb02144d7748cfa426f08048d22a73",
+  "staging_size_bytes": 12288,
+  "before_counts": {
+    "businesses": 3,
+    "mm_evidence": 2
+  },
+  "schema_validation": {
+    "ok": true,
+    "missing_tables": [],
+    "extra_tables": [],
+    "mismatched_schema": []
+  },
+  "batch_size_actual": 0,
+  "batch_ids": [],
+  "batch_names": [],
+  "audit_result": {
+    "message": "no businesses pending audit"
+  },
+  "after_counts": {
+    "businesses": 3,
+    "mm_evidence": 2
+  },
+  "before_after_diff": {},
+  "staging_integrity": "ok",
+  "staging_foreign_key_violations": [],
+  "staging_state": {
+    "generation": "4fcb02144d7748cfa426f08048d22a73",
+    "batches_run": 3,
+    "total_processed": 2,
+    "last_run": "2026-10-20T08:32:12.103874+00:00",
+    "prior_state": {
+      "batches_run": 0,
+      "total_processed": 0,
+      "last_run": null
+    },
+    "progress_scope": "Distinct businesses with staging evidence added since this snapshot; not verified live audit acceptance"
+  }
+}

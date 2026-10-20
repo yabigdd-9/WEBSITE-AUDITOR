@@ -1,0 +1,1 @@
+{"business": {"id": "business-1", "live_business_id": 1, "name": "Clear Plumbing", "region": "Auckland", "public_website": "https://clear.nz/", "source": "synthetic", "pipeline_state_at_freeze": "NEEDS_REVIEW", "pipeline_updated_at": "frozen", "unit_scope": "Recorded business and region"}, "pages": [], "dns": {}, "errors": []}

@@ -1,0 +1,1874 @@
+{
+  "schema_version": 2,
+  "browser_requested": false,
+  "performance": {
+    "total_elapsed_ms": 14,
+    "checks": {
+      "fetch": 0,
+      "page": 0,
+      "schema": 1,
+      "headers": 0,
+      "technology": 0,
+      "js_vulnerabilities": 0,
+      "structured_validation": 0,
+      "hreflang": 0,
+      "language": 0,
+      "images": 0,
+      "social_meta": 0,
+      "hygiene": 3,
+      "ux": 0,
+      "links": 0,
+      "lychee": 0,
+      "lighthouse": 0,
+      "tls": 0,
+      "dns": 0,
+      "crawl": 0,
+      "browser": 0,
+      "third_party": 0,
+      "browser_console": 0,
+      "cookie_consent": 0,
+      "axe": 0
+    },
+    "slowest_checks": [
+      [
+        "hygiene",
+        3
+      ],
+      [
+        "schema",
+        1
+      ],
+      [
+        "fetch",
+        0
+      ],
+      [
+        "page",
+        0
+      ],
+      [
+        "headers",
+        0
+      ]
+    ]
+  },
+  "run_id": "20261020T090523-739aa195ad03",
+  "url": "https://fixture.example/",
+  "domain": "fixture.example",
+  "timestamp": "2026-10-20T09:05:23.108485+00:00",
+  "profile": "static",
+  "brand": "Website Auditor",
+  "status": "partial",
+  "score": 100,
+  "severity_score": 100,
+  "health_score": null,
+  "breakdown": {
+    "health_score": null,
+    "severity_total": 100,
+    "heuristic_count": 4,
+    "method": "severity sum capped at 100; health = 100 - severity",
+    "deductions": [
+      {
+        "finding_id": "5a88741e794c0fc7e92ce102",
+        "defect_key": "missing_title",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "no <title> element with text"
+      },
+      {
+        "finding_id": "2254ce02a9b5c166f514729c",
+        "defect_key": "missing_meta_description",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "no usable meta description content"
+      },
+      {
+        "finding_id": "dea7c65a22d88c1ad07d3694",
+        "defect_key": "missing_canonical_url",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "no canonical href declared"
+      },
+      {
+        "finding_id": "eecf31e6e740e610aff16ca9",
+        "defect_key": "missing_open_graph_tags",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "zero Open Graph tags"
+      },
+      {
+        "finding_id": "6fd513eb4e315a0c5e088b49",
+        "defect_key": "thin_content_200_words",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "heuristic",
+        "evidence_summary": "page body contains 0 words (<200 threshold)"
+      },
+      {
+        "finding_id": "c52f54b80ee377bc355e2431",
+        "defect_key": "viewport",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "no viewport meta tag"
+      },
+      {
+        "finding_id": "90941d891b94595b5344036c",
+        "defect_key": "schema_missing",
+        "severity": "low",
+        "points": 4,
+        "confidence": "heuristic",
+        "evidence_summary": "zero structured-data blocks"
+      },
+      {
+        "finding_id": "9a70da4ef78341a5d9de7fc6",
+        "defect_key": "header-content-security-policy",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "headers"
+      },
+      {
+        "finding_id": "3576104d7f9a28751d6ad86b",
+        "defect_key": "header-x-content-type-options",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "headers"
+      },
+      {
+        "finding_id": "a13627d3dac72ae660cb6296",
+        "defect_key": "header-hsts",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "heuristic",
+        "evidence_summary": "headers"
+      },
+      {
+        "finding_id": "b02288210956599f6b383316",
+        "defect_key": "social-meta-og-title",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "No <meta property=\"og:title\"> tag present"
+      },
+      {
+        "finding_id": "e2b732e25600cf400cebae77",
+        "defect_key": "social-meta-og-description",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "No <meta property=\"og:description\"> tag present"
+      },
+      {
+        "finding_id": "a6fce6889f883d28e82ff341",
+        "defect_key": "social-meta-og-image",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "No <meta property=\"og:image\"> tag present"
+      },
+      {
+        "finding_id": "5dbb59533bbf398adb3374d4",
+        "defect_key": "social-meta-og-type",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "No <meta property=\"og:type\"> tag present"
+      },
+      {
+        "finding_id": "df5d9dede26cfa51123ef04a",
+        "defect_key": "social-meta-twitter-card",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "No <meta name=\"twitter:card\"> tag present"
+      },
+      {
+        "finding_id": "c5e5cecde66cb0da283e05b9",
+        "defect_key": "social-meta-twitter-handle",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "No <meta name=\"twitter:site\"> or twitter:creator tag present"
+      },
+      {
+        "finding_id": "d6f7076c74df25c39e18ecf6",
+        "defect_key": "robots-no-sitemap",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "robots.txt has no sitemap directive"
+      },
+      {
+        "finding_id": "6365ba0b50384526cac4de2e",
+        "defect_key": "sitemap-malformed",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "https://fixture.example/sitemap.xml is not well-formed XML"
+      },
+      {
+        "finding_id": "4ab4f7ed9677e52d032591d4",
+        "defect_key": "no-contact-path",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "heuristic",
+        "evidence_summary": "no tel: link, contact link, or form element found"
+      }
+    ]
+  },
+  "defects": [
+    {
+      "defect_key": "missing_title",
+      "defect": "Missing page title",
+      "impact": "Search snippet risk",
+      "severity": "high",
+      "source_url": "https://fixture.example/",
+      "review_required": true,
+      "check": "page",
+      "selector": "head > title",
+      "confidence": "observed",
+      "evidence_source": "dom:head>title absent",
+      "observed": "no <title> element with text",
+      "business_impact": "Search results show a bare URL; fewer clicks from search.",
+      "remediation_action": "Add a unique descriptive <title> (50-60 chars).",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "5a88741e794c0fc7e92ce102",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "evidence_summary": "no <title> element with text",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "missing_meta_description",
+      "defect": "Missing meta description",
+      "impact": "Lower CTR",
+      "severity": "medium",
+      "source_url": "https://fixture.example/",
+      "review_required": true,
+      "check": "page",
+      "selector": "head > meta[name=\"description\"]",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[name=\"description\"] absent or empty",
+      "observed": "no usable meta description content",
+      "business_impact": "Search snippets fall back to page text; lower click-through.",
+      "remediation_action": "Write a 120-155 char meta description per key page.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "2254ce02a9b5c166f514729c",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "evidence_summary": "no usable meta description content",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "missing_canonical_url",
+      "defect": "Missing canonical URL",
+      "impact": "Duplicate content risk",
+      "severity": "medium",
+      "source_url": "https://fixture.example/",
+      "review_required": true,
+      "check": "page",
+      "selector": "head > link[rel=\"canonical\"]",
+      "confidence": "observed",
+      "evidence_source": "dom:link[rel=\"canonical\"] absent",
+      "observed": "no canonical href declared",
+      "business_impact": "Search engines may split ranking across URL variants.",
+      "remediation_action": "Add a self-referencing canonical link tag.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "dea7c65a22d88c1ad07d3694",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "evidence_summary": "no canonical href declared",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "missing_open_graph_tags",
+      "defect": "Missing Open Graph tags",
+      "impact": "Poor social preview",
+      "severity": "medium",
+      "source_url": "https://fixture.example/",
+      "review_required": true,
+      "check": "page",
+      "selector": "head > meta[property^=\"og:\"]",
+      "confidence": "observed",
+      "evidence_source": "dom:no meta[property^=og:] elements",
+      "observed": "zero Open Graph tags",
+      "business_impact": "Link shares render as plain text; less social traffic.",
+      "remediation_action": "Add og:title, og:description, og:image tags.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "S",
+      "finding_id": "eecf31e6e740e610aff16ca9",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "evidence_summary": "zero Open Graph tags",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "thin_content_200_words",
+      "defect": "Thin content (<200 words)",
+      "impact": "Review page purpose",
+      "severity": "medium",
+      "source_url": "https://fixture.example/",
+      "review_required": true,
+      "check": "page",
+      "selector": "",
+      "confidence": "heuristic",
+      "evidence_source": "text:word_count=0",
+      "observed": "page body contains 0 words (<200 threshold)",
+      "business_impact": "Thin pages rarely rank or convert; intent unclear.",
+      "remediation_action": "Expand page with real service proof (photos, FAQs, reviews).",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "6fd513eb4e315a0c5e088b49",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "evidence_summary": "page body contains 0 words (<200 threshold)",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "viewport",
+      "defect": "Missing viewport metadata",
+      "impact": "Mobile layout review",
+      "severity": "medium",
+      "source_url": "https://fixture.example/",
+      "review_required": true,
+      "check": "page",
+      "selector": "head > meta[name=\"viewport\"]",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[name=\"viewport\"] absent",
+      "observed": "no viewport meta tag",
+      "business_impact": "Mobile browsers may render a zoomed-out desktop layout.",
+      "remediation_action": "Add viewport meta (width=device-width,initial-scale=1).",
+      "remediation_automation": "AUTO_SAFE",
+      "effort_band": "XS",
+      "finding_id": "c52f54b80ee377bc355e2431",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "evidence_summary": "no viewport meta tag",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "schema_missing",
+      "defect": "No structured data found",
+      "impact": "Eligibility not guaranteed",
+      "severity": "low",
+      "source_url": "https://fixture.example/",
+      "review_required": true,
+      "check": "schema",
+      "selector": "script[type=\"application/ld+json\"]",
+      "confidence": "heuristic",
+      "evidence_source": "dom:no ld+json script blocks",
+      "observed": "zero structured-data blocks",
+      "business_impact": "No rich-result eligibility signals for local business info.",
+      "remediation_action": "Add LocalBusiness JSON-LD with name, phone, address.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "S",
+      "finding_id": "90941d891b94595b5344036c",
+      "evidence_ref": "schema",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "evidence_summary": "zero structured-data blocks",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "header-content-security-policy",
+      "defect": "Missing content-security-policy",
+      "impact": "Review deployment requirements",
+      "severity": "low",
+      "source_url": "https://fixture.example/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "9a70da4ef78341a5d9de7fc6",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "evidence_summary": "headers",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "header-x-content-type-options",
+      "defect": "Missing x-content-type-options",
+      "impact": "Review deployment requirements",
+      "severity": "low",
+      "source_url": "https://fixture.example/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "3576104d7f9a28751d6ad86b",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "evidence_summary": "headers",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "header-hsts",
+      "defect": "Missing HSTS",
+      "impact": "Review HTTPS deployment",
+      "severity": "medium",
+      "source_url": "https://fixture.example/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "",
+      "confidence": "heuristic",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "a13627d3dac72ae660cb6296",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "evidence_summary": "headers",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "social-meta-og-title",
+      "defect": "Missing og:title",
+      "impact": "No Open Graph title for social sharing",
+      "severity": "medium",
+      "source_url": "https://fixture.example/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[property=og:title]",
+      "observed": "No <meta property=\"og:title\"> tag present",
+      "business_impact": "When this page is shared on social platforms, the default page title is used instead of a custom share title.",
+      "remediation_action": "Add an og:title meta tag with a compelling share title.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "b02288210956599f6b383316",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-20T09:05:23.108485+00:00",
+      "evidence_summary": "No <meta property=\"og:title\"> tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-og-description",
+      "defect": "Missing og:description",
+      "impact": "No Open Graph description for social sharing",
+      "severity": "medium",
+      "source_url": "https://fixture.example/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[property=og:description]",
+      "observed": "No <meta property=\"og:description\"> tag present",
+      "business_impact": "Social shares show generic text instead of a compelling description, reducing click-through from shares.",
+      "remediation_action": "Add an og:description meta tag (120-200 chars).",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "e2b732e25600cf400cebae77",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-20T09:05:23.108485+00:00",
+      "evidence_summary": "No <meta property=\"og:description\"> tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-og-image",
+      "defect": "Missing og:image",
+      "impact": "No Open Graph image for social sharing",
+      "severity": "medium",
+      "source_url": "https://fixture.example/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[property=og:image]",
+      "observed": "No <meta property=\"og:image\"> tag present",
+      "business_impact": "Social shares show no thumbnail, reducing visual appeal and click-through.",
+      "remediation_action": "Add an og:image meta tag pointing to a 1200x630 image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "a6fce6889f883d28e82ff341",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-20T09:05:23.108485+00:00",
+      "evidence_summary": "No <meta property=\"og:image\"> tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-og-type",
+      "defect": "Missing og:type",
+      "impact": "No Open Graph type declared",
+      "severity": "low",
+      "source_url": "https://fixture.example/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[property=og:type]",
+      "observed": "No <meta property=\"og:type\"> tag present",
+      "business_impact": "Social platforms may not know how to render this page as a preview card.",
+      "remediation_action": "Add an og:type meta tag (e.g. \"website\" or \"article\").",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "5dbb59533bbf398adb3374d4",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-20T09:05:23.108485+00:00",
+      "evidence_summary": "No <meta property=\"og:type\"> tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-twitter-card",
+      "defect": "Missing Twitter Card",
+      "impact": "No twitter:card declared",
+      "severity": "low",
+      "source_url": "https://fixture.example/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[name=twitter:card]",
+      "observed": "No <meta name=\"twitter:card\"> tag present",
+      "business_impact": "Twitter/X shares show no image or rich preview.",
+      "remediation_action": "Add a twitter:card meta tag (e.g. \"summary_large_image\").",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "df5d9dede26cfa51123ef04a",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-20T09:05:23.108485+00:00",
+      "evidence_summary": "No <meta name=\"twitter:card\"> tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-twitter-handle",
+      "defect": "Missing Twitter handle",
+      "impact": "No twitter:site or twitter:creator declared",
+      "severity": "low",
+      "source_url": "https://fixture.example/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[name=twitter:site]",
+      "observed": "No <meta name=\"twitter:site\"> or twitter:creator tag present",
+      "business_impact": "Twitter/X attribution is missing; the account that shares this page is not tagged.",
+      "remediation_action": "Add a twitter:site meta tag with your @handle.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "c5e5cecde66cb0da283e05b9",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-20T09:05:23.108485+00:00",
+      "evidence_summary": "No <meta name=\"twitter:site\"> or twitter:creator tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "robots-no-sitemap",
+      "defect": "robots.txt declares no sitemap",
+      "impact": "Sitemap undiscoverable",
+      "severity": "low",
+      "source_url": "https://fixture.example/",
+      "review_required": true,
+      "check": "crawl",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "parse:robots.txt body",
+      "observed": "robots.txt has no sitemap directive",
+      "business_impact": "Search engines may discover new pages more slowly.",
+      "remediation_action": "Add a Sitemap: line pointing at the sitemap URL.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "d6f7076c74df25c39e18ecf6",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "evidence_summary": "robots.txt has no sitemap directive",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "sitemap-malformed",
+      "defect": "Sitemap XML malformed",
+      "impact": "https://fixture.example/sitemap.xml",
+      "severity": "medium",
+      "source_url": "https://fixture.example/",
+      "review_required": true,
+      "check": "crawl",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "parse:sitemap XML",
+      "observed": "https://fixture.example/sitemap.xml is not well-formed XML",
+      "business_impact": "Search engines may ignore the sitemap entirely.",
+      "remediation_action": "Regenerate valid sitemap XML (urlset, escaped URLs).",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "S",
+      "finding_id": "6365ba0b50384526cac4de2e",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "evidence_summary": "https://fixture.example/sitemap.xml is not well-formed XML",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "no-contact-path",
+      "defect": "No contact path found",
+      "impact": "No phone, contact link or form",
+      "severity": "medium",
+      "source_url": "https://fixture.example/",
+      "review_required": true,
+      "check": "ux",
+      "selector": "",
+      "confidence": "heuristic",
+      "evidence_source": "dom:conversion signal scan",
+      "observed": "no tel: link, contact link, or form element found",
+      "business_impact": "Visitors cannot easily enquire; direct conversion loss.",
+      "remediation_action": "Add a visible phone number and enquiry form.",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "4ab4f7ed9677e52d032591d4",
+      "evidence_ref": "ux",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "evidence_summary": "no tel: link, contact link, or form element found",
+      "fault_taxonomy": "conversion",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "journey_or_contact_friction"
+    }
+  ],
+  "defect_count": 19,
+  "fault_taxonomy": {
+    "root_causes": [
+      {
+        "root_cause_id": "content_discovery_configuration_gap",
+        "taxonomy": [
+          "seo_content"
+        ],
+        "finding_ids": [
+          "5a88741e794c0fc7e92ce102",
+          "2254ce02a9b5c166f514729c",
+          "dea7c65a22d88c1ad07d3694",
+          "eecf31e6e740e610aff16ca9",
+          "6fd513eb4e315a0c5e088b49",
+          "c52f54b80ee377bc355e2431",
+          "90941d891b94595b5344036c"
+        ],
+        "symptom_count": 7,
+        "likely": true,
+        "confidence": "MODERATE",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      },
+      {
+        "root_cause_id": "journey_or_contact_friction",
+        "taxonomy": [
+          "conversion"
+        ],
+        "finding_ids": [
+          "4ab4f7ed9677e52d032591d4"
+        ],
+        "symptom_count": 1,
+        "likely": false,
+        "confidence": "WEAK",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      },
+      {
+        "root_cause_id": "security_delivery_configuration_gap",
+        "taxonomy": [
+          "security_trust"
+        ],
+        "finding_ids": [
+          "9a70da4ef78341a5d9de7fc6",
+          "3576104d7f9a28751d6ad86b",
+          "a13627d3dac72ae660cb6296"
+        ],
+        "symptom_count": 3,
+        "likely": true,
+        "confidence": "MODERATE",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      },
+      {
+        "root_cause_id": "unclassified_observation",
+        "taxonomy": [
+          "unknown"
+        ],
+        "finding_ids": [
+          "b02288210956599f6b383316",
+          "e2b732e25600cf400cebae77",
+          "a6fce6889f883d28e82ff341",
+          "5dbb59533bbf398adb3374d4",
+          "df5d9dede26cfa51123ef04a",
+          "c5e5cecde66cb0da283e05b9",
+          "d6f7076c74df25c39e18ecf6",
+          "6365ba0b50384526cac4de2e"
+        ],
+        "symptom_count": 8,
+        "likely": true,
+        "confidence": "MODERATE",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      }
+    ],
+    "reproducible_count": 19,
+    "weak_or_unknown_count": 4
+  },
+  "checks": {
+    "fetch": {
+      "status": "ok",
+      "required": true
+    },
+    "page": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "schema": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1
+    },
+    "headers": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "technology": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "js_vulnerabilities": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "structured_validation": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "hreflang": {
+      "status": "error",
+      "reason": "fixture failure",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "language": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "images": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "social_meta": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "hygiene": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 3
+    },
+    "ux": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "links": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "lychee": {
+      "status": "skipped",
+      "reason": "Enable external local tools",
+      "required": false
+    },
+    "lighthouse": {
+      "status": "skipped",
+      "reason": "Enable external local tools",
+      "required": false
+    },
+    "tls": {
+      "status": "skipped",
+      "reason": "Not requested",
+      "required": false
+    },
+    "dns": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "crawl": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "browser": {
+      "status": "skipped",
+      "reason": "Disabled in selected audit profile",
+      "required": false
+    },
+    "third_party": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "browser_console": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "cookie_consent": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "axe": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "pdf": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    }
+  },
+  "evidence": {
+    "fetch": {
+      "url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "mode": "static",
+      "check_version": "1",
+      "data": {
+        "status_code": 200,
+        "redirects": [],
+        "revalidated_at": null
+      }
+    },
+    "page": {
+      "url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "mode": "static",
+      "data": {
+        "title": "",
+        "word_count": 0,
+        "link_count": 0,
+        "sample_links": [],
+        "emails": [],
+        "schema_count": 0
+      },
+      "check_version": "1"
+    },
+    "schema": {
+      "url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "mode": "static",
+      "data": {
+        "types": [],
+        "profile": "static",
+        "generator": "",
+        "local_business_review": "Check identity, address and service area against the business owner.",
+        "crawler_readiness": {
+          "robots_meta": [],
+          "rendered_content_comparison": "Available only in rendered mode"
+        }
+      },
+      "check_version": "1"
+    },
+    "headers": {
+      "url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "mode": "static",
+      "data": {
+        "headers": {
+          "content-type": "text/plain; charset=utf-8",
+          "content-length": "14"
+        },
+        "cookies": []
+      },
+      "check_version": "1"
+    },
+    "technology": {
+      "url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.108485+00:00",
+      "mode": "static",
+      "data": {
+        "technologies": []
+      },
+      "check_version": "1"
+    },
+    "js_vulnerabilities": {
+      "url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.108485+00:00",
+      "mode": "static",
+      "data": {
+        "js_vulnerabilities_detected": 0
+      },
+      "check_version": "1"
+    },
+    "structured_validation": {
+      "url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.108485+00:00",
+      "mode": "static",
+      "data": {
+        "structured_data_scripts_found": 0
+      },
+      "check_version": "1"
+    },
+    "language": {
+      "url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.108485+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://fixture.example/",
+        "html_lang": "en",
+        "meta_content_language": null,
+        "is_nz_domain": false,
+        "limitation": "Declared language only; content language is not inferred from the domain."
+      },
+      "check_version": "3"
+    },
+    "images": {
+      "url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.108485+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://fixture.example/",
+        "image_count": 0,
+        "missing_alt": 0,
+        "missing_dimensions": 0,
+        "missing_loading": 0,
+        "external_images": 0,
+        "large_file_hints": []
+      },
+      "check_version": "3"
+    },
+    "social_meta": {
+      "url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.108485+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://fixture.example/",
+        "og_tags": {},
+        "twitter_tags": {}
+      },
+      "check_version": "3"
+    },
+    "hygiene": {
+      "url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "mode": "static",
+      "data": {
+        "robots": {
+          "url": "https://fixture.example/robots.txt",
+          "status_code": 200,
+          "bytes": 14,
+          "sitemaps_declared": []
+        },
+        "sitemap": {
+          "checked": [
+            {
+              "url": "https://fixture.example/sitemap.xml",
+              "status": 200,
+              "well_formed": false
+            }
+          ]
+        },
+        "security_headers": {
+          "graded": [
+            "content-security-policy",
+            "x-content-type-options",
+            "strict-transport-security"
+          ],
+          "present": []
+        },
+        "mixed_content": {
+          "offenders": [],
+          "count": 0
+        }
+      },
+      "check_version": "1"
+    },
+    "ux": {
+      "url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "mode": "static",
+      "data": {
+        "signals": {
+          "contact_path": false,
+          "phone": false,
+          "booking": false,
+          "quote_form": false,
+          "form_present": false
+        }
+      },
+      "check_version": "1"
+    },
+    "browser": {}
+  },
+  "check_registry": {
+    "fetch": {
+      "id": "fetch",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "page": {
+      "id": "page",
+      "category": "seo",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Content and conversion observations require editorial review."
+    },
+    "schema": {
+      "id": "schema",
+      "category": "local",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Presence does not establish eligibility or business identity."
+    },
+    "accessibility_static": {
+      "id": "accessibility_static",
+      "category": "accessibility",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Static checks do not establish conformance."
+    },
+    "ux": {
+      "id": "ux",
+      "category": "privacy",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Observed behavior is not a legal determination."
+    },
+    "headers": {
+      "id": "headers",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "hygiene": {
+      "id": "hygiene",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Deterministic robots, sitemap, header and mixed-content checks."
+    },
+    "links": {
+      "id": "links",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Bounded same-origin link validation; not an exhaustive crawler."
+    },
+    "tls": {
+      "id": "tls",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "dns": {
+      "id": "dns",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "crawl": {
+      "id": "crawl",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "lychee": {
+      "id": "lychee",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "External local CLI check; bounded by Lychee configuration and network conditions."
+    },
+    "lighthouse": {
+      "id": "lighthouse",
+      "category": "performance",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Laboratory result; not field Core Web Vitals."
+    },
+    "browser": {
+      "id": "browser",
+      "category": "performance",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Laboratory observations, not field Core Web Vitals."
+    },
+    "axe": {
+      "id": "axe",
+      "category": "accessibility",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Manual keyboard, screen-reader and content review remains necessary."
+    },
+    "pdf": {
+      "id": "pdf",
+      "category": "reporting",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "technology": {
+      "id": "technology",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "js_vulnerabilities": {
+      "id": "js_vulnerabilities",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "structured_validation": {
+      "id": "structured_validation",
+      "category": "local",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "hreflang": {
+      "id": "hreflang",
+      "category": "seo",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "language": {
+      "id": "language",
+      "category": "technical",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "images": {
+      "id": "images",
+      "category": "performance",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "social_meta": {
+      "id": "social_meta",
+      "category": "technical",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "cookie_consent": {
+      "id": "cookie_consent",
+      "category": "privacy",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Passive bounded observations only; cookie purpose and legal obligations require human review."
+    },
+    "third_party": {
+      "id": "third_party",
+      "category": "technical",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "browser_console": {
+      "id": "browser_console",
+      "category": "technical",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "server_technology": {
+      "id": "server_technology",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    }
+  },
+  "scoring": {
+    "method": "severity sum capped at 100; health = 100 - severity",
+    "weights": {
+      "low": 4,
+      "medium": 8,
+      "high": 16,
+      "critical": 30
+    },
+    "limitation": "Heuristic prioritization, not certification"
+  },
+  "financial_assumptions": [
+    "No fines or measured lost revenue. Estimates require explicit rates."
+  ],
+  "artifacts": {
+    "json": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_failed_static_analyzer_re0/20261020T090523-739aa195ad03/report.json",
+    "html": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_failed_static_analyzer_re0/20261020T090523-739aa195ad03/report.html",
+    "trend": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_failed_static_analyzer_re0/20261020T090523-739aa195ad03/trend.svg",
+    "actions": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_failed_static_analyzer_re0/20261020T090523-739aa195ad03/actions/preview.json"
+  },
+  "category_scores": {
+    "accessibility": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": null
+    },
+    "local": {
+      "score": 4,
+      "severity_score": 4,
+      "health_score": 96
+    },
+    "performance": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": 100
+    },
+    "privacy": {
+      "score": 8,
+      "severity_score": 8,
+      "health_score": 92
+    },
+    "security": {
+      "score": 16,
+      "severity_score": 16,
+      "health_score": 84
+    },
+    "seo": {
+      "score": 56,
+      "severity_score": 56,
+      "health_score": null
+    },
+    "technical": {
+      "score": 48,
+      "severity_score": 48,
+      "health_score": 52
+    }
+  },
+  "comparison": {
+    "baseline": null,
+    "new": [
+      "2254ce02a9b5c166f514729c",
+      "3576104d7f9a28751d6ad86b",
+      "4ab4f7ed9677e52d032591d4",
+      "5a88741e794c0fc7e92ce102",
+      "5dbb59533bbf398adb3374d4",
+      "6365ba0b50384526cac4de2e",
+      "6fd513eb4e315a0c5e088b49",
+      "90941d891b94595b5344036c",
+      "9a70da4ef78341a5d9de7fc6",
+      "a13627d3dac72ae660cb6296",
+      "a6fce6889f883d28e82ff341",
+      "b02288210956599f6b383316",
+      "c52f54b80ee377bc355e2431",
+      "c5e5cecde66cb0da283e05b9",
+      "d6f7076c74df25c39e18ecf6",
+      "dea7c65a22d88c1ad07d3694",
+      "df5d9dede26cfa51123ef04a",
+      "e2b732e25600cf400cebae77",
+      "eecf31e6e740e610aff16ca9"
+    ],
+    "persistent": [],
+    "regressed": [],
+    "resolved": [],
+    "resolution_assessed": false
+  },
+  "fault_regression": {
+    "new": [
+      "2254ce02a9b5c166f514729c",
+      "3576104d7f9a28751d6ad86b",
+      "4ab4f7ed9677e52d032591d4",
+      "5a88741e794c0fc7e92ce102",
+      "5dbb59533bbf398adb3374d4",
+      "6365ba0b50384526cac4de2e",
+      "6fd513eb4e315a0c5e088b49",
+      "90941d891b94595b5344036c",
+      "9a70da4ef78341a5d9de7fc6",
+      "a13627d3dac72ae660cb6296",
+      "a6fce6889f883d28e82ff341",
+      "b02288210956599f6b383316",
+      "c52f54b80ee377bc355e2431",
+      "c5e5cecde66cb0da283e05b9",
+      "d6f7076c74df25c39e18ecf6",
+      "dea7c65a22d88c1ad07d3694",
+      "df5d9dede26cfa51123ef04a",
+      "e2b732e25600cf400cebae77",
+      "eecf31e6e740e610aff16ca9"
+    ],
+    "resolved": [],
+    "unchanged": []
+  },
+  "claim_ledger": [
+    {
+      "claim_id": "finding:5a88741e794c0fc7e92ce102",
+      "claim": "Missing page title",
+      "claim_type": "observed_fact",
+      "finding_id": "5a88741e794c0fc7e92ce102",
+      "evidence_ref": "page",
+      "evidence": "no <title> element with text",
+      "source_url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:2254ce02a9b5c166f514729c",
+      "claim": "Missing meta description",
+      "claim_type": "observed_fact",
+      "finding_id": "2254ce02a9b5c166f514729c",
+      "evidence_ref": "page",
+      "evidence": "no usable meta description content",
+      "source_url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:dea7c65a22d88c1ad07d3694",
+      "claim": "Missing canonical URL",
+      "claim_type": "observed_fact",
+      "finding_id": "dea7c65a22d88c1ad07d3694",
+      "evidence_ref": "page",
+      "evidence": "no canonical href declared",
+      "source_url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:eecf31e6e740e610aff16ca9",
+      "claim": "Missing Open Graph tags",
+      "claim_type": "observed_fact",
+      "finding_id": "eecf31e6e740e610aff16ca9",
+      "evidence_ref": "page",
+      "evidence": "zero Open Graph tags",
+      "source_url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:6fd513eb4e315a0c5e088b49",
+      "claim": "Thin content (<200 words)",
+      "claim_type": "hypothesis",
+      "finding_id": "6fd513eb4e315a0c5e088b49",
+      "evidence_ref": "page",
+      "evidence": "page body contains 0 words (<200 threshold)",
+      "source_url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:c52f54b80ee377bc355e2431",
+      "claim": "Missing viewport metadata",
+      "claim_type": "observed_fact",
+      "finding_id": "c52f54b80ee377bc355e2431",
+      "evidence_ref": "page",
+      "evidence": "no viewport meta tag",
+      "source_url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:90941d891b94595b5344036c",
+      "claim": "No structured data found",
+      "claim_type": "hypothesis",
+      "finding_id": "90941d891b94595b5344036c",
+      "evidence_ref": "schema",
+      "evidence": "zero structured-data blocks",
+      "source_url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:9a70da4ef78341a5d9de7fc6",
+      "claim": "Missing content-security-policy",
+      "claim_type": "observed_fact",
+      "finding_id": "9a70da4ef78341a5d9de7fc6",
+      "evidence_ref": "headers",
+      "evidence": "headers",
+      "source_url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:3576104d7f9a28751d6ad86b",
+      "claim": "Missing x-content-type-options",
+      "claim_type": "observed_fact",
+      "finding_id": "3576104d7f9a28751d6ad86b",
+      "evidence_ref": "headers",
+      "evidence": "headers",
+      "source_url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:a13627d3dac72ae660cb6296",
+      "claim": "Missing HSTS",
+      "claim_type": "hypothesis",
+      "finding_id": "a13627d3dac72ae660cb6296",
+      "evidence_ref": "headers",
+      "evidence": "headers",
+      "source_url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:b02288210956599f6b383316",
+      "claim": "Missing og:title",
+      "claim_type": "observed_fact",
+      "finding_id": "b02288210956599f6b383316",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta property=\"og:title\"> tag present",
+      "source_url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.108485+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:e2b732e25600cf400cebae77",
+      "claim": "Missing og:description",
+      "claim_type": "observed_fact",
+      "finding_id": "e2b732e25600cf400cebae77",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta property=\"og:description\"> tag present",
+      "source_url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.108485+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:a6fce6889f883d28e82ff341",
+      "claim": "Missing og:image",
+      "claim_type": "observed_fact",
+      "finding_id": "a6fce6889f883d28e82ff341",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta property=\"og:image\"> tag present",
+      "source_url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.108485+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:5dbb59533bbf398adb3374d4",
+      "claim": "Missing og:type",
+      "claim_type": "observed_fact",
+      "finding_id": "5dbb59533bbf398adb3374d4",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta property=\"og:type\"> tag present",
+      "source_url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.108485+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:df5d9dede26cfa51123ef04a",
+      "claim": "Missing Twitter Card",
+      "claim_type": "observed_fact",
+      "finding_id": "df5d9dede26cfa51123ef04a",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta name=\"twitter:card\"> tag present",
+      "source_url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.108485+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:c5e5cecde66cb0da283e05b9",
+      "claim": "Missing Twitter handle",
+      "claim_type": "observed_fact",
+      "finding_id": "c5e5cecde66cb0da283e05b9",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta name=\"twitter:site\"> or twitter:creator tag present",
+      "source_url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.108485+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:d6f7076c74df25c39e18ecf6",
+      "claim": "robots.txt declares no sitemap",
+      "claim_type": "observed_fact",
+      "finding_id": "d6f7076c74df25c39e18ecf6",
+      "evidence_ref": "page",
+      "evidence": "robots.txt has no sitemap directive",
+      "source_url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:6365ba0b50384526cac4de2e",
+      "claim": "Sitemap XML malformed",
+      "claim_type": "observed_fact",
+      "finding_id": "6365ba0b50384526cac4de2e",
+      "evidence_ref": "page",
+      "evidence": "https://fixture.example/sitemap.xml is not well-formed XML",
+      "source_url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:4ab4f7ed9677e52d032591d4",
+      "claim": "No contact path found",
+      "claim_type": "hypothesis",
+      "finding_id": "4ab4f7ed9677e52d032591d4",
+      "evidence_ref": "ux",
+      "evidence": "no tel: link, contact link, or form element found",
+      "source_url": "https://fixture.example/",
+      "observed_at": "2026-10-20T09:05:23.109765+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    }
+  ],
+  "drafts": {
+    "status": "fallback",
+    "review_required": true,
+    "drafts": {
+      "metadata": {
+        "text": "Title: Example services\nDescription: [review required]",
+        "source": "template",
+        "review_required": true
+      },
+      "platform_fix": {
+        "text": "Prepare an evidence-backed fix draft for review.",
+        "source": "template",
+        "review_required": true
+      },
+      "outreach": {
+        "text": "Prepare factual outreach from verified findings.",
+        "source": "template",
+        "review_required": true
+      },
+      "content_expansion": {
+        "text": "Outline services, proof, FAQs, and contact details.",
+        "source": "template",
+        "review_required": true
+      },
+      "bilingual": {
+        "text": "EN: [English draft]\nMI: [te reo Māori review required]",
+        "source": "template",
+        "review_required": true
+      }
+    },
+    "reason": "Local generation not requested"
+  },
+  "proofing": {
+    "metadata": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 19,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "platform_fix": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 19,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "outreach": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 19,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "content_expansion": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 19,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "bilingual": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 19,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    }
+  },
+  "proposal": {
+    "currency": "NZD",
+    "hourly_rate": null,
+    "assumptions": "Versioned effort bands with shared setup for repeated defects and 15% contingency; scope and rates require human review.",
+    "hours_low": 30.0,
+    "hours_high": 90.28,
+    "estimate_low": null,
+    "estimate_high": null,
+    "rules_version": "quote-v1",
+    "review_required": true,
+    "llm_determined_price": false
+  },
+  "action_preview": {
+    "count": 19,
+    "status": "preview",
+    "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_failed_static_analyzer_re0/20261020T090523-739aa195ad03/actions/preview.json"
+  },
+  "coverage": {
+    "version": 1,
+    "required": 13,
+    "passed": 12,
+    "required_checks": [
+      "fetch",
+      "headers",
+      "hreflang",
+      "hygiene",
+      "images",
+      "js_vulnerabilities",
+      "language",
+      "page",
+      "schema",
+      "social_meta",
+      "structured_validation",
+      "technology",
+      "ux"
+    ],
+    "missing_checks": [
+      "hreflang"
+    ]
+  },
+  "manifest": {
+    "html": {
+      "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_failed_static_analyzer_re0/20261020T090523-739aa195ad03/report.html",
+      "size": 20873,
+      "sha256": "23caf549f86e52dbdcfd00364e33be7f918949bde4c8e6c0f8c366d03572d59c"
+    },
+    "trend": {
+      "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_failed_static_analyzer_re0/20261020T090523-739aa195ad03/trend.svg",
+      "size": 133,
+      "sha256": "cfdf803ffa080bbfafb7385fcd332ddc1537423530a28fc95c2499aed5afa41e"
+    },
+    "actions": {
+      "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_failed_static_analyzer_re0/20261020T090523-739aa195ad03/actions/preview.json",
+      "size": 34286,
+      "sha256": "3b5c967231451e6030b4814a5e78e9193f81f0b597da9ff9a47155facf55ee5f"
+    }
+  }
+}

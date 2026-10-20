@@ -84,6 +84,13 @@ class DailyReport(ReportingBase):
 
 
 class FunnelMetrics(ReportingBase):
+    def test_funnel_counts_actual_dead_letter_states(self):
+        self.d.executemany("INSERT INTO pipeline_items(business_id,state) VALUES(?,?)",
+                           [(1, 'RETRYABLE_FAILURE'), (2, 'PERMANENT_FAILURE'),
+                            (3, 'AUDIT_PENDING')])
+        self.d.commit()
+        self.assertEqual(r.funnel_snapshot(self.d)['counts']['dead_lettered'], 2)
+
     def test_funnel_counts_per_stage(self):
         self.d.execute("INSERT INTO mm_deals VALUES(?,'AUDITED',?)", (self.bid + 1000, c.now()))
         self.d.commit()
@@ -94,6 +101,19 @@ class FunnelMetrics(ReportingBase):
 
 
 class AlertRules(ReportingBase):
+    def test_dead_letter_growth_uses_actual_pipeline_failure_states(self):
+        self.d.executemany("INSERT INTO pipeline_items(business_id,state) VALUES(?,?)",
+                           [(1, 'RETRYABLE_FAILURE'), (2, 'PERMANENT_FAILURE'),
+                            (3, 'AUDIT_PENDING')])
+        self.d.commit()
+        history = Path(self.tmp.name) / 'state' / 'daily-dlq.jsonl'
+        history.write_text(json.dumps({'at': c.now(), 'dead_lettered_total': 0}) + '\n')
+        result = r.evaluate_alerts()
+        self.assertEqual(result['values']['dead_lettered_total'], 2)
+        self.assertEqual(result['values']['dead_lettered_growth_per_hour'], 2)
+        self.assertIn('dead_lettered_growth_per_hour_max',
+                      {alert['rule'] for alert in result['alerts']})
+
     def test_alert_rules_evaluate(self):
         rules_path = Path(self.tmp.name) / 'state' / 'alert-rules.yaml'
         rules_path.write_text('# typed thresholds\ndead_lettered_growth_per_hour_max: 0\n'

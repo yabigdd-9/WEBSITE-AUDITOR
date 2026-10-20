@@ -1,0 +1,16 @@
+{
+  "pages": [],
+  "errors": [
+    {
+      "url": "https://business.nz/contact%0a",
+      "reason": "ValueError: Unsafe URL control character"
+    }
+  ],
+  "pending": [],
+  "requests": 1,
+  "started_at": "2026-10-20T09:05:43.846711+00:00",
+  "complete": true,
+  "attempts": {
+    "https://business.nz/contact%0a": 1
+  }
+}

@@ -22,14 +22,16 @@ import pytest
 
 # Project paths
 PROJECT_ROOT = Path(__file__).resolve().parents[1].parent  # ops/hermes_zero_token -> repo root
-DB_PATH = PROJECT_ROOT / "database" / "money_machine.db"
+DB_PATH = None  # Every database test must receive its explicit disposable fixture.
 RUNNER_PATH = PROJECT_ROOT / "ops" / "hermes_zero_token" / "runner.py"
 VENV_PYTHON = PROJECT_ROOT / ".venv-email" / "bin" / "python"
 SCRIPTS_DIR = Path.home() / ".hermes" / "scripts"
 
 
 def _db():
-    """Open a read-only connection to the production database."""
+    """Open only the database explicitly assigned by the fixture."""
+    if DB_PATH is None:
+        raise RuntimeError("A disposable test database must be assigned")
     return sqlite3.connect(DB_PATH)
 
 
@@ -291,9 +293,9 @@ class TestTestBaseline:
     """Acceptance: test_baseline — no new test failures relative to documented baseline."""
 
     def test_toolkit_tests_pass(self):
-        """Toolkit tests must pass: 162 passed, 2 skipped."""
+        """The current supported toolkit suite passes with the active interpreter."""
         result = subprocess.run(
-            [str(PROJECT_ROOT / ".venv" / "bin" / "python"), "-m", "pytest",
+            [sys.executable, "-B", "-m", "pytest",
              "toolkit_tests", "-q", "--tb=no", "-p", "no:warnings"],
             cwd=str(PROJECT_ROOT), capture_output=True, text=True, timeout=120,
         )

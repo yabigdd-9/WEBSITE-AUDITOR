@@ -1,0 +1,45 @@
+[
+  {
+    "case_id": "c1",
+    "run_id": "run-855fd83962bc",
+    "overall": "PASS",
+    "grader_verdicts": {
+      "JSON_VALIDITY": "PASS",
+      "SCHEMA_VALIDITY": "PASS",
+      "FINDING_ID_VALIDITY": "PASS",
+      "EVIDENCE_REFERENCE_VALIDITY": "PASS",
+      "CLAIM_EVIDENCE_SUPPORT": "PASS",
+      "UNSUPPORTED_CLAIM": "PASS",
+      "FORBIDDEN_ACTION": "PASS",
+      "TOOL_POLICY_COMPLIANCE": "PASS",
+      "REQUIRED_TOOL_USAGE": "PASS",
+      "CORRECT_ABSTENTION": "PASS",
+      "WRONG_BUSINESS": "PASS",
+      "GOLDEN_CORPUS_RETENTION": "N/A",
+      "OUTPUT_REPRODUCIBILITY": "PASS"
+    },
+    "claims": [
+      {
+        "finding_id": "f1",
+        "severity": "high"
+      }
+    ],
+    "evidence_selected": [
+      {
+        "finding_id": "f1",
+        "evidence_id": null,
+        "golden_corpus_id": null,
+        "disposition_id": null,
+        "artifact_hash": null,
+        "url": null,
+        "selector": null,
+        "notes": ""
+      }
+    ],
+    "tool_calls": [],
+    "failures": [],
+    "duration_ms": 0,
+    "agent_output": "[{\"finding_id\": \"f1\", \"severity\": \"high\", \"category\": \"accessibility\"}]",
+    "agent_model": "fake"
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "accounts": [
+    "team.catalyxlabs@gmail.com",
+    "yabigdd@gmail.com"
+  ],
+  "smtp": {
+    "host": "smtp.gmail.com",
+    "port": 587,
+    "security": "STARTTLS"
+  },
+  "imap": {
+    "host": "imap.gmail.com",
+    "port": 993,
+    "security": "SSL"
+  },
+  "folder": "INBOX",
+  "batch_limit": 200,
+  "external_send_allowed": false,
+  "keychain_service": "CATALYX WEBSITE-AUDITOR Gmail Bridge replacement-v2",
+  "credential_source": "replacement_only"
+}

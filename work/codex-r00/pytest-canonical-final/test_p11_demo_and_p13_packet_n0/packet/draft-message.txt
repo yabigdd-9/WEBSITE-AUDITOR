@@ -1,0 +1,3 @@
+Subject: A website improvement concept
+
+I reviewed the public website at https://example.co.nz/ and captured one specific issue: Missing viewport metadata. The audit evidence recorded: no viewport meta tag. I prepared a local concept showing how that area could be approached. The deterministic estimate is NZ$300.00–NZ$948.75 for the currently evidenced scope. That estimate still needs human scope/access review. I have not measured or guaranteed any change in traffic, enquiries, sales or revenue. If this is not relevant, reply no thanks and there will be no follow-up.

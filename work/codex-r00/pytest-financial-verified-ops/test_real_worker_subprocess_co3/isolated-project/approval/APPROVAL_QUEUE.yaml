@@ -1,0 +1,11 @@
+requires_dion_approval:
+- id: APR-ZT-1-33881848db91fcb35227bb683d7bfe85cadb6f3df8441a77baa95fa6174439e7
+  type: cold_outreach_send
+  engine: Website Auditor Zero-Token
+  description: Review outreach draft for Synthetic contract business 1
+  draft_path: /Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-financial-verified-ops/test_real_worker_subprocess_co3/isolated-project/reports/hermes_zero_token/outreach_drafts/business-1-evidence-1-33881848db91fcb35227bb683d7bfe85cadb6f3df8441a77baa95fa6174439e7.md
+  draft_sha256: 33881848db91fcb35227bb683d7bfe85cadb6f3df8441a77baa95fa6174439e7
+  evidence_id: 1
+  blocked_until: Dion approval of exact sender, recipient and message required
+  status: NOT_SENT_AWAITING_APPROVAL
+zero_token_updated_at: '2026-10-20T09:04:46.261922+00:00'

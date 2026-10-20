@@ -1,0 +1,21 @@
+{
+  "run_id": "run_full",
+  "generated_at": "2026-10-20T09:05:55.182420+00:00",
+  "site_url": "https://example.test",
+  "metrics": {
+    "total_findings": 3,
+    "high_findings": 1,
+    "contradictions_count": 1,
+    "avg_confidence": 0.67,
+    "location_pages_found": 1,
+    "business_type": "SERVICE_AREA"
+  },
+  "findings_by_impact": {
+    "HIGH": 1,
+    "INFO": 1,
+    "OTHER": 1
+  },
+  "contradictions_by_field": {
+    "phone": 1
+  }
+}

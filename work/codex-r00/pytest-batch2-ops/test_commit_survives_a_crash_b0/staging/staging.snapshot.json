@@ -1,0 +1,13 @@
+{
+  "generation": "a39a4e0a908d42ef9e4128e6241904a1",
+  "created_at": "2026-10-20T08:32:12.146257+00:00",
+  "source": {
+    "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-batch2-ops/test_commit_survives_a_crash_b0/production.db",
+    "device": 16777221,
+    "inode": 22380817
+  },
+  "target": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-batch2-ops/test_commit_survives_a_crash_b0/staging/staging.db",
+  "prepared_path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-batch2-ops/test_commit_survives_a_crash_b0/staging/.snapshot-gv7wf7ao.db",
+  "initial_sha256": "309f0d2825ab21ced8aec44dcc3124a44e5596ee1404a2e2b443cb8add75cf66",
+  "initial_evidence_max_id": 0
+}

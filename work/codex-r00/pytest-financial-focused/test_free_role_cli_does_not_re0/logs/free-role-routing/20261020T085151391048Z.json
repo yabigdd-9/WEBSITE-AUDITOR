@@ -1,0 +1,8 @@
+{
+  "at": "20261020T085151391048Z",
+  "role": "RESEARCHER",
+  "prompt_sha256": "b3cc0475bb78a5026098858e9889acf666d31062d513d303314eca31d36e72f2",
+  "status": "blocked",
+  "reason": "External provider metadata disabled without account evidence",
+  "attempts": []
+}

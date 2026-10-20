@@ -1,0 +1,20 @@
+{
+  "timestamp": "",
+  "queue_depth": 10,
+  "jobs_completed": 5,
+  "jobs_failed": 0,
+  "retries": 0,
+  "dlq_count": 0,
+  "quarantine_count": 0,
+  "worker_count": 0,
+  "browser_crashes": 0,
+  "memory_mb": 100,
+  "disk_usage_pct": 0.0,
+  "findings_count": 0,
+  "high_confidence_findings": 0,
+  "proof_success_count": 0,
+  "review_package_count": 0,
+  "false_positive_count": 0,
+  "golden_corpus_pass": 0,
+  "golden_corpus_fail": 0
+}

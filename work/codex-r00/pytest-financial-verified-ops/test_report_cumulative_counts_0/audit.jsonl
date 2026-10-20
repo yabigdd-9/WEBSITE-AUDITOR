@@ -1,0 +1,4 @@
+{"event": "complete", "worker_id": "testing", "status": "failed"}
+{"event": "complete", "worker_id": "testing_worker", "status": "completed"}
+{"event": "complete", "worker_id": "site_auditor", "status": "timeout"}
+invalid

@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "kind": "deterministic_quote",
+  "rules_version": "quote-v1",
+  "currency": "NZD",
+  "source_run_id": "run-cli-fixture",
+  "package": "Full Website Modernisation",
+  "estimated_hours": {
+    "low": "14.50",
+    "high": "44.85"
+  },
+  "price_band_nzd": {
+    "low": "2175.00",
+    "high": "6727.50"
+  },
+  "hourly_rate_nzd": "150.00",
+  "contingency_fraction": "0.15",
+  "confidence": "HIGH",
+  "included": [
+    "viewport",
+    "missing_canonical_url",
+    "missing_title",
+    "missing_meta_description",
+    "robots-missing",
+    "robots-no-sitemap",
+    "sitemap-missing",
+    "mixed-content",
+    "image-alt",
+    "broken-internal-link",
+    "header-hsts",
+    "unknown-platform-change"
+  ],
+  "excluded": [
+    "Production deployment",
+    "Paid third-party services",
+    "Unverified scope outside audit evidence",
+    "Client platform/licence fees"
+  ],
+  "assumptions": [
+    "Effort bands come from versioned deterministic rules.",
+    "Repeated instances of the same defect type share setup effort.",
+    "Client access and hidden platform constraints may change scope.",
+    "Price is an estimate until a human reviews scope and access."
+  ],
+  "items": [
+    {
+      "defect_key": "viewport",
+      "defect": "viewport",
+      "effort_band": "XS",
+      "finding_ids": [
+        "f1"
+      ]
+    },
+    {
+      "defect_key": "missing_canonical_url",
+      "defect": "missing_canonical_url",
+      "effort_band": "XS",
+      "finding_ids": [
+        "f2"
+      ]
+    },
+    {
+      "defect_key": "missing_title",
+      "defect": "missing_title",
+      "effort_band": "XS",
+      "finding_ids": [
+        "f3"
+      ]
+    },
+    {
+      "defect_key": "missing_meta_description",
+      "defect": "missing_meta_description",
+      "effort_band": "XS",
+      "finding_ids": [
+        "f4"
+      ]
+    },
+    {
+      "defect_key": "robots-missing",
+      "defect": "robots missing",
+      "effort_band": "XS",
+      "finding_ids": [
+        "f5"
+      ]
+    },
+    {
+      "defect_key": "robots-no-sitemap",
+      "defect": "robots no sitemap",
+      "effort_band": "XS",
+      "finding_ids": [
+        "f6"
+      ]
+    },
+    {
+      "defect_key": "sitemap-missing",
+      "defect": "sitemap missing",
+      "effort_band": "S",
+      "finding_ids": [
+        "f7"
+      ]
+    },
+    {
+      "defect_key": "mixed-content",
+      "defect": "mixed content",
+      "effort_band": "S",
+      "finding_ids": [
+        "f8"
+      ]
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "image alt",
+      "effort_band": "S",
+      "finding_ids": [
+        "f9"
+      ]
+    },
+    {
+      "defect_key": "broken-internal-link",
+      "defect": "broken internal link",
+      "effort_band": "S",
+      "finding_ids": [
+        "f10"
+      ]
+    },
+    {
+      "defect_key": "header-hsts",
+      "defect": "header hsts",
+      "effort_band": "S",
+      "finding_ids": [
+        "f11"
+      ]
+    },
+    {
+      "defect_key": "unknown-platform-change",
+      "defect": "unknown platform change",
+      "effort_band": "M",
+      "finding_ids": [
+        "f12"
+      ]
+    }
+  ],
+  "review_required": true,
+  "llm_determined_price": false
+}

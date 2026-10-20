@@ -26,6 +26,59 @@ class RevisionError(RuntimeError):
     """A bounded, redacted startup failure code."""
 
 
+def process_birth(pid):
+    """Read an OS birth token, rather than treating a PID as an identity.
+
+    Darwin layout/constants follow Apple's public proc_info.h (PROC_PIDTBSDINFO).
+    Linux uses the kernel start tick and boot ID. No process is signalled and no
+    environment/argument values are read by this function.
+    """
+    if type(pid) is not int or pid <= 0:
+        raise RevisionError("process_pid_invalid")
+    if sys.platform == "darwin":
+        import ctypes
+
+        class BSDInfo(ctypes.Structure):
+            _fields_ = [("identity", ctypes.c_uint32 * 12),
+                        ("command", ctypes.c_char * 16), ("name", ctypes.c_char * 32),
+                        ("details", ctypes.c_uint32 * 6),
+                        ("seconds", ctypes.c_uint64), ("microseconds", ctypes.c_uint64)]
+
+        library = ctypes.CDLL("/usr/lib/libproc.dylib", use_errno=True)
+        library.proc_pidinfo.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_uint64,
+                                        ctypes.c_void_p, ctypes.c_int]
+        library.proc_pidinfo.restype = ctypes.c_int
+        info = BSDInfo()
+        count = library.proc_pidinfo(pid, 3, 0, ctypes.byref(info), ctypes.sizeof(info))
+        if (count != ctypes.sizeof(info) or info.identity[3] != pid
+                or info.identity[1] == 5 or info.identity[0] & 4):
+            raise RevisionError("process_birth_unavailable")
+        library.proc_pidpath.argtypes = [ctypes.c_int, ctypes.c_void_p, ctypes.c_uint32]
+        library.proc_pidpath.restype = ctypes.c_int
+        buffer = ctypes.create_string_buffer(4096)
+        if library.proc_pidpath(pid, buffer, len(buffer)) <= 0:
+            raise RevisionError("process_executable_unavailable")
+        return {"pid": pid, "parent_pid": int(info.identity[4]), "uid": int(info.identity[5]),
+                "start_id": f"darwin:{info.seconds}:{info.microseconds}",
+                "start_epoch": info.seconds + info.microseconds / 1_000_000,
+                "executable_realpath": str(Path(os.fsdecode(buffer.value)).resolve())}
+    if sys.platform.startswith("linux"):
+        folder = Path("/proc") / str(pid)
+        raw = (folder / "stat").read_text()
+        fields = raw[raw.rfind(")") + 2:].split()
+        if fields[0] in {"Z", "X"}:
+            raise RevisionError("process_birth_unavailable")
+        ticks = int(fields[19])
+        boot_id = Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+        boot = next(int(line.split()[1]) for line in Path("/proc/stat").read_text().splitlines()
+                    if line.startswith("btime "))
+        return {"pid": pid, "parent_pid": int(fields[1]), "uid": folder.stat().st_uid,
+                "start_id": f"linux:{boot_id}:{ticks}",
+                "start_epoch": boot + ticks / os.sysconf("SC_CLK_TCK"),
+                "executable_realpath": str((folder / "exe").resolve(strict=True))}
+    raise RevisionError("process_platform_unsupported")
+
+
 def git(root, *arguments):
     return subprocess.check_output(["git", "-C", str(root), *arguments], timeout=30)
 
@@ -261,6 +314,12 @@ def main(argv=None):
         receipt["attestation_mode"] = "PINNED_STARTUP" if guard else "SOURCE_ONLY"
         if guard:
             receipt.update(guard.identity())
+        try:
+            receipt["process_birth"] = process_birth(os.getpid())
+        except (RevisionError, OSError, ValueError, IndexError, StopIteration):
+            # Legacy source/startup verification is preserved. Independent live
+            # identity must fail closed when no OS birth token can be recorded.
+            receipt["process_birth"] = None
         os.environ["MM_ROOT"] = str(root)
         os.environ["MM_EXTERNAL_SEND_DISABLED"] = "1"
         sys.path[:0] = [str(root), str(root / "money-machine")]

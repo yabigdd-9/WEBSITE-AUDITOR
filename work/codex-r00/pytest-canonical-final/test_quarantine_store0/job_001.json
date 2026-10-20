@@ -1,0 +1,8 @@
+{
+  "job_id": "job_001",
+  "reason": "parser error",
+  "error_type": "PARSER_BUG",
+  "data_hash": "",
+  "created_at": "",
+  "retry_count": 0
+}

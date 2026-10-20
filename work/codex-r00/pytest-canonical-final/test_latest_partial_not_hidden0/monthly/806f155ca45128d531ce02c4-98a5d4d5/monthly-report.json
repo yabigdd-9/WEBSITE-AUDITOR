@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "id": "806f155ca45128d531ce02c4-98a5d4d5",
+  "content_key": "806f155ca45128d531ce02c413cb4a3afb5ecbbb9e4883930ccd764b4f137572",
+  "client_id": "one",
+  "month": "2026-06",
+  "generated_at": "2026-10-20T09:04:53.039820+00:00",
+  "artifact_status": "ready",
+  "data_status": "no_audit",
+  "status": "partial",
+  "pdf": {
+    "status": "not_requested",
+    "reason": null
+  },
+  "delivery": {
+    "status": "draft",
+    "sent": false
+  },
+  "source_run_ids": [],
+  "health_delta": null,
+  "fixes_verified": [],
+  "revenue": {
+    "schema_version": 1,
+    "kind": "revenue_scenario",
+    "currency": "NZD",
+    "source_run_id": null,
+    "source_audit_status": "no_audit",
+    "url": "https://example.com/",
+    "status": "unquantified",
+    "review_required": true,
+    "disclaimer": "Scenario only, not measured lost revenue or a recovery guarantee. Audit evidence establishes the defect; assumptions establish its modeled effect.",
+    "missing_inputs": [],
+    "assumptions": {
+      "currency": "NZD",
+      "monthly_visitors": 2000,
+      "baseline_conversion_rate": 0.05,
+      "value_per_conversion_nzd": 150,
+      "contribution_margin": 0.6,
+      "hourly_rate_nzd": 120,
+      "horizon_months": 12,
+      "segments": {
+        "all": 1
+      },
+      "impacts": {
+        "missing_title": {
+          "relative_conversion_loss": {
+            "low": 0.1,
+            "high": 0.18
+          },
+          "recovery_fraction": {
+            "low": 0.5,
+            "high": 1
+          },
+          "fix_hours": {
+            "low": 1,
+            "high": 2
+          },
+          "source": "Hypothetical fixture only, not industry data",
+          "rationale": "Sensitivity test",
+          "reviewed_by": "Fixture reviewer"
+        }
+      }
+    },
+    "baseline_nzd_monthly": "15000.00",
+    "revenue_at_risk_nzd_monthly": null,
+    "potential_recovery_nzd_monthly": null,
+    "modeled_risk_percent": null,
+    "fix_cost_nzd": null,
+    "profit_roi_percent": null,
+    "payback_months": null,
+    "horizon_months": "12",
+    "modeled_defect_types": 0,
+    "unquantified_defect_keys": [],
+    "coverage": "no_audit",
+    "aggregation": "Maximum overlapping effect per disjoint traffic segment. Row values must not be summed. Fix costs are per defect type across all occurrences.",
+    "rows": []
+  },
+  "artifacts": {
+    "html": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_latest_partial_not_hidden0/monthly/806f155ca45128d531ce02c4-98a5d4d5/monthly-report.html",
+    "revenue": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_latest_partial_not_hidden0/monthly/806f155ca45128d531ce02c4-98a5d4d5/revenue.json",
+    "roi": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_latest_partial_not_hidden0/monthly/806f155ca45128d531ce02c4-98a5d4d5/roi.csv",
+    "email": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_latest_partial_not_hidden0/monthly/806f155ca45128d531ce02c4-98a5d4d5/email.eml",
+    "action": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_latest_partial_not_hidden0/monthly/806f155ca45128d531ce02c4-98a5d4d5/action-preview.json"
+  }
+}

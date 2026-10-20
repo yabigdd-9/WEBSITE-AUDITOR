@@ -1,10 +1,14 @@
 """No-network behavioral tests for the free-only role dispatcher."""
-import copy
-from pathlib import Path
+import tempfile
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
+import free_role_router as dispatcher
 import yaml
-from free_role_router import RouteError, _env_file_value, free_model, route, validate
+from free_role_router import RouteError, _env_file_value, route, validate
+
+from toolkit_tests.financial_admission_fixtures import fixture_coordinator
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -40,6 +44,14 @@ class RoutingTests(unittest.TestCase):
         self.catalog = {m: {"id": m, "pricing": {"prompt": "0", "completion": "0"},
             "architecture": {"input_modalities": ["text", "image"]}} for m in ids}
         self.calls = []
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.coordinator = fixture_coordinator(Path(self.temporary.name) / "financial", routes=[
+            {"provider": "openrouter", "model": slug, "endpoint": dispatcher.API + "/chat/completions"}
+            for slug in sorted(ids)])
+        self.admission_patch = patch.object(dispatcher.admission, "get_coordinator", return_value=self.coordinator)
+        self.admission_patch.start()
+        self.addCleanup(self.admission_patch.stop)
 
     def respond(self, path, key, body):
         self.calls.append(body)
@@ -53,15 +65,15 @@ class RoutingTests(unittest.TestCase):
             self.assertFalse(result["approval_granted"])
         self.assertNotEqual(self.config["roles"]["RESEARCHER"]["preferred"], self.config["roles"]["PRIMARY_CODER"]["preferred"])
 
-    def test_endpoint_429_falls_back_without_dropping_zero_caps(self):
+    def test_endpoint_429_stops_without_dropping_zero_caps(self):
         def flaky(path, key, body):
             if not self.calls:
                 self.calls.append(body)
-                return 429, {"error": {"message": "provider overloaded"}}
+                return 429, {"error": {"message": "provider overloaded"}, "usage": {"cost": 0}}
             return self.respond(path, key, body)
-        result = route(self.config, "SECONDARY_CODER", "fixture", "fake", self.catalog, flaky)
-        self.assertTrue(result["fallback_used"])
-        self.assertEqual(result["requested_model"], self.config["roles"]["SECONDARY_CODER"]["fallbacks"][0])
+        with self.assertRaisesRegex(RouteError, "quota_block"):
+            route(self.config, "SECONDARY_CODER", "fixture", "fake", self.catalog, flaky)
+        self.assertEqual(len(self.calls), 1)
         for call in self.calls:
             self.assertTrue(call["provider"]["require_parameters"])
             self.assertEqual(call["provider"]["data_collection"], "deny")
@@ -72,7 +84,7 @@ class RoutingTests(unittest.TestCase):
         def quota(path, key, body):
             self.calls.append(body)
             return 429, {"error": {"metadata": {"limit_source": "openrouter_free_tier_daily"}}}
-        with self.assertRaisesRegex(RouteError, "Daily free quota"):
+        with self.assertRaisesRegex(RouteError, "quota_block"):
             route(self.config, "MASTER_ORCHESTRATOR", "fixture", "fake", self.catalog, quota)
         self.assertEqual(len(self.calls), 1)
 
@@ -122,7 +134,7 @@ class RoutingTests(unittest.TestCase):
 
     def test_reasoning_alone_is_not_a_successful_answer(self):
         def empty(path, key, body):
-            return 200, {"model": body["model"], "choices": [{"message": {"content": "", "reasoning": "not an answer"}}]}
+            return 200, {"model": body["model"], "usage": {"cost": 0}, "choices": [{"message": {"content": "", "reasoning": "not an answer"}}]}
         with self.assertRaisesRegex(RouteError, "All permitted"):
             route(self.config, "FINANCE_AGENT", "fixture", "fake", self.catalog, empty)
 
@@ -136,8 +148,20 @@ class RoutingTests(unittest.TestCase):
     def test_reported_cost_stops(self):
         def paid(path, key, body):
             return 200, {"usage": {"cost": .01}}
-        with self.assertRaisesRegex(RouteError, "Unexpected reported cost"):
+        with self.assertRaisesRegex(RouteError, "reported_nonzero_cost"):
             route(self.config, "MASTER_ORCHESTRATOR", "fixture", "fake", self.catalog, paid)
+
+    def test_known_zero_cost_500_fallback_is_separately_admitted(self):
+        def flaky(path, key, body):
+            if not self.calls:
+                self.calls.append(body)
+                return 500, {"usage": {"cost": 0}, "error": {"message": "synthetic unavailable"}}
+            return self.respond(path, key, body)
+        result = route(self.config, "SECONDARY_CODER", "fixture", "fake", self.catalog, flaky)
+        self.assertTrue(result["fallback_used"])
+        import sqlite3
+        with sqlite3.connect(self.coordinator.database) as conn:
+            self.assertEqual(conn.execute("SELECT count(*) FROM reservations WHERE state='SETTLED'").fetchone()[0], 2)
 
 
 if __name__ == "__main__":

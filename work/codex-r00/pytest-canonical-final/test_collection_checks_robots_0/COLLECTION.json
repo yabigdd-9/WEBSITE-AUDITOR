@@ -1,0 +1,49 @@
+{
+  "business": {
+    "id": "synthetic-1",
+    "public_website": "https://business.nz/"
+  },
+  "pages": [],
+  "dns": {},
+  "errors": [
+    {
+      "url": "https://business.nz/",
+      "reason": "ValueError: ACCESS_RESTRICTED_OR_ROBOTS_UNAVAILABLE"
+    }
+  ],
+  "stage_timings": {
+    "collection_seconds": 0.017647,
+    "dns_seconds": 0.000148,
+    "total_seconds": 0.017795
+  },
+  "request_metrics": {
+    "actual_requests": 3,
+    "reserved_requests": 0,
+    "accounting": "attempt_callbacks"
+  },
+  "public_fetch_calls": [
+    {
+      "url": "https://business.nz/robots.txt",
+      "status": "captured",
+      "redirects": [],
+      "request_hops": 1
+    },
+    {
+      "url": "https://other.nz/robots.txt",
+      "status": "captured",
+      "redirects": [],
+      "request_hops": 1
+    },
+    {
+      "url": "https://business.nz/",
+      "status": "ACCESS_RESTRICTED_OR_ROBOTS_UNAVAILABLE",
+      "request_hops": 1,
+      "reserved_hops": 0
+    }
+  ],
+  "request_budget": {
+    "limit": 5,
+    "consumed_or_reserved": 3,
+    "remaining": 2
+  }
+}

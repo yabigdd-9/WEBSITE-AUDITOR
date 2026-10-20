@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-10-20T09:01:39.406185+00:00",
+  "phase": "P2",
+  "staging_db": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-financial-ops/test_source_schema_drift_block0/staging/staging.db",
+  "production_db": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-financial-ops/test_source_schema_drift_block0/production.db",
+  "production_written": false,
+  "batch_size": 1,
+  "snapshot_generation": "3b1dd1bb4bbc40d990e69a5ab30fe93d",
+  "staging_size_bytes": 12288,
+  "before_counts": {
+    "businesses": 3,
+    "mm_evidence": 1
+  },
+  "schema_validation": {
+    "ok": false,
+    "missing_tables": [],
+    "extra_tables": [],
+    "mismatched_schema": [
+      "businesses"
+    ]
+  },
+  "error": "Source schema changed; select an explicit new staging generation"
+}

@@ -1,0 +1,15 @@
+{
+  "commit_sha": "abc123",
+  "start_time": "2026-09-01T00:00:00Z",
+  "end_time": "2026-10-20T09:05:58.764008+00:00",
+  "status": "NOT_READY",
+  "gates_passed": 1,
+  "gates_total": 2,
+  "limitations": [
+    "Browser checks skipped"
+  ],
+  "metrics": {
+    "soak_start": "2026-09-01T00:00:00Z",
+    "coverage": 0.9
+  }
+}

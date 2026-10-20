@@ -1,5 +1,10 @@
 # Continuity upgrade plan
 
+Current execution status is in [the completion register](docs/COMPLETION_STATUS.md)
+and [corrected v3.2.1 plan](plans/MASTER_PLAN_v3.2.1.yaml). The dated disposition
+below is historical. In particular, later analyzer implementation and integrated
+commits must not be recreated from this older backlog.
+
 _Updated 8 October 2026. Baseline b349cd9f; isolated candidate locally committed and unpublished._
 
 This replaces the 20 September gap list with the current disposition. [CURRENT_STATE.md](CURRENT_STATE.md) records revision and acceptance; [docs/RUNBOOK.md](docs/RUNBOOK.md) documents operator procedures. The complete work order is [docs/GITHUB_TODO_REGISTER.md](docs/GITHUB_TODO_REGISTER.md).

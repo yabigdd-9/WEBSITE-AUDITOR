@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-10-20T08:32:17.729532+00:00",
+  "phase": "P2",
+  "drafts_dir": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-batch2-ops/test_real_worker_subprocess_co3/isolated-project/reports/hermes_zero_token/outreach_drafts",
+  "production_written": false,
+  "outbound_messages_sent": 0,
+  "drafts_created": 1,
+  "details": [
+    {
+      "business_id": 1,
+      "name": "Synthetic contract business 1",
+      "url": "https://contract-1.example.invalid",
+      "evidence_id": 1,
+      "draft_path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-batch2-ops/test_real_worker_subprocess_co3/isolated-project/reports/hermes_zero_token/outreach_drafts/business-1-evidence-1-33881848db91fcb35227bb683d7bfe85cadb6f3df8441a77baa95fa6174439e7.md",
+      "draft_sha256": "33881848db91fcb35227bb683d7bfe85cadb6f3df8441a77baa95fa6174439e7",
+      "status": "DRAFT_ONLY_NOT_SENT"
+    }
+  ],
+  "approval_queue_path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-batch2-ops/test_real_worker_subprocess_co3/isolated-project/approval/APPROVAL_QUEUE.yaml"
+}

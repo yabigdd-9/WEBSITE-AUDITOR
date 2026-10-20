@@ -1,0 +1,1 @@
+{"application_revision": "historical-revision", "cases": [{"id": "business-1", "live_business_id": 1, "name": "Clear Plumbing", "region": "Auckland", "public_website": "https://clearplumbing.nz/", "pipeline_state_at_freeze": "NEEDS_REVIEW"}], "engine_hashes": {"auditor_toolkit/__init__.py": "partial"}}

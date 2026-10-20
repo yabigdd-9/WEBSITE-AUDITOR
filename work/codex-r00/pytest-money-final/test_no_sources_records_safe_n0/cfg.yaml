@@ -1,0 +1,7 @@
+enabled: true
+inbox_dir: missing
+interval_minutes: 360
+queries: []
+region: New Zealand
+results_per_query: 5
+searxng_endpoint: http://127.0.0.1:8888

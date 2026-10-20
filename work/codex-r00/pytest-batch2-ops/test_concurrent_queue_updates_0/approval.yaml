@@ -1,0 +1,38 @@
+requires_dion_approval:
+- id: APR-ZT-0-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  type: cold_outreach_send
+  engine: Website Auditor Zero-Token
+  description: Review outreach draft for Synthetic fixture
+  draft_path: /fixture/draft.md
+  draft_sha256: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  evidence_id: 7
+  blocked_until: Dion approval of exact sender, recipient and message required
+  status: NOT_SENT_AWAITING_APPROVAL
+- id: APR-ZT-1-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  type: cold_outreach_send
+  engine: Website Auditor Zero-Token
+  description: Review outreach draft for Synthetic fixture
+  draft_path: /fixture/draft.md
+  draft_sha256: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  evidence_id: 7
+  blocked_until: Dion approval of exact sender, recipient and message required
+  status: NOT_SENT_AWAITING_APPROVAL
+- id: APR-ZT-3-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  type: cold_outreach_send
+  engine: Website Auditor Zero-Token
+  description: Review outreach draft for Synthetic fixture
+  draft_path: /fixture/draft.md
+  draft_sha256: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  evidence_id: 7
+  blocked_until: Dion approval of exact sender, recipient and message required
+  status: NOT_SENT_AWAITING_APPROVAL
+- id: APR-ZT-2-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  type: cold_outreach_send
+  engine: Website Auditor Zero-Token
+  description: Review outreach draft for Synthetic fixture
+  draft_path: /fixture/draft.md
+  draft_sha256: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  evidence_id: 7
+  blocked_until: Dion approval of exact sender, recipient and message required
+  status: NOT_SENT_AWAITING_APPROVAL
+zero_token_updated_at: '2026-10-20T08:32:07.110656+00:00'

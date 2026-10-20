@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "kind": "money_machine_review_packet",
+  "business_id": 7,
+  "source_run_id": "run-fixture",
+  "website": "https://fixture.example.co.nz/",
+  "audit": {
+    "health_score": null,
+    "defect_score": null,
+    "defect_count": 1,
+    "report_path": "/tmp/run-fixture/report.json"
+  },
+  "remediation": {
+    "manifest": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-money-final/test_review_packet_with_explic0/remediation/remediation.json",
+    "preview_items": 1,
+    "production_changes": 0
+  },
+  "demo": {
+    "manifest": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-money-final/test_review_packet_with_explic0/demo/demo.json",
+    "html": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-money-final/test_review_packet_with_explic0/demo/index.html",
+    "status": "CONCEPT_ONLY",
+    "live_site_changed": false,
+    "external_deploy": false
+  },
+  "qa": {
+    "score": 90,
+    "passed": true
+  },
+  "contact": {
+    "email": "office@fixture.example.co.nz",
+    "verification": "VERIFIED_HIGH",
+    "verification_id": 7
+  },
+  "quote_status": "DETERMINISTIC_QUOTE_READY",
+  "quote": {
+    "schema_version": 1,
+    "kind": "deterministic_quote",
+    "rules_version": "quote-v1",
+    "currency": "NZD",
+    "source_run_id": "run-fixture",
+    "package": "Technical Repair",
+    "estimated_hours": {
+      "low": "4.00",
+      "high": "11.50"
+    },
+    "price_band_nzd": {
+      "low": "600.00",
+      "high": "1725.00"
+    },
+    "hourly_rate_nzd": "150.00",
+    "contingency_fraction": "0.15",
+    "confidence": "HIGH",
+    "included": [
+      "viewport"
+    ],
+    "excluded": [
+      "Production deployment",
+      "Paid third-party services",
+      "Unverified scope outside audit evidence",
+      "Client platform/licence fees"
+    ],
+    "assumptions": [
+      "Effort bands come from versioned deterministic rules.",
+      "Repeated instances of the same defect type share setup effort.",
+      "Client access and hidden platform constraints may change scope.",
+      "Price is an estimate until a human reviews scope and access."
+    ],
+    "items": [
+      {
+        "defect_key": "viewport",
+        "defect": "viewport",
+        "effort_band": "M",
+        "finding_ids": [
+          null
+        ]
+      }
+    ],
+    "review_required": true,
+    "llm_determined_price": false
+  },
+  "draft_status": "LOCAL_DRAFT_READY",
+  "commercial_packet": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-money-final/test_review_packet_with_explic0/commercial-packet-9ae2bdd7beed/packet.json",
+  "human_review_required": true,
+  "approval_status": "HUMAN_APPROVAL_REQUIRED",
+  "send_enabled": false,
+  "external_send_allowed": false,
+  "external_sends": 0,
+  "model_calls": 0,
+  "paid_ai_cost_usd": 0
+}

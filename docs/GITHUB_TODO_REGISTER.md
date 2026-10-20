@@ -1,5 +1,11 @@
 # GitHub and source TODO register
 
+For current execution, use [the completion register](COMPLETION_STATUS.md) and
+the [corrected v3.2.1 plan](../plans/MASTER_PLAN_v3.2.1.yaml). The baseline,
+implementation dispositions and counts below are dated historical records;
+later analyzer implementations, local integration and current source fixes are
+recorded in the current register without deleting their original evidence.
+
 _Reviewed 8 October 2026 (Pacific/Auckland). Verified baseline b349cd9fb23b6cf9c5a2e8a8c74691158e9cda8f._
 
 This register separates an isolated locally committed, unpublished candidate from existing implementation, required validation and human decisions. The authoritative checkout, live services, database, configuration and approval records are unchanged. Immediate candidate work is implemented and committed locally with passing tests; the exact commit SHA is recorded in the external review bundle; final receipts are assessed in the final validation bundle; baseline success is not candidate acceptance.

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "kind": "deterministic_quote",
+  "rules_version": "quote-v1",
+  "currency": "NZD",
+  "source_run_id": "run-fixture",
+  "package": "Technical Repair",
+  "estimated_hours": {
+    "low": "4.00",
+    "high": "11.50"
+  },
+  "price_band_nzd": {
+    "low": "600.00",
+    "high": "1725.00"
+  },
+  "hourly_rate_nzd": "150.00",
+  "contingency_fraction": "0.15",
+  "confidence": "HIGH",
+  "included": [
+    "viewport"
+  ],
+  "excluded": [
+    "Production deployment",
+    "Paid third-party services",
+    "Unverified scope outside audit evidence",
+    "Client platform/licence fees"
+  ],
+  "assumptions": [
+    "Effort bands come from versioned deterministic rules.",
+    "Repeated instances of the same defect type share setup effort.",
+    "Client access and hidden platform constraints may change scope.",
+    "Price is an estimate until a human reviews scope and access."
+  ],
+  "items": [
+    {
+      "defect_key": "viewport",
+      "defect": "viewport",
+      "effort_band": "M",
+      "finding_ids": [
+        null
+      ]
+    }
+  ],
+  "review_required": true,
+  "llm_determined_price": false
+}

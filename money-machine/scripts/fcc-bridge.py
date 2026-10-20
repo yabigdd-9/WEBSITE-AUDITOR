@@ -18,7 +18,6 @@ Commands:
 import ipaddress
 import json
 import os
-import signal
 import subprocess
 import sys
 import time
@@ -29,6 +28,10 @@ from pathlib import Path
 # Configuration
 PROJECT_DIR = Path(__file__).resolve().parents[2]
 SCRIPT_DIR = PROJECT_DIR / "money-machine" / "scripts"
+if str(PROJECT_DIR / "money-machine") not in sys.path:
+    sys.path.insert(0, str(PROJECT_DIR / "money-machine"))
+import mm_model_router as model_router  # noqa: E402
+
 FCC_HOST = os.environ.get("HOST", "127.0.0.1")
 FCC_PORT = int(os.environ.get("PORT", "8082"))
 def local_fcc_url(host, port):
@@ -129,69 +132,14 @@ def check_process(name, pattern):
         return False, []
 
 def start_fcc_server():
-    """Start FCC server in headless mode"""
-    log_info("Starting FCC server...")
-
-    running, _ = check_process("fcc-server", "fcc-server")
-    if running:
-        log_warn("FCC server already running")
-        return True
-
-    # Check if port is in use
-    try:
-        import socket
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(1)
-        result = sock.connect_ex((FCC_HOST, FCC_PORT))
-        sock.close()
-        if result == 0:
-            log_warn(f"Port {FCC_PORT} already in use (FCC desktop may be running)")
-            log_info("Using existing FCC desktop instance")
-            return True
-    except Exception:
-        pass
-
-    # Start FCC server
-    try:
-        proc = subprocess.Popen(
-            ["fcc-server"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            preexec_fn=os.setsid
-        )
-
-        # Wait for startup
-        log_info("Waiting for FCC server to start...")
-        for i in range(30):
-            time.sleep(1)
-            try:
-                req = urllib.request.Request(f"{ADMIN_URL}/api/status")
-                with open_local_request(req, timeout=2) as resp:
-                    if resp.status == 200:
-                        log_ok(f"FCC server started (PID: {proc.pid})")
-                        return True
-            except Exception:
-                pass
-
-        log_error("FCC server failed to start")
-        return False
-    except Exception as e:
-        log_error(f"Failed to start FCC server: {e}")
-        return False
+    """Service activation belongs to the verified supervisor rollout workflow."""
+    log_error("FCC service activation held pending verified ownership and rollout authority")
+    return False
 
 def stop_fcc_server():
-    """Stop FCC server"""
-    log_info("Stopping FCC server...")
-    running, pids = check_process("fcc-server", "fcc-server")
-    if running:
-        for pid in pids:
-            try:
-                os.kill(int(pid), signal.SIGTERM)
-            except Exception:
-                pass
-        log_ok("FCC server stopped")
-    else:
-        log_warn("FCC server not running")
+    """Never terminate processes identified only by a name match."""
+    log_error("FCC service stop held pending verified process ownership")
+    return False
 
 def check_fcc_status():
     """Check FCC admin API status"""
@@ -204,95 +152,28 @@ def check_fcc_status():
         return None
 
 def run_claude(prompt):
-    """Run a prompt through Claude CLI"""
-    log_info(f"Running Claude: {prompt[:50]}...")
-
-    claude_path = Path("/Users/dd/.local/bin/claude")
-    if not claude_path.exists():
-        log_error("Claude CLI not found")
-        return False
-
-    try:
-        result = subprocess.run(
-            [str(claude_path), "-p", prompt],
-            capture_output=True,
-            text=True,
-            timeout=300,
-            env=os.environ.copy()
-        )
-        print(result.stdout)
-        if result.stderr:
-            print(result.stderr, file=sys.stderr)
-        return result.returncode == 0
-    except subprocess.TimeoutExpired:
-        log_error("Claude timed out")
-        return False
-    except Exception as e:
-        log_error(f"Claude failed: {e}")
-        return False
+    """Agent CLIs cannot prove a bounded included request; keep them held."""
+    log_error("Claude CLI disabled: internal request count and billing are unverified")
+    return False
 
 def run_codex(prompt):
-    """Run a prompt through Codex CLI"""
-    log_info(f"Running Codex: {prompt[:50]}...")
-
-    codex_path = Path("/Users/dd/.local/bin/codex")
-    if not codex_path.exists():
-        log_error("Codex CLI not found")
-        return False
-
-    try:
-        result = subprocess.run(
-            [str(codex_path), "exec", "--no-interactive", prompt],
-            capture_output=True,
-            text=True,
-            timeout=300,
-            env=os.environ.copy()
-        )
-        print(result.stdout)
-        if result.stderr:
-            print(result.stderr, file=sys.stderr)
-        return result.returncode == 0
-    except subprocess.TimeoutExpired:
-        log_error("Codex timed out")
-        return False
-    except Exception as e:
-        log_error(f"Codex failed: {e}")
-        return False
+    """Do not launch an unmetered agent as a model fallback."""
+    log_error("Codex CLI disabled: internal request count and billing are unverified")
+    return False
 
 def send_to_fcc(prompt):
-    """Send a request to FCC API"""
-    log_info(f"Sending to FCC: {prompt[:50]}...")
-
+    """Use the same admitted, redacted model operation as MoneyMachine."""
     try:
-        # Use FCC's API to generate a response
-        # This is a simplified approach - in production you'd use the proper API
-        data = json.dumps({
-            "model": os.environ.get("MODEL", "nvidia_nim/nvidia/nemotron-3-super-120b-a12b"),
-            "messages": [{"role": "user", "content": prompt}],
-            "max_tokens": 4000,
-            "temperature": 0.7,
-        }).encode()
-
-        req = urllib.request.Request(
-            f"{API_URL}/chat/completions",
-            data=data,
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {os.environ.get('ANTHROPIC_AUTH_TOKEN', '')}"
-            },
-            method="POST"
-        )
-
-        with open_local_request(req, timeout=60) as resp:
-            result = json.load(resp)
-            content = result.get("choices", [{}])[0].get("message", {}).get("content", "")
-            print(content)
-            return True
-    except Exception as e:
-        log_error(f"FCC API request failed: {e}")
-        # Fall back to Claude CLI
-        log_info("Falling back to Claude CLI...")
-        return run_claude(prompt)
+        prepared = model_router.prepare_external_prompt(prompt)
+        if prepared.get("secret_detected"):
+            raise model_router.BlockedCost("Secret-bearing prompt requires review")
+        model = os.environ.get("MODEL") or model_router._env_value(model_router.FCC_MODEL_ENV)
+        result = model_router._fcc_complete(prepared["prompt"], model, 2048, 60, base_url=FCC_URL)
+        print(result["text"])
+        return True
+    except (model_router.BlockedCost, OSError, ValueError):
+        log_error("FCC request held or failed; no CLI fallback is permitted")
+        return False
 
 def show_status():
     """Show status of all services"""
@@ -351,11 +232,11 @@ def main():
 
     if command == "start":
         print(f"\n{BLUE}=== Starting FCC Bridge ==={NC}\n")
-        start_fcc_server()
-        show_status()
+        if not start_fcc_server():
+            sys.exit(3)
 
     elif command == "stop":
-        stop_fcc_server()
+        sys.exit(0 if stop_fcc_server() else 3)
 
     elif command == "status":
         show_status()

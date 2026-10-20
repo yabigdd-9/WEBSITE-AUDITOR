@@ -1,0 +1,15 @@
+{
+  "screenshots": [
+    {
+      "business_id": 1,
+      "name": "Synthetic fixture",
+      "url": "https://fixture.example",
+      "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-financial-verified-ops/test_new_reported_artifact_is_0/screenshots/business-1/capture-nlbyqh8m/screenshot.png",
+      "sha256": "e088c202decdb562950e67ba0ed715162a2ffcf47b77a7e3eb9cdc65cf48f9d8",
+      "size_bytes": 23,
+      "captured_at": "2026-10-20T09:04:40.996848+00:00",
+      "status": "captured"
+    }
+  ],
+  "generated_at": "2026-10-20T09:04:40.999688+00:00"
+}

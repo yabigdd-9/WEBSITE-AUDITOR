@@ -1,0 +1,19 @@
+items:
+- id: other
+  status: APPROVED
+owner_notes: preserve
+policy:
+  limit: 10
+requires_dion_approval:
+- id: existing
+  status: APPROVED
+- id: APR-ZT-1-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  type: cold_outreach_send
+  engine: Website Auditor Zero-Token
+  description: Review outreach draft for Synthetic fixture
+  draft_path: /fixture/draft.md
+  draft_sha256: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  evidence_id: 7
+  blocked_until: Dion approval of exact sender, recipient and message required
+  status: NOT_SENT_AWAITING_APPROVAL
+zero_token_updated_at: '2026-10-20T09:01:34.785531+00:00'

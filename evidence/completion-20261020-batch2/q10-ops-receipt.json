@@ -1,0 +1,59 @@
+{
+  "source_sha": "ec86481ccd6c674c6dfee8d7856d71d97581d08f",
+  "started_at_utc": "2026-10-20T08:32:04.287375+00:00",
+  "duration_seconds": 46.715,
+  "pytest_arguments": [
+    "-ra",
+    "--strict-markers",
+    "ops/hermes_zero_token",
+    "-m",
+    "not slow",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-batch2-ops",
+    "--junitxml=/Users/dd/Documents/Codex/2026-10-19/x20-r/work/validation-batch2-ops/q10-money.xml"
+  ],
+  "exit_code": 0,
+  "changed_during_run": [],
+  "executed_module_comparisons": {
+    "ops/hermes_zero_token/test_integration_safety.py": true,
+    "ops/hermes_zero_token/test_outreach_queue_safety.py": true,
+    "ops/hermes_zero_token/test_reporting_cases.py": true,
+    "ops/hermes_zero_token/test_runner_ownership.py": true,
+    "ops/hermes_zero_token/test_screenshot_safety.py": true,
+    "ops/hermes_zero_token/test_staging_progress.py": true,
+    "ops/hermes_zero_token/test_standalone_ownership.py": true,
+    "ops/hermes_zero_token/worker_ownership.py": true,
+    "ops/hermes_zero_token/test_worker_contract.py": true,
+    "ops/hermes_zero_token/test_zero_token_acceptance.py": true,
+    "ops/hermes_zero_token/runner.py": true,
+    "ops/hermes_zero_token/staging_db.py": true,
+    "ops/hermes_zero_token/daily_report.py": true,
+    "ops/hermes_zero_token/outreach_draft.py": true,
+    "ops/hermes_zero_token/screenshot_worker.py": true,
+    "ops/hermes_zero_token/demo_blueprint.py": true,
+    "money-machine/mm_discovery.py": true,
+    "money-machine/mm_core.py": true,
+    "money-machine/mm_pipeline.py": true,
+    "money-machine/mm_search_backend.py": true,
+    "money-machine/mm_discovery_quality.py": true
+  },
+  "verified_pytest_rewritten_modules": [
+    "ops/hermes_zero_token/test_integration_safety.py",
+    "ops/hermes_zero_token/test_outreach_queue_safety.py",
+    "ops/hermes_zero_token/test_reporting_cases.py",
+    "ops/hermes_zero_token/test_runner_ownership.py",
+    "ops/hermes_zero_token/test_screenshot_safety.py",
+    "ops/hermes_zero_token/test_staging_progress.py",
+    "ops/hermes_zero_token/test_standalone_ownership.py",
+    "ops/hermes_zero_token/test_worker_contract.py",
+    "ops/hermes_zero_token/test_zero_token_acceptance.py"
+  ],
+  "loaded_mismatches": [],
+  "limitations": [
+    "Execution attestation covers observed parent-process tracked Python modules",
+    "Child-process code and production runtime are not attested",
+    "Opt-in browser coverage retains its own skip conditions"
+  ]
+}

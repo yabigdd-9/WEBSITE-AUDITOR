@@ -1,19 +1,23 @@
 """Explicit free-only model requests. No CRM connection, tool execution or outreach."""
 import argparse
 import base64
-from datetime import datetime, timezone
-from decimal import Decimal, InvalidOperation
 import hashlib
 import json
 import os
-from pathlib import Path
-import time
+import sys
 import urllib.error
 import urllib.request
+from datetime import datetime, timezone
+from decimal import Decimal, InvalidOperation
+from pathlib import Path
 
 import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT / "money-machine") not in sys.path:
+    sys.path.insert(0, str(ROOT / "money-machine"))
+import mm_financial_admission as admission  # noqa: E402
+
 API = "https://openrouter.ai/api/v1"
 
 
@@ -23,7 +27,12 @@ class RouteError(RuntimeError):
         self.attempts = attempts or []
 
 
-def request(path, key=None, payload=None):
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        raise urllib.error.HTTPError(req.full_url, code, "Provider redirects are disabled", headers, fp)
+
+
+def _http_request(path, key=None, payload=None):
     headers = {"Accept": "application/json", "User-Agent": "MoneyMachine-role-router"}
     if key:
         headers["Authorization"] = "Bearer " + key
@@ -32,8 +41,12 @@ def request(path, key=None, payload=None):
     req = urllib.request.Request(API + path, headers=headers,
         data=json.dumps(payload).encode() if payload is not None else None)
     try:
-        with urllib.request.urlopen(req, timeout=100) as response:
-            return response.status, json.load(response)
+        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
+        with opener.open(req, timeout=100) as response:
+            raw = response.read(2 * 1024 * 1024 + 1)
+            if len(raw) > 2 * 1024 * 1024:
+                raise ValueError("Provider response exceeds the supported bound")
+            return response.status, json.loads(raw)
     except urllib.error.HTTPError as error:
         body = error.read(16384)
         try:
@@ -41,6 +54,32 @@ def request(path, key=None, payload=None):
         except ValueError:
             data = {"error": {"message": "Non-JSON upstream error"}}
         return error.code, data
+
+
+def _admitted_request(path, key, payload, transport):
+    try:
+        if path != "/chat/completions" or not isinstance(payload, dict):
+            raise admission.AdmissionError("Unsupported inference operation")
+        return admission.get_coordinator().execute(
+            "openrouter", payload.get("model"), API + path, payload.get("max_tokens"),
+            lambda: transport(path, key, payload))
+    except admission.AdmissionError as exc:
+        raise RouteError("Shared financial admission refused: " + str(exc)) from exc
+    except (OSError, ValueError, TypeError) as exc:
+        raise RouteError("Uncertain provider dispatch; fallback stopped for accounting review") from exc
+
+
+def request(path, key=None, payload=None):
+    """Public transport: inference admission also applies to direct callers."""
+    if payload is not None:
+        return _admitted_request(path, key, payload, _http_request)
+    try:
+        admission.get_coordinator().require_provider("openrouter")
+    except admission.AdmissionError as exc:
+        raise RouteError("External provider metadata disabled without account evidence") from exc
+    if path != "/models":
+        raise RouteError("Unsupported provider metadata operation")
+    return _http_request(path, key)
 
 
 def _env_file_value(path, name):
@@ -106,7 +145,7 @@ def validate(config):
             raise RouteError("Invalid or non-free route for " + role)
 
 
-def route(config, role, prompt, key, catalog, transport=request, image_data=None,
+def route(config, role, prompt, key, catalog, transport=_http_request, image_data=None,
           creator_model=None, allow_data_collection=False):
     validate(config)
     if not config.get("manual_role_requests_enabled"):
@@ -139,10 +178,10 @@ def route(config, role, prompt, key, catalog, transport=request, image_data=None
                 "data_collection": "allow" if allow_data_collection else "deny",
                 "max_price": {"prompt": 0, "completion": 0, "request": 0, "image": 0}}}
         try:
-            code, body = transport("/chat/completions", key, payload)
-        except (OSError, TimeoutError):
-            attempts.append({"model": slug, "status": "network_failure"})
-            continue
+            code, body = _admitted_request("/chat/completions", key, payload, transport)
+        except (OSError, TimeoutError) as exc:
+            attempts.append({"model": slug, "status": "dispatch_outcome_unknown"})
+            raise RouteError("Uncertain provider dispatch; fallback stopped for accounting review", attempts) from exc
         error = body.get("error") or {}
         meta = error.get("metadata") or {} if isinstance(error, dict) else {}
         if code == 429 and (meta.get("limit_source") == "openrouter_free_tier_daily"
@@ -158,7 +197,7 @@ def route(config, role, prompt, key, catalog, transport=request, image_data=None
             continue
         usage = body.get("usage") or {}
         cost = usage.get("cost")
-        if cost is not None and Decimal(str(cost)) != 0:
+        if cost is None or isinstance(cost, bool) or Decimal(str(cost)) != 0:
             raise RouteError("Unexpected reported cost; stop all requests and investigate", attempts)
         choice = (body.get("choices") or [{}])[0]
         content = choice.get("message", {}).get("content")

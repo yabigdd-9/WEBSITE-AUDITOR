@@ -10,17 +10,21 @@ Safety: no email, no SMS, no messaging DMs, no form submissions.
 All outreach remains in the human-review queue.
 """
 
+import fcntl
+import hashlib
 import json
 import os
-import subprocess
 import sys
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-os.chdir(PROJECT_ROOT)
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+from ops.hermes_zero_token.worker_ownership import run_owned_worker  # noqa: E402
 
 DRAFTS_DIR = PROJECT_ROOT / "reports" / "hermes_zero_token" / "outreach_drafts"
 APPROVAL_QUEUE_PATH = PROJECT_ROOT / "approval" / "APPROVAL_QUEUE.yaml"
@@ -82,7 +86,58 @@ def draft_body(biz):
     return body
 
 
-def main():
+def _atomic_write(path, content):
+    descriptor, temporary = tempfile.mkstemp(prefix="." + path.name, dir=path.parent)
+    try:
+        with os.fdopen(descriptor, "w") as handle:
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
+def append_review_items(details):
+    if not details:
+        return
+    APPROVAL_QUEUE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    lock_path = APPROVAL_QUEUE_PATH.with_suffix(".yaml.lock")
+    descriptor = os.open(lock_path, os.O_CREAT | os.O_RDWR, 0o600)
+    with os.fdopen(descriptor, "a") as lock_file:
+        fcntl.flock(lock_file, fcntl.LOCK_EX)
+        if APPROVAL_QUEUE_PATH.exists():
+            queue = yaml.safe_load(APPROVAL_QUEUE_PATH.read_text())
+        else:
+            queue = {"requires_dion_approval": []}
+        if not isinstance(queue, dict):
+            raise ValueError("Approval queue must be a mapping; existing data preserved")
+        items = queue.setdefault("requires_dion_approval", [])
+        if not isinstance(items, list) or not all(isinstance(item, dict) for item in items):
+            raise ValueError("Approval items must be mappings in a list; existing data preserved")
+        existing_ids = {item.get("id") for item in items}
+        for detail in details:
+            item_id = f"APR-ZT-{detail['business_id']}-{detail['draft_sha256']}"
+            if item_id in existing_ids:
+                continue
+            items.append({
+                "id": item_id,
+                "type": "cold_outreach_send",
+                "engine": "Website Auditor Zero-Token",
+                "description": f"Review outreach draft for {detail['name']}",
+                "draft_path": detail["draft_path"],
+                "draft_sha256": detail["draft_sha256"],
+                "evidence_id": detail["evidence_id"],
+                "blocked_until": "Dion approval of exact sender, recipient and message required",
+                "status": "NOT_SENT_AWAITING_APPROVAL",
+            })
+            existing_ids.add(item_id)
+        queue["zero_token_updated_at"] = _now()
+        _atomic_write(APPROVAL_QUEUE_PATH, yaml.safe_dump(queue, sort_keys=False))
+
+
+def _main():
     DRAFTS_DIR.mkdir(parents=True, exist_ok=True)
     businesses = get_businesses_with_evidence(limit=5)
     report = {
@@ -97,10 +152,10 @@ def main():
 
     for biz in businesses:
         bid = biz["business_id"]
-        tag = _now_tag()
-        path = DRAFTS_DIR / f"business-{bid}-{tag}.md"
         body = draft_body(biz)
-        path.write_text(body)
+        draft_hash = hashlib.sha256(body.encode()).hexdigest()
+        path = DRAFTS_DIR / f"business-{bid}-evidence-{biz['evidence_id']}-{draft_hash}.md"
+        _atomic_write(path, body)
         report["drafts_created"] += 1
         report["details"].append({
             "business_id": bid,
@@ -108,36 +163,21 @@ def main():
             "url": biz["public_website"],
             "evidence_id": biz["evidence_id"],
             "draft_path": str(path),
+            "draft_sha256": draft_hash,
             "status": "DRAFT_ONLY_NOT_SENT",
         })
 
-    # Update APPROVAL_QUEUE.yaml (append-only review items, never send)
-    queue = {"generated_at": _now(), "policy": "Nothing in this queue has been sent, published, purchased or committed.", "items": []}
-    if APPROVAL_QUEUE_PATH.exists():
-        try:
-            existing = yaml.safe_load(APPROVAL_QUEUE_PATH.read_text()) or {}
-            queue["existing_items"] = existing.get("requires_dion_approval", [])
-        except yaml.YAMLError:
-            pass
-    queue["requires_dion_approval"] = queue.get("existing_items", []) + [
-        {
-            "id": f"APR-ZT-{d['business_id']}",
-            "type": "cold_outreach_send",
-            "engine": "Website Auditor Zero-Token",
-            "description": f"Send review-only outreach draft to {d['name']}",
-            "draft_path": d["draft_path"],
-            "blocked_until": "Dion approval required",
-            "status": "NOT_SENT_AWAITING_APPROVAL",
-        }
-        for d in report["details"]
-    ]
-    APPROVAL_QUEUE_PATH.write_text(yaml.safe_dump(queue, sort_keys=False, default_flow_style=False))
+    append_review_items(report["details"])
 
     report["approval_queue_path"] = str(APPROVAL_QUEUE_PATH)
     report_path = DRAFTS_DIR / "outreach_draft_report.json"
-    report_path.write_text(json.dumps(report, indent=2, default=str))
+    _atomic_write(report_path, json.dumps(report, indent=2, default=str))
     print(json.dumps(report, indent=2, default=str))
     return 0
+
+
+def main():
+    return run_owned_worker(PROJECT_ROOT, 'outreach_draft', _main)
 
 
 if __name__ == "__main__":

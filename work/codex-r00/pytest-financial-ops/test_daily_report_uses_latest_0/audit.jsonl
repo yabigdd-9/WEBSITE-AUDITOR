@@ -1,0 +1,2 @@
+{"worker_id": "testing", "event": "complete", "status": "failed", "test_counts": {"passed": 100, "failed": 1, "skipped": 0}}
+{"worker_id": "testing_worker", "event": "complete", "status": "completed", "test_counts": {"passed": 12, "failed": 0, "skipped": 3}}

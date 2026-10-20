@@ -1,0 +1,10 @@
+{
+  "verified_at_utc": "2026-10-20T09:08:07.242954+00:00",
+  "original_files": 246,
+  "changed_or_missing": [],
+  "archive_sha256": "c1efa20d65ddf8690f15e47c43a18d36f1e08b16fba9fdb17b354772f6c8b7e0",
+  "private_archive_published": false,
+  "canonical_head_unchanged": true,
+  "shared_financial_control_directory_exists": false,
+  "financial_provisioning_or_activation_performed": false
+}

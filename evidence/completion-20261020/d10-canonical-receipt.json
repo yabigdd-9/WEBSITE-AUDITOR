@@ -1,0 +1,22 @@
+{
+  "status": "PASS_CANONICAL_SCHEMA_SYNTHETIC_DATA",
+  "started_at_utc": "2026-10-20T07:58:32.012176+00:00",
+  "duration_seconds": 0.228,
+  "source_sha": "ec86481ccd6c674c6dfee8d7856d71d97581d08f",
+  "source_fixture": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/canonical-schema/database/money_machine.db",
+  "backup_hash": "eb28c800fce486d29c19e50fcf3a91fa42bde5fb9183331ba7d8579fa155faed",
+  "restored_dump_matches_source": true,
+  "integrity_check": "ok",
+  "foreign_key_violations": 0,
+  "planned_and_quarantined_records_preserved": true,
+  "suppression_preserved": true,
+  "interrupted_restore_exit": 17,
+  "interrupted_restore_not_promoted": true,
+  "backup_and_source_preserved": true,
+  "production_records_copied": 0,
+  "limitations": [
+    "No production restore or deployment",
+    "Not independent peer acceptance",
+    "Does not establish an RPO/RTO service guarantee"
+  ]
+}

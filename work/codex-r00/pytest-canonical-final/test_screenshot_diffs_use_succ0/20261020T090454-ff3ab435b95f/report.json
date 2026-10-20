@@ -1,0 +1,2179 @@
+{
+  "schema_version": 2,
+  "browser_requested": true,
+  "performance": {
+    "total_elapsed_ms": 64,
+    "checks": {
+      "fetch": 0,
+      "page": 0,
+      "schema": 0,
+      "headers": 0,
+      "technology": 0,
+      "js_vulnerabilities": 0,
+      "structured_validation": 0,
+      "hreflang": 3,
+      "language": 4,
+      "images": 4,
+      "social_meta": 1,
+      "hygiene": 5,
+      "ux": 4,
+      "links": 0,
+      "lychee": 0,
+      "lighthouse": 0,
+      "tls": 0,
+      "dns": 0,
+      "crawl": 0,
+      "browser": 0,
+      "third_party": 0,
+      "browser_console": 0,
+      "cookie_consent": 0,
+      "axe": 0
+    },
+    "slowest_checks": [
+      [
+        "hygiene",
+        5
+      ],
+      [
+        "language",
+        4
+      ],
+      [
+        "images",
+        4
+      ],
+      [
+        "ux",
+        4
+      ],
+      [
+        "hreflang",
+        3
+      ]
+    ]
+  },
+  "run_id": "20261020T090454-ff3ab435b95f",
+  "url": "https://example.com/",
+  "domain": "example.com",
+  "timestamp": "2026-10-20T09:04:54.965479+00:00",
+  "profile": "rendered",
+  "brand": "Website Auditor",
+  "status": "partial",
+  "score": 100,
+  "severity_score": 100,
+  "health_score": null,
+  "breakdown": {
+    "health_score": null,
+    "severity_total": 100,
+    "heuristic_count": 5,
+    "method": "severity sum capped at 100; health = 100 - severity",
+    "deductions": [
+      {
+        "finding_id": "2017913f6b497ef4acc6ea42",
+        "defect_key": "missing_meta_description",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "no usable meta description content"
+      },
+      {
+        "finding_id": "7d869304baa1f93e3624f9e1",
+        "defect_key": "missing_canonical_url",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "no canonical href declared"
+      },
+      {
+        "finding_id": "d1fc5389dae0fdae5da4a45e",
+        "defect_key": "missing_open_graph_tags",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "zero Open Graph tags"
+      },
+      {
+        "finding_id": "0639bcee89278c641b4c00f7",
+        "defect_key": "thin_content_200_words",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "heuristic",
+        "evidence_summary": "page body contains 1 words (<200 threshold)"
+      },
+      {
+        "finding_id": "f20b77288aedc021c9781ea4",
+        "defect_key": "viewport",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "no viewport meta tag"
+      },
+      {
+        "finding_id": "12c67d3fd5e743233c96dc6c",
+        "defect_key": "schema_missing",
+        "severity": "low",
+        "points": 4,
+        "confidence": "heuristic",
+        "evidence_summary": "zero structured-data blocks"
+      },
+      {
+        "finding_id": "60a7d56fb6e48a389c928db4",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/x.png has no alt"
+      },
+      {
+        "finding_id": "e06ec32734e43c5c5cbd23a3",
+        "defect_key": "header-content-security-policy",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "headers"
+      },
+      {
+        "finding_id": "28acc516ab003a6941ca7eda",
+        "defect_key": "header-x-content-type-options",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "headers"
+      },
+      {
+        "finding_id": "50bf11b31ee47f477159b5ab",
+        "defect_key": "header-hsts",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "heuristic",
+        "evidence_summary": "headers"
+      },
+      {
+        "finding_id": "3c3945aa04bc098b6c4d215c",
+        "defect_key": "missing-html-lang",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "No lang attribute on the <html> element"
+      },
+      {
+        "finding_id": "2c8c8d313437cd74b91ecc33",
+        "defect_key": "images-missing-alt",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "1 of 1 images have no alt text"
+      },
+      {
+        "finding_id": "a9eaaea0e4a800b7bf5f2a76",
+        "defect_key": "images-missing-dimensions",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "1 of 1 images lack width and height attributes"
+      },
+      {
+        "finding_id": "d9f705225a26eaaac60870c0",
+        "defect_key": "images-missing-loading",
+        "severity": "low",
+        "points": 4,
+        "confidence": "heuristic",
+        "evidence_summary": "1 of 1 images lack a loading attribute"
+      },
+      {
+        "finding_id": "50fb7594d8ed1e389f2194c7",
+        "defect_key": "social-meta-og-title",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "No <meta property=\"og:title\"> tag present"
+      },
+      {
+        "finding_id": "d5601f37303b9b1384b78aa0",
+        "defect_key": "social-meta-og-description",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "No <meta property=\"og:description\"> tag present"
+      },
+      {
+        "finding_id": "7ec79e7aaf3cec4ab4f7a68e",
+        "defect_key": "social-meta-og-image",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "No <meta property=\"og:image\"> tag present"
+      },
+      {
+        "finding_id": "dab36c23148671b2fae54209",
+        "defect_key": "social-meta-og-type",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "No <meta property=\"og:type\"> tag present"
+      },
+      {
+        "finding_id": "53f48e65af9cf45a9216419e",
+        "defect_key": "social-meta-twitter-card",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "No <meta name=\"twitter:card\"> tag present"
+      },
+      {
+        "finding_id": "a50611b51ac7e0fa03b02233",
+        "defect_key": "social-meta-twitter-handle",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "No <meta name=\"twitter:site\"> or twitter:creator tag present"
+      },
+      {
+        "finding_id": "13348ffa01f5952f701bbf0b",
+        "defect_key": "robots-no-sitemap",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "robots.txt has no sitemap directive"
+      },
+      {
+        "finding_id": "384eeab68f3de15b1328d723",
+        "defect_key": "sitemap-malformed",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "https://example.com/sitemap.xml is not well-formed XML"
+      },
+      {
+        "finding_id": "f112f219c45363ad74df2268",
+        "defect_key": "no-contact-path",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "heuristic",
+        "evidence_summary": "no tel: link, contact link, or form element found"
+      }
+    ]
+  },
+  "defects": [
+    {
+      "defect_key": "missing_meta_description",
+      "defect": "Missing meta description",
+      "impact": "Lower CTR",
+      "severity": "medium",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "page",
+      "selector": "head > meta[name=\"description\"]",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[name=\"description\"] absent or empty",
+      "observed": "no usable meta description content",
+      "business_impact": "Search snippets fall back to page text; lower click-through.",
+      "remediation_action": "Write a 120-155 char meta description per key page.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "2017913f6b497ef4acc6ea42",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "evidence_summary": "no usable meta description content",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "missing_canonical_url",
+      "defect": "Missing canonical URL",
+      "impact": "Duplicate content risk",
+      "severity": "medium",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "page",
+      "selector": "head > link[rel=\"canonical\"]",
+      "confidence": "observed",
+      "evidence_source": "dom:link[rel=\"canonical\"] absent",
+      "observed": "no canonical href declared",
+      "business_impact": "Search engines may split ranking across URL variants.",
+      "remediation_action": "Add a self-referencing canonical link tag.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "7d869304baa1f93e3624f9e1",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "evidence_summary": "no canonical href declared",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "missing_open_graph_tags",
+      "defect": "Missing Open Graph tags",
+      "impact": "Poor social preview",
+      "severity": "medium",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "page",
+      "selector": "head > meta[property^=\"og:\"]",
+      "confidence": "observed",
+      "evidence_source": "dom:no meta[property^=og:] elements",
+      "observed": "zero Open Graph tags",
+      "business_impact": "Link shares render as plain text; less social traffic.",
+      "remediation_action": "Add og:title, og:description, og:image tags.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "S",
+      "finding_id": "d1fc5389dae0fdae5da4a45e",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "evidence_summary": "zero Open Graph tags",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "thin_content_200_words",
+      "defect": "Thin content (<200 words)",
+      "impact": "Review page purpose",
+      "severity": "medium",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "page",
+      "selector": "",
+      "confidence": "heuristic",
+      "evidence_source": "text:word_count=1",
+      "observed": "page body contains 1 words (<200 threshold)",
+      "business_impact": "Thin pages rarely rank or convert; intent unclear.",
+      "remediation_action": "Expand page with real service proof (photos, FAQs, reviews).",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "0639bcee89278c641b4c00f7",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "evidence_summary": "page body contains 1 words (<200 threshold)",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "viewport",
+      "defect": "Missing viewport metadata",
+      "impact": "Mobile layout review",
+      "severity": "medium",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "page",
+      "selector": "head > meta[name=\"viewport\"]",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[name=\"viewport\"] absent",
+      "observed": "no viewport meta tag",
+      "business_impact": "Mobile browsers may render a zoomed-out desktop layout.",
+      "remediation_action": "Add viewport meta (width=device-width,initial-scale=1).",
+      "remediation_automation": "AUTO_SAFE",
+      "effort_band": "XS",
+      "finding_id": "f20b77288aedc021c9781ea4",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "evidence_summary": "no viewport meta tag",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "schema_missing",
+      "defect": "No structured data found",
+      "impact": "Eligibility not guaranteed",
+      "severity": "low",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "schema",
+      "selector": "script[type=\"application/ld+json\"]",
+      "confidence": "heuristic",
+      "evidence_source": "dom:no ld+json script blocks",
+      "observed": "zero structured-data blocks",
+      "business_impact": "No rich-result eligibility signals for local business info.",
+      "remediation_action": "Add LocalBusiness JSON-LD with name, phone, address.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "S",
+      "finding_id": "12c67d3fd5e743233c96dc6c",
+      "evidence_ref": "schema",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "evidence_summary": "zero structured-data blocks",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/x.png",
+      "severity": "high",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(1)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/x.png has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "60a7d56fb6e48a389c928db4",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "evidence_summary": "img src=/x.png has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "header-content-security-policy",
+      "defect": "Missing content-security-policy",
+      "impact": "Review deployment requirements",
+      "severity": "low",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "e06ec32734e43c5c5cbd23a3",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "evidence_summary": "headers",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "header-x-content-type-options",
+      "defect": "Missing x-content-type-options",
+      "impact": "Review deployment requirements",
+      "severity": "low",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "28acc516ab003a6941ca7eda",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "evidence_summary": "headers",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "header-hsts",
+      "defect": "Missing HSTS",
+      "impact": "Review HTTPS deployment",
+      "severity": "medium",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "",
+      "confidence": "heuristic",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "50bf11b31ee47f477159b5ab",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "evidence_summary": "headers",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "missing-html-lang",
+      "defect": "Missing html lang attribute",
+      "impact": "No <html lang=\"...\"> attribute found",
+      "severity": "medium",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "language",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:html element",
+      "observed": "No lang attribute on the <html> element",
+      "business_impact": "Screen readers and browsers cannot determine the page language; accessibility and SEO suffer.",
+      "remediation_action": "Add a lang attribute to the <html> element, e.g. <html lang=\"en\">",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "3c3945aa04bc098b6c4d215c",
+      "evidence_ref": "language",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "evidence_summary": "No lang attribute on the <html> element",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "images-missing-alt",
+      "defect": "Images missing alt text (1)",
+      "impact": "Screen readers cannot describe images; accessibility and SEO suffer",
+      "severity": "medium",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "images",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:img element",
+      "observed": "1 of 1 images have no alt text",
+      "business_impact": "Screen readers announce 'image' instead of context. Search engines cannot index image content. Both hurt accessibility and SEO.",
+      "remediation_action": "Add descriptive alt text to every informative image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "S",
+      "finding_id": "2c8c8d313437cd74b91ecc33",
+      "evidence_ref": "images",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "evidence_summary": "1 of 1 images have no alt text",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "images-missing-dimensions",
+      "defect": "Images missing width/height (1)",
+      "impact": "Layout shift risk; images without explicit dimensions cause CLS",
+      "severity": "medium",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "images",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:img element",
+      "observed": "1 of 1 images lack width and height attributes",
+      "business_impact": "Images without explicit dimensions cause Cumulative Layout Shift (CLS), a Core Web Vital that hurts user experience and SEO.",
+      "remediation_action": "Add explicit width and height attributes to all images.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "S",
+      "finding_id": "a9eaaea0e4a800b7bf5f2a76",
+      "evidence_ref": "images",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "evidence_summary": "1 of 1 images lack width and height attributes",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "images-missing-loading",
+      "defect": "Images missing loading attribute (1)",
+      "impact": "No lazy-loading hint; below-the-fold images may load eagerly",
+      "severity": "low",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "images",
+      "selector": "",
+      "confidence": "heuristic",
+      "evidence_source": "dom:img element",
+      "observed": "1 of 1 images lack a loading attribute",
+      "business_impact": "Images without loading=\"lazy\" may delay page interactivity and increase initial payload.",
+      "remediation_action": "Add loading=\"lazy\" to below-the-fold images.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "d9f705225a26eaaac60870c0",
+      "evidence_ref": "images",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "evidence_summary": "1 of 1 images lack a loading attribute",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-og-title",
+      "defect": "Missing og:title",
+      "impact": "No Open Graph title for social sharing",
+      "severity": "medium",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[property=og:title]",
+      "observed": "No <meta property=\"og:title\"> tag present",
+      "business_impact": "When this page is shared on social platforms, the default page title is used instead of a custom share title.",
+      "remediation_action": "Add an og:title meta tag with a compelling share title.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "50fb7594d8ed1e389f2194c7",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "evidence_summary": "No <meta property=\"og:title\"> tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-og-description",
+      "defect": "Missing og:description",
+      "impact": "No Open Graph description for social sharing",
+      "severity": "medium",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[property=og:description]",
+      "observed": "No <meta property=\"og:description\"> tag present",
+      "business_impact": "Social shares show generic text instead of a compelling description, reducing click-through from shares.",
+      "remediation_action": "Add an og:description meta tag (120-200 chars).",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "d5601f37303b9b1384b78aa0",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "evidence_summary": "No <meta property=\"og:description\"> tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-og-image",
+      "defect": "Missing og:image",
+      "impact": "No Open Graph image for social sharing",
+      "severity": "medium",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[property=og:image]",
+      "observed": "No <meta property=\"og:image\"> tag present",
+      "business_impact": "Social shares show no thumbnail, reducing visual appeal and click-through.",
+      "remediation_action": "Add an og:image meta tag pointing to a 1200x630 image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "7ec79e7aaf3cec4ab4f7a68e",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "evidence_summary": "No <meta property=\"og:image\"> tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-og-type",
+      "defect": "Missing og:type",
+      "impact": "No Open Graph type declared",
+      "severity": "low",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[property=og:type]",
+      "observed": "No <meta property=\"og:type\"> tag present",
+      "business_impact": "Social platforms may not know how to render this page as a preview card.",
+      "remediation_action": "Add an og:type meta tag (e.g. \"website\" or \"article\").",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "dab36c23148671b2fae54209",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "evidence_summary": "No <meta property=\"og:type\"> tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-twitter-card",
+      "defect": "Missing Twitter Card",
+      "impact": "No twitter:card declared",
+      "severity": "low",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[name=twitter:card]",
+      "observed": "No <meta name=\"twitter:card\"> tag present",
+      "business_impact": "Twitter/X shares show no image or rich preview.",
+      "remediation_action": "Add a twitter:card meta tag (e.g. \"summary_large_image\").",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "53f48e65af9cf45a9216419e",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "evidence_summary": "No <meta name=\"twitter:card\"> tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-twitter-handle",
+      "defect": "Missing Twitter handle",
+      "impact": "No twitter:site or twitter:creator declared",
+      "severity": "low",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[name=twitter:site]",
+      "observed": "No <meta name=\"twitter:site\"> or twitter:creator tag present",
+      "business_impact": "Twitter/X attribution is missing; the account that shares this page is not tagged.",
+      "remediation_action": "Add a twitter:site meta tag with your @handle.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "a50611b51ac7e0fa03b02233",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "evidence_summary": "No <meta name=\"twitter:site\"> or twitter:creator tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "robots-no-sitemap",
+      "defect": "robots.txt declares no sitemap",
+      "impact": "Sitemap undiscoverable",
+      "severity": "low",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "crawl",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "parse:robots.txt body",
+      "observed": "robots.txt has no sitemap directive",
+      "business_impact": "Search engines may discover new pages more slowly.",
+      "remediation_action": "Add a Sitemap: line pointing at the sitemap URL.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "13348ffa01f5952f701bbf0b",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "evidence_summary": "robots.txt has no sitemap directive",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "sitemap-malformed",
+      "defect": "Sitemap XML malformed",
+      "impact": "https://example.com/sitemap.xml",
+      "severity": "medium",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "crawl",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "parse:sitemap XML",
+      "observed": "https://example.com/sitemap.xml is not well-formed XML",
+      "business_impact": "Search engines may ignore the sitemap entirely.",
+      "remediation_action": "Regenerate valid sitemap XML (urlset, escaped URLs).",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "S",
+      "finding_id": "384eeab68f3de15b1328d723",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "evidence_summary": "https://example.com/sitemap.xml is not well-formed XML",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "no-contact-path",
+      "defect": "No contact path found",
+      "impact": "No phone, contact link or form",
+      "severity": "medium",
+      "source_url": "https://example.com/",
+      "review_required": true,
+      "check": "ux",
+      "selector": "",
+      "confidence": "heuristic",
+      "evidence_source": "dom:conversion signal scan",
+      "observed": "no tel: link, contact link, or form element found",
+      "business_impact": "Visitors cannot easily enquire; direct conversion loss.",
+      "remediation_action": "Add a visible phone number and enquiry form.",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "f112f219c45363ad74df2268",
+      "evidence_ref": "ux",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "evidence_summary": "no tel: link, contact link, or form element found",
+      "fault_taxonomy": "conversion",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "journey_or_contact_friction"
+    }
+  ],
+  "defect_count": 23,
+  "fault_taxonomy": {
+    "root_causes": [
+      {
+        "root_cause_id": "content_discovery_configuration_gap",
+        "taxonomy": [
+          "seo_content"
+        ],
+        "finding_ids": [
+          "2017913f6b497ef4acc6ea42",
+          "7d869304baa1f93e3624f9e1",
+          "d1fc5389dae0fdae5da4a45e",
+          "0639bcee89278c641b4c00f7",
+          "f20b77288aedc021c9781ea4",
+          "12c67d3fd5e743233c96dc6c"
+        ],
+        "symptom_count": 6,
+        "likely": true,
+        "confidence": "MODERATE",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      },
+      {
+        "root_cause_id": "journey_or_contact_friction",
+        "taxonomy": [
+          "conversion"
+        ],
+        "finding_ids": [
+          "f112f219c45363ad74df2268"
+        ],
+        "symptom_count": 1,
+        "likely": false,
+        "confidence": "WEAK",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      },
+      {
+        "root_cause_id": "security_delivery_configuration_gap",
+        "taxonomy": [
+          "security_trust"
+        ],
+        "finding_ids": [
+          "e06ec32734e43c5c5cbd23a3",
+          "28acc516ab003a6941ca7eda",
+          "50bf11b31ee47f477159b5ab"
+        ],
+        "symptom_count": 3,
+        "likely": true,
+        "confidence": "MODERATE",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      },
+      {
+        "root_cause_id": "unclassified_observation",
+        "taxonomy": [
+          "unknown"
+        ],
+        "finding_ids": [
+          "60a7d56fb6e48a389c928db4",
+          "3c3945aa04bc098b6c4d215c",
+          "2c8c8d313437cd74b91ecc33",
+          "a9eaaea0e4a800b7bf5f2a76",
+          "d9f705225a26eaaac60870c0",
+          "50fb7594d8ed1e389f2194c7",
+          "d5601f37303b9b1384b78aa0",
+          "7ec79e7aaf3cec4ab4f7a68e",
+          "dab36c23148671b2fae54209",
+          "53f48e65af9cf45a9216419e",
+          "a50611b51ac7e0fa03b02233",
+          "13348ffa01f5952f701bbf0b",
+          "384eeab68f3de15b1328d723"
+        ],
+        "symptom_count": 13,
+        "likely": true,
+        "confidence": "MODERATE",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      }
+    ],
+    "reproducible_count": 23,
+    "weak_or_unknown_count": 5
+  },
+  "checks": {
+    "fetch": {
+      "status": "ok",
+      "required": true
+    },
+    "page": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "schema": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "headers": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "technology": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "js_vulnerabilities": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "structured_validation": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "hreflang": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 3
+    },
+    "language": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 4
+    },
+    "images": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 4
+    },
+    "social_meta": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1
+    },
+    "hygiene": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 5
+    },
+    "ux": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 4
+    },
+    "links": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "lychee": {
+      "status": "skipped",
+      "reason": "Enable external local tools",
+      "required": false
+    },
+    "lighthouse": {
+      "status": "skipped",
+      "reason": "Enable external local tools",
+      "required": false
+    },
+    "tls": {
+      "status": "skipped",
+      "reason": "Not requested",
+      "required": false
+    },
+    "dns": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "crawl": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "browser": {
+      "status": "ok",
+      "reason": "",
+      "required": true
+    },
+    "third_party": {
+      "status": "error",
+      "reason": "Browser resource request capture unavailable",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "browser_console": {
+      "status": "error",
+      "reason": "Browser console capture unavailable",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "cookie_consent": {
+      "status": "error",
+      "reason": "Passive consent capture unavailable",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "axe": {
+      "status": "ok",
+      "required": true,
+      "reason": ""
+    },
+    "pdf": {
+      "status": "ok",
+      "required": true
+    }
+  },
+  "evidence": {
+    "fetch": {
+      "url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "mode": "static",
+      "check_version": "1",
+      "data": {
+        "status_code": 200,
+        "redirects": [],
+        "revalidated_at": null
+      }
+    },
+    "page": {
+      "url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "mode": "static",
+      "data": {
+        "title": "Fixture",
+        "word_count": 1,
+        "link_count": 0,
+        "sample_links": [],
+        "emails": [],
+        "schema_count": 0
+      },
+      "check_version": "1"
+    },
+    "schema": {
+      "url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "mode": "static",
+      "data": {
+        "types": [],
+        "profile": "rendered",
+        "generator": "",
+        "local_business_review": "Check identity, address and service area against the business owner.",
+        "crawler_readiness": {
+          "robots_meta": [],
+          "rendered_content_comparison": "Available only in rendered mode"
+        }
+      },
+      "check_version": "1"
+    },
+    "headers": {
+      "url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "mode": "static",
+      "data": {
+        "headers": {
+          "content-type": "text/plain; charset=utf-8",
+          "content-length": "40"
+        },
+        "cookies": []
+      },
+      "check_version": "1"
+    },
+    "technology": {
+      "url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "mode": "static",
+      "data": {
+        "technologies": []
+      },
+      "check_version": "1"
+    },
+    "js_vulnerabilities": {
+      "url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "mode": "static",
+      "data": {
+        "js_vulnerabilities_detected": 0
+      },
+      "check_version": "1"
+    },
+    "structured_validation": {
+      "url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "mode": "static",
+      "data": {
+        "structured_data_scripts_found": 0
+      },
+      "check_version": "1"
+    },
+    "hreflang": {
+      "url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://example.com/",
+        "hreflang_links": [],
+        "hreflang_count": 0,
+        "limitation": "No multilingual annotations declared; reciprocity not fetched."
+      },
+      "check_version": "3"
+    },
+    "language": {
+      "url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://example.com/",
+        "html_lang": null,
+        "meta_content_language": null,
+        "is_nz_domain": false,
+        "limitation": "Declared language only; content language is not inferred from the domain."
+      },
+      "check_version": "3"
+    },
+    "images": {
+      "url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://example.com/",
+        "image_count": 1,
+        "missing_alt": 1,
+        "missing_dimensions": 1,
+        "missing_loading": 1,
+        "external_images": 0,
+        "large_file_hints": []
+      },
+      "check_version": "3"
+    },
+    "social_meta": {
+      "url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://example.com/",
+        "og_tags": {},
+        "twitter_tags": {}
+      },
+      "check_version": "3"
+    },
+    "hygiene": {
+      "url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "mode": "static",
+      "data": {
+        "robots": {
+          "url": "https://example.com/robots.txt",
+          "status_code": 200,
+          "bytes": 40,
+          "sitemaps_declared": []
+        },
+        "sitemap": {
+          "checked": [
+            {
+              "url": "https://example.com/sitemap.xml",
+              "status": 200,
+              "well_formed": false
+            }
+          ]
+        },
+        "security_headers": {
+          "graded": [
+            "content-security-policy",
+            "x-content-type-options",
+            "strict-transport-security"
+          ],
+          "present": []
+        },
+        "mixed_content": {
+          "offenders": [],
+          "count": 0
+        }
+      },
+      "check_version": "1"
+    },
+    "ux": {
+      "url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "mode": "static",
+      "data": {
+        "signals": {
+          "contact_path": false,
+          "phone": false,
+          "booking": false,
+          "quote_form": false,
+          "form_present": false
+        }
+      },
+      "check_version": "1"
+    },
+    "browser": {
+      "screenshot": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/artifacts/screenshot.png",
+      "mobile_screenshot": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/artifacts/mobile_screenshot.png",
+      "axe": {
+        "version": "fixture",
+        "violations": []
+      },
+      "images": [],
+      "url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "mode": "rendered",
+      "check_version": "1",
+      "data": {
+        "screenshot": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/artifacts/screenshot.png",
+        "mobile_screenshot": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/artifacts/mobile_screenshot.png",
+        "axe": {
+          "version": "fixture",
+          "violations": []
+        },
+        "images": []
+      },
+      "screenshot_diff": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/artifacts/screenshot-diff.png",
+      "mobile_screenshot_diff": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/artifacts/mobile_screenshot-diff.png"
+    },
+    "axe": {
+      "url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "mode": "rendered",
+      "check_version": "1",
+      "data": {
+        "version": "fixture",
+        "violations": []
+      }
+    },
+    "pdf": {
+      "url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "mode": "rendered",
+      "check_version": "1",
+      "data": {
+        "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/report.pdf"
+      }
+    }
+  },
+  "check_registry": {
+    "fetch": {
+      "id": "fetch",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "page": {
+      "id": "page",
+      "category": "seo",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Content and conversion observations require editorial review."
+    },
+    "schema": {
+      "id": "schema",
+      "category": "local",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Presence does not establish eligibility or business identity."
+    },
+    "accessibility_static": {
+      "id": "accessibility_static",
+      "category": "accessibility",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Static checks do not establish conformance."
+    },
+    "ux": {
+      "id": "ux",
+      "category": "privacy",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Observed behavior is not a legal determination."
+    },
+    "headers": {
+      "id": "headers",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "hygiene": {
+      "id": "hygiene",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Deterministic robots, sitemap, header and mixed-content checks."
+    },
+    "links": {
+      "id": "links",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Bounded same-origin link validation; not an exhaustive crawler."
+    },
+    "tls": {
+      "id": "tls",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "dns": {
+      "id": "dns",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "crawl": {
+      "id": "crawl",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "lychee": {
+      "id": "lychee",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "External local CLI check; bounded by Lychee configuration and network conditions."
+    },
+    "lighthouse": {
+      "id": "lighthouse",
+      "category": "performance",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Laboratory result; not field Core Web Vitals."
+    },
+    "browser": {
+      "id": "browser",
+      "category": "performance",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Laboratory observations, not field Core Web Vitals."
+    },
+    "axe": {
+      "id": "axe",
+      "category": "accessibility",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Manual keyboard, screen-reader and content review remains necessary."
+    },
+    "pdf": {
+      "id": "pdf",
+      "category": "reporting",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "technology": {
+      "id": "technology",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "js_vulnerabilities": {
+      "id": "js_vulnerabilities",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "structured_validation": {
+      "id": "structured_validation",
+      "category": "local",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "hreflang": {
+      "id": "hreflang",
+      "category": "seo",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "language": {
+      "id": "language",
+      "category": "technical",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "images": {
+      "id": "images",
+      "category": "performance",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "social_meta": {
+      "id": "social_meta",
+      "category": "technical",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "cookie_consent": {
+      "id": "cookie_consent",
+      "category": "privacy",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Passive bounded observations only; cookie purpose and legal obligations require human review."
+    },
+    "third_party": {
+      "id": "third_party",
+      "category": "technical",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "browser_console": {
+      "id": "browser_console",
+      "category": "technical",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "server_technology": {
+      "id": "server_technology",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    }
+  },
+  "scoring": {
+    "method": "severity sum capped at 100; health = 100 - severity",
+    "weights": {
+      "low": 4,
+      "medium": 8,
+      "high": 16,
+      "critical": 30
+    },
+    "limitation": "Heuristic prioritization, not certification"
+  },
+  "financial_assumptions": [
+    "No fines or measured lost revenue. Estimates require explicit rates."
+  ],
+  "artifacts": {
+    "json": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/report.json",
+    "html": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/report.html",
+    "trend": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/trend.svg",
+    "actions": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/actions/preview.json",
+    "screenshot": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/artifacts/screenshot.png",
+    "mobile_screenshot": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/artifacts/mobile_screenshot.png",
+    "screenshot_diff": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/artifacts/screenshot-diff.png",
+    "mobile_screenshot_diff": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/artifacts/mobile_screenshot-diff.png",
+    "pdf": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/report.pdf"
+  },
+  "category_scores": {
+    "accessibility": {
+      "score": 16,
+      "severity_score": 16,
+      "health_score": 84
+    },
+    "local": {
+      "score": 4,
+      "severity_score": 4,
+      "health_score": 96
+    },
+    "performance": {
+      "score": 20,
+      "severity_score": 20,
+      "health_score": 80
+    },
+    "privacy": {
+      "score": 8,
+      "severity_score": 8,
+      "health_score": null
+    },
+    "security": {
+      "score": 16,
+      "severity_score": 16,
+      "health_score": 84
+    },
+    "seo": {
+      "score": 40,
+      "severity_score": 40,
+      "health_score": 60
+    },
+    "technical": {
+      "score": 56,
+      "severity_score": 56,
+      "health_score": null
+    }
+  },
+  "comparison": {
+    "baseline": null,
+    "new": [
+      "0639bcee89278c641b4c00f7",
+      "12c67d3fd5e743233c96dc6c",
+      "13348ffa01f5952f701bbf0b",
+      "2017913f6b497ef4acc6ea42",
+      "28acc516ab003a6941ca7eda",
+      "2c8c8d313437cd74b91ecc33",
+      "384eeab68f3de15b1328d723",
+      "3c3945aa04bc098b6c4d215c",
+      "50bf11b31ee47f477159b5ab",
+      "50fb7594d8ed1e389f2194c7",
+      "53f48e65af9cf45a9216419e",
+      "60a7d56fb6e48a389c928db4",
+      "7d869304baa1f93e3624f9e1",
+      "7ec79e7aaf3cec4ab4f7a68e",
+      "a50611b51ac7e0fa03b02233",
+      "a9eaaea0e4a800b7bf5f2a76",
+      "d1fc5389dae0fdae5da4a45e",
+      "d5601f37303b9b1384b78aa0",
+      "d9f705225a26eaaac60870c0",
+      "dab36c23148671b2fae54209",
+      "e06ec32734e43c5c5cbd23a3",
+      "f112f219c45363ad74df2268",
+      "f20b77288aedc021c9781ea4"
+    ],
+    "persistent": [],
+    "regressed": [],
+    "resolved": [],
+    "resolution_assessed": false
+  },
+  "fault_regression": {
+    "new": [
+      "0639bcee89278c641b4c00f7",
+      "12c67d3fd5e743233c96dc6c",
+      "13348ffa01f5952f701bbf0b",
+      "2017913f6b497ef4acc6ea42",
+      "28acc516ab003a6941ca7eda",
+      "2c8c8d313437cd74b91ecc33",
+      "384eeab68f3de15b1328d723",
+      "3c3945aa04bc098b6c4d215c",
+      "50bf11b31ee47f477159b5ab",
+      "50fb7594d8ed1e389f2194c7",
+      "53f48e65af9cf45a9216419e",
+      "60a7d56fb6e48a389c928db4",
+      "7d869304baa1f93e3624f9e1",
+      "7ec79e7aaf3cec4ab4f7a68e",
+      "a50611b51ac7e0fa03b02233",
+      "a9eaaea0e4a800b7bf5f2a76",
+      "d1fc5389dae0fdae5da4a45e",
+      "d5601f37303b9b1384b78aa0",
+      "d9f705225a26eaaac60870c0",
+      "dab36c23148671b2fae54209",
+      "e06ec32734e43c5c5cbd23a3",
+      "f112f219c45363ad74df2268",
+      "f20b77288aedc021c9781ea4"
+    ],
+    "resolved": [],
+    "unchanged": []
+  },
+  "claim_ledger": [
+    {
+      "claim_id": "finding:2017913f6b497ef4acc6ea42",
+      "claim": "Missing meta description",
+      "claim_type": "observed_fact",
+      "finding_id": "2017913f6b497ef4acc6ea42",
+      "evidence_ref": "page",
+      "evidence": "no usable meta description content",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:7d869304baa1f93e3624f9e1",
+      "claim": "Missing canonical URL",
+      "claim_type": "observed_fact",
+      "finding_id": "7d869304baa1f93e3624f9e1",
+      "evidence_ref": "page",
+      "evidence": "no canonical href declared",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:d1fc5389dae0fdae5da4a45e",
+      "claim": "Missing Open Graph tags",
+      "claim_type": "observed_fact",
+      "finding_id": "d1fc5389dae0fdae5da4a45e",
+      "evidence_ref": "page",
+      "evidence": "zero Open Graph tags",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:0639bcee89278c641b4c00f7",
+      "claim": "Thin content (<200 words)",
+      "claim_type": "hypothesis",
+      "finding_id": "0639bcee89278c641b4c00f7",
+      "evidence_ref": "page",
+      "evidence": "page body contains 1 words (<200 threshold)",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:f20b77288aedc021c9781ea4",
+      "claim": "Missing viewport metadata",
+      "claim_type": "observed_fact",
+      "finding_id": "f20b77288aedc021c9781ea4",
+      "evidence_ref": "page",
+      "evidence": "no viewport meta tag",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:12c67d3fd5e743233c96dc6c",
+      "claim": "No structured data found",
+      "claim_type": "hypothesis",
+      "finding_id": "12c67d3fd5e743233c96dc6c",
+      "evidence_ref": "schema",
+      "evidence": "zero structured-data blocks",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:60a7d56fb6e48a389c928db4",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "60a7d56fb6e48a389c928db4",
+      "evidence_ref": "page",
+      "evidence": "img src=/x.png has no alt",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:e06ec32734e43c5c5cbd23a3",
+      "claim": "Missing content-security-policy",
+      "claim_type": "observed_fact",
+      "finding_id": "e06ec32734e43c5c5cbd23a3",
+      "evidence_ref": "headers",
+      "evidence": "headers",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:28acc516ab003a6941ca7eda",
+      "claim": "Missing x-content-type-options",
+      "claim_type": "observed_fact",
+      "finding_id": "28acc516ab003a6941ca7eda",
+      "evidence_ref": "headers",
+      "evidence": "headers",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:50bf11b31ee47f477159b5ab",
+      "claim": "Missing HSTS",
+      "claim_type": "hypothesis",
+      "finding_id": "50bf11b31ee47f477159b5ab",
+      "evidence_ref": "headers",
+      "evidence": "headers",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:3c3945aa04bc098b6c4d215c",
+      "claim": "Missing html lang attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "3c3945aa04bc098b6c4d215c",
+      "evidence_ref": "language",
+      "evidence": "No lang attribute on the <html> element",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:2c8c8d313437cd74b91ecc33",
+      "claim": "Images missing alt text (1)",
+      "claim_type": "observed_fact",
+      "finding_id": "2c8c8d313437cd74b91ecc33",
+      "evidence_ref": "images",
+      "evidence": "1 of 1 images have no alt text",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:a9eaaea0e4a800b7bf5f2a76",
+      "claim": "Images missing width/height (1)",
+      "claim_type": "observed_fact",
+      "finding_id": "a9eaaea0e4a800b7bf5f2a76",
+      "evidence_ref": "images",
+      "evidence": "1 of 1 images lack width and height attributes",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:d9f705225a26eaaac60870c0",
+      "claim": "Images missing loading attribute (1)",
+      "claim_type": "hypothesis",
+      "finding_id": "d9f705225a26eaaac60870c0",
+      "evidence_ref": "images",
+      "evidence": "1 of 1 images lack a loading attribute",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:50fb7594d8ed1e389f2194c7",
+      "claim": "Missing og:title",
+      "claim_type": "observed_fact",
+      "finding_id": "50fb7594d8ed1e389f2194c7",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta property=\"og:title\"> tag present",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:d5601f37303b9b1384b78aa0",
+      "claim": "Missing og:description",
+      "claim_type": "observed_fact",
+      "finding_id": "d5601f37303b9b1384b78aa0",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta property=\"og:description\"> tag present",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:7ec79e7aaf3cec4ab4f7a68e",
+      "claim": "Missing og:image",
+      "claim_type": "observed_fact",
+      "finding_id": "7ec79e7aaf3cec4ab4f7a68e",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta property=\"og:image\"> tag present",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:dab36c23148671b2fae54209",
+      "claim": "Missing og:type",
+      "claim_type": "observed_fact",
+      "finding_id": "dab36c23148671b2fae54209",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta property=\"og:type\"> tag present",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:53f48e65af9cf45a9216419e",
+      "claim": "Missing Twitter Card",
+      "claim_type": "observed_fact",
+      "finding_id": "53f48e65af9cf45a9216419e",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta name=\"twitter:card\"> tag present",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:a50611b51ac7e0fa03b02233",
+      "claim": "Missing Twitter handle",
+      "claim_type": "observed_fact",
+      "finding_id": "a50611b51ac7e0fa03b02233",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta name=\"twitter:site\"> or twitter:creator tag present",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.965479+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:13348ffa01f5952f701bbf0b",
+      "claim": "robots.txt declares no sitemap",
+      "claim_type": "observed_fact",
+      "finding_id": "13348ffa01f5952f701bbf0b",
+      "evidence_ref": "page",
+      "evidence": "robots.txt has no sitemap directive",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:384eeab68f3de15b1328d723",
+      "claim": "Sitemap XML malformed",
+      "claim_type": "observed_fact",
+      "finding_id": "384eeab68f3de15b1328d723",
+      "evidence_ref": "page",
+      "evidence": "https://example.com/sitemap.xml is not well-formed XML",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:f112f219c45363ad74df2268",
+      "claim": "No contact path found",
+      "claim_type": "hypothesis",
+      "finding_id": "f112f219c45363ad74df2268",
+      "evidence_ref": "ux",
+      "evidence": "no tel: link, contact link, or form element found",
+      "source_url": "https://example.com/",
+      "observed_at": "2026-10-20T09:04:54.966851+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    }
+  ],
+  "drafts": {
+    "status": "fallback",
+    "review_required": true,
+    "drafts": {
+      "metadata": {
+        "text": "Title: Example services\nDescription: [review required]",
+        "source": "template",
+        "review_required": true
+      },
+      "platform_fix": {
+        "text": "Prepare an evidence-backed fix draft for review.",
+        "source": "template",
+        "review_required": true
+      },
+      "outreach": {
+        "text": "Prepare factual outreach from verified findings.",
+        "source": "template",
+        "review_required": true
+      },
+      "content_expansion": {
+        "text": "Outline services, proof, FAQs, and contact details.",
+        "source": "template",
+        "review_required": true
+      },
+      "bilingual": {
+        "text": "EN: [English draft]\nMI: [te reo Māori review required]",
+        "source": "template",
+        "review_required": true
+      }
+    },
+    "reason": "Local generation not requested"
+  },
+  "proofing": {
+    "metadata": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 23,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "platform_fix": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 23,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "outreach": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 23,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "content_expansion": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 23,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "bilingual": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 23,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    }
+  },
+  "proposal": {
+    "currency": "NZD",
+    "hourly_rate": null,
+    "assumptions": "Versioned effort bands with shared setup for repeated defects and 15% contingency; scope and rates require human review.",
+    "hours_low": 34.0,
+    "hours_high": 102.93,
+    "estimate_low": null,
+    "estimate_high": null,
+    "rules_version": "quote-v1",
+    "review_required": true,
+    "llm_determined_price": false
+  },
+  "action_preview": {
+    "count": 23,
+    "status": "preview",
+    "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/actions/preview.json"
+  },
+  "coverage": {
+    "version": 1,
+    "required": 19,
+    "passed": 16,
+    "required_checks": [
+      "axe",
+      "browser",
+      "browser_console",
+      "cookie_consent",
+      "fetch",
+      "headers",
+      "hreflang",
+      "hygiene",
+      "images",
+      "js_vulnerabilities",
+      "language",
+      "page",
+      "pdf",
+      "schema",
+      "social_meta",
+      "structured_validation",
+      "technology",
+      "third_party",
+      "ux"
+    ],
+    "missing_checks": [
+      "browser_console",
+      "cookie_consent",
+      "third_party"
+    ]
+  },
+  "manifest": {
+    "html": {
+      "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/report.html",
+      "size": 25535,
+      "sha256": "d2eb1fb3896ffa49b05d76b939c01dabc7ebe83ec39afc033144311cbb4c82c8"
+    },
+    "trend": {
+      "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/trend.svg",
+      "size": 133,
+      "sha256": "cfdf803ffa080bbfafb7385fcd332ddc1537423530a28fc95c2499aed5afa41e"
+    },
+    "actions": {
+      "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/actions/preview.json",
+      "size": 41744,
+      "sha256": "92524cdb80a69c0832ebb3fbb19667b08cebe8e3ea191d5e46f7e8342e335f92"
+    },
+    "screenshot": {
+      "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/artifacts/screenshot.png",
+      "size": 22,
+      "sha256": "c7c2621363238461204d1324f00ad710233bcf3b58c24d57dd2f9aa303f63750"
+    },
+    "mobile_screenshot": {
+      "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/artifacts/mobile_screenshot.png",
+      "size": 29,
+      "sha256": "464fa675e16dc99d98e95ed80936c71a37cc9611aa4f666bba59ced68a231cf4"
+    },
+    "screenshot_diff": {
+      "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/artifacts/screenshot-diff.png",
+      "size": 21,
+      "sha256": "2d8b9821f5d87e97cd50df6f79a57a3ecc62207bc5e966e6220df90505178333"
+    },
+    "mobile_screenshot_diff": {
+      "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/artifacts/mobile_screenshot-diff.png",
+      "size": 21,
+      "sha256": "2d8b9821f5d87e97cd50df6f79a57a3ecc62207bc5e966e6220df90505178333"
+    },
+    "pdf": {
+      "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_screenshot_diffs_use_succ0/20261020T090454-ff3ab435b95f/report.pdf",
+      "size": 12,
+      "sha256": "9fabd57eb6ff1bc32d6a31eb86c7f493e6ba94b62fa5277f24e8bb4bd7429f0a"
+    }
+  }
+}

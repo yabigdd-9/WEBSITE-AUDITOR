@@ -1,0 +1,11 @@
+{
+  "screenshots": [
+    {
+      "business_id": 1,
+      "url": "https://fixture.example",
+      "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-batch2-ops/test_verified_cached_hash_and_0/screenshots/business-1/fixture.png",
+      "sha256": "f704d53abd5be33c6849fffe2f5a012022935e33351327a6edc4eda732981ec9"
+    }
+  ],
+  "generated_at": "2026-10-20T08:32:11.779738+00:00"
+}

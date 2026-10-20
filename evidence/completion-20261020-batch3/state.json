@@ -1,0 +1,1044 @@
+{
+  "objective": "Complete the full referenced repo checklist and corrected plan",
+  "status": "IN_PROGRESS",
+  "release_status": "NOT_ACCEPTED",
+  "updated_at_utc": "2026-10-20T09:08:08.045737+00:00",
+  "candidate_branch": "codex/completion-20261020",
+  "git_base": "ec86481ccd6c674c6dfee8d7856d71d97581d08f",
+  "source_manifest_sha256": "a13109f59eb1130a5a42de3adc29749de102af971ec2aa8f5cf79056646e36fb",
+  "canonical_checkout_preserved": true,
+  "external_messages_sent_by_this_execution": 0,
+  "paid_inference_requests_initiated": 0,
+  "production_changes_initiated": 0,
+  "packages": [
+    {
+      "id": "R00",
+      "title": "Reconcile actual repository and operating state",
+      "status": "COMPLETE_VERIFIED",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [],
+      "concrete_steps": [
+        "Collect sanitized git and process inventory; never reveal env values.",
+        "Check candidate SHA existence and ancestor relation, not HEAD by assumption.",
+        "Build verified/reported/unknown truth ledger and freeze inventory."
+      ],
+      "pass_fail_criteria": [
+        "PASS: redacted inventory has command, exit code, timestamp, source SHA.",
+        "FAIL: status claimed without evidence."
+      ],
+      "required_artifacts": [
+        "evidence/CURRENT_STATE.md"
+      ],
+      "approval_required": [],
+      "evidence": [
+        "evidence/CURRENT_STATE.md",
+        "evidence/completion-20261020/commands.json",
+        "evidence/completion-20261020/runtime-observation.json"
+      ],
+      "requirements_verified": true,
+      "release_acceptance_granted": false
+    },
+    {
+      "id": "R01",
+      "title": "Existing-component inventory and ownership map",
+      "status": "COMPLETE_VERIFIED",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [
+        "R00"
+      ],
+      "concrete_steps": [
+        "Search symbols and call sites before suggesting new files.",
+        "Classify proposed work as REUSE/EXTEND/REPAIR/REPLACE/NEW with path and proof.",
+        "Specify single integration owner for shared files."
+      ],
+      "pass_fail_criteria": [
+        "PASS: every proposed component has observed path or is explicitly unverified.",
+        "FAIL: invents code layout."
+      ],
+      "required_artifacts": [
+        "evidence/REUSE_MATRIX.md"
+      ],
+      "approval_required": [],
+      "evidence": [
+        "evidence/REUSE_MATRIX.md",
+        "evidence/completion-20261020/component-inventory.json"
+      ],
+      "requirements_verified": true,
+      "release_acceptance_granted": false
+    },
+    {
+      "id": "S10",
+      "title": "Historical credential exposure triage",
+      "status": "IN_PROGRESS",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [
+        "R00"
+      ],
+      "concrete_steps": [
+        "Perform scoped redacted scans using approved tooling; suppress values and path-sensitive output.",
+        "Classify exposure and block affected routes pending resolution.",
+        "Prepare service-by-service rotation checklist for human approval."
+      ],
+      "pass_fail_criteria": [
+        "PASS: findings cite hashes/locations and service owners without values.",
+        "FAIL: raw secret appears in logs or active-risk item overlooked."
+      ],
+      "required_artifacts": [
+        "evidence/SECRET_TRIAGE.md"
+      ],
+      "approval_required": [],
+      "evidence": [
+        "docs/COMPLETION_STATUS.md"
+      ],
+      "requirements_verified": false,
+      "release_acceptance_granted": false
+    },
+    {
+      "id": "S20",
+      "title": "Approve and execute affected credential rotation",
+      "status": "BLOCKED",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [
+        "S10"
+      ],
+      "concrete_steps": [
+        "Operator approves specific affected account and rotation window.",
+        "Rotate/revoke via authorised channels; update secret store without printing values.",
+        "Test dependent services and invalidate old credentials; preserve incident evidence."
+      ],
+      "pass_fail_criteria": [
+        "PASS: approved rotation completed with redacted evidence.",
+        "BLOCKED: approval or credential access absent."
+      ],
+      "required_artifacts": [
+        "evidence/ROTATION_RECORD.md"
+      ],
+      "approval_required": [
+        "SECRET_ROTATION_SCOPE"
+      ],
+      "evidence": [
+        "docs/COMPLETION_STATUS.md"
+      ],
+      "requirements_verified": false,
+      "release_acceptance_granted": false
+    },
+    {
+      "id": "S30",
+      "title": "Add preventative secret and prompt-injection gates",
+      "status": "IN_PROGRESS",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [
+        "R01",
+        "S10"
+      ],
+      "concrete_steps": [
+        "Prefer existing scanners over a new secret manager.",
+        "Add CI secret scanning and redacted logs; tune false positives.",
+        "Add scoped tool permissions and treat website text as data, never agent instructions."
+      ],
+      "pass_fail_criteria": [
+        "PASS: simulated exfiltration and planted secrets blocked.",
+        "FAIL: any secret leaves trusted boundary."
+      ],
+      "required_artifacts": [
+        "evidence/SECURITY_TESTS.md"
+      ],
+      "approval_required": [],
+      "evidence": [
+        "docs/COMPLETION_STATUS.md"
+      ],
+      "requirements_verified": false,
+      "release_acceptance_granted": false
+    },
+    {
+      "id": "C10",
+      "title": "Verify FCC/Nous/local provider entitlement and billing",
+      "status": "BLOCKED",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [
+        "R00"
+      ],
+      "concrete_steps": [
+        "Human checks authoritative account settings and export redacted entitlements.",
+        "Classify each route INCLUDED_VERIFIED/FREE_VERIFIED/LOCAL/PAID/UNKNOWN.",
+        "Disable PAID and UNKNOWN by default; record allowed models and reset source."
+      ],
+      "pass_fail_criteria": [
+        "PASS: supported route matrix and provider-side caps documented.",
+        "BLOCKED: account evidence unavailable."
+      ],
+      "required_artifacts": [
+        "evidence/ENTITLEMENT_MATRIX.md"
+      ],
+      "approval_required": [
+        "ENTITLEMENT_VERIFICATION_FOR_EXTERNAL_ROUTE"
+      ],
+      "evidence": [
+        "docs/COMPLETION_STATUS.md"
+      ],
+      "requirements_verified": false,
+      "release_acceptance_granted": false
+    },
+    {
+      "id": "C20",
+      "title": "Extend shared fail-closed request admission",
+      "status": "IN_PROGRESS",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [
+        "R01",
+        "C10"
+      ],
+      "concrete_steps": [
+        "Prefer a single existing coordinator with atomic transactions.",
+        "Reserve estimated units/requests before call; reconcile after response/timeouts; handle crash leases.",
+        "Block unknown-cost, fail-closed if accounting unavailable; feature flags never bypass."
+      ],
+      "pass_fail_criteria": [
+        "PASS: concurrency, retries, unknown billing and crashes preserve policy.",
+        "FAIL: any call bypasses admission."
+      ],
+      "required_artifacts": [
+        "evidence/ADMISSION_TESTS.md"
+      ],
+      "approval_required": [],
+      "evidence": [
+        "docs/FINANCIAL_ADMISSION.md",
+        "evidence/completion-20261020-batch3/q10-money-receipt.json",
+        "evidence/completion-20261020-batch3/focused.xml"
+      ],
+      "requirements_verified": false,
+      "release_acceptance_granted": false,
+      "local_progress": "Repository chat admission implemented and offline-tested; global clients, multi-account requirements, independent evidence and acceptance remain open"
+    },
+    {
+      "id": "C30",
+      "title": "Test rate-limit, failover and no-paid-route contracts",
+      "status": "IN_PROGRESS",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [
+        "C20"
+      ],
+      "concrete_steps": [
+        "Use mocked responses for 429/500/timeouts and quota exhaustion.",
+        "Permit verified local and approved included routes only; otherwise defer.",
+        "Measure success/failure accounting and backpressure; no quota bypass."
+      ],
+      "pass_fail_criteria": [
+        "PASS: fail-closed cases and queued job recovery.",
+        "FAIL: fallback bills or loops without bound."
+      ],
+      "required_artifacts": [
+        "evidence/ROUTE_FAILURE_MATRIX.md"
+      ],
+      "approval_required": [
+        "MODEL_ROUTE_ACTIVATION_IF_EXTERNAL"
+      ],
+      "evidence": [
+        "docs/FINANCIAL_ADMISSION.md",
+        "evidence/completion-20261020-batch3/q10-money-receipt.json",
+        "evidence/completion-20261020-batch3/focused.xml"
+      ],
+      "requirements_verified": false,
+      "release_acceptance_granted": false,
+      "local_progress": "Repository chat admission implemented and offline-tested; global clients, multi-account requirements, independent evidence and acceptance remain open"
+    },
+    {
+      "id": "A10",
+      "title": "Identify running code and configuration exactly",
+      "status": "IN_PROGRESS",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [
+        "R00",
+        "R01"
+      ],
+      "concrete_steps": [
+        "Inspect existing version/health endpoints and process metadata.",
+        "Capture redacted current runtime inventory; compare approved manifest.",
+        "Mark ambiguous identity UNKNOWN, alert on duplicate/stale processes."
+      ],
+      "pass_fail_criteria": [
+        "PASS: mismatches detected and documented.",
+        "FAIL: Git HEAD alone labelled live runtime."
+      ],
+      "required_artifacts": [
+        "evidence/RUNTIME_TRUTH.md"
+      ],
+      "approval_required": [],
+      "evidence": [
+        "docs/COMPLETION_STATUS.md"
+      ],
+      "requirements_verified": false,
+      "release_acceptance_granted": false
+    },
+    {
+      "id": "Q10",
+      "title": "Re-run current supported test baseline and reconcile historical reports",
+      "status": "COMPLETE_VERIFIED",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [
+        "R00"
+      ],
+      "concrete_steps": [
+        "Discover supported commands; keep destructive tests on fixtures or copies.",
+        "Run bounded relevant baseline only after repo inventory.",
+        "Save command, exit code, duration, skip reason, failures vs historical reference."
+      ],
+      "pass_fail_criteria": [
+        "PASS: test outputs are timestamped and tied to SHA.",
+        "FAIL: reports copied without execution."
+      ],
+      "required_artifacts": [
+        "evidence/BASELINE_TESTS.md"
+      ],
+      "approval_required": [],
+      "evidence": [
+        "evidence/BASELINE_TESTS.md",
+        "evidence/completion-20261020/q10-canonical-receipt.json",
+        "evidence/completion-20261020/q10-money-receipt.json",
+        "evidence/completion-20261020-batch3/q10-canonical-receipt.json",
+        "evidence/completion-20261020-batch3/q10-money-receipt.json",
+        "evidence/completion-20261020-batch3/q10-ops-receipt.json"
+      ],
+      "requirements_verified": true,
+      "release_acceptance_granted": false
+    },
+    {
+      "id": "D10",
+      "title": "Prove isolated database backup and restore",
+      "status": "COMPLETE_VERIFIED",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [
+        "R00"
+      ],
+      "concrete_steps": [
+        "Inventory production DB paths without exposing data.",
+        "Use official backup API or paused/checkpointed method against staging copy.",
+        "Run PRAGMA integrity_check and representative read tests; preserve unsent/outbox and audit state."
+      ],
+      "pass_fail_criteria": [
+        "PASS: restored copy has expected row counts and integrity.",
+        "FAIL: ambiguous wildcard or destructive restore."
+      ],
+      "required_artifacts": [
+        "evidence/RESTORE_DRILL.md"
+      ],
+      "approval_required": [],
+      "evidence": [
+        "evidence/RESTORE_DRILL.md",
+        "evidence/completion-20261020/d10-canonical-receipt.json"
+      ],
+      "requirements_verified": true,
+      "release_acceptance_granted": false
+    },
+    {
+      "id": "E10",
+      "title": "Verify outbound disabled and operator kill switches",
+      "status": "IN_PROGRESS",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [
+        "R01"
+      ],
+      "concrete_steps": [
+        "Enumerate every external send pathway.",
+        "Default outbound to denied; require explicit signed batch scope and per-recipient eligibility.",
+        "Exercise stop during retry/restart and verify no send; keep evidence ledger."
+      ],
+      "pass_fail_criteria": [
+        "PASS: outbound off by default and blocking is durable.",
+        "FAIL: any unauthorized request reaches transport."
+      ],
+      "required_artifacts": [
+        "evidence/OUTBOUND_DISABLED.md"
+      ],
+      "approval_required": [],
+      "evidence": [
+        "docs/COMPLETION_STATUS.md"
+      ],
+      "requirements_verified": false,
+      "release_acceptance_granted": false
+    },
+    {
+      "id": "E20",
+      "title": "Design/repair durable outbox with uncertain-delivery reconciliation",
+      "status": "IN_PROGRESS",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [
+        "R01",
+        "E10"
+      ],
+      "concrete_steps": [
+        "First inspect equivalent outbox; extend rather than rebuild.",
+        "Store message/recipient/content hashes, approval scope, immutable send attempts and UNKNOWN state.",
+        "On timeout after submission, stop automatic retry and require provider lookup or human reconcile.",
+        "Never drop outbox tables or unsent records during rollback."
+      ],
+      "pass_fail_criteria": [
+        "PASS: ambiguous delivery held; sender respects durable kill switch.",
+        "FAIL: duplicate after unknown ACK."
+      ],
+      "required_artifacts": [
+        "evidence/OUTBOX_CONTRACT.md"
+      ],
+      "approval_required": [],
+      "evidence": [
+        "docs/COMPLETION_STATUS.md"
+      ],
+      "requirements_verified": false,
+      "release_acceptance_granted": false
+    },
+    {
+      "id": "B10",
+      "title": "Demonstrate one existing review-only NZ lead pipeline",
+      "status": "IN_PROGRESS",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [
+        "R01",
+        "Q10",
+        "C30",
+        "D10",
+        "E10"
+      ],
+      "concrete_steps": [
+        "Select one qualified fixture or permissible public site.",
+        "Run only verified-cost local or deterministic routes on staging DB copy.",
+        "Collect source URL, timestamp, screenshot hash, findings, demo, quote and unsent draft/CRM entry.",
+        "Record timings, manual work, failure points and artifact lineage."
+      ],
+      "pass_fail_criteria": [
+        "PASS: no unauthorized send or paid request; traceable complete artifact chain.",
+        "FAIL: invented evidence or live DB write."
+      ],
+      "required_artifacts": [
+        "evidence/VERTICAL_SLICE_REPORT.md"
+      ],
+      "approval_required": [],
+      "evidence": [
+        "docs/COMPLETION_STATUS.md"
+      ],
+      "requirements_verified": false,
+      "release_acceptance_granted": false
+    },
+    {
+      "id": "B20",
+      "title": "Audit evidence freshness and identity deduplication",
+      "status": "IN_PROGRESS",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [
+        "B10"
+      ],
+      "concrete_steps": [
+        "Specify evidence schema tied to source timestamps/hashes.",
+        "Test two domains for same entity and versioned screenshots.",
+        "Require source evidence for each business-facing quote or finding."
+      ],
+      "pass_fail_criteria": [
+        "PASS: unsupported/duplicate findings detected.",
+        "FAIL: unsupported pitch statement passes."
+      ],
+      "required_artifacts": [
+        "evidence/PROVENANCE_TESTS.md"
+      ],
+      "approval_required": [],
+      "evidence": [
+        "docs/COMPLETION_STATUS.md"
+      ],
+      "requirements_verified": false,
+      "release_acceptance_granted": false
+    },
+    {
+      "id": "B30",
+      "title": "Establish commercial baseline and realistic offer packages",
+      "status": "IN_PROGRESS",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [
+        "B10"
+      ],
+      "concrete_steps": [
+        "Define 3-5 niches only after sampled lead quality.",
+        "Compare quote effort to observed work; label all AI-generated labels as unverified.",
+        "Record conversion data only from confirmed real events."
+      ],
+      "pass_fail_criteria": [
+        "PASS: targets expressed with evidence and uncertainty.",
+        "FAIL: fabricated revenue or arbitrary projections."
+      ],
+      "required_artifacts": [
+        "evidence/COMMERCIAL_BASELINE.md"
+      ],
+      "approval_required": [],
+      "evidence": [
+        "docs/COMPLETION_STATUS.md"
+      ],
+      "requirements_verified": false,
+      "release_acceptance_granted": false
+    },
+    {
+      "id": "G10",
+      "title": "Aggregate non-bypassable release gate and manifest",
+      "status": "IN_PROGRESS",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [
+        "S20",
+        "S30",
+        "C30",
+        "A10",
+        "Q10",
+        "D10",
+        "E10"
+      ],
+      "concrete_steps": [
+        "Generate immutable release manifest from verified source/build IDs.",
+        "Fail closed on missing high-risk evidence or revoked approvals.",
+        "Evaluate review-only deployment separately from outbound/live sending.",
+        "Require a reviewer other than implementer to sign off."
+      ],
+      "pass_fail_criteria": [
+        "PASS: every mandatory prerequisite blocks a release when false.",
+        "FAIL: paper signoff substitutes for real command output."
+      ],
+      "required_artifacts": [
+        "evidence/RELEASE_GATE_REPORT.md"
+      ],
+      "approval_required": [
+        "RELEASE_REVIEW_SIGNOFF"
+      ],
+      "evidence": [
+        "docs/COMPLETION_STATUS.md"
+      ],
+      "requirements_verified": false,
+      "release_acceptance_granted": false
+    },
+    {
+      "id": "G20",
+      "title": "Dry-run rollback and staged canary with outbound off",
+      "status": "IN_PROGRESS",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [
+        "G10",
+        "B10"
+      ],
+      "concrete_steps": [
+        "Deploy in staging to separate DB/worker identity.",
+        "Simulate failing canary and verify revert code while preserving current DB and durable queues.",
+        "Record health metrics and observer decisions."
+      ],
+      "pass_fail_criteria": [
+        "PASS: rollback restores last good code and preserves new records.",
+        "FAIL: data/review state removed."
+      ],
+      "required_artifacts": [
+        "evidence/STAGING_CANARY.md"
+      ],
+      "approval_required": [
+        "STAGING_DEPLOY_IF_LOCAL_SERVICE_IMPACT"
+      ],
+      "evidence": [
+        "docs/COMPLETION_STATUS.md"
+      ],
+      "requirements_verified": false,
+      "release_acceptance_granted": false
+    },
+    {
+      "id": "G30",
+      "title": "Authorise and complete mandated 24h/72h staging soaks",
+      "status": "BLOCKED",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [
+        "G20"
+      ],
+      "concrete_steps": [
+        "Operator approves duration, machine impact, worker classes and stop criteria.",
+        "Run prescribed staging soak on eligible pinned release.",
+        "Retain timestamps, counters, checkpoint state and failure evidence."
+      ],
+      "pass_fail_criteria": [
+        "PASS: durations actually completed with acceptance and stop criteria.",
+        "BLOCKED: approvals missing; no substitution from 63-second smoke test."
+      ],
+      "required_artifacts": [
+        "evidence/SOAK_24H.md",
+        "evidence/SOAK_72H.md"
+      ],
+      "approval_required": [
+        "SOAK_24H",
+        "SOAK_72H"
+      ],
+      "evidence": [
+        "docs/COMPLETION_STATUS.md"
+      ],
+      "requirements_verified": false,
+      "release_acceptance_granted": false
+    },
+    {
+      "id": "G40",
+      "title": "Explicitly approved review-only production canary",
+      "status": "BLOCKED",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [
+        "G10",
+        "G30"
+      ],
+      "concrete_steps": [
+        "Obtain exact-release human approval with rollback owner.",
+        "Start smallest reversible approved worker set; outbound and paid routes stay off.",
+        "Verify live PID/SHA/config/DB and monitor errors; rollback on verified safety breach."
+      ],
+      "pass_fail_criteria": [
+        "PASS: approved canary running with verified identity and gates.",
+        "BLOCKED: approval/soak/attestation missing."
+      ],
+      "required_artifacts": [
+        "evidence/PRODUCTION_CANARY_ATTESTATION.md"
+      ],
+      "approval_required": [
+        "PRODUCTION_CANARY_EXACT_SHA"
+      ],
+      "evidence": [
+        "docs/COMPLETION_STATUS.md"
+      ],
+      "requirements_verified": false,
+      "release_acceptance_granted": false
+    },
+    {
+      "id": "G50",
+      "title": "Optional human-approved external outreach activation",
+      "status": "BLOCKED",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [
+        "E20",
+        "G40"
+      ],
+      "concrete_steps": [
+        "Validate NZ eligibility, current unsubscribe and purpose-limited contact sourcing.",
+        "Approve exact recipients, exact message hashes and batch expiry.",
+        "Enable controlled sends solely for approved scope; reconcile unknown acknowledgments manually."
+      ],
+      "pass_fail_criteria": [
+        "PASS: exact batch only and compliant stop/opt-out.",
+        "BLOCKED: approval, legal basis or unknown delivery state."
+      ],
+      "required_artifacts": [
+        "evidence/LIVE_OUTREACH_APPROVAL.md"
+      ],
+      "approval_required": [
+        "LEGAL_ELIGIBILITY_REVIEW",
+        "OUTREACH_BATCH_AND_MESSAGE_APPROVAL"
+      ],
+      "evidence": [
+        "docs/COMPLETION_STATUS.md"
+      ],
+      "requirements_verified": false,
+      "release_acceptance_granted": false
+    },
+    {
+      "id": "O10",
+      "title": "Profile local Mac resource limits and job completion",
+      "status": "IN_PROGRESS",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [
+        "B10"
+      ],
+      "concrete_steps": [
+        "Benchmark one verified vertical slice across load levels.",
+        "Reuse existing metrics; gate browser/local model concurrency on observed pressure.",
+        "Report completed useful jobs per permitted model call and CPU minute."
+      ],
+      "pass_fail_criteria": [
+        "PASS: workload remains bounded and recovery tested.",
+        "FAIL: resource pressure or hidden costs."
+      ],
+      "required_artifacts": [
+        "evidence/LOCAL_PERFORMANCE.md"
+      ],
+      "approval_required": [],
+      "evidence": [
+        "docs/COMPLETION_STATUS.md"
+      ],
+      "requirements_verified": false,
+      "release_acceptance_granted": false
+    },
+    {
+      "id": "O20",
+      "title": "Commercial feedback and reviewed continuous improvement",
+      "status": "IN_PROGRESS",
+      "scope": "Local source/fixture evidence only; no runtime or release authorization",
+      "dependencies": [
+        "B30"
+      ],
+      "concrete_steps": [
+        "Separate observed labels from AI guesses.",
+        "Use real outcomes for directional prioritization; abstain at low sample size.",
+        "Stage improvement patches in feature branches with independent tests/human merge review."
+      ],
+      "pass_fail_criteria": [
+        "PASS: sample-size uncertainty reflected and operator merge remains required.",
+        "FAIL: auto-merge or fabricated sales attribution."
+      ],
+      "required_artifacts": [
+        "evidence/OUTCOME_FEEDBACK.md"
+      ],
+      "approval_required": [],
+      "evidence": [
+        "docs/COMPLETION_STATUS.md"
+      ],
+      "requirements_verified": false,
+      "release_acceptance_granted": false
+    }
+  ],
+  "original_checklist_requirements": [
+    {
+      "id": "CHK001",
+      "requirement": "Preserve and assign disposition to the five modified tracked files and 175 untracked entries. Keep approval/customer/generated material private; do not blanket-add, reset, clean or discard it. Produce a reviewable source-only candidate and preservation evidence.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK002",
+      "requirement": "Refresh one authoritative status and task register. `CURRENT_STATE.md`, `MASTER_PLAN.yaml`, the untracked Hermes state and `EXECUTION_STATE.json` describe different historical revisions. Carry verified fixes forward without promoting their old acceptance claims.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK003",
+      "requirement": "**R01:** finish observed component inventory, named file ownership and timestamped baseline evidence. Map old P0\u2013P38 phases to actual code and corrected task IDs; avoid duplicate implementations.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK004",
+      "requirement": "Close the stale integration proposal by recording actual ancestry and integrated revision. `e68873c5`, `c50fc975`, `191d8585`, `0fe5047b` and `923c14e5` are already ancestors of HEAD. Do not repeat their cherry-picks or fast-forward proposal.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK005",
+      "requirement": "Compare the separate `a365d6b1` reliability candidate with current source. It is not an ancestor of HEAD. The router-only adoption does not establish adoption of the other candidate paths; selectively retain needed fixes after review.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK006",
+      "requirement": "Review the 33 newer local commits and obtain exact-head hosted CI, security/dependency checks, package/import verification and Sonar results before release. Publish only the selected reviewed changes under the applicable authorization.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK007",
+      "requirement": "Complete human/code review of PR #52 and resolve current relevant findings. Refresh older primary/secondary Sonar inventories rather than assuming their historic counts remain current. Decide PR readiness and master integration separately.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK008",
+      "requirement": "**S10:** finish historical credential exposure review and reconcile scan coverage. One register records 87 assessed inputs with 16 held; another later execution records an incomplete scan with 15 candidates. Reconcile scope and fingerprints before claiming clearance. Determine ownership, restrictions, purpose and active exposure without exposing values.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK009",
+      "requirement": "**S20:** obtain a specific rotation decision for genuinely affected credentials, execute authorized rotation if needed and verify remediation. Signed no-rotation-required evidence can close this task if warranted; do not rotate every scanner match automatically.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK010",
+      "requirement": "**S30:** finish or verify preventative secret scanning, prompt-injection boundaries, permission controls and CI regression coverage across actual worker entry points.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK011",
+      "requirement": "**C10:** establish account-level FCC/Nous/Hermes/Claude entitlement, billing, supported model and reset/quota evidence. Reconcile historical charges. Health or an empty local ledger does not establish a free route.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK012",
+      "requirement": "**C20:** complete shared atomic admission before requests across the MoneyMachine router, global Hermes, direct FCC bridge, CLI and fallback paths. Cover concurrent reservations, reconciliation and unknown-cost rejection. The existing router response-cost latch is only part of this requirement.",
+      "status": "IMPLEMENTED_AND_TESTED_LOCAL_PARTIAL",
+      "implementation_deployment_distinguished": true,
+      "remaining": "Independent account evidence, external/global callers, multi-account requirements and release acceptance"
+    },
+    {
+      "id": "CHK013",
+      "requirement": "**C30:** prove 429, exhausted/unknown quota, concurrent admissions, provider error, failover and cost-stop behavior. Do not enable external routes until route-specific evidence permits them.",
+      "status": "IMPLEMENTED_AND_TESTED_LOCAL_PARTIAL",
+      "implementation_deployment_distinguished": true,
+      "remaining": "Independent account evidence, external/global callers, multi-account requirements and release acceptance"
+    },
+    {
+      "id": "CHK014",
+      "requirement": "**A10:** finish independent live scheduler/process identity and continuous source/configuration drift observation. Bind actual executable, loaded revision, interpreter, configuration and DB identity. Current opt-in startup manifest and caller-provided scheduler label do not complete this.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK015",
+      "requirement": "Verify direct worker entry points share ownership, locking and idempotency with scheduled paths. Finish staging progress/cursor preservation across snapshots and restarts, bounded backups, and live-path contract-test isolation.",
+      "status": "COMPLETE_VERIFIED_LOCAL",
+      "implementation_deployment_distinguished": true,
+      "evidence": [
+        "evidence/completion-20261020-batch2/q10-ops-receipt.json",
+        "ops/hermes_zero_token/test_standalone_ownership.py",
+        "ops/hermes_zero_token/test_staging_progress.py",
+        "ops/hermes_zero_token/test_worker_contract.py"
+      ],
+      "independent_acceptance_granted": false
+    },
+    {
+      "id": "CHK016",
+      "requirement": "**E10:** independently test global, database-write, outbound, AI and scheduler stops, including persistence across restarts and failover. Retain explicit default-deny behavior.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK017",
+      "requirement": "**E20:** finish durable outbox acceptance, exact content/recipient binding, stale approval refusal, uncertain-acknowledgement reconciliation, suppression, cooldown and stop-on-response. Use fake transports; never blindly retry an unknown delivery.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK018",
+      "requirement": "**B10:** demonstrate one existing review-only NZ lead pipeline on isolated staging data: identity \u2192 evidence-backed audit \u2192 qualified opportunity \u2192 remediation/demo \u2192 authentic before/after proof \u2192 deterministic quote \u2192 QA-reviewed draft packet. No sending.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK019",
+      "requirement": "**B20:** validate freshness, provenance, identity deduplication, branch/parent distinctions and evidence hashes. Refresh promising existing leads before increasing discovery volume.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK020",
+      "requirement": "Complete genuine independent contact labels and prospect-disjoint intelligence holdout acceptance. Preserve unknown/held states; machine corrections do not replace independent ground truth.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK021",
+      "requirement": "**B30:** establish realistic offers and delivery effort from measured work, with an explicit finite positive operator rate. Separate technical severity from commercial value; validate claimed demand and outcome improvements.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK022",
+      "requirement": "Obtain exact-head real browser/PDF/image/Lighthouse/Lychee evidence where required. Resolve or explicitly restrict the three canonical skips; global accounting and independent provider receipt skips require separate acceptance, not cosmetic test changes.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK023",
+      "requirement": "Confirm recurring Obsidian/report destination, period semantics, collision handling, retention and source-backed reporting. A manually exported dashboard does not prove recurring operation.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK024",
+      "requirement": "**O10:** profile Mac CPU, memory, disk, concurrency, queue throughput and actual job completion. Use measured constraints to tune existing workers.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK025",
+      "requirement": "**O20:** establish actual commercial feedback, false-positive/calibration metrics and reviewed improvement experiments. Require measured benefit before promotion; keep autonomous production modification disabled.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK026",
+      "requirement": "**G10:** finish the non-bypassable aggregate release gate and immutable manifest binding accepted source, configuration, security, entitlement, tests, restore and send-off evidence. Independent signoff remains required.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK027",
+      "requirement": "**G20:** run a staging canary and dry-run rollback with outbound off. Test crash/restart/lease recovery, duplicate prevention, DB integrity, preservation of new writes/outbox/suppression, and recovery timing. Existing D10 isolated restore success is useful but does not complete live/staged rollback acceptance.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK028",
+      "requirement": "**G30:** reconcile duration/config-consumer requirements and prepare separately authorized 24-hour and 72-hour staging soaks. Diagnose earlier network/sample failures. Require one owner, frozen loaded revision/config, complete duration and sample coverage, resource/heartbeat/DB/FK/queue/DLQ/accounting checks and independently recalculated final acceptance. No historical uptime credit.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK029",
+      "requirement": "**G40:** prepare and obtain approval for a pinned, review-only production canary; verify actual runtime and approved worker subset. The supported launchd job is currently absent; starting it is a separate operational action, not an audit repair.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK030",
+      "requirement": "**G50 \u2014 optional:** only if live outreach is wanted, complete sender/transport authentication and release evidence, eligibility review, exact recipient/message approvals, opt-out/suppression, caps and canary reconciliation. Production approval never authorizes outreach by itself.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK031",
+      "requirement": "Fix `money-machine/supervisor/logquery.py`: `--since` parses `delta` but subtracts zero days; aware log timestamps are compared with a naive cutoff. Test actual requested time windows and timezone behavior. Verify newest-first limiting across multiple files rather than returning early from the first scanned files.",
+      "status": "COMPLETE_VERIFIED_LOCAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK032",
+      "requirement": "Optional competitor-research worker: runner explicitly reports unimplemented. Implement only if required, otherwise keep it disabled and truthfully unavailable.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK033",
+      "requirement": "Optional AI prototype generation: adapter currently returns placeholder patch content when enabled. Implement and evaluate real generation or explicitly reject unsupported use; do not represent a placeholder as usable proof.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK034",
+      "requirement": "Optional BrowserGym and Inspect AI evaluation adapters are explicit stubs. Implement only for a selected evaluation requirement.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK035",
+      "requirement": "`wa secret list` intentionally reports unsupported behavior without Keychain access. Keep this documented, or define and review a real secret-management requirement before implementing it.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK036",
+      "requirement": "Data foundation: normalized enrichment/source tables, ingestion runs/manifests, licensing, checksums, freshness/expiry, contradiction preservation, reversible migrations and DuckDB/Parquet staging.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK037",
+      "requirement": "Authoritative NZ spine: Companies Office bulk and NZBN enrichment, independent legal/trading names, entity status and dated authoritative observations, idempotent incremental refresh.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK038",
+      "requirement": "Discovery expansion: Overture NZ places and permitted OSM inputs, stable source IDs and confidence, existing dedupe/pipeline admission and branch distinctions.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK039",
+      "requirement": "Entity Resolution V2: Public Suffix List domains, business/domain/NZBN edges, LINZ address normalization, phone evidence, conflicts, confidence and human review thresholds.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK040",
+      "requirement": "Web intelligence: CrUX/History field data, canonical RDAP, Common Crawl lookup, timestamped snapshots and technology/material-change history; keep missing data unknown.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK041",
+      "requirement": "Market intelligence: versioned Stats NZ industry/region benchmarks and replayable market context; keep technical audit severity separate.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    },
+    {
+      "id": "CHK042",
+      "requirement": "Security and learning data: confirmed-version OSV/CISA KEV enrichment, confidence, independently labeled identity/audit/opportunity gold sets and measured precision/recall. The roadmap proposes 100 identity records, 50 audited sites and 100 opportunity labels; these are targets, not observed completed datasets.",
+      "status": "OPEN_OR_PARTIAL",
+      "implementation_deployment_distinguished": true
+    }
+  ],
+  "next_actions": [
+    "Finish global/multi-account financial integration and independent reconciliation; do not activate routes without real C10 evidence and exact authority",
+    "Complete A10 continuous source/config/process/scheduler/DB attestation and aggregate release gates",
+    "Complete fake-transport stop/outbox acceptance and authentic review-only business outputs",
+    "Finish reporting, resource profiling, feedback, optional adapters and all seven data roadmap areas",
+    "Obtain independent contact/holdout labels and explicit NZD operator rate without inferring approval",
+    "Triage both legacy lint scopes and missing legacy dependency; obtain independent review and exact-candidate hosted checks"
+  ],
+  "user_confirmed_provider_policy": {
+    "verified_account_evidence_available": false,
+    "external_route_activation_authorized": false,
+    "direction": "No verified evidence yet; keep external routes disabled",
+    "scope": "Human policy instruction; does not attest every already-running external process",
+    "candidate_enforcement": "Repository inference entry points default-deny without private reviewed policy and initialized ledger; unmetered CLI/image adapters held",
+    "global_or_running_process_enforcement": "UNVERIFIED; no process or installed global Hermes changed"
+  },
+  "current_evidence": "evidence/completion-20261020-batch3",
+  "previous_evidence": "evidence/completion-20261020-batch2",
+  "user_confirmed_contact_commercial_policy": {
+    "independent_labels_available": false,
+    "approved_nzd_hourly_rate_available": false,
+    "contact_acceptance_granted": false,
+    "commercial_acceptance_granted": false,
+    "direction": "No independent labels or approved rate yet; keep those gates open",
+    "synthetic_labels_are_independent_evidence": false,
+    "example_prices_are_approved": false
+  },
+  "local_implementation_batches": [
+    {
+      "batch": 1,
+      "record": "evidence/completion-20261020/state.json"
+    },
+    {
+      "batch": 2,
+      "implemented": [
+        "Shared scheduled/standalone worker locks and explicit inherited descriptor handoff",
+        "Durable staging snapshot generations and restart/crash progress reconciliation",
+        "Deadline-bounded SQLite snapshot backup and validation",
+        "Production-independent synthetic worker contract tests"
+      ],
+      "verification": {
+        "canonical_passed": 1141,
+        "canonical_skipped": 3,
+        "money_passed": 764,
+        "money_skipped": 2,
+        "money_subtests": 83,
+        "hermes_passed": 116
+      },
+      "release_accepted": false
+    },
+    {
+      "batch": 3,
+      "implemented": [
+        "One private SQLite reservation ledger selected by Git common directory, independent of worker MM_ROOT",
+        "Account-policy/receipt binding, exact routes and output bounds, atomic admission and pre-dispatch fencing",
+        "Persistent uncertain-cost/model/quota/expired-dispatch stops, conservative reconciliation and bounded fallback",
+        "MoneyMachine and direct FCC/free-role integration; unmetered CLI and unsupported image paths held",
+        "Shell bridge defaults to status; unsafe broad service controls removed from bridge helpers"
+      ],
+      "verification": {
+        "canonical_passed": 1150,
+        "canonical_skipped": 3,
+        "money_passed": 806,
+        "money_skipped": 2,
+        "money_subtests": 83,
+        "hermes_passed": 116,
+        "focused_passed": 96
+      },
+      "release_accepted": false,
+      "provider_activated": false
+    }
+  ],
+  "additional_findings": [
+    {
+      "id": "LINT001",
+      "status": "OPEN",
+      "requirement": "Triage and repair 168 pre-existing legacy website_auditor lint diagnostics as a separate reviewed cleanup",
+      "evidence": "evidence/completion-20261020-batch2/legacy-lint.json",
+      "candidate_diagnostics_identical_to_base": true
+    },
+    {
+      "id": "LINT002",
+      "status": "OPEN",
+      "requirement": "Triage legacy full-pipeline.py lint debt: base 159, current 152 diagnostics; no added rule/message diagnostic counts",
+      "evidence": "evidence/completion-20261020-batch3/legacy-pipeline-lint.json"
+    },
+    {
+      "id": "DEP001",
+      "status": "OPEN",
+      "requirement": "Resolve or migrate the legacy full-pipeline.py CLI dependency on tenacity; full import is unverified",
+      "evidence": "evidence/completion-20261020-batch3/legacy-import-failure.xml"
+    }
+  ]
+}

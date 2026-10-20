@@ -14,7 +14,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-os.chdir(PROJECT_ROOT)
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+from ops.hermes_zero_token.worker_ownership import run_owned_worker  # noqa: E402
 
 BLUEPRINTS_DIR = PROJECT_ROOT / "reports" / "hermes_zero_token" / "demo_blueprints"
 
@@ -108,7 +110,7 @@ conversion without first-party measurement.
 """
 
 
-def main():
+def _main():
     BLUEPRINTS_DIR.mkdir(parents=True, exist_ok=True)
     businesses = get_businesses_with_audit(limit=5)
     report = {
@@ -157,6 +159,10 @@ def main():
     report_path.write_text(json.dumps(report, indent=2, default=str))
     print(json.dumps(report, indent=2, default=str))
     return 0
+
+
+def main():
+    return run_owned_worker(PROJECT_ROOT, 'demo_blueprint', _main)
 
 
 if __name__ == "__main__":

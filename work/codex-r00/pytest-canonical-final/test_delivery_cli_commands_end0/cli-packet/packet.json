@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "kind": "prospect_packet",
+  "source_run_id": "run-cli-fixture",
+  "business": {
+    "website": "https://example.co.nz/",
+    "domain": "example.co.nz"
+  },
+  "contact": null,
+  "email_confidence": "NO_VERIFIED_EMAIL",
+  "audit_score": 64,
+  "opportunity_score": null,
+  "top_problems": [
+    {
+      "finding_id": "f1",
+      "defect_key": "viewport",
+      "defect": "viewport",
+      "evidence": "observed viewport"
+    },
+    {
+      "finding_id": "f2",
+      "defect_key": "missing_canonical_url",
+      "defect": "missing_canonical_url",
+      "evidence": "observed missing_canonical_url"
+    },
+    {
+      "finding_id": "f3",
+      "defect_key": "missing_title",
+      "defect": "missing_title",
+      "evidence": "observed missing_title"
+    },
+    {
+      "finding_id": "f4",
+      "defect_key": "missing_meta_description",
+      "defect": "missing_meta_description",
+      "evidence": "observed missing_meta_description"
+    },
+    {
+      "finding_id": "f5",
+      "defect_key": "robots-missing",
+      "defect": "robots missing",
+      "evidence": "observed robots-missing"
+    }
+  ],
+  "before_images": [
+    {
+      "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_delivery_cli_commands_end0/cli-demo/before-source.png",
+      "sha256": "294ad7145322ec19f8250cca8480a933f1ce8c9e2ad1038e7ae8930d55a6598a",
+      "kind": "captured_source"
+    }
+  ],
+  "after_images": [],
+  "recommended_package": "Full Website Modernisation",
+  "quote_band": {
+    "low": "2175.00",
+    "high": "6727.50"
+  },
+  "proof": {
+    "demo_status": "CONCEPT_ONLY",
+    "live_site_changed": false,
+    "improvement_claim_valid": false
+  },
+  "evidence": [
+    {
+      "kind": "audit",
+      "sha256": "a94164d921639d39dac8676c9cf4ca9ba40c628658c983f1f2a86245ea4a958a"
+    },
+    {
+      "kind": "remediation",
+      "sha256": "0748d72cf53eb149db24eecb6268262bca41203146f321622076ae86d7e9a89a"
+    },
+    {
+      "kind": "demo",
+      "sha256": "c0cea205b7a4f9fa122c1e9b67aec0c1dfe16bb15f2ceabdbf53aa93bbd24063"
+    },
+    {
+      "kind": "quote",
+      "sha256": "12ae82f4ac41eda5642ee8aa4f7657793cd7d63a0a3955efe175c43b5153dc3e"
+    }
+  ],
+  "draft_message_path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_delivery_cli_commands_end0/cli-packet/draft-message.txt",
+  "draft_message_sha256": "ade14d681ca0ac35f0e55e552eb3537f913b114f28032f2b52a8de2c91b57487",
+  "qa_status": "HUMAN_REVIEW_REQUIRED",
+  "approval_status": "HUMAN_APPROVAL_REQUIRED",
+  "human_approved": false,
+  "outreach_eligible": false,
+  "send_enabled": false,
+  "external_send_allowed": false,
+  "outbound_sent": 0,
+  "paid_ai_cost_usd": 0,
+  "review_required": true
+}

@@ -1,0 +1,49 @@
+{
+  "pages": [
+    {
+      "url": "https://business.nz/home",
+      "redirects": [
+        {
+          "from": "https://business.nz/",
+          "to": "https://business.nz/home",
+          "status": 302
+        }
+      ],
+      "content_type": "",
+      "captured_at": "2026-10-20T09:05:43.790090+00:00",
+      "sha256": "bb2f955b7aafe95f3fb4d7fe4bbf45d645e10cbd44461457a13d69a20579fb87",
+      "requested_url": "https://business.nz/",
+      "path": "cache/email-v2/bb2f955b7aafe95f3fb4d7fe4bbf45d645e10cbd44461457a13d69a20579fb87.capture"
+    },
+    {
+      "url": "https://business.nz/contact-final",
+      "redirects": [
+        {
+          "from": "https://business.nz/contact",
+          "to": "https://business.nz/contact-final",
+          "status": 302
+        }
+      ],
+      "content_type": "",
+      "captured_at": "2026-10-20T09:05:43.802475+00:00",
+      "sha256": "980a36e6335872c5d33847926a1385acc8380730a7ca91cd322ef5c774b5ab4c",
+      "requested_url": "https://business.nz/contact",
+      "path": "cache/email-v2/980a36e6335872c5d33847926a1385acc8380730a7ca91cd322ef5c774b5ab4c.capture"
+    }
+  ],
+  "errors": [
+    {
+      "url": "https://business.nz/sitemap.xml",
+      "reason": "ValueError: CONTACT_REVIEW_REQUEST_LIMIT"
+    }
+  ],
+  "pending": [],
+  "requests": 3,
+  "started_at": "2026-10-20T09:05:43.787941+00:00",
+  "complete": true,
+  "attempts": {
+    "https://business.nz/": 1,
+    "https://business.nz/contact": 1,
+    "https://business.nz/sitemap.xml": 1
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "generated_at": "2026-10-20T08:32:12.164233+00:00",
+  "phase": "P2",
+  "staging_db": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-batch2-ops/test_commit_survives_a_crash_b0/staging/staging.db",
+  "production_db": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-batch2-ops/test_commit_survives_a_crash_b0/production.db",
+  "production_written": false,
+  "batch_size": 1,
+  "snapshot_generation": "a39a4e0a908d42ef9e4128e6241904a1",
+  "staging_size_bytes": 12288,
+  "before_counts": {
+    "businesses": 3,
+    "mm_evidence": 1
+  },
+  "schema_validation": {
+    "ok": true,
+    "missing_tables": [],
+    "extra_tables": [],
+    "mismatched_schema": []
+  },
+  "batch_size_actual": 1,
+  "batch_ids": [
+    3
+  ],
+  "batch_names": [
+    "Synthetic B"
+  ],
+  "audit_returncode": 0,
+  "audit_result": {
+    "backfilled": 1,
+    "model_calls": 0,
+    "external_sends": 0
+  },
+  "after_counts": {
+    "businesses": 3,
+    "mm_evidence": 2
+  },
+  "before_after_diff": {
+    "mm_evidence": {
+      "before": 1,
+      "after": 2,
+      "delta": 1
+    }
+  },
+  "staging_integrity": "ok",
+  "staging_foreign_key_violations": [],
+  "staging_state": {
+    "generation": "a39a4e0a908d42ef9e4128e6241904a1",
+    "batches_run": 1,
+    "total_processed": 2,
+    "last_run": "2026-10-20T08:32:12.176945+00:00",
+    "prior_state": {
+      "batches_run": 0,
+      "total_processed": 0,
+      "last_run": null
+    },
+    "progress_scope": "Distinct businesses with staging evidence added since this snapshot; not verified live audit acceptance"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "kind": "prospect_packet",
+  "source_run_id": "run-fixture",
+  "business": {
+    "website": "https://fixture.example.co.nz/",
+    "domain": null
+  },
+  "contact": "office@fixture.example.co.nz",
+  "email_confidence": "VERIFIED_HIGH",
+  "audit_score": null,
+  "opportunity_score": null,
+  "top_problems": [
+    {
+      "finding_id": null,
+      "defect_key": "viewport",
+      "defect": null,
+      "evidence": null
+    }
+  ],
+  "before_images": [],
+  "after_images": [],
+  "recommended_package": "Technical Repair",
+  "quote_band": {
+    "low": "600.00",
+    "high": "1725.00"
+  },
+  "proof": {
+    "demo_status": "CONCEPT_ONLY",
+    "live_site_changed": false,
+    "improvement_claim_valid": false
+  },
+  "evidence": [
+    {
+      "kind": "audit",
+      "sha256": "eabaa95a840ed1f3ca249c3fadade4e87ef7ef96e5cd074a214904a383a6a469"
+    },
+    {
+      "kind": "remediation",
+      "sha256": "63f935570238c6bd66c8e9c6bf10e0bf52dbc9127be0b7d3bd73ff595c7a6692"
+    },
+    {
+      "kind": "demo",
+      "sha256": "29f1651df6aeabf5a8e6cd9184a8dad00c570f9d94debc4bd3662328d8c177e2"
+    },
+    {
+      "kind": "quote",
+      "sha256": "441864e051440244d743e4c3a87324f555fa6d4c5468c9c946cdd27ba17827a9"
+    }
+  ],
+  "draft_message_path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-money-final/test_review_packet_with_explic0/commercial-packet-9ae2bdd7beed/draft-message.txt",
+  "draft_message_sha256": "830bab49df0c64931658d81433b19c3f897ae15096504883a68fab3d02854985",
+  "qa_status": "HUMAN_REVIEW_REQUIRED",
+  "approval_status": "HUMAN_APPROVAL_REQUIRED",
+  "human_approved": false,
+  "outreach_eligible": false,
+  "send_enabled": false,
+  "external_send_allowed": false,
+  "outbound_sent": 0,
+  "paid_ai_cost_usd": 0,
+  "review_required": true
+}

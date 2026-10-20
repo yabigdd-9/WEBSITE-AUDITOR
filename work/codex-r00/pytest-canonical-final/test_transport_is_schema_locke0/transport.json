@@ -1,0 +1,1 @@
+{"version": 1, "enabled": true, "provider": "smtp", "daily_cap": 0, "requires_exact_approval": true, "requires_verified_recipient": true, "requires_suppression_check": true, "external_send_allowed": true}

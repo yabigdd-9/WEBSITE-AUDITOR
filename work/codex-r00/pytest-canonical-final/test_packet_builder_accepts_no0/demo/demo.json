@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "kind": "local_demo_concept",
+  "source_run_id": "r",
+  "source_url": "https://acme.co.nz/",
+  "demo_html": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_packet_builder_accepts_no0/demo/index.html",
+  "demo_html_sha256": "bae7e709543f52106c2727a2fa7863bd584f9e40202faecfb3ccfe313bd5d358",
+  "before": null,
+  "after": null,
+  "status": "CONCEPT_ONLY",
+  "local_concept": true,
+  "live_site_changed": false,
+  "improvement_claim_valid": false,
+  "external_deploy": false,
+  "review_required": true,
+  "verification_required": "Approved implementation + repeat audit of actual source website."
+}

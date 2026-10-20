@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "kind": "remediation_preview",
+  "source_run_id": "r",
+  "source_url": "https://acme.co.nz/",
+  "items": [],
+  "counts": {
+    "AUTO_PREVIEW": 0,
+    "AUTO_SAFE": 0,
+    "CLIENT_ACCESS_REQUIRED": 0,
+    "HUMAN_REVIEW": 0,
+    "UNSUPPORTED": 0
+  },
+  "review_required": true,
+  "external_dispatch": false,
+  "production_changes": 0,
+  "verification_rule": "Re-run the same audit profile after an independently approved implementation."
+}

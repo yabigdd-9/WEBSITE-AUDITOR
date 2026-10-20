@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-10-20T08:32:11.915906+00:00",
+  "phase": "P2",
+  "screenshot_dir": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-batch2-ops/test_success_status_cannot_ado1/screenshots",
+  "production_written": false,
+  "businesses_requested": 1,
+  "screenshots_captured": 0,
+  "screenshots_failed": 1,
+  "details": [
+    {
+      "business_id": 1,
+      "name": "Synthetic fixture",
+      "url": "https://fixture.example",
+      "status": "failed",
+      "error": "{\"status\": \"ok\", \"evidence\": {\"screenshot\": \"/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-batch2-ops/test_success_status_cannot_ado1/screenshots/business-1/capture-fxoc86wo/empty.png\"}}"
+    }
+  ],
+  "manifest_path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-batch2-ops/test_success_status_cannot_ado1/screenshots/manifest.json",
+  "manifest_screenshot_count": 0
+}

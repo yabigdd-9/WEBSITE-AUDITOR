@@ -1,0 +1,1 @@
+{"run_id": "synthetic-quote", "status": "partial", "defects": [{"defect_key": "image", "effort_band": "XS", "finding_id": "first"}, {"defect_key": "image", "effort_band": "S", "finding_id": "second"}, {"defect_key": "title", "effort_band": "XS", "finding_id": "third"}]}

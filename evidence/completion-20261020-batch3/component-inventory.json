@@ -1,0 +1,3468 @@
+{
+  "observed_at_utc": "2026-10-20T09:08:43.810678+00:00",
+  "base_sha": "ec86481ccd6c674c6dfee8d7856d71d97581d08f",
+  "candidate_branch": "codex/completion-20261020",
+  "package_components": {
+    "R00": [
+      "evidence/codex/r00-runtime-snapshot.json",
+      "evidence/codex/EXECUTION_STATE.json"
+    ],
+    "R01": [
+      "evidence/codex/OWNERSHIP.md",
+      "evidence/codex/R01_RECEIVED_REVIEW.md"
+    ],
+    "S10": [
+      ".gitleaks.toml",
+      ".github/workflows/security.yml"
+    ],
+    "S20": [],
+    "S30": [
+      "money-machine/mm_redaction.py",
+      "money-machine/test_redaction.py",
+      ".github/workflows/security.yml"
+    ],
+    "C10": [
+      "money-machine/config/routing.yaml"
+    ],
+    "C20": [
+      "money-machine/mm_financial_admission.py",
+      "money-machine/scripts/fcc-bridge.sh",
+      "full-pipeline.py",
+      "docs/FINANCIAL_ADMISSION.md",
+      "money-machine/mm_model_router.py",
+      "money-machine/scripts/fcc-bridge.py",
+      "money-machine/scripts/free_role_router.py"
+    ],
+    "C30": [
+      "money-machine/test_financial_admission.py",
+      "money-machine/test_financial_dispatch.py",
+      "tests/test_financial_entrypoints.py",
+      "toolkit_tests/financial_admission_fixtures.py",
+      "money-machine/test_router_cost_stop.py",
+      "money-machine/scripts/test_free_role_router.py"
+    ],
+    "A10": [
+      "money-machine/runtime_bootstrap.py",
+      "money-machine/mm_soak.py",
+      "money-machine/test_runtime_bootstrap.py"
+    ],
+    "Q10": [
+      "evidence/codex/q10_baseline_probe.py",
+      "evidence/codex/q10_fixture_source.py",
+      ".github/workflows/ci.yml"
+    ],
+    "D10": [
+      "money-machine/mm_core.py",
+      "evidence/codex/RESTORE_DRILL.md",
+      "evidence/codex/d10-restore-receipt.json"
+    ],
+    "E10": [
+      "ops/hermes_zero_token/worker_ownership.py",
+      "ops/hermes_zero_token/staging_db.py",
+      "ops/hermes_zero_token/test_standalone_ownership.py",
+      "ops/hermes_zero_token/test_staging_progress.py",
+      "ops/hermes_zero_token/test_worker_contract.py",
+      "money-machine/mm_transport.py",
+      "money-machine/mm_pipeline.py",
+      "ops/hermes_zero_token/runner.py"
+    ],
+    "E20": [
+      "money-machine/mm_email_lifecycle.py",
+      "money-machine/test_email_lifecycle.py",
+      "money-machine/test_email_lifecycle_cli.py"
+    ],
+    "B10": [
+      "money-machine/mm_workers.py",
+      "auditor_toolkit/packet.py",
+      "auditor_toolkit/quote.py",
+      "auditor_toolkit/proofing.py"
+    ],
+    "B20": [
+      "money-machine/mm_discovery.py",
+      "auditor_toolkit/identity.py",
+      "money-machine/mm_email_network.py",
+      "auditor_toolkit/storage.py"
+    ],
+    "B30": [
+      "money-machine/mm_intelligence.py",
+      "auditor_toolkit/quote.py"
+    ],
+    "G10": [
+      "auditor_toolkit/runtime/readiness.py",
+      "money-machine/mm_intelligence_readiness.py",
+      "money-machine/approval_gates.yaml"
+    ],
+    "G20": [
+      "auditor_toolkit/runtime/recovery.py",
+      "money-machine/test_pipeline_recovery.py",
+      "money-machine/RUNTIME_SOAK.md"
+    ],
+    "G30": [
+      "money-machine/mm_soak.py",
+      "money-machine/test_runtime_readiness.py",
+      "money-machine/test_soak_discovery_recovery.py"
+    ],
+    "G40": [
+      "money-machine/runtime_bootstrap.py",
+      "money-machine/supervisor/cli.py"
+    ],
+    "G50": [
+      "money-machine/mm_transport.py",
+      "money-machine/mm_outreach.py",
+      "money-machine/config/transport.json"
+    ],
+    "O10": [
+      "auditor_toolkit/runtime/resource_limits.py",
+      "money-machine/mm_runtime_guards.py"
+    ],
+    "O20": [
+      "money-machine/mm_intelligence_calibration.py",
+      "money-machine/mm_intelligence_strategy.py"
+    ]
+  },
+  "components": {
+    ".github/workflows/ci.yml": {
+      "observed": true,
+      "sha256": "c7ce4f020ed1703ceb33f0e868a4a8ac62fa34473d9b5bc65518b045e0450c61",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false
+    },
+    ".github/workflows/security.yml": {
+      "observed": true,
+      "sha256": "e33004aea4c01986ed04c11e2170b2417ed646c0fc3a35f3a24298e3d138d03a",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false
+    },
+    ".gitleaks.toml": {
+      "observed": true,
+      "sha256": "68fe18af63e4954103f267a9f62871a39ec6fe83be96a4affab2fb4316662a25",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false
+    },
+    "auditor_toolkit/identity.py": {
+      "observed": true,
+      "sha256": "d7824b217f30242ce684b0501dbae1d68d271a9c90c084e525c5dd25097a2e27",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "_strip_to_host",
+          "line": 27,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "canonical_domain",
+          "line": 36,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "registered_domain",
+          "line": 50,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "hostname",
+          "line": 55,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "domain_group",
+          "line": 60,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "same_entity",
+          "line": 64,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "identity_confidence",
+          "line": 79,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "assess_business_identity",
+          "line": 134,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "auditor_toolkit/packet.py": {
+      "observed": true,
+      "sha256": "e57451bf6ea38642f8091556b3ba467b78691beaf47a42860f9292310790d963",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "_sha",
+          "line": 15,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_bind",
+          "line": 19,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_draft",
+          "line": 25,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "build_packet",
+          "line": 60,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "auditor_toolkit/proofing.py": {
+      "observed": true,
+      "sha256": "a51e7e5ea9205147910357bcb419e1c8046376582986278c06610434a7470606",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "build_claim_ledger",
+          "line": 13,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "proof_draft",
+          "line": 35,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "auditor_toolkit/quote.py": {
+      "observed": true,
+      "sha256": "fa6506eceb6e35750cf32e7b9f44d4fb2bbdbe26c21d24163c1000948095b007",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "_money",
+          "line": 22,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "validate_hourly_rate",
+          "line": 26,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_effort",
+          "line": 37,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "calculate_proposal",
+          "line": 79,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "calculate_quote",
+          "line": 100,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "auditor_toolkit/runtime/readiness.py": {
+      "observed": true,
+      "sha256": "2394a6add4170522e9530fd952b1c4b97150dd8a2d636fc560d356dee6882365",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "PreflightCheck",
+          "line": 18,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "PreflightResult",
+          "line": 25,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "_check",
+          "line": 43,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_check_dir_writable",
+          "line": 47,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_check_binary",
+          "line": 53,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_check_db_reachable",
+          "line": 58,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_check_python_deps",
+          "line": 69,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_check_disk_space",
+          "line": 81,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_check_no_duplicate_supervisor",
+          "line": 89,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_critical_check_failed",
+          "line": 100,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_preflight",
+          "line": 107,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "auditor_toolkit/runtime/recovery.py": {
+      "observed": true,
+      "sha256": "bcb91a8c50cd8d2dba3c96bfc32b2f5486d05bce778e49e2812359fd09522ccc",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "RetryPolicy",
+          "line": 17,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "classify_error",
+          "line": 44,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "get_retry_policy",
+          "line": 66,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "should_retry",
+          "line": 70,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "auditor_toolkit/runtime/resource_limits.py": {
+      "observed": true,
+      "sha256": "009f17fa04baa8ef1c3186021cea67307dc36e056a866857806239fd5a2a0656",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "ResourceLimits",
+          "line": 13,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "check_browser_memory",
+          "line": 22,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "check_disk_usage",
+          "line": 35,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "check_open_files",
+          "line": 41,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "enforce_limits",
+          "line": 49,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "auditor_toolkit/storage.py": {
+      "observed": true,
+      "sha256": "98aaee09dc2ea170ddc9263044e9fb8ff2b675d1a5a28a71f90299a2ca406182",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "finding_id",
+          "line": 26,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "History",
+          "line": 36,
+          "kind": "ClassDef"
+        }
+      ]
+    },
+    "docs/FINANCIAL_ADMISSION.md": {
+      "observed": true,
+      "sha256": "911314e2ee5235c42ec29e9fd1c4543762541ed45d5ae9620e6555b8417f3697",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false
+    },
+    "evidence/codex/EXECUTION_STATE.json": {
+      "observed": true,
+      "sha256": "693ee1cda821f22888ed882f4f20e4af7a919b727798d27d090f6fee20e4bce4",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false
+    },
+    "evidence/codex/OWNERSHIP.md": {
+      "observed": true,
+      "sha256": "80b2ec6971e34848d1fc56a683ed76a774edd85b3df0b304abf5b7d6650c5ec6",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false
+    },
+    "evidence/codex/R01_RECEIVED_REVIEW.md": {
+      "observed": true,
+      "sha256": "8f582228a95175cfd47825da47f8f366620b5ab8c0b709c5e672b9c5275ad5a1",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false
+    },
+    "evidence/codex/RESTORE_DRILL.md": {
+      "observed": true,
+      "sha256": "922533b9488f7b8bf7fcec9951f94747af38f3e70220958c93210654244c9a77",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false
+    },
+    "evidence/codex/d10-restore-receipt.json": {
+      "observed": true,
+      "sha256": "797ebc265ec450e431b4a926b5400d3f90cf8863ee65787df603109b76dd93f8",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false
+    },
+    "evidence/codex/q10_baseline_probe.py": {
+      "observed": true,
+      "sha256": "f3e849c3223d97ee09fff2e944d8bc6dae905a10fcef758cc69cd5cf11cc74fc",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "signature",
+          "line": 20,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "hashes",
+          "line": 33,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "main",
+          "line": 43,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "evidence/codex/q10_fixture_source.py": {
+      "observed": true,
+      "sha256": "11d70ec6229742306ac8a3e01c3cf0d630d23b8a775762563bb61ddbb2a6efde",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "main",
+          "line": 11,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "evidence/codex/r00-runtime-snapshot.json": {
+      "observed": true,
+      "sha256": "d2e6fc1445eeaeb93c53ed22001e4d2e1b54edcb645b71f491dd54245cf2f08e",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false
+    },
+    "full-pipeline.py": {
+      "observed": true,
+      "sha256": "c89457b4a9f0bca96dced8e0b15fe1edf869f3a9fd4f3db6f8fa848b9a47d33c",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "C",
+          "line": 57,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "clr",
+          "line": 62,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "load_config",
+          "line": 73,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "norm_domain",
+          "line": 81,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "domain_group",
+          "line": 88,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "classify_severity",
+          "line": 103,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "fetch",
+          "line": 111,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "fetch_async",
+          "line": 119,
+          "kind": "AsyncFunctionDef"
+        },
+        {
+          "name": "extract_emails_from_html",
+          "line": 128,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "guess_email",
+          "line": 150,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "verify_email",
+          "line": 154,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "detect_tech",
+          "line": 166,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "extract_phones",
+          "line": 206,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "extract_social",
+          "line": 216,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "load_state",
+          "line": 229,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "save_state",
+          "line": 235,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "step_done",
+          "line": 237,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "mark_done",
+          "line": 240,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "load_prospects",
+          "line": 245,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "audit_timestamp",
+          "line": 263,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "latest_audits",
+          "line": 269,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "needs_recheck",
+          "line": 286,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_scouting",
+          "line": 291,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "discover_emails",
+          "line": 331,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_email_discovery",
+          "line": 347,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "generate_mockup",
+          "line": 380,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_mockups",
+          "line": 385,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "proofread_text",
+          "line": 405,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_proofreading",
+          "line": 423,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_ranking",
+          "line": 443,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_outreach_report",
+          "line": 465,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_cold_emails",
+          "line": 532,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_csv_export",
+          "line": 565,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_dedup",
+          "line": 608,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_summary",
+          "line": 642,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_watch",
+          "line": 689,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "main",
+          "line": 705,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/RUNTIME_SOAK.md": {
+      "observed": true,
+      "sha256": "a60831b3ac73bce3a56c45a20b5e3aa15a5fd2c358db07d9752191fc27dd4bae",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false
+    },
+    "money-machine/approval_gates.yaml": {
+      "observed": true,
+      "sha256": "fc0c03241a753cd927944e0b634704ac77c78b9a34a3a510e2e69586371c4a48",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false
+    },
+    "money-machine/config/routing.yaml": {
+      "observed": true,
+      "sha256": "2bcdba479fb73b86095e2e7356fb014968f3f6e76fd6754dc7188774c70f0e3b",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false
+    },
+    "money-machine/config/transport.json": {
+      "observed": true,
+      "sha256": "c99f3fef194af00e4500ff0c4bc2d42df1a334d75d21c625ef781277029dd2e2",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false
+    },
+    "money-machine/mm_core.py": {
+      "observed": true,
+      "sha256": "6a520d759f793f2f5c56ada7ac240262ee66c60ea062ed070bfbf7d4aab18da1",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "now",
+          "line": 27,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "root",
+          "line": 28,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "sha",
+          "line": 29,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "digest",
+          "line": 30,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "proposal_digest",
+          "line": 31,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "timestamp",
+          "line": 32,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "fresh",
+          "line": 36,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "public_url",
+          "line": 40,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "connect",
+          "line": 50,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "event",
+          "line": 59,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "ensure_business_columns",
+          "line": 72,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "backup",
+          "line": 87,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "migrate",
+          "line": 275,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "business",
+          "line": 416,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "eligible",
+          "line": 421,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "artifact_valid",
+          "line": 434,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "evidence",
+          "line": 439,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "latest_evidence",
+          "line": 448,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "opportunity_score_6_component",
+          "line": 453,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "readiness",
+          "line": 470,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "record_evidence",
+          "line": 488,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "record_contact",
+          "line": 500,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "change_stage",
+          "line": 513,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "create_draft",
+          "line": 529,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "create_proposal",
+          "line": 542,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "approve",
+          "line": 551,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "receipt",
+          "line": 565,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "import_receipt",
+          "line": 571,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "record_sent",
+          "line": 584,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "cash",
+          "line": 599,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "refund",
+          "line": 605,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/mm_discovery.py": {
+      "observed": true,
+      "sha256": "61880411a63ac21bac5479b8242751fa0f931320686679a8fb237175865a4a84",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "SearchBlocked",
+          "line": 31,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "_first",
+          "line": 47,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_adapt_source_row",
+          "line": 56,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_source_provenance",
+          "line": 107,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_normalize_provenance_sources",
+          "line": 115,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "root_url",
+          "line": 133,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "normalize_candidate",
+          "line": 145,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "read_candidates",
+          "line": 185,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_existing",
+          "line": 230,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "ingest",
+          "line": 246,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_loopback_endpoint",
+          "line": 358,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "searxng_candidates",
+          "line": 370,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_merge_batch_candidate",
+          "line": 439,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_collect_import_source",
+          "line": 458,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_collect_search_source",
+          "line": 470,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "collect_multi_source",
+          "line": 493,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "normalize_intake_url",
+          "line": 548,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_business_fk_references",
+          "line": 658,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "dedupe_businesses",
+          "line": 672,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/mm_email_lifecycle.py": {
+      "observed": true,
+      "sha256": "66e6f07d3ea384f21dd87e438d20d79c0d868dc30376a891f038be199fcc1e1c",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "migrate",
+          "line": 52,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_row",
+          "line": 56,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_has_table",
+          "line": 60,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_suppression_reason",
+          "line": 64,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_intent_key",
+          "line": 85,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_dict",
+          "line": 90,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_event_store",
+          "line": 94,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "create_intent",
+          "line": 98,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "record_result",
+          "line": 179,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "reconstruct",
+          "line": 247,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_result",
+          "line": 274,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/mm_email_network.py": {
+      "observed": true,
+      "sha256": "f2a7830b19ab2fb3b2e165ea7d778743d9bb37da3df999e700a4fdd48a1b66c7",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "atomic_json",
+          "line": 26,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "DNSChecks",
+          "line": 31,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "smtp_evidence",
+          "line": 88,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "Crawler",
+          "line": 105,
+          "kind": "ClassDef"
+        }
+      ]
+    },
+    "money-machine/mm_financial_admission.py": {
+      "observed": true,
+      "sha256": "1d5ce5f1834292eee50ef654c7ccafb66f7068c84ad24865fea91867295c7f46",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "AdmissionError",
+          "line": 21,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "AdmissionStoppedError",
+          "line": 25,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "_unique",
+          "line": 33,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_digest",
+          "line": 42,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "control_directory",
+          "line": 47,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "get_coordinator",
+          "line": 64,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "Coordinator",
+          "line": 68,
+          "kind": "ClassDef"
+        }
+      ]
+    },
+    "money-machine/mm_intelligence.py": {
+      "observed": true,
+      "sha256": "a5758f4ec094bcb24b1741bb167ada01ebcc9502b0822343aef32f516157f47e",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "bounded",
+          "line": 22,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "interval",
+          "line": 26,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "expected_value",
+          "line": 33,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "score",
+          "line": 39,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "save_score",
+          "line": 56,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "pricing",
+          "line": 61,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "model_request",
+          "line": 71,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "claim_job",
+          "line": 79,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "finish_job",
+          "line": 90,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "human_reply_verified",
+          "line": 100,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "record_reply",
+          "line": 108,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "learn",
+          "line": 122,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "assign_experiment",
+          "line": 149,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/mm_intelligence_calibration.py": {
+      "observed": true,
+      "sha256": "0043e1d47ca54d61736d0463a6b069005cb0aa5b126bc83541b128d73be5ff6c",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "_table_exists",
+          "line": 48,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_polarity",
+          "line": 57,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_confidence",
+          "line": 66,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_previous_real_decision",
+          "line": 78,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_eligible_decisions",
+          "line": 87,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "confirmed_examples",
+          "line": 97,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_bin_index",
+          "line": 204,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_summary",
+          "line": 210,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "calibration_report",
+          "line": 233,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/mm_intelligence_readiness.py": {
+      "observed": true,
+      "sha256": "b86140e623018aaa0ce391dc0c6ca71d1575a052f0db070e32655f7e9156eeb6",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "_gate",
+          "line": 20,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_holdout_gate",
+          "line": 31,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "readiness_report",
+          "line": 118,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/mm_intelligence_strategy.py": {
+      "observed": true,
+      "sha256": "5dbf98b220c544cf0917cb91a1693306c6985a9897b4baf767f1c712a9952fd0",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "_table_exists",
+          "line": 24,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_decision_polarity",
+          "line": 33,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_expected_polarity",
+          "line": 42,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_metrics",
+          "line": 48,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "rule_version_report",
+          "line": 85,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_source_diagnostic",
+          "line": 182,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "source_query_report",
+          "line": 215,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "strategy_report",
+          "line": 395,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/mm_model_router.py": {
+      "observed": true,
+      "sha256": "eaa1b05fca9b330bdf42b48b87b9541cc7da5212ce41690c195b825c11807cc9",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "_env_value",
+          "line": 44,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "PaidRouteRefused",
+          "line": 80,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "CostSafetyStop",
+          "line": 84,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "_cost_stop_path",
+          "line": 88,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_check_cost_stop",
+          "line": 92,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_stop_for_cost",
+          "line": 98,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_verify_reported_cost",
+          "line": 119,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_loopback_url",
+          "line": 133,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "LocalRedirectRefused",
+          "line": 158,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "_open_local",
+          "line": 163,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_fcc_free_allowlist",
+          "line": 171,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_fcc_model_allowed",
+          "line": 179,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_fcc_request",
+          "line": 188,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "probe_fcc",
+          "line": 196,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_hermes_config",
+          "line": 217,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "probe_hermes",
+          "line": 239,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "probe_local",
+          "line": 249,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "local_model_available",
+          "line": 258,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "check_route",
+          "line": 269,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_lookup_route",
+          "line": 282,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "plan",
+          "line": 292,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "finish",
+          "line": 352,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "prepare_external_prompt",
+          "line": 370,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_fcc_complete",
+          "line": 375,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_hermes_complete",
+          "line": 428,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "local_complete",
+          "line": 490,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "routes_report",
+          "line": 523,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/mm_outreach.py": {
+      "observed": true,
+      "sha256": "19fdf9ae381aa8203089b228ce67afe6acd4b45b8e461e8067135db291e837ed",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "_one_line",
+          "line": 104,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "audit_copy",
+          "line": 109,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "require_copy",
+          "line": 136,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_signal_check",
+          "line": 140,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "plan",
+          "line": 157,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "audit_packet",
+          "line": 225,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "classify_dsn",
+          "line": 235,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "preflight",
+          "line": 280,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "health",
+          "line": 308,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "cli",
+          "line": 325,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/mm_pipeline.py": {
+      "observed": true,
+      "sha256": "b148345b519eb619fd856e024a9594f730ce9a93cb20589191d0dfabae7070c4",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "error_fingerprint",
+          "line": 31,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "migrate",
+          "line": 178,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "RetryableError",
+          "line": 224,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "LeaseLostError",
+          "line": 227,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "guarded_mutation",
+          "line": 231,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "PermanentError",
+          "line": 268,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "BlockedCostError",
+          "line": 271,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "_log_path",
+          "line": 283,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "log",
+          "line": 289,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "metric",
+          "line": 300,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "enqueue",
+          "line": 310,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "register_worker",
+          "line": 328,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "heartbeat",
+          "line": 338,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "claim",
+          "line": 346,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "release",
+          "line": 375,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "classify_unexpected",
+          "line": 389,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "backoff_seconds",
+          "line": 407,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "fail",
+          "line": 413,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "advance",
+          "line": 499,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "mark_sent",
+          "line": 534,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "complete",
+          "line": 558,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "breaker",
+          "line": 573,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "breaker_allow",
+          "line": 581,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "breaker_success",
+          "line": 593,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "breaker_failure",
+          "line": 599,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "rate_ok",
+          "line": 618,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "health",
+          "line": 638,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "item",
+          "line": 656,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_record",
+          "line": 664,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "transition",
+          "line": 671,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "Worker",
+          "line": 704,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "run_pipelineloop",
+          "line": 792,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_pipelineloop_cli",
+          "line": 850,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "drain_expired_leases",
+          "line": 883,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "report",
+          "line": 890,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "health_full",
+          "line": 901,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "driftfirst_apply",
+          "line": 906,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "RunPipeline",
+          "line": 914,
+          "kind": "ClassDef"
+        }
+      ]
+    },
+    "money-machine/mm_redaction.py": {
+      "observed": true,
+      "sha256": "a8bf867350d65097b51637a13ab9c6cce9cbe24a437b75c4f62220af431f33ab",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "redact",
+          "line": 22,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "prepare_prompt",
+          "line": 40,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/mm_runtime_guards.py": {
+      "observed": true,
+      "sha256": "162155fd96f94b3364b5459237c059f59bc389d177dd3c72360a0fe608e1d631",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "disk_guard",
+          "line": 29,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_parse_probe_hosts",
+          "line": 49,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_probe_once",
+          "line": 80,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_cache_path",
+          "line": 109,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_read_cache",
+          "line": 113,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_write_cache",
+          "line": 120,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "network_guard",
+          "line": 128,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "network_guard_event",
+          "line": 194,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "network_status",
+          "line": 222,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "snapshot",
+          "line": 236,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "accounting_snapshot",
+          "line": 252,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/mm_soak.py": {
+      "observed": true,
+      "sha256": "67e0f22abd37c4ec66dcd8ddfca7d4e339bc4934d983dec026550e043a1d3ef3",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "run",
+          "line": 34,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "git_info",
+          "line": 42,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "supervisor_processes",
+          "line": 48,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "startup_attestation",
+          "line": 72,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "service_config",
+          "line": 97,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "database_diagnostics",
+          "line": 114,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "collect_sample",
+          "line": 134,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "detect_violations",
+          "line": 169,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "summarize",
+          "line": 238,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "write_json",
+          "line": 272,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "main",
+          "line": 278,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/mm_transport.py": {
+      "observed": true,
+      "sha256": "b584c4b9fce0b4df1a5745740d0dbaf9150e7c3a38b0aea0d56ada28614c312e",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "load_config",
+          "line": 15,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "status",
+          "line": 48,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "preflight_packet",
+          "line": 63,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/mm_workers.py": {
+      "observed": true,
+      "sha256": "03de0378a90fa4edcf2c6244d56f5c7e26e1eed360e7a4ad8d85c6de3754a41a",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "_record_intelligence_decision",
+          "line": 25,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_business",
+          "line": 117,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "identity_handler",
+          "line": 124,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_audit_evidence",
+          "line": 188,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "audit_handler",
+          "line": 210,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_latest_pipeline_evidence",
+          "line": 303,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_bounded_score",
+          "line": 319,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_technical_opportunity",
+          "line": 331,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "qualification_handler",
+          "line": 342,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_email_v2_release_state",
+          "line": 471,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_current_verified_high",
+          "line": 520,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "contact_handler",
+          "line": 541,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "demo_handler",
+          "line": 652,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "qa_handler",
+          "line": 670,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "outreach_handler",
+          "line": 681,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/runtime_bootstrap.py": {
+      "observed": true,
+      "sha256": "5bbe6a95467db8ecf7e7796d60b00ab2ff73cd16b82d275eacb62dbb6e68b6bd",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "RevisionError",
+          "line": 25,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "git",
+          "line": 29,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "committed_sources",
+          "line": 33,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "ManifestGuard",
+          "line": 77,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "Verifier",
+          "line": 158,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "CheckedLoader",
+          "line": 184,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "main",
+          "line": 207,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/scripts/fcc-bridge.py": {
+      "observed": true,
+      "sha256": "f699945d197bd505800deb2097a893310b9e045d2a22b34574b3b5b77b0ff6ed",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "local_fcc_url",
+          "line": 37,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "NoRedirect",
+          "line": 51,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "open_local_request",
+          "line": 56,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "log_info",
+          "line": 73,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "log_ok",
+          "line": 76,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "log_warn",
+          "line": 79,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "log_error",
+          "line": 82,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "load_env",
+          "line": 85,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "check_process",
+          "line": 120,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "start_fcc_server",
+          "line": 134,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "stop_fcc_server",
+          "line": 139,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "check_fcc_status",
+          "line": 144,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_claude",
+          "line": 154,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_codex",
+          "line": 159,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "send_to_fcc",
+          "line": 164,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "show_status",
+          "line": 178,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "main",
+          "line": 223,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/scripts/fcc-bridge.sh": {
+      "observed": true,
+      "sha256": "c9973f2e66e4ae3396fb57239e13ac9fa1d43ed8db935235295fef6badf3bb57",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false
+    },
+    "money-machine/scripts/free_role_router.py": {
+      "observed": true,
+      "sha256": "63320f8b29a70b557e826d326d0696b184d67d7d865284072ef4dcc04668c7db",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "RouteError",
+          "line": 24,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "NoRedirect",
+          "line": 30,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "_http_request",
+          "line": 35,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_admitted_request",
+          "line": 59,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "request",
+          "line": 72,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_env_file_value",
+          "line": 85,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "credential",
+          "line": 107,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "free_model",
+          "line": 122,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "validate",
+          "line": 132,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "route",
+          "line": 148,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "main",
+          "line": 220,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/scripts/test_free_role_router.py": {
+      "observed": true,
+      "sha256": "f609e92d0c4e5646f1b16afc09bb999291429a4ba9c39aa0b1038b3375b02478",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "EnvFileTests",
+          "line": 22,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "RoutingTests",
+          "line": 40,
+          "kind": "ClassDef"
+        }
+      ]
+    },
+    "money-machine/supervisor/cli.py": {
+      "observed": true,
+      "sha256": "93f4177e27465fe576ae13257b80a568ddbfb4e72ed0700f408a44e5f746788c",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "_pidfile",
+          "line": 58,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_read_pid",
+          "line": 62,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_pid_alive",
+          "line": 69,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_is_running",
+          "line": 83,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_log",
+          "line": 90,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_heartbeat",
+          "line": 97,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_build_workers",
+          "line": 102,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "cmd_status",
+          "line": 117,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "cmd_health",
+          "line": 133,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "cmd_logs",
+          "line": 180,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_rotate_and_report",
+          "line": 192,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "cmd_run_foreground",
+          "line": 199,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "cmd_start",
+          "line": 282,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "cmd_stop",
+          "line": 315,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "cmd_restart",
+          "line": 329,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "cmd_ensure_running",
+          "line": 333,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "main",
+          "line": 360,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/test_email_lifecycle.py": {
+      "observed": true,
+      "sha256": "e89907d6c67d2a4a72072d602ecadb7b6f0941767dac7f0ee782a86bba4e1557",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "database",
+          "line": 10,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_intent_requires_exact_human_approval",
+          "line": 45,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_intent_is_idempotent_and_records_no_send",
+          "line": 54,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_suppression_blocks_intent_without_mutating_suppression",
+          "line": 69,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_failures_are_bounded_and_dead_lettered",
+          "line": 79,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_reconstruction_contains_message_approval_intent_and_events",
+          "line": 94,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_draft_change_after_intent_is_blocked",
+          "line": 109,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_provider_acceptance_remains_open_until_final_outcome",
+          "line": 118,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/test_email_lifecycle_cli.py": {
+      "observed": true,
+      "sha256": "73d7a80919f329973f40c886135027dd650e254998d2cc5bdf32a1635f7325f8",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "database",
+          "line": 23,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_cli",
+          "line": 51,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_json",
+          "line": 61,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "event_store",
+          "line": 65,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_full_lifecycle_through_real_cli",
+          "line": 69,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_suppressed_recipient_cannot_get_intent_through_cli",
+          "line": 133,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_unapproved_draft_cannot_get_intent_through_cli",
+          "line": 145,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_out_of_order_events_reconcile_by_timestamp",
+          "line": 157,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/test_financial_admission.py": {
+      "observed": true,
+      "sha256": "b1ff66ee7459c9d3385ebf17e75441a9eef2f74cdbfe1e2c817d96c3b905b664",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "response",
+          "line": 20,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "rows",
+          "line": 24,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "both_routes",
+          "line": 29,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_no_policy_or_environment_flag_can_activate",
+          "line": 33,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_worktrees_and_runtime_roots_share_control_directory",
+          "line": 42,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_concurrent_providers_share_atomic_account_quota",
+          "line": 50,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_unknown_or_nonzero_accounting_is_persistent_global_stop",
+          "line": 67,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_zero_receipt_consumes_quota_and_exact_model_is_required",
+          "line": 77,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_account_error_blocks_fallback_even_when_reported_free",
+          "line": 86,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_proven_zero_cost_server_failure_can_use_separately_admitted_fallback",
+          "line": 94,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_pre_dispatch_crash_lease_can_expire_without_spending",
+          "line": 103,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_real_process_crash_after_dispatch_is_not_retried_or_refunded",
+          "line": 114,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_dispatch_token_cannot_be_replayed",
+          "line": 136,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_timeout_retains_unknown_outcome_without_second_action",
+          "line": 147,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_missing_or_corrupt_ledger_is_not_recreated",
+          "line": 160,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_accounting_lock_failure_never_dispatches",
+          "line": 173,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_review_binds_entire_policy_and_window_quota_cannot_be_inflated",
+          "line": 182,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_invalid_review_artifacts_are_held",
+          "line": 196,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_policy_change_between_reservation_and_dispatch_is_held",
+          "line": 216,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_separate_processes_cannot_overbook_one_ledger",
+          "line": 227,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_earlier_unknown_dispatch_blocks_a_later_reserved_token",
+          "line": 252,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/test_financial_dispatch.py": {
+      "observed": true,
+      "sha256": "bb71883e82e225e4f39273169f681f218cf7982d434f460a3a67510e39507a05",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "load_script",
+          "line": 15,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "dispatcher",
+          "line": 24,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "denied",
+          "line": 29,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_money_fcc_free_suffix_does_not_bypass_missing_account_evidence",
+          "line": 38,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_money_hermes_missing_evidence_precedes_subprocess",
+          "line": 45,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_free_role_custom_transport_cannot_bypass_default_denial",
+          "line": 52,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_public_free_role_http_helper_is_admitted",
+          "line": 62,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_free_role_cli_does_not_read_credentials_or_catalog_when_held",
+          "line": 70,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_direct_bridge_has_no_cli_or_http_bypass",
+          "line": 84,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_external_transport_refuses_redirects_and_proxies",
+          "line": 99,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_shared_stop_survives_separate_worker_runtime_roots",
+          "line": 124,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/test_pipeline_recovery.py": {
+      "observed": true,
+      "sha256": "bb6c3b22c2b445ee5d3b8954de6a91ecf65f8247e157bbe631fbb2c63309e1aa",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "fresh_db",
+          "line": 19,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "seed",
+          "line": 27,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "active_lease_count",
+          "line": 33,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_single_owner_per_claim",
+          "line": 40,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_expired_lease_drain_and_reclaim",
+          "line": 57,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_retry_bounds_and_backoff",
+          "line": 74,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_failed_job_isolation",
+          "line": 90,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_stale_lock_does_not_persist",
+          "line": 112,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/test_redaction.py": {
+      "observed": true,
+      "sha256": "125b81f1c91ca136e4dcaad0b50e041840a1a0ac95b9abde61d62847a2100f19",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "test_prompt_redacts_sensitive_material_and_preserves_safety",
+          "line": 5,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_prompt_size_is_bounded",
+          "line": 15,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/test_router_cost_stop.py": {
+      "observed": true,
+      "sha256": "b41787d4bc603d7ffb241d38684a32424b280667a4c4b7a737b3793fea0eb1cb",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "no_provider_subprocess",
+          "line": 14,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "synthetic_account_evidence",
+          "line": 21,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_unknown_or_nonzero_cost_stops_before_fallback",
+          "line": 27,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_explicit_zero_cost_answer_remains_permitted",
+          "line": 40,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_dispatch_uncertainty_or_quota_denies_another_provider",
+          "line": 54,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/test_runtime_bootstrap.py": {
+      "observed": true,
+      "sha256": "a4a1cdab4b32d2972a6b443db5131220afd3447bec556d2fac8db5c0bf4818d4",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "checkout",
+          "line": 14,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "start",
+          "line": 33,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_committed_import_execution_produces_receipt",
+          "line": 51,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_wrong_revision_rejected_before_target_import",
+          "line": 60,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_source_drift_rejected_before_target_executes",
+          "line": 67,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_stale_module_literal_is_detected_despite_valid_timestamp_cache",
+          "line": 76,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_optional_import_cannot_hide_a_failed_attestation",
+          "line": 91,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_configured_runtime_root_must_match_verified_checkout",
+          "line": 104,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "approved_manifest",
+          "line": 113,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_manifest_startup_identity_never_attests_existing_runtime",
+          "line": 131,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_manifest_mismatch_denies_target_dispatch",
+          "line": 150,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_changed_config_and_unapproved_manifest_are_rejected",
+          "line": 158,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_manifest_change_during_target_invalidates_receipt",
+          "line": 170,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_manifest_rejects_symlink_configuration_alias",
+          "line": 187,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_strict_receipt_remains_compatible_with_existing_soak_reader",
+          "line": 201,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_batched_sources_match_git_for_unusual_paths",
+          "line": 228,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_batched_sources_reject_malformed_output",
+          "line": 244,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_batched_sources_reject_failed_reader",
+          "line": 254,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_batched_sources_use_only_two_git_processes",
+          "line": 265,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_manifest_duplicate_fields_deny_dispatch",
+          "line": 281,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_excessively_nested_manifest_has_bounded_failure_receipt",
+          "line": 298,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/test_runtime_readiness.py": {
+      "observed": true,
+      "sha256": "6b6512962b117ea05dea808c760e2a1f4ff521905f37de9dd573b84c8411fdce",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "test_soak_output_cannot_escape_repository_state",
+          "line": 16,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "database",
+          "line": 39,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_accounting_is_measured_and_includes_partial_send_records",
+          "line": 54,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_missing_accounting_never_becomes_zero",
+          "line": 68,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_proposal_receipt_also_counts_as_a_send",
+          "line": 77,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_process_reader_detects_other_python_supervisor_and_ignores_unrelated_quotes",
+          "line": 84,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_invalid_cost_records_fail_accounting",
+          "line": 93,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_cli_processes_bounded_work_commits_and_closes",
+          "line": 99,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_cli_closes_connection_on_loop_failure",
+          "line": 116,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_cli_rejects_bad_arguments_before_opening_database",
+          "line": 134,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_loop_sleeps_between_cycles_and_writes_requested_metrics",
+          "line": 144,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "sample",
+          "line": 159,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_soak_missing_or_bad_evidence_fails",
+          "line": 190,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_soak_detects_revision_config_gaps_and_transient_dlq_growth",
+          "line": 196,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_interruption_and_old_uptime_cannot_pass",
+          "line": 213,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_short_monitor_preserves_start_and_periodic_samples",
+          "line": 220,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_heartbeat_advancing_during_collection_is_not_falsely_stale",
+          "line": 240,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_startup_receipt_checks_current_module_bytes_and_failure_state",
+          "line": 265,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_soak_recognizes_attested_entry_without_accepting_shell_text",
+          "line": 290,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_soak_rejects_an_attestation_from_a_different_revision",
+          "line": 300,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "money-machine/test_soak_discovery_recovery.py": {
+      "observed": true,
+      "sha256": "4549d69cdfc4e2148762406c1a6f3b8c1519d5b77b22c3d28f18d7797fbafb21",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "test_yelp_directory_and_subdomains_reject",
+          "line": 13,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_directory_matching_does_not_match_lookalikes",
+          "line": 21,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_yelp_filtered_before_pipeline_intake",
+          "line": 26,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "disposable_db",
+          "line": 33,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_recovery_holds_review_and_retains_failure_history",
+          "line": 41,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_missing_malformed_and_accepted_metadata_keep_existing_identity_behavior",
+          "line": 84,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_review_rejects_private_website_before_holding",
+          "line": 92,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "ops/hermes_zero_token/runner.py": {
+      "observed": true,
+      "sha256": "3f67ea31a10bced6798c41a1cfcea6e030dc86f214680306f589b97310deb22f",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "_now_iso",
+          "line": 62,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_log_audit",
+          "line": 66,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_enforce_zero_token",
+          "line": 85,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_mm_command",
+          "line": 98,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_toolkit_test",
+          "line": 109,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_supervisor_health",
+          "line": 136,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_database_integrity",
+          "line": 141,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_database_backup",
+          "line": 146,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_queue_dispatcher",
+          "line": 162,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_identity_resolution",
+          "line": 180,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_site_auditor",
+          "line": 185,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_scoring_judge",
+          "line": 195,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_evidence_proofer",
+          "line": 220,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_discover_nz_businesses",
+          "line": 253,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_screenshot_worker",
+          "line": 278,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_testing_worker",
+          "line": 288,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_git_observer",
+          "line": 293,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_competitor_research",
+          "line": 311,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_demo_blueprint",
+          "line": 316,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_outreach_draft",
+          "line": 321,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_weekly_review",
+          "line": 326,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_provider_monitor",
+          "line": 337,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_daily_report",
+          "line": 344,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_run_module_worker",
+          "line": 355,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_run_locked_module_worker",
+          "line": 366,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_worker_lock",
+          "line": 395,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_execute_worker_module",
+          "line": 400,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_validate_worker_result",
+          "line": 428,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_parse_worker_report",
+          "line": 453,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_staging_db",
+          "line": 480,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_screenshot_worker_placeholder",
+          "line": 485,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_demo_blueprint_placeholder",
+          "line": 490,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_outreach_draft_placeholder",
+          "line": 495,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_weekly_review_placeholder",
+          "line": 500,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "handle_worker",
+          "line": 548,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "main",
+          "line": 628,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "ops/hermes_zero_token/staging_db.py": {
+      "observed": true,
+      "sha256": "e16fd99d46f74cf945cbe616d6ac769182a0a34b63647a1387171361bc00e01e",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "_now",
+          "line": 52,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_validate_staging_path",
+          "line": 56,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_atomic_json",
+          "line": 68,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_hash_file",
+          "line": 81,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_read_only",
+          "line": 91,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_check_database",
+          "line": 95,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_snapshot_metadata_path",
+          "line": 110,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_source_identity",
+          "line": 114,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "snapshot_metadata",
+          "line": 120,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_publish_snapshot",
+          "line": 133,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "snapshot_db",
+          "line": 153,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_snapshot_db",
+          "line": 158,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "table_counts",
+          "line": 218,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "validate_schema",
+          "line": 234,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "get_next_batch",
+          "line": 256,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_audit_batch_staging",
+          "line": 271,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "load_state",
+          "line": 293,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "save_state",
+          "line": 302,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_main",
+          "line": 306,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "main",
+          "line": 388,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "ops/hermes_zero_token/test_staging_progress.py": {
+      "observed": true,
+      "sha256": "02ded9c573f4b54cec5873348568a5588887491ba65919ad9f65341ab07dcf1d",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "staging",
+          "line": 17,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_restarts_preserve_generation_progress_and_do_not_starve_on_missing_url",
+          "line": 47,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_commit_survives_a_crash_before_state_export",
+          "line": 62,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_unmanifested_legacy_staging_is_never_reset",
+          "line": 76,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_pending_publication_is_resumed_without_a_new_snapshot",
+          "line": 87,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_source_schema_drift_blocks_audit_without_losing_progress",
+          "line": 101,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_malformed_progress_is_held_before_any_audit",
+          "line": 111,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_timed_out_backup_does_not_publish_or_destroy_any_snapshot",
+          "line": 120,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_real_busy_source_backup_has_a_deadline",
+          "line": 132,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_subprocess_paths_and_ids_are_arguments_with_staging_root",
+          "line": 154,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_quoted_table_names_and_reserved_path_characters_are_data",
+          "line": 172,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_generation_label_cannot_escape_staging_paths",
+          "line": 183,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "ops/hermes_zero_token/test_standalone_ownership.py": {
+      "observed": true,
+      "sha256": "24bc2b36a47a3aeae73585ee5a17300e0825c49c967e9baea558e8191e9cc6b4",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "clean_environment",
+          "line": 18,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "contender",
+          "line": 23,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_each_standalone_main_refuses_a_concurrent_runner_owner",
+          "line": 36,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_same_worker_nesting_is_reentrant_but_other_staging_jobs_are_not",
+          "line": 52,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_real_child_handoff_cannot_unlock_parent_on_exit",
+          "line": 60,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_unlocked_unrelated_fd_cannot_bypass_an_existing_owner",
+          "line": 69,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_forged_handoff_is_a_blocked_report",
+          "line": 85,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_standalone_policy_overrides_hostile_flags_and_honors_stop",
+          "line": 92,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_symlink_and_hardlink_lockfiles_are_refused_without_changes",
+          "line": 105,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_worker_names_cannot_choose_lock_paths",
+          "line": 120,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "ops/hermes_zero_token/test_worker_contract.py": {
+      "observed": true,
+      "sha256": "f0ac690e7dc0e23b864acaf8e35840955df9dbb2908d1f48e2c8c4f338a95acb",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "runner",
+          "line": 24,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_worker_and_capture",
+          "line": 87,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "source_dump",
+          "line": 97,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_real_worker_subprocess_contract_preserves_entire_source_database",
+          "line": 107,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_deprecated_aliases_fail_closed",
+          "line": 122,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_live_mutating_workers_blocked",
+          "line": 131,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_unknown_worker_returns_error",
+          "line": 138,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_kill_switch_blocks_before_creating_any_audit_log",
+          "line": 145,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_worker_run_updates_audit_log",
+          "line": 155,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_worker_failure_updates_audit_log",
+          "line": 170,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "ops/hermes_zero_token/worker_ownership.py": {
+      "observed": true,
+      "sha256": "ae891e458cb84a1c5afe7d2f43d7934172151c990cb52496686a3a6ed499789f",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "OwnershipError",
+          "line": 32,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "Lease",
+          "line": 37,
+          "kind": "ClassDef"
+        },
+        {
+          "name": "_group",
+          "line": 47,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "_check_inode",
+          "line": 55,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "worker_lock",
+          "line": 65,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "run_owned_worker",
+          "line": 118,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "tests/test_financial_entrypoints.py": {
+      "observed": true,
+      "sha256": "d02a56c60681fbfbd188b51a695a1db223b4bf1eca285dff0048196de095bff9",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "test_legacy_image_generation_is_truthfully_held",
+          "line": 16,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_shell_activation_does_not_source_env_or_run_services",
+          "line": 39,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "test_shell_defaults_to_status_without_service_activation",
+          "line": 52,
+          "kind": "FunctionDef"
+        }
+      ]
+    },
+    "toolkit_tests/financial_admission_fixtures.py": {
+      "observed": true,
+      "sha256": "c75ecccbf00523436ea878cfd26fbffa91817f922ede112e01e402344d52a87c",
+      "candidate_writer": "Codex on codex/completion-20261020 only",
+      "canonical_or_other_worktree_write_authority": false,
+      "definitions": [
+        {
+          "name": "fixture_coordinator",
+          "line": 11,
+          "kind": "FunctionDef"
+        },
+        {
+          "name": "write_fixture_policy",
+          "line": 32,
+          "kind": "FunctionDef"
+        }
+      ]
+    }
+  },
+  "limits": [
+    "File existence and definitions are observed; function correctness requires tests",
+    "External Hermes code and account billing are outside this repository inventory",
+    "No production acceptance, owner signature or secret rotation is inferred"
+  ]
+}

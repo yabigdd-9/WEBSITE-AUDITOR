@@ -76,10 +76,14 @@ def staging(tmp_path, monkeypatch):
 def test_repeated_staging_snapshots_preserve_production(tmp_path, monkeypatch):
     module = staging(tmp_path, monkeypatch)
     original = module.PROD_DB.read_bytes()
-    for _ in range(2):
-        path = module.snapshot_db()
-        with sqlite3.connect(path) as db:
-            db.execute("INSERT INTO fixture VALUES(2)")
+    path = module.snapshot_db()
+    generation = module.snapshot_metadata()["generation"]
+    with sqlite3.connect(path) as db:
+        db.execute("INSERT INTO fixture VALUES(2)")
+    assert module.snapshot_db() == path
+    assert module.snapshot_metadata()["generation"] == generation
+    with sqlite3.connect(path) as db:
+        assert db.execute("SELECT id FROM fixture ORDER BY id").fetchall() == [(1,), (2,)]
     assert module.PROD_DB.read_bytes() == original
     assert module.validate_schema(module.STAGING_DB)["ok"]
 
@@ -112,8 +116,11 @@ def test_report_cumulative_counts_testing_aliases_timeouts_and_unknown_accountin
     metrics = module.collect_metrics()
     assert metrics["scripts_succeeded"] == 1
     assert metrics["scripts_failed"] == 2
-    assert metrics["test_passed"] == 1
-    assert metrics["test_failed"] == 1
+    assert metrics["testing_runs_passed"] == 1
+    assert metrics["testing_runs_failed"] == 1
+    assert metrics["test_passed"] is None
+    assert metrics["test_failed"] is None
+    assert metrics["test_skipped"] is None
     assert metrics["host_model_calls"] is None
     assert metrics["attestation_complete"] is False
     report = module.write_daily_report(metrics)

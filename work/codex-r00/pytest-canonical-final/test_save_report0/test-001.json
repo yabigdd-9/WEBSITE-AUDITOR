@@ -1,0 +1,22 @@
+{
+  "url": "https://example.com",
+  "run_id": "test-001",
+  "started_at": "",
+  "completed_at": "",
+  "duration_seconds": 0.0,
+  "fingerprint": {
+    "cms": null,
+    "framework": null,
+    "language": null,
+    "server": null,
+    "analytics": [],
+    "cdn": null,
+    "payment": [],
+    "ecommerce": null,
+    "hosting": null
+  },
+  "versions": [],
+  "vulnerabilities": [],
+  "errors": [],
+  "warnings": []
+}

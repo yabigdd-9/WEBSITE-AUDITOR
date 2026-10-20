@@ -20,11 +20,14 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-os.chdir(PROJECT_ROOT)
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+from ops.hermes_zero_token.worker_ownership import run_owned_worker  # noqa: E402
 
 SCREENSHOT_DIR = PROJECT_ROOT / "reports" / "hermes_zero_token" / "screenshots"
 MANIFEST_PATH = SCREENSHOT_DIR / "manifest_sha256.json"
@@ -65,14 +68,15 @@ def get_pending_businesses(limit=3):
 def capture_with_browser_toolkit(url, out_dir):
     """Use auditor_toolkit.browser.run_browser_checks (browser=True)."""
     code = (
-        "import sys; sys.path.insert(0, r'%s')" % str(PROJECT_ROOT)
+        "import sys; sys.path.insert(0, sys.argv[1])"
         + "\nfrom auditor_toolkit.browser import run_browser_checks\n"
         + "import json\n"
-        + "result = run_browser_checks(r'%s', r'%s', enabled=True)\n" % (url, str(out_dir))
+        + "result = run_browser_checks(sys.argv[2], sys.argv[3], enabled=True)\n"
         + "print(json.dumps(result, default=str))\n"
     )
     result = subprocess.run(
-        [str(PROJECT_ROOT / ".venv" / "bin" / "python"), "-c", code],
+        [sys.executable, "-c", code,
+         str(PROJECT_ROOT), url, str(out_dir)],
         capture_output=True, text=True, timeout=90,
     )
     return result.returncode, result.stdout, result.stderr
@@ -93,7 +97,7 @@ def save_manifest(manifest):
     os.replace(tmp, MANIFEST_PATH)
 
 
-def main():
+def _main():
     SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
     manifest = load_manifest()
     manifest["generated_at"] = _now()
@@ -113,7 +117,20 @@ def main():
     for b in businesses:
         bid, name, url = b["id"], b["name"], b["public_website"]
         out_dir = SCREENSHOT_DIR / f"business-{bid}"
-        if out_dir.exists() and any(out_dir.glob("*.png")):
+        cached = False
+        for entry in manifest.get("screenshots", []):
+            if (entry.get("business_id") != bid or entry.get("url") != url
+                    or not isinstance(entry.get("path"), str)):
+                continue
+            cached_path = Path(entry["path"])
+            if (cached_path.resolve().is_relative_to(out_dir.resolve())
+                    and cached_path.is_file()
+                    and not cached_path.is_symlink()
+                    and cached_path.stat().st_size > 0
+                    and _sha256(cached_path) == entry.get("sha256")):
+                cached = True
+                break
+        if cached:
             report["details"].append({
                 "business_id": bid, "name": name, "url": url,
                 "status": "already_captured", "path": str(out_dir),
@@ -121,11 +138,23 @@ def main():
             continue
 
         try:
-            rc, stdout, stderr = capture_with_browser_toolkit(url, out_dir)
             out_dir.mkdir(parents=True, exist_ok=True)
-            pngs = sorted(out_dir.glob("*.png"))
-            if pngs:
-                latest = pngs[-1]
+            # A fresh attempt directory prevents a stale PNG from a failed or
+            # unrelated capture from being recorded as new evidence.
+            attempt_dir = Path(tempfile.mkdtemp(prefix="capture-", dir=out_dir))
+            rc, stdout, stderr = capture_with_browser_toolkit(url, attempt_dir)
+            try:
+                capture = json.loads(stdout)
+            except (json.JSONDecodeError, TypeError):
+                capture = None
+            evidence = capture.get("evidence") if isinstance(capture, dict) else None
+            screenshot_path = evidence.get("screenshot") if isinstance(evidence, dict) else None
+            latest = Path(screenshot_path) if isinstance(screenshot_path, str) else None
+            if (rc == 0 and isinstance(capture, dict) and capture.get("status") == "ok"
+                    and latest is not None and latest.suffix.lower() == ".png"
+                    and latest.resolve().is_relative_to(attempt_dir.resolve())
+                    and not latest.is_symlink() and latest.is_file()
+                    and latest.stat().st_size > 0):
                 h = _sha256(latest)
                 entry = {
                     "business_id": bid,
@@ -159,7 +188,11 @@ def main():
     report_path = SCREENSHOT_DIR / "screenshot_report.json"
     report_path.write_text(json.dumps(report, indent=2, default=str))
     print(json.dumps(report, indent=2, default=str))
-    return 0
+    return 1 if report["screenshots_failed"] else 0
+
+
+def main():
+    return run_owned_worker(PROJECT_ROOT, 'screenshot_worker', _main)
 
 
 if __name__ == "__main__":

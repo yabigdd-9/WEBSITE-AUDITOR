@@ -1,0 +1,10 @@
+{
+  "snapshot_id": "snap_001",
+  "fixture_path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_create_snapshot0/fixture.json",
+  "content_hash": "c11b97fea8c18cb154623b371c08bb5a96c1ff68ec8995e732f8b2fe3f963564",
+  "case_ids": [
+    "c1"
+  ],
+  "expected_results": {},
+  "created_at": "2026-10-20T09:05:50.843786+00:00"
+}

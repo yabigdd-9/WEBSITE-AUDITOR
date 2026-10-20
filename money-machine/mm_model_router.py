@@ -21,6 +21,7 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
 
+import mm_financial_admission as admission
 import yaml
 from mm_core import now, sha
 from mm_core import root as runtime_root
@@ -76,7 +77,7 @@ PURPOSE_ROUTES = {
 }
 
 
-class PaidRouteRefused(Exception):
+class PaidRouteRefused(Exception):  # noqa: N818 - retain the existing public exception name
     """A route that could bill was requested. Always a hard error."""
 
 
@@ -371,13 +372,14 @@ def prepare_external_prompt(prompt: str) -> dict:
     return prepare_prompt(prompt, public_only=True)
 
 
-def _fcc_complete(prompt, model, max_tokens, timeout):
+def _fcc_complete(prompt, model, max_tokens, timeout, *, base_url=None):
     _check_cost_stop()
     if not _fcc_model_allowed(model):
         raise BlockedCost(
             "Claude/FCC model is not explicitly certified zero-cost; use Hermes fallback"
         )
-    url = _loopback_url(FCC_BASE).rstrip("/") + "/v1/chat/completions"
+    base_url = _loopback_url(base_url or FCC_BASE)
+    url = base_url.rstrip("/") + "/v1/chat/completions"
     body = {
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
@@ -385,11 +387,19 @@ def _fcc_complete(prompt, model, max_tokens, timeout):
         "temperature": 0,
         "stream": False,
     }
-    req = _fcc_request(url, json.dumps(body).encode())
     started = dt.datetime.now(dt.timezone.utc)
-    try:
+
+    def dispatch():
+        req = _fcc_request(url, json.dumps(body).encode())
         with _open_local(req, timeout) as response:
-            payload = json.loads(response.read().decode())
+            return 200, json.loads(response.read().decode())
+
+    try:
+        _, payload = admission.get_coordinator().execute("fcc", model, url, max_tokens, dispatch)
+    except admission.AdmissionStoppedError as exc:
+        _stop_for_cost(FCC_PROVIDER, model, exc.reason)
+    except admission.AdmissionError as exc:
+        raise BlockedCost("Shared financial admission refused the FCC request") from exc
     except (urllib.error.HTTPError, urllib.error.URLError, OSError, TimeoutError, ValueError):
         _stop_for_cost(FCC_PROVIDER, model, "dispatch_outcome_unknown")
     elapsed = (dt.datetime.now(dt.timezone.utc) - started).total_seconds()
@@ -411,7 +421,7 @@ def _fcc_complete(prompt, model, max_tokens, timeout):
         "model": model,
         "elapsed_s": round(elapsed, 3),
         "cost_usd": 0,
-        "base_url": FCC_BASE,
+        "base_url": base_url,
     }
 
 
@@ -421,6 +431,10 @@ def _hermes_complete(prompt, purpose, timeout):
     configured = probe_hermes(purpose)
     if not configured:
         raise BlockedCost("Hermes zero-cost role fallback is not configured")
+    try:
+        admission.get_coordinator().require_provider("openrouter")
+    except admission.AdmissionError as exc:
+        raise BlockedCost("Shared financial admission refused Hermes dispatch") from exc
     role = PURPOSE_ROLE.get(purpose, "FAST_RESEARCHER")
     with tempfile.NamedTemporaryFile(
         "w", encoding="utf-8", suffix=".txt", delete=False

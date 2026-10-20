@@ -1,0 +1,10 @@
+{
+  "status": 200,
+  "headers": {
+    "etag": "one",
+    "content-type": "text/plain; charset=utf-8",
+    "content-length": "5"
+  },
+  "body": "68656c6c6f",
+  "observed_at": "2026-10-20T09:05:08.427464+00:00"
+}

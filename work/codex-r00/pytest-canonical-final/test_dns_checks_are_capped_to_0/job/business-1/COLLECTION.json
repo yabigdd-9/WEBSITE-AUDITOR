@@ -1,0 +1,52 @@
+{
+  "business": {
+    "id": "business-1",
+    "live_business_id": 1,
+    "name": "Clear Plumbing",
+    "region": "Auckland",
+    "public_website": "https://clear.nz/",
+    "source": "synthetic",
+    "pipeline_state_at_freeze": "NEEDS_REVIEW",
+    "pipeline_updated_at": "frozen",
+    "unit_scope": "Recorded business and region"
+  },
+  "pages": [
+    {
+      "url": "https://clear.nz/"
+    }
+  ],
+  "dns": {
+    "company0.nz": {
+      "domain_accepts_mail": false
+    },
+    "company1.nz": {
+      "domain_accepts_mail": false
+    },
+    "company2.nz": {
+      "domain_accepts_mail": false
+    },
+    "company3.nz": {
+      "domain_accepts_mail": false
+    },
+    "company4.nz": {
+      "domain_accepts_mail": false
+    }
+  },
+  "errors": [],
+  "stage_timings": {
+    "collection_seconds": 0.0,
+    "dns_seconds": 0.0,
+    "total_seconds": 0.0
+  },
+  "request_metrics": {
+    "actual_requests": 0,
+    "reserved_requests": 0,
+    "accounting": "legacy_conservative"
+  },
+  "public_fetch_calls": [],
+  "request_budget": {
+    "limit": 5,
+    "consumed_or_reserved": 0,
+    "remaining": 5
+  }
+}

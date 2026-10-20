@@ -1,0 +1,6 @@
+{
+  "job_id": "job_002",
+  "reason": "max retries",
+  "retries_exhausted": 5,
+  "created_at": ""
+}

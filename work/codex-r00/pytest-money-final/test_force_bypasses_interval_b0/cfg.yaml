@@ -1,0 +1,8 @@
+enabled: true
+inbox_dir: discovery-inbox
+interval_minutes: 360
+queries:
+- plumber Christchurch NZ
+region: New Zealand
+results_per_query: 5
+searxng_endpoint: http://127.0.0.1:8888

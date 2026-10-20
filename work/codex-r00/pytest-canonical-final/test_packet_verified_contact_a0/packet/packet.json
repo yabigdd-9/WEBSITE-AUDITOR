@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "kind": "prospect_packet",
+  "source_run_id": "run-cli-fixture",
+  "business": {
+    "website": "https://example.co.nz/",
+    "domain": "example.co.nz"
+  },
+  "contact": "hello@example.co.nz",
+  "email_confidence": "VERIFIED_HIGH",
+  "audit_score": 64,
+  "opportunity_score": null,
+  "top_problems": [
+    {
+      "finding_id": "f1",
+      "defect_key": "viewport",
+      "defect": "viewport",
+      "evidence": "observed viewport"
+    },
+    {
+      "finding_id": "f2",
+      "defect_key": "missing_canonical_url",
+      "defect": "missing_canonical_url",
+      "evidence": "observed missing_canonical_url"
+    },
+    {
+      "finding_id": "f3",
+      "defect_key": "missing_title",
+      "defect": "missing_title",
+      "evidence": "observed missing_title"
+    },
+    {
+      "finding_id": "f4",
+      "defect_key": "missing_meta_description",
+      "defect": "missing_meta_description",
+      "evidence": "observed missing_meta_description"
+    },
+    {
+      "finding_id": "f5",
+      "defect_key": "robots-missing",
+      "defect": "robots missing",
+      "evidence": "observed robots-missing"
+    }
+  ],
+  "before_images": [],
+  "after_images": [],
+  "recommended_package": "Full Website Modernisation",
+  "quote_band": {
+    "low": "2175.00",
+    "high": "6727.50"
+  },
+  "proof": {
+    "demo_status": "CONCEPT_ONLY",
+    "live_site_changed": false,
+    "improvement_claim_valid": false
+  },
+  "evidence": [
+    {
+      "kind": "audit",
+      "sha256": "aa4cffde3790f9121e37b468b9b8a6e61ada3eca3719b1eddf7fa36bf77d33d6"
+    },
+    {
+      "kind": "remediation",
+      "sha256": "14bb9f026cf2de6e6f671733f6c3fe67dde76d36ac30c969134aa9180a238832"
+    },
+    {
+      "kind": "demo",
+      "sha256": "a5ab6ed5683d1a70b1e4a82933648a489a95ffeaca0f2b33e05f87e46c89c3d0"
+    },
+    {
+      "kind": "quote",
+      "sha256": "12ae82f4ac41eda5642ee8aa4f7657793cd7d63a0a3955efe175c43b5153dc3e"
+    }
+  ],
+  "draft_message_path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_packet_verified_contact_a0/packet/draft-message.txt",
+  "draft_message_sha256": "ade14d681ca0ac35f0e55e552eb3537f913b114f28032f2b52a8de2c91b57487",
+  "qa_status": "HUMAN_REVIEW_REQUIRED",
+  "approval_status": "HUMAN_APPROVAL_REQUIRED",
+  "human_approved": false,
+  "outreach_eligible": false,
+  "send_enabled": false,
+  "external_send_allowed": false,
+  "outbound_sent": 0,
+  "paid_ai_cost_usd": 0,
+  "review_required": true
+}

@@ -1,0 +1,70 @@
+{
+  "business": {
+    "id": "business-1",
+    "live_business_id": 1,
+    "name": "Clear Plumbing",
+    "region": "Auckland",
+    "public_website": "https://clear.nz/",
+    "source": "synthetic",
+    "pipeline_state_at_freeze": "NEEDS_REVIEW",
+    "pipeline_updated_at": "frozen",
+    "unit_scope": "Recorded business and region"
+  },
+  "pages": [
+    {
+      "url": "https://clear.nz/",
+      "requested_url": "https://clear.nz/",
+      "captured_at": "2026-10-20T09:05:50.036728+00:00",
+      "sha256": "46d8501993995e25a814b438fec73ec0a77a844607502039505f0383181cf2f3",
+      "path": "cache/email-v2/46d8501993995e25a814b438fec73ec0a77a844607502039505f0383181cf2f3.capture",
+      "content_type": "text/html",
+      "redirects": []
+    }
+  ],
+  "dns": {},
+  "errors": [
+    {
+      "url": "https://clear.nz/contact-0",
+      "reason": "ValueError: HTTP_404"
+    },
+    {
+      "url": "https://clear.nz/contact-1",
+      "reason": "ValueError: CONTACT_REVIEW_REQUEST_LIMIT"
+    }
+  ],
+  "stage_timings": {
+    "collection_seconds": 0.0,
+    "dns_seconds": 0.0,
+    "total_seconds": 0.0
+  },
+  "request_metrics": {
+    "actual_requests": 2,
+    "reserved_requests": 3,
+    "accounting": "legacy_conservative"
+  },
+  "public_fetch_calls": [
+    {
+      "url": "https://clear.nz/robots.txt",
+      "status": "captured",
+      "redirects": [],
+      "request_hops": 1
+    },
+    {
+      "url": "https://clear.nz/",
+      "status": "captured",
+      "redirects": [],
+      "request_hops": 1
+    },
+    {
+      "url": "https://clear.nz/contact-0",
+      "status": "HTTP_404",
+      "request_hops": 0,
+      "reserved_hops": 3
+    }
+  ],
+  "request_budget": {
+    "limit": 5,
+    "consumed_or_reserved": 5,
+    "remaining": 0
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "business.nz": {
+    "domain": "business.nz",
+    "checked_at": "2026-10-20T09:05:43.895113+00:00",
+    "domain_resolves": null,
+    "mx_present": null,
+    "mx_hosts": [],
+    "domain_accepts_mail": null,
+    "status": "unknown",
+    "method": "DNS MX and public MX target address resolution"
+  }
+}

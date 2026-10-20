@@ -1,0 +1,37 @@
+{
+  "pages": [
+    {
+      "url": "https://business.nz/",
+      "redirects": [],
+      "content_type": "",
+      "captured_at": "2026-10-20T09:05:43.724985+00:00",
+      "sha256": "0f272ed769e61d4d3ef2b59f75b5d8e561616d4ea724bef071e586a41a8bd1b9",
+      "requested_url": "https://business.nz/",
+      "path": "cache/email-v2/0f272ed769e61d4d3ef2b59f75b5d8e561616d4ea724bef071e586a41a8bd1b9.capture"
+    },
+    {
+      "url": "https://business.nz/Contact-in%20Dunedin",
+      "redirects": [],
+      "content_type": "",
+      "captured_at": "2026-10-20T09:05:43.736216+00:00",
+      "sha256": "8dd5a280bccbedb7e768ce551ef5b572086547129a4f9dce6d86f436499d1e91",
+      "requested_url": "https://business.nz/Contact-in%20Dunedin",
+      "path": "cache/email-v2/8dd5a280bccbedb7e768ce551ef5b572086547129a4f9dce6d86f436499d1e91.capture"
+    }
+  ],
+  "errors": [
+    {
+      "url": "https://business.nz/sitemap.xml",
+      "reason": "ValueError: HTTP_404"
+    }
+  ],
+  "pending": [],
+  "requests": 3,
+  "started_at": "2026-10-20T09:05:43.722884+00:00",
+  "complete": true,
+  "attempts": {
+    "https://business.nz/": 1,
+    "https://business.nz/Contact-in%20Dunedin": 1,
+    "https://business.nz/sitemap.xml": 1
+  }
+}

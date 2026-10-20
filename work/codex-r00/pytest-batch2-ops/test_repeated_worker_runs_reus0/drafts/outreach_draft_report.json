@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-10-20T08:32:06.654854+00:00",
+  "phase": "P2",
+  "drafts_dir": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-batch2-ops/test_repeated_worker_runs_reus0/drafts",
+  "production_written": false,
+  "outbound_messages_sent": 0,
+  "drafts_created": 1,
+  "details": [
+    {
+      "business_id": 1,
+      "name": "Synthetic fixture",
+      "url": "https://fixture.example",
+      "evidence_id": 7,
+      "draft_path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-batch2-ops/test_repeated_worker_runs_reus0/drafts/business-1-evidence-7-8e53a7502806ad198a61c29747a2ff67d62ba1bb31528c1d4104aa7c8bdeb8c0.md",
+      "draft_sha256": "8e53a7502806ad198a61c29747a2ff67d62ba1bb31528c1d4104aa7c8bdeb8c0",
+      "status": "DRAFT_ONLY_NOT_SENT"
+    }
+  ],
+  "approval_queue_path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-batch2-ops/test_repeated_worker_runs_reus0/approval.yaml"
+}

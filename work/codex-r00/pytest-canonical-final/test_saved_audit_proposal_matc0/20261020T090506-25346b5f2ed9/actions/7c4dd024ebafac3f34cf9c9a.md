@@ -1,0 +1,48 @@
+# Proposed remediation
+
+```json
+{
+  "id": "7c4dd024ebafac3f34cf9c9a",
+  "finding": {
+    "defect_key": "images-missing-alt",
+    "defect": "Images missing alt text (2)",
+    "impact": "Screen readers cannot describe images; accessibility and SEO suffer",
+    "severity": "medium",
+    "source_url": "https://example.com",
+    "review_required": true,
+    "check": "images",
+    "selector": "",
+    "confidence": "observed",
+    "evidence_source": "dom:img element",
+    "observed": "2 of 2 images have no alt text",
+    "business_impact": "Screen readers announce 'image' instead of context. Search engines cannot index image content. Both hurt accessibility and SEO.",
+    "remediation_action": "Add descriptive alt text to every informative image.",
+    "remediation_automation": "AUTO_PREVIEW",
+    "effort_band": "S",
+    "finding_id": "7c4dd024ebafac3f34cf9c9a",
+    "evidence_ref": "images",
+    "observed_at": "2026-10-20T09:05:06.760377+00:00",
+    "evidence_summary": "2 of 2 images have no alt text",
+    "fault_taxonomy": "unknown",
+    "confidence_assessment": {
+      "class": "PROVEN",
+      "observed": true,
+      "reproducible": true
+    },
+    "reproducibility": true,
+    "root_cause_candidate": "unclassified_observation"
+  },
+  "run_id": "20261020T090506-25346b5f2ed9",
+  "status": "preview",
+  "mode": "dry_run",
+  "connector": "local",
+  "review_required": true,
+  "verification": "Run the same audit profile after the proposed fix; never infer success from a preview.",
+  "fix": {
+    "instructions": "Review the linked evidence and prepare a platform-specific change. Re-audit before marking verified.",
+    "patch_kind": "instructions",
+    "automatically_applicable": false
+  },
+  "external_dispatch": false
+}
+```

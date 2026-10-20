@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Website audit - example.com</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif; margin: 2rem; color: #1f2933; }
+table { width: 100%; border-collapse: collapse; }
+th,td { border-bottom: 1px solid #e6eef6; padding: .55rem; text-align: left; vertical-align: top; }
+.score { display: inline-block; border: 1px solid #d9e2ec; border-radius: 8px; padding: 1rem; margin-right: .5rem; }
+</style></head><body>
+<h1>Website Auditor</h1>
+<p>Status: complete · Findings: 0 · Coverage: {&#x27;version&#x27;: 1, &#x27;required&#x27;: 13, &#x27;passed&#x27;: 13, &#x27;required_checks&#x27;: [&#x27;fetch&#x27;, &#x27;headers&#x27;, &#x27;hreflang&#x27;, &#x27;hygiene&#x27;, &#x27;images&#x27;, &#x27;js_vulnerabilities&#x27;, &#x27;language&#x27;, &#x27;page&#x27;, &#x27;schema&#x27;, &#x27;social_meta&#x27;, &#x27;structured_validation&#x27;, &#x27;technology&#x27;, &#x27;ux&#x27;], &#x27;missing_checks&#x27;: []}</p>
+<p><code>https://example.com/</code></p>
+<div class="score"><strong>Health</strong><br>100</div>
+<div class="score"><strong>Defect severity</strong><br>0</div><h2>Findings</h2>
+<table><thead><tr><th>Severity</th><th>Finding</th><th>Evidence</th><th>Check</th></tr></thead><tbody></tbody></table>
+<h2>Root-cause groups</h2><ul><li>No grouped root causes recorded.</li></ul>
+<h2>Visual evidence pack</h2><ul><li>No rendered visual pack; enable the rendered profile.</li></ul>
+<h2>Claim ledger</h2><table><thead><tr><th>Claim ID</th><th>Claim</th><th>Confidence</th><th>Evidence ref</th></tr></thead><tbody><tr><td colspan="4">No claim ledger entries.</td></tr></tbody></table>
+<h2>Draft proofing</h2><ul><li>metadata: []; references []</li><li>platform_fix: []; references []</li><li>outreach: []; references []</li><li>content_expansion: []; references []</li><li>bilingual: []; references []</li></ul>
+<h2>Checks and coverage</h2>
+<pre>{
+  &quot;fetch&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true
+  },
+  &quot;page&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 4
+  },
+  &quot;schema&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 12
+  },
+  &quot;headers&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;technology&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 1
+  },
+  &quot;js_vulnerabilities&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 1
+  },
+  &quot;structured_validation&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 1
+  },
+  &quot;hreflang&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 8
+  },
+  &quot;language&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 8
+  },
+  &quot;images&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 4
+  },
+  &quot;social_meta&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 4
+  },
+  &quot;hygiene&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 6
+  },
+  &quot;ux&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 5
+  },
+  &quot;links&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Enable deep checks&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;lychee&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Enable external local tools&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;lighthouse&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Enable external local tools&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;tls&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Not requested&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;dns&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Enable deep checks&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;crawl&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Enable deep checks&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;browser&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Disabled in selected audit profile&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;third_party&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Rendered mode required&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;browser_console&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Rendered mode required&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;cookie_consent&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Rendered mode required&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;axe&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Rendered mode required&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;pdf&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Rendered mode required&quot;,
+    &quot;required&quot;: false
+  }
+}</pre>
+<h2>Category scores</h2><pre>{
+  &quot;accessibility&quot;: {
+    &quot;score&quot;: 0,
+    &quot;severity_score&quot;: 0,
+    &quot;health_score&quot;: null
+  },
+  &quot;local&quot;: {
+    &quot;score&quot;: 0,
+    &quot;severity_score&quot;: 0,
+    &quot;health_score&quot;: 100
+  },
+  &quot;performance&quot;: {
+    &quot;score&quot;: 0,
+    &quot;severity_score&quot;: 0,
+    &quot;health_score&quot;: 100
+  },
+  &quot;privacy&quot;: {
+    &quot;score&quot;: 0,
+    &quot;severity_score&quot;: 0,
+    &quot;health_score&quot;: 100
+  },
+  &quot;security&quot;: {
+    &quot;score&quot;: 0,
+    &quot;severity_score&quot;: 0,
+    &quot;health_score&quot;: 100
+  },
+  &quot;seo&quot;: {
+    &quot;score&quot;: 0,
+    &quot;severity_score&quot;: 0,
+    &quot;health_score&quot;: 100
+  },
+  &quot;technical&quot;: {
+    &quot;score&quot;: 0,
+    &quot;severity_score&quot;: 0,
+    &quot;health_score&quot;: 100
+  }
+}</pre>
+<h2>Historical comparison</h2><pre>{
+  &quot;baseline&quot;: &quot;20261020T090507-945b490c544a&quot;,
+  &quot;new&quot;: [],
+  &quot;persistent&quot;: [],
+  &quot;regressed&quot;: [],
+  &quot;resolved&quot;: [
+    &quot;0639bcee89278c641b4c00f7&quot;,
+    &quot;12c67d3fd5e743233c96dc6c&quot;,
+    &quot;2017913f6b497ef4acc6ea42&quot;,
+    &quot;2c8c8d313437cd74b91ecc33&quot;,
+    &quot;3c3945aa04bc098b6c4d215c&quot;,
+    &quot;50fb7594d8ed1e389f2194c7&quot;,
+    &quot;53f48e65af9cf45a9216419e&quot;,
+    &quot;60a7d56fb6e48a389c928db4&quot;,
+    &quot;7d869304baa1f93e3624f9e1&quot;,
+    &quot;7ec79e7aaf3cec4ab4f7a68e&quot;,
+    &quot;8ee3141db00d9944eebb2b95&quot;,
+    &quot;a50611b51ac7e0fa03b02233&quot;,
+    &quot;a9eaaea0e4a800b7bf5f2a76&quot;,
+    &quot;d1fc5389dae0fdae5da4a45e&quot;,
+    &quot;d5601f37303b9b1384b78aa0&quot;,
+    &quot;d9f705225a26eaaac60870c0&quot;,
+    &quot;dab36c23148671b2fae54209&quot;,
+    &quot;f112f219c45363ad74df2268&quot;,
+    &quot;f20b77288aedc021c9781ea4&quot;,
+    &quot;fe0013ded7ccccac1fb8d79c&quot;
+  ],
+  &quot;resolution_assessed&quot;: true
+}</pre>
+<h2>Evidence</h2><pre style="white-space:pre-wrap;overflow-wrap:anywhere">{
+  &quot;fetch&quot;: {
+    &quot;url&quot;: &quot;https://example.com/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:07.557824+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;check_version&quot;: &quot;1&quot;,
+    &quot;data&quot;: {
+      &quot;status_code&quot;: 200,
+      &quot;redirects&quot;: [],
+      &quot;revalidated_at&quot;: null
+    }
+  },
+  &quot;page&quot;: {
+    &quot;url&quot;: &quot;https://example.com/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:07.557824+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;title&quot;: &quot;Local services&quot;,
+      &quot;word_count&quot;: 305,
+      &quot;link_count&quot;: 1,
+      &quot;sample_links&quot;: [
+        &quot;https://example.com/contact&quot;
+      ],
+      &quot;emails&quot;: [],
+      &quot;schema_count&quot;: 1
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;schema&quot;: {
+    &quot;url&quot;: &quot;https://example.com/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:07.557824+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;types&quot;: [
+        &quot;LocalBusiness&quot;
+      ],
+      &quot;profile&quot;: &quot;static&quot;,
+      &quot;generator&quot;: &quot;&quot;,
+      &quot;local_business_review&quot;: &quot;Check identity, address and service area against the business owner.&quot;,
+      &quot;crawler_readiness&quot;: {
+        &quot;robots_meta&quot;: [],
+        &quot;rendered_content_comparison&quot;: &quot;Available only in rendered mode&quot;
+      }
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;headers&quot;: {
+    &quot;url&quot;: &quot;https://example.com/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:07.557824+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;headers&quot;: {
+        &quot;content-type&quot;: &quot;text/html&quot;,
+        &quot;content-security-policy&quot;: &quot;default-src &#x27;self&#x27;&quot;,
+        &quot;strict-transport-security&quot;: &quot;max-age=1000&quot;,
+        &quot;x-content-type-options&quot;: &quot;nosniff&quot;,
+        &quot;content-length&quot;: &quot;3483&quot;
+      },
+      &quot;cookies&quot;: []
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;technology&quot;: {
+    &quot;url&quot;: &quot;https://example.com/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:07.554423+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;technologies&quot;: []
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;js_vulnerabilities&quot;: {
+    &quot;url&quot;: &quot;https://example.com/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:07.554423+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;js_vulnerabilities_detected&quot;: 0
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;structured_validation&quot;: {
+    &quot;url&quot;: &quot;https://example.com/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:07.554423+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;structured_data_scripts_found&quot;: 1
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;hreflang&quot;: {
+    &quot;url&quot;: &quot;https://example.com/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:07.554423+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;url&quot;: &quot;https://example.com/&quot;,
+      &quot;hreflang_links&quot;: [],
+      &quot;hreflang_count&quot;: 0,
+      &quot;limitation&quot;: &quot;No multilingual annotations declared; reciprocity not fetched.&quot;
+    },
+    &quot;check_version&quot;: &quot;3&quot;
+  },
+  &quot;language&quot;: {
+    &quot;url&quot;: &quot;https://example.com/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:07.554423+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;url&quot;: &quot;https://example.com/&quot;,
+      &quot;html_lang&quot;: &quot;en&quot;,
+      &quot;meta_content_language&quot;: null,
+      &quot;is_nz_domain&quot;: false,
+      &quot;limitation&quot;: &quot;Declared language only; content language is not inferred from the domain.&quot;
+    },
+    &quot;check_version&quot;: &quot;3&quot;
+  },
+  &quot;images&quot;: {
+    &quot;url&quot;: &quot;https://example.com/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:07.554423+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;url&quot;: &quot;https://example.com/&quot;,
+      &quot;image_count&quot;: 0,
+      &quot;missing_alt&quot;: 0,
+      &quot;missing_dimensions&quot;: 0,
+      &quot;missing_loading&quot;: 0,
+      &quot;external_images&quot;: 0,
+      &quot;large_file_hints&quot;: []
+    },
+    &quot;check_version&quot;: &quot;3&quot;
+  },
+  &quot;social_meta&quot;: {
+    &quot;url&quot;: &quot;https://example.com/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:07.554423+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;url&quot;: &quot;https://example.com/&quot;,
+      &quot;og_tags&quot;: {
+        &quot;title&quot;: &quot;Services&quot;,
+        &quot;description&quot;: &quot;Services&quot;,
+        &quot;image&quot;: &quot;https://example.com/share.png&quot;,
+        &quot;type&quot;: &quot;website&quot;
+      },
+      &quot;twitter_tags&quot;: {
+        &quot;card&quot;: &quot;summary&quot;,
+        &quot;site&quot;: &quot;@fixture&quot;
+      }
+    },
+    &quot;check_version&quot;: &quot;3&quot;
+  },
+  &quot;hygiene&quot;: {
+    &quot;url&quot;: &quot;https://example.com/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:07.557824+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;robots&quot;: {
+        &quot;url&quot;: &quot;https://example.com/robots.txt&quot;,
+        &quot;status_code&quot;: 200,
+        &quot;bytes&quot;: 64,
+        &quot;sitemaps_declared&quot;: [
+          &quot;https://example.com/sitemap.xml&quot;
+        ]
+      },
+      &quot;sitemap&quot;: {
+        &quot;checked&quot;: [
+          {
+            &quot;url&quot;: &quot;https://example.com/sitemap.xml&quot;,
+            &quot;status&quot;: 200,
+            &quot;loc_count&quot;: 1,
+            &quot;well_formed&quot;: true
+          }
+        ]
+      },
+      &quot;security_headers&quot;: {
+        &quot;graded&quot;: [
+          &quot;content-security-policy&quot;,
+          &quot;x-content-type-options&quot;,
+          &quot;strict-transport-security&quot;
+        ],
+        &quot;present&quot;: [
+          &quot;content-security-policy&quot;,
+          &quot;strict-transport-security&quot;,
+          &quot;x-content-type-options&quot;
+        ]
+      },
+      &quot;mixed_content&quot;: {
+        &quot;offenders&quot;: [],
+        &quot;count&quot;: 0
+      }
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;ux&quot;: {
+    &quot;url&quot;: &quot;https://example.com/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:07.557824+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;signals&quot;: {
+        &quot;contact_path&quot;: true,
+        &quot;phone&quot;: false,
+        &quot;booking&quot;: false,
+        &quot;quote_form&quot;: false,
+        &quot;form_present&quot;: false
+      }
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;browser&quot;: {}
+}</pre>
+<h2>Drafts for review</h2><pre style="white-space:pre-wrap">{
+  &quot;status&quot;: &quot;fallback&quot;,
+  &quot;review_required&quot;: true,
+  &quot;drafts&quot;: {
+    &quot;metadata&quot;: {
+      &quot;text&quot;: &quot;Title: Example services\nDescription: [review required]&quot;,
+      &quot;source&quot;: &quot;template&quot;,
+      &quot;review_required&quot;: true
+    },
+    &quot;platform_fix&quot;: {
+      &quot;text&quot;: &quot;Prepare an evidence-backed fix draft for review.&quot;,
+      &quot;source&quot;: &quot;template&quot;,
+      &quot;review_required&quot;: true
+    },
+    &quot;outreach&quot;: {
+      &quot;text&quot;: &quot;Prepare factual outreach from verified findings.&quot;,
+      &quot;source&quot;: &quot;template&quot;,
+      &quot;review_required&quot;: true
+    },
+    &quot;content_expansion&quot;: {
+      &quot;text&quot;: &quot;Outline services, proof, FAQs, and contact details.&quot;,
+      &quot;source&quot;: &quot;template&quot;,
+      &quot;review_required&quot;: true
+    },
+    &quot;bilingual&quot;: {
+      &quot;text&quot;: &quot;EN: [English draft]\nMI: [te reo Māori review required]&quot;,
+      &quot;source&quot;: &quot;template&quot;,
+      &quot;review_required&quot;: true
+    }
+  },
+  &quot;reason&quot;: &quot;Local generation not requested&quot;
+}</pre>
+<h2>Proposal Inputs</h2><pre>{
+  &quot;currency&quot;: &quot;NZD&quot;,
+  &quot;hourly_rate&quot;: null,
+  &quot;assumptions&quot;: &quot;Versioned effort bands with shared setup for repeated defects and 15% contingency; scope and rates require human review.&quot;,
+  &quot;hours_low&quot;: 0.0,
+  &quot;hours_high&quot;: 0.0,
+  &quot;estimate_low&quot;: null,
+  &quot;estimate_high&quot;: null,
+  &quot;rules_version&quot;: &quot;quote-v1&quot;,
+  &quot;review_required&quot;: true,
+  &quot;llm_determined_price&quot;: false
+}</pre>
+<p>Financial scenarios use explicit editable assumptions. They are not measured lost revenue or fines.</p>
+</body></html>

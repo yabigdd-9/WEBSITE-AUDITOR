@@ -1,0 +1,53 @@
+[
+  {
+    "command": [
+      "/Users/dd/WEBSITE-AUDITOR/.venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "auditor_toolkit",
+      "toolkit_tests",
+      "tests",
+      "money-machine/mm_reporting.py",
+      "money-machine/supervisor/logquery.py",
+      "money-machine/test_reporting.py",
+      "ops/hermes_zero_token/daily_report.py",
+      "ops/hermes_zero_token/demo_blueprint.py",
+      "ops/hermes_zero_token/outreach_draft.py",
+      "ops/hermes_zero_token/runner.py",
+      "ops/hermes_zero_token/screenshot_worker.py",
+      "ops/hermes_zero_token/staging_db.py",
+      "ops/hermes_zero_token/test_integration_safety.py",
+      "ops/hermes_zero_token/test_worker_contract.py",
+      "ops/hermes_zero_token/test_zero_token_acceptance.py",
+      "tests/test_proof_diff.py",
+      "money-machine/test_supervisor_logquery.py",
+      "ops/hermes_zero_token/test_outreach_queue_safety.py",
+      "ops/hermes_zero_token/test_reporting_cases.py",
+      "ops/hermes_zero_token/test_runner_ownership.py",
+      "ops/hermes_zero_token/test_screenshot_safety.py",
+      "ops/hermes_zero_token/test_staging_progress.py",
+      "ops/hermes_zero_token/test_standalone_ownership.py",
+      "ops/hermes_zero_token/worker_ownership.py"
+    ],
+    "exit_code": 0,
+    "stdout": "All checks passed!\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/dd/WEBSITE-AUDITOR/.venv/bin/python",
+      "-B",
+      "-m",
+      "compileall",
+      "-q",
+      "ops/hermes_zero_token",
+      "money-machine",
+      "auditor_toolkit",
+      "website_auditor"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

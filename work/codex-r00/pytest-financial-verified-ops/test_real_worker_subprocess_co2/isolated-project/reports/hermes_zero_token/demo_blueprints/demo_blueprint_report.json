@@ -1,0 +1,18 @@
+{
+  "generated_at": "2026-10-20T09:04:45.758804+00:00",
+  "phase": "P2",
+  "blueprints_dir": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-financial-verified-ops/test_real_worker_subprocess_co2/isolated-project/reports/hermes_zero_token/demo_blueprints",
+  "production_written": false,
+  "outbound_messages_sent": 0,
+  "blueprints_created": 1,
+  "details": [
+    {
+      "business_id": 1,
+      "name": "Synthetic contract business 1",
+      "url": "https://contract-1.example.invalid",
+      "audit_id": 1,
+      "blueprint_path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-financial-verified-ops/test_real_worker_subprocess_co2/isolated-project/reports/hermes_zero_token/demo_blueprints/business-1-20261020T090445Z.md",
+      "status": "REVIEW_ONLY_NOT_DEPLOYED"
+    }
+  ]
+}

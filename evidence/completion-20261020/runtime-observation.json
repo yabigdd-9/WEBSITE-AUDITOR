@@ -1,0 +1,44 @@
+{
+  "observed_at_utc": "2026-10-20T07:53:06.453192+00:00",
+  "launchd_lookup_exit_code": 113,
+  "processes": [
+    {
+      "pid": 22805,
+      "ppid": 1,
+      "repository_paths": [
+        "/Users/dd/WEBSITE-AUDITOR/money-machine"
+      ],
+      "database_paths": [
+        "/Users/dd/WEBSITE-AUDITOR/database/money_machine.db",
+        "/Users/dd/WEBSITE-AUDITOR/database/money_machine.db-shm",
+        "/Users/dd/WEBSITE-AUDITOR/database/money_machine.db-wal"
+      ],
+      "canonical_startup_receipt_present": false,
+      "initiator_ownership": "UNKNOWN",
+      "loaded_revision": "UNVERIFIED"
+    },
+    {
+      "pid": 48436,
+      "ppid": 1,
+      "repository_paths": [
+        "/Users/dd/WEBSITE-AUDITOR-opus/money-machine"
+      ],
+      "database_paths": [
+        "/Users/dd/WEBSITE-AUDITOR-opus/database/money_machine.db"
+      ],
+      "canonical_startup_receipt_present": false,
+      "initiator_ownership": "UNKNOWN",
+      "loaded_revision": "UNVERIFIED"
+    }
+  ],
+  "hardware": {
+    "hw.memsize": "8589934592",
+    "hw.ncpu": "4",
+    "machdep.cpu.brand_string": "Intel(R) Core(TM) i5-5350U CPU @ 1.80GHz"
+  },
+  "disk_free_bytes": 5013897216,
+  "source_head": "ec86481ccd6c674c6dfee8d7856d71d97581d08f",
+  "controls_changed": false,
+  "production_writes_initiated_by_this_audit": 0,
+  "limitation": "No ownership, loaded code, production acceptance or safe restart is inferred"
+}

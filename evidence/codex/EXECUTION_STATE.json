@@ -373,5 +373,8 @@
     "independent_review_required": true,
     "shared_integration_performed": false,
     "shared_supervisor": "unloaded; restart not authorized"
-  }
+  },
+  "record_scope": "HISTORICAL_EXECUTION_RECORD",
+  "current_execution_state": "evidence/completion-20261020-batch3/state.json",
+  "current_completion_register": "docs/COMPLETION_STATUS.md"
 }

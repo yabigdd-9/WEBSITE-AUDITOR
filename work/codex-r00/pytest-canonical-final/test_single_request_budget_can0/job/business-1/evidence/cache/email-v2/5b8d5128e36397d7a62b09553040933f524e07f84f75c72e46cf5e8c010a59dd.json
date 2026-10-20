@@ -1,0 +1,16 @@
+{
+  "pages": [],
+  "errors": [
+    {
+      "url": "https://clear.nz/",
+      "reason": "ValueError: CONTACT_REVIEW_REQUEST_LIMIT"
+    }
+  ],
+  "pending": [],
+  "requests": 1,
+  "started_at": "2026-10-20T09:05:50.095911+00:00",
+  "complete": true,
+  "attempts": {
+    "https://clear.nz/": 1
+  }
+}

@@ -1,0 +1,25 @@
+[
+  {
+    "case_id": "business-1",
+    "worker": "JUDGE",
+    "route": "EVIDENCE_NEEDED",
+    "next_worker": "SCOUT",
+    "reason": "No captured first-party pages",
+    "reason_codes": [
+      "EVIDENCE_NEEDED"
+    ],
+    "blocking_checks": [
+      "first_party_captures_missing"
+    ],
+    "required_evidence": [
+      "Fresh permitted first-party page captures"
+    ],
+    "permitted_action": "COLLECT_PERMITTED_PUBLIC_EVIDENCE",
+    "pipeline_state_at_capture": "NEEDS_REVIEW",
+    "pipeline_action": "NONE",
+    "outreach_eligible": false,
+    "human_precision_label": null,
+    "precision_release_authority": false,
+    "note": "A supported recommendation cannot clear a rejection, suppression or release hold"
+  }
+]

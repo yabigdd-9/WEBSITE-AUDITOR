@@ -1,0 +1,5 @@
+{"at": "2026-10-20T09:07:41.623732+00:00", "cycle": 1, "kind": "loop_cycle", "sleep_before_next": 0.25, "snapshot": []}
+{"at": "2026-10-20T09:07:41.626064+00:00", "cycle": 2, "kind": "loop_cycle", "sleep_before_next": 0.25, "snapshot": []}
+{"at": "2026-10-20T09:07:41.627220+00:00", "cycle": 2, "elapsed_hint": "agent-local", "kind": "loop_checkpoint"}
+{"at": "2026-10-20T09:07:41.629448+00:00", "cycle": 3, "kind": "loop_cycle", "sleep_before_next": 0.25, "snapshot": []}
+{"at": "2026-10-20T09:07:41.631439+00:00", "cycles_completed": 3, "kind": "loop_ended", "report_every": 2}

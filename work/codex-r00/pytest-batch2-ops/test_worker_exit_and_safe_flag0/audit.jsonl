@@ -1,0 +1,2 @@
+{"timestamp": "2026-10-20T08:32:06.145163+00:00", "job_id": "za-fixture", "worker_id": "fixture", "task_id": "n/a", "event": "start", "status": "running", "duration_ms": 0, "cost_nzd": 0, "started_at": "2026-10-20T08:32:06.145141+00:00"}
+{"timestamp": "2026-10-20T08:32:06.146759+00:00", "job_id": "za-fixture", "worker_id": "fixture", "task_id": "n/a", "event": "complete", "status": "completed", "duration_ms": 1, "cost_nzd": 0, "exit_code": 0}

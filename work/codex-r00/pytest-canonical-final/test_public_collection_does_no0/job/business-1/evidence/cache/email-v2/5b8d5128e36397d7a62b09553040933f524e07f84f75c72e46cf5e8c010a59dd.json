@@ -1,0 +1,16 @@
+{
+  "pages": [],
+  "errors": [
+    {
+      "url": "https://clear.nz/",
+      "reason": "ValueError: ACCESS_RESTRICTED_OR_ROBOTS_UNAVAILABLE"
+    }
+  ],
+  "pending": [],
+  "requests": 1,
+  "started_at": "2026-10-20T09:05:49.994093+00:00",
+  "complete": true,
+  "attempts": {
+    "https://clear.nz/": 1
+  }
+}

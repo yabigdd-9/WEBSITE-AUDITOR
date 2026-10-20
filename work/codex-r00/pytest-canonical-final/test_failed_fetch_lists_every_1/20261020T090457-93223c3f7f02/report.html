@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Website audit - example.com</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif; margin: 2rem; color: #1f2933; }
+table { width: 100%; border-collapse: collapse; }
+th,td { border-bottom: 1px solid #e6eef6; padding: .55rem; text-align: left; vertical-align: top; }
+.score { display: inline-block; border: 1px solid #d9e2ec; border-radius: 8px; padding: 1rem; margin-right: .5rem; }
+</style></head><body>
+<h1>Website Auditor</h1>
+<p>Status: partial · Findings: 1 · Coverage: {&#x27;version&#x27;: 1, &#x27;required&#x27;: 19, &#x27;passed&#x27;: 1, &#x27;required_checks&#x27;: [&#x27;axe&#x27;, &#x27;browser&#x27;, &#x27;browser_console&#x27;, &#x27;cookie_consent&#x27;, &#x27;fetch&#x27;, &#x27;headers&#x27;, &#x27;hreflang&#x27;, &#x27;hygiene&#x27;, &#x27;images&#x27;, &#x27;js_vulnerabilities&#x27;, &#x27;language&#x27;, &#x27;page&#x27;, &#x27;pdf&#x27;, &#x27;schema&#x27;, &#x27;social_meta&#x27;, &#x27;structured_validation&#x27;, &#x27;technology&#x27;, &#x27;third_party&#x27;, &#x27;ux&#x27;], &#x27;missing_checks&#x27;: [&#x27;axe&#x27;, &#x27;browser&#x27;, &#x27;browser_console&#x27;, &#x27;cookie_consent&#x27;, &#x27;fetch&#x27;, &#x27;headers&#x27;, &#x27;hreflang&#x27;, &#x27;hygiene&#x27;, &#x27;images&#x27;, &#x27;js_vulnerabilities&#x27;, &#x27;language&#x27;, &#x27;page&#x27;, &#x27;schema&#x27;, &#x27;social_meta&#x27;, &#x27;structured_validation&#x27;, &#x27;technology&#x27;, &#x27;third_party&#x27;, &#x27;ux&#x27;]}</p>
+<p><code>https://example.com/</code></p>
+<div class="score"><strong>Health</strong><br>None</div>
+<div class="score"><strong>Defect severity</strong><br>30</div><h2>Findings</h2>
+<table><thead><tr><th>Severity</th><th>Finding</th><th>Evidence</th><th>Check</th></tr></thead><tbody><tr><td>critical</td><td>Server error response</td><td>HTTP 503</td><td>fetch</td></tr></tbody></table>
+<h2>Root-cause groups</h2><ul><li><strong>origin_or_delivery_failure</strong> — 1 symptom(s), confidence WEAK: Correlated symptoms suggest one root cause; verify before claiming causation.</li></ul>
+<h2>Visual evidence pack</h2><ul><li>No rendered visual pack; enable the rendered profile.</li></ul>
+<h2>Claim ledger</h2><table><thead><tr><th>Claim ID</th><th>Claim</th><th>Confidence</th><th>Evidence ref</th></tr></thead><tbody><tr><td>finding:7bc4c6941bb510222618325a</td><td>Server error response</td><td>WEAK</td><td>page</td></tr></tbody></table>
+<h2>Draft proofing</h2><ul><li>metadata: []; references []</li><li>platform_fix: []; references []</li><li>outreach: []; references []</li><li>content_expansion: []; references []</li><li>bilingual: []; references []</li></ul>
+<h2>Checks and coverage</h2>
+<pre>{
+  &quot;fetch&quot;: {
+    &quot;status&quot;: &quot;error&quot;,
+    &quot;required&quot;: true,
+    &quot;reason&quot;: &quot;HTTP 503&quot;
+  },
+  &quot;page&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: true
+  },
+  &quot;schema&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: true
+  },
+  &quot;headers&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: true
+  },
+  &quot;technology&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: true
+  },
+  &quot;js_vulnerabilities&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: true
+  },
+  &quot;structured_validation&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: true
+  },
+  &quot;hreflang&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: true
+  },
+  &quot;language&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: true
+  },
+  &quot;images&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: true
+  },
+  &quot;social_meta&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: true
+  },
+  &quot;third_party&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: true
+  },
+  &quot;browser_console&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: true
+  },
+  &quot;cookie_consent&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: true
+  },
+  &quot;hygiene&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: true
+  },
+  &quot;ux&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: true
+  },
+  &quot;links&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;tls&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;dns&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;crawl&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;lychee&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;lighthouse&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;browser&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: true
+  },
+  &quot;axe&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Fetch unavailable&quot;,
+    &quot;required&quot;: true
+  },
+  &quot;pdf&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true
+  }
+}</pre>
+<h2>Category scores</h2><pre>{
+  &quot;accessibility&quot;: {
+    &quot;score&quot;: 0,
+    &quot;severity_score&quot;: 0,
+    &quot;health_score&quot;: null
+  },
+  &quot;local&quot;: {
+    &quot;score&quot;: 0,
+    &quot;severity_score&quot;: 0,
+    &quot;health_score&quot;: null
+  },
+  &quot;performance&quot;: {
+    &quot;score&quot;: 0,
+    &quot;severity_score&quot;: 0,
+    &quot;health_score&quot;: null
+  },
+  &quot;privacy&quot;: {
+    &quot;score&quot;: 0,
+    &quot;severity_score&quot;: 0,
+    &quot;health_score&quot;: null
+  },
+  &quot;security&quot;: {
+    &quot;score&quot;: 0,
+    &quot;severity_score&quot;: 0,
+    &quot;health_score&quot;: null
+  },
+  &quot;seo&quot;: {
+    &quot;score&quot;: 0,
+    &quot;severity_score&quot;: 0,
+    &quot;health_score&quot;: null
+  },
+  &quot;technical&quot;: {
+    &quot;score&quot;: 30,
+    &quot;severity_score&quot;: 30,
+    &quot;health_score&quot;: null
+  }
+}</pre>
+<h2>Historical comparison</h2><pre>{
+  &quot;baseline&quot;: null,
+  &quot;new&quot;: [
+    &quot;7bc4c6941bb510222618325a&quot;
+  ],
+  &quot;persistent&quot;: [],
+  &quot;regressed&quot;: [],
+  &quot;resolved&quot;: [],
+  &quot;resolution_assessed&quot;: false
+}</pre>
+<h2>Evidence</h2><pre style="white-space:pre-wrap;overflow-wrap:anywhere">{
+  &quot;pdf&quot;: {
+    &quot;url&quot;: &quot;https://example.com/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:04:57.432409+00:00&quot;,
+    &quot;mode&quot;: &quot;rendered&quot;,
+    &quot;check_version&quot;: &quot;1&quot;,
+    &quot;data&quot;: {
+      &quot;path&quot;: &quot;/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_failed_fetch_lists_every_1/20261020T090457-93223c3f7f02/report.pdf&quot;
+    }
+  }
+}</pre>
+<h2>Drafts for review</h2><pre style="white-space:pre-wrap">{
+  &quot;status&quot;: &quot;fallback&quot;,
+  &quot;review_required&quot;: true,
+  &quot;drafts&quot;: {
+    &quot;metadata&quot;: {
+      &quot;text&quot;: &quot;Title: Example services\nDescription: [review required]&quot;,
+      &quot;source&quot;: &quot;template&quot;,
+      &quot;review_required&quot;: true
+    },
+    &quot;platform_fix&quot;: {
+      &quot;text&quot;: &quot;Prepare an evidence-backed fix draft for review.&quot;,
+      &quot;source&quot;: &quot;template&quot;,
+      &quot;review_required&quot;: true
+    },
+    &quot;outreach&quot;: {
+      &quot;text&quot;: &quot;Prepare factual outreach from verified findings.&quot;,
+      &quot;source&quot;: &quot;template&quot;,
+      &quot;review_required&quot;: true
+    },
+    &quot;content_expansion&quot;: {
+      &quot;text&quot;: &quot;Outline services, proof, FAQs, and contact details.&quot;,
+      &quot;source&quot;: &quot;template&quot;,
+      &quot;review_required&quot;: true
+    },
+    &quot;bilingual&quot;: {
+      &quot;text&quot;: &quot;EN: [English draft]\nMI: [te reo Māori review required]&quot;,
+      &quot;source&quot;: &quot;template&quot;,
+      &quot;review_required&quot;: true
+    }
+  },
+  &quot;reason&quot;: &quot;Local generation not requested&quot;
+}</pre>
+<h2>Proposal Inputs</h2><pre>{
+  &quot;currency&quot;: &quot;NZD&quot;,
+  &quot;hourly_rate&quot;: null,
+  &quot;assumptions&quot;: &quot;Versioned effort bands with shared setup for repeated defects and 15% contingency; scope and rates require human review.&quot;,
+  &quot;hours_low&quot;: 4.0,
+  &quot;hours_high&quot;: 11.5,
+  &quot;estimate_low&quot;: null,
+  &quot;estimate_high&quot;: null,
+  &quot;rules_version&quot;: &quot;quote-v1&quot;,
+  &quot;review_required&quot;: true,
+  &quot;llm_determined_price&quot;: false
+}</pre>
+<p>Financial scenarios use explicit editable assumptions. They are not measured lost revenue or fines.</p>
+</body></html>

@@ -7,12 +7,20 @@ from unittest.mock import patch
 import mm_model_router as router
 import pytest
 
+from toolkit_tests.financial_admission_fixtures import fixture_coordinator
+
 
 @pytest.fixture(autouse=True)
 def no_provider_subprocess(monkeypatch):
     def forbidden(*args, **kwargs):
         raise AssertionError("provider subprocess forbidden")
     monkeypatch.setattr(router.subprocess, "run", forbidden)
+
+
+@pytest.fixture(autouse=True)
+def synthetic_account_evidence(tmp_path, monkeypatch):
+    coordinator = fixture_coordinator(tmp_path / "synthetic-financial")
+    monkeypatch.setattr(router.admission, "get_coordinator", lambda: coordinator)
 
 
 @pytest.mark.parametrize("cost", [None, True, "NaN", "-1", "bad", "0.01"])

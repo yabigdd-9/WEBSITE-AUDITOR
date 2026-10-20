@@ -1,0 +1,228 @@
+{
+  "proposal_id": "prop-f39989ffe329",
+  "candidate_id": "candidate",
+  "baseline_id": "baseline",
+  "eval_run_ids": [
+    "candidate",
+    "baseline"
+  ],
+  "benchmark_version": "v36",
+  "baseline_metrics": {
+    "run_id": "baseline",
+    "total_cases": 10,
+    "pass_count": 7,
+    "fail_count": 3,
+    "abstain_count": 0,
+    "na_count": 0,
+    "finding_precision": 0.8,
+    "finding_recall": 0.7,
+    "unsupported_claim_rate": 0.08,
+    "correct_abstention_rate": 0.85,
+    "incorrect_abstention_rate": 0.15,
+    "evidence_precision": 0.75,
+    "evidence_recall": 0.7,
+    "golden_corpus_retention": 1.0,
+    "wrong_business_rate": 0.01,
+    "prohibited_action_count": 0,
+    "tool_policy_violation_count": 0,
+    "high_confidence_fp_rate": 0.03,
+    "completion_rate": 0.7,
+    "browser_failure_rate": 0.0,
+    "agent_failure_rate": 0.05,
+    "replay_variance": 0.0,
+    "avg_latency_ms": 1000.0,
+    "avg_cpu_ms": 600.0,
+    "peak_memory_mb": 128.0,
+    "input_token_count": 4000,
+    "output_token_count": 2500,
+    "estimated_api_cost": 0.0,
+    "local_free_model": true
+  },
+  "candidate_metrics": {
+    "run_id": "candidate",
+    "total_cases": 10,
+    "pass_count": 7,
+    "fail_count": 3,
+    "abstain_count": 0,
+    "na_count": 0,
+    "finding_precision": 0.8,
+    "finding_recall": 0.7,
+    "unsupported_claim_rate": 0.08,
+    "correct_abstention_rate": 0.85,
+    "incorrect_abstention_rate": 0.15,
+    "evidence_precision": 0.75,
+    "evidence_recall": 0.7,
+    "golden_corpus_retention": 1.0,
+    "wrong_business_rate": 0.01,
+    "prohibited_action_count": 0,
+    "tool_policy_violation_count": 0,
+    "high_confidence_fp_rate": 0.03,
+    "completion_rate": 0.7,
+    "browser_failure_rate": 0.0,
+    "agent_failure_rate": 0.05,
+    "replay_variance": 0.0,
+    "avg_latency_ms": 1000.0,
+    "avg_cpu_ms": 600.0,
+    "peak_memory_mb": 128.0,
+    "input_token_count": 4000,
+    "output_token_count": 2500,
+    "estimated_api_cost": 0.0,
+    "local_free_model": true
+  },
+  "deltas": [
+    {
+      "metric": "evidence_recall",
+      "baseline": 0.7,
+      "candidate": 0.7,
+      "delta": 0.0,
+      "direction": "neutral",
+      "priority_category": "EVIDENCE_ACCURACY"
+    },
+    {
+      "metric": "wrong_business_rate",
+      "baseline": 0.01,
+      "candidate": 0.01,
+      "delta": 0.0,
+      "direction": "neutral",
+      "priority_category": "SAFETY"
+    },
+    {
+      "metric": "avg_latency_ms",
+      "baseline": 1000.0,
+      "candidate": 1000.0,
+      "delta": 0.0,
+      "direction": "neutral",
+      "priority_category": "SPEED"
+    },
+    {
+      "metric": "finding_precision",
+      "baseline": 0.8,
+      "candidate": 0.8,
+      "delta": 0.0,
+      "direction": "neutral",
+      "priority_category": "EVIDENCE_ACCURACY"
+    },
+    {
+      "metric": "avg_cpu_ms",
+      "baseline": 600.0,
+      "candidate": 600.0,
+      "delta": 0.0,
+      "direction": "neutral",
+      "priority_category": "SPEED"
+    },
+    {
+      "metric": "high_confidence_fp_rate",
+      "baseline": 0.03,
+      "candidate": 0.03,
+      "delta": 0.0,
+      "direction": "neutral",
+      "priority_category": "FALSE_POSITIVES"
+    },
+    {
+      "metric": "finding_recall",
+      "baseline": 0.7,
+      "candidate": 0.7,
+      "delta": 0.0,
+      "direction": "neutral",
+      "priority_category": "EVIDENCE_ACCURACY"
+    },
+    {
+      "metric": "correct_abstention_rate",
+      "baseline": 0.85,
+      "candidate": 0.85,
+      "delta": 0.0,
+      "direction": "neutral",
+      "priority_category": "CORRECT_ABSTENTION"
+    },
+    {
+      "metric": "peak_memory_mb",
+      "baseline": 128.0,
+      "candidate": 128.0,
+      "delta": 0.0,
+      "direction": "neutral",
+      "priority_category": ""
+    },
+    {
+      "metric": "estimated_api_cost",
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "delta": 0.0,
+      "direction": "neutral",
+      "priority_category": "COST"
+    },
+    {
+      "metric": "evidence_precision",
+      "baseline": 0.75,
+      "candidate": 0.75,
+      "delta": 0.0,
+      "direction": "neutral",
+      "priority_category": "EVIDENCE_ACCURACY"
+    },
+    {
+      "metric": "replay_variance",
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "delta": 0.0,
+      "direction": "neutral",
+      "priority_category": ""
+    },
+    {
+      "metric": "golden_corpus_retention",
+      "baseline": 1.0,
+      "candidate": 1.0,
+      "delta": 0.0,
+      "direction": "neutral",
+      "priority_category": "GOLDEN_CORPUS_RETENTION"
+    },
+    {
+      "metric": "browser_failure_rate",
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "delta": 0.0,
+      "direction": "neutral",
+      "priority_category": "TASK_COMPLETION"
+    },
+    {
+      "metric": "agent_failure_rate",
+      "baseline": 0.05,
+      "candidate": 0.05,
+      "delta": 0.0,
+      "direction": "neutral",
+      "priority_category": "TASK_COMPLETION"
+    },
+    {
+      "metric": "unsupported_claim_rate",
+      "baseline": 0.08,
+      "candidate": 0.08,
+      "delta": 0.0,
+      "direction": "neutral",
+      "priority_category": "FALSE_POSITIVES"
+    },
+    {
+      "metric": "completion_rate",
+      "baseline": 0.7,
+      "candidate": 0.7,
+      "delta": 0.0,
+      "direction": "neutral",
+      "priority_category": "TASK_COMPLETION"
+    },
+    {
+      "metric": "incorrect_abstention_rate",
+      "baseline": 0.15,
+      "candidate": 0.15,
+      "delta": 0.0,
+      "direction": "neutral",
+      "priority_category": "CORRECT_ABSTENTION"
+    }
+  ],
+  "passed_gates": [],
+  "failed_gates": [],
+  "known_regressions": [],
+  "resource_delta": {},
+  "cost_delta": {},
+  "golden_retention": 1.0,
+  "recommended_action": "PROMOTION_ELIGIBLE",
+  "approval_status": "PENDING",
+  "approver": "",
+  "created_at": "2026-10-20T09:05:50.824656+00:00"
+}

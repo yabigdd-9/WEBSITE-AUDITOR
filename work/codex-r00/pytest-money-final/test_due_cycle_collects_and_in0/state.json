@@ -1,0 +1,27 @@
+{
+  "collection_counts": {
+    "candidates": 1,
+    "rejected_rows": 0,
+    "source_errors": 0,
+    "sources": 1,
+    "unique_hosts": 1
+  },
+  "external_sends": 0,
+  "forced": false,
+  "intake_counts": {
+    "duplicates": 0,
+    "inserted": 1,
+    "rejected": 0
+  },
+  "last_finished_at": "2026-09-29T00:00:00+00:00",
+  "paid_calls": 0,
+  "ran": true,
+  "sources": [
+    {
+      "candidates": 1,
+      "kind": "search",
+      "source": "fixture"
+    }
+  ],
+  "started_at": "2026-09-29T00:00:00+00:00"
+}

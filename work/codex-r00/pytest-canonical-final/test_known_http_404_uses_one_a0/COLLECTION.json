@@ -1,0 +1,84 @@
+{
+  "business": {
+    "id": "synthetic-1",
+    "public_website": "https://business.nz/"
+  },
+  "pages": [
+    {
+      "url": "https://business.nz/",
+      "requested_url": "https://business.nz/",
+      "captured_at": "2026-10-20T09:05:43.757333+00:00",
+      "sha256": "51bf7477a90cada63d17958fa7d32557453a1ee5c09af500d743366b19f3c756",
+      "path": "cache/email-v2/51bf7477a90cada63d17958fa7d32557453a1ee5c09af500d743366b19f3c756.capture",
+      "content_type": "",
+      "redirects": []
+    },
+    {
+      "url": "https://business.nz/contact-b",
+      "requested_url": "https://business.nz/contact-b",
+      "captured_at": "2026-10-20T09:05:43.766751+00:00",
+      "sha256": "8dd5a280bccbedb7e768ce551ef5b572086547129a4f9dce6d86f436499d1e91",
+      "path": "cache/email-v2/8dd5a280bccbedb7e768ce551ef5b572086547129a4f9dce6d86f436499d1e91.capture",
+      "content_type": "",
+      "redirects": []
+    }
+  ],
+  "dns": {},
+  "errors": [
+    {
+      "url": "https://business.nz/contact-a",
+      "reason": "ValueError: HTTP_404"
+    },
+    {
+      "url": "https://business.nz/sitemap.xml",
+      "reason": "ValueError: HTTP_404"
+    }
+  ],
+  "stage_timings": {
+    "collection_seconds": 0.018866,
+    "dns_seconds": 3.4e-05,
+    "total_seconds": 0.0189
+  },
+  "request_metrics": {
+    "actual_requests": 5,
+    "reserved_requests": 0,
+    "accounting": "attempt_callbacks"
+  },
+  "public_fetch_calls": [
+    {
+      "url": "https://business.nz/robots.txt",
+      "status": "HTTP_404",
+      "request_hops": 1,
+      "reserved_hops": 0
+    },
+    {
+      "url": "https://business.nz/",
+      "status": "captured",
+      "redirects": [],
+      "request_hops": 1
+    },
+    {
+      "url": "https://business.nz/contact-a",
+      "status": "HTTP_404",
+      "request_hops": 1,
+      "reserved_hops": 0
+    },
+    {
+      "url": "https://business.nz/contact-b",
+      "status": "captured",
+      "redirects": [],
+      "request_hops": 1
+    },
+    {
+      "url": "https://business.nz/sitemap.xml",
+      "status": "HTTP_404",
+      "request_hops": 1,
+      "reserved_hops": 0
+    }
+  ],
+  "request_budget": {
+    "limit": 5,
+    "consumed_or_reserved": 5,
+    "remaining": 0
+  }
+}

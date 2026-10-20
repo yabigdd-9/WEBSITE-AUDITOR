@@ -1,0 +1,83 @@
+{
+  "business": {
+    "id": "business-1",
+    "live_business_id": 1,
+    "name": "Clear Plumbing",
+    "region": "Auckland",
+    "public_website": "https://clear.nz/",
+    "source": "synthetic",
+    "pipeline_state_at_freeze": "NEEDS_REVIEW",
+    "pipeline_updated_at": "frozen",
+    "unit_scope": "Recorded business and region"
+  },
+  "pages": [
+    {
+      "url": "https://clear.nz/",
+      "requested_url": "https://clear.nz/",
+      "captured_at": "2026-10-20T09:05:50.071801+00:00",
+      "sha256": "26972ee1a6567ba9f8f40772408a8fd611df5fc7d6a2c32c125c061612a650a6",
+      "path": "cache/email-v2/26972ee1a6567ba9f8f40772408a8fd611df5fc7d6a2c32c125c061612a650a6.capture",
+      "content_type": "text/html",
+      "redirects": [
+        {
+          "from": "https://clear.nz/",
+          "to": "https://clear.nz/",
+          "status": 302
+        }
+      ]
+    }
+  ],
+  "dns": {},
+  "errors": [
+    {
+      "url": "https://clear.nz/contact",
+      "reason": "ValueError: CONTACT_REVIEW_REQUEST_LIMIT"
+    }
+  ],
+  "stage_timings": {
+    "collection_seconds": 0.0,
+    "dns_seconds": 0.0,
+    "total_seconds": 0.0
+  },
+  "request_metrics": {
+    "actual_requests": 5,
+    "reserved_requests": 0,
+    "accounting": "legacy_conservative"
+  },
+  "public_fetch_calls": [
+    {
+      "url": "https://clear.nz/robots.txt",
+      "status": "captured",
+      "redirects": [
+        {
+          "from": "https://clear.nz/robots.txt",
+          "to": "https://clear.nz/robots.txt",
+          "status": 302
+        },
+        {
+          "from": "https://clear.nz/robots.txt",
+          "to": "https://clear.nz/robots.txt",
+          "status": 302
+        }
+      ],
+      "request_hops": 3
+    },
+    {
+      "url": "https://clear.nz/",
+      "status": "captured",
+      "redirects": [
+        {
+          "from": "https://clear.nz/",
+          "to": "https://clear.nz/",
+          "status": 302
+        }
+      ],
+      "request_hops": 2
+    }
+  ],
+  "request_budget": {
+    "limit": 5,
+    "consumed_or_reserved": 5,
+    "remaining": 0
+  }
+}

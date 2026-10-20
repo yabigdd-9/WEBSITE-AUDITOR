@@ -1,0 +1,13 @@
+{
+  "generation": "3b1dd1bb4bbc40d990e69a5ab30fe93d",
+  "created_at": "2026-10-20T09:01:39.387189+00:00",
+  "source": {
+    "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-financial-ops/test_source_schema_drift_block0/production.db",
+    "device": 16777221,
+    "inode": 22430124
+  },
+  "target": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-financial-ops/test_source_schema_drift_block0/staging/staging.db",
+  "prepared_path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-financial-ops/test_source_schema_drift_block0/staging/.snapshot-xtsgjwcv.db",
+  "initial_sha256": "309f0d2825ab21ced8aec44dcc3124a44e5596ee1404a2e2b443cb8add75cf66",
+  "initial_evidence_max_id": 0
+}

@@ -1,0 +1,38 @@
+{
+  "pages": [
+    {
+      "url": "https://clear.nz/",
+      "captured_at": "2026-10-20T09:05:50.036728+00:00",
+      "sha256": "46d8501993995e25a814b438fec73ec0a77a844607502039505f0383181cf2f3",
+      "content_type": "text/html",
+      "redirects": [],
+      "requested_url": "https://clear.nz/",
+      "path": "cache/email-v2/46d8501993995e25a814b438fec73ec0a77a844607502039505f0383181cf2f3.capture"
+    }
+  ],
+  "errors": [
+    {
+      "url": "https://clear.nz/contact-0",
+      "reason": "ValueError: HTTP_404"
+    },
+    {
+      "url": "https://clear.nz/contact-1",
+      "reason": "ValueError: CONTACT_REVIEW_REQUEST_LIMIT"
+    }
+  ],
+  "pending": [
+    "https://clear.nz/contact-2",
+    "https://clear.nz/contact-3",
+    "https://clear.nz/contact-4",
+    "https://clear.nz/contact-5",
+    "https://clear.nz/sitemap.xml"
+  ],
+  "requests": 3,
+  "started_at": "2026-10-20T09:05:50.035415+00:00",
+  "complete": true,
+  "attempts": {
+    "https://clear.nz/": 1,
+    "https://clear.nz/contact-0": 1,
+    "https://clear.nz/contact-1": 1
+  }
+}

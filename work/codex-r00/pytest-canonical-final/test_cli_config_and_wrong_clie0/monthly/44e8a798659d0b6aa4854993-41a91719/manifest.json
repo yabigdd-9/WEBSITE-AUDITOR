@@ -1,0 +1,32 @@
+{
+  "html": {
+    "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_cli_config_and_wrong_clie0/monthly/44e8a798659d0b6aa4854993-41a91719/monthly-report.html",
+    "sha256": "97236e8fc45fcab7d98675198fd21f537fb4021efdbd41f274e835bb567bc089",
+    "size": 5097
+  },
+  "revenue": {
+    "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_cli_config_and_wrong_clie0/monthly/44e8a798659d0b6aa4854993-41a91719/revenue.json",
+    "sha256": "df07a75c4492277918bd2036464d03fc3dd53a2daedbbc26d7ee1aadbe82b300",
+    "size": 2943
+  },
+  "roi": {
+    "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_cli_config_and_wrong_clie0/monthly/44e8a798659d0b6aa4854993-41a91719/roi.csv",
+    "sha256": "799e8e7529a068cc04c59ccdeb6d3dff71ad1e54f9016c6e5e611f75b5f9b71b",
+    "size": 197
+  },
+  "email": {
+    "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_cli_config_and_wrong_clie0/monthly/44e8a798659d0b6aa4854993-41a91719/email.eml",
+    "sha256": "bcee99b339e97d5c146cd7edc8315f5853264e5d7ba9e76e0661797350f87589",
+    "size": 7841
+  },
+  "action": {
+    "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_cli_config_and_wrong_clie0/monthly/44e8a798659d0b6aa4854993-41a91719/action-preview.json",
+    "sha256": "fd4e52aee738227c12f8343f6a09c966d7af3b6936378c7eb924cb15ab523431",
+    "size": 943
+  },
+  "json": {
+    "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_cli_config_and_wrong_clie0/monthly/44e8a798659d0b6aa4854993-41a91719/monthly-report.json",
+    "sha256": "17a75c4b8706a7264659257219cbc032eaa5cf18b9f6b1eb0391277675ee2545",
+    "size": 4803
+  }
+}

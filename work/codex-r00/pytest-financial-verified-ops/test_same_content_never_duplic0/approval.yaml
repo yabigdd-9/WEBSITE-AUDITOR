@@ -1,0 +1,11 @@
+requires_dion_approval:
+- blocked_until: Dion approval of exact sender, recipient and message required
+  description: Review outreach draft for Synthetic fixture
+  draft_path: /fixture/draft.md
+  draft_sha256: ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  engine: Website Auditor Zero-Token
+  evidence_id: 7
+  id: APR-ZT-1-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  status: REJECTED_BY_OWNER
+  type: cold_outreach_send
+zero_token_updated_at: '2026-10-20T09:04:36.597196+00:00'

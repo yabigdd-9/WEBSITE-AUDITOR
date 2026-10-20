@@ -1,0 +1,23 @@
+{
+  "exit_code": 1,
+  "scope": "All locally reachable Git refs using existing repository rules",
+  "configuration_sha256": "68fe18af63e4954103f267a9f62871a39ec6fe83be96a4affab2fb4316662a25",
+  "limitations": [
+    "Existing rule path allowlists remain active",
+    "Ignored and untracked working files are outside Git history scope",
+    "Detection does not prove active credential ownership or exposure"
+  ],
+  "finding_count": 107,
+  "rules": {
+    "sourcegraph-access-token": 28,
+    "curl-auth-user": 2,
+    "stripe-access-token": 1,
+    "generic-api-key": 54,
+    "generic-api-key-assignment": 11,
+    "google-api-key": 8,
+    "gcp-api-key": 3
+  },
+  "commits": 5,
+  "files": 32,
+  "clearance": false
+}

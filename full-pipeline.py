@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Full Free Pipeline v4 — website scouting, email scouting, mockups, proofreading.
 
-All free, no paid API keys required.
+External image generation is held pending reviewed account admission.
 v4 improvements:
   - Smart domain normalization (.co.nz, .com.nz, case)
   - Resume capability (state file skips completed steps)
@@ -26,7 +26,7 @@ v4 improvements:
   - --output-dir for custom paths
 """
 
-import argparse, csv, json, os, re, ssl, sys, time, urllib.request, urllib.parse
+import argparse, csv, json, re, ssl, sys, time, urllib.request, urllib.parse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
@@ -378,43 +378,9 @@ def run_email_discovery(max_workers=8, state=None):
 
 # ─── 3. MOCKUP GENERATION ─────────────────────────────────
 def generate_mockup(aj, provider="pollinations"):
-    name = aj.stem
-    out = MOCKUPS / "{}.png".format(name)
-    if out.exists() and out.stat().st_size > 1000: return name, True, "already exists"
-    try: data = json.loads(open(aj).read())
-    except: return name, False, "bad audit json"
-    score = data.get("score", 0)
-    defects = [d.get("defect", "") for d in data.get("defects", [])]
-    domain = data.get("domain", name)
-    title = (data.get("meta") or {}).get("title") or domain
-    prompt = "Website mockup concept for {} ({}) — score {}/100".format(domain, title, score)
-    if defects: prompt += ". Issues: " + ", ".join(defects[:5])
-    prompt += ". Before/after split, clean modern NZ business site, light background, no watermarks"
-    if provider in ("pollinations", "both"):
-        try:
-            url = "{}/{}?width=1280&height=720&nologo=true&enhance=true".format(POLLINATIONS_URL, urllib.parse.quote(prompt))
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-            with urllib.request.urlopen(req, timeout=60, context=_SSL_CTX) as resp:
-                img = resp.read()
-            out.write_bytes(img)
-            return name, True, "pollinations {} bytes".format(len(img))
-        except Exception as e:
-            if provider == "pollinations": return name, False, str(e)
-    if provider in ("openrouter", "both"):
-        key = os.environ.get("OPENROUTER_API_KEY", "")
-        if not key: return name, False, "no OPENROUTER_API_KEY"
-        try:
-            body = json.dumps({"model": "google/gemini-3.1-flash-image", "prompt": prompt, "aspect_ratio": "16:9"}).encode()
-            req = urllib.request.Request(OPENROUTER_URL, data=body, headers={"Authorization": "Bearer {}".format(key), "Content-Type": "application/json"})
-            with urllib.request.urlopen(req, timeout=120, context=_SSL_CTX) as resp:
-                result = json.loads(resp.read())
-            import base64
-            img = base64.b64decode(result["data"][0]["b64_json"])
-            out.write_bytes(img)
-            return name, True, "openrouter {} bytes".format(len(img))
-        except Exception as e:
-            return name, False, "openrouter: {}".format(e)
-    return name, False, "no provider"
+    """Hold unsupported image routes until account and receipt admission exists."""
+    return Path(aj).stem, False, ("BLOCKED_COST: external image generation lacks a reviewed "
+                                    "accounting adapter; cached images are not fresh proof")
 
 def run_mockups(provider="pollinations", max_workers=6):
     if not CFG["quiet"]: print(clr("=== Mockup Generation ({}) ===".format(provider), C.BOLD))

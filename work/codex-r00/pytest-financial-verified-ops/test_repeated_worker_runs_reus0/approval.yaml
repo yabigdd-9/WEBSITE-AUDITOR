@@ -1,0 +1,11 @@
+requires_dion_approval:
+- id: APR-ZT-1-8e53a7502806ad198a61c29747a2ff67d62ba1bb31528c1d4104aa7c8bdeb8c0
+  type: cold_outreach_send
+  engine: Website Auditor Zero-Token
+  description: Review outreach draft for Synthetic fixture
+  draft_path: /Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-financial-verified-ops/test_repeated_worker_runs_reus0/drafts/business-1-evidence-7-8e53a7502806ad198a61c29747a2ff67d62ba1bb31528c1d4104aa7c8bdeb8c0.md
+  draft_sha256: 8e53a7502806ad198a61c29747a2ff67d62ba1bb31528c1d4104aa7c8bdeb8c0
+  evidence_id: 7
+  blocked_until: Dion approval of exact sender, recipient and message required
+  status: NOT_SENT_AWAITING_APPROVAL
+zero_token_updated_at: '2026-10-20T09:04:36.683899+00:00'

@@ -1,0 +1,9 @@
+enabled: true
+job_timeout_seconds: 301
+max_businesses_per_job: 2
+max_dns_domains: 5
+max_pages: 3
+max_requests: 5
+model_execution_enabled: false
+refresh_hours: 24
+scan_interval_seconds: 60

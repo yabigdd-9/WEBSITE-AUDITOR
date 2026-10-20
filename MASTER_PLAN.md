@@ -1,4 +1,13 @@
-# WEBSITE-AUDITOR Master Plan v44.0
+# Current execution plan
+
+Use the byte-verified [corrected v3.2.1 execution plan](plans/MASTER_PLAN_v3.2.1.yaml)
+and [current completion register](docs/COMPLETION_STATUS.md). The earlier v44
+plan and results below are historical references. They do not report current
+implementation or release acceptance.
+
+---
+
+# WEBSITE-AUDITOR Master Plan v44.0 — historical
 
 **Status:** CANONICAL_EXECUTION_PLAN  
 **Reviewed:** 8 October 2026 · baseline `b349cd9f` · isolated candidate locally committed and unpublished

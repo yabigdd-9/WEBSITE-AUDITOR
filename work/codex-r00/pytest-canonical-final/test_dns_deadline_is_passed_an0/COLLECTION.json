@@ -1,0 +1,38 @@
+{
+  "business": {
+    "id": "synthetic-1",
+    "public_website": "https://business.nz/"
+  },
+  "pages": [
+    {
+      "url": "https://business.nz/"
+    }
+  ],
+  "dns": {
+    "a.nz": {
+      "status": "unknown"
+    }
+  },
+  "errors": [
+    {
+      "stage": "dns",
+      "reason": "CONTACT_REVIEW_DNS_DEADLINE"
+    }
+  ],
+  "stage_timings": {
+    "collection_seconds": 0.0,
+    "dns_seconds": 8.0,
+    "total_seconds": 8.0
+  },
+  "request_metrics": {
+    "actual_requests": 0,
+    "reserved_requests": 0,
+    "accounting": "attempt_callbacks"
+  },
+  "public_fetch_calls": [],
+  "request_budget": {
+    "limit": 5,
+    "consumed_or_reserved": 0,
+    "remaining": 5
+  }
+}

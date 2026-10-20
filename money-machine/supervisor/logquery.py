@@ -1,47 +1,71 @@
-"""Structured log query CLI for the supervisor."""
+"""Structured supervisor log queries, with UTC windows and newest-first results."""
+
+import argparse
+import heapq
 import json
 import re
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import List, Dict, Any, Optional
+from datetime import datetime, timedelta, timezone
 
 from mm_pipeline import root
 
-def query_logs(
-    kind=None,
-    worker=None,
-    since=None,
-    level=None,
-    limit=100,
-):
-    """Query structured logs with filters."""
-    log_dir = root() / 'state' / 'worker-logs'
-    if not log_dir.exists():
-        return []
+
+def _since_delta(value):
+    match = re.fullmatch(r"([0-9]+)([hdwm])", value.lower()) if isinstance(value, str) else None
+    if match is None:
+        raise ValueError("since must be a whole number followed by h, d, w or m")
+    try:
+        count = int(match.group(1))
+        return timedelta(seconds=count * {"h": 3600, "d": 86400,
+                                          "w": 604800, "m": 2592000}[match.group(2)])
+    except (OverflowError, ValueError) as exc:
+        raise ValueError("since duration is out of range") from exc
+
+
+def _timestamp(value):
+    if not isinstance(value, str):
+        return None
+    try:
+        stamp = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        # Legacy timestamps without an offset are interpreted as UTC.
+        if stamp.tzinfo is None:
+            stamp = stamp.replace(tzinfo=timezone.utc)
+        return stamp.astimezone(timezone.utc)
+    except (ValueError, OverflowError):
+        return None
+
+
+def query_logs(kind=None, worker=None, since=None, level=None, limit=100):
+    """Read all files, retaining at most ``limit`` matching rows, newest first.
+
+    Unknown timestamps sort last without a filter and never establish freshness.
+    A month means 30 days.
+    """
+    if type(limit) is not int or limit < 0:
+        raise ValueError("limit must be a nonnegative integer")
 
     since_dt = None
-    if since:
-        match = re.match(r'(\d+)([hdwm])', since.lower())
-        if match:
-            val, unit = int(match.group(1)), match.group(2)
-            delta = {'h': timedelta(hours=val), 'd': timedelta(days=val),
-                       'w': timedelta(weeks=val), 'm': timedelta(days=30*val)}[unit]
-            since_dt = datetime.now() - timedelta(days=0)  # placeholder
-
-    results = []
-    log_dir = root() / 'state' / 'worker-logs'
-    for log_file in sorted(root().glob('state/worker-logs/*.jsonl')):
+    if since is not None:
         try:
-            with open(log_file) as f:
-                for line in f:
-                    line = line.strip()
-                    if not line:
-                        continue
+            since_dt = datetime.now(timezone.utc) - _since_delta(since)
+        except OverflowError as exc:
+            raise ValueError("since duration is out of range") from exc
+    if limit == 0:
+        return []
+    log_dir = root() / "state" / "worker-logs"
+    unknown_time = datetime.min.replace(tzinfo=timezone.utc)
+    results = []
+    sequence = 0
+    for log_file in sorted(log_dir.glob("*.jsonl")):
+        try:
+            with log_file.open(encoding="utf-8", errors="replace") as handle:
+                for line in handle:
                     try:
                         record = json.loads(line)
                     except json.JSONDecodeError:
                         continue
 
+                    if not isinstance(record, dict):
+                        continue
                     if kind and record.get('kind') != kind:
                         continue
                     if worker and record.get('worker_id') != worker:
@@ -49,26 +73,20 @@ def query_logs(
                     if level and record.get('level') != level:
                         continue
 
-                    at = record.get('at')
-                    if since_dt and at:
-                        try:
-                            dt = datetime.fromisoformat(at.replace('Z', '+00:00'))
-                            if dt < since_dt:
-                                continue
-                        except ValueError:
-                            pass
-
-                    results.append(record)
-                    if len(results) >= limit:
-                        return results
-        except (OSError, json.JSONDecodeError):
+                    stamp = _timestamp(record.get("at"))
+                    if since_dt is not None and (stamp is None or stamp < since_dt):
+                        continue
+                    sequence += 1
+                    entry = (stamp or unknown_time, sequence, record)
+                    if len(results) < limit:
+                        heapq.heappush(results, entry)
+                    elif entry[:2] > results[0][:2]:
+                        heapq.heapreplace(results, entry)
+        except OSError:
             continue
-
-    results.sort(key=lambda r: r.get('at', ''), reverse=True)
-    return results[:limit]
+    return [entry[2] for entry in sorted(results, reverse=True)]
 
 def query_logs_cli(argv):
-    import argparse
     p = argparse.ArgumentParser()
     p.add_argument('--kind')
     p.add_argument('--worker')
@@ -78,11 +96,9 @@ def query_logs_cli(argv):
     p.add_argument('--json', action='store_true')
     args = p.parse_args(argv)
 
-    results = query_logs(
-        kind=args.kind,
-        worker=args.worker,
-        since=args.since,
-        level=args.level,
-        limit=args.limit,
-    )
+    try:
+        results = query_logs(kind=args.kind, worker=args.worker, since=args.since,
+                             level=args.level, limit=args.limit)
+    except ValueError as exc:
+        p.error(str(exc))
     return {'logs': results, 'count': len(results)}

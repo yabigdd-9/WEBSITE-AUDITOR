@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "kind": "prospect_packet",
+  "source_run_id": "run-fixture",
+  "business": {
+    "website": "https://example.co.nz/",
+    "domain": "example.co.nz"
+  },
+  "contact": null,
+  "email_confidence": "NO_VERIFIED_EMAIL",
+  "audit_score": 72,
+  "opportunity_score": null,
+  "top_problems": [
+    {
+      "finding_id": "f1",
+      "defect_key": "viewport",
+      "defect": "Missing viewport metadata",
+      "evidence": "no viewport meta tag"
+    },
+    {
+      "finding_id": "f2",
+      "defect_key": "header-hsts",
+      "defect": "Missing HSTS",
+      "evidence": "strict-transport-security absent"
+    }
+  ],
+  "before_images": [],
+  "after_images": [],
+  "recommended_package": "Technical Repair",
+  "quote_band": {
+    "low": "300.00",
+    "high": "948.75"
+  },
+  "proof": {
+    "demo_status": "CONCEPT_ONLY",
+    "live_site_changed": false,
+    "improvement_claim_valid": false
+  },
+  "evidence": [
+    {
+      "kind": "audit",
+      "sha256": "193fde55a45e581cdce920edbbb984f8cfb563ad75a9e00c06ec11cf073d15ce"
+    },
+    {
+      "kind": "remediation",
+      "sha256": "164d4200291815251b3f2e711cfa88c5911d3679e8c29f264ed9cd7f16d0b974"
+    },
+    {
+      "kind": "demo",
+      "sha256": "224dd8d459241aabe8aa91811bf2922e723d1702c3c09969e10e2411f83556b5"
+    },
+    {
+      "kind": "quote",
+      "sha256": "6ab5e71a4064e38136e922e4b941a374677e69e1bcbd89db2de2f05d63448bc7"
+    }
+  ],
+  "draft_message_path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_p11_demo_and_p13_packet_n0/packet/draft-message.txt",
+  "draft_message_sha256": "bf9efa3c60aafdea30055f87df8d87a61c73e80728f3f2678bb32cec8ee1405f",
+  "qa_status": "HUMAN_REVIEW_REQUIRED",
+  "approval_status": "HUMAN_APPROVAL_REQUIRED",
+  "human_approved": false,
+  "outreach_eligible": false,
+  "send_enabled": false,
+  "external_send_allowed": false,
+  "outbound_sent": 0,
+  "paid_ai_cost_usd": 0,
+  "review_required": true
+}

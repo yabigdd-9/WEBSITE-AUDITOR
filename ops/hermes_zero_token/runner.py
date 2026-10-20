@@ -14,11 +14,16 @@ Safety guarantees (hard-coded, non-bypassable):
 import argparse
 import json
 import os
+import re
+import signal
 import subprocess
 import sys
+import tempfile
 import time
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
+from xml.etree import ElementTree
 
 import yaml
 
@@ -27,10 +32,18 @@ import yaml
 # ---------------------------------------------------------------------------
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+from ops.hermes_zero_token.worker_ownership import (  # noqa: E402
+    STAGING_WORKERS,
+    worker_lock,
+)
 
 STATE_DIR = PROJECT_ROOT / "state" / "hermes_zero_token"
 REPORTS_DIR = PROJECT_ROOT / "reports" / "hermes_zero_token"
 AUDIT_LOG = STATE_DIR / "audit.jsonl"
+MODULE_TIMEOUT_SECONDS = 240
+TEST_COUNTS_MARKER = "HERMES_TEST_COUNTS="
 
 
 # Zero-token environment values (always enforced)
@@ -99,9 +112,25 @@ def run_toolkit_test(*args):
     if not venv_python.exists():
         venv_python = PROJECT_ROOT / ".venv-email" / "bin" / "python"
 
-    cmd = [str(venv_python), "-m", "pytest"] + list(args)
-    result = subprocess.run(cmd, cwd=PROJECT_ROOT, capture_output=True, text=True, timeout=300)
-    return result.returncode, result.stdout, result.stderr
+    AUDIT_LOG.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="pytest-", dir=AUDIT_LOG.parent) as directory:
+        report_path = Path(directory) / "results.xml"
+        cmd = [str(venv_python), "-m", "pytest", *args, f"--junitxml={report_path}"]
+        result = subprocess.run(cmd, cwd=PROJECT_ROOT, capture_output=True, text=True, timeout=300)
+        try:
+            testcases = list(ElementTree.parse(report_path).iter("testcase"))
+            counts = {"passed": 0, "failed": 0, "skipped": 0}
+            for testcase in testcases:
+                if testcase.find("failure") is not None or testcase.find("error") is not None:
+                    counts["failed"] += 1
+                elif testcase.find("skipped") is not None:
+                    counts["skipped"] += 1
+                else:
+                    counts["passed"] += 1
+        except (OSError, ElementTree.ParseError):
+            counts = None
+        stdout = result.stdout + "\n" + TEST_COUNTS_MARKER + json.dumps(counts) + "\n"
+        return result.returncode, stdout, result.stderr
 
 
 def run_supervisor_health():
@@ -324,43 +353,48 @@ def run_daily_report():
 
 
 def _run_module_worker(module_name):
-    """Load and run a zero-token worker module's main() via importlib.
-
-    Uses importlib (not import) so the module's own PROJECT_ROOT resolution
-    and staging paths are used, and import-time side effects stay isolated
-    to this process.
-
-    Execution contract (single source of truth for all P2 workers):
-
-      * the worker module's ``main()`` returns an **int exit code** and prints
-        its structured JSON report to stdout (this is what every tracked
-        worker module actually does);
-      * this helper captures stdout/stderr, parses the trailing JSON object
-        from stdout, and returns the runner's
-        ``(returncode, stdout, stderr)`` tuple exactly like every other entry
-        in WORKER_MAP;
-      * a nonzero exit code is a failure even when a JSON report is present,
-        and malformed/empty JSON can never produce a false success.
-
-    Every P2 worker reports ``production_written``; the runner refuses any
-    worker whose report claims a production write.
-    """
-    import importlib.util
-    import io
-    import contextlib
-
+    """Run a canonical worker in a bounded, independently cancellable process group."""
+    if module_name not in STAGING_WORKERS:
+        return 2, "", f"unsupported worker module: {module_name}\n"
     path = PROJECT_ROOT / "ops" / "hermes_zero_token" / f"{module_name}.py"
-    spec = importlib.util.spec_from_file_location(module_name, path)
-    if spec is None or spec.loader is None:
+    if not path.is_file():
         return 2, "", f"worker module not found: {module_name}.py\n"
+    with _worker_lock(module_name) as lease:
+        return _run_locked_module_worker(path, module_name, lease)
 
-    mod = importlib.util.module_from_spec(spec)
+
+def _run_locked_module_worker(path, module_name, lease):
+    """Retain ownership until cancellation has reaped the entire worker group."""
+    def cancel(signum, frame):
+        raise SystemExit(128 + signum)
+
+    previous_handler = signal.signal(signal.SIGTERM, cancel)
+    process = None
     try:
-        spec.loader.exec_module(mod)
-    except Exception as ex:
-        return 2, "", f"{module_name}: import failed: {type(ex).__name__}: {ex}\n"
+        process = subprocess.Popen(
+            [sys.executable, str(path)], cwd=PROJECT_ROOT,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+            start_new_session=True, pass_fds=(lease.descriptor,),
+            env=lease.child_environment(),
+        )
+        stdout, stderr = process.communicate(timeout=MODULE_TIMEOUT_SECONDS)
+    except BaseException:
+        if process is not None:
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            process.communicate()
+        raise
+    finally:
+        signal.signal(signal.SIGTERM, previous_handler)
+    return _validate_worker_result(process.returncode, stdout, stderr, module_name)
 
-    return _execute_worker_module(mod, module_name)
+
+@contextmanager
+def _worker_lock(worker_id):
+    with worker_lock(AUDIT_LOG.parent / "locks", worker_id) as lease:
+        yield lease
 
 
 def _execute_worker_module(mod, module_name):
@@ -370,8 +404,8 @@ def _execute_worker_module(mod, module_name):
     unit-tested with synthetic modules that do not live under
     ``ops/hermes_zero_token``.
     """
-    import io
     import contextlib
+    import io
 
     if not hasattr(mod, "main"):
         return 2, "", f"{module_name}: module has no main()\n"
@@ -388,7 +422,11 @@ def _execute_worker_module(mod, module_name):
     captured_out = buf_out.getvalue()
     captured_err = buf_err.getvalue()
 
-    if not isinstance(returncode, int):
+    return _validate_worker_result(returncode, captured_out, captured_err, module_name)
+
+
+def _validate_worker_result(returncode, captured_out, captured_err, module_name):
+    if type(returncode) is not int:
         return 2, captured_out, (
             f"{module_name}: main() returned {type(returncode).__name__}, "
             f"expected an int exit code\n{captured_err}")
@@ -400,9 +438,9 @@ def _execute_worker_module(mod, module_name):
             f"{module_name}: exit {returncode} but stdout carried no valid "
             f"JSON report\n{captured_err}")
 
-    if report.get("production_written") is True:
+    if report.get("production_written") is not False:
         return 3, captured_out, (
-            f"{module_name}: report claims production_written=True — refusing\n"
+            f"{module_name}: report must explicitly declare production_written=false — refusing\n"
             f"{captured_err}")
 
     if returncode != 0:
@@ -413,47 +451,30 @@ def _execute_worker_module(mod, module_name):
 
 
 def _parse_worker_report(stdout, module_name):
-    """Extract the trailing JSON object a worker printed to stdout.
-
-    Workers are allowed to emit diagnostic lines before/after the report, so
-    the parser scans backwards for the last balanced ``{...}`` object rather
-    than assuming the whole buffer is JSON.  Returns ``None`` when no valid
-    report can be found — never a false positive.
-    """
+    """Read complete JSON values without treating nested objects as reports."""
     if not stdout:
         return None
-    text = stdout.rstrip()
-    for start in range(len(text), -1, -1):
-        if start > len(text) or text[start:start + 1] != "{":
+
+    def unique_fields(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError("duplicate worker report field")
+            result[key] = value
+        return result
+
+    decoder = json.JSONDecoder(object_pairs_hook=unique_fields)
+    report = None
+    consumed_until = 0
+    for match in re.finditer(r"(?m)^[ \t]*\{", stdout):
+        if match.start() < consumed_until:
             continue
-        depth, end, in_str, esc = 0, start, False, False
-        for i in range(start, len(text)):
-            ch = text[i]
-            if esc:
-                esc = False
-                continue
-            if ch == "\\":
-                esc = True
-                continue
-            if ch == '"':
-                in_str = not in_str
-                continue
-            if in_str:
-                continue
-            if ch == "{":
-                depth += 1
-            elif ch == "}":
-                depth -= 1
-                if depth == 0:
-                    end = i + 1
-                    break
-        if depth == 0 and end > start:
-            try:
-                obj = json.loads(text[start:end])
-                return obj if isinstance(obj, dict) else None
-            except json.JSONDecodeError:
-                return None
-    return None
+        try:
+            value, consumed_until = decoder.raw_decode(stdout, match.end() - 1)
+        except (ValueError, RecursionError):
+            return None
+        report = value if isinstance(value, dict) else None
+    return report
 
 
 def run_staging_db():
@@ -501,6 +522,7 @@ WORKER_MAP = {
     "system_supervisor": lambda: run_supervisor_health(),
     "database_guard": lambda: run_database_integrity(),
     "testing": lambda: run_toolkit_test("toolkit_tests", "-q"),
+    "testing_worker": lambda: run_toolkit_test("toolkit_tests", "-q"),
     "git_observer": lambda: run_git_observer(),
     "provider_monitor": lambda: run_provider_monitor(),
     "queue_dispatcher": lambda: run_queue_dispatcher(),
@@ -550,7 +572,8 @@ def handle_worker(worker_id, dry_run=False):
         return 3
 
     try:
-        returncode, stdout, stderr = WORKER_MAP[worker_id]()
+        with _worker_lock(worker_id):
+            returncode, stdout, stderr = WORKER_MAP[worker_id]()
         duration_ms = int((time.monotonic() - start) * 1000)
 
         if stdout:
@@ -559,17 +582,41 @@ def handle_worker(worker_id, dry_run=False):
             print(stderr, file=sys.stderr, end="")
 
         status = "completed" if returncode == 0 else "failed"
+        audit_extra = {"duration_ms": duration_ms, "exit_code": returncode}
+        if worker_id in {"testing", "testing_worker"}:
+            audit_extra["test_counts"] = None
+            for line in reversed(stdout.splitlines()):
+                if line.startswith(TEST_COUNTS_MARKER):
+                    try:
+                        counts = json.loads(line[len(TEST_COUNTS_MARKER):])
+                        if isinstance(counts, dict) and all(
+                            type(counts.get(key)) is int and counts[key] >= 0
+                            for key in ("passed", "failed", "skipped")
+                        ):
+                            audit_extra["test_counts"] = counts
+                    except json.JSONDecodeError:
+                        pass
+                    break
         _log_audit(
             worker_id, "complete", status,
-            extra={"duration_ms": duration_ms, "exit_code": returncode},
+            extra=audit_extra,
         )
         return returncode
+    except BlockingIOError:
+        msg = "Worker or shared staging artifacts already owned by another run"
+        _log_audit(worker_id, "complete", "blocked", extra={"exit_code": 75, "error": msg})
+        print(msg, file=sys.stderr)
+        return 75
     except subprocess.TimeoutExpired:
         duration_ms = int((time.monotonic() - start) * 1000)
         msg = "Worker timed out after bounded window; will resume on next cron run"
         print(msg, file=sys.stderr)
         _log_audit(worker_id, "complete", "timeout", extra={"duration_ms": duration_ms, "exit_code": 124, "error": msg})
         return 124  # incomplete work must not be reported as successful
+    except (KeyboardInterrupt, SystemExit) as cancellation:
+        exit_code = cancellation.code if isinstance(cancellation, SystemExit) else 130
+        _log_audit(worker_id, "complete", "cancelled", extra={"exit_code": exit_code})
+        raise
     except Exception as ex:
         duration_ms = int((time.monotonic() - start) * 1000)
         msg = f"{type(ex).__name__}: {ex}"

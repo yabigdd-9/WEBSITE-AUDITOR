@@ -1,0 +1,33 @@
+{
+  "generated_at": "2026-10-20T09:01:43.120870+00:00",
+  "phase": "P2",
+  "screenshot_dir": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-financial-ops/test_real_worker_subprocess_co1/isolated-project/reports/hermes_zero_token/screenshots",
+  "production_written": false,
+  "businesses_requested": 2,
+  "screenshots_captured": 2,
+  "screenshots_failed": 0,
+  "details": [
+    {
+      "business_id": 1,
+      "name": "Synthetic contract business 1",
+      "url": "https://contract-1.example.invalid",
+      "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-financial-ops/test_real_worker_subprocess_co1/isolated-project/reports/hermes_zero_token/screenshots/business-1/capture-j5gmwuny/screenshot.png",
+      "sha256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+      "size_bytes": 68,
+      "captured_at": "2026-10-20T09:01:43.284524+00:00",
+      "status": "captured"
+    },
+    {
+      "business_id": 2,
+      "name": "Synthetic contract business 2",
+      "url": "https://contract-2.example.invalid",
+      "path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-financial-ops/test_real_worker_subprocess_co1/isolated-project/reports/hermes_zero_token/screenshots/business-2/capture-xju63i7o/screenshot.png",
+      "sha256": "431ced6916a2a21a156e38701afe55bbd7f88969fbbfc56d7fe099d47f265460",
+      "size_bytes": 68,
+      "captured_at": "2026-10-20T09:01:43.434064+00:00",
+      "status": "captured"
+    }
+  ],
+  "manifest_path": "/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-financial-ops/test_real_worker_subprocess_co1/isolated-project/reports/hermes_zero_token/screenshots/manifest_sha256.json",
+  "manifest_screenshot_count": 2
+}

@@ -1,0 +1,101 @@
+[
+  {
+    "command": [
+      "/Users/dd/WEBSITE-AUDITOR/.venv/bin/python",
+      "-m",
+      "ruff",
+      "check",
+      "auditor_toolkit",
+      "toolkit_tests",
+      "tests",
+      "money-machine/mm_model_router.py",
+      "money-machine/mm_reporting.py",
+      "money-machine/scripts/fcc-bridge.py",
+      "money-machine/scripts/free_role_router.py",
+      "money-machine/scripts/test_free_role_router.py",
+      "money-machine/supervisor/logquery.py",
+      "money-machine/test_reporting.py",
+      "money-machine/test_router_cost_stop.py",
+      "ops/hermes_zero_token/daily_report.py",
+      "ops/hermes_zero_token/demo_blueprint.py",
+      "ops/hermes_zero_token/outreach_draft.py",
+      "ops/hermes_zero_token/runner.py",
+      "ops/hermes_zero_token/screenshot_worker.py",
+      "ops/hermes_zero_token/staging_db.py",
+      "ops/hermes_zero_token/test_integration_safety.py",
+      "ops/hermes_zero_token/test_worker_contract.py",
+      "ops/hermes_zero_token/test_zero_token_acceptance.py",
+      "tests/test_proof_diff.py",
+      "money-machine/mm_financial_admission.py",
+      "money-machine/test_financial_admission.py",
+      "money-machine/test_financial_dispatch.py",
+      "money-machine/test_supervisor_logquery.py",
+      "ops/hermes_zero_token/test_outreach_queue_safety.py",
+      "ops/hermes_zero_token/test_reporting_cases.py",
+      "ops/hermes_zero_token/test_runner_ownership.py",
+      "ops/hermes_zero_token/test_screenshot_safety.py",
+      "ops/hermes_zero_token/test_staging_progress.py",
+      "ops/hermes_zero_token/test_standalone_ownership.py",
+      "ops/hermes_zero_token/worker_ownership.py",
+      "tests/test_financial_entrypoints.py",
+      "toolkit_tests/financial_admission_fixtures.py"
+    ],
+    "started_at_utc": "2026-10-20T09:02:07.052878+00:00",
+    "exit_code": 0,
+    "stdout": "All checks passed!\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/dd/WEBSITE-AUDITOR/.venv/bin/python",
+      "-B",
+      "-m",
+      "compileall",
+      "-q",
+      "ops/hermes_zero_token",
+      "money-machine",
+      "auditor_toolkit",
+      "website_auditor",
+      "full-pipeline.py"
+    ],
+    "started_at_utc": "2026-10-20T09:02:07.192673+00:00",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/bin/bash",
+      "-n",
+      "money-machine/scripts/fcc-bridge.sh"
+    ],
+    "started_at_utc": "2026-10-20T09:02:07.526933+00:00",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/dd/WEBSITE-AUDITOR/.venv/bin/python",
+      "-m",
+      "pip",
+      "check"
+    ],
+    "started_at_utc": "2026-10-20T09:02:07.532787+00:00",
+    "exit_code": 0,
+    "stdout": "No broken requirements found.\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "HEAD"
+    ],
+    "started_at_utc": "2026-10-20T09:02:09.284481+00:00",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

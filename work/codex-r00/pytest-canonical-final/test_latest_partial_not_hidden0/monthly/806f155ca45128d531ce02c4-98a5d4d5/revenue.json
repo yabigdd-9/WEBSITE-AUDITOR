@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "kind": "revenue_scenario",
+  "currency": "NZD",
+  "source_run_id": null,
+  "source_audit_status": "no_audit",
+  "url": "https://example.com/",
+  "status": "unquantified",
+  "review_required": true,
+  "disclaimer": "Scenario only, not measured lost revenue or a recovery guarantee. Audit evidence establishes the defect; assumptions establish its modeled effect.",
+  "missing_inputs": [],
+  "assumptions": {
+    "currency": "NZD",
+    "monthly_visitors": 2000,
+    "baseline_conversion_rate": 0.05,
+    "value_per_conversion_nzd": 150,
+    "contribution_margin": 0.6,
+    "hourly_rate_nzd": 120,
+    "horizon_months": 12,
+    "segments": {
+      "all": 1
+    },
+    "impacts": {
+      "missing_title": {
+        "relative_conversion_loss": {
+          "low": 0.1,
+          "high": 0.18
+        },
+        "recovery_fraction": {
+          "low": 0.5,
+          "high": 1
+        },
+        "fix_hours": {
+          "low": 1,
+          "high": 2
+        },
+        "source": "Hypothetical fixture only, not industry data",
+        "rationale": "Sensitivity test",
+        "reviewed_by": "Fixture reviewer"
+      }
+    }
+  },
+  "baseline_nzd_monthly": "15000.00",
+  "revenue_at_risk_nzd_monthly": null,
+  "potential_recovery_nzd_monthly": null,
+  "modeled_risk_percent": null,
+  "fix_cost_nzd": null,
+  "profit_roi_percent": null,
+  "payback_months": null,
+  "horizon_months": "12",
+  "modeled_defect_types": 0,
+  "unquantified_defect_keys": [],
+  "coverage": "no_audit",
+  "aggregation": "Maximum overlapping effect per disjoint traffic segment. Row values must not be summed. Fix costs are per defect type across all occurrences.",
+  "rows": []
+}

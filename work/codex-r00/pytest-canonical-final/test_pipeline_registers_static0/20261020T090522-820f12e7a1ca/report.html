@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Website audit - fixture.example</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif; margin: 2rem; color: #1f2933; }
+table { width: 100%; border-collapse: collapse; }
+th,td { border-bottom: 1px solid #e6eef6; padding: .55rem; text-align: left; vertical-align: top; }
+.score { display: inline-block; border: 1px solid #d9e2ec; border-radius: 8px; padding: 1rem; margin-right: .5rem; }
+</style></head><body>
+<h1>Website Auditor</h1>
+<p>Status: partial · Findings: 21 · Coverage: {&#x27;version&#x27;: 1, &#x27;required&#x27;: 19, &#x27;passed&#x27;: 18, &#x27;required_checks&#x27;: [&#x27;axe&#x27;, &#x27;browser&#x27;, &#x27;browser_console&#x27;, &#x27;cookie_consent&#x27;, &#x27;fetch&#x27;, &#x27;headers&#x27;, &#x27;hreflang&#x27;, &#x27;hygiene&#x27;, &#x27;images&#x27;, &#x27;js_vulnerabilities&#x27;, &#x27;language&#x27;, &#x27;page&#x27;, &#x27;pdf&#x27;, &#x27;schema&#x27;, &#x27;social_meta&#x27;, &#x27;structured_validation&#x27;, &#x27;technology&#x27;, &#x27;third_party&#x27;, &#x27;ux&#x27;], &#x27;missing_checks&#x27;: [&#x27;cookie_consent&#x27;]}</p>
+<p><code>https://fixture.example/</code></p>
+<div class="score"><strong>Health</strong><br>None</div>
+<div class="score"><strong>Defect severity</strong><br>100</div><h2>Findings</h2>
+<table><thead><tr><th>Severity</th><th>Finding</th><th>Evidence</th><th>Check</th></tr></thead><tbody><tr><td>high</td><td>Missing page title</td><td>Search snippet risk</td><td>page</td></tr>
+<tr><td>medium</td><td>Missing meta description</td><td>Lower CTR</td><td>page</td></tr>
+<tr><td>medium</td><td>Missing canonical URL</td><td>Duplicate content risk</td><td>page</td></tr>
+<tr><td>medium</td><td>Missing Open Graph tags</td><td>Poor social preview</td><td>page</td></tr>
+<tr><td>medium</td><td>Thin content (&lt;200 words)</td><td>Review page purpose</td><td>page</td></tr>
+<tr><td>medium</td><td>Missing viewport metadata</td><td>Mobile layout review</td><td>page</td></tr>
+<tr><td>low</td><td>No structured data found</td><td>Eligibility not guaranteed</td><td>schema</td></tr>
+<tr><td>low</td><td>Missing content-security-policy</td><td>Review deployment requirements</td><td>headers</td></tr>
+<tr><td>low</td><td>Missing x-content-type-options</td><td>Review deployment requirements</td><td>headers</td></tr>
+<tr><td>medium</td><td>Missing HSTS</td><td>Review HTTPS deployment</td><td>headers</td></tr>
+<tr><td>medium</td><td>Missing og:title</td><td>No Open Graph title for social sharing</td><td>social_meta</td></tr>
+<tr><td>medium</td><td>Missing og:description</td><td>No Open Graph description for social sharing</td><td>social_meta</td></tr>
+<tr><td>medium</td><td>Missing og:image</td><td>No Open Graph image for social sharing</td><td>social_meta</td></tr>
+<tr><td>low</td><td>Missing og:type</td><td>No Open Graph type declared</td><td>social_meta</td></tr>
+<tr><td>low</td><td>Missing Twitter Card</td><td>No twitter:card declared</td><td>social_meta</td></tr>
+<tr><td>low</td><td>Missing Twitter handle</td><td>No twitter:site or twitter:creator declared</td><td>social_meta</td></tr>
+<tr><td>low</td><td>robots.txt declares no sitemap</td><td>Sitemap undiscoverable</td><td>crawl</td></tr>
+<tr><td>medium</td><td>Sitemap XML malformed</td><td>https://fixture.example/sitemap.xml</td><td>crawl</td></tr>
+<tr><td>medium</td><td>No contact path found</td><td>No phone, contact link or form</td><td>ux</td></tr>
+<tr><td>medium</td><td>Third-party requests detected</td><td>1 external origins requested</td><td>third_party</td></tr>
+<tr><td>medium</td><td>Browser JavaScript error</td><td>fixture failure</td><td>browser_console</td></tr></tbody></table>
+<h2>Root-cause groups</h2><ul><li><strong>client_runtime_failure</strong> — 1 symptom(s), confidence PROVEN: Correlated symptoms suggest one root cause; verify before claiming causation.</li><li><strong>content_discovery_configuration_gap</strong> — 7 symptom(s), confidence MODERATE: Correlated symptoms suggest one root cause; verify before claiming causation.</li><li><strong>journey_or_contact_friction</strong> — 1 symptom(s), confidence WEAK: Correlated symptoms suggest one root cause; verify before claiming causation.</li><li><strong>security_delivery_configuration_gap</strong> — 3 symptom(s), confidence MODERATE: Correlated symptoms suggest one root cause; verify before claiming causation.</li><li><strong>unclassified_observation</strong> — 9 symptom(s), confidence MODERATE: Correlated symptoms suggest one root cause; verify before claiming causation.</li></ul>
+<h2>Visual evidence pack</h2><ul><li>No rendered visual pack; enable the rendered profile.</li></ul>
+<h2>Claim ledger</h2><table><thead><tr><th>Claim ID</th><th>Claim</th><th>Confidence</th><th>Evidence ref</th></tr></thead><tbody><tr><td>finding:5a88741e794c0fc7e92ce102</td><td>Missing page title</td><td>PROVEN</td><td>page</td></tr><tr><td>finding:2254ce02a9b5c166f514729c</td><td>Missing meta description</td><td>PROVEN</td><td>page</td></tr><tr><td>finding:dea7c65a22d88c1ad07d3694</td><td>Missing canonical URL</td><td>PROVEN</td><td>page</td></tr><tr><td>finding:eecf31e6e740e610aff16ca9</td><td>Missing Open Graph tags</td><td>PROVEN</td><td>page</td></tr><tr><td>finding:6fd513eb4e315a0c5e088b49</td><td>Thin content (&lt;200 words)</td><td>WEAK</td><td>page</td></tr><tr><td>finding:c52f54b80ee377bc355e2431</td><td>Missing viewport metadata</td><td>PROVEN</td><td>page</td></tr><tr><td>finding:90941d891b94595b5344036c</td><td>No structured data found</td><td>WEAK</td><td>schema</td></tr><tr><td>finding:9a70da4ef78341a5d9de7fc6</td><td>Missing content-security-policy</td><td>PROVEN</td><td>headers</td></tr><tr><td>finding:3576104d7f9a28751d6ad86b</td><td>Missing x-content-type-options</td><td>PROVEN</td><td>headers</td></tr><tr><td>finding:a13627d3dac72ae660cb6296</td><td>Missing HSTS</td><td>WEAK</td><td>headers</td></tr><tr><td>finding:b02288210956599f6b383316</td><td>Missing og:title</td><td>PROVEN</td><td>social_meta</td></tr><tr><td>finding:e2b732e25600cf400cebae77</td><td>Missing og:description</td><td>PROVEN</td><td>social_meta</td></tr><tr><td>finding:a6fce6889f883d28e82ff341</td><td>Missing og:image</td><td>PROVEN</td><td>social_meta</td></tr><tr><td>finding:5dbb59533bbf398adb3374d4</td><td>Missing og:type</td><td>PROVEN</td><td>social_meta</td></tr><tr><td>finding:df5d9dede26cfa51123ef04a</td><td>Missing Twitter Card</td><td>PROVEN</td><td>social_meta</td></tr><tr><td>finding:c5e5cecde66cb0da283e05b9</td><td>Missing Twitter handle</td><td>PROVEN</td><td>social_meta</td></tr><tr><td>finding:d6f7076c74df25c39e18ecf6</td><td>robots.txt declares no sitemap</td><td>PROVEN</td><td>page</td></tr><tr><td>finding:6365ba0b50384526cac4de2e</td><td>Sitemap XML malformed</td><td>PROVEN</td><td>page</td></tr><tr><td>finding:4ab4f7ed9677e52d032591d4</td><td>No contact path found</td><td>WEAK</td><td>ux</td></tr><tr><td>finding:9db63f15961fd3027ee6d637</td><td>Third-party requests detected</td><td>PROVEN</td><td>third_party</td></tr><tr><td>finding:ad06ef858da5b57e7d846ec7</td><td>Browser JavaScript error</td><td>PROVEN</td><td>browser_console</td></tr></tbody></table>
+<h2>Draft proofing</h2><ul><li>metadata: []; references []</li><li>platform_fix: []; references []</li><li>outreach: []; references []</li><li>content_expansion: []; references []</li><li>bilingual: []; references []</li></ul>
+<h2>Checks and coverage</h2>
+<pre>{
+  &quot;fetch&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true
+  },
+  &quot;page&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;schema&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;headers&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;technology&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;js_vulnerabilities&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;structured_validation&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;hreflang&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 1
+  },
+  &quot;language&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;images&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;social_meta&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;hygiene&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 4
+  },
+  &quot;ux&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;links&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Enable deep checks&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;lychee&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Enable external local tools&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;lighthouse&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Enable external local tools&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;tls&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Not requested&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;dns&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Enable deep checks&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;crawl&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Enable deep checks&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;browser&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;reason&quot;: &quot;&quot;,
+    &quot;required&quot;: true
+  },
+  &quot;third_party&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;browser_console&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;cookie_consent&quot;: {
+    &quot;status&quot;: &quot;error&quot;,
+    &quot;reason&quot;: &quot;Passive consent capture unavailable&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;axe&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;reason&quot;: &quot;&quot;
+  },
+  &quot;pdf&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true
+  }
+}</pre>
+<h2>Category scores</h2><pre>{
+  &quot;accessibility&quot;: {
+    &quot;score&quot;: 0,
+    &quot;severity_score&quot;: 0,
+    &quot;health_score&quot;: 100
+  },
+  &quot;local&quot;: {
+    &quot;score&quot;: 4,
+    &quot;severity_score&quot;: 4,
+    &quot;health_score&quot;: 96
+  },
+  &quot;performance&quot;: {
+    &quot;score&quot;: 0,
+    &quot;severity_score&quot;: 0,
+    &quot;health_score&quot;: 100
+  },
+  &quot;privacy&quot;: {
+    &quot;score&quot;: 8,
+    &quot;severity_score&quot;: 8,
+    &quot;health_score&quot;: null
+  },
+  &quot;security&quot;: {
+    &quot;score&quot;: 16,
+    &quot;severity_score&quot;: 16,
+    &quot;health_score&quot;: 84
+  },
+  &quot;seo&quot;: {
+    &quot;score&quot;: 56,
+    &quot;severity_score&quot;: 56,
+    &quot;health_score&quot;: 44
+  },
+  &quot;technical&quot;: {
+    &quot;score&quot;: 64,
+    &quot;severity_score&quot;: 64,
+    &quot;health_score&quot;: 36
+  }
+}</pre>
+<h2>Historical comparison</h2><pre>{
+  &quot;baseline&quot;: null,
+  &quot;new&quot;: [
+    &quot;2254ce02a9b5c166f514729c&quot;,
+    &quot;3576104d7f9a28751d6ad86b&quot;,
+    &quot;4ab4f7ed9677e52d032591d4&quot;,
+    &quot;5a88741e794c0fc7e92ce102&quot;,
+    &quot;5dbb59533bbf398adb3374d4&quot;,
+    &quot;6365ba0b50384526cac4de2e&quot;,
+    &quot;6fd513eb4e315a0c5e088b49&quot;,
+    &quot;90941d891b94595b5344036c&quot;,
+    &quot;9a70da4ef78341a5d9de7fc6&quot;,
+    &quot;9db63f15961fd3027ee6d637&quot;,
+    &quot;a13627d3dac72ae660cb6296&quot;,
+    &quot;a6fce6889f883d28e82ff341&quot;,
+    &quot;ad06ef858da5b57e7d846ec7&quot;,
+    &quot;b02288210956599f6b383316&quot;,
+    &quot;c52f54b80ee377bc355e2431&quot;,
+    &quot;c5e5cecde66cb0da283e05b9&quot;,
+    &quot;d6f7076c74df25c39e18ecf6&quot;,
+    &quot;dea7c65a22d88c1ad07d3694&quot;,
+    &quot;df5d9dede26cfa51123ef04a&quot;,
+    &quot;e2b732e25600cf400cebae77&quot;,
+    &quot;eecf31e6e740e610aff16ca9&quot;
+  ],
+  &quot;persistent&quot;: [],
+  &quot;regressed&quot;: [],
+  &quot;resolved&quot;: [],
+  &quot;resolution_assessed&quot;: false
+}</pre>
+<h2>Evidence</h2><pre style="white-space:pre-wrap;overflow-wrap:anywhere">{
+  &quot;fetch&quot;: {
+    &quot;url&quot;: &quot;https://fixture.example/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:22.773408+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;check_version&quot;: &quot;1&quot;,
+    &quot;data&quot;: {
+      &quot;status_code&quot;: 200,
+      &quot;redirects&quot;: [],
+      &quot;revalidated_at&quot;: null
+    }
+  },
+  &quot;page&quot;: {
+    &quot;url&quot;: &quot;https://fixture.example/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:22.773408+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;title&quot;: &quot;&quot;,
+      &quot;word_count&quot;: 0,
+      &quot;link_count&quot;: 0,
+      &quot;sample_links&quot;: [],
+      &quot;emails&quot;: [],
+      &quot;schema_count&quot;: 0
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;schema&quot;: {
+    &quot;url&quot;: &quot;https://fixture.example/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:22.773408+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;types&quot;: [],
+      &quot;profile&quot;: &quot;static&quot;,
+      &quot;generator&quot;: &quot;&quot;,
+      &quot;local_business_review&quot;: &quot;Check identity, address and service area against the business owner.&quot;,
+      &quot;crawler_readiness&quot;: {
+        &quot;robots_meta&quot;: [],
+        &quot;rendered_content_comparison&quot;: &quot;Available only in rendered mode&quot;
+      }
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;headers&quot;: {
+    &quot;url&quot;: &quot;https://fixture.example/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:22.773408+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;headers&quot;: {
+        &quot;content-type&quot;: &quot;text/plain; charset=utf-8&quot;,
+        &quot;content-length&quot;: &quot;53&quot;
+      },
+      &quot;cookies&quot;: []
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;technology&quot;: {
+    &quot;url&quot;: &quot;https://fixture.example/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:22.772093+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;technologies&quot;: []
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;js_vulnerabilities&quot;: {
+    &quot;url&quot;: &quot;https://fixture.example/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:22.772093+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;js_vulnerabilities_detected&quot;: 0
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;structured_validation&quot;: {
+    &quot;url&quot;: &quot;https://fixture.example/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:22.772093+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;structured_data_scripts_found&quot;: 0
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;hreflang&quot;: {
+    &quot;url&quot;: &quot;https://fixture.example/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:22.772093+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;url&quot;: &quot;https://fixture.example/&quot;,
+      &quot;hreflang_links&quot;: [],
+      &quot;hreflang_count&quot;: 0,
+      &quot;limitation&quot;: &quot;No multilingual annotations declared; reciprocity not fetched.&quot;
+    },
+    &quot;check_version&quot;: &quot;3&quot;
+  },
+  &quot;language&quot;: {
+    &quot;url&quot;: &quot;https://fixture.example/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:22.772093+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;url&quot;: &quot;https://fixture.example/&quot;,
+      &quot;html_lang&quot;: &quot;en&quot;,
+      &quot;meta_content_language&quot;: null,
+      &quot;is_nz_domain&quot;: false,
+      &quot;limitation&quot;: &quot;Declared language only; content language is not inferred from the domain.&quot;
+    },
+    &quot;check_version&quot;: &quot;3&quot;
+  },
+  &quot;images&quot;: {
+    &quot;url&quot;: &quot;https://fixture.example/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:22.772093+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;url&quot;: &quot;https://fixture.example/&quot;,
+      &quot;image_count&quot;: 0,
+      &quot;missing_alt&quot;: 0,
+      &quot;missing_dimensions&quot;: 0,
+      &quot;missing_loading&quot;: 0,
+      &quot;external_images&quot;: 0,
+      &quot;large_file_hints&quot;: []
+    },
+    &quot;check_version&quot;: &quot;3&quot;
+  },
+  &quot;social_meta&quot;: {
+    &quot;url&quot;: &quot;https://fixture.example/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:22.772093+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;url&quot;: &quot;https://fixture.example/&quot;,
+      &quot;og_tags&quot;: {},
+      &quot;twitter_tags&quot;: {}
+    },
+    &quot;check_version&quot;: &quot;3&quot;
+  },
+  &quot;hygiene&quot;: {
+    &quot;url&quot;: &quot;https://fixture.example/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:22.773408+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;robots&quot;: {
+        &quot;url&quot;: &quot;https://fixture.example/robots.txt&quot;,
+        &quot;status_code&quot;: 200,
+        &quot;bytes&quot;: 53,
+        &quot;sitemaps_declared&quot;: []
+      },
+      &quot;sitemap&quot;: {
+        &quot;checked&quot;: [
+          {
+            &quot;url&quot;: &quot;https://fixture.example/sitemap.xml&quot;,
+            &quot;status&quot;: 200,
+            &quot;well_formed&quot;: false
+          }
+        ]
+      },
+      &quot;security_headers&quot;: {
+        &quot;graded&quot;: [
+          &quot;content-security-policy&quot;,
+          &quot;x-content-type-options&quot;,
+          &quot;strict-transport-security&quot;
+        ],
+        &quot;present&quot;: []
+      },
+      &quot;mixed_content&quot;: {
+        &quot;offenders&quot;: [],
+        &quot;count&quot;: 0
+      }
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;ux&quot;: {
+    &quot;url&quot;: &quot;https://fixture.example/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:22.773408+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;signals&quot;: {
+        &quot;contact_path&quot;: false,
+        &quot;phone&quot;: false,
+        &quot;booking&quot;: false,
+        &quot;quote_form&quot;: false,
+        &quot;form_present&quot;: false
+      }
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;browser&quot;: {
+    &quot;console_errors&quot;: [
+      &quot;fixture failure&quot;
+    ],
+    &quot;resource_requests&quot;: [
+      &quot;https://cdn.example/x&quot;
+    ],
+    &quot;axe&quot;: {
+      &quot;violations&quot;: []
+    },
+    &quot;images&quot;: [],
+    &quot;url&quot;: &quot;https://fixture.example/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:22.772093+00:00&quot;,
+    &quot;mode&quot;: &quot;rendered&quot;,
+    &quot;check_version&quot;: &quot;1&quot;,
+    &quot;data&quot;: {
+      &quot;console_errors&quot;: [
+        &quot;fixture failure&quot;
+      ],
+      &quot;resource_requests&quot;: [
+        &quot;https://cdn.example/x&quot;
+      ],
+      &quot;axe&quot;: {
+        &quot;violations&quot;: []
+      },
+      &quot;images&quot;: []
+    }
+  },
+  &quot;third_party&quot;: {
+    &quot;url&quot;: &quot;https://fixture.example/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:22.772093+00:00&quot;,
+    &quot;mode&quot;: &quot;rendered&quot;,
+    &quot;data&quot;: {
+      &quot;url&quot;: &quot;https://fixture.example/&quot;,
+      &quot;external_domains&quot;: [
+        &quot;https://cdn.example:443&quot;
+      ],
+      &quot;external_request_count&quot;: 1,
+      &quot;limitation&quot;: &quot;Up to 1000 attempted requests; not proof of successful delivery.&quot;
+    },
+    &quot;check_version&quot;: &quot;3&quot;
+  },
+  &quot;browser_console&quot;: {
+    &quot;url&quot;: &quot;https://fixture.example/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:22.772093+00:00&quot;,
+    &quot;mode&quot;: &quot;rendered&quot;,
+    &quot;data&quot;: {
+      &quot;url&quot;: &quot;https://fixture.example/&quot;,
+      &quot;errors&quot;: [
+        &quot;fixture failure&quot;
+      ],
+      &quot;limitation&quot;: &quot;Bounded lab visit; later interactions are not covered.&quot;
+    },
+    &quot;check_version&quot;: &quot;3&quot;
+  },
+  &quot;axe&quot;: {
+    &quot;url&quot;: &quot;https://fixture.example/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:22.772093+00:00&quot;,
+    &quot;mode&quot;: &quot;rendered&quot;,
+    &quot;check_version&quot;: &quot;1&quot;,
+    &quot;data&quot;: {
+      &quot;violations&quot;: []
+    }
+  },
+  &quot;pdf&quot;: {
+    &quot;url&quot;: &quot;https://fixture.example/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-20T09:05:22.772093+00:00&quot;,
+    &quot;mode&quot;: &quot;rendered&quot;,
+    &quot;check_version&quot;: &quot;1&quot;,
+    &quot;data&quot;: {
+      &quot;path&quot;: &quot;/Users/dd/Documents/Codex/2026-10-19/x20-r/work/repo-completion/work/codex-r00/pytest-canonical-final/test_pipeline_registers_static0/20261020T090522-820f12e7a1ca/report.pdf&quot;
+    }
+  }
+}</pre>
+<h2>Drafts for review</h2><pre style="white-space:pre-wrap">{
+  &quot;status&quot;: &quot;fallback&quot;,
+  &quot;review_required&quot;: true,
+  &quot;drafts&quot;: {
+    &quot;metadata&quot;: {
+      &quot;text&quot;: &quot;Title: Example services\nDescription: [review required]&quot;,
+      &quot;source&quot;: &quot;template&quot;,
+      &quot;review_required&quot;: true
+    },
+    &quot;platform_fix&quot;: {
+      &quot;text&quot;: &quot;Prepare an evidence-backed fix draft for review.&quot;,
+      &quot;source&quot;: &quot;template&quot;,
+      &quot;review_required&quot;: true
+    },
+    &quot;outreach&quot;: {
+      &quot;text&quot;: &quot;Prepare factual outreach from verified findings.&quot;,
+      &quot;source&quot;: &quot;template&quot;,
+      &quot;review_required&quot;: true
+    },
+    &quot;content_expansion&quot;: {
+      &quot;text&quot;: &quot;Outline services, proof, FAQs, and contact details.&quot;,
+      &quot;source&quot;: &quot;template&quot;,
+      &quot;review_required&quot;: true
+    },
+    &quot;bilingual&quot;: {
+      &quot;text&quot;: &quot;EN: [English draft]\nMI: [te reo Māori review required]&quot;,
+      &quot;source&quot;: &quot;template&quot;,
+      &quot;review_required&quot;: true
+    }
+  },
+  &quot;reason&quot;: &quot;Local generation not requested&quot;
+}</pre>
+<h2>Proposal Inputs</h2><pre>{
+  &quot;currency&quot;: &quot;NZD&quot;,
+  &quot;hourly_rate&quot;: null,
+  &quot;assumptions&quot;: &quot;Versioned effort bands with shared setup for repeated defects and 15% contingency; scope and rates require human review.&quot;,
+  &quot;hours_low&quot;: 38.0,
+  &quot;hours_high&quot;: 113.28,
+  &quot;estimate_low&quot;: null,
+  &quot;estimate_high&quot;: null,
+  &quot;rules_version&quot;: &quot;quote-v1&quot;,
+  &quot;review_required&quot;: true,
+  &quot;llm_determined_price&quot;: false
+}</pre>
+<p>Financial scenarios use explicit editable assumptions. They are not measured lost revenue or fines.</p>
+</body></html>

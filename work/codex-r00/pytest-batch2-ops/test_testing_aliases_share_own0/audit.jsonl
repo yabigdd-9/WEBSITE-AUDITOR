@@ -1,0 +1,2 @@
+{"timestamp": "2026-10-20T08:32:07.270322+00:00", "job_id": "za-testing_worker", "worker_id": "testing_worker", "task_id": "n/a", "event": "start", "status": "running", "duration_ms": 0, "cost_nzd": 0, "started_at": "2026-10-20T08:32:07.270299+00:00"}
+{"timestamp": "2026-10-20T08:32:07.271199+00:00", "job_id": "za-testing_worker", "worker_id": "testing_worker", "task_id": "n/a", "event": "complete", "status": "blocked", "duration_ms": 0, "cost_nzd": 0, "exit_code": 75, "error": "Worker or shared staging artifacts already owned by another run"}
