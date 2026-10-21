@@ -112,6 +112,9 @@ jobs:
             money-machine/test_supervisor_startup.py \
             money-machine/test_local_inputs.py \
             money-machine/test_send_readiness.py \
+            money-machine/test_smtp_candidate.py \
+            money-machine/test_email_lifecycle.py \
+            money-machine/test_email_lifecycle_cli.py \
             money-machine/test_network_guard.py \
             money-machine/test_runtime_bootstrap.py \
             money-machine/test_runtime_readiness.py \
