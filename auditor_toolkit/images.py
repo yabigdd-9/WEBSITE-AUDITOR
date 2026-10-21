@@ -24,12 +24,15 @@ def analyse_html(html: str, url: str, headers: dict) -> tuple[list[Finding], dic
         "missing_alt": 0,
         "missing_dimensions": 0,
         "missing_loading": 0,
+        "framework_fill_images": 0,
         "external_images": 0,
         "large_file_hints": [],
     }
 
     for tag in img_tags:
         src = str(tag.get("src", ""))
+        if tag.get("data-nimg") == "fill":
+            evidence["framework_fill_images"] += 1
         if not tag.has_attr("alt"):
             evidence["missing_alt"] += 1
         dimensions = [str(tag.get(key, "")) for key in ("width", "height")]
@@ -69,39 +72,25 @@ def analyse_html(html: str, url: str, headers: dict) -> tuple[list[Finding], dic
             Finding(
                 "images-missing-dimensions",
                 f"Images missing width/height ({evidence['missing_dimensions']})",
-                "Layout shift risk; images without explicit dimensions cause CLS",
-                "medium",
-                url,
-                check="images",
-                evidence_source="dom:img element",
-                observed=f"{evidence['missing_dimensions']} of {evidence['image_count']} images lack width and height attributes",
-                business_impact="Images without explicit dimensions cause Cumulative "
-                "Layout Shift (CLS), a Core Web Vital that hurts user experience and SEO.",
-                remediation_action="Add explicit width and height attributes to all images.",
-                remediation_automation="AUTO_PREVIEW",
-                effort_band="S",
-            )
-        )
-
-    if evidence["missing_loading"] > 0:
-        findings.append(
-            Finding(
-                "images-missing-loading",
-                f"Images missing loading attribute ({evidence['missing_loading']})",
-                "No lazy-loading hint; below-the-fold images may load eagerly",
+                "Space reservation needs rendered review; CSS or a sized container may already prevent layout shift",
                 "low",
                 url,
                 check="images",
                 confidence="heuristic",
                 evidence_source="dom:img element",
-                observed=f"{evidence['missing_loading']} of {evidence['image_count']} images lack a loading attribute",
-                business_impact="Images without loading=\"lazy\" may delay page "
-                "interactivity and increase initial payload.",
-                remediation_action='Add loading="lazy" to below-the-fold images.',
-                remediation_automation="AUTO_PREVIEW",
-                effort_band="XS",
+                observed=f"{evidence['missing_dimensions']} of {evidence['image_count']} images do not provide positive numeric width and height attributes",
+                business_impact="Layout shift is possible only if the rendered page does not "
+                "already reserve image space. Static HTML alone does not establish CLS or its impact.",
+                remediation_action="Inspect computed styles, container sizing and measured layout shifts. "
+                "Add dimensions or equivalent space reservation only where needed; preserve intentional framework fill layouts.",
+                remediation_automation="HUMAN_REVIEW",
+                effort_band="S",
             )
         )
+
+    # An absent loading attribute uses the browser's normal eager behaviour.
+    # Static HTML cannot establish viewport placement or LCP. Keep the count as
+    # evidence, without treating intentional eager hero/logo images as defects.
 
     if evidence["external_images"] > 0:
         findings.append(

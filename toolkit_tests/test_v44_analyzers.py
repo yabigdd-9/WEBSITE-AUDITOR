@@ -69,8 +69,9 @@ def test_decorative_alt_and_dimensions():
     result = images.analyse_html('<img alt="" width=20 height=30 loading=lazy src=/x>', "https://fixture.example/", {})
     assert keys(result) == set()
     result = images.analyse_html('<img width=0 height=x src="//cdn.example/x">', "https://fixture.example/", {})
-    assert keys(result) == {"images-missing-alt", "images-missing-dimensions", "images-missing-loading", "images-external-hosting"}
-    assert next(f for f in result[0] if f.defect_key == "images-missing-loading").confidence == "heuristic"
+    assert keys(result) == {"images-missing-alt", "images-missing-dimensions", "images-external-hosting"}
+    assert result[1]["missing_loading"] == 1
+    assert next(f for f in result[0] if f.defect_key == "images-missing-dimensions").confidence == "heuristic"
 
 
 def test_social_metadata_handles_html_entities_and_unquoted_values():
