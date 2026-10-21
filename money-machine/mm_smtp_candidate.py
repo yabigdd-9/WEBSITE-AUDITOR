@@ -43,7 +43,7 @@ class Envelope:
     wire: bytes
 
 
-def prepare(message_id, recipient, body):
+def prepare(message_id, recipient, body, *, purpose="prospect"):
     """Render a single-recipient plain-text message; does not approve or send."""
     if type(message_id) is not int or message_id < 1:
         raise SubmissionHeldError("invalid_message_id")
@@ -71,8 +71,11 @@ def prepare(message_id, recipient, body):
     subject = header.removeprefix("Subject: ")
     if not separator or not text.strip() or not subject.strip() or "\n" in header:
         raise SubmissionHeldError("invalid_draft_format")
+    if purpose not in {"prospect", "owner-test"}:
+        raise SubmissionHeldError("unregistered_message_purpose")
     digest = core.digest(recipient, body)
-    key = hashlib.sha256(f"{SENDER}|{message_id}|{digest}".encode()).hexdigest()
+    namespace = "owner-test|" if purpose == "owner-test" else ""
+    key = hashlib.sha256(f"{namespace}{SENDER}|{message_id}|{digest}".encode()).hexdigest()
     message = EmailMessage(policy=SMTP)
     message["From"] = SENDER
     message["To"] = address.ascii_email
@@ -83,8 +86,7 @@ def prepare(message_id, recipient, body):
 
 
 def _policy():
-    # Do not add an override flag: the production loader itself must first be
-    # separately reviewed to admit a live provider. It currently cannot do so.
+    # Canonical policy admits only the fixed registered Gmail path and hard gates.
     config = mm_transport.load_config()
     if (
         config.get("provider") != "gmail"
@@ -116,6 +118,19 @@ def _approved_envelope(db, message_id, own_claim=None):
     return envelope
 
 
+def daily_claim_count(db, day):
+    total = 0
+    for table in ("smtp_candidate_submissions", "owner_transport_test_claims"):
+        if db.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table,)
+        ).fetchone():
+            # Table identifiers come only from the fixed internal allowlist.
+            total += db.execute(
+                "SELECT count(*) FROM " + table + " WHERE created_day=?", (day,)
+            ).fetchone()[0]
+    return total
+
+
 def _reserve(db, message_id, envelope, cap, claim_hook=None):
     db.execute(DDL)
     timestamp = core.now()
@@ -125,9 +140,7 @@ def _reserve(db, message_id, envelope, cap, claim_hook=None):
             "SELECT 1 FROM smtp_candidate_submissions WHERE message_id=?", (message_id,)
         ).fetchone():
             raise SubmissionHeldError("prior_submission_requires_reconciliation")
-        used = db.execute(
-            "SELECT count(*) FROM smtp_candidate_submissions WHERE created_day=?", (timestamp[:10],)
-        ).fetchone()[0]
+        used = daily_claim_count(db, timestamp[:10])
         if used >= cap:
             raise SubmissionHeldError("daily_cap_reserved")
         db.execute(
@@ -161,13 +174,13 @@ def submit(
     expected_content_hash=None,
     approval_hook=None,
 ):
-    """Candidate only: one claimed attempt, with ambiguity held for reconciliation.
+    """One claimed attempt, with ambiguity held for reconciliation.
 
     No automatic retry. A stable Message-ID is a correlation key, not provider
     idempotency. ACCEPTED means SMTP acceptance, never proof of inbox delivery.
     A crash leaves RESERVED committed and blocks a second attempt.
     """
-    config = _policy()  # Current real configuration stops here, without writes.
+    config = _policy()  # Disabled policy stops before reads, writes or credentials.
     if db.in_transaction:
         raise SubmissionHeldError("caller_transaction_must_be_closed")
     db.execute("BEGIN IMMEDIATE")

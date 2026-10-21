@@ -300,6 +300,20 @@ def accounting_snapshot(root=None):
                 if ambiguous:
                     result.update(status='unknown', external_sends=None,
                                   error='SMTP submission requires independent reconciliation')
+            owner_tests = d.execute("SELECT 1 FROM sqlite_master WHERE type='table' "
+                                    "AND name='owner_transport_test_claims'").fetchone()
+            if owner_tests:
+                owner_accepted = d.execute("SELECT count(*) FROM owner_transport_test_claims "
+                                           "WHERE status='ACCEPTED'").fetchone()[0]
+                owner_unknown = d.execute("SELECT count(*) FROM owner_transport_test_claims "
+                                          "WHERE status IN ('RESERVED','UNKNOWN')").fetchone()[0]
+                result.update(owner_mailbox_test_smtp_accepted=owner_accepted,
+                              owner_mailbox_test_claims_requiring_reconciliation=owner_unknown)
+                if result['external_sends'] is not None:
+                    result['external_sends'] += owner_accepted
+                if owner_unknown:
+                    result.update(status='unknown', external_sends=None,
+                                  error='Owner test SMTP submission requires independent reconciliation')
             if row[3]:
                 result.update(status="error", error="invalid or missing model cost records")
     except Exception as exc:

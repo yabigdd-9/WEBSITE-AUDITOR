@@ -291,6 +291,9 @@ def main(argv=None):
     q=s.add_parser('transport-disable');q.add_argument('--actor',required=True)
     q=s.add_parser('smtp-send');q.add_argument('message_id',type=int);q.add_argument('--content-hash',required=True)
     q=s.add_parser('smtp-reconcile');q.add_argument('message_id',type=int)
+    q=s.add_parser('owner-test-prepare');q.add_argument('--recipient',required=True,choices=('team.catalyxlabs@gmail.com','yabigdd@gmail.com'));q.add_argument('--actor',required=True)
+    q=s.add_parser('owner-test-preview');q.add_argument('--packet-id',type=int)
+    q=s.add_parser('owner-test-send');q.add_argument('packet_id',type=int);q.add_argument('--content-hash',required=True);q.add_argument('--actor',required=True)
     q=s.add_parser('email-send-preflight');q.add_argument('message_id',type=int)
     q=s.add_parser('transport-preflight');q.add_argument('--packet',required=True)
     s.add_parser('outcomes')
@@ -434,6 +437,17 @@ def main(argv=None):
         with contextlib.closing(connect(readonly=True)) as d:
             result = mm_send_readiness.inspect_message(d, a.message_id, canonical=True)
         print(json.dumps(result, indent=2, default=str));return 0
+    if a.cmd in ('owner-test-prepare', 'owner-test-preview', 'owner-test-send'):
+        import mm_smtp_owner_test
+        import mm_transport
+        with contextlib.closing(connect(readonly=a.cmd == 'owner-test-preview')) as d:
+            if a.cmd == 'owner-test-prepare':
+                result = mm_smtp_owner_test.prepare(d, a.recipient, actor=a.actor)
+            elif a.cmd == 'owner-test-preview':
+                result = mm_smtp_owner_test.preview(d, a.packet_id)
+            else:
+                result = mm_transport.submit_owner_test(d, a.packet_id, content_hash=a.content_hash, actor=a.actor)
+        print(json.dumps(result, indent=2));return 0
     if a.cmd in ('transport-enable', 'transport-disable'):
         import mm_transport
         result = mm_transport.set_owner_policy(enabled=a.cmd == 'transport-enable',

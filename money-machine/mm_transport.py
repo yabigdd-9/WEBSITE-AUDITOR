@@ -209,3 +209,13 @@ def set_owner_policy(*, enabled, daily_cap, actor):
         "external_messages_sent": 0,
         "changed_at": core.now(),
     }
+
+
+def submit_owner_test(db, packet_id, *, content_hash, actor):
+    """Explicit owner-mailbox diagnostic purpose; never accepts prospect addresses."""
+    config = load_config()
+    if not config["enabled"] or os.environ.get("MM_EXTERNAL_SEND_DISABLED") == "1":
+        raise ValueError("Transport is disabled")
+    import mm_smtp_owner_test
+
+    return mm_smtp_owner_test.submit(db, packet_id, content_hash=content_hash, actor=actor)
