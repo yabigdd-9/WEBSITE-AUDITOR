@@ -174,3 +174,30 @@ def test_daily_report_uses_runtime_state_without_live_database(tmp_path, monkeyp
     report = module.write_daily_report(metrics)
     assert report.is_relative_to(tmp_path / 'state')
     assert not (tmp_path / 'reports').exists()
+
+
+def test_dashboard_switches_to_runtime_queue_and_never_falls_back_on_parse_error(tmp_path, monkeypatch):
+    spec = importlib.util.spec_from_file_location('runtime_queue_dashboard', REPO / 'audit-dashboard/server.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    legacy = tmp_path / 'approval/APPROVAL_QUEUE.yaml'
+    legacy.parent.mkdir()
+    legacy.write_text(yaml.safe_dump({'requires_dion_approval': [{'id': 'legacy', 'status': 'PENDING'}]}))
+    runtime = tmp_path / 'state/hermes_zero_token/APPROVAL_QUEUE.yaml'
+    monkeypatch.setattr(module, 'REPO_ROOT', str(tmp_path))
+    monkeypatch.setattr(module, 'APPROVAL_YAML', str(legacy))
+    monkeypatch.setattr(module, 'RUNTIME_APPROVAL_YAML', str(runtime))
+    monkeypatch.setattr(module, 'DB_JSON', str(tmp_path / 'missing.json'))
+    monkeypatch.setattr(module, 'DB_CSV', str(tmp_path / 'missing.csv'))
+    monkeypatch.setattr(module, 'STATE_YAML', str(tmp_path / 'missing.yaml'))
+    monkeypatch.setattr(module, 'OUTPUTS_DIR', str(tmp_path / 'missing-outputs'))
+    assert module.build_model()['approval']['items'][0]['id'] == 'legacy'
+    runtime.parent.mkdir(parents=True)
+    runtime.write_text(yaml.safe_dump({'requires_dion_approval': [{'id': 'runtime', 'status': 'REVOKED'}]}))
+    model = module.build_model()
+    assert model['approval']['items'][0]['id'] == 'runtime'
+    assert 'state/hermes_zero_token/APPROVAL_QUEUE.yaml' in module.render_html(model)
+    runtime.write_text('invalid: [unterminated')
+    model = module.build_model()
+    assert model['approval'] is None
+    assert 'Selected approval queue not found or unreadable' in module.render_html(model)

@@ -11,6 +11,10 @@ approval queue are retained as historical fixtures and migration inputs.
 | Human review queue | state/hermes_zero_token/APPROVAL_QUEUE.yaml |
 | Daily reports and metrics | state/hermes_zero_token/reports/ |
 
+The audit dashboard selects the runtime queue on every request when it exists,
+and uses the legacy queue only before migration. A malformed runtime queue is
+reported as unreadable rather than replaced by stale historical data.
+
 Worker output JSON reports the actual artifact and approval-queue paths. Review
 the runtime queue at the path above. It contains review requests, not signed
 send grants; canonical approval, consent, suppression and transport gates remain
