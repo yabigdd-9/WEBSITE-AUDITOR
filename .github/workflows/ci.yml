@@ -113,6 +113,8 @@ jobs:
             money-machine/test_local_inputs.py \
             money-machine/test_send_readiness.py \
             money-machine/test_smtp_candidate.py \
+            money-machine/test_smtp_live.py \
+            money-machine/test_pipeline_lease_ownership.py \
             money-machine/test_email_lifecycle.py \
             money-machine/test_email_lifecycle_cli.py \
             money-machine/test_network_guard.py \

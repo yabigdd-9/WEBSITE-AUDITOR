@@ -287,6 +287,10 @@ def main(argv=None):
     q=s.add_parser('outreach-dsn');q.add_argument('--eml',required=True);q.add_argument('--recipient',required=True);q.add_argument('--original-message-id',required=True)
     s.add_parser('outreach-health')
     s.add_parser('transport-status')
+    q=s.add_parser('transport-enable');q.add_argument('--actor',required=True);q.add_argument('--daily-cap',type=int,choices=range(1,11),default=1)
+    q=s.add_parser('transport-disable');q.add_argument('--actor',required=True)
+    q=s.add_parser('smtp-send');q.add_argument('message_id',type=int);q.add_argument('--content-hash',required=True)
+    q=s.add_parser('smtp-reconcile');q.add_argument('message_id',type=int)
     q=s.add_parser('email-send-preflight');q.add_argument('message_id',type=int)
     q=s.add_parser('transport-preflight');q.add_argument('--packet',required=True)
     s.add_parser('outcomes')
@@ -428,8 +432,20 @@ def main(argv=None):
     if a.cmd == 'email-send-preflight':
         import mm_send_readiness
         with contextlib.closing(connect(readonly=True)) as d:
-            result = mm_send_readiness.inspect_message(d, a.message_id)
+            result = mm_send_readiness.inspect_message(d, a.message_id, canonical=True)
         print(json.dumps(result, indent=2, default=str));return 0
+    if a.cmd in ('transport-enable', 'transport-disable'):
+        import mm_transport
+        result = mm_transport.set_owner_policy(enabled=a.cmd == 'transport-enable',
+            daily_cap=a.daily_cap if a.cmd == 'transport-enable' else 0, actor=a.actor)
+        print(json.dumps(result, indent=2));return 0
+    if a.cmd in ('smtp-send', 'smtp-reconcile'):
+        import mm_transport
+        import mm_smtp_live
+        with contextlib.closing(connect(readonly=a.cmd == 'smtp-reconcile')) as d:
+            result = (mm_transport.submit(d, a.message_id, expected_content_hash=a.content_hash) if a.cmd == 'smtp-send'
+                      else mm_smtp_live.reconciliation_status(d, a.message_id))
+        print(json.dumps(result, indent=2));return 0
     if a.cmd in ('transport-status','transport-preflight'):
         import mm_transport
         result=mm_transport.status() if a.cmd=='transport-status' else mm_transport.preflight_packet(read_local_json(a.packet))

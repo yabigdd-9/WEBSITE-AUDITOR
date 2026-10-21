@@ -133,7 +133,8 @@ def service_config():
         raise FileNotFoundError("project virtualenv configuration is missing")
     hashes = {}
     for path in (ROOT / ".env", ROOT / ".env.fcc",
-                 ROOT / ".venv-email/pyvenv.cfg", PLIST):
+                 ROOT / ".venv-email/pyvenv.cfg", ROOT / "money-machine/config/transport.json",
+                 ROOT / "state/transport-policy.json", PLIST):
         hashes[str(path)] = hashlib.sha256(path.read_bytes()).hexdigest() if path.exists() else None
     with PLIST.open("rb") as fh:
         config = plistlib.load(fh)

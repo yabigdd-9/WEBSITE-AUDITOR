@@ -285,6 +285,21 @@ def accounting_snapshot(root=None):
                           message_sends=sends[0], proposal_sends=proposals[0],
                           sent_timestamps=sends[1] + proposals[1],
                           send_receipts=sends[2] + proposals[2])
+            exists = d.execute("SELECT 1 FROM sqlite_master WHERE type='table' "
+                               "AND name='smtp_candidate_submissions'").fetchone()
+            if exists:
+                accepted = d.execute(
+                    "SELECT count(*) FROM smtp_candidate_submissions s "
+                    "JOIN mm_messages m ON m.id=s.message_id WHERE s.status='ACCEPTED' "
+                    "AND m.sent_at IS NULL AND m.send_receipt IS NULL").fetchone()[0]
+                ambiguous = d.execute("SELECT count(*) FROM smtp_candidate_submissions "
+                                      "WHERE status IN ('RESERVED','UNKNOWN')").fetchone()[0]
+                result.update(smtp_accepted_without_verified_receipt=accepted,
+                              smtp_claims_requiring_reconciliation=ambiguous,
+                              external_sends=result['external_sends'] + accepted)
+                if ambiguous:
+                    result.update(status='unknown', external_sends=None,
+                                  error='SMTP submission requires independent reconciliation')
             if row[3]:
                 result.update(status="error", error="invalid or missing model cost records")
     except Exception as exc:
