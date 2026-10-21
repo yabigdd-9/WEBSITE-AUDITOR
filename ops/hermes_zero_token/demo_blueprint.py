@@ -3,7 +3,7 @@
 HERMES_ZERO_TOKEN Demo Blueprint Worker (P2)
 
 Produces review-only demo blueprints from evidence-backed templates.
-Writes ONLY to reports/hermes_zero_token/demo_blueprints/ — never sends,
+Writes ONLY to ignored state/hermes_zero_token/demo_blueprints/ — never sends,
 never deploys, never commits pricing without human approval.
 """
 
@@ -16,7 +16,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 os.chdir(PROJECT_ROOT)
 
-BLUEPRINTS_DIR = PROJECT_ROOT / "reports" / "hermes_zero_token" / "demo_blueprints"
+BLUEPRINTS_DIR = PROJECT_ROOT / "state" / "hermes_zero_token" / "demo_blueprints"
 
 os.environ["HERMES_ZERO_TOKEN_MODE"] = "ZERO_LLM"
 os.environ["HERMES_ALLOW_HOSTED_LLM"] = "0"

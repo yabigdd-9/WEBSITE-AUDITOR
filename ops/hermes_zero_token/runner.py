@@ -29,7 +29,7 @@ import yaml
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 STATE_DIR = PROJECT_ROOT / "state" / "hermes_zero_token"
-REPORTS_DIR = PROJECT_ROOT / "reports" / "hermes_zero_token"
+REPORTS_DIR = PROJECT_ROOT / "state" / "hermes_zero_token" / "reports"
 AUDIT_LOG = STATE_DIR / "audit.jsonl"
 
 

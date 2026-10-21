@@ -3,17 +3,18 @@
 HERMES_ZERO_TOKEN Outreach Draft Worker (P2)
 
 Produces HUMAN-REVIEW-ONLY outreach drafts. NEVER sends anything.
-Drafts are written to reports/hermes_zero_token/outreach_drafts/*.md and
+Drafts are written to state/hermes_zero_token/outreach_drafts/*.md and
 APPROVAL_QUEUE.yaml is updated with review items.
 
 Safety: no email, no SMS, no messaging DMs, no form submissions.
 All outreach remains in the human-review queue.
 """
 
+import fcntl
 import json
 import os
-import subprocess
 import sys
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -22,8 +23,9 @@ import yaml
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 os.chdir(PROJECT_ROOT)
 
-DRAFTS_DIR = PROJECT_ROOT / "reports" / "hermes_zero_token" / "outreach_drafts"
-APPROVAL_QUEUE_PATH = PROJECT_ROOT / "approval" / "APPROVAL_QUEUE.yaml"
+DRAFTS_DIR = PROJECT_ROOT / "state" / "hermes_zero_token" / "outreach_drafts"
+APPROVAL_QUEUE_PATH = PROJECT_ROOT / "state" / "hermes_zero_token" / "APPROVAL_QUEUE.yaml"
+LEGACY_APPROVAL_QUEUE_PATH = PROJECT_ROOT / "approval" / "APPROVAL_QUEUE.yaml"
 
 os.environ["HERMES_ZERO_TOKEN_MODE"] = "ZERO_LLM"
 os.environ["HERMES_ALLOW_HOSTED_LLM"] = "0"
@@ -82,8 +84,49 @@ def draft_body(biz):
     return body
 
 
+def load_review_queue():
+    """Read runtime state first; import a legacy queue without modifying it."""
+    path = APPROVAL_QUEUE_PATH if APPROVAL_QUEUE_PATH.exists() else LEGACY_APPROVAL_QUEUE_PATH
+    try:
+        queue = yaml.safe_load(path.read_text()) if path.exists() else {}
+    except yaml.YAMLError:
+        raise ValueError('Review queue contains invalid YAML; preserve it for review') from None
+    if queue is None:
+        queue = {}
+    if not isinstance(queue, dict) or not isinstance(queue.get('requires_dion_approval', []), list):
+        raise ValueError('Review queue must be a mapping with an approval item list')
+    queue.setdefault('requires_dion_approval', [])
+    queue.setdefault('policy', 'Nothing in this queue has been sent, published, purchased or committed.')
+    return queue
+
+
+def save_review_queue(queue):
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8',
+                                         dir=APPROVAL_QUEUE_PATH.parent,
+                                         prefix='.approval-', delete=False) as stream:
+            temporary = Path(stream.name)
+            yaml.safe_dump(queue, stream, sort_keys=False, default_flow_style=False)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, APPROVAL_QUEUE_PATH)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+
+
 def main():
-    DRAFTS_DIR.mkdir(parents=True, exist_ok=True)
+    DRAFTS_DIR.mkdir(parents=True, exist_ok=True, mode=0o700)
+    APPROVAL_QUEUE_PATH.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    # Serialize read/append/publish so concurrent workers cannot lose review items.
+    with (APPROVAL_QUEUE_PATH.parent / 'approval-queue.lock').open('a+') as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        return main_locked()
+
+
+def main_locked():
+    queue = load_review_queue()
     businesses = get_businesses_with_evidence(limit=5)
     report = {
         "generated_at": _now(),
@@ -112,14 +155,8 @@ def main():
         })
 
     # Update APPROVAL_QUEUE.yaml (append-only review items, never send)
-    queue = {"generated_at": _now(), "policy": "Nothing in this queue has been sent, published, purchased or committed.", "items": []}
-    if APPROVAL_QUEUE_PATH.exists():
-        try:
-            existing = yaml.safe_load(APPROVAL_QUEUE_PATH.read_text()) or {}
-            queue["existing_items"] = existing.get("requires_dion_approval", [])
-        except yaml.YAMLError:
-            pass
-    queue["requires_dion_approval"] = queue.get("existing_items", []) + [
+    queue['generated_at'] = _now()
+    queue["requires_dion_approval"] += [
         {
             "id": f"APR-ZT-{d['business_id']}",
             "type": "cold_outreach_send",
@@ -131,7 +168,7 @@ def main():
         }
         for d in report["details"]
     ]
-    APPROVAL_QUEUE_PATH.write_text(yaml.safe_dump(queue, sort_keys=False, default_flow_style=False))
+    save_review_queue(queue)
 
     report["approval_queue_path"] = str(APPROVAL_QUEUE_PATH)
     report_path = DRAFTS_DIR / "outreach_draft_report.json"

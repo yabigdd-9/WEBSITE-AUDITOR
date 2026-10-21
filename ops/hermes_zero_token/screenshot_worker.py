@@ -4,7 +4,7 @@ HERMES_ZERO_TOKEN Screenshot Worker (P2)
 
 Replaces the placeholder with a working auditor_toolkit integration using
 browser=True (auditor_toolkit.browser.run_browser_checks).
-Writes ONLY to reports/hermes_zero_token/screenshots/ — never to production DB.
+Writes ONLY to ignored state/hermes_zero_token/screenshots/ — never to production DB.
 
 Every screenshot is stored with:
   - source URL
@@ -26,7 +26,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 os.chdir(PROJECT_ROOT)
 
-SCREENSHOT_DIR = PROJECT_ROOT / "reports" / "hermes_zero_token" / "screenshots"
+SCREENSHOT_DIR = PROJECT_ROOT / "state" / "hermes_zero_token" / "screenshots"
 MANIFEST_PATH = SCREENSHOT_DIR / "manifest_sha256.json"
 
 os.environ["HERMES_ZERO_TOKEN_MODE"] = "ZERO_LLM"

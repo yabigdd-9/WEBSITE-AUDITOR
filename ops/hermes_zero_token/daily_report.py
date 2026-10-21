@@ -2,7 +2,7 @@
 """
 HERMES_ZERO_TOKEN Daily Report Generator
 Produces DAILY_REPORT_YYYY-MM-DD.md and daily_metrics.json in
-reports/hermes_zero_token/ with zero-token attestation.
+state/hermes_zero_token/reports/ with zero-token attestation.
 
 This reuses existing mm_core/mm_runtime_guards for DB reads and accounting
 (snapshots), but produces the plan's required report format locally.
@@ -20,7 +20,7 @@ from typing import Any
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 STATE_DIR = PROJECT_ROOT / "state" / "hermes_zero_token"
-REPORTS_DIR = PROJECT_ROOT / "reports" / "hermes_zero_token"
+REPORTS_DIR = PROJECT_ROOT / "state" / "hermes_zero_token" / "reports"
 DB_PATH = PROJECT_ROOT / "database" / "money_machine.db"
 
 
@@ -151,7 +151,7 @@ def collect_metrics() -> dict[str, Any]:
 
 
 def write_daily_report(metrics: dict[str, Any]) -> Path:
-    """Write DAILY_REPORT_YYYY-MM-DD.md to reports/hermes_zero_token/."""
+    """Write DAILY_REPORT_YYYY-MM-DD.md to state/hermes_zero_token/reports/."""
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     date_str = _now_date()
     report_path = REPORTS_DIR / f"DAILY_REPORT_{date_str}.md"
