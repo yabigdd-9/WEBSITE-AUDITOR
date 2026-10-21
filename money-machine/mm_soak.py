@@ -46,6 +46,36 @@ def git_info():
             "working_tree_clean": not run(["git", "status", "--porcelain"])}
 
 
+def legacy_belongs_to_other_database(pid):
+    """Exclude only a positively identified other checkout and open DB.
+
+    A command name, interpreter or cwd alone cannot establish DB ownership.
+    Unavailable or ambiguous lsof evidence keeps the process in the blocking
+    inventory. No service is stopped or reconfigured by this observation.
+    """
+    try:
+        evidence = run(['lsof', '-a', '-p', str(pid), '-Fn'])
+    except (OSError, RuntimeError):
+        return False
+    descriptor, cwd, databases = None, None, set()
+    for line in evidence.splitlines():
+        if line.startswith('f'):
+            descriptor = line[1:]
+        elif line.startswith('n'):
+            name = line[1:]
+            if descriptor == 'cwd':
+                cwd = Path(name).resolve()
+            if Path(name).name in ('money_machine.db', 'money_machine.db-wal',
+                                   'money_machine.db-shm'):
+                databases.add(Path(name).resolve())
+    if cwd is None or cwd.name != 'money-machine' or cwd.parent == ROOT.resolve():
+        return False
+    database = cwd.parent / 'database/money_machine.db'
+    allowed = {database, database.with_name('money_machine.db-wal'),
+               database.with_name('money_machine.db-shm')}
+    return database in databases and databases <= allowed
+
+
 def supervisor_processes():
     processes = []
     for line in run(["ps", "-ax", "-o", "pid=,stat=,command="]).splitlines():
@@ -60,6 +90,8 @@ def supervisor_processes():
         legacy = "supervisor.cli" in tokens and "_run-foreground" in tokens
         boot = str(ROOT / "money-machine/runtime_bootstrap.py") in tokens and "_run-foreground" in tokens
         if legacy or boot:
+            if legacy and not boot and legacy_belongs_to_other_database(int(fields[0])):
+                continue
             expected = None
             if boot and "--expected-sha" in tokens:
                 index = tokens.index("--expected-sha") + 1

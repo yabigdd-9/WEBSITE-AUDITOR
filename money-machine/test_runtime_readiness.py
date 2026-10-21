@@ -121,6 +121,35 @@ def test_process_reader_detects_other_python_supervisor_and_ignores_unrelated_qu
     assert [process["pid"] for process in soak.supervisor_processes()] == [42, 43]
 
 
+@pytest.mark.parametrize('evidence,excluded', [
+    ('other_database', True), ('cwd_only', False), ('main_database', False),
+    ('both_databases', False), ('unavailable', False),
+])
+def test_other_checkout_exclusion_requires_positive_database_ownership(tmp_path, monkeypatch,
+                                                                     evidence, excluded):
+    root, other = tmp_path / 'main', tmp_path / 'other'
+    monkeypatch.setattr(soak, 'ROOT', root)
+    command = f'{soak.PY} -I {root}/money-machine/runtime_bootstrap.py --expected-sha {"a" * 40} -- _run-foreground'
+    listing = f'41 S python -m supervisor.cli _run-foreground\n42 S {command}\n'
+
+    def observe(args):
+        if args[0] == 'ps':
+            return listing
+        assert args == ['lsof', '-a', '-p', '41', '-Fn']
+        if evidence == 'unavailable':
+            raise RuntimeError('process ownership unavailable')
+        data = f'p41\nfcwd\nn{other}/money-machine\n'
+        if evidence in ('other_database', 'both_databases'):
+            data += f'f3\nn{other}/database/money_machine.db\n'
+        if evidence in ('main_database', 'both_databases'):
+            data += f'f4\nn{root}/database/money_machine.db\n'
+        return data
+
+    monkeypatch.setattr(soak, 'run', observe)
+    pids = [p['pid'] for p in soak.supervisor_processes()]
+    assert pids == ([42] if excluded else [41, 42])
+
+
 @pytest.mark.parametrize("value", [None, -1, "unknown"])
 def test_invalid_cost_records_fail_accounting(database, value):
     with sqlite3.connect(database) as d:
