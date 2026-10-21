@@ -191,7 +191,7 @@ def network_guard(host=None, port=443, timeout=2.0, resolver=None, hosts=None,
     return result
 
 
-def network_guard_event(cache_path=None, timeout=2.0):
+def network_guard_event(cache_path=None, timeout=2.0, refresh=False):
     """Probe (with cache) and decide whether a log row is warranted.
 
     Returns (result, log_kind) where log_kind is one of:
@@ -202,7 +202,7 @@ def network_guard_event(cache_path=None, timeout=2.0):
     """
     prior = _read_cache(cache_path) or {}
     prior_ok = (prior.get("result") or {}).get("ok")
-    result = network_guard(timeout=timeout, use_cache=True, cache_path=cache_path)
+    result = network_guard(timeout=timeout, use_cache=not refresh, cache_path=cache_path)
     if result.get("cached"):
         return result, None  # TTL window: never log from a cached observation
     if result["ok"]:

@@ -141,6 +141,16 @@ class GuardCacheAndDedupe(unittest.TestCase):
         self.assertTrue(result["ok"])
         self.assertEqual(kind, "network_recovered")
 
+    def test_restart_refresh_bypasses_fresh_failure_cache(self):
+        with mock.patch.object(guards, '_probe_once', self._always_fail):
+            guards.network_guard_event(cache_path=self.cache)
+        with mock.patch.object(guards, '_probe_once', return_value=None) as probe:
+            result, kind = guards.network_guard_event(cache_path=self.cache, refresh=True)
+        probe.assert_called_once()
+        self.assertTrue(result['ok'])
+        self.assertFalse(result['cached'])
+        self.assertEqual(kind, 'network_recovered')
+
     def test_network_status_modes(self):
         self.assertEqual(guards.network_status(self.cache)["mode"], "unknown")
         with mock.patch.object(guards, "_probe_once", self._always_fail):

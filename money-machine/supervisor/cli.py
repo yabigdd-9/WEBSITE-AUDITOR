@@ -221,6 +221,12 @@ def cmd_run_foreground(args) -> int:
                     _log({"kind": "runtime_guard", "cycle": cycles, "disk": disk, "action": "pause_new_work"})
                     time.sleep(min(max(sleep_seconds, 1), 60))
                     continue
+                # Refresh inherited network status before the first discovery
+                # tick; the old process's cache is not this process's evidence.
+                if cycles == 0 or cycles % rotate_every == 0:
+                    net_result, net_kind = network_guard_event(refresh=cycles == 0)
+                    if net_kind:
+                        _log({"kind": net_kind, **net_result})
                 if cycles == 0 or cycles % 60 == 0:
                     try:
                         import mm_recurring_discovery
@@ -245,9 +251,6 @@ def cmd_run_foreground(args) -> int:
                 _heartbeat(pid, "running")
                 _log({"kind": "loop_cycle", "cycle": cycles, "snapshot": snapshot, "disk": disk})
                 if cycles % rotate_every == 0:
-                    net_result, net_kind = network_guard_event()
-                    if net_kind:
-                        _log({"kind": net_kind, **net_result})
                     _rotate_and_report()
                 for _ in range(int(sleep_seconds * 10)):  # interruptible sleep
                     if stop["flag"]:
