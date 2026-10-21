@@ -3,6 +3,7 @@
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -40,9 +41,10 @@ def main():
     parser.add_argument("--expected-sha", required=True)
     parser.add_argument("--suite", choices=["canonical", "money", "all"], default="all")
     options = parser.parse_args()
-    if head() != options.expected_sha:
+    revision = head()
+    if not re.fullmatch(r'[0-9a-f]{40}', options.expected_sha) or revision != options.expected_sha:
         raise SystemExit("Source HEAD differs from the pinned integration revision")
-    scratch = ROOT / "work/codex-r00/integration" / options.expected_sha[:12]
+    scratch = ROOT / "work/codex-r00/integration" / revision[:12]
     scratch.mkdir(parents=True, exist_ok=True)
     fixture = ROOT / "work/codex-r00/money-source-legacy-final/database/money_machine.db"
     if not fixture.is_file():
@@ -63,7 +65,8 @@ def main():
         "HERMES_ALLOW_PAID_FALLBACK": "0",
         "WEBSITE_AUDITOR_OUTREACH_SEND": "0",
     })
-    suites = ["canonical", "money"] if options.suite == "all" else [options.suite]
+    suites = {"canonical": ("canonical",), "money": ("money",),
+              "all": ("canonical", "money")}[options.suite]
     for suite in suites:
         if head() != options.expected_sha:
             raise SystemExit("Source HEAD changed between suites")

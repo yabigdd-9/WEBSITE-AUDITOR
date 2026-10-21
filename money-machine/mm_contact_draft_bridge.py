@@ -24,6 +24,7 @@ from urllib.parse import urlsplit
 import httpx
 import mm_email as email
 from mm_contact_review_pathway import proofer_worker, publication_proof
+from mm_local_inputs import read_json as read_local_json
 
 VERSION = "contact-draft-bridge-v1"
 SOURCE_ROOT = Path(__file__).resolve().parents[1]
@@ -527,7 +528,7 @@ def import_decisions(exported, receipts, runtime_root, *, reviewer):
     if not isinstance(reviewer, str) or not reviewer.strip():
         raise ValueError("EXPLICIT_REVIEWER_REQUIRED")
     if isinstance(exported, (str, Path)):
-        exported = json.loads(_read(exported))
+        exported = read_local_json(exported, workspace=runtime_root)
     if not isinstance(exported, dict) or exported.get("version") != "contact-draft-intents-v1":
         raise ValueError("DRAFT_DECISION_EXPORT_REQUIRED")
     decisions = exported.get("decisions")

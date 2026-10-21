@@ -139,6 +139,23 @@ def test_manifest_startup_identity_never_attests_existing_runtime(checkout):
     assert not (checkout[0] / "database").exists()  # target resolution never opens DB
 
 
+def test_manifest_outside_checkout_is_rejected(checkout):
+    manifest, digest = approved_manifest(checkout)
+    outside = checkout[0].parent / 'outside-manifest.json'
+    shutil.copyfile(manifest, outside)
+    result, receipt = start(checkout, manifest=outside, manifest_digest=digest)
+    assert result.returncode == 3
+    assert receipt['failure_code'] == 'manifest_path_invalid'
+
+
+def test_oversized_manifest_is_rejected(checkout):
+    manifest, digest = approved_manifest(checkout)
+    manifest.write_bytes(b' ' * (1024 * 1024 + 1))
+    result, receipt = start(checkout, manifest=manifest, manifest_digest=digest)
+    assert result.returncode == 3
+    assert receipt['failure_code'] == 'manifest_too_large'
+
+
 @pytest.mark.parametrize("updates,code", [
     ({"schema_version": 2}, "manifest_schema_invalid"),
     ({"source_sha": "0" * 40}, "manifest_revision_mismatch"),

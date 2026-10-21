@@ -18,6 +18,7 @@ from mm_intelligence import *
 # retained for the legacy operator helpers, but command registration must not
 # depend on it exposing a validation constant.
 from mm_core import CLAIM_TYPES
+from mm_local_inputs import read_json as read_local_json
 
 class DemoParser(HTMLParser):
     def __init__(self):super().__init__();self.tags=[]
@@ -286,6 +287,7 @@ def main(argv=None):
     q=s.add_parser('outreach-dsn');q.add_argument('--eml',required=True);q.add_argument('--recipient',required=True);q.add_argument('--original-message-id',required=True)
     s.add_parser('outreach-health')
     s.add_parser('transport-status')
+    q=s.add_parser('email-send-preflight');q.add_argument('message_id',type=int)
     q=s.add_parser('transport-preflight');q.add_argument('--packet',required=True)
     s.add_parser('outcomes')
     q=s.add_parser('outcome-record');q.add_argument('id',type=int);q.add_argument('--outcome',required=True);q.add_argument('--evidence',required=True);q.add_argument('--sha256',required=True);q.add_argument('--actor',required=True);q.add_argument('--note',default='')
@@ -423,18 +425,23 @@ def main(argv=None):
         import mm_obsidian
         result=mm_obsidian.sync() if a.cmd=='obsidian-sync' else mm_obsidian.status()
         print(json.dumps(result,indent=2,default=str));return 0
+    if a.cmd == 'email-send-preflight':
+        import mm_send_readiness
+        with contextlib.closing(connect(readonly=True)) as d:
+            result = mm_send_readiness.inspect_message(d, a.message_id)
+        print(json.dumps(result, indent=2, default=str));return 0
     if a.cmd in ('transport-status','transport-preflight'):
         import mm_transport
-        result=mm_transport.status() if a.cmd=='transport-status' else mm_transport.preflight_packet(json.loads(Path(a.packet).read_text()))
+        result=mm_transport.status() if a.cmd=='transport-status' else mm_transport.preflight_packet(read_local_json(a.packet))
         print(json.dumps(result,indent=2,default=str));return 0
     if a.cmd in ('intelligence-review-bundle-verify','intelligence-review-bundle-diff'):
         import mm_intelligence_review_bundle
         if a.cmd == 'intelligence-review-bundle-verify':
-            payload = json.loads(Path(a.file).read_text(encoding='utf-8'))
+            payload = read_local_json(a.file)
             result = mm_intelligence_review_bundle.verify_review_bundle(payload)
         else:
-            before = json.loads(Path(a.before).read_text(encoding='utf-8'))
-            after = json.loads(Path(a.after).read_text(encoding='utf-8'))
+            before = read_local_json(a.before)
+            after = read_local_json(a.after)
             result = mm_intelligence_review_bundle.diff_review_bundles(
                 before,
                 after,
@@ -604,9 +611,7 @@ def main(argv=None):
                 import mm_intelligence_readiness
                 holdout_result = None
                 if a.holdout_eval:
-                    holdout_result = json.loads(
-                        Path(a.holdout_eval).read_text(encoding='utf-8')
-                    )
+                    holdout_result = read_local_json(a.holdout_eval)
                 result = mm_intelligence_readiness.readiness_report(
                     d,
                     candidate_rule_version=a.candidate_rule_version,
@@ -625,9 +630,7 @@ def main(argv=None):
                 import mm_intelligence_review_bundle
                 holdout_result = None
                 if a.holdout_eval:
-                    holdout_result = json.loads(
-                        Path(a.holdout_eval).read_text(encoding='utf-8')
-                    )
+                    holdout_result = read_local_json(a.holdout_eval)
                 result = mm_intelligence_review_bundle.build_review_bundle(
                     d,
                     candidate_rule_version=a.candidate_rule_version,

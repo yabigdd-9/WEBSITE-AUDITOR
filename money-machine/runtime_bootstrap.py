@@ -108,7 +108,14 @@ class ManifestGuard:
 
     def verify(self):
         try:
-            raw = self.path.read_bytes()
+            manifest_path = self.path.resolve()
+            if (not manifest_path.is_relative_to(self.root) or manifest_path == self.root
+                    or manifest_path.suffix.lower() != '.json'):
+                raise RevisionError('manifest_path_invalid')
+            with manifest_path.open('rb') as stream:
+                raw = stream.read(1024 * 1024 + 1)
+            if len(raw) > 1024 * 1024:
+                raise RevisionError('manifest_too_large')
             if not re.fullmatch(r"[0-9a-f]{64}", self.digest) or hashlib.sha256(raw).hexdigest() != self.digest:
                 raise RevisionError("manifest_approval_mismatch")
             doc = json.loads(raw, object_pairs_hook=self.unique_fields)
@@ -118,11 +125,12 @@ class ManifestGuard:
                 raise RevisionError("manifest_release_invalid")
             if doc["source_sha"] != self.revision:
                 raise RevisionError("manifest_revision_mismatch")
-            if self.canonical(doc["repository_realpath"]) != self.root:
+            if doc["repository_realpath"] != str(self.root):
                 raise RevisionError("manifest_repository_mismatch")
-            if self.canonical(doc["python_realpath"]) != Path(sys.executable).resolve():
+            if doc["python_realpath"] != str(Path(sys.executable).resolve()):
                 raise RevisionError("manifest_interpreter_mismatch")
-            if self.canonical(doc["database_realpath"]) != self.root / "database/money_machine.db":
+            database = self.canonical(str(self.root / 'database/money_machine.db'))
+            if doc["database_realpath"] != str(database):
                 raise RevisionError("manifest_database_mismatch")
             scheduler = doc["scheduler_identity"]
             if not isinstance(scheduler, str) or not scheduler or scheduler != os.environ.get("MM_SCHEDULER_ID"):
@@ -134,7 +142,12 @@ class ManifestGuard:
             for config in configs:
                 if not isinstance(config, dict) or set(config) != {"realpath", "sha256"}:
                     raise RevisionError("manifest_configuration_invalid")
-                path = self.canonical(config["realpath"])
+                value = config['realpath']
+                if (not isinstance(value, str) or not Path(value).is_absolute()
+                        or '..' in Path(value).parts
+                        or not Path(value).is_relative_to(self.root)):
+                    raise RevisionError('manifest_configuration_path_invalid')
+                path = self.canonical(value)
                 if not path.is_relative_to(self.root) or path in seen:
                     raise RevisionError("manifest_configuration_path_invalid")
                 seen.add(path)

@@ -54,7 +54,7 @@ def heavy_payload() -> bytes:
                             "type": "tool_use",
                             "id": f"toolu_{i:04d}",
                             "name": f"tool_{i % TOOLS}",
-                            "input": {"path": f"/tmp/file_{i}.py", "blob": "y" * TEXT_CHARS},
+                            "input": {"path": f"synthetic/file_{i}.py", "blob": "y" * TEXT_CHARS},
                         }
                     ],
                 }
