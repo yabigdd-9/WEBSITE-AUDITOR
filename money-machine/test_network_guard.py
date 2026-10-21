@@ -150,6 +150,8 @@ class GuardCacheAndDedupe(unittest.TestCase):
         self.assertTrue(result['ok'])
         self.assertFalse(result['cached'])
         self.assertEqual(kind, 'network_recovered')
+        self.assertEqual(guards.network_status(self.cache)['mode'], 'ok')
+        self.assertEqual(json.loads(self.cache.read_text())['checked_at'], result['checked_at'])
 
     def test_network_status_modes(self):
         self.assertEqual(guards.network_status(self.cache)["mode"], "unknown")

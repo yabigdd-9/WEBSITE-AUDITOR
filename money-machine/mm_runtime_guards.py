@@ -126,7 +126,7 @@ def _write_cache(state, cache_path=None):
 
 
 def network_guard(host=None, port=443, timeout=2.0, resolver=None, hosts=None,
-                  connector=None, use_cache=True, cache_path=None):
+                  connector=None, use_cache=True, cache_path=None, refresh=False):
     """Multi-probe public DNS/TCP reachability check; never a provider health claim.
 
     Probes are tried in order; success if ANY responds. Results are cached on
@@ -134,7 +134,7 @@ def network_guard(host=None, port=443, timeout=2.0, resolver=None, hosts=None,
     probe outcome (cached results are flagged with "cached": true). Injected
     resolver/connector (tests) bypass the cache entirely.
     """
-    if use_cache and resolver is None and connector is None:
+    if use_cache and not refresh and resolver is None and connector is None:
         cached = _read_cache(cache_path)
         if cached and cached.get("checked_at"):
             try:
@@ -202,7 +202,8 @@ def network_guard_event(cache_path=None, timeout=2.0, refresh=False):
     """
     prior = _read_cache(cache_path) or {}
     prior_ok = (prior.get("result") or {}).get("ok")
-    result = network_guard(timeout=timeout, use_cache=not refresh, cache_path=cache_path)
+    result = network_guard(timeout=timeout, use_cache=True, cache_path=cache_path,
+                           refresh=refresh)
     if result.get("cached"):
         return result, None  # TTL window: never log from a cached observation
     if result["ok"]:
