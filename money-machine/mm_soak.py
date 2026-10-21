@@ -19,6 +19,7 @@ import signal
 import sqlite3
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -270,9 +271,27 @@ def summarize(samples, violations, duration, completed, reason=None,
 
 
 def write_json(path, value):
-    temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_text(json.dumps(value, indent=2) + "\n")
-    os.replace(temporary, path)
+    # Enforce the output boundary at the writer as well as at CLI admission.
+    state_root = (ROOT / 'state').resolve()
+    path = Path(path).resolve()
+    if (not path.is_relative_to(state_root) or path.parent == state_root
+            or path.suffix != '.json'):
+        raise ValueError('soak output must be JSON inside an evidence directory')
+    temporary = None
+    try:
+        # Exclusive creation avoids following a pre-existing predictable .tmp
+        # symlink; replacement publishes the complete receipt atomically.
+        with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8',
+                                         dir=path.parent, prefix='.soak-',
+                                         suffix='.tmp', delete=False) as stream:
+            temporary = Path(stream.name)
+            stream.write(json.dumps(value, indent=2) + '\n')
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
 
 
 def main(argv=None):

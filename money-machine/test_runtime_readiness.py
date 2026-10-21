@@ -3,6 +3,7 @@ import copy
 import datetime as dt
 import json
 import sqlite3
+import stat
 
 import mm_core as core
 import mm_pipeline as pipeline
@@ -10,6 +11,37 @@ import mm_runtime_guards as guards
 import mm_soak as soak
 import mm_workers
 import pytest
+
+
+def test_soak_writer_ignores_predictable_temporary_symlink(tmp_path, monkeypatch):
+    monkeypatch.setattr(soak, 'ROOT', tmp_path)
+    directory = tmp_path / 'state/evidence'
+    directory.mkdir(parents=True)
+    target = directory / 'receipt.json'
+    outside = tmp_path / 'private.txt'
+    outside.write_text('untouched')
+    (directory / 'receipt.json.tmp').symlink_to(outside)
+    soak.write_json(target, {'synthetic': True})
+    assert outside.read_text() == 'untouched'
+    assert json.loads(target.read_text()) == {'synthetic': True}
+    assert stat.S_IMODE(target.stat().st_mode) == 0o600
+    assert not list(directory.glob('.soak-*'))
+
+
+@pytest.mark.parametrize('kind', ['outside', 'symlink', 'state_root', 'extension'])
+def test_soak_writer_itself_rejects_unowned_outputs(tmp_path, monkeypatch, kind):
+    monkeypatch.setattr(soak, 'ROOT', tmp_path)
+    directory = tmp_path / 'state/evidence'
+    directory.mkdir(parents=True)
+    outside = tmp_path / 'private.json'
+    outside.write_text('untouched')
+    targets = {'outside': outside, 'symlink': directory / 'link.json',
+               'state_root': tmp_path / 'state/receipt.json',
+               'extension': directory / 'private.env'}
+    (directory / 'link.json').symlink_to(outside)
+    with pytest.raises(ValueError, match='soak output'):
+        soak.write_json(targets[kind], {})
+    assert outside.read_text() == 'untouched'
 
 
 @pytest.mark.parametrize("kind", ["outside", "parent", "symlink", "state_root"])
