@@ -35,9 +35,10 @@ class FakeSMTP:
         self.events = []
         self.login_hook, self.send_error, self.quit_error = login_hook, send_error, quit_error
 
-    def __call__(self, host, port, timeout):
-        assert (host, port, timeout) == ('smtp.gmail.com', 587, 20)
-        self.events.append('connect')
+    def __call__(self, host, port, timeout, context):
+        assert (host, port, timeout) == ('smtp.gmail.com', 465, 20)
+        assert context.check_hostname and context.verify_mode == ssl.CERT_REQUIRED
+        self.events.append('tls_connect')
         return self
 
     def __enter__(self):
@@ -51,10 +52,6 @@ class FakeSMTP:
     def ehlo(self):
         self.events.append('ehlo')
 
-    def starttls(self, *, context):
-        assert context.check_hostname and context.verify_mode == ssl.CERT_REQUIRED
-        self.events.append('tls')
-
     def login(self, account, password):
         assert (account, password) == (candidate.SENDER, 'synthetic-only')
         self.events.append('login')
@@ -62,7 +59,7 @@ class FakeSMTP:
             self.login_hook()
 
     def sendmail(self, sender, recipients, wire):
-        assert self.events == ['connect', 'ehlo', 'tls', 'ehlo', 'login']
+        assert self.events == ['tls_connect', 'ehlo', 'login']
         assert sender == candidate.SENDER and recipients == ['synthetic@example.com']
         message = BytesParser(policy=policy.default).parsebytes(wire)
         assert message['To'] == recipients[0] and not message['Bcc'] and not message['Cc']
@@ -141,7 +138,7 @@ def test_reservations_enforce_daily_cap_before_connecting(approved):
     approved.commit()
     with pytest.raises(candidate.SubmissionHeldError, match='daily_cap'):
         candidate.submit(approved, 2, password_loader=password, smtp_factory=client)
-    assert client.events.count('connect') == 1
+    assert client.events.count('tls_connect') == 1
 
 
 def test_crash_reservation_blocks_replay(approved):

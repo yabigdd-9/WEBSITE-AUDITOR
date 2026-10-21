@@ -121,7 +121,7 @@ def _reserve(db, message_id, envelope, cap):
         raise
 
 
-def submit(db, message_id, *, password_loader, smtp_factory=smtplib.SMTP):
+def submit(db, message_id, *, password_loader, smtp_factory=smtplib.SMTP_SSL):
     """Candidate only: one claimed attempt, with ambiguity held for reconciliation.
 
     No automatic retry. A stable Message-ID is a correlation key, not provider
@@ -140,9 +140,8 @@ def submit(db, message_id, *, password_loader, smtp_factory=smtplib.SMTP):
     outcome, attempted = 'HELD', False
     try:
         password = password_loader(SENDER)
-        with smtp_factory('smtp.gmail.com', 587, timeout=20) as client:
-            client.ehlo()
-            client.starttls(context=ssl.create_default_context())
+        with smtp_factory('smtp.gmail.com', 465, timeout=20,
+                          context=ssl.create_default_context()) as client:
             client.ehlo()
             client.login(SENDER, password)
             # Freeze decisions while rechecking immediately before submission.

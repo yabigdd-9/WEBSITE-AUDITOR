@@ -10,8 +10,10 @@ The candidate prepares one plain-text recipient envelope from the exact approved
 draft and uses a fixed CATALYX sender. Additional draft headers, recipient header
 injection, malformed drafts and unsupported SMTPUTF8 recipients are rejected.
 It rechecks current message approval, verification and suppression gates under
-a SQLite write lock immediately before SMTP submission. TLS uses the default
-verified certificate context; authentication follows STARTTLS.
+a SQLite write lock immediately before SMTP submission. The connection starts
+with implicit TLS and the default verified certificate context; authentication
+follows the encrypted connection. Gmail documents this connection option on port
+465 in its [SMTP configuration guide](https://support.google.com/a/answer/176600).
 
 A durable SQLite reservation precedes credential access and connection setup.
 Reservations count toward the UTC daily cap and have a unique message ID. Every
