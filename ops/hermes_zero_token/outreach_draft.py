@@ -11,6 +11,7 @@ All outreach remains in the human-review queue.
 """
 
 import fcntl
+import hashlib
 import json
 import os
 import sys
@@ -95,6 +96,9 @@ def load_review_queue():
         queue = {}
     if not isinstance(queue, dict) or not isinstance(queue.get('requires_dion_approval', []), list):
         raise ValueError('Review queue must be a mapping with an approval item list')
+    items = queue.get('requires_dion_approval', [])
+    if not all(isinstance(item, dict) and isinstance(item.get('id'), str) for item in items):
+        raise ValueError('Review items must have explicit string identities; preserve queue for review')
     queue.setdefault('requires_dion_approval', [])
     queue.setdefault('policy', 'Nothing in this queue has been sent, published, purchased or committed.')
     return queue
@@ -135,16 +139,36 @@ def main_locked():
         "production_written": False,
         "outbound_messages_sent": 0,  # ALWAYS ZERO
         "drafts_created": 0,
+        "existing_reviews_preserved": 0,
         "details": [],
     }
 
+    existing = {item['id'] for item in queue['requires_dion_approval']}
     for biz in businesses:
-        bid = biz["business_id"]
-        tag = _now_tag()
-        path = DRAFTS_DIR / f"business-{bid}-{tag}.md"
+        bid, evidence_id = biz['business_id'], biz['evidence_id']
+        if type(bid) is not int or bid < 1 or type(evidence_id) is not int or evidence_id < 1:
+            raise ValueError('Draft requires positive integer business and evidence identities')
+        approval_id = f'APR-ZT-{bid}'
+        # Any existing request preserves its current decision and draft reference.
+        # Refreshing a draft or reopening a rejection requires a separate review.
+        if approval_id in existing:
+            report['existing_reviews_preserved'] += 1
+            continue
         body = draft_body(biz)
-        path.write_text(body)
-        report["drafts_created"] += 1
+        digest = hashlib.sha256(body.encode('utf-8')).hexdigest()
+        path = DRAFTS_DIR / f'business-{bid}-evidence-{evidence_id}-{digest}.md'
+        try:
+            descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        except FileExistsError:
+            if path.is_symlink() or not path.is_file() or path.read_bytes() != body.encode('utf-8'):
+                raise ValueError('Existing draft does not match expected content; preserve it for review') from None
+        else:
+            with os.fdopen(descriptor, 'w', encoding='utf-8') as stream:
+                stream.write(body)
+                stream.flush()
+                os.fsync(stream.fileno())
+            report['drafts_created'] += 1
+        existing.add(approval_id)
         report["details"].append({
             "business_id": bid,
             "name": biz["name"],
@@ -155,7 +179,8 @@ def main_locked():
         })
 
     # Update APPROVAL_QUEUE.yaml (append-only review items, never send)
-    queue['generated_at'] = _now()
+    if report['details']:
+        queue['generated_at'] = _now()
     queue["requires_dion_approval"] += [
         {
             "id": f"APR-ZT-{d['business_id']}",
@@ -168,7 +193,8 @@ def main_locked():
         }
         for d in report["details"]
     ]
-    save_review_queue(queue)
+    if report['details']:
+        save_review_queue(queue)
 
     report["approval_queue_path"] = str(APPROVAL_QUEUE_PATH)
     report_path = DRAFTS_DIR / "outreach_draft_report.json"
