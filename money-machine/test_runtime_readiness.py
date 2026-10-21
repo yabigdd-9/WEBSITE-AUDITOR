@@ -230,7 +230,7 @@ def sample(seconds=0):
                    "root": str(soak.ROOT), "working_directory": str(soak.ROOT / "money-machine")},
         "heartbeat": {"at": timestamp, "pid": 42, "status": "running"},
         "accounting": {"status": "measured", "paid_calls": 0, "model_cost_usd": 0,
-                       "external_sends": 0, "invalid_cost_records": 0},
+                       "external_sends": 0, "invalid_cost_records": 0, "model_invocations_count": 0},
         "db": {"integrity_check": "ok", "foreign_key_errors": [], "dead_lettered": 0,
                "expired_leases": 0},
         "disk": {"ok": True}, "network_probe": {"ok": True}}
@@ -362,3 +362,64 @@ def test_soak_rejects_an_attestation_from_a_different_revision():
     current = sample()
     current["startup_attestation"]["expected_sha"] = "b" * 40
     assert any("execution attestation" in error for error in soak.detect_violations(current))
+
+
+
+def owner_history_sample(seconds=0):
+    result = sample(seconds)
+    result["accounting"].update(external_sends=1, owner_transport_test_sends=1,
+        owner_mailbox_test_smtp_accepted=1, owner_transport_test_ledger_sha256="a" * 64,
+        model_invocations_count=0)
+    return result
+
+
+def test_soak_preserves_historical_owner_send_without_claiming_lifetime_zero():
+    baseline, current = owner_history_sample(), owner_history_sample(300)
+    before = copy.deepcopy(baseline)
+    assert soak.detect_violations(baseline) == []
+    assert soak.detect_violations(current, baseline, baseline) == []
+    assert baseline == before and baseline["accounting"]["external_sends"] == 1
+
+
+@pytest.mark.parametrize("change", [
+    {"external_sends": 2, "owner_transport_test_sends": 2, "owner_mailbox_test_smtp_accepted": 2},
+    {"external_sends": 2},
+    {"external_sends": 0, "owner_transport_test_sends": 0, "owner_mailbox_test_smtp_accepted": 0},
+    {"owner_transport_test_ledger_sha256": "b" * 64},
+    {"owner_transport_test_ledger_sha256": None},
+    {"model_invocations_count": 1},
+    {"status": "unknown"},
+    {"paid_calls": 1, "model_cost_usd": 0.1},
+    {"invalid_cost_records": 1},
+    {"external_sends": True},
+    {"model_cost_usd": float("nan")},
+    {"model_cost_usd": 10 ** 1000},
+])
+def test_soak_rejects_new_activity_or_changed_historical_evidence(change):
+    baseline, current = owner_history_sample(), owner_history_sample(300)
+    current["accounting"].update(change)
+    assert soak.detect_violations(current, baseline, baseline)
+
+
+def test_full_stream_recalculation_catches_transient_owner_send_even_after_rollback():
+    samples = [owner_history_sample(second) for second in range(0, 86401, 300)]
+    result = soak.summarize(samples, [], 86400, True)
+    assert result["soak_passed"] is True
+    assert result["accounting_window"]["baseline_external_sends"] == 1
+    assert result["accounting_window"]["finish_external_sends"] == 1
+    samples[100]["accounting"].update(external_sends=2, owner_transport_test_sends=2,
+        owner_mailbox_test_smtp_accepted=2)
+    result = soak.summarize(samples, [], 86400, True)
+    assert result["soak_passed"] is False
+    assert result["acceptance"]["evidence_valid"] is False
+    assert result["accounting_window"]["all_samples_no_new_recorded_activity"] is False
+
+
+
+def test_soak_requires_model_invocation_count_at_baseline_and_every_sample():
+    baseline = owner_history_sample()
+    del baseline["accounting"]["model_invocations_count"]
+    assert soak.detect_violations(baseline)
+    samples = [owner_history_sample(second) for second in range(0, 86401, 300)]
+    del samples[100]["accounting"]["model_invocations_count"]
+    assert soak.summarize(samples, [], 86400, True)["soak_passed"] is False

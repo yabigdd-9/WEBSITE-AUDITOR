@@ -12,6 +12,7 @@ while continuously degraded) so a sandboxed/offline host cannot flood errors.
 from __future__ import annotations
 
 import contextlib
+import hashlib
 import json
 import os
 import shutil
@@ -307,8 +308,16 @@ def accounting_snapshot(root=None):
                                            "WHERE status='ACCEPTED'").fetchone()[0]
                 owner_unknown = d.execute("SELECT count(*) FROM owner_transport_test_claims "
                                           "WHERE status IN ('RESERVED','UNKNOWN')").fetchone()[0]
+                accepted_rows = [dict(item) for item in d.execute(
+                    "SELECT * FROM owner_transport_test_claims WHERE status='ACCEPTED'")]
+                accepted_ledger = "\n".join(sorted(
+                    json.dumps(item, sort_keys=True, ensure_ascii=False)
+                    for item in accepted_rows))
                 result.update(owner_mailbox_test_smtp_accepted=owner_accepted,
-                              owner_mailbox_test_claims_requiring_reconciliation=owner_unknown)
+                              owner_mailbox_test_claims_requiring_reconciliation=owner_unknown,
+                              owner_transport_test_sends=owner_accepted,
+                              owner_transport_test_ledger_sha256=hashlib.sha256(
+                                  accepted_ledger.encode()).hexdigest())
                 if result['external_sends'] is not None:
                     result['external_sends'] += owner_accepted
                 if owner_unknown:

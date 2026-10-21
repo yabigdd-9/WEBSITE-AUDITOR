@@ -12,6 +12,7 @@ import datetime as dt
 import fcntl
 import hashlib
 import json
+import math
 import os
 import plistlib
 import shlex
@@ -200,6 +201,65 @@ def collect_sample(label="sample"):
     return snapshot
 
 
+def accounting_violations(accounting, baseline=None):
+    """Allow preserved owner-test history, never new sends during this window.
+
+    Paid costs/calls and customer sends must still be zero. Nonzero pre-existing
+    owner-test sends require their measured full-ledger fingerprint, which must
+    stay unchanged. Local ledgers do not replace independent external receipts.
+    """
+    def valid(record):
+        if not isinstance(record, dict) or record.get("status") != "measured":
+            return False
+        for field in ("paid_calls", "external_sends", "invalid_cost_records"):
+            value = record.get(field)
+            if type(value) is not int or value < 0:
+                return False
+        cost = record.get("model_cost_usd")
+        if (type(cost) not in (int, float) or cost < 0
+                or (type(cost) is float and not math.isfinite(cost))):
+            return False
+        owner = owner_count(record)
+        if type(owner) is not int or not 0 <= owner <= record["external_sends"]:
+            return False
+        if ("owner_mailbox_test_smtp_accepted" in record
+                and (type(record["owner_mailbox_test_smtp_accepted"]) is not int
+                     or record["owner_mailbox_test_smtp_accepted"] != owner)):
+            return False
+        if owner:
+            digest = record.get("owner_transport_test_ledger_sha256")
+            if (not isinstance(digest, str) or len(digest) != 64
+                    or any(c not in "0123456789abcdef" for c in digest)):
+                return False
+        count = record.get("model_invocations_count")
+        return type(count) is int and count >= 0
+
+    def owner_count(record):
+        return record.get("owner_transport_test_sends",
+                          record.get("owner_mailbox_test_smtp_accepted", 0))
+
+    if not valid(accounting):
+        return ["accounting unavailable or invalid"]
+    if (accounting["paid_calls"] != 0 or accounting["model_cost_usd"] != 0
+            or accounting["invalid_cost_records"] != 0
+            or accounting["external_sends"] != owner_count(accounting)):
+        return ["recorded cost, sends, or invalid cost records"]
+    if baseline is not None:
+        if not valid(baseline):
+            return ["accounting baseline unavailable or invalid"]
+        if (baseline["paid_calls"] != 0 or baseline["model_cost_usd"] != 0
+                or baseline["invalid_cost_records"] != 0
+                or baseline["external_sends"] != owner_count(baseline)):
+            return ["recorded cost, sends, or invalid cost records in baseline"]
+        if (accounting["external_sends"] != baseline["external_sends"]
+                or owner_count(accounting) != owner_count(baseline)
+                or accounting.get("model_invocations_count") != baseline.get("model_invocations_count")
+                or (owner_count(baseline) and accounting.get("owner_transport_test_ledger_sha256")
+                    != baseline.get("owner_transport_test_ledger_sha256"))):
+            return ["recorded cost, sends, or accounting changed during soak"]
+    return []
+
+
 def detect_violations(snapshot, baseline=None, previous=None,
                       heartbeat_max_age=180, max_gap=420):
     violations = []
@@ -237,11 +297,8 @@ def detect_violations(snapshot, baseline=None, previous=None,
     except (ValueError, TypeError, KeyError):
         violations.append("heartbeat evidence missing or invalid")
     accounting = snapshot.get("accounting") or {}
-    if accounting.get("status") != "measured":
-        violations.append("accounting unavailable or invalid")
-    elif (accounting.get("paid_calls") != 0 or accounting.get("model_cost_usd") != 0
-          or accounting.get("external_sends") != 0 or accounting.get("invalid_cost_records") != 0):
-        violations.append("recorded cost, sends, or invalid cost records")
+    violations.extend(accounting_violations(
+        accounting, (baseline.get("accounting") or {}) if baseline is not None else None))
     db = snapshot.get("db") or {}
     if db.get("integrity_check") != "ok" or db.get("foreign_key_errors") != []:
         violations.append("database integrity evidence failed or missing")
@@ -283,7 +340,14 @@ def summarize(samples, violations, duration, completed, reason=None,
               "actual_elapsed_seconds": elapsed, "target_seconds": duration,
               "sample_count": len(samples), "soak_start_sha": (start.get("git") or {}).get("sha"),
               "soak_finish_sha": (finish.get("git") or {}).get("sha"),
-              "violations": violations, "accounting_limitation": "database records only"}
+              "violations": violations, "accounting_limitation": "database records only",
+              "accounting_window": {
+                  "baseline_external_sends": (start.get("accounting") or {}).get("external_sends"),
+                  "finish_external_sends": (finish.get("accounting") or {}).get("external_sends"),
+                  "all_samples_no_new_recorded_activity": all(not accounting_violations(
+                      sample.get("accounting"), start.get("accounting")) for sample in samples),
+                  "policy": "Historical owner-test sends remain recorded; no new sends or model invocations during the window",
+              }}
     gates = {
         "duration_meets_24h": duration >= 86400 and elapsed >= duration,
         "monitor_completed": completed,

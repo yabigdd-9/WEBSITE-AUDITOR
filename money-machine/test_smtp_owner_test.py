@@ -227,6 +227,8 @@ def test_owner_test_accounting_never_reports_zero_after_acceptance_or_ambiguity(
          INSERT INTO owner_transport_test_claims VALUES('ACCEPTED');""")
     result = guards.accounting_snapshot(tmp_path)
     assert result["status"] == "measured" and result["external_sends"] == 1
+    assert result["owner_transport_test_sends"] == 1
+    assert len(result["owner_transport_test_ledger_sha256"]) == 64
     with sqlite3.connect(path) as db:
         db.execute("UPDATE owner_transport_test_claims SET status='UNKNOWN'")
     result = guards.accounting_snapshot(tmp_path)
