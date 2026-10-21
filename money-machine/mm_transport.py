@@ -17,6 +17,13 @@ from pathlib import Path
 import mm_core as core
 
 
+def valid_daily_cap(value, *, enabled=True):
+    """None is explicit unlimited manual sending; zero is disabled only."""
+    if not enabled:
+        return type(value) is int and value == 0
+    return value is None or (type(value) is int and 1 <= value <= 10)
+
+
 def load_config(path=None):
     default = Path(__file__).resolve().parent / "config" / "transport.json"
     override = core.root() / "state" / "transport-policy.json"
@@ -62,8 +69,8 @@ def load_config(path=None):
     elif doc["provider"] == "gmail":
         if doc["enabled"] is not True or doc["external_send_allowed"] is not True:
             raise ValueError("Gmail requires explicit owner enablement")
-        if type(doc["daily_cap"]) is not int or not 1 <= doc["daily_cap"] <= 10:
-            raise ValueError("Gmail daily_cap must be between 1 and 10")
+        if not valid_daily_cap(doc["daily_cap"]):
+            raise ValueError("Gmail daily_cap must be 1..10 or null for unlimited manual sending")
     else:
         raise ValueError("Unregistered transport provider")
     if not all(
@@ -153,12 +160,8 @@ def set_owner_policy(*, enabled, daily_cap, actor):
         or not 2 <= len(actor.strip()) <= 120
     ):
         raise ValueError("Explicit owner identity required")
-    if (
-        type(daily_cap) is not int
-        or (enabled and not 1 <= daily_cap <= 10)
-        or (not enabled and daily_cap != 0)
-    ):
-        raise ValueError("Enabled cap must be 1..10; disabled cap must be zero")
+    if not valid_daily_cap(daily_cap, enabled=enabled):
+        raise ValueError("Enabled cap must be 1..10 or null; disabled cap must be zero")
     config = {
         "version": 1,
         "enabled": enabled,

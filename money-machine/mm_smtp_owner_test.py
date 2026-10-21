@@ -194,7 +194,11 @@ def preview(db, packet_id=None):
     )
     try:
         policy = engine._policy()
-        remaining = max(0, policy["daily_cap"] - engine.daily_claim_count(db, core.now()[:10]))
+        remaining = (
+            None
+            if policy["daily_cap"] is None
+            else max(0, policy["daily_cap"] - engine.daily_claim_count(db, core.now()[:10]))
+        )
     except (ValueError, OSError):
         remaining = 0
     result.update(
@@ -202,7 +206,7 @@ def preview(db, packet_id=None):
         ready_for_owner_confirmation=(
             claim is None
             and result["verification_current"]
-            and remaining > 0
+            and (remaining is None or remaining > 0)
             and os.environ.get("MM_EXTERNAL_SEND_DISABLED") != "1"
         ),
     )
@@ -251,7 +255,7 @@ def _reserve(db, packet_id, content_hash, actor, cap):
         ).fetchone():
             raise engine.SubmissionHeldError("prior_uncertain_owner_test_requires_reconciliation")
         timestamp = core.now()
-        if engine.daily_claim_count(db, timestamp[:10]) >= cap:
+        if cap is not None and engine.daily_claim_count(db, timestamp[:10]) >= cap:
             raise engine.SubmissionHeldError("daily_cap_reserved")
         db.execute(
             "UPDATE owner_transport_test_packets SET approved_hash=?,approved_by=? WHERE id=?",

@@ -287,7 +287,7 @@ def main(argv=None):
     q=s.add_parser('outreach-dsn');q.add_argument('--eml',required=True);q.add_argument('--recipient',required=True);q.add_argument('--original-message-id',required=True)
     s.add_parser('outreach-health')
     s.add_parser('transport-status')
-    q=s.add_parser('transport-enable');q.add_argument('--actor',required=True);q.add_argument('--daily-cap',type=int,choices=range(1,11),default=1)
+    q=s.add_parser('transport-enable');q.add_argument('--actor',required=True);limit=q.add_mutually_exclusive_group();limit.add_argument('--daily-cap',type=int,choices=range(1,11),default=1);limit.add_argument('--unlimited',action='store_true')
     q=s.add_parser('transport-disable');q.add_argument('--actor',required=True)
     q=s.add_parser('smtp-send');q.add_argument('message_id',type=int);q.add_argument('--content-hash',required=True)
     q=s.add_parser('smtp-reconcile');q.add_argument('message_id',type=int)
@@ -451,7 +451,7 @@ def main(argv=None):
     if a.cmd in ('transport-enable', 'transport-disable'):
         import mm_transport
         result = mm_transport.set_owner_policy(enabled=a.cmd == 'transport-enable',
-            daily_cap=a.daily_cap if a.cmd == 'transport-enable' else 0, actor=a.actor)
+            daily_cap=(None if a.unlimited else a.daily_cap) if a.cmd == 'transport-enable' else 0, actor=a.actor)
         print(json.dumps(result, indent=2));return 0
     if a.cmd in ('smtp-send', 'smtp-reconcile'):
         import mm_transport

@@ -254,3 +254,47 @@ def test_new_packet_cannot_bypass_prior_uncertain_owner_claim(packet):
             event_store=events,
         )
     assert not client.events
+
+
+def test_unlimited_allows_separate_exact_approved_owner_tests_but_no_replay(packet, monkeypatch):
+    db, row, events = packet
+    config = transport.load_config()
+    config["daily_cap"] = None
+    monkeypatch.setattr(transport, "load_config", lambda path=None: config.copy())
+    assert owner.preview(db, row["id"])["remaining_daily_claims"] is None
+    assert owner.preview(db, row["id"])["ready_for_owner_confirmation"]
+    submit(packet, OwnerSMTP())
+    newer = owner.prepare(
+        db,
+        "yabigdd@gmail.com",
+        actor="Synthetic Owner",
+        verifier=lambda account: row["verification"],
+    )
+    assert newer["content_hash"] != row["content_hash"]
+    assert submit((db, newer, events), OwnerSMTP())["status"] == "ACCEPTED"
+    with pytest.raises(ValueError):
+        submit(packet, OwnerSMTP())
+    envelope = engine.prepare(
+        99, "synthetic@example.com", "Subject: Synthetic\n\nSeparate approved attempt"
+    )
+    engine._reserve(db, 99, envelope, None)
+    with pytest.raises(ValueError):
+        engine._reserve(db, 99, envelope, None)
+
+
+def test_unlimited_does_not_bypass_uncertain_owner_claim(packet, monkeypatch):
+    db, row, events = packet
+    config = transport.load_config()
+    config["daily_cap"] = None
+    monkeypatch.setattr(transport, "load_config", lambda path=None: config.copy())
+    submit(packet, OwnerSMTP(send_error=TimeoutError("synthetic timeout")))
+    newer = owner.prepare(
+        db,
+        "yabigdd@gmail.com",
+        actor="Synthetic Owner",
+        verifier=lambda account: row["verification"],
+    )
+    client = OwnerSMTP()
+    with pytest.raises(ValueError, match="uncertain"):
+        submit((db, newer, events), client)
+    assert not client.events

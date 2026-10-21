@@ -389,3 +389,16 @@ def test_canonical_readiness_change_after_login_blocks_data(registered, monkeypa
         == "HELD"
     )
     assert "submit" not in client.events
+
+
+def test_explicit_unlimited_policy_preserves_all_message_gates(tmp_path, monkeypatch):
+    monkeypatch.setattr(core, "root", lambda: tmp_path)
+    transport.set_owner_policy(enabled=True, daily_cap=None, actor="Synthetic Owner")
+    config = transport.load_config()
+    assert config["daily_cap"] is None
+    assert config["requires_exact_approval"] and config["requires_verified_recipient"]
+    assert config["requires_suppression_check"]
+    assert transport.status()["automatic_sending"] is False
+    transport.set_owner_policy(enabled=False, daily_cap=0, actor="Synthetic Owner")
+    with pytest.raises(ValueError):
+        transport.set_owner_policy(enabled=False, daily_cap=None, actor="Synthetic Owner")

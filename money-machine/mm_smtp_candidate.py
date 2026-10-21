@@ -92,8 +92,8 @@ def _policy():
         config.get("provider") != "gmail"
         or config.get("enabled") is not True
         or config.get("external_send_allowed") is not True
-        or type(config.get("daily_cap")) is not int
-        or not 1 <= config["daily_cap"] <= 10
+        or "daily_cap" not in config
+        or not mm_transport.valid_daily_cap(config["daily_cap"])
         or not all(
             config.get(k) is True
             for k in (
@@ -141,7 +141,7 @@ def _reserve(db, message_id, envelope, cap, claim_hook=None):
         ).fetchone():
             raise SubmissionHeldError("prior_submission_requires_reconciliation")
         used = daily_claim_count(db, timestamp[:10])
-        if used >= cap:
+        if cap is not None and used >= cap:
             raise SubmissionHeldError("daily_cap_reserved")
         db.execute(
             "INSERT INTO smtp_candidate_submissions VALUES(?,?,?,?,?,?,?)",
