@@ -1,4 +1,5 @@
 """Synthetic regressions for queue eligibility and fenced worker writes."""
+
 import datetime as dt
 import sqlite3
 from types import SimpleNamespace
@@ -22,8 +23,10 @@ def queue(tmp_path, monkeypatch):
 
 def owned(d, bid, owner="owner", seconds=300):
     token = (dt.datetime.now(dt.timezone.utc) + dt.timedelta(seconds=seconds)).isoformat()
-    d.execute("UPDATE pipeline_items SET lease_owner=?,lease_until=?,attempts=3 WHERE business_id=?",
-              (owner, token, bid))
+    d.execute(
+        "UPDATE pipeline_items SET lease_owner=?,lease_until=?,attempts=3 WHERE business_id=?",
+        (owner, token, bid),
+    )
     return token
 
 
@@ -51,7 +54,10 @@ def test_stale_mutation_preserves_every_database_row(queue, operation, reason):
     if reason == "same_owner_new_token":
         supplied = "2000-01-01T00:00:00+00:00"
     if reason == "released":
-        d.execute("UPDATE pipeline_items SET lease_owner=NULL,lease_until=NULL WHERE business_id=?", (bid,))
+        d.execute(
+            "UPDATE pipeline_items SET lease_owner=NULL,lease_until=NULL WHERE business_id=?",
+            (bid,),
+        )
     before = snapshot(d)
     with pytest.raises(p.LeaseLostError):
         if operation == "complete":
@@ -74,8 +80,10 @@ def test_mid_transition_failure_rolls_back_all_writes(queue, monkeypatch):
     d, bid = queue
     token = owned(d, bid)
     before = snapshot(d)
+
     def unavailable(*args):
         raise RuntimeError("synthetic event failure")
+
     monkeypatch.setattr(p, "_record", unavailable)
     with pytest.raises(RuntimeError):
         p.complete(d, bid, "owner", "IDENTITY_PENDING", expected_lease=token)
@@ -83,17 +91,22 @@ def test_mid_transition_failure_rolls_back_all_writes(queue, monkeypatch):
 
 
 @pytest.mark.parametrize("failure", [False, True])
-def test_worker_lease_loss_never_overwrites_reassigned_owner(queue, monkeypatch, failure):
+@pytest.mark.parametrize("replacement", ["replacement", "worker"])
+def test_worker_lease_loss_never_overwrites_reassigned_owner(
+    queue, monkeypatch, failure, replacement
+):
     d, bid = queue
     monkeypatch.setattr("mm_brain.safe_mode", lambda: {"enabled": False})
+
     def handler(d, it, worker):
-        owned(d, bid, owner="replacement")
+        owned(d, bid, owner=replacement)
         if failure:
             raise p.RetryableError("stale result")
         return "IDENTITY_PENDING", "stale success", None
+
     assert p.Worker("worker", ("DISCOVERED",), handler).run_once(d) == 0
     row = p.item(d, bid)
-    assert row["lease_owner"] == "replacement"
+    assert row["lease_owner"] == replacement
     assert row["state"] == "DISCOVERED"
     assert row["attempts"] == 3
 
@@ -120,7 +133,9 @@ def test_success_returns_cleared_lease_and_preserves_outer_transaction(queue):
     token = owned(d, bid)
     d.commit()
     before = snapshot(d)
-    d.execute("UPDATE pipeline_items SET last_error='outer transaction' WHERE business_id=?", (bid,))
+    d.execute(
+        "UPDATE pipeline_items SET last_error='outer transaction' WHERE business_id=?", (bid,)
+    )
     result = p.complete(d, bid, "owner", "IDENTITY_PENDING", expected_lease=token)
     assert result["lease_owner"] is None
     assert result["state"] == "IDENTITY_PENDING"
@@ -132,8 +147,10 @@ def test_success_returns_cleared_lease_and_preserves_outer_transaction(queue):
 def test_worker_cost_block_preserves_typed_classification(queue, monkeypatch):
     d, bid = queue
     monkeypatch.setattr("mm_brain.safe_mode", lambda: {"enabled": False})
+
     def handler(*args):
         raise p.BlockedCost("synthetic unavailable route")
+
     assert p.Worker("worker", ("DISCOVERED",), handler).run_once(d) == 0
     row = p.item(d, bid)
     assert row["classification"] == "blocked_cost"
@@ -167,15 +184,19 @@ def test_claim_rechecks_state_after_competing_connection_changes_it(queue, tmp_p
     d, bid = queue
     d.commit()
     second = sqlite3.connect(tmp_path / "t.db")
+
     class Interleaved:
         def execute(self, sql, arguments):
             cursor = d.execute(sql, arguments)
             if sql.startswith("SELECT * FROM pipeline_items WHERE state IN"):
                 selected = cursor.fetchall()
-                second.execute("UPDATE pipeline_items SET state='IDENTITY_PENDING' WHERE business_id=?", (bid,))
+                second.execute(
+                    "UPDATE pipeline_items SET state='IDENTITY_PENDING' WHERE business_id=?", (bid,)
+                )
                 second.commit()
                 return SimpleNamespace(fetchall=lambda: selected)
             return cursor
+
     try:
         assert p.claim(Interleaved(), ("DISCOVERED",), "stale-stage-worker") == []
         assert p.item(d, bid)["lease_owner"] is None

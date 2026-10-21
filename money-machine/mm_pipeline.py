@@ -14,6 +14,7 @@ Design rules:
     dead-letter after max attempts, circuit breakers per external service.
 """
 import datetime as dt
+import functools
 import json
 import math
 import os
@@ -21,6 +22,7 @@ import random
 import socket
 import sqlite3
 import time
+import uuid
 from pathlib import Path
 
 from mm_core import now, root, sha, timestamp
@@ -370,24 +372,47 @@ def backoff_seconds(attempts, base=30, cap=3600, jitter=0.2):
     return delay * (1 + random.uniform(-jitter, jitter))
 
 
-def _require_lease(d, business_id, worker_id, allow_unleased=False):
+
+def _atomic_mutation(function):
+    @functools.wraps(function)
+    def guarded(d, *args, **kwargs):
+        # Match normal SQLite DML transaction semantics, including `with d:`.
+        if not d.in_transaction and d.isolation_level is not None:
+            d.execute('BEGIN')
+        point = 'pipeline_' + uuid.uuid4().hex
+        d.execute('SAVEPOINT ' + point)
+        try:
+            result = function(d, *args, **kwargs)
+        except BaseException:
+            d.execute('ROLLBACK TO ' + point)
+            d.execute('RELEASE ' + point)
+            raise
+        d.execute('RELEASE ' + point)
+        return result
+    return guarded
+
+def _require_lease(d, business_id, worker_id, allow_unleased=False, expected_lease=None):
     # Obtain the SQLite write lock before checking ownership. A stale result
     # must not reset another worker's retry budget, release its lease or advance.
     cur = d.execute(
         "UPDATE pipeline_items SET heartbeat_at=heartbeat_at WHERE business_id=? "
         "AND ((lease_owner=? AND lease_until>?) "
-        "OR (? AND lease_owner IS NULL AND lease_until IS NULL))",
-        (business_id, worker_id, now(), int(allow_unleased)))
+        "OR (? AND lease_owner IS NULL AND lease_until IS NULL)) "
+        "AND (? IS NULL OR lease_until=?)",
+        (business_id, worker_id, now(), int(allow_unleased), expected_lease, expected_lease))
     if not cur.rowcount:
         raise LeaseLostError('Worker lease no longer owned')
 
 
+@_atomic_mutation
 def fail(d, business_id, worker_id, error, retryable=True, require_lease=False,
-         provider_state=None, lane=None):
+         provider_state=None, lane=None, expected_lease=None):
     """Record a failure; schedule retry or dead-letter."""
     # Preserve the explicit unleased diagnostic API used by operator tooling;
     # the worker loop always requires its current lease.
-    _require_lease(d, business_id, worker_id, allow_unleased=not require_lease)
+    _require_lease(d, business_id, worker_id,
+                   allow_unleased=not require_lease and expected_lease is None,
+                   expected_lease=expected_lease)
     r = item(d, business_id)
     # Preserve the original payload and lease fencing while retaining typed
     # provider failures for operator diagnosis and dead-letter disposition.
@@ -520,22 +545,15 @@ def mark_sent(d, business_id, actor, provider_message_id):
                        'idempotency_key': row['idempotency_key']})
 
 
-def complete(d, business_id, worker_id, to_state, reason='ok', evidence=None):
-    # Roll back partial state edges and counters when a completion is rejected.
-    # A savepoint preserves unrelated work in the caller's transaction.
-    d.execute('SAVEPOINT pipeline_completion')
-    try:
-        _require_lease(d, business_id, worker_id)
-        advance(d, business_id, to_state, worker_id, reason, evidence)
-        release(d, business_id, worker_id)
-        d.execute("UPDATE pipeline_items SET attempts=0,next_retry_at=NULL "
-                  "WHERE business_id=?", (business_id,))
-        metric(d, 'pipeline.items.completed')
-    except Exception:
-        d.execute('ROLLBACK TO pipeline_completion')
-        d.execute('RELEASE pipeline_completion')
-        raise
-    d.execute('RELEASE pipeline_completion')
+@_atomic_mutation
+def complete(d, business_id, worker_id, to_state, reason='ok', evidence=None,
+             expected_lease=None):
+    _require_lease(d, business_id, worker_id, expected_lease=expected_lease)
+    advance(d, business_id, to_state, worker_id, reason, evidence)
+    release(d, business_id, worker_id)
+    d.execute("UPDATE pipeline_items SET attempts=0,next_retry_at=NULL WHERE business_id=?",
+              (business_id,))
+    metric(d, 'pipeline.items.completed')
     return item(d, business_id)
 
 
@@ -711,13 +729,17 @@ class Worker:
         register_worker(d, self.worker_id, kind=','.join(self.states),
                         lease_seconds=self.lease_seconds)
         processed = 0
-        def record_failure(bid, error, retryable=True):
+        def record_failure(it, error, retryable=True):
+            bid = it['business_id']
             try:
                 fail(d, bid, self.worker_id, error, retryable=retryable,
-                     require_lease=True)
+                     require_lease=True, expected_lease=it['lease_until'])
             except LeaseLostError:
                 log({'kind': 'lease_lost', 'business_id': bid,
                      'worker': self.worker_id})
+                return
+            for svc in self.services:
+                breaker_failure(d, svc)
 
         for it in claim(d, self.states, self.worker_id,
                         lease_seconds=self.lease_seconds, limit=limit):
@@ -732,34 +754,31 @@ class Worker:
                         raise RetryableError('circuit open for ' + svc)
                 try:
                     nxt, reason, evidence = self.handler(d, it, self)
-                except (RetryableError, PermanentError, BlockedCost):
+                except (RetryableError, PermanentError, BlockedCost, LeaseLostError):
                     raise
                 except Exception as ex:  # unknown faults are retryable, bounded
                     raise classify_unexpected(ex)
-                for svc in self.services:
-                    breaker_success(d, svc)
                 try:
-                    complete(d, bid, self.worker_id, nxt, reason, evidence)
+                    complete(d, bid, self.worker_id, nxt, reason, evidence,
+                             expected_lease=it['lease_until'])
                 except LeaseLostError:
                     raise
                 except Exception as ex:
                     # A bad handler target must never crash the worker loop:
                     # record it as a bounded retryable failure instead.
                     raise classify_unexpected(ex, 'completion rejected: ')
+                for svc in self.services:
+                    breaker_success(d, svc)
                 processed += 1
             except LeaseLostError:
                 log({'kind': 'lease_lost', 'business_id': bid,
                      'worker': self.worker_id})
             except BlockedCost as ex:
-                for svc in self.services:
-                    breaker_failure(d, svc)
-                record_failure(bid, ex)
+                record_failure(it, ex)
             except RetryableError as ex:
-                for svc in self.services:
-                    breaker_failure(d, svc)
-                record_failure(bid, ex)
+                record_failure(it, ex)
             except PermanentError as ex:
-                record_failure(bid, ex, retryable=False)
+                record_failure(it, ex, retryable=False)
             heartbeat(d, self.worker_id)
         return processed
 
