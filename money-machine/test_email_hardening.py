@@ -6,10 +6,12 @@ import sqlite3
 import unittest
 from unittest.mock import patch
 import test_acceptance as legacy
-from test_email_finder import page, good_dns, ROOT
+from test_email_finder import page, good_dns
 import mm_email as e
 import mm_email_store as store
 import mm_email_cli as cli
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def frozen_case(cid):
@@ -24,14 +26,15 @@ from mm_test_capabilities import HAS_EMAIL_CASE_FIXTURES
 _CASES_ABSENT=("BLOCKED_FIXTURE: reports/email-observation-evidence/cases corpus "
                "not present in this environment")
 
-@unittest.skipUnless(HAS_EMAIL_CASE_FIXTURES,_CASES_ABSENT)
 class HardeningEvidence(unittest.TestCase):
+    @unittest.skipUnless(HAS_EMAIL_CASE_FIXTURES,_CASES_ABSENT)
     def test_real_privacy_only_admin_rejected_legitimate_office_retained(self):
         _,r=frozen_case('new-039');v={v['email']:v for v in r['results']}
         self.assertEqual(v['admin@skilledelectrical.co.nz']['confidence_label'],'REJECTED')
         self.assertEqual(v['admin@skilledelectrical.co.nz']['role_account'],'privacy/legal')
         self.assertEqual(r['selected']['email'],'office@skilledelectrical.co.nz')
 
+    @unittest.skipUnless(HAS_EMAIL_CASE_FIXTURES,_CASES_ABSENT)
     def test_real_mixed_branch_and_locations_pages(self):
         _,r=frozen_case('new-094');v={v['email']:v for v in r['results']}
         self.assertEqual(r['selected']['email'],'sales@urban.co.nz')

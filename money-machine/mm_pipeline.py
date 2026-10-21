@@ -382,12 +382,25 @@ def _require_lease(d, business_id, worker_id, allow_unleased=False):
         raise LeaseLostError('Worker lease no longer owned')
 
 
-def fail(d, business_id, worker_id, error, retryable=True, require_lease=False):
+def fail(d, business_id, worker_id, error, retryable=True, require_lease=False,
+         provider_state=None, lane=None):
     """Record a failure; schedule retry or dead-letter."""
     # Preserve the explicit unleased diagnostic API used by operator tooling;
     # the worker loop always requires its current lease.
     _require_lease(d, business_id, worker_id, allow_unleased=not require_lease)
     r = item(d, business_id)
+    # Preserve the original payload and lease fencing while retaining typed
+    # provider failures for operator diagnosis and dead-letter disposition.
+    provider_state = provider_state or getattr(error, 'provider_state', None)
+    lane = lane or getattr(error, 'lane', None)
+    if provider_state is not None or lane is not None:
+        payload = json.loads(r['payload'])
+        if provider_state is not None:
+            payload['provider_state'] = provider_state
+        if lane is not None:
+            payload['lane'] = lane
+        d.execute('UPDATE pipeline_items SET payload=? WHERE business_id=?',
+                  (json.dumps(payload), business_id))
     attempts = r['attempts'] + 1
     msg = ('BLOCKED_COST: %s' % error if isinstance(error, BlockedCost)
            else str(error))[:500]
