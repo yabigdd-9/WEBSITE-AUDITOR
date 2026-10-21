@@ -38,6 +38,7 @@ class FakeSMTP:
     def __call__(self, host, port, timeout, context):
         assert (host, port, timeout) == ('smtp.gmail.com', 465, 20)
         assert context.check_hostname and context.verify_mode == ssl.CERT_REQUIRED
+        assert context.minimum_version >= ssl.TLSVersion.TLSv1_2
         self.events.append('tls_connect')
         return self
 

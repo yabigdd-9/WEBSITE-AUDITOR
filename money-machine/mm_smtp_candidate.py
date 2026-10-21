@@ -140,8 +140,12 @@ def submit(db, message_id, *, password_loader, smtp_factory=smtplib.SMTP_SSL):
     outcome, attempted = 'HELD', False
     try:
         password = password_loader(SENDER)
+        context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
+        context.verify_mode = ssl.CERT_REQUIRED
+        context.check_hostname = True
+        context.minimum_version = ssl.TLSVersion.TLSv1_2
         with smtp_factory('smtp.gmail.com', 465, timeout=20,
-                          context=ssl.create_default_context()) as client:
+                          context=context) as client:
             client.ehlo()
             client.login(SENDER, password)
             # Freeze decisions while rechecking immediately before submission.
