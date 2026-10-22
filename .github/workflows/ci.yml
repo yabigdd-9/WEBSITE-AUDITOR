@@ -67,6 +67,8 @@ jobs:
         run: |
           ruff check \
             money-machine/mm_workers.py \
+            money-machine/mm_deploy.py \
+            money-machine/test_release_gates.py \
             money-machine/test_worker_audit_coverage.py \
             money-machine/mm_opportunity_intelligence.py \
             money-machine/mm_error_mining.py \
@@ -75,6 +77,7 @@ jobs:
             money-machine/mm_intelligence_hard_cases.py \
             money-machine/mm_intelligence_strategy.py \
             money-machine/mm_intelligence_drift.py \
+            money-machine/mm_intelligence_freshness.py \
             money-machine/mm_intelligence_evidence_value.py \
             money-machine/mm_intelligence_readiness.py \
             money-machine/mm_intelligence_review_bundle.py \
@@ -89,6 +92,7 @@ jobs:
             money-machine/test_intelligence_hard_cases.py \
             money-machine/test_intelligence_strategy.py \
             money-machine/test_intelligence_drift.py \
+            money-machine/test_intelligence_freshness_cli.py \
             money-machine/test_intelligence_evidence_value.py \
             money-machine/test_intelligence_readiness.py \
             money-machine/test_intelligence_review_bundle.py \
@@ -121,6 +125,7 @@ jobs:
             money-machine/test_network_guard.py \
             money-machine/test_runtime_bootstrap.py \
             money-machine/test_runtime_readiness.py \
+            money-machine/test_release_gates.py \
             money-machine/test_pipeline_loop.py \
             money-machine/test_email_hardening.py::HardeningEvidence \
             money-machine/test_scanning_activation.py \
@@ -134,6 +139,7 @@ jobs:
             money-machine/test_intelligence_hard_cases.py \
             money-machine/test_intelligence_strategy.py \
             money-machine/test_intelligence_drift.py \
+            money-machine/test_intelligence_freshness_cli.py \
             money-machine/test_intelligence_evidence_value.py \
             money-machine/test_intelligence_readiness.py \
             money-machine/test_intelligence_review_bundle.py \
