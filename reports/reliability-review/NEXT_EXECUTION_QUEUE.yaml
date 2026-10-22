@@ -1,0 +1,76 @@
+schema_version: 1
+scope: local_staging_review
+external_send_allowed: false
+paid_calls_allowed: false
+production_soak_allowed: false
+items:
+  - priority: P0
+    action: Review queue lease fencing and handler idempotence on the combined candidate
+    success: concurrent fixture and expired handler tests pass without duplicated side effects
+    value: high
+    effort: medium
+    risk: medium
+  - priority: P0
+    action: Hermes owner review of audit timeout exit status and inherited production root
+    success: explicit staging root, bounded audit batch and truthful nonzero timeout outcome
+    value: high
+    effort: small
+    risk: high
+    owner: Hermes
+  - priority: P0
+    action: Review candidate integration and hosted Full Python regression and SonarCloud blockers
+    success: approved combined revision passes required hosted checks
+    gate: publication_requires_approval
+  - priority: P1
+    action: Build labelled NZ discovery fixtures and independent identity adjudication
+    metric: precision and duplicate rate by source and industry
+    effort: medium
+    risk: low
+  - priority: P1
+    action: Calibrate commercial scoring against independent observed defect labels
+    metric: precision among top twenty opportunities
+    effort: medium
+    risk: low
+  - priority: P1
+    action: Strengthen defect evidence with scoped URLs, exact excerpts and repeat captures
+    metric: independently reproducible defect proportion
+    effort: medium
+    risk: low
+  - priority: P1
+    action: Batch screenshot and demo work with cache and browser concurrency limits
+    metric: seconds and memory per evidenced packet
+    effort: medium
+    risk: medium
+  - priority: P1
+    action: Improve draft personalization with evidence-required templates
+    metric: reviewer acceptance rate and unsupported claim count
+    effort: small
+    risk: low
+  - priority: P2
+    action: Export review reports to a user-selected Obsidian-compatible folder
+    metric: link integrity and duplicate-free export
+    effort: small
+    risk: low
+    gate: select_destination
+  - priority: P2
+    action: Expose queue activity, stale heartbeat and delta-rate views in operator dashboard
+    metric: time to diagnose idle versus stuck
+    effort: medium
+    risk: low
+  - priority: P2
+    action: Benchmark deterministic templates before optional free local model assistance
+    metric: reviewer quality per second and zero provider spend
+    effort: medium
+    risk: medium
+    gate: models_remain_disabled_until_selected
+  - priority: P2
+    action: Continuous bounded staged monitoring with cooldown and limited recovery budget
+    metric: stranded jobs, alert precision and restart count
+    effort: medium
+    risk: medium
+    gate: schedule_and_runtime_owner_review
+  - priority: P2
+    action: Expand fixtures to one additional NZ industry at a time
+    metric: held-out precision and supported evidence coverage
+    effort: medium
+    risk: low

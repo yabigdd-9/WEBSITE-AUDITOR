@@ -14,11 +14,13 @@ rate-limits, prevents duplicates, and quarantines on abnormal signals.
 import datetime as dt
 import json
 import re
+from pathlib import Path
 
 from mm_core import now, digest, timestamp
 from mm_pipeline import transition, item, rate_ok, log
 
 APPROVAL_STATES = ('PENDING', 'CHECKING', 'APPROVED', 'REJECTED', 'NEEDS_REVIEW')
+TOOLKIT_ROOT = (Path(__file__).resolve().parents[1] / 'outputs' / 'toolkit').resolve()
 
 DDL = """
 CREATE TABLE IF NOT EXISTS approval_records(
@@ -93,23 +95,80 @@ def _gate_pipeline_state(d, bid):
 
 
 def _gate_audit_evidence(d, bid):
-    r = d.execute("SELECT id FROM mm_evidence WHERE business_id=? ORDER BY id DESC LIMIT 1",
-                  (bid,)).fetchone()
-    return bool(r), {'evidence_id': r['id'] if r else None}
+    """Accept legacy evidence or a verified canonical toolkit audit artifact."""
+    legacy = d.execute(
+        "SELECT id FROM mm_evidence WHERE business_id=? ORDER BY id DESC LIMIT 1",
+        (bid,),
+    ).fetchone()
+    if legacy:
+        return True, {'evidence_id': legacy['id'], 'source': 'mm_evidence'}
+
+    row = d.execute(
+        "SELECT evidence FROM pipeline_events "
+        "WHERE business_id=? AND to_state='AUDITED' AND evidence IS NOT NULL "
+        "ORDER BY id DESC LIMIT 1",
+        (bid,),
+    ).fetchone()
+    if not row:
+        return False, {'reason': 'no audit evidence'}
+
+    try:
+        evidence = json.loads(row['evidence'])
+    except (TypeError, ValueError):
+        return False, {'reason': 'audit event evidence is invalid JSON'}
+    if not isinstance(evidence, dict):
+        return False, {'reason': 'audit event evidence is not an object'}
+    if evidence.get('audit_engine') != 'auditor_toolkit':
+        return False, {'reason': 'canonical auditor_toolkit evidence required'}
+
+    run_id = str(evidence.get('run_id') or '').strip()
+    raw_path = str(evidence.get('report_path') or '').strip()
+    if not run_id or not raw_path:
+        return False, {'reason': 'canonical audit run_id/report_path missing'}
+
+    try:
+        report_path = Path(raw_path).resolve()
+    except OSError:
+        return False, {'reason': 'canonical audit report path invalid'}
+    if not report_path.is_relative_to(TOOLKIT_ROOT) or not report_path.is_file():
+        return False, {'reason': 'canonical audit report missing or outside toolkit root'}
+
+    try:
+        report = json.loads(report_path.read_text(encoding='utf-8'))
+    except (OSError, UnicodeDecodeError, ValueError):
+        return False, {'reason': 'canonical audit report unreadable'}
+    ok = (
+        isinstance(report, dict)
+        and report.get('run_id') == run_id
+        and report.get('status') == 'complete'
+    )
+    return ok, {
+        'source': 'auditor_toolkit',
+        'run_id': run_id,
+        'report_path': str(report_path),
+        'status': report.get('status') if isinstance(report, dict) else None,
+    }
 
 
 def _gate_verified_email(d, bid):
-    rows = d.execute(
-        "SELECT v.email,v.result_json FROM email_verifications v "
-        "WHERE v.prospect_id=? ORDER BY v.id DESC", (bid,)).fetchall()
-    for row in rows or []:
-        try:
-            res = json.loads(row['result_json'])
-        except (ValueError, TypeError):
-            continue
-        if res.get('confidence_label') == 'VERIFIED_HIGH':
-            return True, {'email': row['email'], 'confidence': 'VERIFIED_HIGH'}
-    return False, {'checked': len(rows or [])}
+    """Require the authoritative Email Finder V2 current-high selection."""
+    view = d.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='view' AND name='email_current_high'"
+    ).fetchone()
+    if not view:
+        return False, {'reason': 'email_current_high view unavailable'}
+    row = d.execute(
+        "SELECT normalized_email,verification_id FROM email_current_high "
+        "WHERE prospect_id=? ORDER BY verification_id DESC LIMIT 1",
+        (bid,),
+    ).fetchone()
+    if not row:
+        return False, {'checked': 0, 'confidence': 'NO_VERIFIED_EMAIL'}
+    return True, {
+        'email': row['normalized_email'],
+        'verification_id': row['verification_id'],
+        'confidence': 'VERIFIED_HIGH',
+    }
 
 
 def _gate_consent(d, bid):

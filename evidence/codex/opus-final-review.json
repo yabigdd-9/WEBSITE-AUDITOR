@@ -1,0 +1,24 @@
+{
+  "commit": "d61306bcc997fd63f26e26bd31ff09296b4fe38c",
+  "started_at_utc": "2026-10-16T06:23:54.470380+00:00",
+  "duration_seconds": 1.02,
+  "pytest_arguments": [
+    "-ra",
+    "--strict-markers",
+    "/Users/dd/WEBSITE-AUDITOR-codex/work/codex-r00/opus-final-isolation/toolkit_tests/test_daemon_start.py",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=/Users/dd/WEBSITE-AUDITOR-codex/work/codex-r00/opus-final-isolation/pytest-tmp",
+    "--junitxml=/Users/dd/WEBSITE-AUDITOR-codex/evidence/codex/opus-final-tests.xml"
+  ],
+  "pytest_exit_code": 0,
+  "signal_handlers_restored": true,
+  "exact_fixture_files_unchanged": true,
+  "source_hashes": {
+    "money-machine/supervisor/__init__.py": "b9700059e5c7addfbcbd9d8a5bd6355d244640207c02adf7d99cb955015c80bf",
+    "money-machine/supervisor/daemon.py": "4a743902b1364f9ae843383a650ffa25ddadf28f555d3d3adb593980b843f798",
+    "toolkit_tests/test_daemon_start.py": "56b7a57fdf30d432456f8b6518bccf5ad0e1192c24f8699064f4774ad51283a2"
+  },
+  "scope": "Exact committed daemon and tests copied into Codex scratch; no Opus edits or service changes"
+}

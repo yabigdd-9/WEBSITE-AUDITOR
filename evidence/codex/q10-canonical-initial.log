@@ -1,0 +1,151 @@
+.........................................................s.............. [  6%]
+....................s................................................... [ 12%]
+........................................................................ [ 19%]
+........................................................................ [ 25%]
+........................................................................ [ 31%]
+........................................................................ [ 38%]
+........................................................................ [ 44%]
+........................................................................ [ 51%]
+........................................................................ [ 57%]
+........................................................................ [ 63%]
+........................................................................ [ 70%]
+........................................................................ [ 76%]
+........................................................................ [ 83%]
+................................................................s....... [ 89%]
+........................................................................ [ 95%]
+...............................................                          [100%]
+=============================== warnings summary ===============================
+../WEBSITE-AUDITOR/.venv-email/lib/python3.11/site-packages/starlette/testclient.py:53
+  /Users/dd/WEBSITE-AUDITOR/.venv-email/lib/python3.11/site-packages/starlette/testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+toolkit_tests/test_release.py::test_portal_sessions_csrf_injection_and_artifacts
+  /Users/dd/WEBSITE-AUDITOR/.venv-email/lib/python3.11/site-packages/starlette/testclient.py:455: DeprecationWarning: Setting per-request cookies=<...> is being deprecated, because the expected behaviour on cookie persistence is ambiguous. Set cookies directly on the client instance instead.
+    return super().request(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] toolkit_tests/test_browser_e2e.py:26: Set WA_BROWSER_E2E=1 for real local Chromium/PDF test
+SKIPPED [1] toolkit_tests/test_monthly_browser_e2e.py:20: Opt-in real Chromium test
+SKIPPED [1] tests/test_proof_rendering.py:97: could not import 'PIL.Image': No module named 'PIL'
+1124 passed, 3 skipped, 2 warnings in 170.51s (0:02:50)
+{
+  "source_sha": "09ab41ab61656ae4b63110d4ee7d418f3fbf07b8",
+  "started_at_utc": "2026-10-16T02:44:27.699614+00:00",
+  "duration_seconds": 171.694,
+  "pytest_arguments": [
+    "-ra",
+    "--strict-markers",
+    "toolkit_tests",
+    "tests",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=/Users/dd/WEBSITE-AUDITOR-codex/work/codex-r00/pytest-canonical",
+    "--junitxml=/Users/dd/WEBSITE-AUDITOR-codex/evidence/codex/q10-canonical.xml"
+  ],
+  "exit_code": 0,
+  "changed_during_run": [],
+  "loaded_mismatches": [
+    "tests/e2e/test_ai_eval_browser.py",
+    "tests/e2e/test_local_seo_rendered_schema.py",
+    "tests/e2e/test_proof_browser_capture.py",
+    "tests/e2e/test_proof_demo_render.py",
+    "tests/integration/test_ai_eval_harness.py",
+    "tests/integration/test_local_seo_evidence_integration.py",
+    "tests/integration/test_local_seo_identity_integration.py",
+    "tests/integration/test_proof_evidence_integration.py",
+    "tests/integration/test_proof_v36_eval.py",
+    "tests/integration/test_tech_enrichment.py",
+    "tests/test_contact_draft_bridge.py",
+    "tests/test_contact_review_automation.py",
+    "tests/test_contact_review_cache_upgrade.py",
+    "tests/test_contact_review_network_upgrade.py",
+    "tests/test_contact_review_pathway_upgrade.py",
+    "tests/test_contact_review_workers.py",
+    "tests/test_eval_comparison.py",
+    "tests/test_eval_graders.py",
+    "tests/test_eval_policy.py",
+    "tests/test_eval_promotion.py",
+    "tests/test_eval_replay.py",
+    "tests/test_eval_report.py",
+    "tests/test_eval_runner.py",
+    "tests/test_eval_schema.py",
+    "tests/test_fcc_bridge_transport.py",
+    "tests/test_integration_layer.py",
+    "tests/test_local_seo_adapters.py",
+    "tests/test_local_seo_address.py",
+    "tests/test_local_seo_categories.py",
+    "tests/test_local_seo_consistency.py",
+    "tests/test_local_seo_corroboration.py",
+    "tests/test_local_seo_geo.py",
+    "tests/test_local_seo_hours.py",
+    "tests/test_local_seo_identity.py",
+    "tests/test_local_seo_location_pages.py",
+    "tests/test_local_seo_nap.py",
+    "tests/test_local_seo_phone.py",
+    "tests/test_local_seo_pipeline.py",
+    "tests/test_local_seo_report.py",
+    "tests/test_local_seo_schema.py",
+    "tests/test_local_seo_scoring.py",
+    "tests/test_local_seo_service_area.py",
+    "tests/test_local_seo_structured_data.py",
+    "tests/test_proof_diff.py",
+    "tests/test_proof_env_probe.py",
+    "tests/test_proof_environment.py",
+    "tests/test_proof_patches.py",
+    "tests/test_proof_prototype.py",
+    "tests/test_proof_regions.py",
+    "tests/test_proof_rendering.py",
+    "tests/test_proof_schema.py",
+    "tests/test_proof_verifier.py",
+    "tests/test_runtime_circuit_breaker.py",
+    "tests/test_runtime_health.py",
+    "tests/test_runtime_quarantine.py",
+    "tests/test_runtime_readiness.py",
+    "tests/test_runtime_recovery.py",
+    "tests/test_runtime_release_report.py",
+    "tests/test_runtime_resource_limits.py",
+    "tests/test_runtime_soak.py",
+    "tests/test_structured_validation.py",
+    "tests/test_tech_fingerprints.py",
+    "tests/test_tech_pipeline.py",
+    "tests/test_tech_report.py",
+    "tests/test_tech_schema.py",
+    "tests/test_tech_versions.py",
+    "tests/test_tech_vulns.py",
+    "toolkit_tests/test_agency_revenue_monthly.py",
+    "toolkit_tests/test_audit_coverage.py",
+    "toolkit_tests/test_browser_e2e.py",
+    "toolkit_tests/test_catalyx_gmail_bridge.py",
+    "toolkit_tests/test_cookie_consent.py",
+    "toolkit_tests/test_faults_visual_proof.py",
+    "toolkit_tests/test_monthly_browser_e2e.py",
+    "toolkit_tests/test_obsidian_workspace.py",
+    "toolkit_tests/test_outcomes_transport.py",
+    "toolkit_tests/test_p0_upgrades.py",
+    "toolkit_tests/test_p10_p13_delivery.py",
+    "toolkit_tests/test_p14_transport_gate.py",
+    "toolkit_tests/test_p15_local_routing.py",
+    "toolkit_tests/test_p16_p18_governance.py",
+    "toolkit_tests/test_p17_observability.py",
+    "toolkit_tests/test_p3_runtime_guards.py",
+    "toolkit_tests/test_p4_external_tools.py",
+    "toolkit_tests/test_p4_hygiene.py",
+    "toolkit_tests/test_p5_evidence.py",
+    "toolkit_tests/test_p7_identity.py",
+    "toolkit_tests/test_quote_consistency.py",
+    "toolkit_tests/test_readability.py",
+    "toolkit_tests/test_rejection_intelligence.py",
+    "toolkit_tests/test_release.py",
+    "toolkit_tests/test_supervisor.py",
+    "toolkit_tests/test_toolkit.py",
+    "toolkit_tests/test_v32_delivery_coverage.py",
+    "toolkit_tests/test_v44_analyzers.py"
+  ],
+  "limitations": [
+    "Execution attestation covers observed parent-process tracked Python modules",
+    "Child-process code and production runtime are not attested",
+    "Opt-in browser coverage retains its own skip conditions"
+  ]
+}

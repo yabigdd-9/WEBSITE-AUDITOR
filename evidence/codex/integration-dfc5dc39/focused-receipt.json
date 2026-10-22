@@ -1,0 +1,22 @@
+{
+  "source_sha": "adec8b282f43f3f2918a4fe4aefcd9c54860324b",
+  "working_diff_sha256": "2f7a83340fdeb1ef6091fce8244cd1aabd3648b7a34005e86985bf45c12ed364",
+  "working_diff_unchanged": true,
+  "started_at_utc": "2026-10-16T07:39:04.091256+00:00",
+  "duration_seconds": 42.889,
+  "command": [
+    "/Users/dd/WEBSITE-AUDITOR/.venv-email/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "toolkit_tests/test_daemon_start.py",
+    "toolkit_tests/test_supervisor.py",
+    "money-machine/test_pipeline.py",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=/Users/dd/WEBSITE-AUDITOR-codex/work/codex-r00/integration/pytest-focused",
+    "--junitxml=/Users/dd/WEBSITE-AUDITOR-codex/evidence/codex/integration-dfc5dc39/focused.xml"
+  ],
+  "exit_code": 0
+}

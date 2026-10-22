@@ -1,0 +1,26 @@
+{
+  "source_sha": "afa514578f82c92305fc195bd4dd7ba080894176",
+  "queue": {
+    "claim_limit": 1,
+    "eligible_waiting_items": 1,
+    "actual_claimed_ids": [],
+    "issue": "Active lease consumes SQL LIMIT before eligibility filtering"
+  },
+  "bootstrap": {
+    "python_files": 333,
+    "existing_git_processes_per_load": 334,
+    "existing_seconds": [
+      11.143447021022439,
+      11.851226198021322,
+      11.042627947870642
+    ],
+    "batch_seconds": [
+      0.1659859181381762,
+      0.23646557820029557,
+      0.22361191688105464
+    ],
+    "byte_identical_all_trials": true,
+    "median_speedup": 49.83
+  },
+  "scope": "Read-only Git operations, in-memory SQLite fixture, no provider calls. Prototype only; candidate source unchanged."
+}

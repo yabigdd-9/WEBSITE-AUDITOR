@@ -1,0 +1,24 @@
+{
+  "commit": "5f461d43dd133fe1084527c52e67a301a550de74",
+  "source_file": "money-machine/supervisor/daemon.py",
+  "source_sha256": "8a88a9cc7cbcca94d73c200128d048dcd0ba1b49e3b9c7b401f91ae198f9b834",
+  "at_utc": "2026-10-16T05:17:41.929433+00:00",
+  "scope": "Committed Opus module executed in isolated temporary fixture; no services or source files changed",
+  "results": [
+    {
+      "case": "existing_live_pid",
+      "expected_start": false,
+      "observed_start": true,
+      "passed": false,
+      "heartbeat_written": true
+    },
+    {
+      "case": "existing_dead_pid",
+      "expected_start": true,
+      "observed_start": false,
+      "passed": false,
+      "heartbeat_written": false
+    }
+  ],
+  "status": "FAIL"
+}

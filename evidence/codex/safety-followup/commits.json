@@ -1,0 +1,51 @@
+[
+  {
+    "sha": "1a3029c5bf5a00b93aedb5f19f8fb768c7cf640d",
+    "subject": "fix(supervisor): retain stable lock inode and fence PID cleanup",
+    "files": [
+      "evidence/codex/OWNERSHIP.md",
+      "money-machine/supervisor/pid.py",
+      "toolkit_tests/test_pid_ownership.py"
+    ]
+  },
+  {
+    "sha": "f240b1cb2147d9bcc7b9d8bb92c18751e68a65a4",
+    "subject": "test(supervisor): cover locked empty PID creation window",
+    "files": [
+      "toolkit_tests/test_pid_ownership.py"
+    ]
+  },
+  {
+    "sha": "e2570723e7d87efc01661f93662017aec62681fd",
+    "subject": "fix(pipeline): preserve search outage metadata through workers",
+    "files": [
+      "money-machine/mm_discovery.py",
+      "money-machine/mm_pipeline.py",
+      "money-machine/test_worker_failure_metadata.py"
+    ]
+  },
+  {
+    "sha": "33d89bbb0ce931167bf08f63ca3f38dc4b9a9e14",
+    "subject": "fix(router): persist billing uncertainty and block further dispatch",
+    "files": [
+      "money-machine/mm_model_router.py",
+      "money-machine/test_router_cost_stop.py"
+    ]
+  },
+  {
+    "sha": "e890e6c08e493ce646f28b002b45776982a75066",
+    "subject": "fix(watchdog): hold webhook alerts as review-only previews",
+    "files": [
+      "tests/test_watchdog_delivery_policy.py",
+      "website_auditor/monitoring/watchdog.py"
+    ]
+  },
+  {
+    "sha": "c50fc9757d156fdce20a975f3ff0f04e98065af8",
+    "subject": "feat(runtime): verify pinned startup identity manifests",
+    "files": [
+      "money-machine/runtime_bootstrap.py",
+      "money-machine/test_runtime_bootstrap.py"
+    ]
+  }
+]

@@ -1,0 +1,27 @@
+{
+  "money-machine/mm_discovery.py": {
+    "actual_sha256": "3830610da5a8f8c2409c2f6d412e226e2bdd0b2af58bbcf74029b412cbb62678",
+    "fresh_sha256": "3830610da5a8f8c2409c2f6d412e226e2bdd0b2af58bbcf74029b412cbb62678",
+    "matches_fresh_compile": true
+  },
+  "money-machine/mm_core.py": {
+    "actual_sha256": "28f2935813b44ef24f319ba434f23595c93f2de7640138e2e37ac07711bc1b11",
+    "fresh_sha256": "28f2935813b44ef24f319ba434f23595c93f2de7640138e2e37ac07711bc1b11",
+    "matches_fresh_compile": true
+  },
+  "money-machine/mm_pipeline.py": {
+    "actual_sha256": "7dc7fd811e3135432108ffdbfa93d8efbd73ee8d9346c07e725b195258168391",
+    "fresh_sha256": "7dc7fd811e3135432108ffdbfa93d8efbd73ee8d9346c07e725b195258168391",
+    "matches_fresh_compile": true
+  },
+  "money-machine/mm_search_backend.py": {
+    "actual_sha256": "5e1b3d3d316be3e18b876321890d2da13e69fb0beffd1c43fa2a11ccb11e5d62",
+    "fresh_sha256": "5e1b3d3d316be3e18b876321890d2da13e69fb0beffd1c43fa2a11ccb11e5d62",
+    "matches_fresh_compile": true
+  },
+  "money-machine/mm_discovery_quality.py": {
+    "actual_sha256": "ed347677b5147754a889c53ab8ae35d892a21d03b9a9cf97fc87be4b894092f0",
+    "fresh_sha256": "ed347677b5147754a889c53ab8ae35d892a21d03b9a9cf97fc87be4b894092f0",
+    "matches_fresh_compile": true
+  }
+}

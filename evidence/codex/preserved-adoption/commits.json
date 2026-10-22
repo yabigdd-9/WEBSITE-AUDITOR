@@ -1,0 +1,19 @@
+[
+  {
+    "sha": "e86b9f543beb0630828c3fdfd7659a0fb9cd3829",
+    "subject": "fix(registry): retain static coverage limitation metadata",
+    "files": [
+      "auditor_toolkit/models.py",
+      "evidence/codex/OWNERSHIP.md",
+      "toolkit_tests/test_registry_integrity.py"
+    ]
+  },
+  {
+    "sha": "0fe5047b18df40e603b8f0bea20cb16fe2c95fac",
+    "subject": "fix(email): resolve bounded adapter imports from foreign entry points",
+    "files": [
+      "money-machine/mm_email_network.py",
+      "money-machine/test_email_network_imports.py"
+    ]
+  }
+]

@@ -1,0 +1,102 @@
+{
+  "started_at": "2026-10-15T19:52:05.785530+00:00",
+  "snapshot": "/Users/dd/WEBSITE-AUDITOR/state/hermes_recovery/20261016/hermes_cron_jobs_before_pause.json",
+  "snapshot_sha256": "cec8e97cc669d7a1a06d3941b5b63e041884209f4bca12df44e86916ea3d758a",
+  "snapshot_mode": "0o600",
+  "action": "Pause exactly six unsupported/block-loop jobs through supported Hermes CLI",
+  "activation": false,
+  "deletion": false,
+  "jobs": [
+    {
+      "id": "11980f4aabec",
+      "script": "/Users/dd/.hermes/scripts/za_queue_dispatcher.sh",
+      "name": "ZA queue dispatcher",
+      "returncode": 0,
+      "cli_output": "Paused job: ZA queue dispatcher (11980f4aabec)",
+      "rollback_command": "rtk proxy hermes cron resume 11980f4aabec"
+    },
+    {
+      "id": "3e757e476ace",
+      "script": "/Users/dd/.hermes/scripts/za_identity_resolution.sh",
+      "name": "ZA identity resolution",
+      "returncode": 0,
+      "cli_output": "Paused job: ZA identity resolution (3e757e476ace)",
+      "rollback_command": "rtk proxy hermes cron resume 3e757e476ace"
+    },
+    {
+      "id": "4a2b4017c296",
+      "script": "/Users/dd/.hermes/scripts/za_site_auditor.sh",
+      "name": "ZA site auditor",
+      "returncode": 0,
+      "cli_output": "Paused job: ZA site auditor (4a2b4017c296)",
+      "rollback_command": "rtk proxy hermes cron resume 4a2b4017c296"
+    },
+    {
+      "id": "cd28c5527987",
+      "script": "/Users/dd/.hermes/scripts/za_discover_nz_businesses.sh",
+      "name": "ZA discover NZ businesses",
+      "returncode": 0,
+      "cli_output": "Paused job: ZA discover NZ businesses (cd28c5527987)",
+      "rollback_command": "rtk proxy hermes cron resume cd28c5527987"
+    },
+    {
+      "id": "9cc96a795bc6",
+      "script": "/Users/dd/.hermes/scripts/za_competitor_research.sh",
+      "name": "ZA competitor research",
+      "returncode": 0,
+      "cli_output": "Paused job: ZA competitor research (9cc96a795bc6)",
+      "rollback_command": "rtk proxy hermes cron resume 9cc96a795bc6"
+    },
+    {
+      "id": "b7962fff0f6a",
+      "script": "/Users/dd/.hermes/scripts/za_weekly_review.sh",
+      "name": "ZA weekly review",
+      "returncode": 0,
+      "cli_output": "Paused job: ZA weekly review (b7962fff0f6a)",
+      "rollback_command": "rtk proxy hermes cron resume b7962fff0f6a"
+    }
+  ],
+  "completed_at": "2026-10-15T19:52:44.675006+00:00",
+  "jobs_after_sha256": "9a99442431c14db2c7852c41ab9a0726921decae3d455b17a91b029882e4ec26",
+  "job_count_before": 17,
+  "job_count_after": 17,
+  "job_identity_set_preserved": true,
+  "changed_job_fields": {
+    "11980f4aabec": [
+      "enabled",
+      "paused_at",
+      "state"
+    ],
+    "3e757e476ace": [
+      "enabled",
+      "paused_at",
+      "state"
+    ],
+    "4a2b4017c296": [
+      "enabled",
+      "paused_at",
+      "state"
+    ],
+    "cd28c5527987": [
+      "enabled",
+      "paused_at",
+      "state"
+    ],
+    "9cc96a795bc6": [
+      "enabled",
+      "paused_at",
+      "state"
+    ],
+    "b7962fff0f6a": [
+      "enabled",
+      "paused_at",
+      "state"
+    ]
+  },
+  "exact_target_changes_only": true,
+  "all_targets_paused": true,
+  "other_enabled_jobs_unchanged": true,
+  "remaining_enabled_count": 11,
+  "rollback_policy": "Resume exact IDs only after resolving worker gates. Never overwrite live jobs.json from snapshot.",
+  "status": "PASS"
+}

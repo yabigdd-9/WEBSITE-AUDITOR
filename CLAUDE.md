@@ -3,9 +3,10 @@
 ## Canonical workspace and branch
 
 - Repository: `/Users/dd/WEBSITE-AUDITOR`
-- Working branch: `upgrade/v32-canonical-execution `
-- Do not merge directly to `master`; keep PR #36 as a draft.
-- Read `MASTER_PLAN.md` and `CURRENT_STATE.md` before making architectural changes.
+- Working branch: `integration/v44-local-machine-convergence`
+- Target PR: `#52` — v44 local-machine convergence
+- Do not merge directly to `master`; keep PR #52 as a draft until release gates are satisfied.
+- Read `MASTER_PLAN.md`, `MASTER_PLAN.yaml`, and `CURRENT_STATE.md` before making architectural changes.
 
 ## Architecture and hard safety rules
 

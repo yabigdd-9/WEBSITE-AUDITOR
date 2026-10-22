@@ -1,0 +1,42 @@
+{
+  "same_check_ids": true,
+  "check_count": 27,
+  "changed_definitions": {
+    "hygiene": {
+      "before": {
+        "id": "hygiene",
+        "category": "technical",
+        "mode": "static",
+        "version": "1",
+        "evidence_required": true,
+        "limitation": ""
+      },
+      "after": {
+        "id": "hygiene",
+        "category": "technical",
+        "mode": "static",
+        "version": "1",
+        "evidence_required": true,
+        "limitation": "Deterministic robots, sitemap, header and mixed-content checks."
+      }
+    },
+    "links": {
+      "before": {
+        "id": "links",
+        "category": "technical",
+        "mode": "static",
+        "version": "1",
+        "evidence_required": true,
+        "limitation": ""
+      },
+      "after": {
+        "id": "links",
+        "category": "technical",
+        "mode": "static",
+        "version": "1",
+        "evidence_required": true,
+        "limitation": "Bounded same-origin link validation; not an exhaustive crawler."
+      }
+    }
+  }
+}

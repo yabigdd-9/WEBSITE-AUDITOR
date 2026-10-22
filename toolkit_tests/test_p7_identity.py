@@ -72,3 +72,18 @@ def test_email_domain_mismatch_is_explicit_conflict():
 def test_unknown_identity_signal_fails_hard():
     with pytest.raises(ValueError, match="Unknown identity signals"):
         identity_confidence({"made_up_match": True})
+
+
+def test_nzbn_name_must_independently_match_business_or_trading_name():
+    result = assess_business_identity(
+        business_name="Koru Plumbing",
+        legal_name="Different Entity Limited",
+        trading_name=None,
+        nzbn_name="Different Entity Limited",
+        website="https://koruplumbing.co.nz",
+        website_brand_match=True,
+        region_match=True,
+    )
+    assert result["signals"]["nzbn_match"] is False
+    assert "nzbn_match" in result["conflicts"]
+    assert result["outreach_identity_eligible"] is False

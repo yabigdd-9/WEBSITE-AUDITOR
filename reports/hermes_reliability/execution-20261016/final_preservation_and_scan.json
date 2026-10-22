@@ -1,0 +1,14 @@
+{
+  "stashes_unchanged": true,
+  "original_generated_files_unchanged": true,
+  "main_tracked_source_diff_empty": true,
+  "publication_scan_exit_code": 0,
+  "production_final_snapshot": {
+    "quick_check": "ok",
+    "foreign_key_violations": 0,
+    "model_invocations": 0,
+    "sent_messages": 0,
+    "send_ledger_rows": 0,
+    "businesses": 400
+  }
+}

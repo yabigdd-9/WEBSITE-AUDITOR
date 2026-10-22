@@ -169,9 +169,15 @@ class TypedSearchErrors(EvidenceOps):
 
     def test_discover_search_cli_prints_typed_block(self):
         out = io.StringIO()
-        with contextlib.redirect_stdout(out):
+        blocked = mm_discovery.SearchBlocked(
+            'BLOCKED_SEARCH_SERVICE_ABSENT', 'http://127.0.0.1:8888', 'fixture'
+        )
+        with patch.object(mm_discovery, 'searxng_candidates', side_effect=blocked), \
+                contextlib.redirect_stdout(out):
             rc = mm_operator.main(['discover-search', '--query', 'heat pumps',
-                                   '--region', 'Canterbury', '--dry-run'])
+                                   '--region', 'Canterbury',
+                                   '--endpoint', 'http://127.0.0.1:1',
+                                   '--dry-run'])
         self.assertEqual(rc, 0)
         doc = json.loads(out.getvalue())
         self.assertEqual(doc['candidates'], [])

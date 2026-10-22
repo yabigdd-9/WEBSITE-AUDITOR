@@ -135,8 +135,11 @@ class TestPagespeed(OfflineCase):
         def handler(request):
             return httpx.Response(429, text="quota")
 
-        out = self.run_async(check_pagespeed("https://example.com",
-                                              self.client_for(handler), self.cache))
+        # The unkeyed quota case must not depend on an operator's inherited key.
+        with patch.dict(os.environ):
+            os.environ.pop('PAGESPEED_API_KEY', None)
+            out = self.run_async(check_pagespeed("https://example.com",
+                                                self.client_for(handler), self.cache))
         self.assertEqual(out["status"], "skipped")
         self.assertFalse(out["keyed"])
 

@@ -11,6 +11,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / 'scripts'))
 import mm_email as e
+import mm_email_cli as email_cli
 from mm_email_network import smtp_evidence
 
 ROOT = Path(__file__).resolve().parent
@@ -27,6 +28,69 @@ def good_dns(**extra):
 
 
 class EmailUnit(unittest.TestCase):
+    def test_weighted_identity_flows_through_first_party_assessment(self):
+        business = {
+            'id': 7, 'name': 'Koru Plumbing',
+            'legal_name': 'Koru Plumbing Limited', 'trading_name': 'Koru Plumbing',
+            'nzbn_name': 'Koru Plumbing Limited', 'region': 'Auckland',
+            'public_website': 'https://koruplumbing.co.nz/',
+        }
+        result = e.identify(business, [page('<p>Auckland</p><p>office@koruplumbing.co.nz</p>')])
+        weighted = result['weighted_confidence']
+        self.assertEqual(weighted['version'], 'identity-v1')
+        self.assertTrue(weighted['signals']['domain_name_match'])
+        self.assertTrue(weighted['signals']['website_brand_match'])
+        self.assertTrue(weighted['signals']['nzbn_match'])
+        self.assertTrue(weighted['signals']['email_domain_match'])
+        self.assertTrue(weighted['signals']['region_match'])
+        self.assertEqual(weighted['status'], 'HIGH')
+        self.assertTrue(weighted['outreach_identity_eligible'])
+        self.assertEqual(result['status'], 'HIGH')
+
+    def test_weighted_identity_preserves_nzbn_conflict(self):
+        business = {
+            'name': 'Koru Plumbing', 'legal_name': 'Other Entity Limited',
+            'nzbn_name': 'Other Entity Limited', 'region': 'Auckland',
+            'public_website': 'https://koruplumbing.co.nz/',
+        }
+        weighted = e.identify(business, [page('<p>Auckland</p>')])['weighted_confidence']
+        self.assertFalse(weighted['signals']['nzbn_match'])
+        self.assertIn('nzbn_match', weighted['conflicts'])
+        self.assertFalse(weighted['outreach_identity_eligible'])
+
+    def test_operator_status_displays_weighted_identity_confidence(self):
+        text = email_cli.human_text({
+            'business': 'Koru Plumbing', 'website': 'https://koruplumbing.co.nz',
+            'email': 'NO_VERIFIED_EMAIL',
+            'identity': {'weighted_confidence': {
+                'confidence': 0.9, 'status': 'HIGH',
+                'positive_signals': ['nzbn_match', 'website_brand_match'],
+                'conflicts': ['email_domain_match'],
+            }},
+        })
+        self.assertIn('Weighted identity confidence: 0.9 / HIGH', text)
+        self.assertIn('Identity signals: nzbn_match, website_brand_match', text)
+        self.assertIn('Identity conflicts: email_domain_match', text)
+
+    def test_identity_uses_nzbn_names_from_append_only_discovery_event(self):
+        import sqlite3
+        d = sqlite3.connect(':memory:')
+        d.row_factory = sqlite3.Row
+        d.execute('CREATE TABLE mm_events(id INTEGER PRIMARY KEY, business_id INTEGER, action TEXT, detail TEXT)')
+        d.execute(
+            'INSERT INTO mm_events(business_id,action,detail) VALUES(?,?,?)',
+            (7, 'discovery_intake', json.dumps({
+                'legal_name': 'Koru Plumbing Limited', 'trading_name': 'Koru Plumbing',
+                'provenance': {'lane': 'nzbn', 'record_id': '9429000000007'},
+            })),
+        )
+        business = email_cli.with_discovery_identity(d, {'id': 7, 'name': 'Koru Plumbing'})
+        self.assertEqual(business['legal_name'], 'Koru Plumbing Limited')
+        self.assertEqual(business['trading_name'], 'Koru Plumbing')
+        self.assertEqual(business['nzbn'], '9429000000007')
+        self.assertEqual(business['nzbn_name'], 'Koru Plumbing Limited')
+        d.close()
+
     def test_normalization_and_obfuscation(self):
         self.assertEqual(e.normalize_email('  Owner(at)Example.CO.NZ  ')[0], 'Owner@example.co.nz')
         self.assertEqual(e.normalize_email('office [at] koru [dot] co [dot] nz')[0], 'office@koru.co.nz')

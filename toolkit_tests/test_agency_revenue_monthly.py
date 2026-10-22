@@ -14,6 +14,7 @@ from auditor_toolkit.cli import main
 from auditor_toolkit.monthly import MonthlyStore, collect_month, due_monthly, generate_monthly
 from auditor_toolkit.revenue import calculate_revenue, roi_csv
 from auditor_toolkit.storage import History
+from toolkit_tests.coverage_fixtures import with_current_coverage
 
 
 def assumption():
@@ -211,7 +212,9 @@ def test_latest_partial_not_hidden_and_other_clients_excluded(tmp_path):
 
 def test_month_boundary_nz_and_verified_work_only(tmp_path):
     history = seed(tmp_path)
-    history.save(report("fixed", "2026-08-20T12:00:00+00:00", findings=[], health_score=100))
+    history.save(with_current_coverage(report(
+        "fixed", "2026-08-20T12:00:00+00:00", findings=[], health_score=100,
+    )))
     history.transition("finding-a", "verified", {"verification_run": "fixed"})
     with history.connect() as db:
         # Sep 1 in NZ; must NOT count as August work.

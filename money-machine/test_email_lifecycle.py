@@ -1,10 +1,9 @@
 import sqlite3
 
-import pytest
-
 import mm_core as core
 import mm_email_lifecycle as lifecycle
 import mm_email_tracking as tracking
+import pytest
 
 
 def database(tmp_path):
@@ -49,6 +48,19 @@ def test_intent_requires_exact_human_approval(tmp_path):
     with pytest.raises(ValueError, match="exact human approval"):
         lifecycle.create_intent(db, 7, "fixture", event_store=event_path)
     assert db.execute("SELECT count(*) FROM email_delivery_intents").fetchone()[0] == 0
+
+
+@pytest.mark.parametrize('status', ['REJECTED', 'PENDING', 'REVOKED'])
+def test_newer_decision_prevents_reusing_old_approval(tmp_path, status):
+    db = database(tmp_path)
+    event_path = tmp_path / 'events.jsonl'
+    db.execute('INSERT INTO approval_records VALUES(2,1,?,NULL,?)', (status, 'human-fixture'))
+    with pytest.raises(ValueError, match='exact human approval'):
+        lifecycle.create_intent(db, 7, 'fixture', event_store=event_path)
+    assert db.execute('SELECT count(*) FROM email_delivery_intents').fetchone()[0] == 0
+    assert not event_path.exists()
+    history = lifecycle.reconstruct(db, 7, event_store=event_path)
+    assert history['approval']['status'] == status
 
 
 def test_intent_is_idempotent_and_records_no_send(tmp_path):

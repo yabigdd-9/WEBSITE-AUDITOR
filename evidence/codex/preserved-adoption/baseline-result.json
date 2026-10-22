@@ -1,0 +1,6 @@
+{
+  "base_sha": "e68873c509431f7132c754e2aeaee99fc9eb858e",
+  "exit_code": 1,
+  "expected_failures": 4,
+  "meaning": "New regression assertions reproduce both preserved code defects before adoption."
+}

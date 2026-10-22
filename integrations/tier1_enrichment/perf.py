@@ -64,18 +64,15 @@ def make_client(
 # ---------------------------------------------------------------------------
 class DomainLimiter:
     def __init__(self, per_domain: int = 2) -> None:
-        self._lock = asyncio.Lock()
         self._sems: dict[str, asyncio.Semaphore] = {}
         self._per_domain = per_domain
 
     def get(self, domain: str) -> asyncio.Semaphore:
-        async def _ensure() -> None:
-            async with self._lock:
-                if domain not in self._sems:
-                    self._sems[domain] = asyncio.Semaphore(self._per_domain)
-        # fire-and-forget sync init works because dict is lazy-safe here
-        _ensure()
-        return self._sems.setdefault(domain, asyncio.Semaphore(self._per_domain))
+        # This synchronous method cannot yield between lookup and insertion
+        # on the owning event loop; no background coroutine is needed.
+        if domain not in self._sems:
+            self._sems[domain] = asyncio.Semaphore(self._per_domain)
+        return self._sems[domain]
 
 
 # ---------------------------------------------------------------------------
@@ -89,7 +86,7 @@ async def fetch_html_capped(
 ) -> tuple[str, int]:
     """Return (html, bytes_downloaded). On cap exceeded, returns ('', cap)."""
     try:
-        async with session.stream("text", url, timeout=30) as resp:
+        async with session.stream("GET", url, timeout=30) as resp:
             if resp.status_code != 200:
                 return ("", 0)
             parts: list[str] = []
