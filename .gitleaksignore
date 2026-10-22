@@ -1,0 +1,5 @@
+# These three sourcegraph-access-token rule matches are 40-character Git object IDs
+# in MASTER_PLAN.yaml, verified with git cat-file -t as commits, not credentials.
+8468f8d107fede8e8dee1ca1891f949f91ccc8da:MASTER_PLAN.yaml:sourcegraph-access-token:506
+8468f8d107fede8e8dee1ca1891f949f91ccc8da:MASTER_PLAN.yaml:sourcegraph-access-token:551
+8468f8d107fede8e8dee1ca1891f949f91ccc8da:MASTER_PLAN.yaml:sourcegraph-access-token:579
