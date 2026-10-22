@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import List, Dict, Any, Optional
 import re
+from dataclasses import dataclass
 from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
@@ -141,7 +141,6 @@ class EmailQualityChecker:
         blocking_issues.extend(opt_out_issues)
 
         # Calculate overall score (0-100)
-        total_possible_issues = 10  # Number of check categories
         blocking_count = len(blocking_issues)
         stylistic_count = len(stylistic_issues)
 

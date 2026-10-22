@@ -26,6 +26,10 @@ def test_lychee_success_and_broken_exit_codes(executable):
     assert evidence["returncode"] == 0
     assert run.call_args.args[0][-1] == "https://example.com"
     assert run.call_args.args[0][0] == executable
+    assert run.call_args.args[0][run.call_args.args[0].index("--max-concurrency") + 1] == "2"
+    assert run.call_args.args[0][run.call_args.args[0].index("--host-concurrency") + 1] == "2"
+    assert run.call_args.args[0][run.call_args.args[0].index("--max-retries") + 1] == "0"
+    assert run.call_args.args[0][run.call_args.args[0].index("--timeout") + 1] == "15"
     assert run.call_args.kwargs["shell"] is False
 
     broken = SimpleNamespace(returncode=2, stdout=json.dumps({"failures": ["https://example.com/nope"]}), stderr="")
@@ -51,10 +55,21 @@ def test_lighthouse_scores_create_evidence_backed_findings(executable):
         "lighthouseVersion": "13.0.0",
         "fetchTime": "2026-09-21T00:00:00Z",
         "categories": {
-            "performance": {"score": 0.42},
+            "performance": {
+                "score": 0.42,
+                "auditRefs": [{"id": "largest-contentful-paint", "weight": 10}],
+            },
             "accessibility": {"score": 0.91},
             "best-practices": {"score": 0.75},
             "seo": {"score": 0.99},
+        },
+        "audits": {
+            "largest-contentful-paint": {
+                "title": "Largest Contentful Paint",
+                "score": 0.4,
+                "scoreDisplayMode": "numeric",
+                "displayValue": "2.8 s",
+            }
         },
     }
     result = SimpleNamespace(returncode=0, stdout=json.dumps(payload), stderr="")
@@ -66,6 +81,10 @@ def test_lighthouse_scores_create_evidence_backed_findings(executable):
     assert keys == {"lighthouse-performance-low", "lighthouse-best-practices-low"}
     assert evidence["categories"]["performance"] == 42.0
     assert evidence["categories"]["accessibility"] == 91.0
+    assert evidence["category_audits"]["performance"][0]["id"] == "largest-contentful-paint"
+    performance_finding = next(f for f in findings if f.defect_key == "lighthouse-performance-low")
+    assert "Largest Contentful Paint" in performance_finding.observed
+    assert "2.8 s" in performance_finding.impact
 
 
 def test_external_tools_missing_fails_closed_when_requested():

@@ -26,7 +26,11 @@ DEFAULT_PROBE_HOSTS = "example.com:443"
 
 
 def disk_guard(root=None, min_free_mb=None):
-    root = Path(root or core.root())
+    root = Path(root or core.root()).resolve()
+    # A read-only health check may run before MM_ROOT exists. Query the nearest
+    # existing ancestor's filesystem without creating the workspace.
+    while not root.exists() and root != root.parent:
+        root = root.parent
     minimum = int(min_free_mb if min_free_mb is not None else os.environ.get("MM_MIN_FREE_MB", "1024"))
     usage = shutil.disk_usage(root)
     free_mb = usage.free // (1024 * 1024)

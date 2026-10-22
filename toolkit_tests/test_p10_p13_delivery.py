@@ -1,3 +1,6 @@
+import io
+import json
+from contextlib import redirect_stdout
 from pathlib import Path
 
 import pytest
@@ -20,6 +23,7 @@ def report():
             {
                 "finding_id": "f1",
                 "defect_key": "viewport",
+                "severity": "medium",
                 "defect": "Missing viewport metadata",
                 "source_url": "https://example.co.nz/",
                 "observed": "no viewport meta tag",
@@ -32,6 +36,7 @@ def report():
             {
                 "finding_id": "f2",
                 "defect_key": "header-hsts",
+                "severity": "medium",
                 "defect": "Missing HSTS",
                 "source_url": "https://example.co.nz/",
                 "observed": "strict-transport-security absent",
@@ -92,6 +97,7 @@ def test_p12_quote_refuses_missing_or_invalid_rate():
 
 def test_p11_demo_and_p13_packet_never_claim_live_change_or_send(tmp_path):
     r = report()
+    r["opportunity_score"] = 99.9  # ignored without component evidence
     remediation = build_remediation(r, tmp_path / "remediation")
     quote = calculate_quote(r, "150")
     demo = build_demo(r, remediation, tmp_path / "demo")
@@ -112,9 +118,344 @@ def test_p11_demo_and_p13_packet_never_claim_live_change_or_send(tmp_path):
     assert packet["paid_ai_cost_usd"] == 0
     assert packet["contact"] is None
     assert packet["email_confidence"] == "NO_VERIFIED_EMAIL"
+    assert packet["audit_score"] == 72
+    assert packet["opportunity_score"] == 0
+    assert packet["opportunity"]["formula_version"] == "opportunity-v1"
+    assert packet["opportunity"]["provenance"]["commercial_score_evidence_ids"] == []
     assert len(packet["evidence"]) == 4
-    assert Path(packet["draft_message_path"]).is_file()
-    assert "not measured or guaranteed" in Path(packet["draft_message_path"]).read_text()
+    assert not Path(packet["draft_message_path"]).is_absolute()
+    assert (tmp_path / "packet" / packet["draft_message_path"]).is_file()
+    assert "not measured or guaranteed" in (
+        tmp_path / "packet" / packet["draft_message_path"]
+    ).read_text()
+
+
+def test_p13_packet_recomputes_opportunity_from_bound_evidence(tmp_path):
+    r = report()
+    r["commercial_score"] = 80
+    r["commercial_score_evidence_ids"] = [17, 18]
+    r["opportunity_score"] = 99.9  # ignored legacy/untrusted precomputed value
+    remediation = build_remediation(r, tmp_path / "remediation")
+    quote = calculate_quote(r, "150")
+    demo = build_demo(r, remediation, tmp_path / "demo")
+
+    packet = build_packet(
+        r,
+        remediation,
+        demo,
+        quote,
+        tmp_path / "packet",
+        demo_artifact_dir=tmp_path / "demo",
+        contact={
+            "email": "owner@example.co.nz",
+            "selected": {"confidence_label": "VERIFIED_HIGH"},
+            "provenance": {
+                "verifier_version": "email-v2.0.0",
+                "sources": [{
+                    "source_url": "https://example.co.nz/contact?session=private",
+                    "captured_at": "2026-09-28T00:00:00Z",
+                    "capture_sha256": "a" * 64,
+                    "first_party_observed": True,
+                    "observed_email": "owner@example.co.nz",
+                    "capture_path": "/private/local/capture.html",
+                }],
+            },
+        },
+    )
+
+    assert packet["schema_version"] == 2
+    assert packet["audit_score"] == 72
+    assert packet["opportunity_score"] == packet["opportunity"]["opportunity_score"]
+    assert packet["opportunity_score"] < 99.9
+    assert packet["opportunity"]["formula_version"] == "opportunity-v1"
+    assert packet["opportunity"]["components"]["need"] == 0.25
+    assert packet["opportunity"]["components"]["business_value"] == 0.8
+    assert packet["opportunity"]["components"]["contactability"] == 0.95
+    assert packet["opportunity"]["provenance"]["commercial_score_evidence_ids"] == [17, 18]
+    assert packet["contact"] == "owner@example.co.nz"
+    assert packet["contact_provenance"]["sources"] == [{
+        "url": "https://example.co.nz/contact",
+        "captured_at": "2026-09-28T00:00:00Z",
+        "sha256": "a" * 64,
+    }]
+    assert "capture_path" not in json.dumps(packet)
+
+
+def test_p13_packet_imports_run_bound_pipeline_qualification(tmp_path):
+    r = report()
+    remediation = build_remediation(r, tmp_path / "remediation")
+    quote = calculate_quote(r, "150")
+    demo = build_demo(r, remediation, tmp_path / "demo")
+    qualification = {
+        "audit_run_id": r["run_id"],
+        "commercial_score": 80,
+        "commercial_score_evidence_ids": [17, 18],
+        "commercial_score_industry": "electrical",
+        "commercial_score_basis": "fresh_verified_capture",
+        "technical_score": 16,
+        "technical_score_method": "toolkit-p5-v1",
+        "technical_score_finding_ids": [d["finding_id"] for d in r["defects"]],
+        "technical_score_evidence_complete": True,
+    }
+    contact = {
+        "email": "owner@example.co.nz",
+        "selected": {"confidence_label": "VERIFIED_HIGH"},
+        "provenance": {
+            "verifier_version": "email-v2.0.0",
+            "sources": [{
+                "source_url": "https://example.co.nz/contact?token=private",
+                "captured_at": "2026-09-28T00:00:00Z",
+                "capture_sha256": "b" * 64,
+                "first_party_observed": True,
+                "observed_email": "owner@example.co.nz",
+            }],
+        },
+    }
+
+    packet = build_packet(
+        r, remediation, demo, quote, tmp_path / "packet",
+        qualification_evidence=qualification,
+        contact=contact,
+        demo_artifact_dir=tmp_path / "demo",
+    )
+
+    assert packet["qualification"]["commercial_score_evidence_ids"] == [17, 18]
+    assert packet["opportunity"]["components"]["business_value"] == 0.8
+    assert packet["opportunity"]["provenance"]["commercial_score_evidence_ids"] == [17, 18]
+    assert any(item["kind"] == "qualification" for item in packet["evidence"])
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("technical_score", 15),
+        ("technical_score_finding_ids", ["f1"]),
+    ],
+)
+def test_p13_packet_replays_technical_score_and_finding_ids(tmp_path, field, value):
+    r = report()
+    remediation = build_remediation(r, tmp_path / "remediation")
+    quote = calculate_quote(r, "150")
+    demo = build_demo(r, remediation, tmp_path / "demo")
+    qualification = {
+        "audit_run_id": r["run_id"],
+        "commercial_score": 80,
+        "commercial_score_evidence_ids": [17],
+        "technical_score": 16,
+        "technical_score_method": "toolkit-p5-v1",
+        "technical_score_finding_ids": ["f1", "f2"],
+        "technical_score_evidence_complete": True,
+    }
+    qualification[field] = value
+
+    with pytest.raises(ValueError, match="does not replay"):
+        build_packet(
+            r, remediation, demo, quote, tmp_path / "packet",
+            qualification_evidence=qualification,
+        )
+
+
+def test_p13_packet_requires_complete_audit_findings_for_qualification(tmp_path):
+    r = report()
+    r["status"] = "partial"
+    remediation = build_remediation(r, tmp_path / "remediation")
+    quote = calculate_quote(r, "150")
+    demo = build_demo(r, remediation, tmp_path / "demo")
+    qualification = {
+        "audit_run_id": r["run_id"],
+        "commercial_score": 80,
+        "commercial_score_evidence_ids": [17],
+        "technical_score": 16,
+        "technical_score_method": "toolkit-p5-v1",
+        "technical_score_finding_ids": ["f1", "f2"],
+        "technical_score_evidence_complete": True,
+    }
+
+    with pytest.raises(ValueError, match="Complete audit findings"):
+        build_packet(
+            r, remediation, demo, quote, tmp_path / "packet",
+            qualification_evidence=qualification,
+        )
+
+
+def test_p13_packet_rejects_qualification_from_another_audit_run(tmp_path):
+    r = report()
+    remediation = build_remediation(r, tmp_path / "remediation")
+    quote = calculate_quote(r, "150")
+    demo = build_demo(r, remediation, tmp_path / "demo")
+    qualification = {
+        "audit_run_id": "different-run",
+        "commercial_score": 80,
+        "commercial_score_evidence_ids": [17],
+        "technical_score": 16,
+        "technical_score_method": "toolkit-p5-v1",
+        "technical_score_finding_ids": [d["finding_id"] for d in r["defects"]],
+        "technical_score_evidence_complete": True,
+    }
+    with pytest.raises(ValueError, match="same audit run"):
+        build_packet(
+            r, remediation, demo, quote, tmp_path / "packet",
+            qualification_evidence=qualification,
+        )
+
+
+def test_wa_packet_cli_imports_pipeline_scores_and_email_provenance(tmp_path, monkeypatch):
+    from auditor_toolkit.cli import main
+
+    r = report()
+    remediation = build_remediation(r, tmp_path / "remediation")
+    quote = calculate_quote(r, "150")
+    demo = build_demo(r, remediation, tmp_path / "demo")
+    inputs = {
+        "report.json": r,
+        "remediation.json": remediation,
+        "demo.json": demo,
+        "quote.json": quote,
+        "qualification.json": {
+            "audit_run_id": r["run_id"],
+            "commercial_score": 80,
+            "commercial_score_evidence_ids": [17],
+            "technical_score": 16,
+            "technical_score_method": "toolkit-p5-v1",
+            "technical_score_finding_ids": [d["finding_id"] for d in r["defects"]],
+            "technical_score_evidence_complete": True,
+        },
+        "contact.json": {
+            "contact": {
+                "email": "owner@example.co.nz",
+                "selected": {"confidence_label": "VERIFIED_HIGH"},
+                "provenance": {
+                    "verifier_version": "email-v2.0.1",
+                    "sources": [{
+                        "source_url": "https://example.co.nz/contact?session=private",
+                        "captured_at": "2026-09-28T00:00:00Z",
+                        "capture_sha256": "c" * 64,
+                        "first_party_observed": True,
+                        "observed_email": "owner@example.co.nz",
+                    }],
+                },
+            },
+        },
+    }
+    for name, value in inputs.items():
+        (tmp_path / name).write_text(json.dumps(value))
+    monkeypatch.chdir(tmp_path)
+    output = io.StringIO()
+    with redirect_stdout(output):
+        assert main([
+            "packet", "report.json", "remediation.json", "demo.json", "quote.json",
+            "--output-dir", "packet",
+            "--qualification-evidence", "qualification.json",
+            "--contact-evidence", "contact.json",
+        ]) == 0
+
+    packet = json.loads(output.getvalue())
+    assert packet["contact"] == "owner@example.co.nz"
+    assert packet["opportunity"]["components"]["business_value"] == 0.8
+    assert packet["opportunity"]["provenance"]["commercial_score_evidence_ids"] == [17]
+    assert packet["external_send_allowed"] is False
+    assert packet["outbound_sent"] == 0
+    assert "capture_path" not in output.getvalue()
+    assert "session=private" not in output.getvalue()
+
+
+def test_p13_drops_verified_email_without_matching_first_party_capture(tmp_path):
+    r = report()
+    remediation = build_remediation(r, tmp_path / "remediation")
+    quote = calculate_quote(r, "150")
+    demo = build_demo(r, remediation, tmp_path / "demo")
+
+    packet = build_packet(
+        r,
+        remediation,
+        demo,
+        quote,
+        tmp_path / "packet",
+        contact={
+            "email": "owner@example.co.nz",
+            "selected": {"confidence_label": "VERIFIED_HIGH"},
+        },
+    )
+
+    assert packet["contact"] is None
+    assert packet["email_confidence"] == "NO_VERIFIED_EMAIL"
+    assert packet["contact_provenance"] is None
+    assert packet["opportunity"]["components"]["contactability"] == 0
+
+
+def test_p13_copies_screenshots_into_packet_without_absolute_paths(tmp_path):
+    r = report()
+    remediation = build_remediation(r, tmp_path / "remediation")
+    quote = calculate_quote(r, "150")
+    demo = build_demo(r, remediation, tmp_path / "demo")
+    screenshot = tmp_path / "demo" / "before-source.png"
+    screenshot.write_bytes(b"\x89PNG\r\n\x1a\nsynthetic")
+    from hashlib import sha256
+    demo["before"] = {
+        "path": str(screenshot),
+        "sha256": sha256(screenshot.read_bytes()).hexdigest(),
+        "kind": "captured_source",
+    }
+
+    packet = build_packet(
+        r,
+        remediation,
+        demo,
+        quote,
+        tmp_path / "packet",
+        demo_artifact_dir=tmp_path / "demo",
+    )
+
+    image_ref = packet["before_images"][0]
+    assert image_ref["path"] == "screenshots/before.png"
+    assert not Path(image_ref["path"]).is_absolute()
+    assert (tmp_path / "packet" / image_ref["path"]).read_bytes() == screenshot.read_bytes()
+    assert str(screenshot) not in json.dumps(packet)
+
+
+def test_p9_caps_normalized_effort_for_large_quotes():
+    from auditor_toolkit.opportunity import opportunity_from_packet_evidence
+
+    r = report()
+    r["commercial_score"] = 80
+    r["commercial_score_evidence_ids"] = [17]
+    for index, key in enumerate(("schema_missing", "no-contact-path", "viewport", "sitemap-missing"), 3):
+        r["defects"].append({
+            "finding_id": f"f{index}",
+            "defect_key": key,
+            "observed": "synthetic evidence",
+            "evidence_summary": "synthetic evidence",
+            "confidence": "observed",
+            "effort_band": "XL",
+        })
+    remediation = {
+        "source_run_id": r["run_id"],
+        "items": [
+            {"finding_id": finding["finding_id"], "classification": "HUMAN_REVIEW"}
+            for finding in r["defects"]
+        ],
+    }
+    quote = {
+        "source_run_id": r["run_id"],
+        "rules_version": "quote-v1",
+        "estimated_hours": {"high": "276.00"},
+    }
+
+    result = opportunity_from_packet_evidence(r, remediation, quote, {
+        "email": "owner@example.co.nz",
+        "selected": {"confidence_label": "VERIFIED_HIGH"},
+        "provenance": {
+            "sources": [{
+                "source_url": "https://example.co.nz/contact",
+                "captured_at": "2026-09-28T00:00:00Z",
+                "capture_sha256": "b" * 64,
+                "first_party_observed": True,
+                "observed_email": "owner@example.co.nz",
+            }]
+        },
+    })
+
+    assert result["components"]["effort"] == 1
 
 
 def test_packet_rejects_fake_after_claim(tmp_path):

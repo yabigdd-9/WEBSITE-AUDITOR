@@ -1,9 +1,7 @@
 import hashlib
-import json
 from pathlib import Path
 
 from .common import validate_url, workspace_path
-
 
 VIEWPORTS = {
     "desktop": {"width": 1366, "height": 900},

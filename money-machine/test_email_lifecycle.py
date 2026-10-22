@@ -1,10 +1,14 @@
 import sqlite3
 
-import pytest
-
 import mm_core as core
 import mm_email_lifecycle as lifecycle
 import mm_email_tracking as tracking
+import pytest
+
+
+@pytest.fixture(autouse=True)
+def isolate_workspace(tmp_path, monkeypatch):
+    monkeypatch.setenv("MM_ROOT", str(tmp_path))
 
 
 def database(tmp_path):

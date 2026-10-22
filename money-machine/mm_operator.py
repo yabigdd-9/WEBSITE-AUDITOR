@@ -3,22 +3,25 @@
 import argparse
 import contextlib
 import datetime as dt
-from html.parser import HTMLParser
 import html
 import json
 import os
-from pathlib import Path
 import sqlite3
 import sys
 import tempfile
 import time
+from html.parser import HTMLParser
+from pathlib import Path
+
+import mm_core as core
+import mm_drafts
 from mm_core import *
-from mm_intelligence import *
+
 # Keep the CLI's parser dependencies explicit.  The wildcard import above is
 # retained for the legacy operator helpers, but command registration must not
 # depend on it exposing a validation constant.
 from mm_core import CLAIM_TYPES
-import mm_drafts
+from mm_intelligence import *
 
 
 class OperatorError(Exception):
@@ -164,8 +167,8 @@ def run_day(d,write=True):
     return data
 
 def doctor(d, profile='default'):
-    import shutil
     import ast
+    import shutil
     tools={}
     for name in ('hermes','python3','git','node','npm','npx','opencode','gh','himalaya'):
         p=shutil.which(name)
@@ -359,6 +362,15 @@ def main(argv=None):
     q=s.add_parser('pipeline-enqueue');q.add_argument('id',type=int);q.add_argument('--state',default='DISCOVERED')
     q=s.add_parser('pipeline-requeue');q.add_argument('id',type=int);q.add_argument('--reason',required=True);q.add_argument('--actor',default='operator')
     q=s.add_parser('pipeline-transition');q.add_argument('id',type=int);q.add_argument('--to',required=True);q.add_argument('--actor',required=True);q.add_argument('--reason',required=True)
+    q=s.add_parser('pipeline-qualification-export')
+    q.add_argument('id',type=int)
+    q.add_argument('--run-id',required=True)
+    q=s.add_parser('email-contact-export')
+    q.add_argument('id',type=int)
+    q=s.add_parser('prospect-packet')
+    q.add_argument('id',type=int)
+    for name in ('report','remediation','demo','quote','output-dir'):
+        q.add_argument('--'+name,required=True)
     s.add_parser('pipeline-health')
     q=s.add_parser('approval-check');q.add_argument('id',type=int)
     q=s.add_parser('approval-decide');q.add_argument('approval_id',type=int);q.add_argument('--actor',required=True);q.add_argument('--reason',required=True)
@@ -482,9 +494,57 @@ def main(argv=None):
                 else:
                     result = lifecycle.reconstruct(d, a.message_id, event_store=a.store)
         print(json.dumps(result, indent=2, default=str)); return 0
-    if a.cmd.startswith('email-'):
+    if a.cmd == 'email-contact-export':
         import mm_email_store as email_store
+        with contextlib.closing(core.connect(readonly=True)) as d:
+            result={'contact':email_store.packet_contact(d,a.id)}
+        print(json.dumps(result, indent=2, default=str))
+        return 0
+    if a.cmd == 'pipeline-qualification-export':
+        import mm_workers
+        with contextlib.closing(core.connect(readonly=True)) as d:
+            result=mm_workers.qualification_evidence_for_packet(d,a.id,a.run_id)
+        print(json.dumps(result, indent=2, default=str))
+        return 0
+    if a.cmd == 'prospect-packet':
+        import mm_email_store as email_store
+        import mm_workers
+
+        from auditor_toolkit.common import workspace_path
+        from auditor_toolkit.packet import build_packet
+
+        paths = {
+            name: workspace_path(getattr(a, name), must_exist=True, file_only=True)
+            for name in ('report', 'remediation', 'demo', 'quote')
+        }
+        objects = {name: json.loads(path.read_text()) for name, path in paths.items()}
+        if any(not isinstance(value, dict) for value in objects.values()):
+            raise ValidationError('Packet inputs must be JSON objects')
+        report = objects['report']
+        with contextlib.closing(core.connect(readonly=True)) as d:
+            prospect = core.business(d, a.id)
+            if core.public_url(report.get('url', '')) != core.public_url(prospect['public_website'] or ''):
+                raise ValidationError('Audit report website does not match the selected prospect')
+            qualification = mm_workers.qualification_evidence_for_packet(
+                d, a.id, report.get('run_id')
+            )
+            contact = email_store.packet_contact(d, a.id)
+        output_dir = workspace_path(a.output_dir)
+        packet = build_packet(
+            report,
+            objects['remediation'],
+            objects['demo'],
+            objects['quote'],
+            output_dir,
+            qualification_evidence=qualification,
+            contact=contact,
+            demo_artifact_dir=paths['demo'].parent,
+        )
+        print(json.dumps(packet, indent=2, default=str))
+        return 0
+    if a.cmd.startswith('email-'):
         import mm_email_cli as email_cli
+        import mm_email_store as email_store
         with contextlib.closing(connect(readonly=a.cmd in ('email-status','email-duplicates','email-v1'))) as d, d:
             if a.cmd=='email-migrate':result=email_store.migrate_email(d,a.backup)
             elif a.cmd=='email-status':result=email_store.status(d,a.id)
@@ -567,7 +627,10 @@ def main(argv=None):
         )
         print(json.dumps(result,indent=2));return 0
     if a.cmd in ('pipeline-run','pipeline-status','pipeline-enqueue','pipeline-requeue','pipeline-transition','pipeline-health','approval-check','approval-decide','model-plan','deploy-check'):
-        import mm_pipeline, mm_approval, mm_model_router, mm_workers
+        import mm_approval
+        import mm_model_router
+        import mm_pipeline
+        import mm_workers
         readonly=a.cmd in ('approval-check',)
         with contextlib.closing(connect(readonly=readonly)) as d, d:
             mm_pipeline.migrate(d);mm_approval.migrate(d)

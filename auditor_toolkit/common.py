@@ -109,6 +109,7 @@ class Fetcher:
         cache_namespace="",
     ):
         self.allow_private = allow_private
+        self._uses_custom_transport = transport is not None
         self.max_bytes = max_bytes
         self.timeout = timeout
         self.cache_dir = Path(cache_dir) if cache_dir else None
@@ -147,7 +148,11 @@ class Fetcher:
                 if not original_host:
                     original_host = request.url.host
 
-                # Replace host with pinned_ip
+                if request.url.scheme == "https":
+                    request.extensions["sni_hostname"] = request.url.host
+
+                # Replace the network destination with the validated address
+                # while retaining the original Host header and TLS hostname.
                 request.url = request.url.copy_with(host=pinned_ip)
 
                 # Ensure original host is in Host header
@@ -160,11 +165,10 @@ class Fetcher:
     def get(self, url):
         import hashlib
 
-        current, pinned_ip = validate_url(url, self.allow_private)
+        current = url
         chain = []
-        # Build a client that connects to the pinned IP (DNS rebinding defense)
-        pinned_client = self._build_pinned_client(current, pinned_ip) if pinned_ip else self.client
         for _ in range(6):
+            current, pinned_ip = validate_url(current, self.allow_private)
             host = urlparse(current).netloc
             delay = self.min_interval - (time.monotonic() - self.last_request.get(host, 0))
             if delay > 0:
@@ -187,26 +191,38 @@ class Fetcher:
                         if cached["headers"].get(key):
                             headers[conditional] = cached["headers"][key]
             started = time.monotonic()
-            with self.client.stream("GET", current, headers=headers) as response:
-                chunks, size = [], 0
-                for chunk in response.iter_bytes():
-                    size += len(chunk)
-                    if size > self.max_bytes or time.monotonic() - started > self.timeout:
-                        raise ValueError("Response exceeded configured byte/time limit")
-                    chunks.append(chunk)
-                body = b"".join(chunks)
-                result = httpx.Response(
-                    response.status_code,
-                    headers=response.headers,
-                    content=body,
-                    request=response.request,
-                )
+            request_client = (
+                self._build_pinned_client(current, pinned_ip)
+                if pinned_ip and not self._uses_custom_transport
+                else self.client
+            )
+            try:
+                with request_client.stream("GET", current, headers=headers) as response:
+                    chunks, size = [], 0
+                    for chunk in response.iter_bytes():
+                        size += len(chunk)
+                        if size > self.max_bytes or time.monotonic() - started > self.timeout:
+                            raise ValueError("Response exceeded configured byte/time limit")
+                        chunks.append(chunk)
+                    body = b"".join(chunks)
+                    response_request = response.request
+                    if request_client is not self.client:
+                        response_request.url = httpx.URL(current)
+                    result = httpx.Response(
+                        response.status_code,
+                        headers=response.headers,
+                        content=body,
+                        request=response_request,
+                    )
+            finally:
+                if request_client is not self.client:
+                    request_client.close()
             if result.status_code in (301, 302, 303, 307, 308):
                 location = result.headers.get("location")
                 if not location:
                     raise ValueError("Redirect missing location")
                 chain.append({"url": current, "status": result.status_code})
-                current = validate_url(urljoin(current, location), self.allow_private)
+                current = urljoin(current, location)
                 continue
             observed = datetime.now(UTC).isoformat()
             if result.status_code == 304 and cached:

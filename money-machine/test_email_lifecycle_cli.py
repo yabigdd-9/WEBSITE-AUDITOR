@@ -12,12 +12,16 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
-
 import mm_core as core
+import pytest
 
 REPO = Path(__file__).resolve().parents[1]
 MM = REPO / "mm"
+
+
+@pytest.fixture(autouse=True)
+def isolate_workspace(tmp_path, monkeypatch):
+    monkeypatch.setenv("MM_ROOT", str(tmp_path))
 
 
 def database(tmp_path):
@@ -70,7 +74,10 @@ def test_full_lifecycle_through_real_cli(tmp_path):
     database(tmp_path)
 
     # 1. Create intent
-    intent = run_json(["email-intent", "9", "--campaign", "cli-verify"], tmp_path)
+    intent = run_json(
+        ["email-intent", "9", "--campaign", "cli-verify", "--max-attempts", "2"],
+        tmp_path,
+    )
     assert intent["status"] == "planned"
     assert intent["transport"] == "none"
     assert intent["transport_send_performed"] is False
@@ -79,22 +86,23 @@ def test_full_lifecycle_through_real_cli(tmp_path):
     key = intent["idempotency_key"]
 
     # 2. Idempotent replay
-    replay = run_json(["email-intent", "9", "--campaign", "cli-verify"], tmp_path)
+    replay = run_json(
+        ["email-intent", "9", "--campaign", "cli-verify", "--max-attempts", "2"],
+        tmp_path,
+    )
     assert replay["replayed"] is True
     assert replay["idempotency_key"] == key
 
     # 3. Bounded failures: max_attempts=2 -> first retryable, second dead-lettered
     first = run_json(
-        ["email-intent-result", key, "--status", "failed", "--error", "transient outage",
-         "--max-attempts", "2"],
+        ["email-intent-result", key, "--status", "failed", "--error", "transient outage"],
         tmp_path,
     )
     assert first["status"] == "retryable_failed"
     assert first["attempt_count"] == 1
 
     dead = run_json(
-        ["email-intent-result", key, "--status", "failed", "--error", "still down",
-         "--max-attempts", "2"],
+        ["email-intent-result", key, "--status", "failed", "--error", "still down"],
         tmp_path,
     )
     assert dead["status"] == "dead_lettered"

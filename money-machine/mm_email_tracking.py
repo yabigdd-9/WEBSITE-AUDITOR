@@ -6,9 +6,9 @@ The event log is append-only and replay-safe.
 from __future__ import annotations
 
 import datetime as dt
+import fcntl
 import hashlib
 import json
-import fcntl
 from collections import Counter
 from pathlib import Path
 
@@ -83,7 +83,9 @@ def record(event: dict, path=None) -> dict:
     target = _path(path)
     # Atomic check-then-append: hold an exclusive lock across the read+write
     # so concurrent processes cannot interleave and produce duplicates (H-17).
-    with target.open("a", encoding="utf-8") as handle:
+    # Read existing receipts before appending so idempotency remains durable
+    # across calls and process restarts.
+    with target.open("a+", encoding="utf-8") as handle:
         fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
         try:
             handle.seek(0)

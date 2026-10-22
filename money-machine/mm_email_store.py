@@ -1,9 +1,10 @@
 """Append-only email provenance, migrations, current-selection gate and status."""
-import json
 import contextlib
 import copy
-from pathlib import Path
+import json
 import sqlite3
+from pathlib import Path
+from urllib.parse import urlsplit, urlunsplit
 
 import mm_core as core
 import mm_email as engine
@@ -201,6 +202,103 @@ def status(d, bid):
             'confidence': selected['confidence_score'] if selected else None, 'selected': selected, 'candidates': candidates,
             'contact_form_urls': json.loads(state['contact_form_urls']) if state else [], 'last_checked': state['last_checked'] if state else None,
             'human_review_required': True, 'outreach_eligible': outreach_ready, 'next_action': 'Complete independent holdout review; production email finding and outreach remain held' if release and release['mode']=='POST_DEPLOYMENT_OBSERVATION' else 'Human relevance/permission and exact-item approval required' if selected else 'No current verified email; review evidence or use public contact form manually'}
+
+
+def _path_free_first_party_url(url, canonical_domain):
+    try:
+        parts = urlsplit(url)
+        port = parts.port
+    except (TypeError, ValueError):
+        return None
+    if (
+        parts.scheme not in ('http', 'https')
+        or not parts.hostname
+        or parts.username
+        or parts.password
+        or engine.root_domain(url) != canonical_domain
+    ):
+        return None
+    host = parts.hostname.lower().rstrip('.')
+    netloc = f'[{host}]' if ':' in host else host
+    if port and port != (80 if parts.scheme == 'http' else 443):
+        netloc += f':{port}'
+    return urlunsplit((parts.scheme, netloc, parts.path, '', ''))
+
+
+def packet_contact(d, bid):
+    """Return path-free first-party contact provenance from the current V2 view.
+
+    The SQL view is the authority for selection, freshness, capture hashes,
+    identity and suppression. When the V2 release gate is closed, this returns
+    no contact; it never falls back to legacy contacts or guessed addresses.
+    """
+    if not installed(d):
+        return None
+    view = d.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='view' AND name='email_current_high'"
+    ).fetchone()
+    if not view:
+        return None
+    row = d.execute(
+        'SELECT h.normalized_email,v.result_json,i.result_json AS identity_json '
+        'FROM email_current_high h '
+        'JOIN email_verifications v ON v.id=h.verification_id '
+        'JOIN email_identity_checks i ON i.id=v.identity_id '
+        'WHERE h.prospect_id=? ORDER BY v.id DESC LIMIT 1',
+        (bid,),
+    ).fetchone()
+    if not row:
+        return None
+    try:
+        verification = json.loads(row['result_json'])
+        identity = json.loads(row['identity_json'])
+    except (TypeError, ValueError, KeyError, IndexError):
+        return None
+    email = row['normalized_email']
+    canonical_domain = identity.get('canonical_root_domain') if isinstance(identity, dict) else None
+    if (
+        not isinstance(verification, dict)
+        or verification.get('confidence_label') != 'VERIFIED_HIGH'
+        or verification.get('first_party_observed') is not True
+        or not isinstance(canonical_domain, str)
+        or not canonical_domain
+    ):
+        return None
+
+    sources = []
+    for evidence in verification.get('evidence', []):
+        if not isinstance(evidence, dict) or evidence.get('email') != email:
+            continue
+        safe_url = _path_free_first_party_url(
+            evidence.get('source_url') or '', canonical_domain
+        )
+        path = evidence.get('capture_path')
+        capture_hash = evidence.get('capture_hash')
+        captured_at = evidence.get('observed_at')
+        if (
+            safe_url
+            and path
+            and capture_hash
+            and core.fresh(captured_at)
+            and core.artifact_valid(path, capture_hash)
+        ):
+            sources.append({
+                'source_url': safe_url,
+                'observed_email': email,
+                'captured_at': captured_at,
+                'capture_sha256': capture_hash,
+                'first_party_observed': True,
+            })
+    if not sources:
+        return None
+    return {
+        'email': email,
+        'selected': {'confidence_label': 'VERIFIED_HIGH'},
+        'provenance': {
+            'verifier_version': str(verification.get('verifier_version') or '')[:80],
+            'sources': sources[:20],
+        },
+    }
 
 
 def duplicate_entities(d):

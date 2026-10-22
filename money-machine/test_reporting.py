@@ -10,6 +10,7 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import mm_core as c
 import mm_reporting as r
@@ -146,12 +147,16 @@ class SendImpossible(ReportingBase):
         self.assertEqual(status['daily_cap'], 0)
         self.assertFalse(status['network_send_implementation'])
         # Tampering with the config fails closed, never partially enables.
-        bad = Path(self.tmp.name) / 'transport.json'
+        config_dir = Path(self.tmp.name) / 'config'
+        config_dir.mkdir(parents=True, exist_ok=True)
+        bad = config_dir / 'transport.json'
         doc = json.loads((Path(transport.__file__).parent / 'config' / 'transport.json').read_text())
-        doc['daily_cap'] = 5
+        doc['daily_cap'] = -1
+        doc['external_send_allowed'] = True
         bad.write_text(json.dumps(doc))
-        with self.assertRaisesRegex(ValueError, 'daily_cap'):
-            transport.load_config(bad)
+        with mock.patch.object(transport, '__file__', str(config_dir.parent / 'mm_transport.py')):
+            with self.assertRaisesRegex(ValueError, 'daily_cap'):
+                transport.load_config(bad)
 
 
 if __name__ == '__main__':

@@ -49,7 +49,22 @@ def _safe_url(url: str) -> str:
 
 def run_lychee(url: str, timeout: float = 90.0):
     target = _safe_url(url)
-    command = [_binary("lychee"), "--format", "json", "--no-progress", "--", target]
+    command = [
+        _binary("lychee"),
+        "--format",
+        "json",
+        "--no-progress",
+        "--max-concurrency",
+        "2",
+        "--host-concurrency",
+        "2",
+        "--max-retries",
+        "0",
+        "--timeout",
+        "15",
+        "--",
+        target,
+    ]
     try:
         result = subprocess.run(
             command,
@@ -133,6 +148,7 @@ def run_lighthouse(url: str, timeout: float = 180.0):
         raise RuntimeError("lighthouse returned invalid JSON") from exc
 
     categories = report.get("categories") or {}
+    audits = report.get("audits") or {}
     scores = {
         name: round(float(data.get("score")) * 100, 1)
         for name, data in categories.items()
@@ -145,20 +161,53 @@ def run_lighthouse(url: str, timeout: float = 180.0):
         "seo": (80.0, "low"),
     }
     findings = []
+    category_audits: dict[str, list[dict[str, object]]] = {}
     for name, (threshold, severity) in thresholds.items():
         score = scores.get(name)
+        category = categories.get(name) or {}
+        failed_audits = []
+        for audit_ref in category.get("auditRefs") or []:
+            audit_id = audit_ref.get("id")
+            audit = audits.get(audit_id) if audit_id else None
+            if not isinstance(audit, dict):
+                continue
+            audit_score = audit.get("score")
+            if (
+                audit_score is None
+                or audit_score >= 1
+                or audit.get("scoreDisplayMode") in {"manual", "informative", "notApplicable"}
+            ):
+                continue
+            failed_audits.append(
+                {
+                    "id": audit_id,
+                    "title": str(audit.get("title") or audit_id)[:160],
+                    "score": round(float(audit_score), 3),
+                    "display_value": str(audit.get("displayValue") or "")[:160],
+                    "weight": float(audit_ref.get("weight") or 0),
+                }
+            )
+        failed_audits.sort(key=lambda item: (-float(item["weight"]), float(item["score"]), str(item["id"])))
+        category_audits[name] = failed_audits[:5]
         if score is not None and score < threshold:
+            audit_evidence = category_audits[name][:3]
+            audit_summary = "; ".join(
+                f"{item['title']} ({item['id']})"
+                + (f": {item['display_value']}" if item["display_value"] else f": score {item['score']}" )
+                for item in audit_evidence
+            )
             findings.append(
                 Finding(
                     f"lighthouse-{name}-low",
                     f"Low Lighthouse {name} score",
-                    f"Lab score {score:.1f}/100; review individual audits.",
+                    f"Lab score {score:.1f}/100; review individual audits."
+                    + (f" Evidence: {audit_summary}." if audit_summary else ""),
                     severity,
                     url,
                     check="lighthouse",
                     confidence="observed",
-                    evidence_source="Lighthouse JSON category score",
-                    observed=f"{name} score={score:.1f}",
+                    evidence_source="Lighthouse JSON category score and audit refs",
+                    observed=f"{name} score={score:.1f}; audits={audit_summary or 'none'}",
                     business_impact="Lab result indicates a potential quality or conversion risk.",
                     remediation_action=f"Review Lighthouse {name} audits and verify fixes with a repeat run.",
                     remediation_automation="HUMAN_REVIEW",
@@ -170,6 +219,7 @@ def run_lighthouse(url: str, timeout: float = 180.0):
         "version": report.get("lighthouseVersion"),
         "fetch_time": report.get("fetchTime"),
         "categories": scores,
+        "category_audits": category_audits,
         "limitation": "Laboratory scores vary by machine/run and are not field Core Web Vitals.",
     }
     return findings, evidence

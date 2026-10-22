@@ -8,7 +8,8 @@ launchd = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(launchd)
 
 
-def test_plist_periodically_calls_idempotent_ensure_running():
+def test_plist_periodically_calls_idempotent_ensure_running(monkeypatch):
+    monkeypatch.delenv("MM_PYTHON", raising=False)
     payload = launchd.plist_payload()
     args = payload["ProgramArguments"]
 
