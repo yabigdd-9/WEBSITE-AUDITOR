@@ -28,6 +28,7 @@ from .external_tools import run_lighthouse, run_lychee
 from .faults import enrich as enrich_fault
 from .faults import group_root_causes
 from .faults import regression as fault_regression
+from .flows import flow_findings, run_flow_probe
 from .hygiene import (
     check_mixed_content,
     check_robots,
@@ -256,6 +257,36 @@ def run_audit(url, options=None, fetcher=None):
                 )
             except Exception as exc:
                 result = {"status": "error", "reason": str(exc), "evidence": {}}
+
+            flow_started = time.perf_counter()
+            try:
+                flow_result = run_flow_probe(
+                    final_url,
+                    run_dir / "artifacts",
+                    enabled=opts.browser,
+                    allow_private=opts.allow_private,
+                )
+            except Exception as exc:
+                flow_result = {"status": "error", "reason": str(exc), "evidence": {}}
+            flow_evidence = flow_result.get("evidence", {})
+            if flow_result["status"] == "ok":
+                flow_findings_list, flow_summary = flow_findings(flow_evidence, final_url)
+                findings.extend(replace(f, source_url=final_url) for f in flow_findings_list)
+                flow_evidence["summary"] = flow_summary
+            checks["flow"] = {
+                "status": flow_result["status"],
+                "reason": flow_result.get("reason", ""),
+                "required": False,
+                "elapsed_ms": int((time.perf_counter() - flow_started) * 1000),
+            }
+            evidence["flow"] = {
+                "url": final_url,
+                "observed_at": timestamp,
+                "mode": REGISTRY["flow"].mode,
+                "data": flow_evidence,
+                "check_version": REGISTRY["flow"].version,
+            }
+
             checks["browser"] = {
                 "status": result["status"],
                 "reason": result.get("reason", ""),
@@ -368,6 +399,7 @@ def run_audit(url, options=None, fetcher=None):
                 "lychee",
                 "lighthouse",
                 "browser",
+                "flow",
                 "axe",
             ):
                 skip(
