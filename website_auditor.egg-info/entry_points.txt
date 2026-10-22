@@ -1,2 +1,5 @@
 [console_scripts]
+catalyx-db-migrate = catalyx_web.migrations:main
+catalyx-totp-key-rotate = catalyx_web.totp_key_rotation:main
+catalyx-web = catalyx_web.app:main
 wa = auditor_toolkit.cli:main

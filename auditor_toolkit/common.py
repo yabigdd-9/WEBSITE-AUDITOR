@@ -115,6 +115,7 @@ class Fetcher:
         self.min_interval = min_interval
         self.cache_namespace = str(cache_namespace)
         self.last_request = {}
+        self._uses_custom_transport = transport is not None
         self.client = httpx.Client(
             timeout=httpx.Timeout(timeout),
             follow_redirects=False,
@@ -147,11 +148,14 @@ class Fetcher:
                 if not original_host:
                     original_host = request.url.host
 
+                original_hostname = request.url.host
+
                 # Replace host with pinned_ip
                 request.url = request.url.copy_with(host=pinned_ip)
 
                 # Ensure original host is in Host header
                 request.headers["Host"] = original_host
+                request.extensions["sni_hostname"] = original_hostname.encode("idna")
 
                 return super().handle_request(request)
 
@@ -162,8 +166,6 @@ class Fetcher:
 
         current, pinned_ip = validate_url(url, self.allow_private)
         chain = []
-        # Build a client that connects to the pinned IP (DNS rebinding defense)
-        pinned_client = self._build_pinned_client(current, pinned_ip) if pinned_ip else self.client
         for _ in range(6):
             host = urlparse(current).netloc
             delay = self.min_interval - (time.monotonic() - self.last_request.get(host, 0))
@@ -187,26 +189,37 @@ class Fetcher:
                         if cached["headers"].get(key):
                             headers[conditional] = cached["headers"][key]
             started = time.monotonic()
-            with self.client.stream("GET", current, headers=headers) as response:
-                chunks, size = [], 0
-                for chunk in response.iter_bytes():
-                    size += len(chunk)
-                    if size > self.max_bytes or time.monotonic() - started > self.timeout:
-                        raise ValueError("Response exceeded configured byte/time limit")
-                    chunks.append(chunk)
-                body = b"".join(chunks)
-                result = httpx.Response(
-                    response.status_code,
-                    headers=response.headers,
-                    content=body,
-                    request=response.request,
-                )
+            pinned_client = (
+                self._build_pinned_client(current, pinned_ip)
+                if pinned_ip and not self._uses_custom_transport
+                else self.client
+            )
+            try:
+                with pinned_client.stream("GET", current, headers=headers) as response:
+                    chunks, size = [], 0
+                    for chunk in response.iter_bytes():
+                        size += len(chunk)
+                        if size > self.max_bytes or time.monotonic() - started > self.timeout:
+                            raise ValueError("Response exceeded configured byte/time limit")
+                        chunks.append(chunk)
+                    body = b"".join(chunks)
+                    result = httpx.Response(
+                        response.status_code,
+                        headers=response.headers,
+                        content=body,
+                        request=httpx.Request("GET", current, headers=headers),
+                    )
+            finally:
+                if pinned_client is not self.client:
+                    pinned_client.close()
             if result.status_code in (301, 302, 303, 307, 308):
                 location = result.headers.get("location")
                 if not location:
                     raise ValueError("Redirect missing location")
                 chain.append({"url": current, "status": result.status_code})
-                current = validate_url(urljoin(current, location), self.allow_private)
+                current, pinned_ip = validate_url(
+                    urljoin(current, location), self.allow_private
+                )
                 continue
             observed = datetime.now(UTC).isoformat()
             if result.status_code == 304 and cached:

@@ -1,9 +1,9 @@
-import pytest
-import sqlite3
 import json
-from pathlib import Path
 import os
+import sqlite3
 import sys
+
+import pytest
 
 # Ensure MoneyMachine is importable for tests
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../money-machine')))
@@ -11,6 +11,7 @@ import mm_core as c
 import mm_email_store as email_store
 import mm_evolutionary_genome as genome
 import mm_unified_field as unified_field
+
 
 @pytest.fixture
 def db_conn(tmp_path, monkeypatch):

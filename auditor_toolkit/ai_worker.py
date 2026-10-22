@@ -13,15 +13,7 @@ def main():
 
     # Extract evidence brief if available, otherwise use defects for backward compatibility
     evidence_brief = context.get("evidence_brief")
-    defects = context.get("defects", [])
     url = context.get("url", "")
-
-    # Create enhanced context for the AI that includes the structured evidence brief
-    enhanced_context = {
-        "url": url,
-        "evidence_brief": evidence_brief,
-        "defects": defects[:10] if defects else []  # Keep for backward compatibility
-    }
 
     tasks = {
         "metadata": "Write a factual page title and meta description based on the evidence brief.",

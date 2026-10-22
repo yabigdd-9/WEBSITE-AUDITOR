@@ -176,6 +176,60 @@ def test_conditional_cache_keeps_observation_timestamp(tmp_path):
     assert cached.text == "hello"
 
 
+def test_fetcher_repins_redirects_and_uses_original_host(monkeypatch):
+    requested = []
+    pins = []
+
+    def handler(request):
+        requested.append(str(request.url))
+        if len(requested) == 1:
+            return httpx.Response(
+                302, headers={"location": "/next"}, request=request
+            )
+        return httpx.Response(200, text="ok", request=request)
+
+    fetcher = Fetcher(min_interval=0)
+    monkeypatch.setattr(
+        fetcher,
+        "_build_pinned_client",
+        lambda url, address: (
+            pins.append((url, address)),
+            httpx.Client(
+                transport=httpx.MockTransport(handler), follow_redirects=False
+            ),
+        )[1],
+    )
+    monkeypatch.setattr(
+        "auditor_toolkit.common.validate_url",
+        lambda url, _allow_private=False: (
+            url,
+            "93.184.216.34" if url.endswith("/") else "1.1.1.1",
+        ),
+    )
+
+    response = fetcher.get("https://example.com/")
+
+    assert response.status_code == 200
+    assert str(response.url) == "https://example.com/next"
+    assert requested == ["https://example.com/", "https://example.com/next"]
+    assert pins == [
+        ("https://example.com/", "93.184.216.34"),
+        ("https://example.com/next", "1.1.1.1"),
+    ]
+
+
+def test_watchdog_rejects_private_literal_before_dns(monkeypatch):
+    from auditor_toolkit.monitoring.watchdog import Watchdog
+
+    monkeypatch.setattr(
+        socket,
+        "getaddrinfo",
+        lambda *_args, **_kwargs: pytest.fail("private literal must be rejected first"),
+    )
+    with pytest.raises(ValueError, match="non-public"):
+        Watchdog._validate_webhook("http://192.168.1.10/hook")
+
+
 def test_portal_sessions_csrf_injection_and_artifacts(tmp_path):
     report = fixture_audit(tmp_path, '<img src="&lt;script&gt;bad&lt;/script&gt;">')
     setup_password(tmp_path, "long fixture password")

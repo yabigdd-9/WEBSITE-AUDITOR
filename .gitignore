@@ -25,6 +25,7 @@ id_rsa.*
 service-account*.json
 *credentials*
 *secret*
+*.totp-key
 
 # Local state / outputs
 outputs/
@@ -39,6 +40,8 @@ state/dead-letter/
 state/worker-heartbeats/
 state/supervisor.pid
 state/supervisor.heartbeat
+state/catalyx-local-mailbox.json
+state/catalyx-app.sqlite3*
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
