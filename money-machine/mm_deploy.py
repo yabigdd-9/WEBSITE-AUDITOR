@@ -9,12 +9,12 @@ Rules:
   * Every gate must pass or the deployment stops. Fail-closed.
   * A rollback point (verified DB backup + recorded git HEAD) is created first.
   * Secrets are never printed: credential checks report PRESENT/MISSING only.
-  * Post-deploy checks run immediately; critical failure triggers rollback
-    when a safe rollback point exists.
+  * Post-check failures block release and require operator recovery review.
+    No rollback, code deployment or release authorization occurs in this helper.
 """
 import json
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
 from mm_core import backup, now, root
 from mm_pipeline import log
@@ -74,16 +74,37 @@ def deploy(d, python, test_modules, candidate=None):
         gates['create_rollback_point'] = {'passed': False, 'error': str(ex)[:200]}
 
     st = _run(['git', 'status', '--porcelain'], r)
-    dirty = [l for l in st[1].splitlines() if l.strip()]
+    dirty = [line for line in st[1].splitlines() if line.strip()]
     gates['git_state_clean_or_preserved'] = {
         'passed': st[0] == 0, 'dirty_paths': len(dirty),
         'note': 'dirty paths preserved untouched' if dirty else 'clean'}
 
-    tcmd = [python, '-m', 'unittest'] + list(test_modules)
-    trc, tout, terr = _run(tcmd, r / 'money-machine', timeout=600)
-    ok = trc == 0
-    gates['unit_tests'] = {'passed': ok, 'tail': (terr or tout)[-400:]}
-    gates['integration_tests'] = dict(gates['unit_tests'])  # same suite is both
+    # Explicitly separate suites: copying the unit result into integration
+    # falsely claimed two distinct validations. No empty suite may pass.
+    integration_names = frozenset({
+        'test_acceptance', 'test_email_integration', 'test_pipeline',
+    })
+    units = [name for name in test_modules if name not in integration_names]
+    integrations = [name for name in test_modules if name in integration_names]
+    for gate, modules in (
+        ('unit_tests', units),
+        ('integration_tests', integrations),
+    ):
+        if not modules:
+            gates[gate] = {
+                'passed': False, 'modules': [],
+                'reason': 'No independent test modules selected',
+            }
+            continue
+        rc, stdout, stderr = _run(
+            [python, '-m', 'unittest', *modules],
+            r / 'money-machine', timeout=600,
+        )
+        gates[gate] = {
+            'passed': rc == 0,
+            'modules': modules,
+            'tail': (stderr or stdout)[-400:],
+        }
 
     lrc, lout, lerr = _run([python, '-m', 'compileall', '-q', 'money-machine'],
                            r, timeout=120)
@@ -96,7 +117,8 @@ def deploy(d, python, test_modules, candidate=None):
         'note': 'presence only; contents never read or logged'}
 
     try:
-        import mm_pipeline, mm_approval
+        import mm_approval
+        import mm_pipeline
         mm_pipeline.migrate(d)
         mm_approval.migrate(d)
         gates['database_migration_verified'] = {'passed': True}
@@ -121,35 +143,171 @@ def deploy(d, python, test_modules, candidate=None):
     return _post_deploy(d, entry, gates)
 
 
+def verify_backup_restore(bundle):
+    """Verify a backup in a disposable copy, never against the live database.
+
+    A path is mandatory: this helper cannot select production databases or
+    discover credentials. It verifies every existing backup-manifest checksum,
+    refuses symlinks/manifest path escapes, then opens only an isolated SQLite
+    clone as immutable/read-only. This is a staging *readiness check*, not a
+    production rollback, and deliberately extracts no .tgz archives.
+    """
+    import hashlib
+    import shutil
+    import sqlite3
+    import tempfile
+    from contextlib import closing
+    from urllib.parse import quote
+
+    def file_hash(path):
+        digest = hashlib.sha256()
+        with path.open('rb') as reader:
+            for chunk in iter(lambda: reader.read(1024 * 1024), b''):
+                digest.update(chunk)
+        return digest.hexdigest()
+
+    def blocked(reason):
+        return {
+            'status': 'RESTORE_CHECK_BLOCKED',
+            'reason': reason,
+            'staging_only': True,
+            'source_modified': False,
+            'live_restore_performed': False,
+        }
+
+    try:
+        folder = Path(bundle).resolve(strict=True)
+        if not folder.is_dir():
+            return blocked('not_a_backup_directory')
+        manifest = folder / 'manifest.json'
+        database = folder / 'money_machine.db'
+        if manifest.is_symlink() or not manifest.is_file():
+            return blocked('manifest_missing_or_symlink')
+        if manifest.stat().st_size > 1_000_000:
+            return blocked('manifest_exceeds_limit')
+        payload = json.loads(manifest.read_text(encoding='utf-8'))
+        items = payload.get('items')
+        if not isinstance(items, list) or not items:
+            return blocked('manifest_items_missing')
+        matches = 0
+        for entry in items:
+            if not isinstance(entry, dict):
+                return blocked('malformed_manifest_entry')
+            raw_path = entry.get('path')
+            expected = entry.get('sha256')
+            if not isinstance(raw_path, str) or not isinstance(expected, str):
+                return blocked('malformed_manifest_entry')
+            if len(expected) != 64 or any(
+                char not in '0123456789abcdef' for char in expected
+            ):
+                return blocked('invalid_checksum')
+            candidate = Path(raw_path)
+            if not candidate.is_absolute():
+                candidate = folder / candidate
+            if candidate.is_symlink() or candidate.resolve() != folder / candidate.name:
+                return blocked('manifest_path_escape')
+            if not candidate.is_file():
+                return blocked('backup_file_missing')
+            if file_hash(candidate) != expected:
+                return blocked('backup_checksum_mismatch')
+            if candidate == database:
+                matches += 1
+        if matches != 1 or not database.is_file() or database.is_symlink():
+            return blocked('database_snapshot_missing_or_ambiguous')
+
+        with tempfile.TemporaryDirectory(prefix='mm-restore-check-') as scratch:
+            clone = Path(scratch) / 'restored.db'
+            shutil.copyfile(database, clone)
+            if file_hash(clone) != file_hash(database):
+                return blocked('staging_copy_checksum_mismatch')
+            uri = f'file:{quote(str(clone))}?mode=ro&immutable=1'
+            with closing(sqlite3.connect(uri, uri=True)) as d:
+                integrity = d.execute('PRAGMA integrity_check').fetchone()
+                fk_violation = d.execute('PRAGMA foreign_key_check').fetchone()
+                tables = d.execute(
+                    "SELECT count(*) FROM sqlite_master WHERE type='table'"
+                ).fetchone()[0]
+            if integrity is None or integrity[0] != 'ok':
+                return blocked('staging_integrity_failed')
+            if fk_violation is not None:
+                return blocked('staging_foreign_keys_failed')
+            if tables < 1:
+                return blocked('staging_schema_missing')
+        return {
+            'status': 'VERIFIED_STAGING_RESTORE',
+            'verified_manifest_items': len(items),
+            'sqlite_integrity': 'ok',
+            'foreign_key_violations': 0,
+            'tables_observed': tables,
+            'staging_only': True,
+            'source_modified': False,
+            'live_restore_performed': False,
+        }
+    except (OSError, ValueError, TypeError, sqlite3.DatabaseError, KeyError):
+        return blocked('restore_validation_unavailable')
+
+
 def _post_deploy(d, entry, gates):
-    """Post-deploy verification; critical failure triggers recorded rollback."""
+    """Verify local release gates; never claim deployment or rollback occurred.
+
+    This helper does not deploy code, restore the DB, quiesce workers or approve
+    promotion. Any missing/failed check fails closed and requires operator
+    recovery review against the previously recorded rollback point.
+    """
     post = {}
     try:
-        ic = d.execute('PRAGMA integrity_check').fetchone()[0]
-        post['database_integrity'] = ic == 'ok'
+        post['database_integrity'] = (
+            d.execute('PRAGMA integrity_check').fetchone()[0] == 'ok'
+        )
+        post['database_foreign_keys'] = (
+            d.execute('PRAGMA foreign_key_check').fetchone() is None
+        )
         d.execute('SELECT count(*) FROM businesses').fetchone()
         post['ledger_readable'] = True
+
         import mm_pipeline
         h = mm_pipeline.health(d)
         post['health_surface'] = isinstance(h, dict) and 'states' in h
-        deployed = _run(['git', 'rev-parse', 'HEAD'], root())
-        post['version_matches'] = deployed[1].strip() == \
-            gates['record_current_version'].get('commit')
+
+        revision = _run(['git', 'rev-parse', 'HEAD'], root())
+        post['version_matches'] = (
+            revision[0] == 0
+            and revision[1].strip() == gates['record_current_version'].get('commit')
+        )
     except Exception as ex:
-        post['post_check_error'] = str(ex)[:200]
+        post['post_check_error'] = f'{type(ex).__name__}: {ex}'[:200]
 
-    critical = [k for k in ('database_integrity', 'ledger_readable')
-                if post.get(k) is False]
+    required_checks = (
+        'database_integrity', 'database_foreign_keys', 'ledger_readable',
+        'health_surface', 'version_matches',
+    )
+    failed = [name for name in required_checks if post.get(name) is not True]
     entry['post_deploy_checks'] = post
-    if critical:
-        entry['status'] = 'ROLLED_BACK'
-        entry['rollback_reason'] = critical
-        log({'kind': 'deployment_rollback', 'reason': critical})
-    else:
-        entry['status'] = 'DEPLOYED'
-        log({'kind': 'deployed', 'candidate': entry['candidate']})
-    _record(entry)
-    return {'status': entry['status'], 'gates': gates,
-            'post_deploy_checks': post,
-            'rollback_point': gates['create_rollback_point'].get('backup')}
+    entry['release_authorized'] = False
+    entry['deployment_performed'] = False
+    entry['rollback_performed'] = False
 
+    if failed:
+        entry['status'] = 'RELEASE_BLOCKED'
+        entry['failed_post_checks'] = failed
+        entry['rollback_review_required'] = True
+        log({'kind': 'release_verification_blocked', 'failed_checks': failed,
+             'rollback_performed': False})
+    else:
+        entry['status'] = 'PRE_RELEASE_CHECKS_PASSED'
+        entry['rollback_review_required'] = False
+        log({'kind': 'pre_release_checks_passed', 'candidate': entry['candidate'],
+             'release_authorized': False})
+
+    _record(entry)
+    return {
+        'status': entry['status'],
+        'gates': gates,
+        'post_deploy_checks': post,
+        'failed_post_checks': failed,
+        'rollback_point': gates.get('create_rollback_point', {}).get('backup'),
+        'rollback_review_required': entry['rollback_review_required'],
+        'rollback_performed': False,
+        'deployment_performed': False,
+        'release_authorized': False,
+    }
