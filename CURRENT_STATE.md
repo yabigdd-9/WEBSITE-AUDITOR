@@ -146,3 +146,32 @@ A prepared recovery proposal calls for fresh preflight, preservation of all eigh
 5. Complete human contact/intelligence release evidence and code review; `master` integration, deployment and sending remain separate decisions.
 
 The project plan does not change [the approval queue](approval/APPROVAL_QUEUE.yaml), human labels, provider policy or real prospect state. Older reports and `state/HERMES_EXECUTION_STATE.yaml` references are historical; that state file is absent from the current checkout. This document is the current project status; SQLite/state evidence and the approval queue retain their own authority.
+
+---
+
+# 29 October 2026 — transport-test repair and frozen accuracy holdout
+
+Committed `1f30ad14` on `integration/v44-local-machine-convergence` (PR #52 still draft).
+
+**Transport test repaired.** `toolkit_tests/test_outcomes_transport.py` failed because
+`mm_transport.status()` honours a private owner override at `state/transport-policy.json`
+(currently: enabled Gmail, unlimited cap), so a bare call returned `MANUAL_EXACT_APPROVAL`
+rather than the committed `DRAFT_ONLY` default. The test asserted a schema default against
+live runtime state. Fixed by pinning the default path explicitly and adding coverage for the
+override path, the `MM_EXTERNAL_SEND_DISABLED` kill switch, and the private-file refusals
+(directory / symlink / world-readable). Toolkit suite: **330 passed, 2 skipped**
+(both opt-in Chromium). Money Machine acceptance: **56 passed, 2 skipped**. The live
+`state/transport-policy.json` is preserved unchanged; no approval, suppression or send
+state was modified.
+
+**Accuracy holdout frozen** at `outputs/holdout-accuracy-20261029/`. 30 cases, 10 per
+required stratum, 339 predicted observation units, SHA-256-frozen fixtures, 30 raw auditor
+reports preserved. Deterministic replay reproduces the live auditor's defect-key set on
+30/30 cases. Scorer: 22/22 synthetic contract tests pass; blank template still correctly
+fails. Selection provenance and known weaknesses recorded in `STATUS.md` and
+`REVIEWER-GUIDE.md`.
+
+**Blocked on a human:** an independent reviewer must label all 339 units before any
+precision/recall figure can be produced. The 16 historical security holds still carry
+`decision: null`. Release remains held. No send, paid call, merge, deployment, restart or
+delete was performed.
