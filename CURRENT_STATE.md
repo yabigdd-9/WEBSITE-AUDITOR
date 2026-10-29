@@ -175,3 +175,38 @@ fails. Selection provenance and known weaknesses recorded in `STATUS.md` and
 precision/recall figure can be produced. The 16 historical security holds still carry
 `decision: null`. Release remains held. No send, paid call, merge, deployment, restart or
 delete was performed.
+
+---
+
+# 29 October 2026 — exports, restore rehearsal, security disposition draft
+
+Pushed to `integration/v44-local-machine-convergence` (PR #52 still draft, not merged).
+
+**Exports** (`exports/`, committed):
+- `v44-bundle-20261029.git` — 38 MB Git bundle, `git bundle verify` OK, complete history,
+  single ref → `8599e893`. Kept out of the tree as a binary artifact.
+- `holdout-accuracy-20261029-redacted/` — 30-case accuracy holdout with third-party page
+  content redacted (Google Maps keys, a JWT, secret-like assignments in holdout-008/014/016/027).
+  Fixture and prediction hashes recomputed against redacted bytes. Post-redaction secret scan: 0.
+  Also bundles the scorer, the 16-hold security inventory, the restore-rehearsal receipt and the
+  report. Scorer binding verified on redacted bytes.
+
+**Restore rehearsal** (`state/restore-rehearsal-20261029T200000Z.json`): the preserved
+pre-soak snapshot restores cleanly — integrity ok, 0 FK errors, 67 tables, byte-identical to
+the stored copy. Live database proven unchanged before and after (sha256 `f28e06fe…5074`).
+Live has advanced past the snapshot (395 vs 375 pipeline rows, last write 2026-10-28), so a
+restore would roll those back deliberately — that is an owner decision, not authorized here.
+Accounting clean on both: 0 model invocations, 0 paid, 0 outreach sends, 0 proposals,
+1 preserved owner transport test claim.
+
+**Security disposition draft** (`security/DISPOSITION-DRAFT-20261029.md`): all 16 holds
+re-inspected at byte level. 11 are scanner false positives — the flagged value is a 39-char
+base64 blob decoding to a Google Maps embed key appearing once per captured third-party email.
+`triage-044` is the same provenance in plaintext. `triage-007` (docs example) and
+`triage-085/086/087` (cached captures) come from commits that are not ancestors of the frozen
+source and are absent from the current tree. **All 16 remain `decision: null`.** No key tested
+against a provider, no rotation, no history rewrite, no value printed.
+
+**Still open:** accuracy labels (needs an independent human reviewer), owner/email operational
+acceptance, stale-heartbeat root cause, paid-route entitlement, explicit release acceptance.
+PR stays a draft. No merge, send, paid call, restart or delete was performed.
