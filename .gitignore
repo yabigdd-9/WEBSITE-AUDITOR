@@ -87,3 +87,6 @@ reports/contact-captures/
 # until their publication policy is explicitly reconciled.
 /reports/hermes_zero_token/DAILY_REPORT_*.md
 /reports/hermes_zero_token/daily_metrics.json
+
+# Local git worktrees created by other tooling; never publish.
+.worktrees/
