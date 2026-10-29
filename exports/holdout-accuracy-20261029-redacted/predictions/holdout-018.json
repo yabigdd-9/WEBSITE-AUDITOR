@@ -1,0 +1,23 @@
+{
+ "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+ "fixture_sha256": "8b01a69ad04743ca7c30e1b1caa14749d80d6aad1e522587ca347d9784d90983",
+ "scope": "commerce-catalogue",
+ "prediction_author": "wa-static-profile (deterministic, no model)",
+ "observations": [
+  {
+   "rule": "images-missing-dimensions",
+   "url": "https://tradietools.nz/",
+   "location": "Space reservation needs rendered review; CSS or a sized container may already prevent layout shift"
+  },
+  {
+   "rule": "images-external-hosting",
+   "url": "https://tradietools.nz/",
+   "location": "Third-party image dependency"
+  },
+  {
+   "rule": "social-meta-twitter-handle",
+   "url": "https://tradietools.nz/",
+   "location": "No twitter:site or twitter:creator declared"
+  }
+ ]
+}

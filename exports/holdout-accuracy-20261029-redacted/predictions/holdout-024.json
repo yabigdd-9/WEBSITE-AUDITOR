@@ -1,0 +1,153 @@
+{
+ "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+ "fixture_sha256": "cb922da4439078f4bf52d2ba125c964663d23da15065cdd363e2de3525bff0b0",
+ "scope": "javascript-application",
+ "prediction_author": "wa-static-profile (deterministic, no model)",
+ "observations": [
+  {
+   "rule": "image-alt",
+   "url": "https://nexushomes.co.nz/",
+   "location": "img:nth-of-type(3)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://nexushomes.co.nz/",
+   "location": "img:nth-of-type(4)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://nexushomes.co.nz/",
+   "location": "img:nth-of-type(5)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://nexushomes.co.nz/",
+   "location": "img:nth-of-type(6)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://nexushomes.co.nz/",
+   "location": "img:nth-of-type(7)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://nexushomes.co.nz/",
+   "location": "img:nth-of-type(8)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://nexushomes.co.nz/",
+   "location": "img:nth-of-type(9)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://nexushomes.co.nz/",
+   "location": "img:nth-of-type(10)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://nexushomes.co.nz/",
+   "location": "img:nth-of-type(11)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://nexushomes.co.nz/",
+   "location": "img:nth-of-type(12)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://nexushomes.co.nz/",
+   "location": "img:nth-of-type(25)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://nexushomes.co.nz/",
+   "location": "img:nth-of-type(26)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://nexushomes.co.nz/",
+   "location": "img:nth-of-type(27)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://nexushomes.co.nz/",
+   "location": "img:nth-of-type(28)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://nexushomes.co.nz/",
+   "location": "img:nth-of-type(29)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://nexushomes.co.nz/",
+   "location": "img:nth-of-type(30)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://nexushomes.co.nz/",
+   "location": "img:nth-of-type(31)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://nexushomes.co.nz/",
+   "location": "img:nth-of-type(32)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://nexushomes.co.nz/",
+   "location": "img:nth-of-type(41)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://nexushomes.co.nz/",
+   "location": "img:nth-of-type(43)"
+  },
+  {
+   "rule": "header-content-security-policy",
+   "url": "https://nexushomes.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "header-x-content-type-options",
+   "url": "https://nexushomes.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "header-hsts",
+   "url": "https://nexushomes.co.nz/",
+   "location": "Review HTTPS deployment"
+  },
+  {
+   "rule": "images-missing-alt",
+   "url": "https://nexushomes.co.nz/",
+   "location": "Screen readers cannot describe images; accessibility and SEO suffer"
+  },
+  {
+   "rule": "images-missing-dimensions",
+   "url": "https://nexushomes.co.nz/",
+   "location": "Space reservation needs rendered review; CSS or a sized container may already prevent layout shift"
+  },
+  {
+   "rule": "images-external-hosting",
+   "url": "https://nexushomes.co.nz/",
+   "location": "Third-party image dependency"
+  },
+  {
+   "rule": "social-meta-og-image",
+   "url": "https://nexushomes.co.nz/",
+   "location": "No Open Graph image for social sharing"
+  },
+  {
+   "rule": "social-meta-twitter-handle",
+   "url": "https://nexushomes.co.nz/",
+   "location": "No twitter:site or twitter:creator declared"
+  },
+  {
+   "rule": "sitemap-missing",
+   "url": "https://nexushomes.co.nz/",
+   "location": "HTTP 404"
+  }
+ ]
+}

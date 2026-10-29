@@ -1,0 +1,1201 @@
+{
+  "schema_version": 2,
+  "browser_requested": false,
+  "performance": {
+    "total_elapsed_ms": 5149,
+    "checks": {
+      "fetch": 0,
+      "page": 717,
+      "schema": 772,
+      "headers": 3,
+      "technology": 227,
+      "js_vulnerabilities": 187,
+      "structured_validation": 274,
+      "hreflang": 721,
+      "language": 386,
+      "images": 212,
+      "social_meta": 250,
+      "hygiene": 3056,
+      "ux": 173,
+      "links": 0,
+      "lychee": 0,
+      "lighthouse": 0,
+      "tls": 205,
+      "dns": 0,
+      "crawl": 0,
+      "browser": 0,
+      "third_party": 0,
+      "browser_console": 0,
+      "cookie_consent": 0,
+      "axe": 0
+    },
+    "slowest_checks": [
+      [
+        "hygiene",
+        3056
+      ],
+      [
+        "schema",
+        772
+      ],
+      [
+        "hreflang",
+        721
+      ],
+      [
+        "page",
+        717
+      ],
+      [
+        "language",
+        386
+      ]
+    ]
+  },
+  "run_id": "20261029T002505-1b50f50c422c",
+  "url": "https://xpelectrical.co.nz/",
+  "domain": "xpelectrical.co.nz",
+  "timestamp": "2026-10-29T00:25:05.997417+00:00",
+  "profile": "static",
+  "brand": "Website Auditor",
+  "status": "complete",
+  "score": 24,
+  "severity_score": 24,
+  "health_score": 76,
+  "breakdown": {
+    "health_score": 76,
+    "severity_total": 24,
+    "heuristic_count": 2,
+    "method": "severity sum capped at 100; health = 100 - severity",
+    "deductions": [
+      {
+        "finding_id": "fbf9ce31a46a439c013f484d",
+        "defect_key": "schema_missing",
+        "severity": "low",
+        "points": 4,
+        "confidence": "heuristic",
+        "evidence_summary": "zero structured-data blocks"
+      },
+      {
+        "finding_id": "f7fc934dfbee35d9514dc664",
+        "defect_key": "header-content-security-policy",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "headers"
+      },
+      {
+        "finding_id": "daa6d11f944d0165ee92e84f",
+        "defect_key": "header-x-content-type-options",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "headers"
+      },
+      {
+        "finding_id": "72fcb3b989a5bf4ceb3ba406",
+        "defect_key": "header-hsts",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "heuristic",
+        "evidence_summary": "headers"
+      },
+      {
+        "finding_id": "44a741da89916f4a6800c5f6",
+        "defect_key": "social-meta-twitter-handle",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "No <meta name=\"twitter:site\"> or twitter:creator tag present"
+      }
+    ]
+  },
+  "defects": [
+    {
+      "defect_key": "schema_missing",
+      "defect": "No structured data found",
+      "impact": "Eligibility not guaranteed",
+      "severity": "low",
+      "source_url": "https://xpelectrical.co.nz/",
+      "review_required": true,
+      "check": "schema",
+      "selector": "script[type=\"application/ld+json\"]",
+      "confidence": "heuristic",
+      "evidence_source": "dom:no ld+json script blocks",
+      "observed": "zero structured-data blocks",
+      "business_impact": "No rich-result eligibility signals for local business info.",
+      "remediation_action": "Add LocalBusiness JSON-LD with name, phone, address.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "S",
+      "finding_id": "fbf9ce31a46a439c013f484d",
+      "evidence_ref": "schema",
+      "observed_at": "2026-10-29T00:25:06.681096+00:00",
+      "evidence_summary": "zero structured-data blocks",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "header-content-security-policy",
+      "defect": "Missing content-security-policy",
+      "impact": "Review deployment requirements",
+      "severity": "low",
+      "source_url": "https://xpelectrical.co.nz/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "f7fc934dfbee35d9514dc664",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-29T00:25:06.681096+00:00",
+      "evidence_summary": "headers",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "header-x-content-type-options",
+      "defect": "Missing x-content-type-options",
+      "impact": "Review deployment requirements",
+      "severity": "low",
+      "source_url": "https://xpelectrical.co.nz/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "daa6d11f944d0165ee92e84f",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-29T00:25:06.681096+00:00",
+      "evidence_summary": "headers",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "header-hsts",
+      "defect": "Missing HSTS",
+      "impact": "Review HTTPS deployment",
+      "severity": "medium",
+      "source_url": "https://xpelectrical.co.nz/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "",
+      "confidence": "heuristic",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "72fcb3b989a5bf4ceb3ba406",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-29T00:25:06.681096+00:00",
+      "evidence_summary": "headers",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "social-meta-twitter-handle",
+      "defect": "Missing Twitter handle",
+      "impact": "No twitter:site or twitter:creator declared",
+      "severity": "low",
+      "source_url": "https://xpelectrical.co.nz/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[name=twitter:site]",
+      "observed": "No <meta name=\"twitter:site\"> or twitter:creator tag present",
+      "business_impact": "Twitter/X attribution is missing; the account that shares this page is not tagged.",
+      "remediation_action": "Add a twitter:site meta tag with your @handle.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "44a741da89916f4a6800c5f6",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-29T00:25:05.997417+00:00",
+      "evidence_summary": "No <meta name=\"twitter:site\"> or twitter:creator tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    }
+  ],
+  "defect_count": 5,
+  "fault_taxonomy": {
+    "root_causes": [
+      {
+        "root_cause_id": "content_discovery_configuration_gap",
+        "taxonomy": [
+          "seo_content"
+        ],
+        "finding_ids": [
+          "fbf9ce31a46a439c013f484d"
+        ],
+        "symptom_count": 1,
+        "likely": false,
+        "confidence": "WEAK",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      },
+      {
+        "root_cause_id": "security_delivery_configuration_gap",
+        "taxonomy": [
+          "security_trust"
+        ],
+        "finding_ids": [
+          "f7fc934dfbee35d9514dc664",
+          "daa6d11f944d0165ee92e84f",
+          "72fcb3b989a5bf4ceb3ba406"
+        ],
+        "symptom_count": 3,
+        "likely": true,
+        "confidence": "MODERATE",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      },
+      {
+        "root_cause_id": "unclassified_observation",
+        "taxonomy": [
+          "unknown"
+        ],
+        "finding_ids": [
+          "44a741da89916f4a6800c5f6"
+        ],
+        "symptom_count": 1,
+        "likely": false,
+        "confidence": "PROVEN",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      }
+    ],
+    "reproducible_count": 5,
+    "weak_or_unknown_count": 2
+  },
+  "checks": {
+    "fetch": {
+      "status": "ok",
+      "required": true
+    },
+    "page": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 717
+    },
+    "schema": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 772
+    },
+    "headers": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 3
+    },
+    "technology": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 227
+    },
+    "js_vulnerabilities": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 187
+    },
+    "structured_validation": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 274
+    },
+    "hreflang": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 721
+    },
+    "language": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 386
+    },
+    "images": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 212
+    },
+    "social_meta": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 250
+    },
+    "hygiene": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 3056
+    },
+    "ux": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 173
+    },
+    "links": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "lychee": {
+      "status": "skipped",
+      "reason": "Enable external local tools",
+      "required": false
+    },
+    "lighthouse": {
+      "status": "skipped",
+      "reason": "Enable external local tools",
+      "required": false
+    },
+    "tls": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 205
+    },
+    "dns": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "crawl": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "browser": {
+      "status": "skipped",
+      "reason": "Disabled in selected audit profile",
+      "required": false
+    },
+    "third_party": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "browser_console": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "cookie_consent": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "axe": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "pdf": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    }
+  },
+  "evidence": {
+    "fetch": {
+      "url": "https://xpelectrical.co.nz/",
+      "observed_at": "2026-10-29T00:25:06.681096+00:00",
+      "mode": "static",
+      "check_version": "1",
+      "data": {
+        "status_code": 200,
+        "redirects": [],
+        "revalidated_at": null
+      }
+    },
+    "page": {
+      "url": "https://xpelectrical.co.nz/",
+      "observed_at": "2026-10-29T00:25:06.681096+00:00",
+      "mode": "static",
+      "data": {
+        "title": "Electrician Hamilton | Residential & Industrial Electrician",
+        "word_count": 594,
+        "link_count": 52,
+        "sample_links": [
+          "https://xpelectrical.co.nz/",
+          "https://xpelectrical.co.nz/about-us/",
+          "https://xpelectrical.co.nz/services/",
+          "https://xpelectrical.co.nz/electrical-inspections/",
+          "https://xpelectrical.co.nz/electrician-cambridge/",
+          "https://xpelectrical.co.nz/electrical-service-technician/",
+          "https://xpelectrical.co.nz/electrician-near-me/",
+          "https://xpelectrical.co.nz/ev-home-charger/",
+          "https://xpelectrical.co.nz/commercial-electrician/",
+          "https://xpelectrical.co.nz/industrial-installation/",
+          "https://xpelectrical.co.nz/contact-us/",
+          "https://xpelectrical.co.nz/about-us/",
+          "https://xpelectrical.co.nz/services/",
+          "https://xpelectrical.co.nz/electrical-inspections/",
+          "https://xpelectrical.co.nz/electrician-cambridge/",
+          "https://xpelectrical.co.nz/electrical-service-technician/",
+          "https://xpelectrical.co.nz/electrician-near-me/",
+          "https://xpelectrical.co.nz/ev-home-charger/",
+          "https://xpelectrical.co.nz/commercial-electrician/",
+          "https://xpelectrical.co.nz/industrial-installation/",
+          "https://xpelectrical.co.nz/contact-us/",
+          "https://xpelectrical.co.nz/about-us/",
+          "https://xpelectrical.co.nz/services/",
+          "https://xpelectrical.co.nz/electrical-inspections/",
+          "https://xpelectrical.co.nz/electrician-cambridge/"
+        ],
+        "emails": [
+          "admin@xpelectrical.co.nz"
+        ],
+        "schema_count": 0
+      },
+      "check_version": "1"
+    },
+    "schema": {
+      "url": "https://xpelectrical.co.nz/",
+      "observed_at": "2026-10-29T00:25:06.681096+00:00",
+      "mode": "static",
+      "data": {
+        "types": [],
+        "profile": "static",
+        "generator": "",
+        "local_business_review": "Check identity, address and service area against the business owner.",
+        "crawler_readiness": {
+          "robots_meta": [
+            "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+          ],
+          "rendered_content_comparison": "Available only in rendered mode"
+        }
+      },
+      "check_version": "1"
+    },
+    "headers": {
+      "url": "https://xpelectrical.co.nz/",
+      "observed_at": "2026-10-29T00:25:06.681096+00:00",
+      "mode": "static",
+      "data": {
+        "headers": {
+          "server": "nginx",
+          "content-type": "text/html; charset=UTF-8",
+          "last-modified": "Wed, 28 Oct 2026 23:57:50 GMT",
+          "cache-control": "max-age=0",
+          "content-length": "88111"
+        },
+        "cookies": []
+      },
+      "check_version": "1"
+    },
+    "technology": {
+      "url": "https://xpelectrical.co.nz/",
+      "observed_at": "2026-10-29T00:25:05.997417+00:00",
+      "mode": "static",
+      "data": {
+        "technologies": [
+          {
+            "technology": "jQuery",
+            "category": "JavaScript Library",
+            "version": null,
+            "version_confidence": 0.0,
+            "evidence": "jQuery script detected",
+            "confidence": 0.6
+          }
+        ]
+      },
+      "check_version": "1"
+    },
+    "js_vulnerabilities": {
+      "url": "https://xpelectrical.co.nz/",
+      "observed_at": "2026-10-29T00:25:05.997417+00:00",
+      "mode": "static",
+      "data": {
+        "js_vulnerabilities_detected": 0
+      },
+      "check_version": "1"
+    },
+    "structured_validation": {
+      "url": "https://xpelectrical.co.nz/",
+      "observed_at": "2026-10-29T00:25:05.997417+00:00",
+      "mode": "static",
+      "data": {
+        "structured_data_scripts_found": 0
+      },
+      "check_version": "1"
+    },
+    "hreflang": {
+      "url": "https://xpelectrical.co.nz/",
+      "observed_at": "2026-10-29T00:25:05.997417+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://xpelectrical.co.nz/",
+        "hreflang_links": [],
+        "hreflang_count": 0,
+        "limitation": "No multilingual annotations declared; reciprocity not fetched."
+      },
+      "check_version": "3"
+    },
+    "language": {
+      "url": "https://xpelectrical.co.nz/",
+      "observed_at": "2026-10-29T00:25:05.997417+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://xpelectrical.co.nz/",
+        "html_lang": "en-us",
+        "meta_content_language": null,
+        "is_nz_domain": true,
+        "limitation": "Declared language only; content language is not inferred from the domain."
+      },
+      "check_version": "3"
+    },
+    "images": {
+      "url": "https://xpelectrical.co.nz/",
+      "observed_at": "2026-10-29T00:25:05.997417+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://xpelectrical.co.nz/",
+        "image_count": 5,
+        "missing_alt": 0,
+        "missing_dimensions": 0,
+        "missing_loading": 1,
+        "framework_fill_images": 0,
+        "external_images": 0,
+        "large_file_hints": []
+      },
+      "check_version": "3"
+    },
+    "social_meta": {
+      "url": "https://xpelectrical.co.nz/",
+      "observed_at": "2026-10-29T00:25:05.997417+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://xpelectrical.co.nz/",
+        "og_tags": {
+          "locale": "en_US",
+          "type": "website",
+          "title": "Electrician Hamilton | Residential & Industrial Electrician",
+          "description": "Find the best electricians in Hamilton NZ for professional electrical inspections. Inquire about our caravan electric WOF and other services today!",
+          "url": "https://xpelectrical.co.nz/",
+          "site_name": "XP ELECTRICAL | RESIDENTIAL, COMMERCIAL ELECTRICAN",
+          "image": "https://xpelectrical.co.nz/wp-content/uploads/2024/10/XP-Electrical_Feature-Image.jpg",
+          "image:width": "1200",
+          "image:height": "628",
+          "image:type": "image/jpeg"
+        },
+        "twitter_tags": {
+          "card": "summary_large_image"
+        }
+      },
+      "check_version": "3"
+    },
+    "hygiene": {
+      "url": "https://xpelectrical.co.nz/",
+      "observed_at": "2026-10-29T00:25:06.681096+00:00",
+      "mode": "static",
+      "data": {
+        "robots": {
+          "url": "https://xpelectrical.co.nz/robots.txt",
+          "status_code": 200,
+          "bytes": 160,
+          "sitemaps_declared": [
+            "https://xpelectrical.co.nz/sitemap_index.xml"
+          ]
+        },
+        "sitemap": {
+          "checked": [
+            {
+              "url": "https://xpelectrical.co.nz/sitemap_index.xml",
+              "status": 200,
+              "loc_count": 3,
+              "well_formed": true
+            }
+          ]
+        },
+        "security_headers": {
+          "graded": [
+            "content-security-policy",
+            "x-content-type-options",
+            "strict-transport-security"
+          ],
+          "present": []
+        },
+        "mixed_content": {
+          "offenders": [],
+          "count": 0
+        }
+      },
+      "check_version": "1"
+    },
+    "ux": {
+      "url": "https://xpelectrical.co.nz/",
+      "observed_at": "2026-10-29T00:25:06.681096+00:00",
+      "mode": "static",
+      "data": {
+        "signals": {
+          "contact_path": true,
+          "phone": true,
+          "booking": false,
+          "quote_form": false,
+          "form_present": false
+        }
+      },
+      "check_version": "1"
+    },
+    "tls": {
+      "url": "https://xpelectrical.co.nz/",
+      "observed_at": "2026-10-29T00:25:05.997417+00:00",
+      "mode": "static",
+      "data": {
+        "expires_at": "2027-01-11T17:01:57+00:00",
+        "days_remaining": 74,
+        "protocol": "TLSv1.3",
+        "cipher": "TLS_AES_256_GCM_SHA384"
+      },
+      "check_version": "1"
+    },
+    "browser": {}
+  },
+  "check_registry": {
+    "fetch": {
+      "id": "fetch",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "page": {
+      "id": "page",
+      "category": "seo",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Content and conversion observations require editorial review."
+    },
+    "schema": {
+      "id": "schema",
+      "category": "local",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Presence does not establish eligibility or business identity."
+    },
+    "accessibility_static": {
+      "id": "accessibility_static",
+      "category": "accessibility",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Static checks do not establish conformance."
+    },
+    "ux": {
+      "id": "ux",
+      "category": "privacy",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Observed behavior is not a legal determination."
+    },
+    "headers": {
+      "id": "headers",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "hygiene": {
+      "id": "hygiene",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Deterministic robots, sitemap, header and mixed-content checks."
+    },
+    "links": {
+      "id": "links",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Bounded same-origin link validation; not an exhaustive crawler."
+    },
+    "tls": {
+      "id": "tls",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "dns": {
+      "id": "dns",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "crawl": {
+      "id": "crawl",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "lychee": {
+      "id": "lychee",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "External local CLI check; bounded by Lychee configuration and network conditions."
+    },
+    "lighthouse": {
+      "id": "lighthouse",
+      "category": "performance",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Laboratory result; not field Core Web Vitals."
+    },
+    "browser": {
+      "id": "browser",
+      "category": "performance",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Laboratory observations, not field Core Web Vitals."
+    },
+    "axe": {
+      "id": "axe",
+      "category": "accessibility",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Manual keyboard, screen-reader and content review remains necessary."
+    },
+    "pdf": {
+      "id": "pdf",
+      "category": "reporting",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "technology": {
+      "id": "technology",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "js_vulnerabilities": {
+      "id": "js_vulnerabilities",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "structured_validation": {
+      "id": "structured_validation",
+      "category": "local",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "hreflang": {
+      "id": "hreflang",
+      "category": "seo",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "language": {
+      "id": "language",
+      "category": "technical",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "images": {
+      "id": "images",
+      "category": "performance",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "social_meta": {
+      "id": "social_meta",
+      "category": "technical",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "cookie_consent": {
+      "id": "cookie_consent",
+      "category": "privacy",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Passive bounded observations only; cookie purpose and legal obligations require human review."
+    },
+    "third_party": {
+      "id": "third_party",
+      "category": "technical",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "browser_console": {
+      "id": "browser_console",
+      "category": "technical",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "server_technology": {
+      "id": "server_technology",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    }
+  },
+  "scoring": {
+    "method": "severity sum capped at 100; health = 100 - severity",
+    "weights": {
+      "low": 4,
+      "medium": 8,
+      "high": 16,
+      "critical": 30
+    },
+    "limitation": "Heuristic prioritization, not certification"
+  },
+  "financial_assumptions": [
+    "No fines or measured lost revenue. Estimates require explicit rates."
+  ],
+  "artifacts": {
+    "json": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002505-1b50f50c422c/report.json",
+    "html": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002505-1b50f50c422c/report.html",
+    "trend": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002505-1b50f50c422c/trend.svg",
+    "actions": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002505-1b50f50c422c/actions/preview.json"
+  },
+  "category_scores": {
+    "accessibility": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": null
+    },
+    "local": {
+      "score": 4,
+      "severity_score": 4,
+      "health_score": 96
+    },
+    "performance": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": 100
+    },
+    "privacy": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": 100
+    },
+    "security": {
+      "score": 16,
+      "severity_score": 16,
+      "health_score": 84
+    },
+    "seo": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": 100
+    },
+    "technical": {
+      "score": 4,
+      "severity_score": 4,
+      "health_score": 96
+    }
+  },
+  "comparison": {
+    "baseline": null,
+    "new": [
+      "44a741da89916f4a6800c5f6",
+      "72fcb3b989a5bf4ceb3ba406",
+      "daa6d11f944d0165ee92e84f",
+      "f7fc934dfbee35d9514dc664",
+      "fbf9ce31a46a439c013f484d"
+    ],
+    "persistent": [],
+    "regressed": [],
+    "resolved": [],
+    "resolution_assessed": false
+  },
+  "fault_regression": {
+    "new": [
+      "44a741da89916f4a6800c5f6",
+      "72fcb3b989a5bf4ceb3ba406",
+      "daa6d11f944d0165ee92e84f",
+      "f7fc934dfbee35d9514dc664",
+      "fbf9ce31a46a439c013f484d"
+    ],
+    "resolved": [],
+    "unchanged": []
+  },
+  "claim_ledger": [
+    {
+      "claim_id": "finding:fbf9ce31a46a439c013f484d",
+      "claim": "No structured data found",
+      "claim_type": "hypothesis",
+      "finding_id": "fbf9ce31a46a439c013f484d",
+      "evidence_ref": "schema",
+      "evidence": "zero structured-data blocks",
+      "source_url": "https://xpelectrical.co.nz/",
+      "observed_at": "2026-10-29T00:25:06.681096+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:f7fc934dfbee35d9514dc664",
+      "claim": "Missing content-security-policy",
+      "claim_type": "observed_fact",
+      "finding_id": "f7fc934dfbee35d9514dc664",
+      "evidence_ref": "headers",
+      "evidence": "headers",
+      "source_url": "https://xpelectrical.co.nz/",
+      "observed_at": "2026-10-29T00:25:06.681096+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:daa6d11f944d0165ee92e84f",
+      "claim": "Missing x-content-type-options",
+      "claim_type": "observed_fact",
+      "finding_id": "daa6d11f944d0165ee92e84f",
+      "evidence_ref": "headers",
+      "evidence": "headers",
+      "source_url": "https://xpelectrical.co.nz/",
+      "observed_at": "2026-10-29T00:25:06.681096+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:72fcb3b989a5bf4ceb3ba406",
+      "claim": "Missing HSTS",
+      "claim_type": "hypothesis",
+      "finding_id": "72fcb3b989a5bf4ceb3ba406",
+      "evidence_ref": "headers",
+      "evidence": "headers",
+      "source_url": "https://xpelectrical.co.nz/",
+      "observed_at": "2026-10-29T00:25:06.681096+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:44a741da89916f4a6800c5f6",
+      "claim": "Missing Twitter handle",
+      "claim_type": "observed_fact",
+      "finding_id": "44a741da89916f4a6800c5f6",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta name=\"twitter:site\"> or twitter:creator tag present",
+      "source_url": "https://xpelectrical.co.nz/",
+      "observed_at": "2026-10-29T00:25:05.997417+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    }
+  ],
+  "drafts": {
+    "status": "fallback",
+    "review_required": true,
+    "drafts": {
+      "metadata": {
+        "text": "Title: Example services\nDescription: [review required]",
+        "source": "template",
+        "review_required": true
+      },
+      "platform_fix": {
+        "text": "Prepare an evidence-backed fix draft for review.",
+        "source": "template",
+        "review_required": true
+      },
+      "outreach": {
+        "text": "Prepare factual outreach from verified findings.",
+        "source": "template",
+        "review_required": true
+      },
+      "content_expansion": {
+        "text": "Outline services, proof, FAQs, and contact details.",
+        "source": "template",
+        "review_required": true
+      },
+      "bilingual": {
+        "text": "EN: [English draft]\nMI: [te reo Māori review required]",
+        "source": "template",
+        "review_required": true
+      }
+    },
+    "reason": "Local generation not requested"
+  },
+  "proofing": {
+    "metadata": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 5,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "platform_fix": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 5,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "outreach": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 5,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "content_expansion": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 5,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "bilingual": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 5,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    }
+  },
+  "proposal": {
+    "currency": "NZD",
+    "hourly_rate": null,
+    "assumptions": "Versioned effort bands with shared setup for repeated defects and 15% contingency; scope and rates require human review.",
+    "hours_low": 14.0,
+    "hours_high": 40.83,
+    "estimate_low": null,
+    "estimate_high": null,
+    "rules_version": "quote-v1",
+    "review_required": true,
+    "llm_determined_price": false
+  },
+  "action_preview": {
+    "count": 5,
+    "status": "preview",
+    "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002505-1b50f50c422c/actions/preview.json"
+  },
+  "coverage": {
+    "version": 1,
+    "required": 14,
+    "passed": 14,
+    "required_checks": [
+      "fetch",
+      "headers",
+      "hreflang",
+      "hygiene",
+      "images",
+      "js_vulnerabilities",
+      "language",
+      "page",
+      "schema",
+      "social_meta",
+      "structured_validation",
+      "technology",
+      "tls",
+      "ux"
+    ],
+    "missing_checks": []
+  },
+  "manifest": {
+    "html": {
+      "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002505-1b50f50c422c/report.html",
+      "size": 21596,
+      "sha256": "6057d5b7f991296b8adb38274ab23c5c6f2e45886c2b35c411657196af54ebb8"
+    },
+    "trend": {
+      "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002505-1b50f50c422c/trend.svg",
+      "size": 242,
+      "sha256": "17eab5fe897686aad1fe4c840f22ea7b4df2f11c73f30f2ebb310d0dd9d784c2"
+    },
+    "actions": {
+      "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002505-1b50f50c422c/actions/preview.json",
+      "size": 8763,
+      "sha256": "dda00f66ddeac56c1ce2bf18f8560c673e14ba85f8a52bff8b4d2f527690ded9"
+    }
+  }
+}

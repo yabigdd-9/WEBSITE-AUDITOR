@@ -1,0 +1,28 @@
+{
+ "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+ "fixture_sha256": "5122af4bada24c048170f6d96cad4c61aa59f9f1fc68717fed2cfdaead45b201",
+ "scope": "commerce-catalogue",
+ "prediction_author": "wa-static-profile (deterministic, no model)",
+ "observations": [
+  {
+   "rule": "missing_canonical_url",
+   "url": "https://rohe.nz/",
+   "location": "head > link[rel=\"canonical\"]"
+  },
+  {
+   "rule": "header-content-security-policy",
+   "url": "https://rohe.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "structured_data_missing_type",
+   "url": "https://rohe.nz/",
+   "location": "Search engines may ignore or misinterpret the structured data."
+  },
+  {
+   "rule": "social-meta-twitter-handle",
+   "url": "https://rohe.nz/",
+   "location": "No twitter:site or twitter:creator declared"
+  }
+ ]
+}

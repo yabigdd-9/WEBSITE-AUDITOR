@@ -1,0 +1,2636 @@
+{
+  "schema_version": 2,
+  "browser_requested": false,
+  "performance": {
+    "total_elapsed_ms": 8675,
+    "checks": {
+      "fetch": 0,
+      "page": 1463,
+      "schema": 1300,
+      "headers": 0,
+      "technology": 238,
+      "js_vulnerabilities": 317,
+      "structured_validation": 254,
+      "hreflang": 1122,
+      "language": 918,
+      "images": 481,
+      "social_meta": 1234,
+      "hygiene": 1858,
+      "ux": 217,
+      "links": 0,
+      "lychee": 0,
+      "lighthouse": 0,
+      "tls": 1046,
+      "dns": 0,
+      "crawl": 0,
+      "browser": 0,
+      "third_party": 0,
+      "browser_console": 0,
+      "cookie_consent": 0,
+      "axe": 0
+    },
+    "slowest_checks": [
+      [
+        "hygiene",
+        1858
+      ],
+      [
+        "page",
+        1463
+      ],
+      [
+        "schema",
+        1300
+      ],
+      [
+        "social_meta",
+        1234
+      ],
+      [
+        "hreflang",
+        1122
+      ]
+    ]
+  },
+  "run_id": "20261029T002513-f1f177382943",
+  "url": "https://nzbuilders.co.nz/",
+  "domain": "nzbuilders.co.nz",
+  "timestamp": "2026-10-29T00:25:13.836780+00:00",
+  "profile": "static",
+  "brand": "Website Auditor",
+  "status": "complete",
+  "score": 100,
+  "severity_score": 100,
+  "health_score": 0,
+  "breakdown": {
+    "health_score": 0,
+    "severity_total": 100,
+    "heuristic_count": 1,
+    "method": "severity sum capped at 100; health = 100 - severity",
+    "deductions": [
+      {
+        "finding_id": "22b59ff3a58b84c87519a9f7",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=https://www.facebook.com/tr?id=329494686179283&ev=PageView&noscript=1 has no alt"
+      },
+      {
+        "finding_id": "5c663170aaa97fb82a5d5c87",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/nz-builders-logo.svg has no alt"
+      },
+      {
+        "finding_id": "de6e8731de8e361fdc0ca362",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/nz-builders-logo-dark.svg has no alt"
+      },
+      {
+        "finding_id": "27625476bb14b01bc99a7d8c",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/step-1.png?v2 has no alt"
+      },
+      {
+        "finding_id": "b29e6c953c1cdf29301fd770",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/step-2.png?v2 has no alt"
+      },
+      {
+        "finding_id": "69922810dbbd6d50d35c8641",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/step-3.png?v2 has no alt"
+      },
+      {
+        "finding_id": "c44dbcc2aaab94cc13405577",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/step-4.png?v2 has no alt"
+      },
+      {
+        "finding_id": "27a1434cb4c159f8abbd59dd",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/step-5.png?v2 has no alt"
+      },
+      {
+        "finding_id": "69e9e3659efbf7b18df03be8",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/step-1.png?v2 has no alt"
+      },
+      {
+        "finding_id": "1645c2bd98efd01b5900fc8f",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/step-2.png?v2 has no alt"
+      },
+      {
+        "finding_id": "78de3b0f84c2373f8a4771d5",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/step-3.png?v2 has no alt"
+      },
+      {
+        "finding_id": "3a325d1de105a02ff9783067",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/step-4.png?v2 has no alt"
+      },
+      {
+        "finding_id": "401dfbea527bb016fc3deab5",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/step-5.png?v2 has no alt"
+      },
+      {
+        "finding_id": "2b35168e509cad9f5efc2c74",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/awards.png has no alt"
+      },
+      {
+        "finding_id": "309ad136078c2c5711009ac0",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/pavillion-home.jpg has no alt"
+      },
+      {
+        "finding_id": "e61534ae0dce2de5450ef530",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/feature-st-michaels-new.jpg has no alt"
+      },
+      {
+        "finding_id": "56f50d6ef78cbdf25be214cd",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/feature-st-michaels-mobile-new.jpg has no alt"
+      },
+      {
+        "finding_id": "62e4ac6c203d77d3083539d5",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/home-huia.jpg has no alt"
+      },
+      {
+        "finding_id": "70b2a67419000e287b637623",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/huia-mobile.jpg has no alt"
+      },
+      {
+        "finding_id": "eb17b991d2f516c43b0c500c",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/play.svg has no alt"
+      },
+      {
+        "finding_id": "e5c152c37b646cbc9f1f78af",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/harcourts-testimonial.jpg has no alt"
+      },
+      {
+        "finding_id": "3c444671dbe6267d5415142a",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/kelly-martin-testimonial.jpg has no alt"
+      },
+      {
+        "finding_id": "ca7c7b4d5f0523eec8ec772d",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/testimonial-katherine.jpg has no alt"
+      },
+      {
+        "finding_id": "4d0c911436d4c282398d5c60",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/award-badges-2026.png?v4 has no alt"
+      },
+      {
+        "finding_id": "4e7ce8557e8aa9cdf1e13bc8",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/assets/img/building-licences.png has no alt"
+      },
+      {
+        "finding_id": "d1f2289a8b02f57e0478aac4",
+        "defect_key": "header-content-security-policy",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "headers"
+      },
+      {
+        "finding_id": "1182742ed69da4062ace0a7e",
+        "defect_key": "images-missing-alt",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "25 of 25 images have no alt text"
+      },
+      {
+        "finding_id": "43a8184419ec5f1fa559319c",
+        "defect_key": "images-missing-dimensions",
+        "severity": "low",
+        "points": 4,
+        "confidence": "heuristic",
+        "evidence_summary": "24 of 25 images do not provide positive numeric width and height attributes"
+      },
+      {
+        "finding_id": "2dfe53ad533b459d99a4d363",
+        "defect_key": "images-external-hosting",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "1 image(s) served from external domains"
+      },
+      {
+        "finding_id": "6fc3f6ae0e85503b6234dc49",
+        "defect_key": "social-meta-og-type",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "No <meta property=\"og:type\"> tag present"
+      },
+      {
+        "finding_id": "fa8c0b80fc9d6eacbb7a2434",
+        "defect_key": "social-meta-twitter-card",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "No <meta name=\"twitter:card\"> tag present"
+      },
+      {
+        "finding_id": "e7a00ea62e93820ad415c9f7",
+        "defect_key": "social-meta-twitter-handle",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "No <meta name=\"twitter:site\"> or twitter:creator tag present"
+      }
+    ]
+  },
+  "defects": [
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "https://www.facebook.com/tr?id=329494686179283&ev=PageView&noscript=1",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(1)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=https://www.facebook.com/tr?id=329494686179283&ev=PageView&noscript=1 has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "22b59ff3a58b84c87519a9f7",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=https://www.facebook.com/tr?id=329494686179283&ev=PageView&noscript=1 has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/nz-builders-logo.svg",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(2)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/nz-builders-logo.svg has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "5c663170aaa97fb82a5d5c87",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/nz-builders-logo.svg has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/nz-builders-logo-dark.svg",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(3)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/nz-builders-logo-dark.svg has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "de6e8731de8e361fdc0ca362",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/nz-builders-logo-dark.svg has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/step-1.png?v2",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(4)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/step-1.png?v2 has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "27625476bb14b01bc99a7d8c",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/step-1.png?v2 has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/step-2.png?v2",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(5)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/step-2.png?v2 has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "b29e6c953c1cdf29301fd770",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/step-2.png?v2 has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/step-3.png?v2",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(6)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/step-3.png?v2 has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "69922810dbbd6d50d35c8641",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/step-3.png?v2 has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/step-4.png?v2",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(7)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/step-4.png?v2 has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "c44dbcc2aaab94cc13405577",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/step-4.png?v2 has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/step-5.png?v2",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(8)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/step-5.png?v2 has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "27a1434cb4c159f8abbd59dd",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/step-5.png?v2 has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/step-1.png?v2",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(9)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/step-1.png?v2 has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "69e9e3659efbf7b18df03be8",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/step-1.png?v2 has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/step-2.png?v2",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(10)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/step-2.png?v2 has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "1645c2bd98efd01b5900fc8f",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/step-2.png?v2 has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/step-3.png?v2",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(11)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/step-3.png?v2 has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "78de3b0f84c2373f8a4771d5",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/step-3.png?v2 has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/step-4.png?v2",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(12)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/step-4.png?v2 has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "3a325d1de105a02ff9783067",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/step-4.png?v2 has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/step-5.png?v2",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(13)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/step-5.png?v2 has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "401dfbea527bb016fc3deab5",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/step-5.png?v2 has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/awards.png",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(14)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/awards.png has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "2b35168e509cad9f5efc2c74",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/awards.png has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/pavillion-home.jpg",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(15)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/pavillion-home.jpg has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "309ad136078c2c5711009ac0",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/pavillion-home.jpg has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/feature-st-michaels-new.jpg",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(16)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/feature-st-michaels-new.jpg has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "e61534ae0dce2de5450ef530",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/feature-st-michaels-new.jpg has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/feature-st-michaels-mobile-new.jpg",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(17)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/feature-st-michaels-mobile-new.jpg has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "56f50d6ef78cbdf25be214cd",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/feature-st-michaels-mobile-new.jpg has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/home-huia.jpg",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(18)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/home-huia.jpg has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "62e4ac6c203d77d3083539d5",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/home-huia.jpg has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/huia-mobile.jpg",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(19)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/huia-mobile.jpg has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "70b2a67419000e287b637623",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/huia-mobile.jpg has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/play.svg",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(20)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/play.svg has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "eb17b991d2f516c43b0c500c",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/play.svg has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/harcourts-testimonial.jpg",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(21)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/harcourts-testimonial.jpg has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "e5c152c37b646cbc9f1f78af",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/harcourts-testimonial.jpg has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/kelly-martin-testimonial.jpg",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(22)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/kelly-martin-testimonial.jpg has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "3c444671dbe6267d5415142a",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/kelly-martin-testimonial.jpg has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/testimonial-katherine.jpg",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(23)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/testimonial-katherine.jpg has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "ca7c7b4d5f0523eec8ec772d",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/testimonial-katherine.jpg has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/award-badges-2026.png?v4",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(24)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/award-badges-2026.png?v4 has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "4d0c911436d4c282398d5c60",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/award-badges-2026.png?v4 has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/assets/img/building-licences.png",
+      "severity": "high",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(25)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/assets/img/building-licences.png has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "4e7ce8557e8aa9cdf1e13bc8",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "img src=/assets/img/building-licences.png has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "header-content-security-policy",
+      "defect": "Missing content-security-policy",
+      "impact": "Review deployment requirements",
+      "severity": "low",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "d1f2289a8b02f57e0478aac4",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "evidence_summary": "headers",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "images-missing-alt",
+      "defect": "Images missing alt text (25)",
+      "impact": "Screen readers cannot describe images; accessibility and SEO suffer",
+      "severity": "medium",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "images",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:img element",
+      "observed": "25 of 25 images have no alt text",
+      "business_impact": "Screen readers announce 'image' instead of context. Search engines cannot index image content. Both hurt accessibility and SEO.",
+      "remediation_action": "Add descriptive alt text to every informative image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "S",
+      "finding_id": "1182742ed69da4062ace0a7e",
+      "evidence_ref": "images",
+      "observed_at": "2026-10-29T00:25:13.836780+00:00",
+      "evidence_summary": "25 of 25 images have no alt text",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "images-missing-dimensions",
+      "defect": "Images missing width/height (24)",
+      "impact": "Space reservation needs rendered review; CSS or a sized container may already prevent layout shift",
+      "severity": "low",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "images",
+      "selector": "",
+      "confidence": "heuristic",
+      "evidence_source": "dom:img element",
+      "observed": "24 of 25 images do not provide positive numeric width and height attributes",
+      "business_impact": "Layout shift is possible only if the rendered page does not already reserve image space. Static HTML alone does not establish CLS or its impact.",
+      "remediation_action": "Inspect computed styles, container sizing and measured layout shifts. Add dimensions or equivalent space reservation only where needed; preserve intentional framework fill layouts.",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "S",
+      "finding_id": "43a8184419ec5f1fa559319c",
+      "evidence_ref": "images",
+      "observed_at": "2026-10-29T00:25:13.836780+00:00",
+      "evidence_summary": "24 of 25 images do not provide positive numeric width and height attributes",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "images-external-hosting",
+      "defect": "Images hosted externally (1)",
+      "impact": "Third-party image dependency",
+      "severity": "low",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "images",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:img element",
+      "observed": "1 image(s) served from external domains",
+      "business_impact": "External images depend on third-party uptime and add DNS/HTTP overhead. Critical images should be self-hosted.",
+      "remediation_action": "Self-host critical images or use a proven CDN with fallback.",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "2dfe53ad533b459d99a4d363",
+      "evidence_ref": "images",
+      "observed_at": "2026-10-29T00:25:13.836780+00:00",
+      "evidence_summary": "1 image(s) served from external domains",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-og-type",
+      "defect": "Missing og:type",
+      "impact": "No Open Graph type declared",
+      "severity": "low",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[property=og:type]",
+      "observed": "No <meta property=\"og:type\"> tag present",
+      "business_impact": "Social platforms may not know how to render this page as a preview card.",
+      "remediation_action": "Add an og:type meta tag (e.g. \"website\" or \"article\").",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "6fc3f6ae0e85503b6234dc49",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-29T00:25:13.836780+00:00",
+      "evidence_summary": "No <meta property=\"og:type\"> tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-twitter-card",
+      "defect": "Missing Twitter Card",
+      "impact": "No twitter:card declared",
+      "severity": "low",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[name=twitter:card]",
+      "observed": "No <meta name=\"twitter:card\"> tag present",
+      "business_impact": "Twitter/X shares show no image or rich preview.",
+      "remediation_action": "Add a twitter:card meta tag (e.g. \"summary_large_image\").",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "fa8c0b80fc9d6eacbb7a2434",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-29T00:25:13.836780+00:00",
+      "evidence_summary": "No <meta name=\"twitter:card\"> tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-twitter-handle",
+      "defect": "Missing Twitter handle",
+      "impact": "No twitter:site or twitter:creator declared",
+      "severity": "low",
+      "source_url": "https://nzbuilders.co.nz/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[name=twitter:site]",
+      "observed": "No <meta name=\"twitter:site\"> or twitter:creator tag present",
+      "business_impact": "Twitter/X attribution is missing; the account that shares this page is not tagged.",
+      "remediation_action": "Add a twitter:site meta tag with your @handle.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "e7a00ea62e93820ad415c9f7",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-29T00:25:13.836780+00:00",
+      "evidence_summary": "No <meta name=\"twitter:site\"> or twitter:creator tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    }
+  ],
+  "defect_count": 32,
+  "fault_taxonomy": {
+    "root_causes": [
+      {
+        "root_cause_id": "security_delivery_configuration_gap",
+        "taxonomy": [
+          "security_trust"
+        ],
+        "finding_ids": [
+          "d1f2289a8b02f57e0478aac4"
+        ],
+        "symptom_count": 1,
+        "likely": false,
+        "confidence": "PROVEN",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      },
+      {
+        "root_cause_id": "unclassified_observation",
+        "taxonomy": [
+          "unknown"
+        ],
+        "finding_ids": [
+          "22b59ff3a58b84c87519a9f7",
+          "5c663170aaa97fb82a5d5c87",
+          "de6e8731de8e361fdc0ca362",
+          "27625476bb14b01bc99a7d8c",
+          "b29e6c953c1cdf29301fd770",
+          "69922810dbbd6d50d35c8641",
+          "c44dbcc2aaab94cc13405577",
+          "27a1434cb4c159f8abbd59dd",
+          "69e9e3659efbf7b18df03be8",
+          "1645c2bd98efd01b5900fc8f",
+          "78de3b0f84c2373f8a4771d5",
+          "3a325d1de105a02ff9783067",
+          "401dfbea527bb016fc3deab5",
+          "2b35168e509cad9f5efc2c74",
+          "309ad136078c2c5711009ac0",
+          "e61534ae0dce2de5450ef530",
+          "56f50d6ef78cbdf25be214cd",
+          "62e4ac6c203d77d3083539d5",
+          "70b2a67419000e287b637623",
+          "eb17b991d2f516c43b0c500c",
+          "e5c152c37b646cbc9f1f78af",
+          "3c444671dbe6267d5415142a",
+          "ca7c7b4d5f0523eec8ec772d",
+          "4d0c911436d4c282398d5c60",
+          "4e7ce8557e8aa9cdf1e13bc8",
+          "1182742ed69da4062ace0a7e",
+          "43a8184419ec5f1fa559319c",
+          "2dfe53ad533b459d99a4d363",
+          "6fc3f6ae0e85503b6234dc49",
+          "fa8c0b80fc9d6eacbb7a2434",
+          "e7a00ea62e93820ad415c9f7"
+        ],
+        "symptom_count": 31,
+        "likely": true,
+        "confidence": "MODERATE",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      }
+    ],
+    "reproducible_count": 32,
+    "weak_or_unknown_count": 1
+  },
+  "checks": {
+    "fetch": {
+      "status": "ok",
+      "required": true
+    },
+    "page": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1463
+    },
+    "schema": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1300
+    },
+    "headers": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "technology": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 238
+    },
+    "js_vulnerabilities": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 317
+    },
+    "structured_validation": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 254
+    },
+    "hreflang": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1122
+    },
+    "language": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 918
+    },
+    "images": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 481
+    },
+    "social_meta": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1234
+    },
+    "hygiene": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1858
+    },
+    "ux": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 217
+    },
+    "links": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "lychee": {
+      "status": "skipped",
+      "reason": "Enable external local tools",
+      "required": false
+    },
+    "lighthouse": {
+      "status": "skipped",
+      "reason": "Enable external local tools",
+      "required": false
+    },
+    "tls": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1046
+    },
+    "dns": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "crawl": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "browser": {
+      "status": "skipped",
+      "reason": "Disabled in selected audit profile",
+      "required": false
+    },
+    "third_party": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "browser_console": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "cookie_consent": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "axe": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "pdf": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    }
+  },
+  "evidence": {
+    "fetch": {
+      "url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "mode": "static",
+      "check_version": "1",
+      "data": {
+        "status_code": 200,
+        "redirects": [],
+        "revalidated_at": null
+      }
+    },
+    "page": {
+      "url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "mode": "static",
+      "data": {
+        "title": "NZ Builders | Home",
+        "word_count": 904,
+        "link_count": 28,
+        "sample_links": [
+          "https://nzbuilders.co.nz/",
+          "https://nzbuilders.co.nz/",
+          "https://nzbuilders.co.nz/projects",
+          "https://nzbuilders.co.nz/process",
+          "https://nzbuilders.co.nz/about",
+          "https://nzbuilders.co.nz/contact",
+          "https://nzbuilders.co.nz/projects/the-pavilion",
+          "https://nzbuilders.co.nz/projects/st-michaels-avenue",
+          "https://nzbuilders.co.nz/projects/huia-town-houses",
+          "https://nzbuilders.co.nz/projects",
+          "https://nzbuilders.co.nz/process",
+          "https://nzbuilders.co.nz/projects/harcourts-hq",
+          "https://nzbuilders.co.nz/projects/harcourts-hq",
+          "https://nzbuilders.co.nz/projects/college-hill",
+          "https://nzbuilders.co.nz/projects/college-hill",
+          "https://nzbuilders.co.nz/process",
+          "https://nzbuilders.co.nz/projects",
+          "https://nzbuilders.co.nz/news",
+          "https://nzbuilders.co.nz/process",
+          "https://nzbuilders.co.nz/about",
+          "https://nzbuilders.co.nz/contact",
+          "https://nz.linkedin.com/company/nz-builders-limited",
+          "https://www.instagram.com/nz_builders/",
+          "https://nzbuilders.co.nz/",
+          "https://nzbuilders.co.nz/projects"
+        ],
+        "emails": [],
+        "schema_count": 1
+      },
+      "check_version": "1"
+    },
+    "schema": {
+      "url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "mode": "static",
+      "data": {
+        "types": [
+          "City",
+          "GeneralContractor",
+          "GeoCoordinates",
+          "Offer",
+          "OfferCatalog",
+          "OpeningHoursSpecification",
+          "Organization",
+          "Person",
+          "Place",
+          "PostalAddress",
+          "PropertyValue",
+          "Service"
+        ],
+        "profile": "static",
+        "generator": "",
+        "local_business_review": "Check identity, address and service area against the business owner.",
+        "crawler_readiness": {
+          "robots_meta": [],
+          "rendered_content_comparison": "Available only in rendered mode"
+        }
+      },
+      "check_version": "1"
+    },
+    "headers": {
+      "url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "mode": "static",
+      "data": {
+        "headers": {
+          "content-type": "text/html; charset=UTF-8",
+          "server": "LiteSpeed",
+          "strict-transport-security": "max-age=63072000; includeSubDomains",
+          "x-frame-options": "SAMEORIGIN",
+          "x-content-type-options": "nosniff",
+          "content-length": "47494"
+        },
+        "cookies": []
+      },
+      "check_version": "1"
+    },
+    "technology": {
+      "url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:13.836780+00:00",
+      "mode": "static",
+      "data": {
+        "technologies": [
+          {
+            "technology": "Bootstrap",
+            "category": "CSS Framework",
+            "version": null,
+            "version_confidence": 0.0,
+            "evidence": "Bootstrap CSS or JS detected",
+            "confidence": 0.6
+          },
+          {
+            "technology": "jQuery",
+            "category": "JavaScript Library",
+            "version": null,
+            "version_confidence": 0.0,
+            "evidence": "jQuery script detected",
+            "confidence": 0.6
+          }
+        ]
+      },
+      "check_version": "1"
+    },
+    "js_vulnerabilities": {
+      "url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:13.836780+00:00",
+      "mode": "static",
+      "data": {
+        "js_vulnerabilities_detected": 0
+      },
+      "check_version": "1"
+    },
+    "structured_validation": {
+      "url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:13.836780+00:00",
+      "mode": "static",
+      "data": {
+        "structured_data_scripts_found": 1
+      },
+      "check_version": "1"
+    },
+    "hreflang": {
+      "url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:13.836780+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://nzbuilders.co.nz/",
+        "hreflang_links": [],
+        "hreflang_count": 0,
+        "limitation": "No multilingual annotations declared; reciprocity not fetched."
+      },
+      "check_version": "3"
+    },
+    "language": {
+      "url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:13.836780+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://nzbuilders.co.nz/",
+        "html_lang": "en",
+        "meta_content_language": null,
+        "is_nz_domain": true,
+        "limitation": "Declared language only; content language is not inferred from the domain."
+      },
+      "check_version": "3"
+    },
+    "images": {
+      "url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:13.836780+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://nzbuilders.co.nz/",
+        "image_count": 25,
+        "missing_alt": 25,
+        "missing_dimensions": 24,
+        "missing_loading": 25,
+        "framework_fill_images": 0,
+        "external_images": 1,
+        "large_file_hints": []
+      },
+      "check_version": "3"
+    },
+    "social_meta": {
+      "url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:13.836780+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://nzbuilders.co.nz/",
+        "og_tags": {
+          "title": "Home",
+          "image": "https://nzbuilders.co.nz/media/pages/home/a0641443d9-1757553410/facebook.jpg",
+          "description": "Award-winning builders delivering considered, design-led construction for all levels of ambition. Renovations, architectural new builds, commercial construction.",
+          "url": "https://nzbuilders.co.nz",
+          "video": "",
+          "type": "",
+          "image:type": ""
+        },
+        "twitter_tags": {}
+      },
+      "check_version": "3"
+    },
+    "hygiene": {
+      "url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "mode": "static",
+      "data": {
+        "robots": {
+          "url": "https://nzbuilders.co.nz/robots.txt",
+          "status_code": 200,
+          "bytes": 1068,
+          "sitemaps_declared": [
+            "https://nzbuilders.co.nz/sitemap.xml"
+          ]
+        },
+        "sitemap": {
+          "checked": [
+            {
+              "url": "https://nzbuilders.co.nz/sitemap.xml",
+              "status": 200,
+              "loc_count": 31,
+              "well_formed": true
+            }
+          ]
+        },
+        "security_headers": {
+          "graded": [
+            "content-security-policy",
+            "x-content-type-options",
+            "strict-transport-security"
+          ],
+          "present": [
+            "strict-transport-security",
+            "x-content-type-options"
+          ]
+        },
+        "mixed_content": {
+          "offenders": [],
+          "count": 0
+        }
+      },
+      "check_version": "1"
+    },
+    "ux": {
+      "url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "mode": "static",
+      "data": {
+        "signals": {
+          "contact_path": true,
+          "phone": true,
+          "booking": true,
+          "quote_form": false,
+          "form_present": false
+        }
+      },
+      "check_version": "1"
+    },
+    "tls": {
+      "url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:13.836780+00:00",
+      "mode": "static",
+      "data": {
+        "expires_at": "2026-12-14T23:33:20+00:00",
+        "days_remaining": 46,
+        "protocol": "TLSv1.3",
+        "cipher": "TLS_AES_256_GCM_SHA384"
+      },
+      "check_version": "1"
+    },
+    "browser": {}
+  },
+  "check_registry": {
+    "fetch": {
+      "id": "fetch",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "page": {
+      "id": "page",
+      "category": "seo",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Content and conversion observations require editorial review."
+    },
+    "schema": {
+      "id": "schema",
+      "category": "local",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Presence does not establish eligibility or business identity."
+    },
+    "accessibility_static": {
+      "id": "accessibility_static",
+      "category": "accessibility",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Static checks do not establish conformance."
+    },
+    "ux": {
+      "id": "ux",
+      "category": "privacy",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Observed behavior is not a legal determination."
+    },
+    "headers": {
+      "id": "headers",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "hygiene": {
+      "id": "hygiene",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Deterministic robots, sitemap, header and mixed-content checks."
+    },
+    "links": {
+      "id": "links",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Bounded same-origin link validation; not an exhaustive crawler."
+    },
+    "tls": {
+      "id": "tls",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "dns": {
+      "id": "dns",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "crawl": {
+      "id": "crawl",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "lychee": {
+      "id": "lychee",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "External local CLI check; bounded by Lychee configuration and network conditions."
+    },
+    "lighthouse": {
+      "id": "lighthouse",
+      "category": "performance",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Laboratory result; not field Core Web Vitals."
+    },
+    "browser": {
+      "id": "browser",
+      "category": "performance",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Laboratory observations, not field Core Web Vitals."
+    },
+    "axe": {
+      "id": "axe",
+      "category": "accessibility",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Manual keyboard, screen-reader and content review remains necessary."
+    },
+    "pdf": {
+      "id": "pdf",
+      "category": "reporting",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "technology": {
+      "id": "technology",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "js_vulnerabilities": {
+      "id": "js_vulnerabilities",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "structured_validation": {
+      "id": "structured_validation",
+      "category": "local",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "hreflang": {
+      "id": "hreflang",
+      "category": "seo",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "language": {
+      "id": "language",
+      "category": "technical",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "images": {
+      "id": "images",
+      "category": "performance",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "social_meta": {
+      "id": "social_meta",
+      "category": "technical",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "cookie_consent": {
+      "id": "cookie_consent",
+      "category": "privacy",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Passive bounded observations only; cookie purpose and legal obligations require human review."
+    },
+    "third_party": {
+      "id": "third_party",
+      "category": "technical",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "browser_console": {
+      "id": "browser_console",
+      "category": "technical",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "server_technology": {
+      "id": "server_technology",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    }
+  },
+  "scoring": {
+    "method": "severity sum capped at 100; health = 100 - severity",
+    "weights": {
+      "low": 4,
+      "medium": 8,
+      "high": 16,
+      "critical": 30
+    },
+    "limitation": "Heuristic prioritization, not certification"
+  },
+  "financial_assumptions": [
+    "No fines or measured lost revenue. Estimates require explicit rates."
+  ],
+  "artifacts": {
+    "json": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002513-f1f177382943/report.json",
+    "html": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002513-f1f177382943/report.html",
+    "trend": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002513-f1f177382943/trend.svg",
+    "actions": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002513-f1f177382943/actions/preview.json"
+  },
+  "category_scores": {
+    "accessibility": {
+      "score": 100,
+      "severity_score": 100,
+      "health_score": null
+    },
+    "local": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": 100
+    },
+    "performance": {
+      "score": 16,
+      "severity_score": 16,
+      "health_score": 84
+    },
+    "privacy": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": 100
+    },
+    "security": {
+      "score": 4,
+      "severity_score": 4,
+      "health_score": 96
+    },
+    "seo": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": 100
+    },
+    "technical": {
+      "score": 12,
+      "severity_score": 12,
+      "health_score": 88
+    }
+  },
+  "comparison": {
+    "baseline": null,
+    "new": [
+      "1182742ed69da4062ace0a7e",
+      "1645c2bd98efd01b5900fc8f",
+      "22b59ff3a58b84c87519a9f7",
+      "27625476bb14b01bc99a7d8c",
+      "27a1434cb4c159f8abbd59dd",
+      "2b35168e509cad9f5efc2c74",
+      "2dfe53ad533b459d99a4d363",
+      "309ad136078c2c5711009ac0",
+      "3a325d1de105a02ff9783067",
+      "3c444671dbe6267d5415142a",
+      "401dfbea527bb016fc3deab5",
+      "43a8184419ec5f1fa559319c",
+      "4d0c911436d4c282398d5c60",
+      "4e7ce8557e8aa9cdf1e13bc8",
+      "56f50d6ef78cbdf25be214cd",
+      "5c663170aaa97fb82a5d5c87",
+      "62e4ac6c203d77d3083539d5",
+      "69922810dbbd6d50d35c8641",
+      "69e9e3659efbf7b18df03be8",
+      "6fc3f6ae0e85503b6234dc49",
+      "70b2a67419000e287b637623",
+      "78de3b0f84c2373f8a4771d5",
+      "b29e6c953c1cdf29301fd770",
+      "c44dbcc2aaab94cc13405577",
+      "ca7c7b4d5f0523eec8ec772d",
+      "d1f2289a8b02f57e0478aac4",
+      "de6e8731de8e361fdc0ca362",
+      "e5c152c37b646cbc9f1f78af",
+      "e61534ae0dce2de5450ef530",
+      "e7a00ea62e93820ad415c9f7",
+      "eb17b991d2f516c43b0c500c",
+      "fa8c0b80fc9d6eacbb7a2434"
+    ],
+    "persistent": [],
+    "regressed": [],
+    "resolved": [],
+    "resolution_assessed": false
+  },
+  "fault_regression": {
+    "new": [
+      "1182742ed69da4062ace0a7e",
+      "1645c2bd98efd01b5900fc8f",
+      "22b59ff3a58b84c87519a9f7",
+      "27625476bb14b01bc99a7d8c",
+      "27a1434cb4c159f8abbd59dd",
+      "2b35168e509cad9f5efc2c74",
+      "2dfe53ad533b459d99a4d363",
+      "309ad136078c2c5711009ac0",
+      "3a325d1de105a02ff9783067",
+      "3c444671dbe6267d5415142a",
+      "401dfbea527bb016fc3deab5",
+      "43a8184419ec5f1fa559319c",
+      "4d0c911436d4c282398d5c60",
+      "4e7ce8557e8aa9cdf1e13bc8",
+      "56f50d6ef78cbdf25be214cd",
+      "5c663170aaa97fb82a5d5c87",
+      "62e4ac6c203d77d3083539d5",
+      "69922810dbbd6d50d35c8641",
+      "69e9e3659efbf7b18df03be8",
+      "6fc3f6ae0e85503b6234dc49",
+      "70b2a67419000e287b637623",
+      "78de3b0f84c2373f8a4771d5",
+      "b29e6c953c1cdf29301fd770",
+      "c44dbcc2aaab94cc13405577",
+      "ca7c7b4d5f0523eec8ec772d",
+      "d1f2289a8b02f57e0478aac4",
+      "de6e8731de8e361fdc0ca362",
+      "e5c152c37b646cbc9f1f78af",
+      "e61534ae0dce2de5450ef530",
+      "e7a00ea62e93820ad415c9f7",
+      "eb17b991d2f516c43b0c500c",
+      "fa8c0b80fc9d6eacbb7a2434"
+    ],
+    "resolved": [],
+    "unchanged": []
+  },
+  "claim_ledger": [
+    {
+      "claim_id": "finding:22b59ff3a58b84c87519a9f7",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "22b59ff3a58b84c87519a9f7",
+      "evidence_ref": "page",
+      "evidence": "img src=https://www.facebook.com/tr?id=329494686179283&ev=PageView&noscript=1 has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:5c663170aaa97fb82a5d5c87",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "5c663170aaa97fb82a5d5c87",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/nz-builders-logo.svg has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:de6e8731de8e361fdc0ca362",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "de6e8731de8e361fdc0ca362",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/nz-builders-logo-dark.svg has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:27625476bb14b01bc99a7d8c",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "27625476bb14b01bc99a7d8c",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/step-1.png?v2 has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:b29e6c953c1cdf29301fd770",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "b29e6c953c1cdf29301fd770",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/step-2.png?v2 has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:69922810dbbd6d50d35c8641",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "69922810dbbd6d50d35c8641",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/step-3.png?v2 has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:c44dbcc2aaab94cc13405577",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "c44dbcc2aaab94cc13405577",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/step-4.png?v2 has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:27a1434cb4c159f8abbd59dd",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "27a1434cb4c159f8abbd59dd",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/step-5.png?v2 has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:69e9e3659efbf7b18df03be8",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "69e9e3659efbf7b18df03be8",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/step-1.png?v2 has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:1645c2bd98efd01b5900fc8f",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "1645c2bd98efd01b5900fc8f",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/step-2.png?v2 has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:78de3b0f84c2373f8a4771d5",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "78de3b0f84c2373f8a4771d5",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/step-3.png?v2 has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:3a325d1de105a02ff9783067",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "3a325d1de105a02ff9783067",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/step-4.png?v2 has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:401dfbea527bb016fc3deab5",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "401dfbea527bb016fc3deab5",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/step-5.png?v2 has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:2b35168e509cad9f5efc2c74",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "2b35168e509cad9f5efc2c74",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/awards.png has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:309ad136078c2c5711009ac0",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "309ad136078c2c5711009ac0",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/pavillion-home.jpg has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:e61534ae0dce2de5450ef530",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "e61534ae0dce2de5450ef530",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/feature-st-michaels-new.jpg has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:56f50d6ef78cbdf25be214cd",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "56f50d6ef78cbdf25be214cd",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/feature-st-michaels-mobile-new.jpg has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:62e4ac6c203d77d3083539d5",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "62e4ac6c203d77d3083539d5",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/home-huia.jpg has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:70b2a67419000e287b637623",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "70b2a67419000e287b637623",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/huia-mobile.jpg has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:eb17b991d2f516c43b0c500c",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "eb17b991d2f516c43b0c500c",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/play.svg has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:e5c152c37b646cbc9f1f78af",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "e5c152c37b646cbc9f1f78af",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/harcourts-testimonial.jpg has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:3c444671dbe6267d5415142a",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "3c444671dbe6267d5415142a",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/kelly-martin-testimonial.jpg has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:ca7c7b4d5f0523eec8ec772d",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "ca7c7b4d5f0523eec8ec772d",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/testimonial-katherine.jpg has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:4d0c911436d4c282398d5c60",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "4d0c911436d4c282398d5c60",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/award-badges-2026.png?v4 has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:4e7ce8557e8aa9cdf1e13bc8",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "4e7ce8557e8aa9cdf1e13bc8",
+      "evidence_ref": "page",
+      "evidence": "img src=/assets/img/building-licences.png has no alt",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:d1f2289a8b02f57e0478aac4",
+      "claim": "Missing content-security-policy",
+      "claim_type": "observed_fact",
+      "finding_id": "d1f2289a8b02f57e0478aac4",
+      "evidence_ref": "headers",
+      "evidence": "headers",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:16.689211+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:1182742ed69da4062ace0a7e",
+      "claim": "Images missing alt text (25)",
+      "claim_type": "observed_fact",
+      "finding_id": "1182742ed69da4062ace0a7e",
+      "evidence_ref": "images",
+      "evidence": "25 of 25 images have no alt text",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:13.836780+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:43a8184419ec5f1fa559319c",
+      "claim": "Images missing width/height (24)",
+      "claim_type": "hypothesis",
+      "finding_id": "43a8184419ec5f1fa559319c",
+      "evidence_ref": "images",
+      "evidence": "24 of 25 images do not provide positive numeric width and height attributes",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:13.836780+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:2dfe53ad533b459d99a4d363",
+      "claim": "Images hosted externally (1)",
+      "claim_type": "observed_fact",
+      "finding_id": "2dfe53ad533b459d99a4d363",
+      "evidence_ref": "images",
+      "evidence": "1 image(s) served from external domains",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:13.836780+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:6fc3f6ae0e85503b6234dc49",
+      "claim": "Missing og:type",
+      "claim_type": "observed_fact",
+      "finding_id": "6fc3f6ae0e85503b6234dc49",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta property=\"og:type\"> tag present",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:13.836780+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:fa8c0b80fc9d6eacbb7a2434",
+      "claim": "Missing Twitter Card",
+      "claim_type": "observed_fact",
+      "finding_id": "fa8c0b80fc9d6eacbb7a2434",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta name=\"twitter:card\"> tag present",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:13.836780+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:e7a00ea62e93820ad415c9f7",
+      "claim": "Missing Twitter handle",
+      "claim_type": "observed_fact",
+      "finding_id": "e7a00ea62e93820ad415c9f7",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta name=\"twitter:site\"> or twitter:creator tag present",
+      "source_url": "https://nzbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:13.836780+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    }
+  ],
+  "drafts": {
+    "status": "fallback",
+    "review_required": true,
+    "drafts": {
+      "metadata": {
+        "text": "Title: Example services\nDescription: [review required]",
+        "source": "template",
+        "review_required": true
+      },
+      "platform_fix": {
+        "text": "Prepare an evidence-backed fix draft for review.",
+        "source": "template",
+        "review_required": true
+      },
+      "outreach": {
+        "text": "Prepare factual outreach from verified findings.",
+        "source": "template",
+        "review_required": true
+      },
+      "content_expansion": {
+        "text": "Outline services, proof, FAQs, and contact details.",
+        "source": "template",
+        "review_required": true
+      },
+      "bilingual": {
+        "text": "EN: [English draft]\nMI: [te reo Māori review required]",
+        "source": "template",
+        "review_required": true
+      }
+    },
+    "reason": "Local generation not requested"
+  },
+  "proofing": {
+    "metadata": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 32,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "platform_fix": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 32,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "outreach": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 32,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "content_expansion": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 32,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "bilingual": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 32,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    }
+  },
+  "proposal": {
+    "currency": "NZD",
+    "hourly_rate": null,
+    "assumptions": "Versioned effort bands with shared setup for repeated defects and 15% contingency; scope and rates require human review.",
+    "hours_low": 13.0,
+    "hours_high": 39.1,
+    "estimate_low": null,
+    "estimate_high": null,
+    "rules_version": "quote-v1",
+    "review_required": true,
+    "llm_determined_price": false
+  },
+  "action_preview": {
+    "count": 32,
+    "status": "preview",
+    "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002513-f1f177382943/actions/preview.json"
+  },
+  "coverage": {
+    "version": 1,
+    "required": 14,
+    "passed": 14,
+    "required_checks": [
+      "fetch",
+      "headers",
+      "hreflang",
+      "hygiene",
+      "images",
+      "js_vulnerabilities",
+      "language",
+      "page",
+      "schema",
+      "social_meta",
+      "structured_validation",
+      "technology",
+      "tls",
+      "ux"
+    ],
+    "missing_checks": []
+  },
+  "manifest": {
+    "html": {
+      "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002513-f1f177382943/report.html",
+      "size": 29339,
+      "sha256": "d57f58cd3309a435227c8f288e449bceac1927f5ab66be69436efb1a33afe32c"
+    },
+    "trend": {
+      "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002513-f1f177382943/trend.svg",
+      "size": 239,
+      "sha256": "861eaab7fa54f1f140e9393704cb2bb465ba6c6b06e386d3c55e42e7020052c4"
+    },
+    "actions": {
+      "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002513-f1f177382943/actions/preview.json",
+      "size": 60464,
+      "sha256": "e664456897b7dbc9f57d356fb15ce6c96329800c6252c819b2976b0a1dea27a0"
+    }
+  }
+}

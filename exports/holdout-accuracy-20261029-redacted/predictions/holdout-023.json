@@ -1,0 +1,48 @@
+{
+ "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+ "fixture_sha256": "a23e3c5e2b0ba9f30082f0feb971a405b52e2a7b16c40d4d37a00ad59f70f84a",
+ "scope": "javascript-application",
+ "prediction_author": "wa-static-profile (deterministic, no model)",
+ "observations": [
+  {
+   "rule": "header-content-security-policy",
+   "url": "https://buildfirm.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "header-x-content-type-options",
+   "url": "https://buildfirm.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "header-hsts",
+   "url": "https://buildfirm.co.nz/",
+   "location": "Review HTTPS deployment"
+  },
+  {
+   "rule": "structured_data_missing_type",
+   "url": "https://buildfirm.co.nz/",
+   "location": "Search engines may ignore or misinterpret the structured data."
+  },
+  {
+   "rule": "images-external-hosting",
+   "url": "https://buildfirm.co.nz/",
+   "location": "Third-party image dependency"
+  },
+  {
+   "rule": "social-meta-og-image",
+   "url": "https://buildfirm.co.nz/",
+   "location": "No Open Graph image for social sharing"
+  },
+  {
+   "rule": "social-meta-twitter-handle",
+   "url": "https://buildfirm.co.nz/",
+   "location": "No twitter:site or twitter:creator declared"
+  },
+  {
+   "rule": "robots-no-sitemap",
+   "url": "https://buildfirm.co.nz/",
+   "location": "Sitemap undiscoverable"
+  }
+ ]
+}

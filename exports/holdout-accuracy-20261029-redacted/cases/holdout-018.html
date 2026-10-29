@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en-NZ">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Pinterest domain verification -->
+    <meta name="p:domain_verify" content="e5e6bfde21c6393d686f602d0ecfd79e">
+    <!-- NZ-local signals -->
+    <meta name="geo.region" content="NZ">
+    <meta name="geo.placename" content="New Zealand">
+    <meta name="ICBM" content="-41.2866, 174.7756">
+    <!-- Performance -->
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://tradietools.optified.nz">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap">
+    <title>Find a Trusted NZ Tradie — Rated &amp; Reviewed | TradieTools NZ</title>
+    <meta name="description" content="Find trusted NZ tradies by city — top-rated electricians, plumbers, builders, painters and more. Google ratings verified. Free to search.">
+    <meta property="og:title" content="Find a Trusted NZ Tradie — Rated &amp; Reviewed | TradieTools NZ">
+    <meta property="og:description" content="Find trusted NZ tradies by city — top-rated electricians, plumbers, builders, painters and more. Google ratings verified. Free to search.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tradietools.nz/">
+    <meta property="og:site_name" content="TradieTools NZ">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Find a Trusted NZ Tradie — Rated &amp; Reviewed | TradieTools NZ">
+    <meta name="twitter:description" content="Find trusted NZ tradies by city — top-rated electricians, plumbers, builders, painters and more. Google ratings verified. Free to search.">
+    <meta property="og:image" content="https://tradietools.nz/static/img/social-card.svg">
+    <meta name="twitter:image" content="https://tradietools.nz/static/img/social-card.svg">
+    <link rel="canonical" href="https://tradietools.nz/">
+    <script type="application/ld+json">
+    [
+      {"@context":"https://schema.org","@type":"WebSite","@id":"https://tradietools.nz/#website","name":"TradieTools NZ","url":"https://tradietools.nz","description":"Find trusted NZ tradies by city \u2014 top-rated electricians, plumbers, builders, painters and more. Google ratings verified. Free to search.","inLanguage":"en-NZ","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://tradietools.nz/find/?q={search_term_string}"},"query-input":"required name=search_term_string"},"publisher":{"@id":"https://tradietools.nz/#organization"}},
+      {"@context":"https://schema.org","@type":"Organization","@id":"https://tradietools.nz/#organization","name":"TradieTools NZ","url":"https://tradietools.nz","description":"Find trusted NZ tradies by city \u2014 top-rated electricians, plumbers, builders, painters and more. Google ratings verified. Free to search.","logo":{"@type":"ImageObject","url":"https://tradietools.nz/static/img/logo-dark.png","width":400,"height":400},"contactPoint":{"@type":"ContactPoint","email":"contact@tradietools.nz","contactType":"customer service"},"sameAs":["https://www.facebook.com/nztradietools","https://www.linkedin.com/company/nz-tradie-tools"]}
+    ]
+    </script>
+    <link rel="icon" href="/favicon.png" type="image/png">
+    <link rel="stylesheet" href="/static/css/style.css">
+    
+    <!-- gtag.js: deferred until after load so it doesn't compete for main-thread time -->
+    <script>
+    (function(){
+      function loadGtag(){
+        if (window.__gtagJsLoaded) return;
+        window.__gtagJsLoaded = true;
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-BJW7HLW8D8';
+        document.head.appendChild(s);
+      }
+      function scheduleLoad(){
+        if (window.requestIdleCallback) { requestIdleCallback(loadGtag, {timeout: 2000}); }
+        else { setTimeout(loadGtag, 1500); }
+      }
+      if (document.readyState === 'complete') { scheduleLoad(); }
+      else { window.addEventListener('load', scheduleLoad); }
+    })();
+    </script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-BJW7HLW8D8');</script>
+    <script src="/static/js/error-monitor.js" defer></script>
+    
+    <!-- Google AdSense: deferred until after load so it doesn't block initial render -->
+    <script>
+    (function(){
+      function loadAdsense(){
+        if (window.__adsenseLoaded) return;
+        window.__adsenseLoaded = true;
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5434832603957432';
+        s.crossOrigin = 'anonymous';
+        document.head.appendChild(s);
+      }
+      function scheduleLoad(){
+        if (window.requestIdleCallback) { requestIdleCallback(loadAdsense, {timeout: 2000}); }
+        else { setTimeout(loadAdsense, 1500); }
+      }
+      if (document.readyState === 'complete') { scheduleLoad(); }
+      else { window.addEventListener('load', scheduleLoad); }
+    })();
+    </script>
+    <style>
+        /* ── Trade category tiles ── */
+        .trade-tiles{display:grid;grid-template-columns:repeat(8,1fr);gap:.6rem;margin:1.75rem 0}
+        .trade-tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.35rem;padding:.85rem .4rem;background:#fff;border:1.5px solid #e5e7eb;border-radius:10px;text-decoration:none;color:#1b1b1b;font-size:.78rem;font-weight:600;transition:border-color .15s,box-shadow .15s;text-align:center;line-height:1.2}
+        .trade-tile:hover{border-color:#f97316;box-shadow:0 2px 10px rgba(249,115,22,.15)}
+        .tile-icon{font-size:1.6rem}
+        /* ── How it works ── */
+        .how-it-works{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin:1.25rem 0 2rem}
+        .hiw-step{text-align:center;padding:.75rem}
+        .hiw-num{width:2.2rem;height:2.2rem;background:#c2410c;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;margin:0 auto .65rem}
+        .hiw-step h3{font-size:.93rem;margin:0 0 .25rem}
+        .hiw-step p{font-size:.82rem;color:#666;margin:0}
+        /* ── Spotlight carousel ── */
+        .spotlight-section{margin:2rem 0}
+        .spotlight-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem}
+        .spotlight-header h2{margin:0;font-size:1.25rem}
+        .new-badge{background:#c2410c;color:#fff;font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em;margin-left:.4rem;vertical-align:middle}
+        .spotlight-scroll{display:flex;gap:.9rem;overflow-x:auto;padding-bottom:.6rem;scrollbar-width:thin;scrollbar-color:#e5e7eb transparent;scroll-snap-type:x mandatory}
+        .spotlight-scroll::-webkit-scrollbar{height:4px}
+        .spotlight-scroll::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:4px}
+        .spotlight-card{flex:0 0 205px;background:#fff;border:1.5px solid #e5e7eb;border-radius:10px;padding:1rem;text-decoration:none;color:#1b1b1b;scroll-snap-align:start;transition:border-color .15s,box-shadow .15s}
+        .spotlight-card:hover{border-color:#f97316;box-shadow:0 3px 12px rgba(249,115,22,.15)}
+        .sc-badge{display:inline-block;font-size:.62rem;font-weight:700;padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.45rem}
+        .sc-badge.verified{background:#dcfce7;color:#15803d}
+        .sc-badge.new-listing{background:#fff7ed;color:#c2410c}
+        .sc-name{font-weight:700;font-size:.88rem;margin-bottom:.2rem;line-height:1.3}
+        .sc-meta{font-size:.75rem;color:#666;margin-bottom:.3rem}
+        .sc-stars{color:#f97316;font-size:.82rem}
+        .sc-cta{display:block;margin-top:.65rem;font-size:.78rem;font-weight:600;color:#c2410c}
+        .spotlight-cta-bar{margin-top:.9rem;background:#fff8f5;border:1.5px dashed #f97316;border-radius:8px;padding:.85rem 1.2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+        .spotlight-cta-bar p{margin:0;font-size:.88rem;color:#444}
+        .spotlight-cta-bar a{background:#c2410c;color:#fff;padding:.45rem 1rem;border-radius:6px;text-decoration:none;font-weight:700;font-size:.85rem;white-space:nowrap}
+        /* ── Testimonials ── */
+        .testimonials{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:1.25rem 0 2rem}
+        .testimonial{background:#f8fafc;border-left:3px solid #f97316;border-radius:0 8px 8px 0;padding:.9rem 1rem}
+        .testimonial p{margin:0 0 .4rem;font-size:.85rem;color:#333;line-height:1.5;font-style:italic}
+        .t-author{font-size:.76rem;font-weight:700;color:#555}
+        .t-stars{color:#f97316;font-size:.8rem;margin-bottom:.25rem}
+        /* ── Responsive ── */
+        @media(max-width:900px){.trade-tiles{grid-template-columns:repeat(4,1fr)}}
+        @media(max-width:680px){
+            .hero-grid{grid-template-columns:1fr!important}
+            .hero-tradie-col{border-left:none!important;padding-left:0!important;border-top:1px solid rgba(255,255,255,.15);padding-top:1.5rem!important}
+            .trade-tiles{grid-template-columns:repeat(4,1fr);gap:.45rem}
+            .trade-tile{font-size:.7rem;padding:.7rem .3rem}
+            .tile-icon{font-size:1.35rem!important}
+            .testimonials{grid-template-columns:1fr}
+            .how-it-works{grid-template-columns:1fr}
+        }
+        @media(max-width:420px){
+            .trade-tiles{grid-template-columns:repeat(2,1fr);gap:.4rem}
+            .trade-tile{font-size:.72rem;padding:.8rem .4rem}
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <a href="/" class="logo"><img src="/static/img/logo-dark.png" alt="TradieTools NZ" class="logo-img" width="80" height="80"></a>
+            <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="main-nav">
+                <span></span><span></span><span></span>
+            </button>
+            <nav class="main-nav" id="main-nav">
+                
+                <a href="/trades/">Find a Tradie</a>
+                
+                <a href="/post-job/">Post a Job</a>
+                
+                <a href="/homeowner-guides/">Homeowner Guides</a>
+                
+                <a href="/jobs/">Cost Guides</a>
+                
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-btn" aria-expanded="false" aria-haspopup="true">For Tradies ▾</button>
+                    <div class="nav-dropdown-menu" role="menu">
+                        <a href="/for-tradies/" role="menuitem">For Tradies Hub</a>
+                        <a href="/calculators/" role="menuitem">Calculators</a>
+                        <a href="/templates/" role="menuitem">Free Templates</a>
+                        <a href="/articles/" role="menuitem">Articles &amp; Guides</a>
+                        <a href="/contact/" role="menuitem">Contact</a>
+                        <a href="/tradie-login/" role="menuitem" id="nav-tradie-login-link">Log in to my listing</a>
+                    </div>
+                </div>
+                <a id="nav-my-listing" href="/dashboard/" class="nav-my-listing" style="display:none">My Dashboard</a>
+                <a id="nav-logout" href="#" class="nav-logout" style="display:none" onclick="ttLogout(event)">Log out</a>
+                <a href="/signup/" class="nav-cta">Free Listing →</a>
+            </nav>
+            <script src="/static/js/nav-auth.js" defer></script>
+        </div>
+    </header>
+<main id="main-content">
+
+    <!-- ══ HERO ══ -->
+    <section class="hero" style="padding:2.5rem 0 0">
+        <div class="container">
+            <div class="hero-grid" style="display:grid;grid-template-columns:3fr 2fr;gap:2rem;align-items:stretch">
+
+                <!-- Left: homeowner -->
+                <div>
+                    <div style="font-size:.7rem;font-weight:800;letter-spacing:.1em;color:#f97316;text-transform:uppercase;margin-bottom:.6rem">For Homeowners</div>
+                    <h1 style="font-size:2.4rem;font-weight:800;margin:0 0 .65rem;line-height:1.15;color:#fff">Find a Trusted<br>NZ Tradie</h1>
+                    <p style="color:rgba(255,255,255,.82);margin:0 0 1.5rem;font-size:1rem;line-height:1.6">Search <span id="hp-listing-count">4,000+</span> NZ electricians, plumbers, builders and more — compare, contact, and get free quotes.</p>
+                    <a href="/post-job/" style="display:inline-block;background:#c2410c;color:#fff;padding:.85rem 2.2rem;font-weight:800;font-size:1.05rem;text-decoration:none;border-radius:6px;letter-spacing:.01em">Get 3 Free Quotes →</a>
+                    <p style="font-size:.73rem;color:rgba(255,255,255,.72);margin:.55rem 0 1.6rem">Free &nbsp;·&nbsp; No obligation &nbsp;·&nbsp; Local tradies respond</p>
+                    <form action="/find/" method="get" style="display:flex;max-width:400px;border-radius:6px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.25)">
+                        <input type="text" name="q" placeholder="e.g. plumber, electrician…" style="flex:1;border:none;padding:.7rem 1rem;font-size:.93rem;background:#fff;color:#1b1b1b;font-family:inherit;outline:none;min-width:0">
+                        <button type="submit" style="background:#005ea2;color:#fff;border:none;padding:.7rem 1.1rem;font-weight:700;font-size:.93rem;cursor:pointer;white-space:nowrap;font-family:inherit">Search →</button>
+                    </form>
+                </div>
+
+                <!-- Right: tradie -->
+                <div class="hero-tradie-col" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:10px;padding:1.6rem 1.75rem;display:flex;flex-direction:column;justify-content:center">
+                    <div style="font-size:.7rem;font-weight:800;letter-spacing:.1em;color:#fb923c;text-transform:uppercase;margin-bottom:.6rem">For Tradies</div>
+                    <h2 style="font-size:1.2rem;color:#fff;margin:0 0 .5rem;border:none;padding:0;font-weight:700;line-height:1.3">Get found. Get leads.<br>Free listing.</h2>
+                    <p style="color:rgba(255,255,255,.68);font-size:.86rem;margin:0 0 1.1rem;line-height:1.55">Your business is already listed. Claim it in 5 minutes and start getting enquiries from local homeowners.</p>
+                    <a href="/signup/" style="background:#c2410c;color:#fff;padding:.65rem 1.4rem;font-weight:700;font-size:.92rem;text-decoration:none;display:inline-block;border-radius:6px;align-self:flex-start">Claim free listing →</a>
+                    <p style="color:rgba(255,255,255,.72);font-size:.72rem;margin:.5rem 0 0">No credit card &nbsp;·&nbsp; Verified from $29/mo</p>
+                </div>
+
+            </div>
+
+            <!-- Trust bar inline -->
+            <div style="border-top:1px solid rgba(255,255,255,.1);margin-top:2rem;padding:.75rem 0;display:flex;gap:2rem;flex-wrap:wrap;font-size:.8rem;color:rgba(255,255,255,.55)">
+                <span>✓ 4,000+ tradies listed</span>
+                <span>✓ 20+ NZ cities</span>
+                <span>✓ Compare multiple quotes</span>
+                <span>✓ Free to search &amp; quote</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+
+        <!-- ══ TRADE CATEGORY TILES ══ -->
+        <div class="trade-tiles">
+            <a href="/trades/electricians/"        class="trade-tile"><span class="tile-icon">⚡</span>Electricians</a>
+            <a href="/trades/plumbers/"            class="trade-tile"><span class="tile-icon">🔧</span>Plumbers</a>
+            <a href="/trades/builders/"            class="trade-tile"><span class="tile-icon">🏗️</span>Builders</a>
+            <a href="/trades/painters/"            class="trade-tile"><span class="tile-icon">🖌️</span>Painters</a>
+            <a href="/trades/roofers/"             class="trade-tile"><span class="tile-icon">🏠</span>Roofers</a>
+            <a href="/trades/landscapers/"         class="trade-tile"><span class="tile-icon">🌿</span>Landscapers</a>
+            <a href="/trades/arborists/"           class="trade-tile"><span class="tile-icon">🌳</span>Arborists</a>
+            <a href="/trades/carpenters/"          class="trade-tile"><span class="tile-icon">🪚</span>Carpenters</a>
+            <a href="/trades/tilers/"              class="trade-tile"><span class="tile-icon">🟦</span>Tilers</a>
+            <a href="/trades/gasfitters/"          class="trade-tile"><span class="tile-icon">🔥</span>Gasfitters</a>
+            <a href="/trades/drainlayers/"         class="trade-tile"><span class="tile-icon">🚿</span>Drainlayers</a>
+            <a href="/trades/plasterers/"          class="trade-tile"><span class="tile-icon">🧱</span>Plasterers</a>
+            <a href="/trades/heat-pump-installers/" class="trade-tile"><span class="tile-icon">❄️</span>Heat Pumps</a>
+            <a href="/trades/solar-installers/"    class="trade-tile"><span class="tile-icon">☀️</span>Solar</a>
+            <a href="/trades/fencers/"    class="trade-tile"><span class="tile-icon">🏡</span>Fencers</a>
+            <a href="/trades/"                     class="trade-tile"><span class="tile-icon">🔍</span>All Trades</a>
+        </div>
+
+        <!-- ══ AUDIENCE HUBS ══ -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:0 0 2rem">
+            <a href="/homeowner-guides/" style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:1.4rem 1.5rem;text-decoration:none;display:block;transition:box-shadow .15s,border-color .15s" onmouseover="this.style.boxShadow='0 4px 14px rgba(0,0,0,.08)';this.style.borderColor='#86efac'" onmouseout="this.style.boxShadow='';this.style.borderColor='#e2e8f0'">
+                <div style="font-size:1.6rem;margin-bottom:.5rem">🏠</div>
+                <div style="font-weight:800;color:#1b2a4a;font-size:1rem;margin-bottom:.3rem">Homeowner Guides</div>
+                <div style="font-size:.83rem;color:#64748b;line-height:1.5;margin-bottom:.75rem">Cost guides by city, renovation budgets, building consents, energy efficiency and finding a licensed tradie.</div>
+                <span style="font-size:.83rem;font-weight:700;color:#005ea2">Browse guides →</span>
+            </a>
+            <a href="/for-tradies/" style="background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:1.4rem 1.5rem;text-decoration:none;display:block;transition:box-shadow .15s,border-color .15s" onmouseover="this.style.boxShadow='0 4px 14px rgba(0,0,0,.08)';this.style.borderColor='#93c5fd'" onmouseout="this.style.boxShadow='';this.style.borderColor='#e2e8f0'">
+                <div style="font-size:1.6rem;margin-bottom:.5rem">🔧</div>
+                <div style="font-weight:800;color:#1b2a4a;font-size:1rem;margin-bottom:.3rem">For Tradies</div>
+                <div style="font-size:.83rem;color:#64748b;line-height:1.5;margin-bottom:.75rem">GST, tax, LBP licences, ACC levies, job management software, quoting templates and growing your business.</div>
+                <span style="font-size:.83rem;font-weight:700;color:#005ea2">Browse guides →</span>
+            </a>
+        </div>
+
+        <!-- ══ HOW IT WORKS ══ -->
+        <section class="section" style="padding-top:.25rem">
+            <h2 style="text-align:center;margin-bottom:.2rem">How it works</h2>
+            <p style="text-align:center;color:#666;font-size:.88rem;margin-bottom:1.25rem">Get the right tradie in three steps — free, no signup required</p>
+            <div class="how-it-works">
+                <div class="hiw-step">
+                    <div class="hiw-num">1</div>
+                    <h3>Describe your job</h3>
+                    <p>Tell us what you need, your location, and when. Takes under 2 minutes.</p>
+                </div>
+                <div class="hiw-step">
+                    <div class="hiw-num">2</div>
+                    <h3>Get matched</h3>
+                    <p>Up to 3 local, verified tradies receive your job and respond with quotes.</p>
+                </div>
+                <div class="hiw-step">
+                    <div class="hiw-num">3</div>
+                    <h3>Choose &amp; hire</h3>
+                    <p>Compare quotes and ratings, then hire with confidence. No obligation.</p>
+                </div>
+            </div>
+            <div style="text-align:center">
+                <a href="/post-job/" style="display:inline-block;background:#c2410c;color:#fff;padding:.75rem 2rem;font-weight:700;font-size:1rem;text-decoration:none;border-radius:6px">Get free quotes now →</a>
+            </div>
+        </section>
+
+        <!-- ══ NZ CITIES ══ -->
+        <section class="section" style="padding-top:0">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:.75rem;border-bottom:2px solid #e2e8f0;padding-bottom:.4rem">
+                <h2 style="margin:0;border:none;padding:0">Find tradies near you</h2>
+            </div>
+            <style>
+            .city-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.6rem;margin:.25rem 0 .5rem}
+            .city-pill{display:flex;align-items:center;gap:.45rem;padding:.55rem .85rem;background:#f8fafc;border:1.5px solid #e5e7eb;border-radius:8px;text-decoration:none;color:#1b2a4a;font-size:.83rem;font-weight:600;transition:border-color .15s,background .15s}
+            .city-pill:hover{border-color:#f97316;background:#fff7ed;color:#f97316}
+            @media(max-width:700px){.city-grid{grid-template-columns:repeat(3,1fr)}}
+            @media(max-width:480px){.city-grid{grid-template-columns:repeat(2,1fr)}}
+            @media(max-width:340px){.city-grid{grid-template-columns:1fr}}
+            </style>
+            <div class="city-grid">
+                <a href="/locations/auckland/"        class="city-pill">📍 Auckland</a>
+                <a href="/locations/wellington/"       class="city-pill">📍 Wellington</a>
+                <a href="/locations/christchurch/"     class="city-pill">📍 Christchurch</a>
+                <a href="/locations/hamilton/"         class="city-pill">📍 Hamilton</a>
+                <a href="/locations/tauranga/"         class="city-pill">📍 Tauranga</a>
+                <a href="/locations/dunedin/"          class="city-pill">📍 Dunedin</a>
+                <a href="/locations/palmerston-north/" class="city-pill">📍 Palmerston North</a>
+                <a href="/locations/napier/"           class="city-pill">📍 Napier</a>
+                <a href="/locations/nelson/"           class="city-pill">📍 Nelson</a>
+                <a href="/locations/queenstown/"       class="city-pill">📍 Queenstown</a>
+                <a href="/locations/rotorua/"          class="city-pill">📍 Rotorua</a>
+                <a href="/locations/new-plymouth/"     class="city-pill">📍 New Plymouth</a>
+                <a href="/locations/whangarei/"        class="city-pill">📍 Whangārei</a>
+                <a href="/locations/hastings/"         class="city-pill">📍 Hastings</a>
+                <a href="/locations/invercargill/"     class="city-pill">📍 Invercargill</a>
+                <a href="/locations/whanganui/"        class="city-pill">📍 Whanganui</a>
+                <a href="/locations/lower-hutt/"       class="city-pill">📍 Lower Hutt</a>
+                <a href="/locations/upper-hutt/"       class="city-pill">📍 Upper Hutt</a>
+                <a href="/locations/porirua/"          class="city-pill">📍 Porirua</a>
+                <a href="/locations/gisborne/"         class="city-pill">📍 Gisborne</a>
+            </div>
+        </section>
+
+        <!-- ══ DYNAMIC TRADIE SPOTLIGHT ══ -->
+        <section class="spotlight-section">
+            <div class="spotlight-header">
+                <h2>New on TradieTools <span class="new-badge">Just joined</span></h2>
+                <a href="/trades/" style="font-size:.83rem;color:#c2410c;text-decoration:none;font-weight:600">View all →</a>
+            </div>
+            <div class="spotlight-scroll" id="spotlight-scroll">
+                <div style="color:#bbb;font-size:.85rem;padding:.5rem 0">Loading tradies…</div>
+            </div>
+            <div class="spotlight-cta-bar">
+                <p><strong>Is your business listed?</strong> Hundreds of homeowners search TradieTools every week. Claim your free listing today and get featured here.</p>
+                <a href="/signup/">Get listed free →</a>
+            </div>
+        </section>
+        <script>
+        (function(){
+            var API='https://tradietools.optified.nz/api/method/tradietools.api.';
+            var LABELS={'electricians':'Electrician','plumbers':'Plumber','builders':'Builder','painters':'Painter','roofers':'Roofer','landscapers':'Landscaper','arborists':'Arborist','tilers':'Tiler','concreters':'Concreter','fencers':'Fencer','gasfitters':'Gasfitter','drainlayers':'Drainlayer','carpenters':'Carpenter','glaziers':'Glazier','kitchen-renovators':'Kitchen Renovator','bathroom-renovators':'Bathroom Renovator','plasterers':'Plasterer','waterproofers':'Waterproofer'};
+            function label(t){return LABELS[t]||(t?t.replace(/-/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();}):'Tradie');}
+            function stars(r){var s='';for(var i=0;i<5;i++)s+=i<Math.round(r)?'★':'☆';return s;}
+            function titleCase(s){if(!s)return s;var skip=['a','an','the','and','or','of','in','at','to','for','by','nz'];return s.split(' ').map(function(w,i){return(i===0||skip.indexOf(w.toLowerCase())===-1)?w.charAt(0).toUpperCase()+w.slice(1).toLowerCase():w.toLowerCase();}).join(' ');}
+            fetch(API+'get_directory?limit=12')
+            .then(function(r){if(!r.ok)throw new Error();return r.json();})
+            .then(function(d){
+                var list=d.message&&d.message.listings;
+                if(!list||!list.length)return;
+                var el=document.getElementById('spotlight-scroll');
+                el.innerHTML='';
+                list.forEach(function(l){
+                    var name=titleCase(l.name||'');
+                    var trade=label(l.trade||'');
+                    var region=l.region||'';
+                    var rating=parseFloat(l.avg_rating||0);
+                    var reviews=parseInt(l.review_count||0);
+                    var verified=l.is_verified||l.is_premium;
+                    var slug=l.listing_slug||'';
+                    var url=slug?'/businesses/'+slug+'/':'/find/';
+                    var badge=verified?'<span class="sc-badge verified">✓ Verified</span>':'<span class="sc-badge new-listing">New</span>';
+                    var ratingHtml=rating>0?'<span class="sc-stars">'+stars(rating)+'</span> <span style="font-size:.73rem;color:#6b7280">'+reviews+' review'+(reviews!==1?'s':'')+'</span>':'<span style="font-size:.75rem;color:#bbb">No reviews yet</span>';
+                    var card=document.createElement('a');
+                    card.href=url;card.className='spotlight-card';
+                    card.innerHTML=badge+'<div class="sc-name">'+name+'</div><div class="sc-meta">'+trade+' &middot; '+region+'</div>'+ratingHtml+'<span class="sc-cta">View profile →</span>';
+                    el.appendChild(card);
+                });
+            })
+            .catch(function(){var s=document.getElementById('spotlight-scroll');if(s&&s.parentElement)s.parentElement.style.display='none';});
+        })();
+        </script>
+
+        <!-- ══ EARLY ACCESS BANNER ══ -->
+        <section class="section" style="padding-top:.5rem">
+            <div style="background:linear-gradient(135deg,#0f172a 0%,#1b2a4a 100%);border-radius:12px;padding:2rem 2rem 1.75rem;margin-bottom:0">
+                <div style="display:inline-block;background:rgba(249,115,22,.15);border:1px solid rgba(249,115,22,.4);border-radius:20px;padding:.2rem .75rem;font-size:.72rem;font-weight:700;color:#fb923c;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.75rem">Early Access — Founder Pricing</div>
+                <h2 style="color:#fff;font-size:1.35rem;margin:0 0 .6rem;font-weight:700">Be one of the first verified tradies in your city</h2>
+                <p style="color:rgba(255,255,255,.75);font-size:.92rem;margin:0 0 1.25rem;max-width:520px">TradieTools is growing fast across NZ. Early listings get priority placement before their city fills up — lock in $29/mo and keep it for life, even as we raise prices.</p>
+                <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center">
+                    <a href="/signup/?tier=verified" style="background:#c2410c;color:#fff;padding:.65rem 1.4rem;border-radius:6px;font-weight:700;font-size:.95rem;text-decoration:none">Claim your spot — $29/mo →</a>
+                    <span style="color:rgba(255,255,255,.5);font-size:.8rem">Not ready? <a href="/tier-compare/" style="color:rgba(255,255,255,.65);text-decoration:underline">Compare tiers or buy a lead credit</a></span>
+                </div>
+                <div style="margin-top:1.25rem;display:flex;gap:1.75rem;flex-wrap:wrap">
+                    <span style="font-size:.78rem;color:rgba(255,255,255,.5)">✓ Cancel anytime</span>
+                    <span style="font-size:.78rem;color:rgba(255,255,255,.5)">✓ No setup fee</span>
+                    <span style="font-size:.78rem;color:rgba(255,255,255,.5)">✓ Or try a single lead credit for $20</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ SPONSOR ══ -->
+        <div style="background:#0f172a;border-radius:8px;padding:1.75rem 2rem;margin:0 0 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+            <div>
+                <img src="https://fastcrew.nz/assets/fastcrew/images/Fastcrewlogo-light.png" alt="FastCrew" style="height:32px;margin-bottom:.5rem;display:block">
+                <p style="color:rgba(255,255,255,.88);margin:0;font-size:.95rem">The only tradie app built for NZ compliance. AI-powered quoting, H&amp;S, invoicing and more.</p>
+                <p style="color:rgba(255,255,255,.6);font-size:.82rem;margin:.4rem 0 0">From $39/mo · 14-day free trial · No credit card required</p>
+            </div>
+            <a href="https://fastcrew.nz" rel="noopener" target="_blank" style="background:#c2410c;color:#fff;padding:.75rem 1.75rem;border-radius:6px;font-weight:700;font-size:1rem;text-decoration:none;white-space:nowrap">Start free trial →</a>
+        </div>
+
+        <!-- ══ LATEST ARTICLES ══ -->
+        <section class="section">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:.75rem;border-bottom:2px solid #e2e8f0;padding-bottom:.4rem">
+                <h2 style="margin:0;border:none;padding:0">Latest Articles</h2>
+                <a href="/articles/" style="font-size:.83rem;color:#c2410c;text-decoration:none;font-weight:600;white-space:nowrap">View all →</a>
+            </div>
+            <style>
+            .art-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin:.25rem 0 1.25rem}
+            .art-card{display:flex;flex-direction:column;border-radius:10px;border:1px solid #e2e8f0;overflow:hidden;text-decoration:none;color:inherit;background:#fff;transition:box-shadow .18s,transform .18s}
+            .art-card:hover{box-shadow:0 8px 28px rgba(0,0,0,.10);transform:translateY(-3px);text-decoration:none;color:inherit}
+            .art-card-img{height:148px;background-size:cover;background-position:center;background-color:#dbe8f5}
+            .art-card-body{padding:1rem 1.15rem 1.1rem;display:flex;flex-direction:column;flex:1}
+            .art-card-tag{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#c2410c;margin-bottom:.35rem;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+            .art-card-title{font-size:.97rem;font-weight:700;color:#1b2a4a;margin:0 0 .45rem;line-height:1.35}
+            .art-card-desc{font-size:.83rem;color:#5a5a5a;margin:0;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;flex:1}
+            .art-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:.8rem;padding-top:.7rem;border-top:1px solid #f1f5f9}
+            .art-card-date{font-size:.75rem;color:#64748b}
+            .art-card-cta{font-size:.78rem;font-weight:600;color:#005ea2}
+            @media(max-width:800px){.art-grid{grid-template-columns:repeat(2,1fr)}}
+            @media(max-width:500px){.art-grid{grid-template-columns:1fr}}
+            </style>
+            <div class="art-grid">
+                
+                <a href="/articles/concrete-resurfacing-cost-nz" class="art-card">
+                    
+                    <div class="art-card-img" style="background:linear-gradient(135deg,#1b2a4a 0%,#005ea2 100%);display:flex;align-items:center;justify-content:center">
+                        <span style="font-size:2rem;opacity:.35">📋</span>
+                    </div>
+                    
+                    <div class="art-card-body">
+                        
+                        <span class="art-card-tag">cost-guide</span>
+                        
+                        <div class="art-card-title">Concrete Resurfacing Cost Guide 2026 – NZ</div>
+                        <p class="art-card-desc">Learn 2026 NZ concrete resurfacing costs, compare with full replacement, understand price drivers, DIY feasibility and regional variations for driveways and patios.</p>
+                        <div class="art-card-footer">
+                            <span class="art-card-date">21 September 2026</span>
+                            <span class="art-card-cta">Read more →</span>
+                        </div>
+                    </div>
+                </a>
+                
+                <a href="/articles/vehicle-signwriting-branding-cost-nz-tradies" class="art-card">
+                    
+                    <div class="art-card-img" style="background:linear-gradient(135deg,#1b2a4a 0%,#005ea2 100%);display:flex;align-items:center;justify-content:center">
+                        <span style="font-size:2rem;opacity:.35">📋</span>
+                    </div>
+                    
+                    <div class="art-card-body">
+                        
+                        <span class="art-card-tag">business-guide</span>
+                        
+                        <div class="art-card-title">Ute and Van Signwriting Cost Guide for NZ Tradies 2026</div>
+                        <p class="art-card-desc">Learn 2026 NZ ute/van signwriting cost ranges, compliance steps and ROI for tradies. Get practical steps and avoid common pitfalls.</p>
+                        <div class="art-card-footer">
+                            <span class="art-card-date">19 September 2026</span>
+                            <span class="art-card-cta">Read more →</span>
+                        </div>
+                    </div>
+                </a>
+                
+                <a href="/articles/online-reviews-reputation-management-nz-tradies" class="art-card">
+                    
+                    <div class="art-card-img" style="background:linear-gradient(135deg,#1b2a4a 0%,#005ea2 100%);display:flex;align-items:center;justify-content:center">
+                        <span style="font-size:2rem;opacity:.35">📋</span>
+                    </div>
+                    
+                    <div class="art-card-body">
+                        
+                        <span class="art-card-tag">business-guide</span>
+                        
+                        <div class="art-card-title">Managing Online Reviews for NZ Tradies in 2026</div>
+                        <p class="art-card-desc">Learn how NZ tradies can get Google reviews, respond to negative feedback, and use key platforms like NoCowboys and directories to grow business in 2026.</p>
+                        <div class="art-card-footer">
+                            <span class="art-card-date">17 September 2026</span>
+                            <span class="art-card-cta">Read more →</span>
+                        </div>
+                    </div>
+                </a>
+                
+                <a href="/articles/spa-pool-installation-cost-nz" class="art-card">
+                    
+                    <div class="art-card-img" style="background:linear-gradient(135deg,#1b2a4a 0%,#005ea2 100%);display:flex;align-items:center;justify-content:center">
+                        <span style="font-size:2rem;opacity:.35">📋</span>
+                    </div>
+                    
+                    <div class="art-card-body">
+                        
+                        <span class="art-card-tag">cost-guide</span>
+                        
+                        <div class="art-card-title">2026 NZ Guide to Spa Pool Installation Costs: Inflatable vs Built‑in</div>
+                        <p class="art-card-desc">Compare 2026 NZ spa pool installation costs, from $800 inflatable models to $45,000+ built‑in units, and learn about consent, electrical, running costs and fencing compliance.</p>
+                        <div class="art-card-footer">
+                            <span class="art-card-date">16 September 2026</span>
+                            <span class="art-card-cta">Read more →</span>
+                        </div>
+                    </div>
+                </a>
+                
+                <a href="/articles/retractable-awning-installation-cost-nz" class="art-card">
+                    
+                    <div class="art-card-img" style="background:linear-gradient(135deg,#1b2a4a 0%,#005ea2 100%);display:flex;align-items:center;justify-content:center">
+                        <span style="font-size:2rem;opacity:.35">📋</span>
+                    </div>
+                    
+                    <div class="art-card-body">
+                        
+                        <span class="art-card-tag">cost-guide</span>
+                        
+                        <div class="art-card-title">2026 NZ Guide to Retractable Awning Installation Costs</div>
+                        <p class="art-card-desc">Explore 2026 NZ pricing for manual and motorised retractable awnings, sizing guide, consent rules, cost drivers, DIY vs pro installation and regional variations.</p>
+                        <div class="art-card-footer">
+                            <span class="art-card-date">15 September 2026</span>
+                            <span class="art-card-cta">Read more →</span>
+                        </div>
+                    </div>
+                </a>
+                
+                <a href="/articles/artificial-turf-installation-cost-nz" class="art-card">
+                    
+                    <div class="art-card-img" style="background:linear-gradient(135deg,#1b2a4a 0%,#005ea2 100%);display:flex;align-items:center;justify-content:center">
+                        <span style="font-size:2rem;opacity:.35">📋</span>
+                    </div>
+                    
+                    <div class="art-card-body">
+                        
+                        <span class="art-card-tag">cost-guide</span>
+                        
+                        <div class="art-card-title">2026 Guide to Artificial Turf Installation Costs in NZ</div>
+                        <p class="art-card-desc">Discover the 2026 cost of artificial turf in New Zealand, with detailed price ranges, size‑based breakdowns, and how it compares to natural lawn upkeep over time.</p>
+                        <div class="art-card-footer">
+                            <span class="art-card-date">9 September 2026</span>
+                            <span class="art-card-cta">Read more →</span>
+                        </div>
+                    </div>
+                </a>
+                
+            </div>
+        </section>
+
+        <!-- ══ CALCULATORS ══ -->
+        <section class="section">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:.75rem;border-bottom:2px solid #e2e8f0;padding-bottom:.4rem">
+                <h2 style="margin:0;border:none;padding:0">Free Calculators</h2>
+                <a href="/calculators/" style="font-size:.83rem;color:#c2410c;text-decoration:none;font-weight:600;white-space:nowrap">View all →</a>
+            </div>
+            <style>
+            .calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.9rem;margin:.25rem 0 1.25rem}
+            .calc-card{display:flex;flex-direction:column;border-radius:10px;border:1px solid #e2e8f0;padding:1.1rem 1.15rem 1rem;text-decoration:none;color:inherit;background:#fff;transition:box-shadow .18s,transform .18s}
+            .calc-card:hover{box-shadow:0 6px 22px rgba(0,0,0,.09);transform:translateY(-2px);text-decoration:none;color:inherit}
+            .calc-badge{display:inline-block;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#c2410c;background:#fff7ed;border:1px solid #fed7aa;border-radius:4px;padding:.15rem .45rem;margin-bottom:.55rem;line-height:1.4}
+            .calc-icon{font-size:1.5rem;margin-bottom:.4rem;line-height:1}
+            .calc-title{font-size:.88rem;font-weight:700;color:#1b2a4a;margin:0 0 .3rem;line-height:1.3}
+            .calc-desc{font-size:.77rem;color:#64748b;margin:0;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+            @media(max-width:800px){.calc-grid{grid-template-columns:repeat(2,1fr)}}
+            @media(max-width:480px){.calc-grid{grid-template-columns:1fr}}
+            </style><div class="calc-grid">
+                <a href="/calculators/acc-levy-calculator/" class="calc-card">
+                    <span class="calc-badge">Safety</span>
+                    <div class="calc-icon">🛡️</div>
+                    <div class="calc-title">ACC Levy Calculator NZ — Self-Employed Tradie Levies 2025/26</div>
+                    <p class="calc-desc">Calculate your ACC levies as a self-employed NZ tradie — work levy, earner levy, and working safer levy based on your trade and income.</p>
+                </a>
+                <a href="/calculators/apprentice-wage-calculator/" class="calc-card">
+                    <span class="calc-badge">Safety</span>
+                    <div class="calc-icon">👷</div>
+                    <div class="calc-title">Apprentice Wage Calculator — NZ Training Rates 2026</div>
+                    <p class="calc-desc">Free NZ apprentice wage calculator — minimum and typical pay rates by trade, training year and hours worked. Updated for April 2026 minimum wage.</p>
+                </a>
+                <a href="/calculators/asphalt-driveway-calculator/" class="calc-card">
+                    <span class="calc-badge">Materials</span>
+                    <div class="calc-icon">🛣️</div>
+                    <div class="calc-title">Asphalt Driveway Cost Calculator — NZ</div>
+                    <p class="calc-desc">Free NZ asphalt driveway cost calculator — enter your driveway size and get an instant price estimate for asphalt, chip seal or concrete. 2026 NZ rates.</p>
+                </a>
+                <a href="/calculators/bathroom-renovation-calculator/" class="calc-card">
+                    <span class="calc-badge">Build</span>
+                    <div class="calc-icon">🚿</div>
+                    <div class="calc-title">Bathroom Renovation Cost Calculator — NZ</div>
+                    <p class="calc-desc">Estimate your bathroom renovation cost in New Zealand. Covers tiling, plumbing, waterproofing, fixtures, and labour for a full or partial reno.</p>
+                </a>
+                <a href="/calculators/breakeven-calculator/" class="calc-card">
+                    <span class="calc-badge">Rates</span>
+                    <div class="calc-icon">⚖️</div>
+                    <div class="calc-title">Business Breakeven Calculator — NZ Tradies</div>
+                    <p class="calc-desc">Free NZ breakeven calculator for tradies — work out your breakeven point, minimum monthly revenue and profit margin so you know exactly what you must bill.</p>
+                </a>
+                <a href="/calculators/brick-block-calculator/" class="calc-card">
+                    <span class="calc-badge">Materials</span>
+                    <div class="calc-icon">🧱</div>
+                    <div class="calc-title">Brick & Block Calculator — NZ</div>
+                    <p class="calc-desc">Calculate how many bricks or blocks you need for a wall, plus mortar and sand quantities. NZ standard brick and block sizes.</p>
+                </a>
+                <a href="/calculators/building-consent-fee-calculator/" class="calc-card">
+                    <span class="calc-badge">Build</span>
+                    <div class="calc-icon">🏗️</div>
+                    <div class="calc-title">NZ Building Consent Fee Estimator</div>
+                    <p class="calc-desc">Estimate NZ building consent fees including the MBIE building levy, BRANZ levy, and council processing fees — so you can include them in your quote.</p>
+                </a>
+                <a href="/calculators/cabinetry-cost-calculator/" class="calc-card">
+                    <span class="calc-badge">Tools</span>
+                    <div class="calc-icon">🔧</div>
+                    <div class="calc-title">Cabinetry & Joinery Cost Calculator — NZ</div>
+                    <p class="calc-desc">Free NZ cabinetry cost calculator — estimate custom kitchen and wardrobe joinery prices per linear metre for 2026, by finish tier.</p>
+                </a>
+                <a href="/calculators/cable-sizing-calculator/" class="calc-card">
+                    <span class="calc-badge">Materials</span>
+                    <div class="calc-icon">⚡</div>
+                    <div class="calc-title">Cable Sizing Calculator NZ — Single & 3 Phase</div>
+                    <p class="calc-desc">Free NZ cable sizing calculator for single and three phase circuits — current capacity, voltage drop, and circuit breaker sizing.</p>
+                </a>
+                <a href="/calculators/carpet-cost-calculator/" class="calc-card">
+                    <span class="calc-badge">Materials</span>
+                    <div class="calc-icon">🪟</div>
+                    <div class="calc-title">Carpet Cost Calculator — NZ</div>
+                    <p class="calc-desc">Free NZ carpet cost calculator — estimate supply and installation costs by room size, carpet grade and underlay. 2026 NZ rates including GST.</p>
+                </a>
+                <a href="/calculators/carpet-flooring-calculator/" class="calc-card">
+                    <span class="calc-badge">Materials</span>
+                    <div class="calc-icon">🪟</div>
+                    <div class="calc-title">Carpet & Flooring Calculator — NZ</div>
+                    <p class="calc-desc">Calculate carpet, vinyl, and floating floor quantities and costs for NZ homes. Includes underlay, installation, and waste factor estimates.</p>
+                </a>
+                <a href="/calculators/cash-flow-forecast/" class="calc-card">
+                    <span class="calc-badge">Estimating</span>
+                    <div class="calc-icon">💵</div>
+                    <div class="calc-title">Cash Flow Forecast Calculator — 12-Week Tradie Business Planner</div>
+                    <p class="calc-desc">Plan your tradie business cash flow 12 weeks ahead — track expected income, expenses, tax reserve, and running balance to spot cash gaps before they hit.</p>
+                </a>
+                
+            </div>
+        </section>
+
+        <!-- ══ TEMPLATES ══ -->
+        <section class="section">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:.75rem;border-bottom:2px solid #e2e8f0;padding-bottom:.4rem">
+                <h2 style="margin:0;border:none;padding:0">Free Tradie Templates</h2>
+                <a href="/templates/" style="font-size:.83rem;color:#c2410c;text-decoration:none;font-weight:600;white-space:nowrap">View all 28 →</a>
+            </div>
+            <style>
+            .tmpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;margin:.25rem 0 1.25rem}
+            .tmpl-card{display:flex;align-items:flex-start;gap:.85rem;border-radius:10px;border:1px solid #e2e8f0;padding:1rem 1.1rem;text-decoration:none;color:inherit;background:#fff;transition:box-shadow .18s,border-color .18s}
+            .tmpl-card:hover{box-shadow:0 5px 18px rgba(0,0,0,.08);border-color:#93c5fd;text-decoration:none;color:inherit}
+            .tmpl-card-icon{width:38px;height:38px;border-radius:8px;background:#f0f7ff;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+            .tmpl-card-body{}
+            .tmpl-card-title{font-size:.88rem;font-weight:700;color:#1b2a4a;margin:0 0 .2rem;line-height:1.3}
+            .tmpl-card-tag{font-size:.72rem;color:#c2410c;font-weight:600}
+            @media(max-width:800px){.tmpl-grid{grid-template-columns:repeat(2,1fr)}}
+            @media(max-width:480px){.tmpl-grid{grid-template-columns:1fr}}
+            </style>
+            <div class="tmpl-grid">
+                <a href="/templates/quote-template/" class="tmpl-card"><div class="tmpl-card-icon">📋</div><div class="tmpl-card-body"><div class="tmpl-card-title">Quote Template</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/tax-invoice-template/" class="tmpl-card"><div class="tmpl-card-icon">🧾</div><div class="tmpl-card-body"><div class="tmpl-card-title">GST Tax Invoice</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/terms-of-trade/" class="tmpl-card"><div class="tmpl-card-icon">📝</div><div class="tmpl-card-body"><div class="tmpl-card-title">Terms of Trade</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/variation-order/" class="tmpl-card"><div class="tmpl-card-icon">🔄</div><div class="tmpl-card-body"><div class="tmpl-card-title">Variation Order</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/swms/" class="tmpl-card"><div class="tmpl-card-icon">🦺</div><div class="tmpl-card-body"><div class="tmpl-card-title">SWMS Template</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/weekly-timesheet/" class="tmpl-card"><div class="tmpl-card-icon">⏱️</div><div class="tmpl-card-body"><div class="tmpl-card-title">Weekly Timesheet</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/job-sheet/" class="tmpl-card"><div class="tmpl-card-icon">📄</div><div class="tmpl-card-body"><div class="tmpl-card-title">Job Sheet</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/site-safety-checklist/" class="tmpl-card"><div class="tmpl-card-icon">✅</div><div class="tmpl-card-body"><div class="tmpl-card-title">Site Safety Checklist</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/subcontractor-agreement/" class="tmpl-card"><div class="tmpl-card-icon">🤝</div><div class="tmpl-card-body"><div class="tmpl-card-title">Subcontractor Agreement</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/payment-reminder/" class="tmpl-card"><div class="tmpl-card-icon">💰</div><div class="tmpl-card-body"><div class="tmpl-card-title">Payment Reminder</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/progress-claim/" class="tmpl-card"><div class="tmpl-card-icon">📊</div><div class="tmpl-card-body"><div class="tmpl-card-title">Progress Claim</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/job-completion-certificate/" class="tmpl-card"><div class="tmpl-card-icon">🏆</div><div class="tmpl-card-body"><div class="tmpl-card-title">Job Completion Certificate</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/site-safety-plan/" class="tmpl-card"><div class="tmpl-card-icon">🦺</div><div class="tmpl-card-body"><div class="tmpl-card-title">Site Safety Plan</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/job-safety-analysis/" class="tmpl-card"><div class="tmpl-card-icon">⚠️</div><div class="tmpl-card-body"><div class="tmpl-card-title">Job Safety Analysis</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/incident-report/" class="tmpl-card"><div class="tmpl-card-icon">🚨</div><div class="tmpl-card-body"><div class="tmpl-card-title">Incident Report</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/handover-checklist/" class="tmpl-card"><div class="tmpl-card-icon">🔑</div><div class="tmpl-card-body"><div class="tmpl-card-title">Handover Checklist</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/purchase-order/" class="tmpl-card"><div class="tmpl-card-icon">🛒</div><div class="tmpl-card-body"><div class="tmpl-card-title">Purchase Order</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/cca-payment-claim/" class="tmpl-card"><div class="tmpl-card-icon">⚖️</div><div class="tmpl-card-body"><div class="tmpl-card-title">CCA Payment Claim</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/contractor-induction/" class="tmpl-card"><div class="tmpl-card-icon">👷</div><div class="tmpl-card-body"><div class="tmpl-card-title">Site Induction Form</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/toolbox-meeting/" class="tmpl-card"><div class="tmpl-card-icon">🔧</div><div class="tmpl-card-body"><div class="tmpl-card-title">Toolbox Meeting</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/vehicle-log-book/" class="tmpl-card"><div class="tmpl-card-icon">🚗</div><div class="tmpl-card-body"><div class="tmpl-card-title">Vehicle Log Book</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/tool-inventory/" class="tmpl-card"><div class="tmpl-card-icon">🔨</div><div class="tmpl-card-body"><div class="tmpl-card-title">Tool Inventory</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/maintenance-schedule/" class="tmpl-card"><div class="tmpl-card-icon">📅</div><div class="tmpl-card-body"><div class="tmpl-card-title">Maintenance Schedule</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/defects-list/" class="tmpl-card"><div class="tmpl-card-icon">🔍</div><div class="tmpl-card-body"><div class="tmpl-card-title">Defects List</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/site-inspection-form/" class="tmpl-card"><div class="tmpl-card-icon">📐</div><div class="tmpl-card-body"><div class="tmpl-card-title">Site Inspection Form</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/customer-feedback-form/" class="tmpl-card"><div class="tmpl-card-icon">⭐</div><div class="tmpl-card-body"><div class="tmpl-card-title">Customer Feedback Form</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/retention-release/" class="tmpl-card"><div class="tmpl-card-icon">💼</div><div class="tmpl-card-body"><div class="tmpl-card-title">Retention Release</div><div class="tmpl-card-tag">Free download</div></div></a>
+                <a href="/templates/employee-induction/" class="tmpl-card"><div class="tmpl-card-icon">👤</div><div class="tmpl-card-body"><div class="tmpl-card-title">Employee Induction</div><div class="tmpl-card-tag">Free download</div></div></a>
+            </div>
+        </section>
+
+        <!-- ══ NEWSLETTER ══ -->
+        <section class="section">
+            <div style="border:2px solid #e2e8f0;border-top:4px solid #f97316;border-radius:10px;padding:2rem 2.25rem;display:flex;align-items:center;gap:2.5rem;flex-wrap:wrap">
+                <div style="flex:1;min-width:220px">
+                    <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#c2410c;margin-bottom:.4rem">Free weekly email</div>
+                    <h2 style="margin:0 0 .4rem;font-size:1.25rem;border:none;padding:0;color:#1b2a4a">Stay sharp — NZ tradie tips direct to your inbox</h2>
+                    <p style="margin:0;color:#5a5a5a;font-size:.88rem">Pricing guides, tax reminders, new calculators and NZ industry updates. No spam.</p>
+                </div>
+                <div style="flex:1;min-width:260px">
+                    
+                    <form id="newsletter-form" style="display:flex;gap:.5rem;flex-wrap:wrap">
+                        <input type="email" id="nl-email" placeholder="Your email address" required style="flex:1;min-width:180px;padding:.7rem 1rem;font-size:.93rem;border:1.5px solid #d1d5db;border-radius:6px;font-family:inherit;outline:none;color:#1b2a4a">
+                        <button type="submit" id="newsletter-btn" style="background:#c2410c;color:#fff;border:none;padding:.7rem 1.4rem;font-weight:700;font-size:.93rem;cursor:pointer;border-radius:6px;font-family:inherit;white-space:nowrap">Subscribe free</button>
+                    </form>
+                    <div id="newsletter-success" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-radius:6px;padding:.75rem 1rem;color:#15803d;font-weight:600;font-size:.9rem;margin-top:.5rem">You're subscribed — welcome aboard!</div>
+                    <div id="newsletter-error" style="display:none;color:#dc2626;font-size:.83rem;margin-top:.35rem"></div>
+                    <p style="color:#64748b;font-size:.75rem;margin:.5rem 0 0">One email per week. Unsubscribe any time.</p>
+                    <script>
+                    (function(){
+                        var f=document.getElementById('newsletter-form');if(!f)return;
+                        f.addEventListener('submit',function(e){
+                            e.preventDefault();
+                            var btn=document.getElementById('newsletter-btn');
+                            var email=document.getElementById('nl-email').value;
+                            btn.textContent='Subscribing…';btn.disabled=true;
+                            document.getElementById('newsletter-error').style.display='none';
+                            var params=new URLSearchParams({email:email,trade:'',source:'homepage'});
+                            fetch('https://tradietools.optified.nz/api/method/tradietools.api.subscribe_newsletter?'+params,{method:'POST',headers:{Accept:'application/json'}})
+                            .then(function(r){if(!r.ok)throw new Error();return r.json();})
+                            .then(function(d){
+                                if(d.message&&d.message.ok){f.style.display='none';document.getElementById('newsletter-success').style.display='block';}
+                                else{var err=(d.message&&d.message.error)||'Something went wrong.';document.getElementById('newsletter-error').textContent=err;document.getElementById('newsletter-error').style.display='block';btn.textContent='Subscribe free';btn.disabled=false;}
+                            }).catch(function(){document.getElementById('newsletter-error').textContent='Connection error — please try again.';document.getElementById('newsletter-error').style.display='block';btn.textContent='Subscribe free';btn.disabled=false;});
+                        });
+                    })();
+                    </script>
+                    
+                </div>
+            </div>
+        </section>
+    </div>
+
+    </main>
+<footer class="site-footer">
+        <div class="container">
+            <div>
+                <img src="/static/img/logo-dark.png" alt="TradieTools NZ" width="64" height="64" style="height:64px;width:auto;display:block;margin-bottom:.5rem">
+                <p>Find NZ tradies — free quotes, compare options, 4,000+ listings.</p>
+                <p class="disclosure">Some links are affiliate links — we may earn a commission at no extra cost to you.</p>
+            </div>
+            <div style="text-align:right">
+                <p><a href="/glossary/">Tradie Glossary</a></p>
+                <p><a href="/privacy/">Privacy Policy</a></p>
+                <p><a href="/contact/">Contact</a></p>
+                <p style="margin-top:.5rem">&copy; 2026 TradieTools NZ</p>
+            </div>
+        </div>
+    </footer>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon='{"version":"2024.11.0","token":"21d9341239964cffac7a9de7d86adfc7","r":1,"spa":2}' crossorigin="anonymous"></script>
+</body>
+</html>
