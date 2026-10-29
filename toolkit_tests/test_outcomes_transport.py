@@ -138,7 +138,10 @@ def test_outcome_rejects_missing_or_external_evidence(tmp_path, monkeypatch):
 
 
 def test_transport_is_schema_locked_disabled_and_network_free(tmp_path):
-    status = transport.status()
+    # Pin the committed default explicitly. A bare status() call also honours a
+    # private owner override under state/transport-policy.json, which is runtime
+    # state, not the schema contract this test exists to prove.
+    status = transport.status(MM / "config" / "transport.json")
     assert status["mode"] == "DRAFT_ONLY"
     assert status["enabled"] is False
     assert status["external_send_allowed"] is False
@@ -153,6 +156,51 @@ def test_transport_is_schema_locked_disabled_and_network_free(tmp_path):
     bad.write_text(json.dumps(doc))
     with pytest.raises(ValueError):
         transport.load_config(bad)
+
+
+def test_transport_runtime_override_and_kill_switch(tmp_path, monkeypatch):
+    # The committed default is draft-only, but a private owner policy file and the
+    # supervisor kill switch are the real runtime boundary. Both must be observable
+    # and neither may be inferred from the schema default alone.
+    monkeypatch.delenv("MM_EXTERNAL_SEND_DISABLED", raising=False)
+    monkeypatch.setattr(transport.core, "root", lambda: tmp_path)
+    (tmp_path / "state").mkdir()
+    enabled = tmp_path / "state" / "transport-policy.json"
+    enabled.write_text(json.dumps({
+        "version": 1, "enabled": True, "provider": "gmail", "daily_cap": None,
+        "requires_exact_approval": True, "requires_verified_recipient": True,
+        "requires_suppression_check": True, "external_send_allowed": True,
+    }))
+    enabled.chmod(0o600)
+    monkeypatch.setattr(transport.core, "root", lambda: tmp_path)
+    status = transport.status()
+    assert status["mode"] == "MANUAL_EXACT_APPROVAL"
+    assert status["enabled"] is True
+    assert status["external_send_allowed"] is True
+    assert status["network_send_implementation"] is True
+
+    monkeypatch.setenv("MM_EXTERNAL_SEND_DISABLED", "1")
+    stopped = transport.status()
+    assert stopped["mode"] == "MANUAL_EXACT_APPROVAL"
+    assert stopped["enabled"] is True
+    assert stopped["external_send_allowed"] is False
+    assert stopped["environment_send_disabled"] is True
+
+    # A private owner policy file must be a regular file owned by the caller with
+    # no group/other permissions. Anything else is refused; load_config() with no
+    # argument is the only path that consults it.
+    (tmp_path / "state" / "transport-policy.json").unlink()
+    (tmp_path / "state" / "transport-policy.json").mkdir()
+    with pytest.raises(ValueError):
+        transport.load_config()
+
+    (tmp_path / "state" / "transport-policy.json").rmdir()
+    leaked = tmp_path / "leaked.json"
+    leaked.write_text("{}")
+    leaked.chmod(0o644)
+    (tmp_path / "state" / "transport-policy.json").symlink_to(leaked)
+    with pytest.raises(ValueError):
+        transport.load_config()
 
 
 def test_transport_packet_preflight_rejects_any_send_authority():
