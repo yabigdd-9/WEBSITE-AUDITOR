@@ -2,6 +2,7 @@
 Implements sacred renewal practices through ritual timing calculation,
 purification ritual execution, and seasonal transition management.
 """
+import contextlib
 import json
 import sqlite3
 import math

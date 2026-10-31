@@ -1,0 +1,141 @@
+{
+  "initialised": true,
+  "at": "2026-10-14T14:45:13.667465+00:00",
+  "states": {
+    "SUPPRESSED": 12,
+    "REJECTED": 327,
+    "NEEDS_REVIEW": 27
+  },
+  "eligible": 0,
+  "active_leases": 0,
+  "expired_leases": 0,
+  "waiting_retry": 0,
+  "dead_lettered": 0,
+  "held_or_terminal": 366,
+  "activity": "idle_no_eligible_work",
+  "workers": [
+    {
+      "worker_id": "worker-audit",
+      "kind": "AUDIT_PENDING",
+      "started_at": "2026-09-22T08:24:34.379091+00:00",
+      "heartbeat_at": "2026-10-14T14:44:26.159309+00:00",
+      "heartbeat_age_seconds": 47.508156,
+      "stale": false
+    },
+    {
+      "worker_id": "worker-contact",
+      "kind": "QUALIFIED,CONTACT_PENDING",
+      "started_at": "2026-09-22T08:24:34.380712+00:00",
+      "heartbeat_at": "2026-10-14T14:44:26.298291+00:00",
+      "heartbeat_age_seconds": 47.369174,
+      "stale": false
+    },
+    {
+      "worker_id": "worker-identity",
+      "kind": "DISCOVERED,IDENTITY_PENDING",
+      "started_at": "2026-09-22T08:24:34.381365+00:00",
+      "heartbeat_at": "2026-10-14T14:44:26.398916+00:00",
+      "heartbeat_age_seconds": 47.268549,
+      "stale": false
+    },
+    {
+      "worker_id": "worker-management",
+      "kind": "RESPONDED",
+      "started_at": "2026-09-22T08:24:34.388303+00:00",
+      "heartbeat_at": "2026-10-14T14:44:26.498054+00:00",
+      "heartbeat_age_seconds": 47.169411,
+      "stale": false
+    },
+    {
+      "worker_id": "worker-outreach_gate",
+      "kind": "OUTREACH_PENDING",
+      "started_at": "2026-09-22T08:24:34.389474+00:00",
+      "heartbeat_at": "2026-10-14T14:44:26.649219+00:00",
+      "heartbeat_age_seconds": 47.018246,
+      "stale": false
+    },
+    {
+      "worker_id": "worker-preparation",
+      "kind": "VERIFIED,REMEDIATION_PENDING,DEMO_PENDING,QA_PENDING",
+      "started_at": "2026-09-22T08:24:34.390359+00:00",
+      "heartbeat_at": "2026-10-14T14:44:26.698734+00:00",
+      "heartbeat_age_seconds": 46.968731,
+      "stale": false
+    },
+    {
+      "worker_id": "worker-qualification",
+      "kind": "QUALIFICATION_PENDING",
+      "started_at": "2026-09-22T08:24:34.392694+00:00",
+      "heartbeat_at": "2026-10-14T14:44:26.701342+00:00",
+      "heartbeat_age_seconds": 46.966123,
+      "stale": false
+    },
+    {
+      "worker_id": "worker-understanding",
+      "kind": "AUDITED",
+      "started_at": "2026-09-22T08:24:34.393720+00:00",
+      "heartbeat_at": "2026-10-14T14:44:26.709723+00:00",
+      "heartbeat_age_seconds": 46.957742,
+      "stale": false
+    }
+  ],
+  "metrics": {
+    "pipeline.items.retry_scheduled": 115,
+    "pipeline.items.dead_lettered": 28,
+    "pipeline.items.completed": 1387
+  },
+  "eligibility_basis": "registered worker input states",
+  "note": "Queue activity does not attest supervisor liveness or external safety.",
+  "quick_check": [
+    "ok"
+  ],
+  "foreign_key_violations": 0,
+  "mm_jobs_rows": 0,
+  "paid_invocations": 0,
+  "cost_usd": 0,
+  "sent_ledger_rows": 0,
+  "supervisor": {
+    "pid": 96246,
+    "status": "running",
+    "at": "2026-10-14T14:44:26.860501+00:00"
+  },
+  "heartbeat_age_seconds": 46.900464,
+  "hermes_outcomes": {
+    "('discover_nz_businesses', 'start', 'running')": 12,
+    "('queue_dispatcher', 'start', 'running')": 43,
+    "('queue_dispatcher', 'complete', 'completed')": 42,
+    "('system_supervisor', 'start', 'running')": 83,
+    "('system_supervisor', 'complete', 'completed')": 83,
+    "('database_guard', 'start', 'running')": 7,
+    "('database_guard', 'complete', 'completed')": 7,
+    "('git_observer', 'start', 'running')": 5,
+    "('git_observer', 'complete', 'completed')": 5,
+    "('provider_monitor', 'start', 'running')": 5,
+    "('provider_monitor', 'complete', 'completed')": 5,
+    "('daily_report', 'start', 'running')": 6,
+    "('daily_report', 'complete', 'completed')": 5,
+    "('site_auditor', 'start', 'running')": 12,
+    "('site_auditor', 'complete', 'completed')": 1,
+    "('screenshot_worker', 'start', 'running')": 8,
+    "('screenshot_worker', 'complete', 'completed')": 8,
+    "('scoring_judge', 'start', 'running')": 8,
+    "('scoring_judge', 'complete', 'completed')": 8,
+    "('evidence_proofer', 'start', 'running')": 8,
+    "('evidence_proofer', 'complete', 'completed')": 8,
+    "('site_auditor', 'complete', 'error')": 1,
+    "('site_auditor', 'complete', 'timeout')": 8,
+    "('identity_resolution', 'start', 'running')": 11,
+    "('identity_resolution', 'complete', 'completed')": 11,
+    "('discover_nz_businesses', 'complete', 'completed')": 11,
+    "('testing', 'start', 'running')": 7,
+    "('testing', 'complete', 'error')": 4,
+    "('demo_blueprint', 'start', 'running')": 2,
+    "('demo_blueprint', 'complete', 'completed')": 2,
+    "('outreach_draft', 'start', 'running')": 2,
+    "('outreach_draft', 'complete', 'completed')": 2,
+    "('competitor_research', 'start', 'running')": 2,
+    "('competitor_research', 'complete', 'error')": 2,
+    "('testing', 'complete', 'failed')": 3,
+    "('queue_dispatcher', 'complete', 'failed')": 1
+  }
+}

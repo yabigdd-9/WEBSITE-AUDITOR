@@ -1,0 +1,35 @@
+{
+  "screenshots": [
+    {
+      "business_id": 2,
+      "name": "Blizzard HVAC & Electrical",
+      "url": "https://blizzard.co.nz/",
+      "path": "/Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/screenshots/business-2/tablet.png",
+      "sha256": "ca33e53aa96db69687bebf8edb6411e0997f489543f806a930006a082abe8b6f",
+      "size_bytes": 1478269,
+      "captured_at": "2026-10-14T10:12:04.109257+00:00",
+      "status": "captured"
+    },
+    {
+      "business_id": 3,
+      "name": "Trident Electrical & Air Conditioning",
+      "url": "https://trident.nz/heat-pumps",
+      "path": "/Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/screenshots/business-3/tablet.png",
+      "sha256": "cb9f01496f62712e2cad7d3f737cbe24a3f33de2b3f5db0a4ddf7783b2159a98",
+      "size_bytes": 3095426,
+      "captured_at": "2026-10-14T10:12:50.211808+00:00",
+      "status": "captured"
+    },
+    {
+      "business_id": 4,
+      "name": "ATL Heat Pumps",
+      "url": "https://www.atlelectrical.co.nz/heat-pumps",
+      "path": "/Users/dd/WEBSITE-AUDITOR/reports/hermes_zero_token/screenshots/business-4/tablet.png",
+      "sha256": "ca4660ab3371ec01b96a55e030c539b00fb989b84e035bb968c1715edca9e52b",
+      "size_bytes": 2004663,
+      "captured_at": "2026-10-14T10:13:20.177536+00:00",
+      "status": "captured"
+    }
+  ],
+  "generated_at": "2026-10-20T11:13:15.718093+00:00"
+}

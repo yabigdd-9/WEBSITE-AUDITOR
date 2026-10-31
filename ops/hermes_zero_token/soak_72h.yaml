@@ -1,0 +1,70 @@
+# P6.3 — 72-hour extended soak configuration
+# Scope: staging-only, no production writes, no outreach, no paid tokens.
+
+name: hermes-zero-token-soak-72h
+version: "1.0"
+duration_hours: 72
+
+staging:
+  database_path: state/hermes_zero_token/staging/money_machine_staging.db
+  snapshot_from: database/money_machine.db
+  reset_before_run: true
+
+workers:
+  - id: staging_db
+    enabled: true
+    interval_minutes: 60
+    timeout_seconds: 180
+  - id: screenshot_worker
+    enabled: true
+    interval_minutes: 180
+    timeout_seconds: 180
+  - id: demo_blueprint
+    enabled: true
+    interval_minutes: 180
+    timeout_seconds: 180
+  - id: outreach_draft
+    enabled: true
+    interval_minutes: 180
+    timeout_seconds: 180
+
+safety:
+  production_written: false
+  external_send_allowed: false
+  daily_cap: 0
+  paid_models: false
+  kill_switch: HERMES_ZERO_TOKEN_DISABLE_ALL
+
+monitoring:
+  heartbeat_interval_seconds: 120
+  log_path: state/hermes_zero_token/audit.jsonl
+  disk_free_mb_min: 2048
+  worker_timeout_seconds: 180
+  duplicate_job_detection: true
+  lease_recovery_check: true
+  process_restart_monitoring: true
+
+pass_criteria:
+  - crash_recovery: no unhandled worker crashes across 72h
+  - duplicate_ownership: no duplicate claims in pipeline_items
+  - stale_leases: all expired leases drained within 5 minutes
+  - database_integrity: PRAGMA integrity_check = ok on staging DB every 6h
+  - unexpected_writes: production_written = false for all workers
+  - resource_exhaustion: disk free > 2 GB, memory usage < 80% of host
+  - worker_execution_failures: < 3% of total worker runs
+  - restart_recovery: worker restart after simulated crash recovers all leases
+
+stop_conditions:
+  - production_written_true
+  - staging_integrity_failed
+  - kill_switch_activated
+  - disk_free_below_2gb
+  - duplicate_claim_detected
+  - stale_lease_not_drained
+  - worker_crash_loop_detected
+
+rollback:
+  stop_workers: true
+  restore_production_db: false
+  reset_staging_db: true
+  clear_audit_log: false

@@ -1,0 +1,18 @@
+{
+ "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+ "fixture_sha256": "ec3cf4886a87481dcbb23adcdce48c4e28d07a956d939bc96b5c50bd6568cd6d",
+ "scope": "commerce-catalogue",
+ "prediction_author": "wa-static-profile (deterministic, no model)",
+ "observations": [
+  {
+   "rule": "header-content-security-policy",
+   "url": "https://topchoice.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "social-meta-twitter-handle",
+   "url": "https://topchoice.co.nz/",
+   "location": "No twitter:site or twitter:creator declared"
+  }
+ ]
+}

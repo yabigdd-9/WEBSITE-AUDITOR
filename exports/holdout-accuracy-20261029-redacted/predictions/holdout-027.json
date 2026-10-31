@@ -1,0 +1,48 @@
+{
+ "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+ "fixture_sha256": "dd9e9218a8a3179bbaae890af6415ca1ac481607e8c86685cfe091d425b4ab0f",
+ "scope": "javascript-application",
+ "prediction_author": "wa-static-profile (deterministic, no model)",
+ "observations": [
+  {
+   "rule": "cookie-secure",
+   "url": "https://www.houzz.com/",
+   "location": "hzmgcan"
+  },
+  {
+   "rule": "cookie-secure",
+   "url": "https://www.houzz.com/",
+   "location": "hzref"
+  },
+  {
+   "rule": "cookie-secure",
+   "url": "https://www.houzz.com/",
+   "location": "kcan"
+  },
+  {
+   "rule": "hreflang-no-x-default",
+   "url": "https://www.houzz.com/",
+   "location": "No x-default link tag found"
+  },
+  {
+   "rule": "hreflang-no-self",
+   "url": "https://www.houzz.com/",
+   "location": "No hreflang link points back to this page"
+  },
+  {
+   "rule": "images-missing-dimensions",
+   "url": "https://www.houzz.com/",
+   "location": "Space reservation needs rendered review; CSS or a sized container may already prevent layout shift"
+  },
+  {
+   "rule": "images-external-hosting",
+   "url": "https://www.houzz.com/",
+   "location": "Third-party image dependency"
+  },
+  {
+   "rule": "social-meta-og-image",
+   "url": "https://www.houzz.com/",
+   "location": "No Open Graph image for social sharing"
+  }
+ ]
+}

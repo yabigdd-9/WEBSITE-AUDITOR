@@ -1,0 +1,138 @@
+{
+ "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+ "fixture_sha256": "0b3a048aee7b2f84438628f0c26b12541d77a32eb7440570f00af6aa1001bf6f",
+ "scope": "brochure-service",
+ "prediction_author": "wa-static-profile (deterministic, no model)",
+ "observations": [
+  {
+   "rule": "missing_meta_description",
+   "url": "https://www.glp.co.nz/",
+   "location": "head > meta[name=\"description\"]"
+  },
+  {
+   "rule": "missing_canonical_url",
+   "url": "https://www.glp.co.nz/",
+   "location": "head > link[rel=\"canonical\"]"
+  },
+  {
+   "rule": "missing_open_graph_tags",
+   "url": "https://www.glp.co.nz/",
+   "location": "head > meta[property^=\"og:\"]"
+  },
+  {
+   "rule": "viewport",
+   "url": "https://www.glp.co.nz/",
+   "location": "head > meta[name=\"viewport\"]"
+  },
+  {
+   "rule": "schema_missing",
+   "url": "https://www.glp.co.nz/",
+   "location": "script[type=\"application/ld+json\"]"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.glp.co.nz/",
+   "location": "img:nth-of-type(1)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.glp.co.nz/",
+   "location": "img:nth-of-type(2)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.glp.co.nz/",
+   "location": "img:nth-of-type(3)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.glp.co.nz/",
+   "location": "img:nth-of-type(4)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.glp.co.nz/",
+   "location": "img:nth-of-type(5)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.glp.co.nz/",
+   "location": "img:nth-of-type(6)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.glp.co.nz/",
+   "location": "img:nth-of-type(7)"
+  },
+  {
+   "rule": "header-content-security-policy",
+   "url": "https://www.glp.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "header-x-content-type-options",
+   "url": "https://www.glp.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "header-hsts",
+   "url": "https://www.glp.co.nz/",
+   "location": "Review HTTPS deployment"
+  },
+  {
+   "rule": "missing-html-lang",
+   "url": "https://www.glp.co.nz/",
+   "location": "No <html lang=\"...\"> attribute found"
+  },
+  {
+   "rule": "images-missing-alt",
+   "url": "https://www.glp.co.nz/",
+   "location": "Screen readers cannot describe images; accessibility and SEO suffer"
+  },
+  {
+   "rule": "images-missing-dimensions",
+   "url": "https://www.glp.co.nz/",
+   "location": "Space reservation needs rendered review; CSS or a sized container may already prevent layout shift"
+  },
+  {
+   "rule": "social-meta-og-title",
+   "url": "https://www.glp.co.nz/",
+   "location": "No Open Graph title for social sharing"
+  },
+  {
+   "rule": "social-meta-og-description",
+   "url": "https://www.glp.co.nz/",
+   "location": "No Open Graph description for social sharing"
+  },
+  {
+   "rule": "social-meta-og-image",
+   "url": "https://www.glp.co.nz/",
+   "location": "No Open Graph image for social sharing"
+  },
+  {
+   "rule": "social-meta-og-type",
+   "url": "https://www.glp.co.nz/",
+   "location": "No Open Graph type declared"
+  },
+  {
+   "rule": "social-meta-twitter-card",
+   "url": "https://www.glp.co.nz/",
+   "location": "No twitter:card declared"
+  },
+  {
+   "rule": "social-meta-twitter-handle",
+   "url": "https://www.glp.co.nz/",
+   "location": "No twitter:site or twitter:creator declared"
+  },
+  {
+   "rule": "robots-missing",
+   "url": "https://www.glp.co.nz/",
+   "location": "HTTP 404"
+  },
+  {
+   "rule": "sitemap-missing",
+   "url": "https://www.glp.co.nz/",
+   "location": "HTTP 404"
+  }
+ ]
+}

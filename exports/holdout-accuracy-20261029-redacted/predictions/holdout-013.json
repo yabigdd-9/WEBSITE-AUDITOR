@@ -1,0 +1,38 @@
+{
+ "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+ "fixture_sha256": "8c9943621bb4e10a19205c5c85d073a90ce18772603ea95c3b9953397f3a8e15",
+ "scope": "commerce-catalogue",
+ "prediction_author": "wa-static-profile (deterministic, no model)",
+ "observations": [
+  {
+   "rule": "thin_content_200_words",
+   "url": "https://www.fas.co.nz/",
+   "location": "Review page purpose"
+  },
+  {
+   "rule": "header-content-security-policy",
+   "url": "https://www.fas.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "cookie-secure",
+   "url": "https://www.fas.co.nz/",
+   "location": "ssr-caching"
+  },
+  {
+   "rule": "images-external-hosting",
+   "url": "https://www.fas.co.nz/",
+   "location": "Third-party image dependency"
+  },
+  {
+   "rule": "social-meta-og-image",
+   "url": "https://www.fas.co.nz/",
+   "location": "No Open Graph image for social sharing"
+  },
+  {
+   "rule": "social-meta-twitter-handle",
+   "url": "https://www.fas.co.nz/",
+   "location": "No twitter:site or twitter:creator declared"
+  }
+ ]
+}

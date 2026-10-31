@@ -1,0 +1,27 @@
+[
+  {
+    "sha": "a5a35c85d82f97e66986a338fe06c35936aa406a",
+    "subject": "fix(pipeline): fence lease writes and make completion atomic",
+    "files": [
+      "evidence/codex/OWNERSHIP.md",
+      "money-machine/mm_pipeline.py",
+      "money-machine/test_pipeline_lease_ownership.py"
+    ]
+  },
+  {
+    "sha": "8b95f4331c7afeacf786348ad4b7d5348d253148",
+    "subject": "perf(runtime): batch committed source reads with strict framing",
+    "files": [
+      "money-machine/runtime_bootstrap.py",
+      "money-machine/test_runtime_bootstrap.py"
+    ]
+  },
+  {
+    "sha": "191d85854cbbfc32e26bad3f189e45370026d191",
+    "subject": "fix(pipeline): preserve caller transactions and recheck claim state",
+    "files": [
+      "money-machine/mm_pipeline.py",
+      "money-machine/test_pipeline_lease_ownership.py"
+    ]
+  }
+]

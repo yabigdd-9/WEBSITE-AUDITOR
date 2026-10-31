@@ -1,0 +1,33 @@
+{
+  "command": [
+    "/Users/dd/WEBSITE-AUDITOR/.venv/bin/python",
+    "-m",
+    "pip",
+    "install",
+    "--no-build-isolation",
+    "--no-deps",
+    "-e",
+    "/Users/dd/WEBSITE-AUDITOR"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 8.941,
+  "snapshot_paths": [
+    "/Users/dd/WEBSITE-AUDITOR/.venv/lib/python3.11/site-packages/__editable___website_auditor_4_0_0_finder.py",
+    "/Users/dd/WEBSITE-AUDITOR/.venv/lib/python3.11/site-packages/__editable__.website_auditor-4.0.0.pth",
+    "/Users/dd/WEBSITE-AUDITOR/.venv/lib/python3.11/site-packages/website_auditor-4.0.0.dist-info"
+  ],
+  "snapshot_root": "/Users/dd/WEBSITE-AUDITOR/state/hermes_reliability/execution-20261016/environment",
+  "network_disabled_for_install": true,
+  "snapshot_sha256": {
+    "__editable___website_auditor_4_0_0_finder.py": "f522191c1a806fc7e953e6a6aa38ab3364252bf890e4a60643e86fdc4b3b66e3",
+    "__editable__.website_auditor-4.0.0.pth": "ae69f4cb3e7f261be4b69fcd1bff00eaa637c95c6ae8b0eb8c9477a72f1eebb8",
+    "website_auditor-4.0.0.dist-info/RECORD": "b306f56a0cea5fee0f097eec6bfd7ce8e228e2c5fcfbf0100666a1f42400d82a",
+    "website_auditor-4.0.0.dist-info/direct_url.json": "a6af3d045c39b85e8ab5f6ed121ef5555b8d3b0540a97ffed0446daa270af727",
+    "website_auditor-4.0.0.dist-info/WHEEL": "61532836a2b3111b7ec23519c09df7c41180c27165fb872a6d8913b566b88ad1",
+    "website_auditor-4.0.0.dist-info/entry_points.txt": "ea76fc6d7ae8bd11c75faf1d79013f44b0f8827b28a2393553b3415febdab4b2",
+    "website_auditor-4.0.0.dist-info/top_level.txt": "a9ecd2490b33e09b868b78fd2c2e56d47bb9abe8e13c7133541776cc8d04e038",
+    "website_auditor-4.0.0.dist-info/REQUESTED": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "website_auditor-4.0.0.dist-info/INSTALLER": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508",
+    "website_auditor-4.0.0.dist-info/METADATA": "c65660575e5841fbb1e4448c765366de3f54166c27cc84c2d9c9b1ee71e81abe"
+  }
+}

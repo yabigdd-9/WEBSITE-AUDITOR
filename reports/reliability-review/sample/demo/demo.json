@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "kind": "local_demo_concept",
+  "source_run_id": "20261014T144657-052d7d276c1f",
+  "source_url": "http://127.0.0.1:59089/",
+  "demo_html": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/demo/index.html",
+  "demo_html_sha256": "59d93cf3600c9fad1b3b82f4904c524da347da1f5acbc708a80feb9917d00af5",
+  "before": null,
+  "after": null,
+  "status": "CONCEPT_ONLY",
+  "local_concept": true,
+  "live_site_changed": false,
+  "improvement_claim_valid": false,
+  "external_deploy": false,
+  "review_required": true,
+  "verification_required": "Approved implementation + repeat audit of actual source website."
+}

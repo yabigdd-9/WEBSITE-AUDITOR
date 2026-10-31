@@ -6,9 +6,11 @@ from auditor_toolkit.proof.render import diff as diff_module
 from auditor_toolkit.proof.render.diff import generate_diff
 
 
-def test_generate_diff_returns_dict():
-    result = generate_diff(before_path="", after_path="", output_dir="/tmp")
-    assert isinstance(result, dict)
+def test_generate_diff_reports_missing_pillow(tmp_path, monkeypatch):
+    monkeypatch.setattr(diff_module, "HAS_PILLOW", False)
+    result = generate_diff(before_path="", after_path="", output_dir=str(tmp_path))
+    assert result["error"] == "Pillow not installed (pip install Pillow)"
+    assert result["diff_path"] == ""
 
 
 def test_generate_diff_uses_pixel_threshold_and_highlights_without_pillow(

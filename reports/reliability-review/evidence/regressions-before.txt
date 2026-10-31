@@ -1,0 +1,67 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+______________ test_active_lease_does_not_hide_next_eligible_item ______________
+
+db = <sqlite3.Connection object at 0x110ad09a0>
+
+    def test_active_lease_does_not_hide_next_eligible_item(db):
+        assert p.claim(db, ("DISCOVERED",), "first")[0]["business_id"] == 1
+        db.execute("UPDATE pipeline_items SET updated_at='2000-01-01T00:00:00+00:00' WHERE business_id=1")
+        claimed = p.claim(db, ("DISCOVERED",), "second")
+>       assert [r["business_id"] for r in claimed] == [2]
+E       assert [] == [2]
+E         
+E         Right contains one more item: 2
+E         Use -v to get more diff
+
+money-machine/test_queue_reliability.py:28: AssertionError
+__________ test_rejected_completion_does_not_increment_success_metric __________
+
+db = <sqlite3.Connection object at 0x110a16020>
+
+    def test_rejected_completion_does_not_increment_success_metric(db):
+        p.claim(db, ("DISCOVERED",), "first")
+        with pytest.raises(ValueError):
+            p.complete(db, 1, "first", "APPROVED")
+>       assert db.execute("SELECT value FROM mm_metrics WHERE name='pipeline.items.completed'").fetchone() is None
+E       assert <sqlite3.Row object at 0x110a78d90> is None
+E        +  where <sqlite3.Row object at 0x110a78d90> = <built-in method fetchone of sqlite3.Cursor object at 0x110a640c0>()
+E        +    where <built-in method fetchone of sqlite3.Cursor object at 0x110a640c0> = <sqlite3.Cursor object at 0x110a640c0>.fetchone
+E        +      where <sqlite3.Cursor object at 0x110a640c0> = <built-in method execute of sqlite3.Connection object at 0x110a16020>("SELECT value FROM mm_metrics WHERE name='pipeline.items.completed'")
+E        +        where <built-in method execute of sqlite3.Connection object at 0x110a16020> = <sqlite3.Connection object at 0x110a16020>.execute
+
+money-machine/test_queue_reliability.py:35: AssertionError
+__________ test_stale_worker_cannot_change_new_owners_item[complete] ___________
+
+db = <sqlite3.Connection object at 0x110ad0d60>, operation = 'complete'
+
+    @pytest.mark.parametrize("operation", ["complete", "fail"])
+    def test_stale_worker_cannot_change_new_owners_item(db, operation):
+        p.claim(db, ("DISCOVERED",), "old")
+        db.execute("UPDATE pipeline_items SET lease_until='2000-01-01T00:00:00+00:00' WHERE business_id=1")
+        p.claim(db, ("DISCOVERED",), "new")
+        before = dict(p.item(db, 1))
+>       with pytest.raises(ValueError):
+E       Failed: DID NOT RAISE ValueError
+
+money-machine/test_queue_reliability.py:45: Failed
+____________ test_stale_worker_cannot_change_new_owners_item[fail] _____________
+
+db = <sqlite3.Connection object at 0x110ad15d0>, operation = 'fail'
+
+    @pytest.mark.parametrize("operation", ["complete", "fail"])
+    def test_stale_worker_cannot_change_new_owners_item(db, operation):
+        p.claim(db, ("DISCOVERED",), "old")
+        db.execute("UPDATE pipeline_items SET lease_until='2000-01-01T00:00:00+00:00' WHERE business_id=1")
+        p.claim(db, ("DISCOVERED",), "new")
+        before = dict(p.item(db, 1))
+>       with pytest.raises(ValueError):
+E       Failed: DID NOT RAISE ValueError
+
+money-machine/test_queue_reliability.py:45: Failed
+=========================== short test summary info ============================
+FAILED money-machine/test_queue_reliability.py::test_active_lease_does_not_hide_next_eligible_item
+FAILED money-machine/test_queue_reliability.py::test_rejected_completion_does_not_increment_success_metric
+FAILED money-machine/test_queue_reliability.py::test_stale_worker_cannot_change_new_owners_item[complete]
+FAILED money-machine/test_queue_reliability.py::test_stale_worker_cannot_change_new_owners_item[fail]
+4 failed in 1.87s

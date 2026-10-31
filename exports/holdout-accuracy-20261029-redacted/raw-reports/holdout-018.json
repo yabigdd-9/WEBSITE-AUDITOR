@@ -1,0 +1,1075 @@
+{
+  "schema_version": 2,
+  "browser_requested": false,
+  "performance": {
+    "total_elapsed_ms": 7437,
+    "checks": {
+      "fetch": 0,
+      "page": 1948,
+      "schema": 1989,
+      "headers": 0,
+      "technology": 551,
+      "js_vulnerabilities": 385,
+      "structured_validation": 264,
+      "hreflang": 1478,
+      "language": 1167,
+      "images": 1004,
+      "social_meta": 1039,
+      "hygiene": 1206,
+      "ux": 108,
+      "links": 0,
+      "lychee": 0,
+      "lighthouse": 0,
+      "tls": 1518,
+      "dns": 0,
+      "crawl": 0,
+      "browser": 0,
+      "third_party": 0,
+      "browser_console": 0,
+      "cookie_consent": 0,
+      "axe": 0
+    },
+    "slowest_checks": [
+      [
+        "schema",
+        1989
+      ],
+      [
+        "page",
+        1948
+      ],
+      [
+        "tls",
+        1518
+      ],
+      [
+        "hreflang",
+        1478
+      ],
+      [
+        "hygiene",
+        1206
+      ]
+    ]
+  },
+  "run_id": "20261029T002531-e50d434495c2",
+  "url": "https://tradietools.nz/",
+  "domain": "tradietools.nz",
+  "timestamp": "2026-10-29T00:25:31.830507+00:00",
+  "profile": "static",
+  "brand": "Website Auditor",
+  "status": "complete",
+  "score": 12,
+  "severity_score": 12,
+  "health_score": 88,
+  "breakdown": {
+    "health_score": 88,
+    "severity_total": 12,
+    "heuristic_count": 1,
+    "method": "severity sum capped at 100; health = 100 - severity",
+    "deductions": [
+      {
+        "finding_id": "e142085eccb7e35526073756",
+        "defect_key": "images-missing-dimensions",
+        "severity": "low",
+        "points": 4,
+        "confidence": "heuristic",
+        "evidence_summary": "1 of 3 images do not provide positive numeric width and height attributes"
+      },
+      {
+        "finding_id": "ee13209ef364835f576c9a6d",
+        "defect_key": "images-external-hosting",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "1 image(s) served from external domains"
+      },
+      {
+        "finding_id": "e514723eba961dc113cc2f85",
+        "defect_key": "social-meta-twitter-handle",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "No <meta name=\"twitter:site\"> or twitter:creator tag present"
+      }
+    ]
+  },
+  "defects": [
+    {
+      "defect_key": "images-missing-dimensions",
+      "defect": "Images missing width/height (1)",
+      "impact": "Space reservation needs rendered review; CSS or a sized container may already prevent layout shift",
+      "severity": "low",
+      "source_url": "https://tradietools.nz/",
+      "review_required": true,
+      "check": "images",
+      "selector": "",
+      "confidence": "heuristic",
+      "evidence_source": "dom:img element",
+      "observed": "1 of 3 images do not provide positive numeric width and height attributes",
+      "business_impact": "Layout shift is possible only if the rendered page does not already reserve image space. Static HTML alone does not establish CLS or its impact.",
+      "remediation_action": "Inspect computed styles, container sizing and measured layout shifts. Add dimensions or equivalent space reservation only where needed; preserve intentional framework fill layouts.",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "S",
+      "finding_id": "e142085eccb7e35526073756",
+      "evidence_ref": "images",
+      "observed_at": "2026-10-29T00:25:31.830507+00:00",
+      "evidence_summary": "1 of 3 images do not provide positive numeric width and height attributes",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "images-external-hosting",
+      "defect": "Images hosted externally (1)",
+      "impact": "Third-party image dependency",
+      "severity": "low",
+      "source_url": "https://tradietools.nz/",
+      "review_required": true,
+      "check": "images",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:img element",
+      "observed": "1 image(s) served from external domains",
+      "business_impact": "External images depend on third-party uptime and add DNS/HTTP overhead. Critical images should be self-hosted.",
+      "remediation_action": "Self-host critical images or use a proven CDN with fallback.",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "ee13209ef364835f576c9a6d",
+      "evidence_ref": "images",
+      "observed_at": "2026-10-29T00:25:31.830507+00:00",
+      "evidence_summary": "1 image(s) served from external domains",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-twitter-handle",
+      "defect": "Missing Twitter handle",
+      "impact": "No twitter:site or twitter:creator declared",
+      "severity": "low",
+      "source_url": "https://tradietools.nz/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[name=twitter:site]",
+      "observed": "No <meta name=\"twitter:site\"> or twitter:creator tag present",
+      "business_impact": "Twitter/X attribution is missing; the account that shares this page is not tagged.",
+      "remediation_action": "Add a twitter:site meta tag with your @handle.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "e514723eba961dc113cc2f85",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-29T00:25:31.830507+00:00",
+      "evidence_summary": "No <meta name=\"twitter:site\"> or twitter:creator tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    }
+  ],
+  "defect_count": 3,
+  "fault_taxonomy": {
+    "root_causes": [
+      {
+        "root_cause_id": "unclassified_observation",
+        "taxonomy": [
+          "unknown"
+        ],
+        "finding_ids": [
+          "e142085eccb7e35526073756",
+          "ee13209ef364835f576c9a6d",
+          "e514723eba961dc113cc2f85"
+        ],
+        "symptom_count": 3,
+        "likely": true,
+        "confidence": "MODERATE",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      }
+    ],
+    "reproducible_count": 3,
+    "weak_or_unknown_count": 1
+  },
+  "checks": {
+    "fetch": {
+      "status": "ok",
+      "required": true
+    },
+    "page": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1948
+    },
+    "schema": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1989
+    },
+    "headers": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "technology": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 551
+    },
+    "js_vulnerabilities": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 385
+    },
+    "structured_validation": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 264
+    },
+    "hreflang": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1478
+    },
+    "language": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1167
+    },
+    "images": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1004
+    },
+    "social_meta": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1039
+    },
+    "hygiene": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1206
+    },
+    "ux": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 108
+    },
+    "links": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "lychee": {
+      "status": "skipped",
+      "reason": "Enable external local tools",
+      "required": false
+    },
+    "lighthouse": {
+      "status": "skipped",
+      "reason": "Enable external local tools",
+      "required": false
+    },
+    "tls": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1518
+    },
+    "dns": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "crawl": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "browser": {
+      "status": "skipped",
+      "reason": "Disabled in selected audit profile",
+      "required": false
+    },
+    "third_party": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "browser_console": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "cookie_consent": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "axe": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "pdf": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    }
+  },
+  "evidence": {
+    "fetch": {
+      "url": "https://tradietools.nz/",
+      "observed_at": "2026-10-29T00:25:33.433909+00:00",
+      "mode": "static",
+      "check_version": "1",
+      "data": {
+        "status_code": 200,
+        "redirects": [],
+        "revalidated_at": null
+      }
+    },
+    "page": {
+      "url": "https://tradietools.nz/",
+      "observed_at": "2026-10-29T00:25:33.433909+00:00",
+      "mode": "static",
+      "data": {
+        "title": "Find a Trusted NZ Tradie — Rated & Reviewed | TradieTools NZ",
+        "word_count": 1168,
+        "link_count": 111,
+        "sample_links": [
+          "https://tradietools.nz/",
+          "https://tradietools.nz/trades/",
+          "https://tradietools.nz/post-job/",
+          "https://tradietools.nz/homeowner-guides/",
+          "https://tradietools.nz/jobs/",
+          "https://tradietools.nz/for-tradies/",
+          "https://tradietools.nz/calculators/",
+          "https://tradietools.nz/templates/",
+          "https://tradietools.nz/articles/",
+          "https://tradietools.nz/contact/",
+          "https://tradietools.nz/tradie-login/",
+          "https://tradietools.nz/dashboard/",
+          "https://tradietools.nz/signup/",
+          "https://tradietools.nz/post-job/",
+          "https://tradietools.nz/signup/",
+          "https://tradietools.nz/trades/electricians/",
+          "https://tradietools.nz/trades/plumbers/",
+          "https://tradietools.nz/trades/builders/",
+          "https://tradietools.nz/trades/painters/",
+          "https://tradietools.nz/trades/roofers/",
+          "https://tradietools.nz/trades/landscapers/",
+          "https://tradietools.nz/trades/arborists/",
+          "https://tradietools.nz/trades/carpenters/",
+          "https://tradietools.nz/trades/tilers/",
+          "https://tradietools.nz/trades/gasfitters/"
+        ],
+        "emails": [
+          "contact@tradietools.nz"
+        ],
+        "schema_count": 1
+      },
+      "check_version": "1"
+    },
+    "schema": {
+      "url": "https://tradietools.nz/",
+      "observed_at": "2026-10-29T00:25:33.433909+00:00",
+      "mode": "static",
+      "data": {
+        "types": [
+          "ContactPoint",
+          "EntryPoint",
+          "ImageObject",
+          "Organization",
+          "SearchAction",
+          "WebSite"
+        ],
+        "profile": "static",
+        "generator": "",
+        "local_business_review": "Check identity, address and service area against the business owner.",
+        "crawler_readiness": {
+          "robots_meta": [],
+          "rendered_content_comparison": "Available only in rendered mode"
+        }
+      },
+      "check_version": "1"
+    },
+    "headers": {
+      "url": "https://tradietools.nz/",
+      "observed_at": "2026-10-29T00:25:33.433909+00:00",
+      "mode": "static",
+      "data": {
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "x-frame-options": "SAMEORIGIN",
+          "cache-control": "public, max-age=0, must-revalidate",
+          "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+          "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com https://static.cloudflareinsights.com https://ep2.adtrafficquality.google https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://tradietools.optified.nz https://formspree.io https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net https://www.google.com https://pagead2.googlesyndication.com https://static.cloudflareinsights.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google https://csi.gstatic.com; frame-src 'self' https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com https://www.youtube-nocookie.com https://ep2.adtrafficquality.google; frame-ancestors 'self'; base-uri 'self'; form-action 'self' https://formspree.io",
+          "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "x-content-type-options": "nosniff",
+          "server": "cloudflare",
+          "content-length": "61832"
+        },
+        "cookies": []
+      },
+      "check_version": "1"
+    },
+    "technology": {
+      "url": "https://tradietools.nz/",
+      "observed_at": "2026-10-29T00:25:31.830507+00:00",
+      "mode": "static",
+      "data": {
+        "technologies": []
+      },
+      "check_version": "1"
+    },
+    "js_vulnerabilities": {
+      "url": "https://tradietools.nz/",
+      "observed_at": "2026-10-29T00:25:31.830507+00:00",
+      "mode": "static",
+      "data": {
+        "js_vulnerabilities_detected": 0
+      },
+      "check_version": "1"
+    },
+    "structured_validation": {
+      "url": "https://tradietools.nz/",
+      "observed_at": "2026-10-29T00:25:31.830507+00:00",
+      "mode": "static",
+      "data": {
+        "structured_data_scripts_found": 1
+      },
+      "check_version": "1"
+    },
+    "hreflang": {
+      "url": "https://tradietools.nz/",
+      "observed_at": "2026-10-29T00:25:31.830507+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://tradietools.nz/",
+        "hreflang_links": [],
+        "hreflang_count": 0,
+        "limitation": "No multilingual annotations declared; reciprocity not fetched."
+      },
+      "check_version": "3"
+    },
+    "language": {
+      "url": "https://tradietools.nz/",
+      "observed_at": "2026-10-29T00:25:31.830507+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://tradietools.nz/",
+        "html_lang": "en-nz",
+        "meta_content_language": null,
+        "is_nz_domain": true,
+        "limitation": "Declared language only; content language is not inferred from the domain."
+      },
+      "check_version": "3"
+    },
+    "images": {
+      "url": "https://tradietools.nz/",
+      "observed_at": "2026-10-29T00:25:31.830507+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://tradietools.nz/",
+        "image_count": 3,
+        "missing_alt": 0,
+        "missing_dimensions": 1,
+        "missing_loading": 3,
+        "framework_fill_images": 0,
+        "external_images": 1,
+        "large_file_hints": []
+      },
+      "check_version": "3"
+    },
+    "social_meta": {
+      "url": "https://tradietools.nz/",
+      "observed_at": "2026-10-29T00:25:31.830507+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://tradietools.nz/",
+        "og_tags": {
+          "title": "Find a Trusted NZ Tradie — Rated & Reviewed | TradieTools NZ",
+          "description": "Find trusted NZ tradies by city — top-rated electricians, plumbers, builders, painters and more. Google ratings verified. Free to search.",
+          "type": "website",
+          "url": "https://tradietools.nz/",
+          "site_name": "TradieTools NZ",
+          "image": "https://tradietools.nz/static/img/social-card.svg"
+        },
+        "twitter_tags": {
+          "card": "summary_large_image",
+          "title": "Find a Trusted NZ Tradie — Rated & Reviewed | TradieTools NZ",
+          "description": "Find trusted NZ tradies by city — top-rated electricians, plumbers, builders, painters and more. Google ratings verified. Free to search.",
+          "image": "https://tradietools.nz/static/img/social-card.svg"
+        }
+      },
+      "check_version": "3"
+    },
+    "hygiene": {
+      "url": "https://tradietools.nz/",
+      "observed_at": "2026-10-29T00:25:33.433909+00:00",
+      "mode": "static",
+      "data": {
+        "robots": {
+          "url": "https://tradietools.nz/robots.txt",
+          "status_code": 200,
+          "bytes": 334,
+          "sitemaps_declared": [
+            "https://tradietools.nz/sitemap.xml"
+          ]
+        },
+        "sitemap": {
+          "checked": [
+            {
+              "url": "https://tradietools.nz/sitemap.xml",
+              "status": 200,
+              "loc_count": 1425,
+              "well_formed": true
+            }
+          ]
+        },
+        "security_headers": {
+          "graded": [
+            "content-security-policy",
+            "x-content-type-options",
+            "strict-transport-security"
+          ],
+          "present": [
+            "content-security-policy",
+            "strict-transport-security",
+            "x-content-type-options"
+          ]
+        },
+        "mixed_content": {
+          "offenders": [],
+          "count": 0
+        }
+      },
+      "check_version": "1"
+    },
+    "ux": {
+      "url": "https://tradietools.nz/",
+      "observed_at": "2026-10-29T00:25:33.433909+00:00",
+      "mode": "static",
+      "data": {
+        "signals": {
+          "contact_path": true,
+          "phone": false,
+          "booking": false,
+          "quote_form": true,
+          "form_present": true
+        }
+      },
+      "check_version": "1"
+    },
+    "tls": {
+      "url": "https://tradietools.nz/",
+      "observed_at": "2026-10-29T00:25:31.830507+00:00",
+      "mode": "static",
+      "data": {
+        "expires_at": "2026-11-29T22:25:26+00:00",
+        "days_remaining": 31,
+        "protocol": "TLSv1.3",
+        "cipher": "TLS_AES_256_GCM_SHA384"
+      },
+      "check_version": "1"
+    },
+    "browser": {}
+  },
+  "check_registry": {
+    "fetch": {
+      "id": "fetch",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "page": {
+      "id": "page",
+      "category": "seo",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Content and conversion observations require editorial review."
+    },
+    "schema": {
+      "id": "schema",
+      "category": "local",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Presence does not establish eligibility or business identity."
+    },
+    "accessibility_static": {
+      "id": "accessibility_static",
+      "category": "accessibility",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Static checks do not establish conformance."
+    },
+    "ux": {
+      "id": "ux",
+      "category": "privacy",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Observed behavior is not a legal determination."
+    },
+    "headers": {
+      "id": "headers",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "hygiene": {
+      "id": "hygiene",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Deterministic robots, sitemap, header and mixed-content checks."
+    },
+    "links": {
+      "id": "links",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Bounded same-origin link validation; not an exhaustive crawler."
+    },
+    "tls": {
+      "id": "tls",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "dns": {
+      "id": "dns",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "crawl": {
+      "id": "crawl",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "lychee": {
+      "id": "lychee",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "External local CLI check; bounded by Lychee configuration and network conditions."
+    },
+    "lighthouse": {
+      "id": "lighthouse",
+      "category": "performance",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Laboratory result; not field Core Web Vitals."
+    },
+    "browser": {
+      "id": "browser",
+      "category": "performance",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Laboratory observations, not field Core Web Vitals."
+    },
+    "axe": {
+      "id": "axe",
+      "category": "accessibility",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Manual keyboard, screen-reader and content review remains necessary."
+    },
+    "pdf": {
+      "id": "pdf",
+      "category": "reporting",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "technology": {
+      "id": "technology",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "js_vulnerabilities": {
+      "id": "js_vulnerabilities",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "structured_validation": {
+      "id": "structured_validation",
+      "category": "local",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "hreflang": {
+      "id": "hreflang",
+      "category": "seo",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "language": {
+      "id": "language",
+      "category": "technical",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "images": {
+      "id": "images",
+      "category": "performance",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "social_meta": {
+      "id": "social_meta",
+      "category": "technical",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "cookie_consent": {
+      "id": "cookie_consent",
+      "category": "privacy",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Passive bounded observations only; cookie purpose and legal obligations require human review."
+    },
+    "third_party": {
+      "id": "third_party",
+      "category": "technical",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "browser_console": {
+      "id": "browser_console",
+      "category": "technical",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "server_technology": {
+      "id": "server_technology",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    }
+  },
+  "scoring": {
+    "method": "severity sum capped at 100; health = 100 - severity",
+    "weights": {
+      "low": 4,
+      "medium": 8,
+      "high": 16,
+      "critical": 30
+    },
+    "limitation": "Heuristic prioritization, not certification"
+  },
+  "financial_assumptions": [
+    "No fines or measured lost revenue. Estimates require explicit rates."
+  ],
+  "artifacts": {
+    "json": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002531-e50d434495c2/report.json",
+    "html": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002531-e50d434495c2/report.html",
+    "trend": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002531-e50d434495c2/trend.svg",
+    "actions": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002531-e50d434495c2/actions/preview.json"
+  },
+  "category_scores": {
+    "accessibility": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": null
+    },
+    "local": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": 100
+    },
+    "performance": {
+      "score": 8,
+      "severity_score": 8,
+      "health_score": 92
+    },
+    "privacy": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": 100
+    },
+    "security": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": 100
+    },
+    "seo": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": 100
+    },
+    "technical": {
+      "score": 4,
+      "severity_score": 4,
+      "health_score": 96
+    }
+  },
+  "comparison": {
+    "baseline": null,
+    "new": [
+      "e142085eccb7e35526073756",
+      "e514723eba961dc113cc2f85",
+      "ee13209ef364835f576c9a6d"
+    ],
+    "persistent": [],
+    "regressed": [],
+    "resolved": [],
+    "resolution_assessed": false
+  },
+  "fault_regression": {
+    "new": [
+      "e142085eccb7e35526073756",
+      "e514723eba961dc113cc2f85",
+      "ee13209ef364835f576c9a6d"
+    ],
+    "resolved": [],
+    "unchanged": []
+  },
+  "claim_ledger": [
+    {
+      "claim_id": "finding:e142085eccb7e35526073756",
+      "claim": "Images missing width/height (1)",
+      "claim_type": "hypothesis",
+      "finding_id": "e142085eccb7e35526073756",
+      "evidence_ref": "images",
+      "evidence": "1 of 3 images do not provide positive numeric width and height attributes",
+      "source_url": "https://tradietools.nz/",
+      "observed_at": "2026-10-29T00:25:31.830507+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:ee13209ef364835f576c9a6d",
+      "claim": "Images hosted externally (1)",
+      "claim_type": "observed_fact",
+      "finding_id": "ee13209ef364835f576c9a6d",
+      "evidence_ref": "images",
+      "evidence": "1 image(s) served from external domains",
+      "source_url": "https://tradietools.nz/",
+      "observed_at": "2026-10-29T00:25:31.830507+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:e514723eba961dc113cc2f85",
+      "claim": "Missing Twitter handle",
+      "claim_type": "observed_fact",
+      "finding_id": "e514723eba961dc113cc2f85",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta name=\"twitter:site\"> or twitter:creator tag present",
+      "source_url": "https://tradietools.nz/",
+      "observed_at": "2026-10-29T00:25:31.830507+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    }
+  ],
+  "drafts": {
+    "status": "fallback",
+    "review_required": true,
+    "drafts": {
+      "metadata": {
+        "text": "Title: Example services\nDescription: [review required]",
+        "source": "template",
+        "review_required": true
+      },
+      "platform_fix": {
+        "text": "Prepare an evidence-backed fix draft for review.",
+        "source": "template",
+        "review_required": true
+      },
+      "outreach": {
+        "text": "Prepare factual outreach from verified findings.",
+        "source": "template",
+        "review_required": true
+      },
+      "content_expansion": {
+        "text": "Outline services, proof, FAQs, and contact details.",
+        "source": "template",
+        "review_required": true
+      },
+      "bilingual": {
+        "text": "EN: [English draft]\nMI: [te reo Māori review required]",
+        "source": "template",
+        "review_required": true
+      }
+    },
+    "reason": "Local generation not requested"
+  },
+  "proofing": {
+    "metadata": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 3,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "platform_fix": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 3,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "outreach": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 3,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "content_expansion": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 3,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "bilingual": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 3,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    }
+  },
+  "proposal": {
+    "currency": "NZD",
+    "hourly_rate": null,
+    "assumptions": "Versioned effort bands with shared setup for repeated defects and 15% contingency; scope and rates require human review.",
+    "hours_low": 6.0,
+    "hours_high": 17.83,
+    "estimate_low": null,
+    "estimate_high": null,
+    "rules_version": "quote-v1",
+    "review_required": true,
+    "llm_determined_price": false
+  },
+  "action_preview": {
+    "count": 3,
+    "status": "preview",
+    "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002531-e50d434495c2/actions/preview.json"
+  },
+  "coverage": {
+    "version": 1,
+    "required": 14,
+    "passed": 14,
+    "required_checks": [
+      "fetch",
+      "headers",
+      "hreflang",
+      "hygiene",
+      "images",
+      "js_vulnerabilities",
+      "language",
+      "page",
+      "schema",
+      "social_meta",
+      "structured_validation",
+      "technology",
+      "tls",
+      "ux"
+    ],
+    "missing_checks": []
+  },
+  "manifest": {
+    "html": {
+      "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002531-e50d434495c2/report.html",
+      "size": 22089,
+      "sha256": "7fc40468113d3201df67b34543728acaeb3d17cc123dbc177cd95c98ab9d8c92"
+    },
+    "trend": {
+      "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002531-e50d434495c2/trend.svg",
+      "size": 242,
+      "sha256": "2bab86c06df1d6f5ac0a43880a186f7789c3fcfae2f74ab90d2d6e4d0d7f534f"
+    },
+    "actions": {
+      "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002531-e50d434495c2/actions/preview.json",
+      "size": 6043,
+      "sha256": "bc5908ba4a6817bf84cd0df54dc0674bf662cfea46a57f7a98b433022f3bab62"
+    }
+  }
+}

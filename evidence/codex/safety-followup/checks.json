@@ -1,0 +1,28 @@
+{
+  "source_sha": "c50fc9757d156fdce20a975f3ff0f04e98065af8",
+  "checks": [
+    {
+      "command": "ruff check --no-cache auditor_toolkit toolkit_tests tests",
+      "result": "passed"
+    },
+    {
+      "command": "ruff check --no-cache money-machine/runtime_bootstrap.py money-machine/test_runtime_bootstrap.py money-machine/test_router_cost_stop.py money-machine/test_worker_failure_metadata.py",
+      "result": "passed"
+    },
+    {
+      "command": "ruff check --no-cache --ignore N818 money-machine/mm_model_router.py",
+      "result": "passed",
+      "limitation": "Existing PaidRouteRefused exception-name warning N818 retained; no global lint configuration changed."
+    },
+    {
+      "command": "python -B -m pip check",
+      "result": "No broken requirements found."
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ],
+  "initial_focused_suite": "126 passed; followed by final frozen full suites. An additional PID empty-window test and router uncertainty cases are included in the full suites.",
+  "targeted_pid_router_after_additional_tests": "16 passed"
+}

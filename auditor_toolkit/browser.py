@@ -34,7 +34,7 @@ def run_browser_checks(url, output_dir, enabled=True, allow_private=False, axe_p
                 context = browser.new_context(
                     service_workers="block", viewport={"width": 1366, "height": 900}
                 )
-                blocked, failures = [], []
+                blocked, failures, requests = [], [], []
 
                 def guard(route):
                     try:
@@ -46,11 +46,13 @@ def run_browser_checks(url, output_dir, enabled=True, allow_private=False, axe_p
                         blocked.append({"reason": str(exc)})
                         route.abort()
 
+                context.on("request", lambda request: requests.append(request.url) if len(requests) < 1000 else None)
                 context.route("**/*", guard)
                 if hasattr(context, "route_web_socket"):
                     context.route_web_socket("**/*", lambda ws: ws.close())
                 page = context.new_page()
                 page.on("pageerror", lambda error: failures.append(str(error)[:500]))
+                page.on("console", lambda msg: failures.append(msg.text[:500]) if msg.type == "error" else None)
                 page.goto(url, wait_until="domcontentloaded", timeout=20_000)
                 page.wait_for_timeout(700)
                 screenshot = output_dir / "screenshot.png"
@@ -59,6 +61,7 @@ def run_browser_checks(url, output_dir, enabled=True, allow_private=False, axe_p
                     {
                         "screenshot": str(screenshot),
                         "console_errors": failures,
+                        "resource_requests": requests,
                         "blocked_requests": blocked,
                     }
                 )
@@ -104,6 +107,17 @@ def run_browser_checks(url, output_dir, enabled=True, allow_private=False, axe_p
                     'els=>els.slice(0,100).map(x=>({text:x.textContent,href:x.getAttribute("href")}))'
                 )
                 evidence["consent"] = {
+                    "visible_banners": page.locator(
+                        '[role="dialog"], [id*="cookie" i], [class*="cookie" i], '
+                        '[id*="consent" i], [class*="consent" i]'
+                    ).evaluate_all("""els => els.filter(el => {
+                        const r = el.getBoundingClientRect();
+                        const style = getComputedStyle(el);
+                        return r.width > 0 && r.height > 0 && style.visibility !== 'hidden'
+                            && style.display !== 'none' && /cookie|consent|tracking/i.test(el.innerText || '');
+                    }).slice(0,20).map(el => ({controls: [...el.querySelectorAll('button,a,[role=button],input[type=button]')]
+                        .filter(button => {const r=button.getBoundingClientRect(); const s=getComputedStyle(button); return r.width>0 && r.height>0 && s.visibility!=='hidden' && s.display!=='none';})
+                        .slice(0,20).map(button => (button.innerText || button.getAttribute('aria-label') || button.value || '').trim().slice(0,100))}))"""),
                     "interaction": "none",
                     "cookies_before_interaction": [
                         {k: c[k] for k in ("name", "domain", "secure", "httpOnly", "sameSite")}

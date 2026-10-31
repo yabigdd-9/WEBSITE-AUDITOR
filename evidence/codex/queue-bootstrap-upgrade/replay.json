@@ -1,0 +1,20 @@
+{
+  "source_sha": "191d85854cbbfc32e26bad3f189e45370026d191",
+  "runner": "evidence/codex/integration-dfc5dc39/run_validation.py",
+  "runner_sha256": "915217894b3384f94c0dd4914bba9792bacbf0988de369befffe9f1c85cef402",
+  "invocation": "Import runner with importlib, override module.OUTPUT to evidence/codex/queue-bootstrap-upgrade, set argv --expected-sha <source_sha>, invoke main(). Do not overwrite previous accepted receipts.",
+  "python": "/Users/dd/WEBSITE-AUDITOR/.venv-email/bin/python",
+  "synthetic_fixture": "work/codex-r00/money-source-legacy-final/database/money_machine.db",
+  "suite_targets": {
+    "canonical": [
+      "toolkit_tests",
+      "tests"
+    ],
+    "money": [
+      "money-machine",
+      "-m",
+      "not slow"
+    ]
+  },
+  "isolation": "Existing runner scrubs inherited credential variables and sets per-revision scratch root, no-send/no-paid flags and synthetic source fixture."
+}

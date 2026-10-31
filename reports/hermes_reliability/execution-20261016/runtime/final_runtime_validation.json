@@ -1,0 +1,78 @@
+{
+  "identity_set_preserved": true,
+  "job_count": 17,
+  "paused": 9,
+  "enabled": 8,
+  "exact_nine_target_configuration_changes": true,
+  "other_eight_configurations_preserved": true,
+  "all_changed_fields": {
+    "b7f4abec6d0a": [
+      "last_dispatch",
+      "last_run_at",
+      "next_run_at",
+      "repeat"
+    ],
+    "11980f4aabec": [
+      "enabled",
+      "paused_at",
+      "state"
+    ],
+    "3e757e476ace": [
+      "enabled",
+      "paused_at",
+      "state"
+    ],
+    "4a2b4017c296": [
+      "enabled",
+      "paused_at",
+      "state"
+    ],
+    "cd28c5527987": [
+      "enabled",
+      "paused_at",
+      "state"
+    ],
+    "50c7e7837ab2": [
+      "enabled",
+      "paused_at",
+      "state"
+    ],
+    "9cc96a795bc6": [
+      "enabled",
+      "paused_at",
+      "state"
+    ],
+    "22bf57b29534": [
+      "enabled",
+      "paused_at",
+      "state"
+    ],
+    "762f1b3a355e": [
+      "enabled",
+      "paused_at",
+      "state"
+    ],
+    "b7962fff0f6a": [
+      "enabled",
+      "paused_at",
+      "state"
+    ]
+  },
+  "unaffected_job_runtime_progression": {
+    "b7f4abec6d0a": {
+      "name": "ZA system supervisor",
+      "changed_fields": [
+        "last_dispatch",
+        "last_run_at",
+        "next_run_at",
+        "repeat"
+      ],
+      "last_status": "ok",
+      "repeat_completed_before": 196,
+      "repeat_completed_after": 197
+    }
+  },
+  "phase_report_count": 7,
+  "parsed_json_receipts": 11,
+  "status": "PASS"
+}

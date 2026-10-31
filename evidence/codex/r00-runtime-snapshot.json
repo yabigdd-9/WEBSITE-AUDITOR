@@ -1,0 +1,204 @@
+{
+  "captured_at_utc": "2026-10-16T02:45:01.724630+00:00",
+  "databases": {
+    "production": {
+      "path": "/Users/dd/WEBSITE-AUDITOR/database/money_machine.db",
+      "quick_check": [
+        "ok"
+      ],
+      "foreign_key_violations": 0,
+      "model_accounting": [
+        [
+          "blocked",
+          0,
+          0.0
+        ]
+      ],
+      "sent_messages": 0,
+      "outreach_send_ledger_rows": 0,
+      "queue_states": [
+        [
+          "NEEDS_REVIEW",
+          31
+        ],
+        [
+          "REJECTED",
+          327
+        ],
+        [
+          "SUPPRESSED",
+          12
+        ]
+      ]
+    },
+    "existing_staging": {
+      "path": "/Users/dd/WEBSITE-AUDITOR/state/hermes_zero_token/staging/money_machine_staging.db",
+      "quick_check": [
+        "ok"
+      ],
+      "foreign_key_violations": 0,
+      "model_accounting": [],
+      "sent_messages": 0,
+      "outreach_send_ledger_rows": 0,
+      "queue_states": [
+        [
+          "NEEDS_REVIEW",
+          31
+        ],
+        [
+          "REJECTED",
+          327
+        ],
+        [
+          "SUPPRESSED",
+          12
+        ]
+      ]
+    }
+  },
+  "schedules": [
+    {
+      "id": "b7f4abec6d0a",
+      "name": "ZA system supervisor",
+      "enabled": true,
+      "state": "scheduled",
+      "last_status": "ok",
+      "last_run_at": "2026-10-16T15:31:56.336296+13:00"
+    },
+    {
+      "id": "58fa27f2c0fc",
+      "name": "ZA database guard",
+      "enabled": true,
+      "state": "scheduled",
+      "last_status": "ok",
+      "last_run_at": "2026-10-16T15:26:19.865915+13:00"
+    },
+    {
+      "id": "3a7b4d8f0b15",
+      "name": "ZA daily report",
+      "enabled": true,
+      "state": "scheduled",
+      "last_status": "ok",
+      "last_run_at": "2026-10-16T08:00:54.387830+13:00"
+    },
+    {
+      "id": "11980f4aabec",
+      "name": "ZA queue dispatcher",
+      "enabled": false,
+      "state": "paused",
+      "last_status": "error",
+      "last_run_at": "2026-10-16T08:30:58.939522+13:00"
+    },
+    {
+      "id": "3e757e476ace",
+      "name": "ZA identity resolution",
+      "enabled": false,
+      "state": "paused",
+      "last_status": "error",
+      "last_run_at": "2026-10-16T07:36:54.097371+13:00"
+    },
+    {
+      "id": "4a2b4017c296",
+      "name": "ZA site auditor",
+      "enabled": false,
+      "state": "paused",
+      "last_status": "error",
+      "last_run_at": "2026-10-16T06:44:53.909205+13:00"
+    },
+    {
+      "id": "8cb44db4eb5a",
+      "name": "ZA scoring judge",
+      "enabled": true,
+      "state": "scheduled",
+      "last_status": "ok",
+      "last_run_at": "2026-10-16T13:28:57.703035+13:00"
+    },
+    {
+      "id": "449117cb08e4",
+      "name": "ZA evidence proofer",
+      "enabled": true,
+      "state": "scheduled",
+      "last_status": "ok",
+      "last_run_at": "2026-10-16T13:28:57.684179+13:00"
+    },
+    {
+      "id": "cd28c5527987",
+      "name": "ZA discover NZ businesses",
+      "enabled": false,
+      "state": "paused",
+      "last_status": "error",
+      "last_run_at": "2026-10-16T07:36:54.104022+13:00"
+    },
+    {
+      "id": "50c7e7837ab2",
+      "name": "ZA screenshot worker",
+      "enabled": false,
+      "state": "paused",
+      "last_status": "ok",
+      "last_run_at": "2026-10-16T06:28:53.675495+13:00"
+    },
+    {
+      "id": "e5547b756d9a",
+      "name": "ZA tests",
+      "enabled": true,
+      "state": "scheduled",
+      "last_status": "ok",
+      "last_run_at": "2026-10-16T15:32:31.393194+13:00"
+    },
+    {
+      "id": "1a0648e305f1",
+      "name": "ZA git observer",
+      "enabled": true,
+      "state": "scheduled",
+      "last_status": "ok",
+      "last_run_at": "2026-10-16T15:26:19.418480+13:00"
+    },
+    {
+      "id": "9cc96a795bc6",
+      "name": "ZA competitor research",
+      "enabled": false,
+      "state": "paused",
+      "last_status": "error",
+      "last_run_at": "2026-10-15T21:24:52.412342+13:00"
+    },
+    {
+      "id": "22bf57b29534",
+      "name": "ZA demo blueprint",
+      "enabled": false,
+      "state": "paused",
+      "last_status": "ok",
+      "last_run_at": "2026-10-16T05:26:53.551974+13:00"
+    },
+    {
+      "id": "762f1b3a355e",
+      "name": "ZA outreach draft",
+      "enabled": false,
+      "state": "paused",
+      "last_status": "ok",
+      "last_run_at": "2026-10-16T05:26:53.819661+13:00"
+    },
+    {
+      "id": "b7962fff0f6a",
+      "name": "ZA weekly review",
+      "enabled": false,
+      "state": "paused",
+      "last_status": null,
+      "last_run_at": null
+    },
+    {
+      "id": "4c77ec6181a8",
+      "name": "ZA provider monitor",
+      "enabled": true,
+      "state": "scheduled",
+      "last_status": "ok",
+      "last_run_at": "2026-10-16T15:26:16.954534+13:00"
+    }
+  ],
+  "soak": {
+    "state": "blocked",
+    "reason": "RuntimeError: Service/accounting/revision acceptance failed; review required",
+    "updated_at_utc": "2026-10-05T21:51:39.416821+00:00",
+    "source_sha": "b349cd9fb23b6cf9c5a2e8a8c74691158e9cda8f",
+    "active": null
+  }
+}

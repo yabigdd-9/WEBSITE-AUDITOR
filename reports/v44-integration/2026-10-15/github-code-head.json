@@ -1,0 +1,132 @@
+{
+  "headRefOid": "2bd7a12274ea3403329f45d0cc270bffc1fb2033",
+  "isDraft": true,
+  "mergeable": "MERGEABLE",
+  "state": "OPEN",
+  "statusCheckRollup": [
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-14T18:42:05Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/yabigdd-9/WEBSITE-AUDITOR/actions/runs/38617331137/job/116035673484",
+      "name": "test",
+      "startedAt": "2026-10-14T18:41:51Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-14T18:43:10Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/yabigdd-9/WEBSITE-AUDITOR/actions/runs/38617330949/job/116035671091",
+      "name": "fixtures",
+      "startedAt": "2026-10-14T18:41:51Z",
+      "status": "COMPLETED",
+      "workflowName": "Local toolkit tests"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-14T18:44:06Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/yabigdd-9/WEBSITE-AUDITOR/actions/runs/38617330916/job/116035669947",
+      "name": "SonarCloud analysis",
+      "startedAt": "2026-10-14T18:41:50Z",
+      "status": "COMPLETED",
+      "workflowName": "SonarCloud"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-14T18:42:00Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/yabigdd-9/WEBSITE-AUDITOR/actions/runs/38617330969/job/116035670311",
+      "name": "Secret scanning (gitleaks)",
+      "startedAt": "2026-10-14T18:41:50Z",
+      "status": "COMPLETED",
+      "workflowName": "security"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-14T18:42:00Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/yabigdd-9/WEBSITE-AUDITOR/actions/runs/38617323172/job/116035644133",
+      "name": "Secret scanning (gitleaks)",
+      "startedAt": "2026-10-14T18:41:48Z",
+      "status": "COMPLETED",
+      "workflowName": "security"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-14T18:42:38Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/yabigdd-9/WEBSITE-AUDITOR/actions/runs/38617331137/job/116035672799",
+      "name": "Full Python regression",
+      "startedAt": "2026-10-14T18:41:51Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-14T18:42:22Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/yabigdd-9/WEBSITE-AUDITOR/actions/runs/38617330969/job/116035670906",
+      "name": "Dependency audit (pip-audit)",
+      "startedAt": "2026-10-14T18:41:51Z",
+      "status": "COMPLETED",
+      "workflowName": "security"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-14T18:42:23Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/yabigdd-9/WEBSITE-AUDITOR/actions/runs/38617323172/job/116035644214",
+      "name": "Dependency audit (pip-audit)",
+      "startedAt": "2026-10-14T18:41:47Z",
+      "status": "COMPLETED",
+      "workflowName": "security"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-14T18:42:25Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/yabigdd-9/WEBSITE-AUDITOR/actions/runs/38617331137/job/116035815384",
+      "name": "smoke-test",
+      "startedAt": "2026-10-14T18:42:08Z",
+      "status": "COMPLETED",
+      "workflowName": "CI"
+    },
+    {
+      "__typename": "StatusContext",
+      "context": "CodeRabbit",
+      "startedAt": "2026-10-14T18:41:53Z",
+      "state": "SUCCESS",
+      "targetUrl": ""
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-14T18:43:58Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://sonarcloud.io/dashboard?id=yabigdd-9_website-auditor&pullRequest=52",
+      "name": "SonarCloud Code Analysis",
+      "startedAt": "2026-10-14T18:43:07Z",
+      "status": "COMPLETED",
+      "workflowName": ""
+    },
+    {
+      "__typename": "StatusContext",
+      "context": "Vercel",
+      "startedAt": "2026-10-14T18:41:51Z",
+      "state": "SUCCESS",
+      "targetUrl": "https://vercel.com/yabigdd-1427s-projects/website_auditor/2X21M49VJE1T87ozr9wC15X1yESE"
+    },
+    {
+      "__typename": "CheckRun",
+      "completedAt": "2026-10-14T18:41:53Z",
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://vercel.com/github",
+      "name": "Vercel Preview Comments",
+      "startedAt": "2026-10-14T18:41:53Z",
+      "status": "COMPLETED",
+      "workflowName": ""
+    }
+  ]
+}

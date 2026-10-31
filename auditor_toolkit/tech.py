@@ -9,11 +9,9 @@ from typing import Any, List, Optional
 
 from bs4 import BeautifulSoup
 
-from auditor_toolkit.checks import Finding
-
 
 @dataclass
-class Technology:
+class DetectedTechnology:
     technology: str
     category: str
     version: Optional[str] = None
@@ -22,8 +20,15 @@ class Technology:
     confidence: float = 0.0
 
 
+Technology = DetectedTechnology
+
+
 def detect_technology(html: str, url: str, headers: dict) -> List[Technology]:
-    """Detect technologies used by the website."""
+    """Detect technologies from HTML and headers.
+
+    The url parameter is retained for legacy positional and keyword call
+    compatibility; detection uses only HTML and headers.
+    """
     soup = BeautifulSoup(html, "html.parser")
     technologies = [
         technology
@@ -135,15 +140,7 @@ def _detect_analytics(soup: BeautifulSoup) -> Technology | None:
     return None
 
 
-def analyse_html(html: str, url: str, headers: dict) -> tuple[List[Finding], dict[str, Any]]:
-    """Analyse HTML for technology findings."""
+def analyse_html(html: str, url: str, headers: dict) -> tuple[List[Any], dict[str, Any]]:
+    """Record detected technologies as evidence, not as defects."""
     techs = detect_technology(html, url, headers)
-    findings = []
-    for tech in techs:
-        if tech.technology:
-            findings.append(
-                Finding(
-                    defect_key=f"technology_{tech.technology.lower().replace(' ', '_')}",
-                )
-            )
-    return findings, {"technologies": [t.__dict__ for t in techs]}
+    return [], {"technologies": [t.__dict__ for t in techs]}

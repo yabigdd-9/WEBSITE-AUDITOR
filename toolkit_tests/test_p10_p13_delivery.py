@@ -102,6 +102,10 @@ def test_p11_demo_and_p13_packet_never_claim_live_change_or_send(tmp_path):
     assert demo["external_deploy"] is False
     html = Path(demo["demo_html"]).read_text()
     assert "LOCAL CONCEPT ONLY" in html
+    assert "local demonstration" in html.lower()
+    assert "nothing is sent" in html.lower()
+    assert "connect-src 'none'" in html
+    assert "form-action 'none'" in html
     assert "Nothing on the source website has been changed" in html
 
     packet = build_packet(r, remediation, demo, quote, tmp_path / "packet")

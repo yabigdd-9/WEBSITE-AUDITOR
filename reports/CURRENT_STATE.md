@@ -1,5 +1,7 @@
 # WEBSITES/BUISNESSaudits — current state
 
+> **HISTORICAL SNAPSHOT — SUPERSEDED.** This file records an older execution state and is retained only as evidence. For the current v44 release status, use the repository-root `CURRENT_STATE.md`.
+
 Internal repairs and two evidence-backed packets are ready for owner review. Outreach remains blocked. This is not evidence of revenue, delivery, or successful Hermes inference.
 
 Authoritative repository: https://github.com/yabigdd-9/HERMES_MONEY_ENGINE. Canonical local checkout: `/Users/yabigdd/HERMES_MONEY_ENGINE`. The isolated build under this task's `work/` is a test checkout, not a second operator root. Baseline master HEAD: `08441a8c56f7de51b73feabc053af16cb1065b9a`.

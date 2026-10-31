@@ -1,0 +1,38 @@
+{
+ "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+ "fixture_sha256": "2c74cbbb66cfbdc0d5e2e6ac164c90541b6e2180b0e0edc7e1d37219ffa0f66d",
+ "scope": "javascript-application",
+ "prediction_author": "wa-static-profile (deterministic, no model)",
+ "observations": [
+  {
+   "rule": "header-content-security-policy",
+   "url": "https://greaterconstruction.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "structured_data_missing_type",
+   "url": "https://greaterconstruction.co.nz/",
+   "location": "Search engines may ignore or misinterpret the structured data."
+  },
+  {
+   "rule": "images-missing-dimensions",
+   "url": "https://greaterconstruction.co.nz/",
+   "location": "Space reservation needs rendered review; CSS or a sized container may already prevent layout shift"
+  },
+  {
+   "rule": "images-external-hosting",
+   "url": "https://greaterconstruction.co.nz/",
+   "location": "Third-party image dependency"
+  },
+  {
+   "rule": "social-meta-og-image",
+   "url": "https://greaterconstruction.co.nz/",
+   "location": "No Open Graph image for social sharing"
+  },
+  {
+   "rule": "social-meta-twitter-handle",
+   "url": "https://greaterconstruction.co.nz/",
+   "location": "No twitter:site or twitter:creator declared"
+  }
+ ]
+}

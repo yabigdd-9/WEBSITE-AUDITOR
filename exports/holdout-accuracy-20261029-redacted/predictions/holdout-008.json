@@ -1,0 +1,273 @@
+{
+ "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+ "fixture_sha256": "231c698fe8b885768afdaac60cfda85d3498afa92a163e072707c54e867610b2",
+ "scope": "brochure-service",
+ "prediction_author": "wa-static-profile (deterministic, no model)",
+ "observations": [
+  {
+   "rule": "missing_canonical_url",
+   "url": "https://www.northeastvalley.org/",
+   "location": "head > link[rel=\"canonical\"]"
+  },
+  {
+   "rule": "schema_missing",
+   "url": "https://www.northeastvalley.org/",
+   "location": "script[type=\"application/ld+json\"]"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(1)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(2)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(3)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(8)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(9)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(10)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(11)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(12)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(13)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(14)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(15)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(17)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(18)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(19)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(20)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(21)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(22)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(23)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(24)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(25)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(26)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(27)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(28)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(29)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(30)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(31)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(32)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(33)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(34)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(35)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(36)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(37)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(38)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(39)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(40)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(41)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(42)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(43)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(44)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(45)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(46)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(47)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(48)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "img:nth-of-type(49)"
+  },
+  {
+   "rule": "header-content-security-policy",
+   "url": "https://www.northeastvalley.org/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "header-x-content-type-options",
+   "url": "https://www.northeastvalley.org/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "images-missing-alt",
+   "url": "https://www.northeastvalley.org/",
+   "location": "Screen readers cannot describe images; accessibility and SEO suffer"
+  },
+  {
+   "rule": "images-missing-dimensions",
+   "url": "https://www.northeastvalley.org/",
+   "location": "Space reservation needs rendered review; CSS or a sized container may already prevent layout shift"
+  },
+  {
+   "rule": "images-external-hosting",
+   "url": "https://www.northeastvalley.org/",
+   "location": "Third-party image dependency"
+  },
+  {
+   "rule": "social-meta-twitter-card",
+   "url": "https://www.northeastvalley.org/",
+   "location": "No twitter:card declared"
+  },
+  {
+   "rule": "social-meta-twitter-handle",
+   "url": "https://www.northeastvalley.org/",
+   "location": "No twitter:site or twitter:creator declared"
+  }
+ ]
+}
