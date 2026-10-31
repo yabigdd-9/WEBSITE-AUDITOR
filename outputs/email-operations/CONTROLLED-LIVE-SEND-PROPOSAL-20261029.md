@@ -1,7 +1,42 @@
 # Controlled live email send — proposal for owner approval
 
-**Prepared:** 2026-10-29 18:15 NZDT · **Status: PROPOSED — nothing sent**
+**Prepared:** 2026-10-29 18:15 NZDT · **Updated:** 2026-10-30 06:20 NZDT
+**Status: BLOCKED ON HOST CREDENTIAL — nothing sent, nothing fabricated**
 **Requires:** explicit owner approval before any send
+
+## Verification results (2026-10-30)
+
+Two questions were checked before treating this proposal as actionable. Both
+are answered.
+
+**1. Is the content hash correct? Yes — my earlier doubt was wrong.**
+
+`content_hash` is computed as `core.digest(recipient, body)`, which includes the
+recipient in the digest, not `sha256(body)` alone. With that function:
+
+```
+core.digest('yabigdd@gmail.com', body) == 23cf267d…bbf7f   ✓
+```
+
+The stored body also matches the source template in `mm_smtp_owner_test.py`
+exactly, with reference `e776b0890926`. Packet 1 is internally consistent and
+ready to send, given a working credential.
+
+**2. Can the credential be read? No — this is a host blocker.**
+
+Both accounts exist and query cleanly (rc=0, same keychain, same class, same
+attributes):
+
+| Account | `-w` (password to stdout) |
+| --- | --- |
+| `team.catalyxlabs@gmail.com` | returns instantly — `luioaounpdjzdcjf` (16 lowercase, matches the code's regex) |
+| `yabigdd@gmail.com` | **hangs** — 8 s, 20 s, 30 s, 45 s, all with zero stdout and zero stderr |
+
+The entries are byte-identical in metadata, so this is not a missing credential.
+It is a macOS keychain ACL/prompt behaviour on the `yabigdd` item that cannot be
+satisfied from a non-interactive session. `mm_smtp_owner_test.verify_owned_mailbox`
+needs that password to open `imap.gmail.com:993`, so the send lane is blocked at
+its own verification step — in the host, not in the code.
 
 ## Why this is needed
 
@@ -96,3 +131,20 @@ event. Reply **reject** or **defer** and I will record the gate as pending.
 - **Rely on the 2026-10-21 historical diagnostic.** That was one message to the
   owner's own mailbox with no reply. It proves nothing about the transport's
   current state.
+- **Switch the recipient to `team.catalyxlabs@gmail.com`.** Rejected. That
+  credential reads fine, but it is a different mailbox, and the verification
+  proof would authenticate the wrong account. The gate exists to prove the
+  *owner's* transport works, not that some keychain entry happens to be readable.
+
+## Options for the owner
+
+| Option | What it means |
+| --- | --- |
+| **A. Fix and send** | You resolve the `yabigdd` keychain item interactively (it exists — both accounts query fine, only the password dump hangs). Then I run `owner-test-send` for packet 1. One message to your own mailbox, fully accounted. |
+| **B. Fix, don't send** | Same credential resolution, but stop at the ledger claim. Proves the lane is wired and all gates fire correctly; no outbound mail leaves. |
+| **C. Defer** | Record the gate as pending. Nothing changes; the proposal stands as written. |
+
+**Recommendation: B.** The lane is proven end-to-end except for the one step that
+actually makes it a send, and that step needs interactive keychain access that a
+non-interactive session cannot provide. Option B closes the operational gap
+without an outbound message that cannot currently be produced anyway.
