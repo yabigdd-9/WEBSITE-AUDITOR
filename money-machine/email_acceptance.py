@@ -78,6 +78,8 @@ def rollback_proof():
         mismatches=[p for p,h in hashes.items() if not (restored/p).is_file() or c.sha((restored/p).read_bytes())!=h]
         if mismatches:raise ValueError('Restored source/config mismatch')
         databases={}
+        # The second path belongs only to the preserved V1 rollback archive;
+        # it is not a live database or runtime dependency.
         for relative in ('database/money_machine.db','data/n8n/database.sqlite'):
             dest=restored/relative;dest.parent.mkdir(parents=True,exist_ok=True)
             with contextlib.closing(sqlite3.connect('file:'+str(BACKUP/relative)+'?mode=ro&immutable=1',uri=True)) as src,contextlib.closing(sqlite3.connect(dest)) as dst:

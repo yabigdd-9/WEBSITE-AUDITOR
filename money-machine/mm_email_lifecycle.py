@@ -127,10 +127,10 @@ def create_intent(
     content_hash = core.digest(message["recipient"], message["body"])
     approval = _row(
         db,
-        "SELECT id,content_hash FROM approval_records WHERE business_id=? AND status='APPROVED' ORDER BY id DESC LIMIT 1",
+        "SELECT id,status,content_hash FROM approval_records WHERE business_id=? ORDER BY id DESC LIMIT 1",
         (message["business_id"],),
     )
-    if not approval or approval["content_hash"] != content_hash:
+    if not approval or approval['status'] != 'APPROVED' or approval["content_hash"] != content_hash:
         raise ValueError("exact human approval required")
     reason = _suppression_reason(db, message["business_id"], message["recipient"])
     if reason:
@@ -252,7 +252,7 @@ def reconstruct(db: sqlite3.Connection, message_id: int, *, event_store=None) ->
         raise ValueError("message not found")
     approval = _row(
         db,
-        "SELECT * FROM approval_records WHERE business_id=? AND status='APPROVED' ORDER BY id DESC LIMIT 1",
+        "SELECT * FROM approval_records WHERE business_id=? ORDER BY id DESC LIMIT 1",
         (message["business_id"],),
     )
     intents = db.execute(

@@ -1,0 +1,8 @@
+Observed 16 October 2026, Pacific/Auckland, after nine supported pause operations.
+Command: rtk proxy hermes cron doctor
+Exit code: 0
+Output:
+✓ Cron doctor found no issues
+  Checked 8 active job(s).
+
+Scope: configured active job health checks, not worker execution, provider readiness or a sustained soak.

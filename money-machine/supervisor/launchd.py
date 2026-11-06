@@ -23,8 +23,13 @@ PLIST_PATH = Path.home() / "Library" / "LaunchAgents" / (LABEL + ".plist")
 def python_path() -> Path:
     configured = os.environ.get("MM_PYTHON", "").strip()
     if configured:
-        return Path(configured).expanduser().resolve()
-    return (REPO_ROOT / ".venv-email" / "bin" / "python").resolve()
+        candidate = Path(configured).expanduser()
+        return candidate if candidate.is_absolute() else REPO_ROOT / candidate
+    preferred = REPO_ROOT / ".venv-email" / "bin" / "python"
+    fallback = REPO_ROOT / ".venv" / "bin" / "python"
+    # Keep the venv entry-point path intact. Resolving its symlink to the base
+    # interpreter bypasses pyvenv.cfg and launches without the venv packages.
+    return preferred if preferred.is_file() else fallback
 
 
 def plist_payload(sleep: float = 5, lease: int = 300, rotate_every: int = 60) -> dict:
@@ -50,7 +55,7 @@ def plist_payload(sleep: float = 5, lease: int = 300, rotate_every: int = 60) ->
         "EnvironmentVariables": {
             "MM_ROOT": str(REPO_ROOT),
             "MM_EXTERNAL_SEND_DISABLED": "1",
-            "PATH": "/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin",
+            "PATH": str(Path.home() / ".local/bin") + ":/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin",
         },
         "StandardOutPath": str(STATE_DIR / "launchd-supervisor.stdout.log"),
         "StandardErrorPath": str(STATE_DIR / "launchd-supervisor.stderr.log"),
@@ -155,7 +160,8 @@ def main(argv=None) -> int:
             rotate_every=args.rotate_every,
         )
         print(result)
-        return 0 if result.get("installed") else 2
+        ok = bool(result.get("installed")) and (args.no_load or bool(result.get("loaded")))
+        return 0 if ok else 2
     if args.cmd == "status":
         print(status())
         return 0

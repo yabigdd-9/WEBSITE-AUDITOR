@@ -1,0 +1,16 @@
+{
+  "/Users/dd/WEBSITE-AUDITOR/database/money_machine.db": {
+    "quick_check": [
+      "ok"
+    ],
+    "fk_violation_count": 0,
+    "file_mode": "0o600"
+  },
+  "/Users/dd/WEBSITE-AUDITOR/state/hermes_zero_token/staging/money_machine_staging.db": {
+    "quick_check": [
+      "ok"
+    ],
+    "fk_violation_count": 0,
+    "file_mode": "0o600"
+  }
+}

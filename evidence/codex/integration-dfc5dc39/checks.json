@@ -1,0 +1,77 @@
+[
+  {
+    "at_utc": "2026-10-16T07:46:59.946785+00:00",
+    "command": [
+      "/Users/dd/WEBSITE-AUDITOR/.venv/bin/ruff",
+      "check",
+      "--no-cache",
+      "auditor_toolkit",
+      "toolkit_tests",
+      "tests"
+    ],
+    "exit_code": 0,
+    "stdout": "All checks passed!\n",
+    "stderr": ""
+  },
+  {
+    "at_utc": "2026-10-16T07:46:59.991656+00:00",
+    "command": [
+      "/Users/dd/WEBSITE-AUDITOR/.venv/bin/ruff",
+      "check",
+      "--no-cache",
+      "/Users/dd/WEBSITE-AUDITOR-codex/evidence/codex/integration-dfc5dc39/run_validation.py",
+      "/Users/dd/WEBSITE-AUDITOR-codex/evidence/codex/integration-dfc5dc39/legacy_smoke.py"
+    ],
+    "exit_code": 0,
+    "stdout": "All checks passed!\n",
+    "stderr": ""
+  },
+  {
+    "at_utc": "2026-10-16T07:47:04.411849+00:00",
+    "command": [
+      "/Users/dd/WEBSITE-AUDITOR/.venv-email/bin/python",
+      "-B",
+      "-m",
+      "pip",
+      "check"
+    ],
+    "exit_code": 0,
+    "stdout": "No broken requirements found.\n",
+    "stderr": ""
+  },
+  {
+    "at_utc": "2026-10-16T07:47:04.546605+00:00",
+    "command": [
+      "git",
+      "diff",
+      "--exit-code",
+      "d0459d83",
+      "HEAD",
+      "--",
+      "pyproject.toml",
+      "requirements*",
+      "database",
+      "money-machine/*.sql",
+      ".github/workflows"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "at_utc": "2026-10-16T07:47:04.623378+00:00",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "d0459d83",
+      "--",
+      "*.py",
+      "*.md",
+      "*.json"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

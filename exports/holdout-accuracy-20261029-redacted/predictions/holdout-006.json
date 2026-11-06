@@ -1,0 +1,33 @@
+{
+ "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+ "fixture_sha256": "3d3135f066b2934cdbe280d21bc4c062e24a305311ff4ec020d748e57315470e",
+ "scope": "brochure-service",
+ "prediction_author": "wa-static-profile (deterministic, no model)",
+ "observations": [
+  {
+   "rule": "header-content-security-policy",
+   "url": "https://emen.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "header-x-content-type-options",
+   "url": "https://emen.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "header-hsts",
+   "url": "https://emen.co.nz/",
+   "location": "Review HTTPS deployment"
+  },
+  {
+   "rule": "structured_data_missing_type",
+   "url": "https://emen.co.nz/",
+   "location": "Search engines may ignore or misinterpret the structured data."
+  },
+  {
+   "rule": "social-meta-twitter-handle",
+   "url": "https://emen.co.nz/",
+   "location": "No twitter:site or twitter:creator declared"
+  }
+ ]
+}

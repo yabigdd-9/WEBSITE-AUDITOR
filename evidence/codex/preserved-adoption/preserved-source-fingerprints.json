@@ -1,0 +1,9 @@
+{
+  "base_sha": "e68873c509431f7132c754e2aeaee99fc9eb858e",
+  "overlay_sha256": {
+    "auditor_toolkit/models.py": "0c2aac977e6bef6cbf2222dc7a7fbb5074ea6a5d2a70649154e69dc56f72bca7",
+    "money-machine/mm_email_network.py": "6e83cd95d37f15a6daed72ed2ab022e327b87b38bde054551231966850cd464a"
+  },
+  "source": "Read-only copy of two preserved shared application changes; no original files edited.",
+  "ownership": "Unassigned preserved source changes; review only, not an implementation assignment."
+}

@@ -1,0 +1,53 @@
+{
+ "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+ "fixture_sha256": "f365610337f5b8e3e44752f43f1fb49240793e573080b226c1eadb36e0fe6f60",
+ "scope": "javascript-application",
+ "prediction_author": "wa-static-profile (deterministic, no model)",
+ "observations": [
+  {
+   "rule": "image-alt",
+   "url": "https://tgc.nz/",
+   "location": "img:nth-of-type(1)"
+  },
+  {
+   "rule": "header-content-security-policy",
+   "url": "https://tgc.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "structured_data_missing_type",
+   "url": "https://tgc.nz/",
+   "location": "Search engines may ignore or misinterpret the structured data."
+  },
+  {
+   "rule": "images-missing-alt",
+   "url": "https://tgc.nz/",
+   "location": "Screen readers cannot describe images; accessibility and SEO suffer"
+  },
+  {
+   "rule": "images-missing-dimensions",
+   "url": "https://tgc.nz/",
+   "location": "Space reservation needs rendered review; CSS or a sized container may already prevent layout shift"
+  },
+  {
+   "rule": "images-external-hosting",
+   "url": "https://tgc.nz/",
+   "location": "Third-party image dependency"
+  },
+  {
+   "rule": "social-meta-og-image",
+   "url": "https://tgc.nz/",
+   "location": "No Open Graph image for social sharing"
+  },
+  {
+   "rule": "social-meta-twitter-handle",
+   "url": "https://tgc.nz/",
+   "location": "No twitter:site or twitter:creator declared"
+  },
+  {
+   "rule": "robots-no-sitemap",
+   "url": "https://tgc.nz/",
+   "location": "Sitemap undiscoverable"
+  }
+ ]
+}

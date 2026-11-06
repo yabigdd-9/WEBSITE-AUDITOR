@@ -1,0 +1,4 @@
+{
+  "at_utc": "2026-10-16T06:23:21.150702+00:00",
+  "reason": "Prior final log was from an aborted test started before failed fixture construction completed. The XML/receipt retained at that time came from the preceding migrated-fixture run. They are not a coherent successful run and must not be used as final acceptance."
+}

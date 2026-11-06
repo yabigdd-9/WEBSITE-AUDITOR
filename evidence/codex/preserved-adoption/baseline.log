@@ -1,0 +1,93 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_static_check_keeps_evidence_limitations_in_serialized_definition[hygiene] _
+
+check_id = 'hygiene'
+
+    @pytest.mark.parametrize("check_id", ["hygiene", "links"])
+    def test_static_check_keeps_evidence_limitations_in_serialized_definition(check_id):
+        definition = asdict(REGISTRY[check_id])
+        assert definition["mode"] == "static"
+        assert definition["evidence_required"] is True
+>       assert definition["limitation"].strip()
+E       AssertionError: assert ''
+E        +  where '' = <built-in method strip of str object at 0x10e39c798>()
+E        +    where <built-in method strip of str object at 0x10e39c798> = ''.strip
+
+toolkit_tests/test_registry_integrity.py:14: AssertionError
+_ test_static_check_keeps_evidence_limitations_in_serialized_definition[links] _
+
+check_id = 'links'
+
+    @pytest.mark.parametrize("check_id", ["hygiene", "links"])
+    def test_static_check_keeps_evidence_limitations_in_serialized_definition(check_id):
+        definition = asdict(REGISTRY[check_id])
+        assert definition["mode"] == "static"
+        assert definition["evidence_required"] is True
+>       assert definition["limitation"].strip()
+E       AssertionError: assert ''
+E        +  where '' = <built-in method strip of str object at 0x10e39c798>()
+E        +    where <built-in method strip of str object at 0x10e39c798> = ''.strip
+
+toolkit_tests/test_registry_integrity.py:14: AssertionError
+_______ test_adapter_imports_idempotently_from_unrelated_directory[spec] _______
+
+tmp_path = PosixPath('/private/var/folders/vq/3rn4742n6gdfq_b1zqm73gj00000gn/T/pytest-of-dd/pytest-925/test_adapter_imports_idempoten0')
+entry_point = 'spec'
+
+    @pytest.mark.parametrize("entry_point", ["spec", "runpy"])
+    def test_adapter_imports_idempotently_from_unrelated_directory(tmp_path, entry_point):
+        environment = {key: value for key, value in os.environ.items()
+                       if not any(word in key.upper() for word in
+                                  ("KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL"))}
+        environment.update(MM_ROOT=str(tmp_path), MM_EXTERNAL_SEND_DISABLED="1")
+        result = subprocess.run([sys.executable, "-I", "-B", "-c", PROBE,
+                                 str(ROOT), str(ADAPTER), entry_point], cwd=tmp_path,
+                                env=environment, capture_output=True, text=True, timeout=30)
+>       assert result.returncode == 0, result.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "<string>", line 16, in <module>
+E           File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+E           File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+E           File "/Users/dd/WEBSITE-AUDITOR-codex/work/codex-r00/adoption-e68873c5/baseline/money-machine/mm_email_network.py", line 13, in <module>
+E             from email_baseline_capture import clean_url, get_public, CONTACT_PATHS
+E         ModuleNotFoundError: No module named 'email_baseline_capture'
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/Users/dd/WEBSITE-AUDITOR/.venv-email/bin/python', '-I', '-B', '-c', '\nimport importlib.util,...apture import clean_url, get_public, CONTACT_PATHS\nModuleNotFoundError: No module named \'email_baseline_capture\'\n').returncode
+
+money-machine/test_email_network_imports.py:47: AssertionError
+______ test_adapter_imports_idempotently_from_unrelated_directory[runpy] _______
+
+tmp_path = PosixPath('/private/var/folders/vq/3rn4742n6gdfq_b1zqm73gj00000gn/T/pytest-of-dd/pytest-925/test_adapter_imports_idempoten1')
+entry_point = 'runpy'
+
+    @pytest.mark.parametrize("entry_point", ["spec", "runpy"])
+    def test_adapter_imports_idempotently_from_unrelated_directory(tmp_path, entry_point):
+        environment = {key: value for key, value in os.environ.items()
+                       if not any(word in key.upper() for word in
+                                  ("KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL"))}
+        environment.update(MM_ROOT=str(tmp_path), MM_EXTERNAL_SEND_DISABLED="1")
+        result = subprocess.run([sys.executable, "-I", "-B", "-c", PROBE,
+                                 str(ROOT), str(ADAPTER), entry_point], cwd=tmp_path,
+                                env=environment, capture_output=True, text=True, timeout=30)
+>       assert result.returncode == 0, result.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "<string>", line 19, in <module>
+E           File "<frozen runpy>", line 291, in run_path
+E           File "<frozen runpy>", line 98, in _run_module_code
+E           File "<frozen runpy>", line 88, in _run_code
+E           File "/Users/dd/WEBSITE-AUDITOR-codex/work/codex-r00/adoption-e68873c5/baseline/money-machine/mm_email_network.py", line 13, in <module>
+E             from email_baseline_capture import clean_url, get_public, CONTACT_PATHS
+E         ModuleNotFoundError: No module named 'email_baseline_capture'
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/Users/dd/WEBSITE-AUDITOR/.venv-email/bin/python', '-I', '-B', '-c', '\nimport importlib.util,...apture import clean_url, get_public, CONTACT_PATHS\nModuleNotFoundError: No module named \'email_baseline_capture\'\n').returncode
+
+money-machine/test_email_network_imports.py:47: AssertionError
+=========================== short test summary info ============================
+FAILED toolkit_tests/test_registry_integrity.py::test_static_check_keeps_evidence_limitations_in_serialized_definition[hygiene]
+FAILED toolkit_tests/test_registry_integrity.py::test_static_check_keeps_evidence_limitations_in_serialized_definition[links]
+FAILED money-machine/test_email_network_imports.py::test_adapter_imports_idempotently_from_unrelated_directory[spec]
+FAILED money-machine/test_email_network_imports.py::test_adapter_imports_idempotently_from_unrelated_directory[runpy]
+4 failed in 1.25s

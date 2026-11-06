@@ -18,7 +18,5 @@ services:
     command: server /data
   reacher:
     image: reacherhq/check-if-email-exists
-  n8n:
-    image: n8nio/n8n
 volumes:
   redis-data: {}

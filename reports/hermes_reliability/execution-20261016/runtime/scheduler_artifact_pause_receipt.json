@@ -1,0 +1,63 @@
+{
+  "started_at": "2026-10-15T19:54:17.070970+00:00",
+  "snapshot": "/Users/dd/WEBSITE-AUDITOR/state/hermes_recovery/20261016/hermes_cron_jobs_before_artifact_pause.json",
+  "snapshot_sha256": "7b398f8104e383ea692664e95e24cc44ed07d23faed0952837248d667fa530a6",
+  "snapshot_mode": "0o600",
+  "action": "Pause exact verified affected jobs through supported Hermes CLI",
+  "activation": false,
+  "deletion": false,
+  "jobs": [
+    {
+      "id": "50c7e7837ab2",
+      "script": "/Users/dd/.hermes/scripts/za_screenshot_worker.sh",
+      "name": "ZA screenshot worker",
+      "returncode": 0,
+      "cli_output": "Paused job: ZA screenshot worker (50c7e7837ab2)",
+      "rollback_command": "rtk proxy hermes cron resume 50c7e7837ab2"
+    },
+    {
+      "id": "22bf57b29534",
+      "script": "/Users/dd/.hermes/scripts/za_demo_blueprint.sh",
+      "name": "ZA demo blueprint",
+      "returncode": 0,
+      "cli_output": "Paused job: ZA demo blueprint (22bf57b29534)",
+      "rollback_command": "rtk proxy hermes cron resume 22bf57b29534"
+    },
+    {
+      "id": "762f1b3a355e",
+      "script": "/Users/dd/.hermes/scripts/za_outreach_draft.sh",
+      "name": "ZA outreach draft",
+      "returncode": 0,
+      "cli_output": "Paused job: ZA outreach draft (762f1b3a355e)",
+      "rollback_command": "rtk proxy hermes cron resume 762f1b3a355e"
+    }
+  ],
+  "completed_at": "2026-10-15T19:54:40.942042+00:00",
+  "jobs_after_sha256": "88185f48dada05e54715981a059fab52f5037990ca89e960fbba1cc9a5155982",
+  "job_count_before": 17,
+  "job_count_after": 17,
+  "job_identity_set_preserved": true,
+  "changed_job_fields": {
+    "50c7e7837ab2": [
+      "enabled",
+      "paused_at",
+      "state"
+    ],
+    "22bf57b29534": [
+      "enabled",
+      "paused_at",
+      "state"
+    ],
+    "762f1b3a355e": [
+      "enabled",
+      "paused_at",
+      "state"
+    ]
+  },
+  "exact_target_changes_only": true,
+  "all_targets_paused": true,
+  "other_enabled_jobs_unchanged": true,
+  "remaining_enabled_count": 8,
+  "rollback_policy": "Resume exact IDs only after resolving worker gates. Never overwrite live jobs.json from snapshot.",
+  "status": "PASS"
+}

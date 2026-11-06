@@ -1,0 +1,203 @@
+{
+  "scope": "Current-source contextual inspection only; no key values, provider validation, ownership or restriction attestation",
+  "items": [
+    {
+      "triage_id": "triage-007",
+      "path": "skills/code-security/rules/secrets.md",
+      "present": false,
+      "current_sha256": null,
+      "google_embeds": [],
+      "hidden_fields": []
+    },
+    {
+      "triage_id": "triage-044",
+      "path": "money-machine/fixtures/email_captures/11-1.html",
+      "present": true,
+      "current_sha256": "9ebe77912cf36f6c933b6d3d3eb03f3ca972976d773cfb2b2162ee6ef8f3be9f",
+      "google_embeds": [
+        {
+          "tag": "iframe",
+          "host": "www.google.com",
+          "path": "/maps/embed/v1/place",
+          "query_parameter_names": [
+            "key",
+            "language",
+            "maptype",
+            "q",
+            "zoom"
+          ]
+        },
+        {
+          "tag": "script",
+          "host": "www.google.com",
+          "path": "/recaptcha/api.js",
+          "query_parameter_names": [
+            "hl",
+            "onload",
+            "render",
+            "ver"
+          ]
+        }
+      ],
+      "hidden_fields": []
+    },
+    {
+      "triage_id": "triage-047",
+      "path": "money-machine/fixtures/email_captures/13-2.html",
+      "present": true,
+      "current_sha256": "2431894a51954d22f0453a638341286db72a6d5dffc5d5cc7da94a65fca6bb91",
+      "google_embeds": [],
+      "hidden_fields": []
+    },
+    {
+      "triage_id": "triage-049",
+      "path": "money-machine/fixtures/email_captures/13-2.html",
+      "present": true,
+      "current_sha256": "2431894a51954d22f0453a638341286db72a6d5dffc5d5cc7da94a65fca6bb91",
+      "google_embeds": [],
+      "hidden_fields": []
+    },
+    {
+      "triage_id": "triage-050",
+      "path": "money-machine/fixtures/email_captures/13-2.html",
+      "present": true,
+      "current_sha256": "2431894a51954d22f0453a638341286db72a6d5dffc5d5cc7da94a65fca6bb91",
+      "google_embeds": [],
+      "hidden_fields": []
+    },
+    {
+      "triage_id": "triage-058",
+      "path": "money-machine/fixtures/email_captures/13-1.html",
+      "present": true,
+      "current_sha256": "a190dcd83a12f6084fa368dcbec04ce718b6cd19e5daff6d08e6d67da03ef213",
+      "google_embeds": [],
+      "hidden_fields": []
+    },
+    {
+      "triage_id": "triage-060",
+      "path": "money-machine/fixtures/email_captures/13-1.html",
+      "present": true,
+      "current_sha256": "a190dcd83a12f6084fa368dcbec04ce718b6cd19e5daff6d08e6d67da03ef213",
+      "google_embeds": [],
+      "hidden_fields": []
+    },
+    {
+      "triage_id": "triage-061",
+      "path": "money-machine/fixtures/email_captures/13-1.html",
+      "present": true,
+      "current_sha256": "a190dcd83a12f6084fa368dcbec04ce718b6cd19e5daff6d08e6d67da03ef213",
+      "google_embeds": [],
+      "hidden_fields": []
+    },
+    {
+      "triage_id": "triage-062",
+      "path": "money-machine/fixtures/email_captures/13-1.html",
+      "present": true,
+      "current_sha256": "a190dcd83a12f6084fa368dcbec04ce718b6cd19e5daff6d08e6d67da03ef213",
+      "google_embeds": [],
+      "hidden_fields": []
+    },
+    {
+      "triage_id": "triage-066",
+      "path": "money-machine/fixtures/email_captures/13-0.html",
+      "present": true,
+      "current_sha256": "4fac23628d76b6ab36a58603944b4be4b6a821c2a0a74f79fb351b008910e09a",
+      "google_embeds": [],
+      "hidden_fields": []
+    },
+    {
+      "triage_id": "triage-068",
+      "path": "money-machine/fixtures/email_captures/13-0.html",
+      "present": true,
+      "current_sha256": "4fac23628d76b6ab36a58603944b4be4b6a821c2a0a74f79fb351b008910e09a",
+      "google_embeds": [],
+      "hidden_fields": []
+    },
+    {
+      "triage_id": "triage-069",
+      "path": "money-machine/fixtures/email_captures/13-0.html",
+      "present": true,
+      "current_sha256": "4fac23628d76b6ab36a58603944b4be4b6a821c2a0a74f79fb351b008910e09a",
+      "google_embeds": [],
+      "hidden_fields": []
+    },
+    {
+      "triage_id": "triage-083",
+      "path": "money-machine/fixtures/email_captures/2-1.html",
+      "present": true,
+      "current_sha256": "dfed0cb62704904a3c978bf2acbd20fe646da84e001fe0cbe810c9d4d68a3796",
+      "google_embeds": [
+        {
+          "tag": "iframe",
+          "host": "www.google.com",
+          "path": "/maps/embed",
+          "query_parameter_names": [
+            "pb"
+          ]
+        }
+      ],
+      "hidden_fields": [
+        {
+          "name": "wpforms[id]",
+          "type": "hidden",
+          "value_sha256": "77459b9b941bcb4714d0c121313c900ecf30541d158eb2b9b178cdb8eca6457e"
+        },
+        {
+          "name": "page_title",
+          "type": "hidden",
+          "value_sha256": "98b67063cf8e584d75e53b88472ee85473e01e0ea16f29ece9cc98f4a2710494"
+        },
+        {
+          "name": "page_url",
+          "type": "hidden",
+          "value_sha256": "a61f4d16eb83c880243cd13633a067ebe2e0ae3e5f46473928adb3fc74ab2cd6"
+        },
+        {
+          "name": "url_referer",
+          "type": "hidden",
+          "value_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "page_id",
+          "type": "hidden",
+          "value_sha256": "37c20f19f3272b5ccc3a5d80587eb9deb3f4afcf568c4280fb195568da8eb1a2"
+        },
+        {
+          "name": "wpforms[post_id]",
+          "type": "hidden",
+          "value_sha256": "37c20f19f3272b5ccc3a5d80587eb9deb3f4afcf568c4280fb195568da8eb1a2"
+        }
+      ]
+    },
+    {
+      "triage_id": "triage-085",
+      "path": "outputs/.cache/html_https___davidrobertson_co_nz.json",
+      "present": false,
+      "current_sha256": null,
+      "google_embeds": [],
+      "hidden_fields": []
+    },
+    {
+      "triage_id": "triage-086",
+      "path": "outputs/.cache/html_https___davidrobertson_co_nz.json",
+      "present": false,
+      "current_sha256": null,
+      "google_embeds": [],
+      "hidden_fields": []
+    },
+    {
+      "triage_id": "triage-087",
+      "path": "outputs/.cache/html_https___prodecorators_co_nz.json",
+      "present": false,
+      "current_sha256": null,
+      "google_embeds": [],
+      "hidden_fields": []
+    }
+  ],
+  "checked_at": "2026-10-22T01:48:06.980792+00:00",
+  "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+  "all_context_blob_hashes_verified_against_commit": true,
+  "credential_values_exported": 0,
+  "provider_validation_requests": 0,
+  "security_clearance": false
+}

@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import urljoin, urlparse, urlunparse
 
+import httpcore
 import httpx
 
 
@@ -21,6 +22,66 @@ def _is_private_host(host):
         return not address.is_global
     except ValueError:
         return False
+
+
+def _public_addresses(host, port):
+    if _is_private_host(host):
+        raise ValueError("Private and non-global URLs are disabled")
+    try:
+        infos = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
+    except socket.gaierror as exc:
+        raise ValueError(f"Could not resolve host: {host}") from exc
+    addresses = list(dict.fromkeys(info[4][0] for info in infos))
+    if not addresses or any(_is_private_host(address) for address in addresses):
+        raise ValueError("URL resolves to a non-global address")
+    return addresses
+
+
+class PublicNetworkBackend:
+    """Validate at TCP connection time and connect only to a numeric address.
+
+    HTTPCore keeps the original origin for pooling, Host and TLS SNI/certificate
+    verification. A second hostname lookup cannot change the connection target.
+    Every new connection, including redirects, passes this boundary.
+    """
+
+    def __init__(self, backend=None):
+        self.backend = backend if backend is not None else httpcore.SyncBackend()
+
+    def connect_tcp(self, host, port, timeout=None, local_address=None, socket_options=None):
+        addresses = _public_addresses(host, port)
+        started = time.monotonic()
+        for index, address in enumerate(addresses):
+            remaining = None if timeout is None else max(0, timeout - (time.monotonic() - started))
+            try:
+                return self.backend.connect_tcp(
+                    address, port, timeout=remaining,
+                    local_address=local_address, socket_options=socket_options,
+                )
+            except (httpcore.ConnectError, httpcore.ConnectTimeout):
+                if index == len(addresses) - 1:
+                    raise
+
+    def connect_unix_socket(self, *args, **kwargs):
+        raise ValueError("Public audits cannot connect to Unix sockets")
+
+    def sleep(self, seconds):
+        time.sleep(seconds)
+
+
+class PublicHTTPTransport(httpx.HTTPTransport):
+    def __init__(self, backend=None):
+        super().__init__(trust_env=False)
+        # HTTPX does not expose a network_backend constructor argument. Its
+        # transport adapter uses _pool; keep that small compatibility boundary
+        # covered by end-to-end HTTP/S transport tests. HTTPCore's pool/backend
+        # interfaces and TLS context are public APIs.
+        self._pool.close()
+        self._pool = httpcore.ConnectionPool(
+            ssl_context=httpcore.default_ssl_context(),
+            network_backend=backend if backend is not None else PublicNetworkBackend(),
+            max_connections=10, max_keepalive_connections=5,
+        )
 
 
 def validate_url(url, allow_private=False):
@@ -37,14 +98,7 @@ def validate_url(url, allow_private=False):
     host = parts.hostname
     port = parts.port or (443 if parts.scheme == "https" else 80)
     if not allow_private:
-        if _is_private_host(host):
-            raise ValueError("Private and non-global URLs are disabled")
-        try:
-            infos = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
-        except socket.gaierror as exc:
-            raise ValueError(f"Could not resolve host: {host}") from exc
-        if not infos or any(_is_private_host(info[4][0]) for info in infos):
-            raise ValueError("URL resolves to a non-global address")
+        _public_addresses(host, port)
     return urlunparse(parts._replace(fragment=""))
 
 
@@ -103,11 +157,16 @@ class Fetcher:
         self.min_interval = min_interval
         self.cache_namespace = str(cache_namespace)
         self.last_request = {}
+        if transport is None and not allow_private:
+            transport = PublicHTTPTransport()
         self.client = httpx.Client(
             timeout=httpx.Timeout(timeout),
             follow_redirects=False,
             trust_env=False,
-            headers={"user-agent": "WebsiteAuditorToolkit/2"},
+            headers={
+                "user-agent": "WebsiteAuditorToolkit/2",
+                "accept-encoding": "identity",
+            },
             transport=transport,
         )
 
@@ -150,9 +209,15 @@ class Fetcher:
                         raise ValueError("Response exceeded configured byte/time limit")
                     chunks.append(chunk)
                 body = b"".join(chunks)
+                # iter_bytes() has already decoded any Content-Encoding. Do not
+                # pass the stale encoding or compressed length to the new
+                # response, which would make httpx decode the body a second time.
+                decoded_headers = httpx.Headers(response.headers)
+                decoded_headers.pop("content-encoding", None)
+                decoded_headers.pop("content-length", None)
                 result = httpx.Response(
                     response.status_code,
-                    headers=response.headers,
+                    headers=decoded_headers,
                     content=body,
                     request=response.request,
                 )

@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Website audit - 127.0.0.1</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif; margin: 2rem; color: #1f2933; }
+table { width: 100%; border-collapse: collapse; }
+th,td { border-bottom: 1px solid #e6eef6; padding: .55rem; text-align: left; vertical-align: top; }
+.score { display: inline-block; border: 1px solid #d9e2ec; border-radius: 8px; padding: 1rem; margin-right: .5rem; }
+</style></head><body>
+<h1>Website Auditor</h1>
+<p>Status: complete · Findings: 14 · Coverage: {&#x27;required&#x27;: 19, &#x27;passed&#x27;: 19}</p>
+<p><code>http://127.0.0.1:59106/</code></p>
+<div class="score"><strong>Health</strong><br>0</div>
+<div class="score"><strong>Defect severity</strong><br>100</div><h2>Findings</h2>
+<table><thead><tr><th>Severity</th><th>Finding</th><th>Evidence</th><th>Check</th></tr></thead><tbody><tr><td>medium</td><td>Missing meta description</td><td>Lower CTR</td><td>page</td></tr>
+<tr><td>medium</td><td>Missing canonical URL</td><td>Duplicate content risk</td><td>page</td></tr>
+<tr><td>medium</td><td>Missing Open Graph tags</td><td>Poor social preview</td><td>page</td></tr>
+<tr><td>medium</td><td>Thin content (&lt;200 words)</td><td>Review page purpose</td><td>page</td></tr>
+<tr><td>medium</td><td>Missing viewport metadata</td><td>Mobile layout review</td><td>page</td></tr>
+<tr><td>low</td><td>No structured data found</td><td>Eligibility not guaranteed</td><td>schema</td></tr>
+<tr><td>high</td><td>Image missing alt attribute</td><td>/missing.png</td><td>accessibility_static</td></tr>
+<tr><td>low</td><td>Missing content-security-policy</td><td>Review deployment requirements</td><td>headers</td></tr>
+<tr><td>low</td><td>Missing x-content-type-options</td><td>Review deployment requirements</td><td>headers</td></tr>
+<tr><td>low</td><td>robots.txt declares no sitemap</td><td>Sitemap undiscoverable</td><td>crawl</td></tr>
+<tr><td>medium</td><td>Sitemap XML malformed</td><td>http://127.0.0.1:59106/sitemap.xml</td><td>crawl</td></tr>
+<tr><td>medium</td><td>No contact path found</td><td>No phone, contact link or form</td><td>ux</td></tr>
+<tr><td>critical</td><td>Images must have alternative text</td><td>Fix any of the following:
+  Element does not have an alt attribute
+  aria-label attribute does not exist or is empty
+  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty
+  Element has no title attribute
+  Element&#x27;s default semantics were not overridden with role=&quot;none&quot; or role=&quot;presentation&quot;</td><td>axe</td></tr>
+<tr><td>medium</td><td>Rendered image did not load</td><td>/missing.png</td><td>browser</td></tr></tbody></table>
+<h2>Root-cause groups</h2><ul><li><strong>accessible_interface_contract_failure</strong> — 1 symptom(s), confidence PROVEN: Correlated symptoms suggest one root cause; verify before claiming causation.</li><li><strong>client_runtime_failure</strong> — 1 symptom(s), confidence PROVEN: Correlated symptoms suggest one root cause; verify before claiming causation.</li><li><strong>content_discovery_configuration_gap</strong> — 6 symptom(s), confidence MODERATE: Correlated symptoms suggest one root cause; verify before claiming causation.</li><li><strong>journey_or_contact_friction</strong> — 1 symptom(s), confidence WEAK: Correlated symptoms suggest one root cause; verify before claiming causation.</li><li><strong>security_delivery_configuration_gap</strong> — 2 symptom(s), confidence MODERATE: Correlated symptoms suggest one root cause; verify before claiming causation.</li><li><strong>unclassified_observation</strong> — 3 symptom(s), confidence MODERATE: Correlated symptoms suggest one root cause; verify before claiming causation.</li></ul>
+<h2>Visual evidence pack</h2><ul><li>desktop: /private/var/folders/vq/3rn4742n6gdfq_b1zqm73gj00000gn/T/pytest-of-dd/pytest-792/test_real_browser_pdf_portal0/20261014T144703-a35368382da1/artifacts/screenshot.png (9e2ec5bc40a44a42…)</li><li>tablet: /private/var/folders/vq/3rn4742n6gdfq_b1zqm73gj00000gn/T/pytest-of-dd/pytest-792/test_real_browser_pdf_portal0/20261014T144703-a35368382da1/artifacts/tablet.png (9db085cc9b49c3b7…)</li><li>mobile: /private/var/folders/vq/3rn4742n6gdfq_b1zqm73gj00000gn/T/pytest-of-dd/pytest-792/test_real_browser_pdf_portal0/20261014T144703-a35368382da1/artifacts/mobile.png (4dbc1e039c5e174d…)</li></ul>
+<h2>Claim ledger</h2><table><thead><tr><th>Claim ID</th><th>Claim</th><th>Confidence</th><th>Evidence ref</th></tr></thead><tbody><tr><td>finding:a39dbfa272b12b8fae82cdb8</td><td>Missing meta description</td><td>PROVEN</td><td>page</td></tr><tr><td>finding:3b950c8385b133f66f2bde69</td><td>Missing canonical URL</td><td>PROVEN</td><td>page</td></tr><tr><td>finding:72ce765271061e0dfbd22f1f</td><td>Missing Open Graph tags</td><td>PROVEN</td><td>page</td></tr><tr><td>finding:f8d070523667a23e3ce0afdd</td><td>Thin content (&lt;200 words)</td><td>WEAK</td><td>page</td></tr><tr><td>finding:ba27a5be56019c94c00530cd</td><td>Missing viewport metadata</td><td>PROVEN</td><td>page</td></tr><tr><td>finding:f1b88b771232b77b160f139e</td><td>No structured data found</td><td>WEAK</td><td>schema</td></tr><tr><td>finding:20b60f91e430baf853e1b44d</td><td>Image missing alt attribute</td><td>PROVEN</td><td>page</td></tr><tr><td>finding:36c8e14e0a22aefe3a39db61</td><td>Missing content-security-policy</td><td>PROVEN</td><td>headers</td></tr><tr><td>finding:fe6cfe77e0670405e29a963c</td><td>Missing x-content-type-options</td><td>PROVEN</td><td>headers</td></tr><tr><td>finding:c5b361e559effe3a87d71f74</td><td>robots.txt declares no sitemap</td><td>PROVEN</td><td>page</td></tr><tr><td>finding:3012b8b6c64e8ac5c92af1f6</td><td>Sitemap XML malformed</td><td>PROVEN</td><td>page</td></tr><tr><td>finding:b305a0f66ecdc639b53e870b</td><td>No contact path found</td><td>WEAK</td><td>ux</td></tr><tr><td>finding:73b94c44f605a9b4016bf5c7</td><td>Images must have alternative text</td><td>PROVEN</td><td>page</td></tr><tr><td>finding:80f06408ff2e03c62dfd2bb1</td><td>Rendered image did not load</td><td>PROVEN</td><td>browser</td></tr></tbody></table>
+<h2>Draft proofing</h2><ul><li>metadata: []; references []</li><li>platform_fix: []; references []</li><li>outreach: []; references []</li><li>content_expansion: []; references []</li><li>bilingual: []; references []</li></ul>
+<h2>Checks and coverage</h2>
+<pre>{
+  &quot;fetch&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true
+  },
+  &quot;page&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 7
+  },
+  &quot;schema&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 24
+  },
+  &quot;headers&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;technology&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 8
+  },
+  &quot;js_vulnerabilities&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 1
+  },
+  &quot;structured_validation&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;hreflang&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;language&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;images&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;social_meta&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;hygiene&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 155
+  },
+  &quot;ux&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 5
+  },
+  &quot;links&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Enable deep checks&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;lychee&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Enable external local tools&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;lighthouse&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Enable external local tools&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;tls&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Not requested&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;dns&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Enable deep checks&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;crawl&quot;: {
+    &quot;status&quot;: &quot;skipped&quot;,
+    &quot;reason&quot;: &quot;Enable deep checks&quot;,
+    &quot;required&quot;: false
+  },
+  &quot;browser&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;reason&quot;: &quot;&quot;,
+    &quot;required&quot;: true
+  },
+  &quot;cookie_consent&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;third_party&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;browser_console&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;elapsed_ms&quot;: 0
+  },
+  &quot;axe&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true,
+    &quot;reason&quot;: &quot;&quot;
+  },
+  &quot;pdf&quot;: {
+    &quot;status&quot;: &quot;ok&quot;,
+    &quot;required&quot;: true
+  }
+}</pre>
+<h2>Category scores</h2><pre>{
+  &quot;accessibility&quot;: {
+    &quot;score&quot;: 46,
+    &quot;severity_score&quot;: 46,
+    &quot;health_score&quot;: 54
+  },
+  &quot;local&quot;: {
+    &quot;score&quot;: 4,
+    &quot;severity_score&quot;: 4,
+    &quot;health_score&quot;: 96
+  },
+  &quot;performance&quot;: {
+    &quot;score&quot;: 8,
+    &quot;severity_score&quot;: 8,
+    &quot;health_score&quot;: 92
+  },
+  &quot;privacy&quot;: {
+    &quot;score&quot;: 8,
+    &quot;severity_score&quot;: 8,
+    &quot;health_score&quot;: 92
+  },
+  &quot;security&quot;: {
+    &quot;score&quot;: 8,
+    &quot;severity_score&quot;: 8,
+    &quot;health_score&quot;: 92
+  },
+  &quot;seo&quot;: {
+    &quot;score&quot;: 40,
+    &quot;severity_score&quot;: 40,
+    &quot;health_score&quot;: 60
+  },
+  &quot;technical&quot;: {
+    &quot;score&quot;: 12,
+    &quot;severity_score&quot;: 12,
+    &quot;health_score&quot;: 88
+  }
+}</pre>
+<h2>Historical comparison</h2><pre>{
+  &quot;baseline&quot;: null,
+  &quot;new&quot;: [
+    &quot;20b60f91e430baf853e1b44d&quot;,
+    &quot;3012b8b6c64e8ac5c92af1f6&quot;,
+    &quot;36c8e14e0a22aefe3a39db61&quot;,
+    &quot;3b950c8385b133f66f2bde69&quot;,
+    &quot;72ce765271061e0dfbd22f1f&quot;,
+    &quot;73b94c44f605a9b4016bf5c7&quot;,
+    &quot;80f06408ff2e03c62dfd2bb1&quot;,
+    &quot;a39dbfa272b12b8fae82cdb8&quot;,
+    &quot;b305a0f66ecdc639b53e870b&quot;,
+    &quot;ba27a5be56019c94c00530cd&quot;,
+    &quot;c5b361e559effe3a87d71f74&quot;,
+    &quot;f1b88b771232b77b160f139e&quot;,
+    &quot;f8d070523667a23e3ce0afdd&quot;,
+    &quot;fe6cfe77e0670405e29a963c&quot;
+  ],
+  &quot;persistent&quot;: [],
+  &quot;regressed&quot;: [],
+  &quot;resolved&quot;: [],
+  &quot;resolution_assessed&quot;: false
+}</pre>
+<h2>Evidence</h2><pre style="white-space:pre-wrap;overflow-wrap:anywhere">{
+  &quot;fetch&quot;: {
+    &quot;url&quot;: &quot;http://127.0.0.1:59106/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-14T14:47:04.208036+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;status_code&quot;: 200,
+      &quot;redirects&quot;: [],
+      &quot;revalidated_at&quot;: null
+    }
+  },
+  &quot;page&quot;: {
+    &quot;url&quot;: &quot;http://127.0.0.1:59106/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-14T14:47:04.208036+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;title&quot;: &quot;Fixture&quot;,
+      &quot;word_count&quot;: 6,
+      &quot;link_count&quot;: 0,
+      &quot;sample_links&quot;: [],
+      &quot;emails&quot;: [],
+      &quot;schema_count&quot;: 0
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;schema&quot;: {
+    &quot;url&quot;: &quot;http://127.0.0.1:59106/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-14T14:47:04.208036+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;types&quot;: [],
+      &quot;profile&quot;: &quot;rendered&quot;,
+      &quot;generator&quot;: &quot;&quot;,
+      &quot;local_business_review&quot;: &quot;Check identity, address and service area against the business owner.&quot;,
+      &quot;crawler_readiness&quot;: {
+        &quot;robots_meta&quot;: [],
+        &quot;rendered_content_comparison&quot;: &quot;Available only in rendered mode&quot;
+      }
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;headers&quot;: {
+    &quot;url&quot;: &quot;http://127.0.0.1:59106/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-14T14:47:04.208036+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;headers&quot;: {
+        &quot;server&quot;: &quot;BaseHTTP/0.6 Python/3.11.16&quot;,
+        &quot;content-type&quot;: &quot;text/html&quot;,
+        &quot;content-length&quot;: &quot;175&quot;
+      },
+      &quot;cookies&quot;: []
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;technology&quot;: {
+    &quot;url&quot;: &quot;http://127.0.0.1:59106/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-14T14:47:03.601758+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;technologies&quot;: []
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;js_vulnerabilities&quot;: {
+    &quot;url&quot;: &quot;http://127.0.0.1:59106/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-14T14:47:03.601758+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;js_vulnerabilities_detected&quot;: 0
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;structured_validation&quot;: {
+    &quot;url&quot;: &quot;http://127.0.0.1:59106/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-14T14:47:03.601758+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;structured_data_scripts_found&quot;: 0
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;hreflang&quot;: {
+    &quot;url&quot;: &quot;http://127.0.0.1:59106/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-14T14:47:03.601758+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {},
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;language&quot;: {
+    &quot;url&quot;: &quot;http://127.0.0.1:59106/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-14T14:47:03.601758+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {},
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;images&quot;: {
+    &quot;url&quot;: &quot;http://127.0.0.1:59106/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-14T14:47:03.601758+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {},
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;social_meta&quot;: {
+    &quot;url&quot;: &quot;http://127.0.0.1:59106/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-14T14:47:03.601758+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {},
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;hygiene&quot;: {
+    &quot;url&quot;: &quot;http://127.0.0.1:59106/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-14T14:47:04.208036+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;robots&quot;: {
+        &quot;url&quot;: &quot;http://127.0.0.1:59106/robots.txt&quot;,
+        &quot;status_code&quot;: 200,
+        &quot;bytes&quot;: 175,
+        &quot;sitemaps_declared&quot;: []
+      },
+      &quot;sitemap&quot;: {
+        &quot;checked&quot;: [
+          {
+            &quot;url&quot;: &quot;http://127.0.0.1:59106/sitemap.xml&quot;,
+            &quot;status&quot;: 200,
+            &quot;well_formed&quot;: false
+          }
+        ]
+      },
+      &quot;security_headers&quot;: {
+        &quot;graded&quot;: [
+          &quot;content-security-policy&quot;,
+          &quot;x-content-type-options&quot;,
+          &quot;strict-transport-security&quot;
+        ],
+        &quot;present&quot;: []
+      },
+      &quot;mixed_content&quot;: {
+        &quot;applicable&quot;: false
+      }
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;ux&quot;: {
+    &quot;url&quot;: &quot;http://127.0.0.1:59106/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-14T14:47:04.208036+00:00&quot;,
+    &quot;mode&quot;: &quot;static&quot;,
+    &quot;data&quot;: {
+      &quot;signals&quot;: {
+        &quot;contact_path&quot;: false,
+        &quot;phone&quot;: false,
+        &quot;booking&quot;: false,
+        &quot;quote_form&quot;: false,
+        &quot;form_present&quot;: false
+      }
+    },
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;browser&quot;: {
+    &quot;mode&quot;: &quot;lab&quot;,
+    &quot;limitations&quot;: &quot;No field CWV, legal or accessibility conformance claim.&quot;,
+    &quot;screenshot&quot;: &quot;/private/var/folders/vq/3rn4742n6gdfq_b1zqm73gj00000gn/T/pytest-of-dd/pytest-792/test_real_browser_pdf_portal0/20261014T144703-a35368382da1/artifacts/screenshot.png&quot;,
+    &quot;console_errors&quot;: [],
+    &quot;blocked_requests&quot;: [],
+    &quot;visual_pack&quot;: {
+      &quot;viewports&quot;: {
+        &quot;desktop&quot;: {
+          &quot;viewport&quot;: {
+            &quot;width&quot;: 1366,
+            &quot;height&quot;: 900
+          },
+          &quot;path&quot;: &quot;/private/var/folders/vq/3rn4742n6gdfq_b1zqm73gj00000gn/T/pytest-of-dd/pytest-792/test_real_browser_pdf_portal0/20261014T144703-a35368382da1/artifacts/screenshot.png&quot;,
+          &quot;size&quot;: 12904,
+          &quot;sha256&quot;: &quot;9e2ec5bc40a44a42deeefa97ba0de92c668adf9142ff18ebdc55bdd5cfce849f&quot;
+        },
+        &quot;tablet&quot;: {
+          &quot;viewport&quot;: {
+            &quot;width&quot;: 834,
+            &quot;height&quot;: 1112
+          },
+          &quot;path&quot;: &quot;/private/var/folders/vq/3rn4742n6gdfq_b1zqm73gj00000gn/T/pytest-of-dd/pytest-792/test_real_browser_pdf_portal0/20261014T144703-a35368382da1/artifacts/tablet.png&quot;,
+          &quot;size&quot;: 12120,
+          &quot;sha256&quot;: &quot;9db085cc9b49c3b781873c43a6a32a12c91f38f882be05164ab34ec82de8654f&quot;
+        },
+        &quot;mobile&quot;: {
+          &quot;viewport&quot;: {
+            &quot;width&quot;: 390,
+            &quot;height&quot;: 844
+          },
+          &quot;path&quot;: &quot;/private/var/folders/vq/3rn4742n6gdfq_b1zqm73gj00000gn/T/pytest-of-dd/pytest-792/test_real_browser_pdf_portal0/20261014T144703-a35368382da1/artifacts/mobile.png&quot;,
+          &quot;size&quot;: 9388,
+          &quot;sha256&quot;: &quot;4dbc1e039c5e174d0224816df9cecf5ba8a3242f069752c3ba4de0946432df25&quot;
+        }
+      },
+      &quot;crops&quot;: [
+        {
+          &quot;name&quot;: &quot;hero&quot;,
+          &quot;selector&quot;: &quot;header, main &gt; section, main&quot;,
+          &quot;box&quot;: {
+            &quot;x&quot;: 8,
+            &quot;y&quot;: 21.4375,
+            &quot;width&quot;: 1350,
+            &quot;height&quot;: 112.4375
+          },
+          &quot;path&quot;: &quot;/private/var/folders/vq/3rn4742n6gdfq_b1zqm73gj00000gn/T/pytest-of-dd/pytest-792/test_real_browser_pdf_portal0/20261014T144703-a35368382da1/artifacts/crop-hero.png&quot;,
+          &quot;size&quot;: 7452,
+          &quot;sha256&quot;: &quot;0dfc8e6af30aafb399fe4d3043afea9917dd21efb73ec1799852b62ebf0db0c9&quot;
+        }
+      ],
+      &quot;limitations&quot;: &quot;Lab captures; no field conversion claim.&quot;,
+      &quot;layout&quot;: {
+        &quot;document_width&quot;: 1366,
+        &quot;viewport_width&quot;: 1366,
+        &quot;horizontal_overflow&quot;: false,
+        &quot;landmarks&quot;: [
+          {
+            &quot;index&quot;: 0,
+            &quot;tag&quot;: &quot;main&quot;,
+            &quot;role&quot;: null,
+            &quot;text&quot;: &quot;Fixture audit\n\nLocal evidence fixture.&quot;,
+            &quot;x&quot;: 8,
+            &quot;y&quot;: 21.4375,
+            &quot;width&quot;: 1350,
+            &quot;height&quot;: 112.4375,
+            &quot;visible&quot;: true
+          },
+          {
+            &quot;index&quot;: 1,
+            &quot;tag&quot;: &quot;h1&quot;,
+            &quot;role&quot;: null,
+            &quot;text&quot;: &quot;Fixture audit&quot;,
+            &quot;x&quot;: 8,
+            &quot;y&quot;: 21.4375,
+            &quot;width&quot;: 1350,
+            &quot;height&quot;: 37,
+            &quot;visible&quot;: true
+          }
+        ]
+      }
+    },
+    &quot;timing&quot;: {
+      &quot;navigation&quot;: [
+        {
+          &quot;duration&quot;: 673.9000000953674,
+          &quot;domContentLoaded&quot;: 276.7999999523163,
+          &quot;responseStart&quot;: 207.90000009536743
+        }
+      ],
+      &quot;paint&quot;: [
+        {
+          &quot;name&quot;: &quot;first-paint&quot;,
+          &quot;startTime&quot;: 552
+        },
+        {
+          &quot;name&quot;: &quot;first-contentful-paint&quot;,
+          &quot;startTime&quot;: 552
+        }
+      ],
+      &quot;resources&quot;: [
+        {
+          &quot;initiatorType&quot;: &quot;img&quot;,
+          &quot;duration&quot;: 374.5,
+          &quot;transferSize&quot;: 475
+        }
+      ]
+    },
+    &quot;images&quot;: [
+      {
+        &quot;src&quot;: &quot;/missing.png&quot;,
+        &quot;loaded&quot;: false,
+        &quot;alt&quot;: null,
+        &quot;loading&quot;: &quot;auto&quot;,
+        &quot;aboveFold&quot;: true
+      }
+    ],
+    &quot;links&quot;: [],
+    &quot;consent&quot;: {
+      &quot;interaction&quot;: &quot;none&quot;,
+      &quot;cookies_before_interaction&quot;: [],
+      &quot;limitation&quot;: &quot;No consent accepted or forms submitted; cookie purpose requires review.&quot;
+    },
+    &quot;axe&quot;: {
+      &quot;violations&quot;: [
+        {
+          &quot;id&quot;: &quot;image-alt&quot;,
+          &quot;impact&quot;: &quot;critical&quot;,
+          &quot;tags&quot;: [
+            &quot;cat.text-alternatives&quot;,
+            &quot;wcag2a&quot;,
+            &quot;wcag111&quot;,
+            &quot;section508&quot;,
+            &quot;section508.22.a&quot;,
+            &quot;TTv5&quot;,
+            &quot;TT7.a&quot;,
+            &quot;TT7.b&quot;,
+            &quot;EN-301-549&quot;,
+            &quot;EN-9.1.1.1&quot;,
+            &quot;ACT&quot;
+          ],
+          &quot;description&quot;: &quot;Ensure &lt;img&gt; elements have alternative text or a role of none or presentation&quot;,
+          &quot;help&quot;: &quot;Images must have alternative text&quot;,
+          &quot;helpUrl&quot;: &quot;https://dequeuniversity.com/rules/axe/4.10/image-alt?application=axeAPI&quot;,
+          &quot;nodes&quot;: [
+            {
+              &quot;any&quot;: [
+                {
+                  &quot;id&quot;: &quot;has-alt&quot;,
+                  &quot;data&quot;: null,
+                  &quot;relatedNodes&quot;: [],
+                  &quot;impact&quot;: &quot;critical&quot;,
+                  &quot;message&quot;: &quot;Element does not have an alt attribute&quot;
+                },
+                {
+                  &quot;id&quot;: &quot;aria-label&quot;,
+                  &quot;data&quot;: null,
+                  &quot;relatedNodes&quot;: [],
+                  &quot;impact&quot;: &quot;critical&quot;,
+                  &quot;message&quot;: &quot;aria-label attribute does not exist or is empty&quot;
+                },
+                {
+                  &quot;id&quot;: &quot;aria-labelledby&quot;,
+                  &quot;data&quot;: null,
+                  &quot;relatedNodes&quot;: [],
+                  &quot;impact&quot;: &quot;critical&quot;,
+                  &quot;message&quot;: &quot;aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty&quot;
+                },
+                {
+                  &quot;id&quot;: &quot;non-empty-title&quot;,
+                  &quot;data&quot;: {
+                    &quot;messageKey&quot;: &quot;noAttr&quot;
+                  },
+                  &quot;relatedNodes&quot;: [],
+                  &quot;impact&quot;: &quot;critical&quot;,
+                  &quot;message&quot;: &quot;Element has no title attribute&quot;
+                },
+                {
+                  &quot;id&quot;: &quot;presentational-role&quot;,
+                  &quot;data&quot;: null,
+                  &quot;relatedNodes&quot;: [],
+                  &quot;impact&quot;: &quot;critical&quot;,
+                  &quot;message&quot;: &quot;Element&#x27;s default semantics were not overridden with role=\&quot;none\&quot; or role=\&quot;presentation\&quot;&quot;
+                }
+              ],
+              &quot;all&quot;: [],
+              &quot;none&quot;: [],
+              &quot;impact&quot;: &quot;critical&quot;,
+              &quot;html&quot;: &quot;&lt;img src=\&quot;/missing.png\&quot;&gt;&quot;,
+              &quot;target&quot;: [
+                &quot;img&quot;
+              ],
+              &quot;failureSummary&quot;: &quot;Fix any of the following:\n  Element does not have an alt attribute\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element&#x27;s default semantics were not overridden with role=\&quot;none\&quot; or role=\&quot;presentation\&quot;&quot;
+            }
+          ]
+        }
+      ],
+      &quot;incomplete&quot;: [],
+      &quot;passes&quot;: 15,
+      &quot;version&quot;: &quot;4.10.3&quot;
+    },
+    &quot;mobile&quot;: {
+      &quot;overflow&quot;: false,
+      &quot;width&quot;: 390
+    },
+    &quot;mobile_screenshot&quot;: &quot;/private/var/folders/vq/3rn4742n6gdfq_b1zqm73gj00000gn/T/pytest-of-dd/pytest-792/test_real_browser_pdf_portal0/20261014T144703-a35368382da1/artifacts/mobile.png&quot;
+  },
+  &quot;cookie_consent&quot;: {
+    &quot;url&quot;: &quot;http://127.0.0.1:59106/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-14T14:47:03.601758+00:00&quot;,
+    &quot;mode&quot;: &quot;rendered&quot;,
+    &quot;data&quot;: {},
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;third_party&quot;: {
+    &quot;url&quot;: &quot;http://127.0.0.1:59106/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-14T14:47:03.601758+00:00&quot;,
+    &quot;mode&quot;: &quot;rendered&quot;,
+    &quot;data&quot;: {},
+    &quot;check_version&quot;: &quot;1&quot;
+  },
+  &quot;browser_console&quot;: {
+    &quot;url&quot;: &quot;http://127.0.0.1:59106/&quot;,
+    &quot;observed_at&quot;: &quot;2026-10-14T14:47:03.601758+00:00&quot;,
+    &quot;mode&quot;: &quot;rendered&quot;,
+    &quot;data&quot;: {},
+    &quot;check_version&quot;: &quot;1&quot;
+  }
+}</pre>
+<h2>Drafts for review</h2><pre style="white-space:pre-wrap">{
+  &quot;status&quot;: &quot;fallback&quot;,
+  &quot;review_required&quot;: true,
+  &quot;drafts&quot;: {
+    &quot;metadata&quot;: {
+      &quot;text&quot;: &quot;Title: Example services\nDescription: [review required]&quot;,
+      &quot;source&quot;: &quot;template&quot;,
+      &quot;review_required&quot;: true
+    },
+    &quot;platform_fix&quot;: {
+      &quot;text&quot;: &quot;Prepare an evidence-backed fix draft for review.&quot;,
+      &quot;source&quot;: &quot;template&quot;,
+      &quot;review_required&quot;: true
+    },
+    &quot;outreach&quot;: {
+      &quot;text&quot;: &quot;Prepare factual outreach from verified findings.&quot;,
+      &quot;source&quot;: &quot;template&quot;,
+      &quot;review_required&quot;: true
+    },
+    &quot;content_expansion&quot;: {
+      &quot;text&quot;: &quot;Outline services, proof, FAQs, and contact details.&quot;,
+      &quot;source&quot;: &quot;template&quot;,
+      &quot;review_required&quot;: true
+    },
+    &quot;bilingual&quot;: {
+      &quot;text&quot;: &quot;EN: [English draft]\nMI: [te reo Māori review required]&quot;,
+      &quot;source&quot;: &quot;template&quot;,
+      &quot;review_required&quot;: true
+    }
+  },
+  &quot;reason&quot;: &quot;Local generation not requested&quot;
+}</pre>
+<h2>Proposal Inputs</h2><pre>{
+  &quot;currency&quot;: &quot;NZD&quot;,
+  &quot;hourly_rate&quot;: null,
+  &quot;assumptions&quot;: &quot;Illustrative 1\u20133 hours per finding; scope and rates require review.&quot;,
+  &quot;hours_low&quot;: 14,
+  &quot;hours_high&quot;: 42,
+  &quot;estimate_low&quot;: null,
+  &quot;estimate_high&quot;: null
+}</pre>
+<p>Financial scenarios use explicit editable assumptions. They are not measured lost revenue or fines.</p>
+</body></html>

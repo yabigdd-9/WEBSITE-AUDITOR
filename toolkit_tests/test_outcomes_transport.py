@@ -27,23 +27,67 @@ transport = load("mm_transport")
 def db(path):
     d = sqlite3.connect(path)
     d.row_factory = sqlite3.Row
-    d.executescript(
-        """
-        CREATE TABLE businesses(
-          id INTEGER PRIMARY KEY,
-          name TEXT NOT NULL,
-          public_website TEXT,
-          is_dummy INTEGER NOT NULL DEFAULT 0);
-        CREATE TABLE mm_events(
-          id INTEGER PRIMARY KEY,
-          event_at TEXT NOT NULL,
-          action TEXT NOT NULL,
-          business_id INTEGER,
-          detail TEXT);
-        INSERT INTO businesses(id,name,public_website,is_dummy)
-          VALUES(1,'Fixture','https://fixture.example',0);
-        """
+    sql = (
+        "CREATE TABLE businesses("
+        "  id INTEGER PRIMARY KEY,"
+        "  name TEXT NOT NULL,"
+        "  public_website TEXT,"
+        "  is_dummy INTEGER NOT NULL DEFAULT 0);"
+        "CREATE TABLE mm_events("
+        "  id INTEGER PRIMARY KEY,"
+        "  event_at TEXT NOT NULL,"
+        "  action TEXT NOT NULL,"
+        "  business_id INTEGER,"
+        "  detail TEXT);"
+        "CREATE TABLE prospect_outcomes("
+        "  id INTEGER PRIMARY KEY,"
+        "  business_id INTEGER NOT NULL,"
+        "  outcome TEXT NOT NULL,"
+        "  observed_at TEXT NOT NULL,"
+        "  actor TEXT NOT NULL,"
+        "  evidence_path TEXT NOT NULL,"
+        "  evidence_hash TEXT NOT NULL,"
+        "  note TEXT NOT NULL DEFAULT '',"
+        "  created_at TEXT NOT NULL);"
+        "CREATE INDEX IF NOT EXISTS prospect_outcomes_business"
+        "  ON prospect_outcomes(business_id, observed_at DESC);"
+        "CREATE TRIGGER IF NOT EXISTS prospect_outcomes_no_update"
+        "BEFORE UPDATE ON prospect_outcomes BEGIN"
+        "  SELECT RAISE(ABORT,'prospect outcomes are append-only');"
+        "END;"
+        "CREATE TRIGGER IF NOT EXISTS prospect_outcomes_no_delete"
+        "BEFORE DELETE ON prospect_outcomes BEGIN"
+        "  SELECT RAISE(ABORT,'prospect outcomes are append-only');"
+        "END;"
+        "CREATE TABLE experience_ledger("
+        "  id INTEGER PRIMARY KEY,"
+        "  outcome TEXT NOT NULL,"
+        "  actor TEXT NOT NULL,"
+        "  observed_at TEXT NOT NULL,"
+        "  business_id INTEGER NOT NULL,"
+        "  evidence_hash TEXT NOT NULL,"
+        "  created_at TEXT NOT NULL);"
+        "CREATE INDEX IF NOT EXISTS experience_ledger_outcome_time"
+        "  ON experience_ledger(outcome, observed_at DESC);"
+        "CREATE INDEX IF NOT EXISTS experience_ledger_actor"
+        "  ON experience_ledger(actor);"
+        "CREATE TRIGGER IF NOT EXISTS experience_ledger_on_outcome"
+        "AFTER INSERT ON prospect_outcomes BEGIN"
+        "  INSERT INTO experience_ledger(outcome, actor, observed_at, business_id, evidence_hash, created_at)"
+        "  SELECT NEW.outcome, NEW.actor, NEW.observed_at, NEW.business_id, NEW.evidence_hash, NEW.created_at;"
+        "END;"
+        "CREATE TRIGGER IF NOT EXISTS experience_ledger_no_update"
+        "BEFORE UPDATE ON experience_ledger BEGIN"
+        "  SELECT RAISE(ABORT,'experience ledger is append-only');"
+        "END;"
+        "CREATE TRIGGER IF NOT EXISTS experience_ledger_no_delete"
+        "BEFORE DELETE ON experience_ledger BEGIN"
+        "  SELECT RAISE(ABORT,'experience ledger is append-only');"
+        "END;"
+        "INSERT INTO businesses(id,name,public_website,is_dummy)"
+        "  VALUES(1,'Fixture','https://fixture.example',0);"
     )
+    d.executescript(sql)
     return d
 
 
@@ -94,7 +138,10 @@ def test_outcome_rejects_missing_or_external_evidence(tmp_path, monkeypatch):
 
 
 def test_transport_is_schema_locked_disabled_and_network_free(tmp_path):
-    status = transport.status()
+    # Pin the committed default explicitly. A bare status() call also honours a
+    # private owner override under state/transport-policy.json, which is runtime
+    # state, not the schema contract this test exists to prove.
+    status = transport.status(MM / "config" / "transport.json")
     assert status["mode"] == "DRAFT_ONLY"
     assert status["enabled"] is False
     assert status["external_send_allowed"] is False
@@ -109,6 +156,51 @@ def test_transport_is_schema_locked_disabled_and_network_free(tmp_path):
     bad.write_text(json.dumps(doc))
     with pytest.raises(ValueError):
         transport.load_config(bad)
+
+
+def test_transport_runtime_override_and_kill_switch(tmp_path, monkeypatch):
+    # The committed default is draft-only, but a private owner policy file and the
+    # supervisor kill switch are the real runtime boundary. Both must be observable
+    # and neither may be inferred from the schema default alone.
+    monkeypatch.delenv("MM_EXTERNAL_SEND_DISABLED", raising=False)
+    monkeypatch.setattr(transport.core, "root", lambda: tmp_path)
+    (tmp_path / "state").mkdir()
+    enabled = tmp_path / "state" / "transport-policy.json"
+    enabled.write_text(json.dumps({
+        "version": 1, "enabled": True, "provider": "gmail", "daily_cap": None,
+        "requires_exact_approval": True, "requires_verified_recipient": True,
+        "requires_suppression_check": True, "external_send_allowed": True,
+    }))
+    enabled.chmod(0o600)
+    monkeypatch.setattr(transport.core, "root", lambda: tmp_path)
+    status = transport.status()
+    assert status["mode"] == "MANUAL_EXACT_APPROVAL"
+    assert status["enabled"] is True
+    assert status["external_send_allowed"] is True
+    assert status["network_send_implementation"] is True
+
+    monkeypatch.setenv("MM_EXTERNAL_SEND_DISABLED", "1")
+    stopped = transport.status()
+    assert stopped["mode"] == "MANUAL_EXACT_APPROVAL"
+    assert stopped["enabled"] is True
+    assert stopped["external_send_allowed"] is False
+    assert stopped["environment_send_disabled"] is True
+
+    # A private owner policy file must be a regular file owned by the caller with
+    # no group/other permissions. Anything else is refused; load_config() with no
+    # argument is the only path that consults it.
+    (tmp_path / "state" / "transport-policy.json").unlink()
+    (tmp_path / "state" / "transport-policy.json").mkdir()
+    with pytest.raises(ValueError):
+        transport.load_config()
+
+    (tmp_path / "state" / "transport-policy.json").rmdir()
+    leaked = tmp_path / "leaked.json"
+    leaked.write_text("{}")
+    leaked.chmod(0o644)
+    (tmp_path / "state" / "transport-policy.json").symlink_to(leaked)
+    with pytest.raises(ValueError):
+        transport.load_config()
 
 
 def test_transport_packet_preflight_rejects_any_send_authority():
@@ -136,3 +228,59 @@ def test_outcome_summary_is_read_only_when_uninitialised(tmp_path):
     assert result["status"] == "uninitialised"
     assert result["total"] == 0
     assert before == after
+
+
+def test_outcome_summary_includes_experience_ledger_metrics(tmp_path, monkeypatch):
+    root = tmp_path / "repo"
+    root.mkdir()
+    (root / "database").mkdir()
+    monkeypatch.setenv("MM_ROOT", str(root))
+    d = db(root / "database" / "money_machine.db")
+    evidence = root / "evidence.txt"
+    evidence.write_text("Customer replied yes", encoding="utf-8")
+    digest = outcomes.core.sha(evidence.read_bytes())
+
+    r1 = outcomes.record(d, 1, "REPLIED", evidence, digest, actor="human-a", note="")
+    d.commit()
+    r2 = outcomes.record(d, 1, "PENDING", evidence, digest, actor="human-b", note="")
+    d.commit()
+    r3 = outcomes.record(d, 1, "REPLIED", evidence, digest, actor="human-a", note="")
+    d.commit()
+    assert len({r1["id"], r2["id"], r3["id"]}) == 3
+
+    s = outcomes.summary(d)
+    assert s["total"] == 3
+    assert s["by_outcome"]["REPLIED"] == 2
+    assert s["by_outcome"]["PENDING"] == 1
+    assert s["by_actor"]["human-a"] == 2
+    assert s["by_actor"]["human-b"] == 1
+    assert len(s["outcome_trend"]) >= 2
+
+
+def test_experience_ledger_mirror_is_append_only(tmp_path, monkeypatch):
+    root = tmp_path / "repo"
+    root.mkdir()
+    (root / "database").mkdir()
+    monkeypatch.setenv("MM_ROOT", str(root))
+    d = db(root / "database" / "money_machine.db")
+    evidence = root / "evidence.txt"
+    evidence.write_text("mirror test", encoding="utf-8")
+    digest = outcomes.core.sha(evidence.read_bytes())
+
+    outcomes.record(d, 1, "WON", evidence, digest, actor="automation", note="")
+    d.commit()
+
+    row = d.execute(
+        "SELECT * FROM experience_ledger WHERE outcome='WON'"
+    ).fetchone()
+    assert row is not None
+    assert row["actor"] == "automation"
+
+    with pytest.raises(sqlite3.DatabaseError, match="append-only"):
+        d.execute(
+            "UPDATE experience_ledger SET actor='x' WHERE id=?",
+            (row["id"],),
+        )
+    with pytest.raises(sqlite3.DatabaseError, match="append-only"):
+        d.execute("DELETE FROM experience_ledger WHERE id=?", (row["id"],))
+    d.close()

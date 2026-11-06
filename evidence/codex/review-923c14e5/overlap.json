@@ -1,0 +1,16 @@
+[
+  {
+    "path": "auditor_toolkit/models.py",
+    "shared_equals_candidate": true,
+    "shared_equals_baseline": false,
+    "shared_sha256": "0c2aac977e6bef6cbf2222dc7a7fbb5074ea6a5d2a70649154e69dc56f72bca7",
+    "candidate_sha256": "0c2aac977e6bef6cbf2222dc7a7fbb5074ea6a5d2a70649154e69dc56f72bca7"
+  },
+  {
+    "path": "money-machine/mm_email_network.py",
+    "shared_equals_candidate": false,
+    "shared_equals_baseline": false,
+    "shared_sha256": "6e83cd95d37f15a6daed72ed2ab022e327b87b38bde054551231966850cd464a",
+    "candidate_sha256": "f2a7830b19ab2fb3b2e165ea7d778743d9bb37da3df999e700a4fdd48a1b66c7"
+  }
+]

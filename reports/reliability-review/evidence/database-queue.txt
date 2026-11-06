@@ -1,0 +1,5 @@
+ss..............................................................         [100%]
+=========================== short test summary info ============================
+SKIPPED [1] money-machine/test_pipeline_loop.py:48: BLOCKED_FIXTURE: /Users/dd/agent-trials/hermes/database/money_machine.db not present in this environment
+SKIPPED [1] money-machine/test_pipeline_loop.py:41: BLOCKED_FIXTURE: /Users/dd/agent-trials/hermes/database/money_machine.db not present in this environment
+62 passed, 2 skipped in 8.11s

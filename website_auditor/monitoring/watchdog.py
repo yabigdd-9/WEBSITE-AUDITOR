@@ -1,5 +1,6 @@
 
-import json, os, urllib.request
+import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -64,18 +65,15 @@ class Watchdog:
             message += f"  - {r}\n"
         message += f"\nDetected: {datetime.now(timezone.utc).isoformat()}"
 
-        payload = json.dumps({"text": message, "content": message}).encode()
-        req = urllib.request.Request(
-            self.webhook_url,
-            data=payload,
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        try:
-            with urllib.request.urlopen(req) as resp:
-                return {"status": "sent", "code": resp.status}
-        except Exception as e:
-            return {"status": "failed", "error": str(e)}
+        # A configured webhook is not authorization to transmit. Keep alerts
+        # under the same draft-only policy as report and outreach delivery.
+        return {
+            "status": "blocked",
+            "sent": False,
+            "network_calls": 0,
+            "reason": "External alert delivery requires a separately approved transport adapter",
+            "preview": message,
+        }
 
     def run_check(self, domain, defects):
         result = self.detect_regressions(domain, defects)

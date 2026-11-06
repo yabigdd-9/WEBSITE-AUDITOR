@@ -1,0 +1,2188 @@
+{
+  "schema_version": 2,
+  "performance": {
+    "total_elapsed_ms": 28243,
+    "checks": {
+      "fetch": 0,
+      "page": 60,
+      "schema": 48,
+      "headers": 0,
+      "technology": 8,
+      "js_vulnerabilities": 1,
+      "structured_validation": 5,
+      "hreflang": 0,
+      "language": 0,
+      "images": 0,
+      "social_meta": 0,
+      "hygiene": 115,
+      "ux": 9,
+      "links": 121,
+      "lychee": 0,
+      "lighthouse": 0,
+      "tls": 0,
+      "dns": 1252,
+      "crawl": 316,
+      "browser": 0,
+      "cookie_consent": 0,
+      "third_party": 0,
+      "browser_console": 0,
+      "axe": 0
+    },
+    "slowest_checks": [
+      [
+        "dns",
+        1252
+      ],
+      [
+        "crawl",
+        316
+      ],
+      [
+        "links",
+        121
+      ],
+      [
+        "hygiene",
+        115
+      ],
+      [
+        "page",
+        60
+      ]
+    ]
+  },
+  "run_id": "20261014T144657-052d7d276c1f",
+  "url": "http://127.0.0.1:59089/",
+  "domain": "127.0.0.1",
+  "timestamp": "2026-10-14T14:46:57.903839+00:00",
+  "profile": "static",
+  "brand": "Website Auditor",
+  "status": "complete",
+  "score": 100,
+  "severity_score": 100,
+  "health_score": 0,
+  "breakdown": {
+    "health_score": 0,
+    "severity_total": 100,
+    "heuristic_count": 4,
+    "method": "severity sum capped at 100; health = 100 - severity",
+    "deductions": [
+      {
+        "finding_id": "f9b282ba33771ffd2d6c5d63",
+        "defect_key": "missing_meta_description",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "no usable meta description content"
+      },
+      {
+        "finding_id": "4140f976d029fff9e97b8825",
+        "defect_key": "missing_canonical_url",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "no canonical href declared"
+      },
+      {
+        "finding_id": "72408dba6f708e9a5a639392",
+        "defect_key": "missing_open_graph_tags",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "zero Open Graph tags"
+      },
+      {
+        "finding_id": "997ce451e30e7e5ab464bc3c",
+        "defect_key": "thin_content_200_words",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "heuristic",
+        "evidence_summary": "page body contains 13 words (<200 threshold)"
+      },
+      {
+        "finding_id": "1d608b241cf54ba720bb6d02",
+        "defect_key": "viewport",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "no viewport meta tag"
+      },
+      {
+        "finding_id": "714ef6d72767c290627e7d8b",
+        "defect_key": "schema_missing",
+        "severity": "low",
+        "points": 4,
+        "confidence": "heuristic",
+        "evidence_summary": "zero structured-data blocks"
+      },
+      {
+        "finding_id": "48cae7bc2e55cbb6d0391bf8",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=/missing.png has no alt"
+      },
+      {
+        "finding_id": "5b3f55dc432736dccd567486",
+        "defect_key": "header-content-security-policy",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "headers"
+      },
+      {
+        "finding_id": "2d769e73575c5da03e3e61e2",
+        "defect_key": "header-x-content-type-options",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "headers"
+      },
+      {
+        "finding_id": "8b62150079eebaae4a28b24e",
+        "defect_key": "robots-missing",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "GET http://127.0.0.1:59089/robots.txt returned HTTP 404"
+      },
+      {
+        "finding_id": "88cbc9d173d7c047bec95a60",
+        "defect_key": "sitemap-missing",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "GET http://127.0.0.1:59089/sitemap.xml returned HTTP 404"
+      },
+      {
+        "finding_id": "d19c17b5a6a12b9b846eb563",
+        "defect_key": "header-referrer-policy",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "response has no referrer-policy header"
+      },
+      {
+        "finding_id": "eafa239aa3e12c5d04be7111",
+        "defect_key": "header-permissions-policy",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "response has no permissions-policy header"
+      },
+      {
+        "finding_id": "6d1cbdc04589a378c349a257",
+        "defect_key": "no-contact-path",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "heuristic",
+        "evidence_summary": "no tel: link, contact link, or form element found"
+      },
+      {
+        "finding_id": "d5ee4f324187960ee2c077c4",
+        "defect_key": "broken-internal-link",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "GET http://127.0.0.1:59089/broken returned HTTP 404"
+      },
+      {
+        "finding_id": "22175f502b50e0640a05ca5a",
+        "defect_key": "client_error",
+        "severity": "high",
+        "points": 16,
+        "confidence": "heuristic",
+        "evidence_summary": "crawl"
+      },
+      {
+        "finding_id": "4a2b40fe2f29e86159e3a153",
+        "defect_key": "axe-image-alt",
+        "severity": "critical",
+        "points": 30,
+        "confidence": "observed",
+        "evidence_summary": "img"
+      },
+      {
+        "finding_id": "a34084ecc927cdd424574e66",
+        "defect_key": "broken-rendered-image",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "image-0"
+      }
+    ]
+  },
+  "defects": [
+    {
+      "defect_key": "missing_meta_description",
+      "defect": "Missing meta description",
+      "impact": "Lower CTR",
+      "severity": "medium",
+      "source_url": "http://127.0.0.1:59089/",
+      "review_required": true,
+      "check": "page",
+      "selector": "head > meta[name=\"description\"]",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[name=\"description\"] absent or empty",
+      "observed": "no usable meta description content",
+      "business_impact": "Search snippets fall back to page text; lower click-through.",
+      "remediation_action": "Write a 120-155 char meta description per key page.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "f9b282ba33771ffd2d6c5d63",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "evidence_summary": "no usable meta description content",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "missing_canonical_url",
+      "defect": "Missing canonical URL",
+      "impact": "Duplicate content risk",
+      "severity": "medium",
+      "source_url": "http://127.0.0.1:59089/",
+      "review_required": true,
+      "check": "page",
+      "selector": "head > link[rel=\"canonical\"]",
+      "confidence": "observed",
+      "evidence_source": "dom:link[rel=\"canonical\"] absent",
+      "observed": "no canonical href declared",
+      "business_impact": "Search engines may split ranking across URL variants.",
+      "remediation_action": "Add a self-referencing canonical link tag.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "4140f976d029fff9e97b8825",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "evidence_summary": "no canonical href declared",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "missing_open_graph_tags",
+      "defect": "Missing Open Graph tags",
+      "impact": "Poor social preview",
+      "severity": "medium",
+      "source_url": "http://127.0.0.1:59089/",
+      "review_required": true,
+      "check": "page",
+      "selector": "head > meta[property^=\"og:\"]",
+      "confidence": "observed",
+      "evidence_source": "dom:no meta[property^=og:] elements",
+      "observed": "zero Open Graph tags",
+      "business_impact": "Link shares render as plain text; less social traffic.",
+      "remediation_action": "Add og:title, og:description, og:image tags.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "S",
+      "finding_id": "72408dba6f708e9a5a639392",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "evidence_summary": "zero Open Graph tags",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "thin_content_200_words",
+      "defect": "Thin content (<200 words)",
+      "impact": "Review page purpose",
+      "severity": "medium",
+      "source_url": "http://127.0.0.1:59089/",
+      "review_required": true,
+      "check": "page",
+      "selector": "",
+      "confidence": "heuristic",
+      "evidence_source": "text:word_count=13",
+      "observed": "page body contains 13 words (<200 threshold)",
+      "business_impact": "Thin pages rarely rank or convert; intent unclear.",
+      "remediation_action": "Expand page with real service proof (photos, FAQs, reviews).",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "997ce451e30e7e5ab464bc3c",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "evidence_summary": "page body contains 13 words (<200 threshold)",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "viewport",
+      "defect": "Missing viewport metadata",
+      "impact": "Mobile layout review",
+      "severity": "medium",
+      "source_url": "http://127.0.0.1:59089/",
+      "review_required": true,
+      "check": "page",
+      "selector": "head > meta[name=\"viewport\"]",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[name=\"viewport\"] absent",
+      "observed": "no viewport meta tag",
+      "business_impact": "Mobile browsers may render a zoomed-out desktop layout.",
+      "remediation_action": "Add viewport meta (width=device-width,initial-scale=1).",
+      "remediation_automation": "AUTO_SAFE",
+      "effort_band": "XS",
+      "finding_id": "1d608b241cf54ba720bb6d02",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "evidence_summary": "no viewport meta tag",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "schema_missing",
+      "defect": "No structured data found",
+      "impact": "Eligibility not guaranteed",
+      "severity": "low",
+      "source_url": "http://127.0.0.1:59089/",
+      "review_required": true,
+      "check": "schema",
+      "selector": "script[type=\"application/ld+json\"]",
+      "confidence": "heuristic",
+      "evidence_source": "dom:no ld+json script blocks",
+      "observed": "zero structured-data blocks",
+      "business_impact": "No rich-result eligibility signals for local business info.",
+      "remediation_action": "Add LocalBusiness JSON-LD with name, phone, address.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "S",
+      "finding_id": "714ef6d72767c290627e7d8b",
+      "evidence_ref": "schema",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "evidence_summary": "zero structured-data blocks",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "/missing.png",
+      "severity": "high",
+      "source_url": "http://127.0.0.1:59089/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(1)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=/missing.png has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "48cae7bc2e55cbb6d0391bf8",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "evidence_summary": "img src=/missing.png has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "header-content-security-policy",
+      "defect": "Missing content-security-policy",
+      "impact": "Review deployment requirements",
+      "severity": "low",
+      "source_url": "http://127.0.0.1:59089/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "5b3f55dc432736dccd567486",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "evidence_summary": "headers",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "header-x-content-type-options",
+      "defect": "Missing x-content-type-options",
+      "impact": "Review deployment requirements",
+      "severity": "low",
+      "source_url": "http://127.0.0.1:59089/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "2d769e73575c5da03e3e61e2",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "evidence_summary": "headers",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "robots-missing",
+      "defect": "No robots.txt",
+      "impact": "HTTP 404",
+      "severity": "low",
+      "source_url": "http://127.0.0.1:59089/",
+      "review_required": true,
+      "check": "crawl",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "fetch:robots.txt status",
+      "observed": "GET http://127.0.0.1:59089/robots.txt returned HTTP 404",
+      "business_impact": "Crawlers guess crawl rules; sitemap undiscoverable via robots.",
+      "remediation_action": "Publish a minimal robots.txt with a sitemap line.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "8b62150079eebaae4a28b24e",
+      "evidence_ref": "crawl",
+      "observed_at": "2026-10-14T14:46:57.903839+00:00",
+      "evidence_summary": "GET http://127.0.0.1:59089/robots.txt returned HTTP 404",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "sitemap-missing",
+      "defect": "Sitemap not found",
+      "impact": "HTTP 404",
+      "severity": "low",
+      "source_url": "http://127.0.0.1:59089/",
+      "review_required": true,
+      "check": "crawl",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "fetch:sitemap status",
+      "observed": "GET http://127.0.0.1:59089/sitemap.xml returned HTTP 404",
+      "business_impact": "New/updated pages rely on link discovery alone.",
+      "remediation_action": "Publish a sitemap.xml and reference it in robots.txt.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "S",
+      "finding_id": "88cbc9d173d7c047bec95a60",
+      "evidence_ref": "crawl",
+      "observed_at": "2026-10-14T14:46:57.903839+00:00",
+      "evidence_summary": "GET http://127.0.0.1:59089/sitemap.xml returned HTTP 404",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "header-referrer-policy",
+      "defect": "Missing referrer-policy",
+      "impact": "Review deployment requirements",
+      "severity": "low",
+      "source_url": "http://127.0.0.1:59089/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "http:response headers",
+      "observed": "response has no referrer-policy header",
+      "business_impact": "Reduced hardening signal; minor trust/compliance note.",
+      "remediation_action": "Send a referrer-policy header from the web server.",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "S",
+      "finding_id": "d19c17b5a6a12b9b846eb563",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "evidence_summary": "response has no referrer-policy header",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "header-permissions-policy",
+      "defect": "Missing permissions-policy",
+      "impact": "Review deployment requirements",
+      "severity": "low",
+      "source_url": "http://127.0.0.1:59089/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "http:response headers",
+      "observed": "response has no permissions-policy header",
+      "business_impact": "Reduced hardening signal; minor trust/compliance note.",
+      "remediation_action": "Send a permissions-policy header from the web server.",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "S",
+      "finding_id": "eafa239aa3e12c5d04be7111",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "evidence_summary": "response has no permissions-policy header",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "no-contact-path",
+      "defect": "No contact path found",
+      "impact": "No phone, contact link or form",
+      "severity": "medium",
+      "source_url": "http://127.0.0.1:59089/",
+      "review_required": true,
+      "check": "ux",
+      "selector": "",
+      "confidence": "heuristic",
+      "evidence_source": "dom:conversion signal scan",
+      "observed": "no tel: link, contact link, or form element found",
+      "business_impact": "Visitors cannot easily enquire; direct conversion loss.",
+      "remediation_action": "Add a visible phone number and enquiry form.",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "6d1cbdc04589a378c349a257",
+      "evidence_ref": "ux",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "evidence_summary": "no tel: link, contact link, or form element found",
+      "fault_taxonomy": "conversion",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "journey_or_contact_friction"
+    },
+    {
+      "defect_key": "broken-internal-link",
+      "defect": "Broken internal link (404)",
+      "impact": "http://127.0.0.1:59089/broken",
+      "severity": "medium",
+      "source_url": "http://127.0.0.1:59089/",
+      "review_required": true,
+      "check": "crawl",
+      "selector": "a[href='http://127.0.0.1:59089/broken']",
+      "confidence": "observed",
+      "evidence_source": "fetch:link HEAD/GET status",
+      "observed": "GET http://127.0.0.1:59089/broken returned HTTP 404",
+      "business_impact": "Visitors and crawlers hit dead ends; wasted crawl budget.",
+      "remediation_action": "Fix or remove the link; add a redirect if the page moved.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "d5ee4f324187960ee2c077c4",
+      "evidence_ref": "crawl",
+      "observed_at": "2026-10-14T14:46:57.903839+00:00",
+      "evidence_summary": "GET http://127.0.0.1:59089/broken returned HTTP 404",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "client_error",
+      "defect": "Client error response",
+      "impact": "HTTP 404",
+      "severity": "high",
+      "source_url": "http://127.0.0.1:59089/broken",
+      "review_required": true,
+      "check": "crawl",
+      "selector": "",
+      "confidence": "heuristic",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "22175f502b50e0640a05ca5a",
+      "evidence_ref": "crawl",
+      "observed_at": "2026-10-14T14:46:57.903839+00:00",
+      "evidence_summary": "crawl",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "axe-image-alt",
+      "defect": "Images must have alternative text",
+      "impact": "Fix any of the following:\n  Element does not have an alt attribute\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",
+      "severity": "critical",
+      "source_url": "http://127.0.0.1:59089/",
+      "review_required": true,
+      "check": "axe",
+      "selector": "img",
+      "confidence": "observed",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "4a2b40fe2f29e86159e3a153",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "evidence_summary": "img",
+      "fault_taxonomy": "accessibility",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "accessible_interface_contract_failure"
+    },
+    {
+      "defect_key": "broken-rendered-image",
+      "defect": "Rendered image did not load",
+      "impact": "/missing.png",
+      "severity": "medium",
+      "source_url": "http://127.0.0.1:59089/",
+      "review_required": true,
+      "check": "browser",
+      "selector": "image-0",
+      "confidence": "observed",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "a34084ecc927cdd424574e66",
+      "evidence_ref": "browser",
+      "observed_at": "2026-10-14T14:46:57.903839+00:00",
+      "evidence_summary": "image-0",
+      "fault_taxonomy": "browser_runtime",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "client_runtime_failure"
+    }
+  ],
+  "defect_count": 18,
+  "fault_taxonomy": {
+    "root_causes": [
+      {
+        "root_cause_id": "accessible_interface_contract_failure",
+        "taxonomy": [
+          "accessibility"
+        ],
+        "finding_ids": [
+          "4a2b40fe2f29e86159e3a153"
+        ],
+        "symptom_count": 1,
+        "likely": false,
+        "confidence": "PROVEN",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      },
+      {
+        "root_cause_id": "client_runtime_failure",
+        "taxonomy": [
+          "browser_runtime"
+        ],
+        "finding_ids": [
+          "a34084ecc927cdd424574e66"
+        ],
+        "symptom_count": 1,
+        "likely": false,
+        "confidence": "PROVEN",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      },
+      {
+        "root_cause_id": "content_discovery_configuration_gap",
+        "taxonomy": [
+          "seo_content"
+        ],
+        "finding_ids": [
+          "f9b282ba33771ffd2d6c5d63",
+          "4140f976d029fff9e97b8825",
+          "72408dba6f708e9a5a639392",
+          "997ce451e30e7e5ab464bc3c",
+          "1d608b241cf54ba720bb6d02",
+          "714ef6d72767c290627e7d8b"
+        ],
+        "symptom_count": 6,
+        "likely": true,
+        "confidence": "MODERATE",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      },
+      {
+        "root_cause_id": "journey_or_contact_friction",
+        "taxonomy": [
+          "conversion"
+        ],
+        "finding_ids": [
+          "6d1cbdc04589a378c349a257"
+        ],
+        "symptom_count": 1,
+        "likely": false,
+        "confidence": "WEAK",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      },
+      {
+        "root_cause_id": "security_delivery_configuration_gap",
+        "taxonomy": [
+          "security_trust"
+        ],
+        "finding_ids": [
+          "5b3f55dc432736dccd567486",
+          "2d769e73575c5da03e3e61e2",
+          "d19c17b5a6a12b9b846eb563",
+          "eafa239aa3e12c5d04be7111"
+        ],
+        "symptom_count": 4,
+        "likely": true,
+        "confidence": "MODERATE",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      },
+      {
+        "root_cause_id": "unclassified_observation",
+        "taxonomy": [
+          "unknown"
+        ],
+        "finding_ids": [
+          "48cae7bc2e55cbb6d0391bf8",
+          "8b62150079eebaae4a28b24e",
+          "88cbc9d173d7c047bec95a60",
+          "d5ee4f324187960ee2c077c4",
+          "22175f502b50e0640a05ca5a"
+        ],
+        "symptom_count": 5,
+        "likely": true,
+        "confidence": "MODERATE",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      }
+    ],
+    "reproducible_count": 18,
+    "weak_or_unknown_count": 4
+  },
+  "checks": {
+    "fetch": {
+      "status": "ok",
+      "required": true
+    },
+    "page": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 60
+    },
+    "schema": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 48
+    },
+    "headers": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "technology": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 8
+    },
+    "js_vulnerabilities": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1
+    },
+    "structured_validation": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 5
+    },
+    "hreflang": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "language": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "images": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "social_meta": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "hygiene": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 115
+    },
+    "ux": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 9
+    },
+    "links": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 121
+    },
+    "lychee": {
+      "status": "skipped",
+      "reason": "Enable external local tools",
+      "required": false
+    },
+    "lighthouse": {
+      "status": "skipped",
+      "reason": "Enable external local tools",
+      "required": false
+    },
+    "tls": {
+      "status": "skipped",
+      "reason": "Not requested",
+      "required": false
+    },
+    "dns": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1252
+    },
+    "crawl": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 316
+    },
+    "browser": {
+      "status": "ok",
+      "reason": "",
+      "required": true
+    },
+    "cookie_consent": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "third_party": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "browser_console": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "axe": {
+      "status": "ok",
+      "required": true,
+      "reason": ""
+    },
+    "pdf": {
+      "status": "ok",
+      "required": true
+    }
+  },
+  "evidence": {
+    "fetch": {
+      "url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "mode": "static",
+      "data": {
+        "status_code": 200,
+        "redirects": [],
+        "revalidated_at": null
+      }
+    },
+    "page": {
+      "url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "mode": "static",
+      "data": {
+        "title": "Synthetic NZ Plumbing",
+        "word_count": 13,
+        "link_count": 1,
+        "sample_links": [
+          "http://127.0.0.1:59089/broken"
+        ],
+        "emails": [],
+        "schema_count": 0
+      },
+      "check_version": "1"
+    },
+    "schema": {
+      "url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "mode": "static",
+      "data": {
+        "types": [],
+        "profile": "static",
+        "generator": "",
+        "local_business_review": "Check identity, address and service area against the business owner.",
+        "crawler_readiness": {
+          "robots_meta": [],
+          "rendered_content_comparison": "Available only in rendered mode"
+        }
+      },
+      "check_version": "1"
+    },
+    "headers": {
+      "url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "mode": "static",
+      "data": {
+        "headers": {
+          "server": "BaseHTTP/0.6 Python/3.11.16",
+          "content-type": "text/html",
+          "content-length": "251"
+        },
+        "cookies": []
+      },
+      "check_version": "1"
+    },
+    "technology": {
+      "url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:57.903839+00:00",
+      "mode": "static",
+      "data": {
+        "technologies": []
+      },
+      "check_version": "1"
+    },
+    "js_vulnerabilities": {
+      "url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:57.903839+00:00",
+      "mode": "static",
+      "data": {
+        "js_vulnerabilities_detected": 0
+      },
+      "check_version": "1"
+    },
+    "structured_validation": {
+      "url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:57.903839+00:00",
+      "mode": "static",
+      "data": {
+        "structured_data_scripts_found": 0
+      },
+      "check_version": "1"
+    },
+    "hreflang": {
+      "url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:57.903839+00:00",
+      "mode": "static",
+      "data": {},
+      "check_version": "1"
+    },
+    "language": {
+      "url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:57.903839+00:00",
+      "mode": "static",
+      "data": {},
+      "check_version": "1"
+    },
+    "images": {
+      "url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:57.903839+00:00",
+      "mode": "static",
+      "data": {},
+      "check_version": "1"
+    },
+    "social_meta": {
+      "url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:57.903839+00:00",
+      "mode": "static",
+      "data": {},
+      "check_version": "1"
+    },
+    "hygiene": {
+      "url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "mode": "static",
+      "data": {
+        "robots": {
+          "url": "http://127.0.0.1:59089/robots.txt",
+          "status_code": 404
+        },
+        "sitemap": {
+          "checked": [
+            {
+              "url": "http://127.0.0.1:59089/sitemap.xml",
+              "status": 404
+            }
+          ]
+        },
+        "security_headers": {
+          "graded": [
+            "content-security-policy",
+            "permissions-policy",
+            "referrer-policy",
+            "x-content-type-options",
+            "strict-transport-security"
+          ],
+          "present": []
+        },
+        "mixed_content": {
+          "applicable": false
+        }
+      },
+      "check_version": "1"
+    },
+    "ux": {
+      "url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "mode": "static",
+      "data": {
+        "signals": {
+          "contact_path": false,
+          "phone": false,
+          "booking": false,
+          "quote_form": true,
+          "form_present": false
+        }
+      },
+      "check_version": "1"
+    },
+    "links": {
+      "url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "mode": "static",
+      "data": {
+        "checked": [
+          {
+            "url": "http://127.0.0.1:59089/broken",
+            "status": 404
+          }
+        ],
+        "broken": 1
+      },
+      "check_version": "1"
+    },
+    "dns": {
+      "url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:57.903839+00:00",
+      "mode": "static",
+      "data": {
+        "127.0.0.1:A": {
+          "status": "absent",
+          "records": []
+        },
+        "127.0.0.1:AAAA": {
+          "status": "absent",
+          "records": []
+        },
+        "127.0.0.1:MX": {
+          "status": "absent",
+          "records": []
+        },
+        "127.0.0.1:TXT": {
+          "status": "absent",
+          "records": []
+        },
+        "_dmarc.127.0.0.1:TXT": {
+          "status": "absent",
+          "records": []
+        },
+        "limitations": "DKIM needs a supplied selector; absent email records do not prove a website defect."
+      },
+      "check_version": "1"
+    },
+    "crawl": {
+      "url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:57.903839+00:00",
+      "mode": "static",
+      "data": {
+        "pages": [
+          {
+            "url": "http://127.0.0.1:59089/",
+            "status_code": 200,
+            "depth": 0,
+            "links": [
+              "http://127.0.0.1:59089/broken"
+            ]
+          },
+          {
+            "url": "http://127.0.0.1:59089/broken",
+            "status_code": 404,
+            "depth": 1,
+            "links": []
+          }
+        ],
+        "edges": [
+          {
+            "from": "http://127.0.0.1:59089/",
+            "to": "http://127.0.0.1:59089/broken"
+          }
+        ],
+        "robots_blocked": [],
+        "sitemaps": [
+          {
+            "url": "http://127.0.0.1:59089/sitemap.xml",
+            "status": 404
+          }
+        ],
+        "bounded": false,
+        "limits": {
+          "pages": 3,
+          "depth": 2
+        }
+      },
+      "check_version": "1"
+    },
+    "browser": {
+      "mode": "lab",
+      "limitations": "No field CWV, legal or accessibility conformance claim.",
+      "screenshot": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/artifacts/screenshot.png",
+      "console_errors": [],
+      "blocked_requests": [],
+      "visual_pack": {
+        "viewports": {
+          "desktop": {
+            "viewport": {
+              "width": 1366,
+              "height": 900
+            },
+            "path": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/artifacts/screenshot.png",
+            "size": 18666,
+            "sha256": "512d0d28ad6c602bc653dec3699636e494181d9d51993f6a3d2c2c21802dbe3b"
+          },
+          "tablet": {
+            "viewport": {
+              "width": 834,
+              "height": 1112
+            },
+            "path": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/artifacts/tablet.png",
+            "size": 17669,
+            "sha256": "cf0a0c9c35c0395f79c64a38b692494b1b7eacfa291c82dc9d6e0fa1f58a43ec"
+          },
+          "mobile": {
+            "viewport": {
+              "width": 390,
+              "height": 844
+            },
+            "path": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/artifacts/mobile.png",
+            "size": 14404,
+            "sha256": "7442f4653f891efd415d25c521d4eb16290015ccce47ab7b3b17e6a5da72bee9"
+          }
+        },
+        "crops": [
+          {
+            "name": "hero",
+            "selector": "header, main > section, main",
+            "box": {
+              "x": 8,
+              "y": 21.4375,
+              "width": 1350,
+              "height": 112.4375
+            },
+            "path": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/artifacts/crop-hero.png",
+            "size": 12669,
+            "sha256": "d0952730e0d42a351e855a3cc26951e9d8c749bbdbfcb303915cc41f5334493c"
+          },
+          {
+            "name": "primary_cta",
+            "selector": "main a, main button, main [role=button]",
+            "box": {
+              "x": 24,
+              "y": 115.875,
+              "width": 102.203125,
+              "height": 18
+            },
+            "path": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/artifacts/crop-primary_cta.png",
+            "size": 1622,
+            "sha256": "ff28219dadb71b5223b7b4311d22bccf4e697b1cc7f0478763d3b2674dfe81b2"
+          }
+        ],
+        "limitations": "Lab captures; no field conversion claim.",
+        "layout": {
+          "document_width": 1366,
+          "viewport_width": 1366,
+          "horizontal_overflow": false,
+          "landmarks": [
+            {
+              "index": 0,
+              "tag": "main",
+              "role": null,
+              "text": "Synthetic NZ Plumbing\n\nCanterbury fixture, not a real business.\n\nRequest a quote",
+              "x": 8,
+              "y": 21.4375,
+              "width": 1350,
+              "height": 112.4375,
+              "visible": true
+            },
+            {
+              "index": 1,
+              "tag": "h1",
+              "role": null,
+              "text": "Synthetic NZ Plumbing",
+              "x": 8,
+              "y": 21.4375,
+              "width": 1350,
+              "height": 37,
+              "visible": true
+            }
+          ]
+        }
+      },
+      "timing": {
+        "navigation": [
+          {
+            "duration": 761.8999998569489,
+            "domContentLoaded": 449.39999985694885,
+            "responseStart": 421.7999999523163
+          }
+        ],
+        "paint": [
+          {
+            "name": "first-paint",
+            "startTime": 504
+          },
+          {
+            "name": "first-contentful-paint",
+            "startTime": 504
+          }
+        ],
+        "resources": [
+          {
+            "initiatorType": "img",
+            "duration": 320.7000000476837,
+            "transferSize": 300
+          }
+        ]
+      },
+      "images": [
+        {
+          "src": "/missing.png",
+          "loaded": false,
+          "alt": null,
+          "loading": "auto",
+          "aboveFold": true
+        }
+      ],
+      "links": [
+        {
+          "text": "Request a quote",
+          "href": "/broken"
+        }
+      ],
+      "consent": {
+        "interaction": "none",
+        "cookies_before_interaction": [],
+        "limitation": "No consent accepted or forms submitted; cookie purpose requires review."
+      },
+      "axe": {
+        "violations": [
+          {
+            "id": "image-alt",
+            "impact": "critical",
+            "tags": [
+              "cat.text-alternatives",
+              "wcag2a",
+              "wcag111",
+              "section508",
+              "section508.22.a",
+              "TTv5",
+              "TT7.a",
+              "TT7.b",
+              "EN-301-549",
+              "EN-9.1.1.1",
+              "ACT"
+            ],
+            "description": "Ensure <img> elements have alternative text or a role of none or presentation",
+            "help": "Images must have alternative text",
+            "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/image-alt?application=axeAPI",
+            "nodes": [
+              {
+                "any": [
+                  {
+                    "id": "has-alt",
+                    "data": null,
+                    "relatedNodes": [],
+                    "impact": "critical",
+                    "message": "Element does not have an alt attribute"
+                  },
+                  {
+                    "id": "aria-label",
+                    "data": null,
+                    "relatedNodes": [],
+                    "impact": "critical",
+                    "message": "aria-label attribute does not exist or is empty"
+                  },
+                  {
+                    "id": "aria-labelledby",
+                    "data": null,
+                    "relatedNodes": [],
+                    "impact": "critical",
+                    "message": "aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty"
+                  },
+                  {
+                    "id": "non-empty-title",
+                    "data": {
+                      "messageKey": "noAttr"
+                    },
+                    "relatedNodes": [],
+                    "impact": "critical",
+                    "message": "Element has no title attribute"
+                  },
+                  {
+                    "id": "presentational-role",
+                    "data": null,
+                    "relatedNodes": [],
+                    "impact": "critical",
+                    "message": "Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+                  }
+                ],
+                "all": [],
+                "none": [],
+                "impact": "critical",
+                "html": "<img src=\"/missing.png\">",
+                "target": [
+                  "img"
+                ],
+                "failureSummary": "Fix any of the following:\n  Element does not have an alt attribute\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+              }
+            ]
+          }
+        ],
+        "incomplete": [],
+        "passes": 18,
+        "version": "4.10.3"
+      },
+      "mobile": {
+        "overflow": false,
+        "width": 390
+      },
+      "mobile_screenshot": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/artifacts/mobile.png"
+    },
+    "cookie_consent": {
+      "url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:57.903839+00:00",
+      "mode": "rendered",
+      "data": {},
+      "check_version": "1"
+    },
+    "third_party": {
+      "url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:57.903839+00:00",
+      "mode": "rendered",
+      "data": {},
+      "check_version": "1"
+    },
+    "browser_console": {
+      "url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:57.903839+00:00",
+      "mode": "rendered",
+      "data": {},
+      "check_version": "1"
+    }
+  },
+  "check_registry": {
+    "fetch": {
+      "id": "fetch",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "page": {
+      "id": "page",
+      "category": "seo",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Content and conversion observations require editorial review."
+    },
+    "schema": {
+      "id": "schema",
+      "category": "local",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Presence does not establish eligibility or business identity."
+    },
+    "accessibility_static": {
+      "id": "accessibility_static",
+      "category": "accessibility",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Static checks do not establish conformance."
+    },
+    "ux": {
+      "id": "ux",
+      "category": "privacy",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Observed behavior is not a legal determination."
+    },
+    "headers": {
+      "id": "headers",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "hygiene": {
+      "id": "hygiene",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "links": {
+      "id": "links",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "tls": {
+      "id": "tls",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "dns": {
+      "id": "dns",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "crawl": {
+      "id": "crawl",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "lychee": {
+      "id": "lychee",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "External local CLI check; bounded by Lychee configuration and network conditions."
+    },
+    "lighthouse": {
+      "id": "lighthouse",
+      "category": "performance",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Laboratory result; not field Core Web Vitals."
+    },
+    "browser": {
+      "id": "browser",
+      "category": "performance",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Laboratory observations, not field Core Web Vitals."
+    },
+    "axe": {
+      "id": "axe",
+      "category": "accessibility",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Manual keyboard, screen-reader and content review remains necessary."
+    },
+    "pdf": {
+      "id": "pdf",
+      "category": "reporting",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "technology": {
+      "id": "technology",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "js_vulnerabilities": {
+      "id": "js_vulnerabilities",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "structured_validation": {
+      "id": "structured_validation",
+      "category": "local",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "hreflang": {
+      "id": "hreflang",
+      "category": "seo",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "language": {
+      "id": "language",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "images": {
+      "id": "images",
+      "category": "performance",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "social_meta": {
+      "id": "social_meta",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "cookie_consent": {
+      "id": "cookie_consent",
+      "category": "privacy",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "third_party": {
+      "id": "third_party",
+      "category": "technical",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "browser_console": {
+      "id": "browser_console",
+      "category": "technical",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "server_technology": {
+      "id": "server_technology",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    }
+  },
+  "scoring": {
+    "method": "severity sum capped at 100; health = 100 - severity",
+    "weights": {
+      "low": 4,
+      "medium": 8,
+      "high": 16,
+      "critical": 30
+    },
+    "limitation": "Heuristic prioritization, not certification"
+  },
+  "financial_assumptions": [
+    "No fines or measured lost revenue. Estimates require explicit rates."
+  ],
+  "artifacts": {
+    "json": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/report.json",
+    "html": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/report.html",
+    "trend": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/trend.svg",
+    "actions": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/actions/preview.json",
+    "screenshot": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/artifacts/screenshot.png",
+    "mobile_screenshot": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/artifacts/mobile.png",
+    "visual_desktop": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/artifacts/screenshot.png",
+    "visual_tablet": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/artifacts/tablet.png",
+    "visual_mobile": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/artifacts/mobile.png",
+    "visual_crop_hero": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/artifacts/crop-hero.png",
+    "visual_crop_primary_cta": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/artifacts/crop-primary_cta.png",
+    "pdf": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/report.pdf"
+  },
+  "category_scores": {
+    "accessibility": {
+      "score": 46,
+      "severity_score": 46,
+      "health_score": 54
+    },
+    "local": {
+      "score": 4,
+      "severity_score": 4,
+      "health_score": 96
+    },
+    "performance": {
+      "score": 8,
+      "severity_score": 8,
+      "health_score": 92
+    },
+    "privacy": {
+      "score": 8,
+      "severity_score": 8,
+      "health_score": 92
+    },
+    "security": {
+      "score": 16,
+      "severity_score": 16,
+      "health_score": 84
+    },
+    "seo": {
+      "score": 40,
+      "severity_score": 40,
+      "health_score": 60
+    },
+    "technical": {
+      "score": 32,
+      "severity_score": 32,
+      "health_score": 68
+    }
+  },
+  "comparison": {
+    "baseline": null,
+    "new": [
+      "1d608b241cf54ba720bb6d02",
+      "22175f502b50e0640a05ca5a",
+      "2d769e73575c5da03e3e61e2",
+      "4140f976d029fff9e97b8825",
+      "48cae7bc2e55cbb6d0391bf8",
+      "4a2b40fe2f29e86159e3a153",
+      "5b3f55dc432736dccd567486",
+      "6d1cbdc04589a378c349a257",
+      "714ef6d72767c290627e7d8b",
+      "72408dba6f708e9a5a639392",
+      "88cbc9d173d7c047bec95a60",
+      "8b62150079eebaae4a28b24e",
+      "997ce451e30e7e5ab464bc3c",
+      "a34084ecc927cdd424574e66",
+      "d19c17b5a6a12b9b846eb563",
+      "d5ee4f324187960ee2c077c4",
+      "eafa239aa3e12c5d04be7111",
+      "f9b282ba33771ffd2d6c5d63"
+    ],
+    "persistent": [],
+    "regressed": [],
+    "resolved": [],
+    "resolution_assessed": false
+  },
+  "fault_regression": {
+    "new": [
+      "1d608b241cf54ba720bb6d02",
+      "22175f502b50e0640a05ca5a",
+      "2d769e73575c5da03e3e61e2",
+      "4140f976d029fff9e97b8825",
+      "48cae7bc2e55cbb6d0391bf8",
+      "4a2b40fe2f29e86159e3a153",
+      "5b3f55dc432736dccd567486",
+      "6d1cbdc04589a378c349a257",
+      "714ef6d72767c290627e7d8b",
+      "72408dba6f708e9a5a639392",
+      "88cbc9d173d7c047bec95a60",
+      "8b62150079eebaae4a28b24e",
+      "997ce451e30e7e5ab464bc3c",
+      "a34084ecc927cdd424574e66",
+      "d19c17b5a6a12b9b846eb563",
+      "d5ee4f324187960ee2c077c4",
+      "eafa239aa3e12c5d04be7111",
+      "f9b282ba33771ffd2d6c5d63"
+    ],
+    "resolved": [],
+    "unchanged": []
+  },
+  "claim_ledger": [
+    {
+      "claim_id": "finding:f9b282ba33771ffd2d6c5d63",
+      "claim": "Missing meta description",
+      "claim_type": "observed_fact",
+      "finding_id": "f9b282ba33771ffd2d6c5d63",
+      "evidence_ref": "page",
+      "evidence": "no usable meta description content",
+      "source_url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:4140f976d029fff9e97b8825",
+      "claim": "Missing canonical URL",
+      "claim_type": "observed_fact",
+      "finding_id": "4140f976d029fff9e97b8825",
+      "evidence_ref": "page",
+      "evidence": "no canonical href declared",
+      "source_url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:72408dba6f708e9a5a639392",
+      "claim": "Missing Open Graph tags",
+      "claim_type": "observed_fact",
+      "finding_id": "72408dba6f708e9a5a639392",
+      "evidence_ref": "page",
+      "evidence": "zero Open Graph tags",
+      "source_url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:997ce451e30e7e5ab464bc3c",
+      "claim": "Thin content (<200 words)",
+      "claim_type": "hypothesis",
+      "finding_id": "997ce451e30e7e5ab464bc3c",
+      "evidence_ref": "page",
+      "evidence": "page body contains 13 words (<200 threshold)",
+      "source_url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:1d608b241cf54ba720bb6d02",
+      "claim": "Missing viewport metadata",
+      "claim_type": "observed_fact",
+      "finding_id": "1d608b241cf54ba720bb6d02",
+      "evidence_ref": "page",
+      "evidence": "no viewport meta tag",
+      "source_url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:714ef6d72767c290627e7d8b",
+      "claim": "No structured data found",
+      "claim_type": "hypothesis",
+      "finding_id": "714ef6d72767c290627e7d8b",
+      "evidence_ref": "schema",
+      "evidence": "zero structured-data blocks",
+      "source_url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:48cae7bc2e55cbb6d0391bf8",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "48cae7bc2e55cbb6d0391bf8",
+      "evidence_ref": "page",
+      "evidence": "img src=/missing.png has no alt",
+      "source_url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:5b3f55dc432736dccd567486",
+      "claim": "Missing content-security-policy",
+      "claim_type": "observed_fact",
+      "finding_id": "5b3f55dc432736dccd567486",
+      "evidence_ref": "headers",
+      "evidence": "headers",
+      "source_url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:2d769e73575c5da03e3e61e2",
+      "claim": "Missing x-content-type-options",
+      "claim_type": "observed_fact",
+      "finding_id": "2d769e73575c5da03e3e61e2",
+      "evidence_ref": "headers",
+      "evidence": "headers",
+      "source_url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:8b62150079eebaae4a28b24e",
+      "claim": "No robots.txt",
+      "claim_type": "observed_fact",
+      "finding_id": "8b62150079eebaae4a28b24e",
+      "evidence_ref": "crawl",
+      "evidence": "GET http://127.0.0.1:59089/robots.txt returned HTTP 404",
+      "source_url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:57.903839+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:88cbc9d173d7c047bec95a60",
+      "claim": "Sitemap not found",
+      "claim_type": "observed_fact",
+      "finding_id": "88cbc9d173d7c047bec95a60",
+      "evidence_ref": "crawl",
+      "evidence": "GET http://127.0.0.1:59089/sitemap.xml returned HTTP 404",
+      "source_url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:57.903839+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:d19c17b5a6a12b9b846eb563",
+      "claim": "Missing referrer-policy",
+      "claim_type": "observed_fact",
+      "finding_id": "d19c17b5a6a12b9b846eb563",
+      "evidence_ref": "headers",
+      "evidence": "response has no referrer-policy header",
+      "source_url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:eafa239aa3e12c5d04be7111",
+      "claim": "Missing permissions-policy",
+      "claim_type": "observed_fact",
+      "finding_id": "eafa239aa3e12c5d04be7111",
+      "evidence_ref": "headers",
+      "evidence": "response has no permissions-policy header",
+      "source_url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:6d1cbdc04589a378c349a257",
+      "claim": "No contact path found",
+      "claim_type": "hypothesis",
+      "finding_id": "6d1cbdc04589a378c349a257",
+      "evidence_ref": "ux",
+      "evidence": "no tel: link, contact link, or form element found",
+      "source_url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:d5ee4f324187960ee2c077c4",
+      "claim": "Broken internal link (404)",
+      "claim_type": "observed_fact",
+      "finding_id": "d5ee4f324187960ee2c077c4",
+      "evidence_ref": "crawl",
+      "evidence": "GET http://127.0.0.1:59089/broken returned HTTP 404",
+      "source_url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:57.903839+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:22175f502b50e0640a05ca5a",
+      "claim": "Client error response",
+      "claim_type": "hypothesis",
+      "finding_id": "22175f502b50e0640a05ca5a",
+      "evidence_ref": "crawl",
+      "evidence": "crawl",
+      "source_url": "http://127.0.0.1:59089/broken",
+      "observed_at": "2026-10-14T14:46:57.903839+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:4a2b40fe2f29e86159e3a153",
+      "claim": "Images must have alternative text",
+      "claim_type": "observed_fact",
+      "finding_id": "4a2b40fe2f29e86159e3a153",
+      "evidence_ref": "page",
+      "evidence": "img",
+      "source_url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:58.557057+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:a34084ecc927cdd424574e66",
+      "claim": "Rendered image did not load",
+      "claim_type": "observed_fact",
+      "finding_id": "a34084ecc927cdd424574e66",
+      "evidence_ref": "browser",
+      "evidence": "image-0",
+      "source_url": "http://127.0.0.1:59089/",
+      "observed_at": "2026-10-14T14:46:57.903839+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    }
+  ],
+  "drafts": {
+    "status": "fallback",
+    "review_required": true,
+    "drafts": {
+      "metadata": {
+        "text": "Title: Example services\nDescription: [review required]",
+        "source": "template",
+        "review_required": true
+      },
+      "platform_fix": {
+        "text": "Prepare an evidence-backed fix draft for review.",
+        "source": "template",
+        "review_required": true
+      },
+      "outreach": {
+        "text": "Prepare factual outreach from verified findings.",
+        "source": "template",
+        "review_required": true
+      },
+      "content_expansion": {
+        "text": "Outline services, proof, FAQs, and contact details.",
+        "source": "template",
+        "review_required": true
+      },
+      "bilingual": {
+        "text": "EN: [English draft]\nMI: [te reo Māori review required]",
+        "source": "template",
+        "review_required": true
+      }
+    },
+    "reason": "Local generation not requested"
+  },
+  "proofing": {
+    "metadata": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 18,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "platform_fix": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 18,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "outreach": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 18,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "content_expansion": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 18,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "bilingual": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 18,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    }
+  },
+  "proposal": {
+    "currency": "NZD",
+    "hourly_rate": null,
+    "assumptions": "Illustrative 1–3 hours per finding; scope and rates require review.",
+    "hours_low": 18,
+    "hours_high": 54,
+    "estimate_low": null,
+    "estimate_high": null
+  },
+  "action_preview": {
+    "count": 18,
+    "status": "preview",
+    "path": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/actions/preview.json"
+  },
+  "coverage": {
+    "required": 22,
+    "passed": 22
+  },
+  "manifest": {
+    "html": {
+      "path": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/report.html",
+      "size": 33977,
+      "sha256": "e544a852f657ed1ee75a906182bafbf1620149e1d17634f2f2f918dc5a8c6eb5"
+    },
+    "trend": {
+      "path": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/trend.svg",
+      "size": 239,
+      "sha256": "861eaab7fa54f1f140e9393704cb2bb465ba6c6b06e386d3c55e42e7020052c4"
+    },
+    "actions": {
+      "path": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/actions/preview.json",
+      "size": 32143,
+      "sha256": "9e7584400d6d1df4edc60b6236005ea3171add7a8dfd2478c90cc0bb0e6a6df2"
+    },
+    "screenshot": {
+      "path": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/artifacts/screenshot.png",
+      "size": 18666,
+      "sha256": "512d0d28ad6c602bc653dec3699636e494181d9d51993f6a3d2c2c21802dbe3b"
+    },
+    "mobile_screenshot": {
+      "path": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/artifacts/mobile.png",
+      "size": 14404,
+      "sha256": "7442f4653f891efd415d25c521d4eb16290015ccce47ab7b3b17e6a5da72bee9"
+    },
+    "visual_desktop": {
+      "path": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/artifacts/screenshot.png",
+      "size": 18666,
+      "sha256": "512d0d28ad6c602bc653dec3699636e494181d9d51993f6a3d2c2c21802dbe3b"
+    },
+    "visual_tablet": {
+      "path": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/artifacts/tablet.png",
+      "size": 17669,
+      "sha256": "cf0a0c9c35c0395f79c64a38b692494b1b7eacfa291c82dc9d6e0fa1f58a43ec"
+    },
+    "visual_mobile": {
+      "path": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/artifacts/mobile.png",
+      "size": 14404,
+      "sha256": "7442f4653f891efd415d25c521d4eb16290015ccce47ab7b3b17e6a5da72bee9"
+    },
+    "visual_crop_hero": {
+      "path": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/artifacts/crop-hero.png",
+      "size": 12669,
+      "sha256": "d0952730e0d42a351e855a3cc26951e9d8c749bbdbfcb303915cc41f5334493c"
+    },
+    "visual_crop_primary_cta": {
+      "path": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/artifacts/crop-primary_cta.png",
+      "size": 1622,
+      "sha256": "ff28219dadb71b5223b7b4311d22bccf4e697b1cc7f0478763d3b2674dfe81b2"
+    },
+    "pdf": {
+      "path": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/sample/audit/20261014T144657-052d7d276c1f/report.pdf",
+      "size": 160423,
+      "sha256": "6e27af6fc881a9eecc30f65c522aa5be3f859e45c935d26b2ea0ade79fbe9ba4"
+    }
+  }
+}

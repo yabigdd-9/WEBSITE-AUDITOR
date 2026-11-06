@@ -86,9 +86,9 @@ def get_worker_statistics() -> Dict[str, Any]:
                 SELECT
                     state,
                     COUNT(*) as count,
-                    AVCASE WHEN julianday(updated_at) - julianday(created_at) > 0
+                    AVG(CASE WHEN julianday(updated_at) - julianday(created_at) > 0
                          THEN (julianday(updated_at) - julianday(created_at)) * 86400
-                         ELSE 0 END as avg_processing_time_seconds
+                         ELSE 0 END) as avg_processing_time_seconds
                 FROM pipeline_items
                 WHERE updated_at >= datetime('now', '-1 hour')
                 GROUP BY state

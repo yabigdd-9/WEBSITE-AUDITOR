@@ -1,0 +1,93 @@
+.................F.....s................................s...........F... [ 10%]
+.......................................................................sssssss....F........s... [ 24%]
+.................................................................... [ 34%]
+........................................................................ [ 45%]
+........................................................................ [ 56%]
+........................................................................ [ 67%]
+................................................ [ 74%]
+.................................................................ss..... [ 84%]
+........................................................................ [ 95%]
+.............................                                            [100%]
+=================================== FAILURES ===================================
+___________ Acceptance.test_05_historical_unverified_sends_excluded ____________
+
+self = <test_acceptance.Acceptance testMethod=test_05_historical_unverified_sends_excluded>
+
+    def test_05_historical_unverified_sends_excluded(self):
+>       self.assertEqual(o.metrics(self.d)['verified_sends'],0);self.assertEqual(o.metrics(self.d)['legacy_claimed_sends_unverified'],3)
+                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: 0 != 3
+
+money-machine/test_acceptance.py:87: AssertionError
+__________ Acceptance.test_56_status_cli_persists_no_fixture_changes ___________
+
+self = <test_acceptance.Acceptance testMethod=test_56_status_cli_persists_no_fixture_changes>
+
+    def test_56_status_cli_persists_no_fixture_changes(self):
+        self.d.commit();before=self.d.execute('SELECT count(*) FROM mm_events').fetchone()[0]
+>       run=subprocess.run([sys.executable,str(OPERATOR),'status'],capture_output=True,text=True,timeout=10)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+money-machine/test_acceptance.py:260: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/Users/dd/.local/share/uv/python/cpython-3.11.16-macos-x86_64-none/lib/python3.11/subprocess.py:550: in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/dd/.local/share/uv/python/cpython-3.11.16-macos-x86_64-none/lib/python3.11/subprocess.py:1209: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/dd/.local/share/uv/python/cpython-3.11.16-macos-x86_64-none/lib/python3.11/subprocess.py:2116: in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <Popen: returncode: -9 args: ['/Users/dd/WEBSITE-AUDITOR/.venv/bin/python', ...>
+endtime = 1131191.607522768, orig_timeout = 10, stdout_seq = [], stderr_seq = []
+skip_check_and_raise = False
+
+    def _check_timeout(self, endtime, orig_timeout, stdout_seq, stderr_seq,
+                       skip_check_and_raise=False):
+        """Convenience for checking if a timeout has expired."""
+        if endtime is None:
+            return
+        if skip_check_and_raise or _time() > endtime:
+>           raise TimeoutExpired(
+                    self.args, orig_timeout,
+                    output=b''.join(stdout_seq) if stdout_seq else None,
+                    stderr=b''.join(stderr_seq) if stderr_seq else None)
+E           subprocess.TimeoutExpired: Command '['/Users/dd/WEBSITE-AUDITOR/.venv/bin/python', '/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/money-machine/mm_operator.py', 'status']' timed out after 10 seconds
+
+/Users/dd/.local/share/uv/python/cpython-3.11.16-macos-x86_64-none/lib/python3.11/subprocess.py:1253: TimeoutExpired
+___ HardeningDatabase.test_replace_cannot_overwrite_event_or_archived_score ____
+
+self = <test_email_hardening.HardeningDatabase testMethod=test_replace_cannot_overwrite_event_or_archived_score>
+
+    def test_replace_cannot_overwrite_event_or_archived_score(self):
+        event = self.d.execute('SELECT * FROM mm_events ORDER BY id LIMIT 1').fetchone()
+        with self.assertRaisesRegex(sqlite3.IntegrityError,'replacement blocked'):
+            self.d.execute('INSERT OR REPLACE INTO mm_events VALUES(?,?,?,?,?)',
+                           (event['id'],e.utcnow(),'replaced',self.bid,'tampered'))
+        score = self.d.execute('SELECT * FROM mm_score_history ORDER BY id LIMIT 1').fetchone()
+        with self.assertRaisesRegex(sqlite3.IntegrityError,'replacement blocked'):
+            self.d.execute('INSERT OR REPLACE INTO mm_score_history VALUES(?,?,?,?,?,?,?)',
+>                          (score['id'],self.bid,self.eid,'{}','{}',e.utcnow(),e.utcnow()))
+                            ^^^^^^^^^^^
+E           TypeError: 'NoneType' object is not subscriptable
+
+money-machine/test_email_hardening.py:95: TypeError
+=========================== short test summary info ============================
+SKIPPED [1] money-machine/test_acceptance.py:105: BLOCKED: legacy/global Hermes calls cannot be reconciled to MoneyMachine agent_runs. Separate test covers all new local model requests.
+SKIPPED [1] money-machine/test_acceptance.py:223: BLOCKED: no live mail/bank receipt supplied or independent read-only provider verifier connected; local attestation importer is tested separately.
+SKIPPED [1] money-machine/test_email_hardening.py:43: BLOCKED_FIXTURE: reports/email-observation-evidence/cases corpus not present in this environment
+SKIPPED [1] money-machine/test_email_hardening.py:69: BLOCKED_FIXTURE: reports/email-observation-evidence/cases corpus not present in this environment
+SKIPPED [1] money-machine/test_email_hardening.py:52: BLOCKED_FIXTURE: reports/email-observation-evidence/cases corpus not present in this environment
+SKIPPED [1] money-machine/test_email_hardening.py:60: BLOCKED_FIXTURE: reports/email-observation-evidence/cases corpus not present in this environment
+SKIPPED [1] money-machine/test_email_hardening.py:35: BLOCKED_FIXTURE: reports/email-observation-evidence/cases corpus not present in this environment
+SKIPPED [1] money-machine/test_email_hardening.py:29: BLOCKED_FIXTURE: reports/email-observation-evidence/cases corpus not present in this environment
+SKIPPED [1] money-machine/test_email_hardening.py:74: BLOCKED_FIXTURE: reports/email-observation-evidence/cases corpus not present in this environment
+SKIPPED [1] money-machine/test_email_integration.py:88: BLOCKED_FIXTURE: migrations/003_email_finder_v2_rollback.sql not present in this environment
+SKIPPED [1] money-machine/test_pipeline_loop.py:48: BLOCKED_FIXTURE: /Users/dd/agent-trials/hermes/database/money_machine.db not present in this environment
+SKIPPED [1] money-machine/test_pipeline_loop.py:41: BLOCKED_FIXTURE: /Users/dd/agent-trials/hermes/database/money_machine.db not present in this environment
+FAILED money-machine/test_acceptance.py::Acceptance::test_05_historical_unverified_sends_excluded
+FAILED money-machine/test_acceptance.py::Acceptance::test_56_status_cli_persists_no_fixture_changes
+FAILED money-machine/test_email_hardening.py::HardeningDatabase::test_replace_cannot_overwrite_event_or_archived_score
+3 failed, 657 passed, 12 skipped, 77 subtests passed in 248.85s (0:04:08)

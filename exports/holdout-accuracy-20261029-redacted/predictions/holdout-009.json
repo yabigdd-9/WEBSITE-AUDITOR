@@ -1,0 +1,48 @@
+{
+ "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+ "fixture_sha256": "474bed2c957fb52bb1990b59e63fef02a767885289da833f1854a76cba8a662d",
+ "scope": "brochure-service",
+ "prediction_author": "wa-static-profile (deterministic, no model)",
+ "observations": [
+  {
+   "rule": "header-content-security-policy",
+   "url": "https://electric-city.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "header-x-content-type-options",
+   "url": "https://electric-city.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "header-hsts",
+   "url": "https://electric-city.co.nz/",
+   "location": "Review HTTPS deployment"
+  },
+  {
+   "rule": "structured_data_missing_type",
+   "url": "https://electric-city.co.nz/",
+   "location": "Search engines may ignore or misinterpret the structured data."
+  },
+  {
+   "rule": "images-missing-dimensions",
+   "url": "https://electric-city.co.nz/",
+   "location": "Space reservation needs rendered review; CSS or a sized container may already prevent layout shift"
+  },
+  {
+   "rule": "images-external-hosting",
+   "url": "https://electric-city.co.nz/",
+   "location": "Third-party image dependency"
+  },
+  {
+   "rule": "social-meta-og-image",
+   "url": "https://electric-city.co.nz/",
+   "location": "No Open Graph image for social sharing"
+  },
+  {
+   "rule": "social-meta-twitter-handle",
+   "url": "https://electric-city.co.nz/",
+   "location": "No twitter:site or twitter:creator declared"
+  }
+ ]
+}

@@ -9,7 +9,7 @@ external_send_requires_human_approval: true
 
 ## Active model routing
 
-Use `control-plane/config/routing.yaml` as the role-routing source of truth.
+Use `money-machine/config/routing.yaml` as the canonical role-routing source of truth.
 Ultra plans, a role-specific specialist produces a bounded draft, Super reviews,
 and Ultra resolves disagreement. If the reviewer falls back to the creator's
 model, the result is not independent review and must remain held for human review.
@@ -17,7 +17,7 @@ model, the result is not independent review and must remain held for human revie
 For explicit, bounded model-only work, use the existing Hermes Python runtime:
 
 ```sh
-/Users/yabigdd/.hermes/hermes-agent/venv/bin/python control-plane/scripts/free_role_router.py --role RESEARCHER --prompt-file /absolute/path/to/public-or-synthetic-task.txt
+.venv/bin/python money-machine/scripts/free_role_router.py --role RESEARCHER --prompt-file /absolute/path/to/public-or-synthetic-task.txt --public-or-synthetic
 ```
 
 This command dispatches text/image requests only. It does not run returned code,

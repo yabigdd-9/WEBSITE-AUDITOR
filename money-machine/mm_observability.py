@@ -6,6 +6,7 @@ write only to state/*.json or jsonl for Obsidian/operator visibility.
 from __future__ import annotations
 
 import contextlib
+import datetime as dt
 import json
 import os
 from pathlib import Path
@@ -24,6 +25,84 @@ def _open():
     return core.connect(path, readonly=True)
 
 
+def _discovery_health() -> dict:
+    """Read recurring-discovery state and probe only the configured loopback service."""
+    import mm_recurring_discovery as recurring
+    import mm_search_backend
+
+    try:
+        config = recurring.load_config()
+    except Exception as exc:
+        return {
+            "enabled": False,
+            "state": "CONFIG_ERROR",
+            "error": "%s: %s" % (type(exc).__name__, exc),
+        }
+
+    endpoint = str(
+        config.get("searxng_endpoint") or "http://127.0.0.1:8888"
+    )
+    try:
+        probe = mm_search_backend.probe(endpoint, timeout=2)
+    except Exception as exc:
+        probe = {
+            "provider": "searxng",
+            "endpoint": endpoint,
+            "ok": False,
+            "state": "PROBE_ERROR",
+            "reason": "%s: %s" % (type(exc).__name__, exc),
+        }
+
+    path = Path(recurring.DEFAULT_STATE)
+    try:
+        state = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(state, dict):
+            state = {}
+    except (OSError, TypeError, ValueError):
+        state = {}
+
+    interval = 360
+    try:
+        interval = max(15, int(config.get("interval_minutes", 360)))
+    except (TypeError, ValueError):
+        pass
+
+    last = state.get("last_finished_at")
+    next_due = None
+    due_now = True
+    if last:
+        try:
+            parsed = dt.datetime.fromisoformat(
+                str(last).replace("Z", "+00:00")
+            )
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=dt.timezone.utc)
+            due_at = parsed.astimezone(dt.timezone.utc) + dt.timedelta(
+                minutes=interval
+            )
+            next_due = due_at.isoformat()
+            due_now = dt.datetime.now(dt.timezone.utc) >= due_at
+        except (TypeError, ValueError):
+            due_now = True
+
+    return {
+        "enabled": config.get("enabled") is True,
+        "interval_minutes": interval,
+        "endpoint": endpoint,
+        "state_file": str(path),
+        "state_file_exists": path.is_file(),
+        "last_finished_at": last,
+        "next_due_at": next_due,
+        "due_now": due_now,
+        "collection_counts": state.get("collection_counts"),
+        "intake_counts": state.get("intake_counts"),
+        "sources": state.get("sources"),
+        "searxng": probe,
+        "external_sends": 0,
+        "paid_calls": 0,
+    }
+
+
 def health() -> dict:
     from supervisor.cli import cmd_health
     from types import SimpleNamespace
@@ -33,6 +112,7 @@ def health() -> dict:
     result["authoritative"] = "SQLite + ./mm supervisor"
     result["paid_model_fallback"] = False
     result["live_outreach_default"] = False
+    result["recurring_discovery"] = _discovery_health()
     # P6: typed alert rules surfaced with every health snapshot.
     try:
         import mm_reporting

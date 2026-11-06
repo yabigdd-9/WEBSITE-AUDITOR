@@ -1,0 +1,19 @@
+{
+  "command": [
+    "pytest",
+    "money-machine",
+    "-q",
+    "-m",
+    "not slow"
+  ],
+  "exit_code": 1,
+  "elapsed_seconds": 74.634,
+  "source_hashes": {
+    "money-machine/mm_pipeline.py": "ab0e4a5428b6c14b2ffff69bc4d4e71deb7c3754f1ebbc37c612e71ad9b54cf8",
+    "money-machine/mm_queue_health.py": "50d2f9aa8d23a32f2b82a21228b4b959b5d4f71239afb2c4dc714096a8f8a280",
+    "money-machine/supervisor/cli.py": "11a272cd7da6634b6014cc144b2873081832fb3cfa764e5dcffb50b278a4d7ee"
+  },
+  "changed_during_run": false,
+  "state_root": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/staging/money-machine-non-slow",
+  "credentials_inherited": false
+}

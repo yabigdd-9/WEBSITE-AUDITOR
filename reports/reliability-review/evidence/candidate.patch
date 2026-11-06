@@ -1,0 +1,823 @@
+diff --git a/approval/APPROVAL_QUEUE.yaml b/approval/APPROVAL_QUEUE.yaml
+index 313d689c..0164df10 100644
+--- a/approval/APPROVAL_QUEUE.yaml
++++ b/approval/APPROVAL_QUEUE.yaml
+@@ -88,6 +88,16 @@ requires_dion_approval:
+   current_state: 5 of 9 prospects permitted (clyne-bennie, jcconstruction, tbir, prodecorators, davidrobertson);
+     4 of 9 have no published email (NO_EMAIL_PUBLISHED) and route to phone/post — these cannot be emailed
+     by design. Gate check against prospect_dossier.json confirms 5 PERMITTED, 4 BLOCKED (no address).
++- id: APR-RELIABILITY-SYNTHETIC-20261015
++  type: synthetic_review_packet
++  engine: WEBSITE-AUDITOR reliability staging
++  description: Review the synthetic loopback audit, demo concept and exact draft.
++  status: NOT_SENT_AWAITING_APPROVAL
++  synthetic: true
++  human_approved: false
++  send_enabled: false
++  recipient: null
++  detail_ref: reports/reliability-review/sample/packet/APPROVAL_PACKET.md
+ autonomous_no_approval_needed:
+ - prospect research from public sources
+ - opportunity scoring
+diff --git a/money-machine/mm_pipeline.py b/money-machine/mm_pipeline.py
+index bbe9658f..5dc7302b 100644
+--- a/money-machine/mm_pipeline.py
++++ b/money-machine/mm_pipeline.py
+@@ -229,6 +229,10 @@ class BlockedCostError(Exception):
+     """No free model/provider route: defer, never fall back to paid."""
+ 
+ 
++class LeaseLostError(ValueError):
++    """An expired or replaced lease cannot author a worker outcome."""
++
++
+ # Public compatibility name used by model routers and injected handlers.
+ BlockedCost = BlockedCostError
+ 
+@@ -302,14 +306,17 @@ def heartbeat(d, worker_id, business_id=None):
+ 
+ def claim(d, states, worker_id, lease_seconds=300, limit=1):
+     """Claim up to `limit` items in `states`. Expired leases are recoverable."""
++    if not states or limit <= 0:
++        return []
+     at = dt.datetime.now(dt.timezone.utc)
+     until = (at + dt.timedelta(seconds=lease_seconds)).isoformat()
+     marks = ','.join('?' * len(states))
+     rows = d.execute(
+         "SELECT * FROM pipeline_items WHERE state IN (%s) "
+         "AND (next_retry_at IS NULL OR next_retry_at<=?) "
++        "AND (lease_until IS NULL OR lease_until<=?) "
+         "ORDER BY updated_at LIMIT ?" % marks,
+-        tuple(states) + (at.isoformat(), limit)).fetchall()
++        tuple(states) + (at.isoformat(), at.isoformat(), limit)).fetchall()
+     got = []
+     for r in rows:
+         if r['lease_until'] and timestamp(r['lease_until']) > at:
+@@ -317,8 +324,10 @@ def claim(d, states, worker_id, lease_seconds=300, limit=1):
+         cur = d.execute(
+             "UPDATE pipeline_items SET lease_owner=?,lease_until=?,"
+             "heartbeat_at=?,updated_at=? WHERE business_id=? AND "
+-            "(lease_until IS NULL OR lease_until<=?)",
+-            (worker_id, until, now(), now(), r['business_id'], at.isoformat()))
++            "(lease_until IS NULL OR lease_until<=?) AND state=? "
++            "AND (next_retry_at IS NULL OR next_retry_at<=?)",
++            (worker_id, until, now(), now(), r['business_id'], at.isoformat(),
++             r['state'], at.isoformat()))
+         if cur.rowcount:
+             got.append(item(d, r['business_id']))
+     return got
+@@ -361,11 +370,27 @@ def backoff_seconds(attempts, base=30, cap=3600, jitter=0.2):
+     return delay * (1 + random.uniform(-jitter, jitter))
+ 
+ 
+-def fail(d, business_id, worker_id, error, retryable=True):
++def _require_lease(d, business_id, worker_id, allow_unleased=False):
++    # Obtain the SQLite write lock before checking ownership. A stale result
++    # must not reset another worker's retry budget, release its lease or advance.
++    cur = d.execute(
++        "UPDATE pipeline_items SET heartbeat_at=heartbeat_at WHERE business_id=? "
++        "AND ((lease_owner=? AND lease_until>?) "
++        "OR (? AND lease_owner IS NULL AND lease_until IS NULL))",
++        (business_id, worker_id, now(), int(allow_unleased)))
++    if not cur.rowcount:
++        raise LeaseLostError('Worker lease no longer owned')
++
++
++def fail(d, business_id, worker_id, error, retryable=True, require_lease=False):
+     """Record a failure; schedule retry or dead-letter."""
++    # Preserve the explicit unleased diagnostic API used by operator tooling;
++    # the worker loop always requires its current lease.
++    _require_lease(d, business_id, worker_id, allow_unleased=not require_lease)
+     r = item(d, business_id)
+     attempts = r['attempts'] + 1
+-    msg = str(error)[:500]
++    msg = ('BLOCKED_COST: %s' % error if isinstance(error, BlockedCost)
++           else str(error))[:500]
+ 
+     # Generate error fingerprint and determine component
+     component = getattr(worker_id, 'kind', str(worker_id)) if hasattr(worker_id, 'kind') else str(worker_id)
+@@ -483,11 +508,22 @@ def mark_sent(d, business_id, actor, provider_message_id):
+ 
+ 
+ def complete(d, business_id, worker_id, to_state, reason='ok', evidence=None):
+-    release(d, business_id, worker_id)
+-    d.execute("UPDATE pipeline_items SET attempts=0,next_retry_at=NULL "
+-              "WHERE business_id=?", (business_id,))
+-    metric(d, 'pipeline.items.completed')
+-    return advance(d, business_id, to_state, worker_id, reason, evidence)
++    # Roll back partial state edges and counters when a completion is rejected.
++    # A savepoint preserves unrelated work in the caller's transaction.
++    d.execute('SAVEPOINT pipeline_completion')
++    try:
++        _require_lease(d, business_id, worker_id)
++        advance(d, business_id, to_state, worker_id, reason, evidence)
++        release(d, business_id, worker_id)
++        d.execute("UPDATE pipeline_items SET attempts=0,next_retry_at=NULL "
++                  "WHERE business_id=?", (business_id,))
++        metric(d, 'pipeline.items.completed')
++    except Exception:
++        d.execute('ROLLBACK TO pipeline_completion')
++        d.execute('RELEASE pipeline_completion')
++        raise
++    d.execute('RELEASE pipeline_completion')
++    return item(d, business_id)
+ 
+ 
+ 
+@@ -662,6 +698,14 @@ class Worker:
+         register_worker(d, self.worker_id, kind=','.join(self.states),
+                         lease_seconds=self.lease_seconds)
+         processed = 0
++        def record_failure(bid, error, retryable=True):
++            try:
++                fail(d, bid, self.worker_id, error, retryable=retryable,
++                     require_lease=True)
++            except LeaseLostError:
++                log({'kind': 'lease_lost', 'business_id': bid,
++                     'worker': self.worker_id})
++
+         for it in claim(d, self.states, self.worker_id,
+                         lease_seconds=self.lease_seconds, limit=limit):
+             bid = it['business_id']
+@@ -683,21 +727,26 @@ class Worker:
+                     breaker_success(d, svc)
+                 try:
+                     complete(d, bid, self.worker_id, nxt, reason, evidence)
++                except LeaseLostError:
++                    raise
+                 except Exception as ex:
+                     # A bad handler target must never crash the worker loop:
+                     # record it as a bounded retryable failure instead.
+                     raise classify_unexpected(ex, 'completion rejected: ')
+                 processed += 1
++            except LeaseLostError:
++                log({'kind': 'lease_lost', 'business_id': bid,
++                     'worker': self.worker_id})
+             except BlockedCost as ex:
+                 for svc in self.services:
+                     breaker_failure(d, svc)
+-                fail(d, bid, self.worker_id, 'BLOCKED_COST: %s' % ex)
++                record_failure(bid, ex)
+             except RetryableError as ex:
+                 for svc in self.services:
+                     breaker_failure(d, svc)
+-                fail(d, bid, self.worker_id, ex)
++                record_failure(bid, ex)
+             except PermanentError as ex:
+-                fail(d, bid, self.worker_id, ex, retryable=False)
++                record_failure(bid, ex, retryable=False)
+             heartbeat(d, self.worker_id)
+         return processed
+ 
+diff --git a/money-machine/supervisor/cli.py b/money-machine/supervisor/cli.py
+index 55242976..396efefa 100755
+--- a/money-machine/supervisor/cli.py
++++ b/money-machine/supervisor/cli.py
+@@ -137,7 +137,7 @@ def cmd_health(args) -> dict:
+     read-only connection; here we read the pipeline tables directly and only if
+     they already exist.
+     """
+-    import datetime as dt
++    from mm_queue_health import snapshot as queue_snapshot
+     db_path = root() / "database" / "money_machine.db"
+     if not db_path.is_file():
+         return {
+@@ -156,17 +156,7 @@ def cmd_health(args) -> dict:
+             if "pipeline_items" not in tables:
+                 snap = {"initialised": False, "note": "pipeline tables not created yet"}
+             else:
+-                at = dt.datetime.now(dt.timezone.utc).isoformat()
+-                states = {r[0]: r[1] for r in d.execute(
+-                    "SELECT state,count(*) FROM pipeline_items GROUP BY state")}
+-                leased = d.execute(
+-                    "SELECT count(*) FROM pipeline_items WHERE lease_until IS NOT NULL "
+-                    "AND lease_until>?", (at,)).fetchone()[0]
+-                dead = d.execute(
+-                    "SELECT count(*) FROM pipeline_items WHERE state IN "
+-                    "('RETRYABLE_FAILURE','PERMANENT_FAILURE')").fetchone()[0]
+-                snap = {"initialised": True, "states": states,
+-                        "active_leases": leased, "dead_lettered": dead}
++                snap = queue_snapshot(d)
+         except Exception as ex:
+             snap = {"error": str(ex)}
+     return {
+diff --git a/money-machine/supervisor/daemon.py b/money-machine/supervisor/daemon.py
+index 48b899b5..d159f3fb 100644
+--- a/money-machine/supervisor/daemon.py
++++ b/money-machine/supervisor/daemon.py
+@@ -2,6 +2,7 @@
+ """SupervisorDaemon — PID-lock, graceful shutdown, heartbeat, log rotation."""
+ 
+ import os, signal, time, json, gzip
++import shutil
+ from pathlib import Path
+ from datetime import datetime, timezone
+ 
+@@ -50,14 +51,24 @@ class SupervisorDaemon:
+         }
+ 
+ def rotate_logs(log_dir: Path = LOG_DIR, max_size_mb: int = 50, retention_days: int = 30) -> list[str]:
++    if max_size_mb <= 0 or retention_days <= 0:
++        raise ValueError('Log size and retention limits must be positive')
+     rotated = []
+     if not log_dir.exists():
+         return rotated
+     for f in sorted(log_dir.glob("*.jsonl")):
+-        if f.stat().st_size > max_size_mb * 1024 * 1024:
+-            archive = f.with_suffix(f".jsonl.{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.gz")
++        if f.is_symlink():
++            continue
++        stat = f.stat()
++        if (stat.st_size > max_size_mb * 1024 * 1024
++                or stat.st_mtime < time.time() - retention_days * 86400):
++            archive = f.with_suffix(f".jsonl.{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S_%f')}.gz")
+             with open(f, 'rb') as src, gzip.open(archive, 'wb') as dst:
+-                dst.write(src.read())
++                shutil.copyfileobj(src, dst)
+             f.unlink()
+             rotated.append(str(archive))
++    cutoff = time.time() - retention_days * 86400
++    for archive in log_dir.glob('*.jsonl.*.gz'):
++        if not archive.is_symlink() and archive.stat().st_mtime < cutoff:
++            archive.unlink()
+     return rotated
+diff --git a/money-machine/test_email_hardening.py b/money-machine/test_email_hardening.py
+index d293e843..81f987e5 100644
+--- a/money-machine/test_email_hardening.py
++++ b/money-machine/test_email_hardening.py
+@@ -89,7 +89,14 @@ class HardeningDatabase(unittest.TestCase):
+         with self.assertRaisesRegex(sqlite3.IntegrityError,'replacement blocked'):
+             self.d.execute('INSERT OR REPLACE INTO mm_events VALUES(?,?,?,?,?)',
+                            (event['id'],e.utcnow(),'replaced',self.bid,'tampered'))
+-        score = self.d.execute('SELECT * FROM mm_score_history ORDER BY id LIMIT 1').fetchone()
++        # Archive this test's synthetic score; an empty staging source must not
++        # depend on a historical customer score already being present.
++        self.d.execute('INSERT INTO mm_scores VALUES(?,?,?,?,?)',
++                       (self.bid,self.eid,'{}','{"score":1}',e.utcnow()))
++        self.d.execute('UPDATE mm_scores SET computed_json=? WHERE business_id=?',
++                       ('{"score":2}',self.bid))
++        score = self.d.execute('SELECT * FROM mm_score_history WHERE business_id=? ORDER BY id LIMIT 1',
++                               (self.bid,)).fetchone()
+         with self.assertRaisesRegex(sqlite3.IntegrityError,'replacement blocked'):
+             self.d.execute('INSERT OR REPLACE INTO mm_score_history VALUES(?,?,?,?,?,?,?)',
+                            (score['id'],self.bid,self.eid,'{}','{}',e.utcnow(),e.utcnow()))
+diff --git a/money-machine/mm_queue_health.py b/money-machine/mm_queue_health.py
+new file mode 100644
+index 00000000..6f88f9ce
+--- /dev/null
++++ b/money-machine/mm_queue_health.py
+@@ -0,0 +1,52 @@
++"""Read-only queue diagnostics; no migration, probes, providers or recovery."""
++import datetime as dt
++
++from mm_core import timestamp
++
++
++def snapshot(d, at=None):
++    at = at or dt.datetime.now(dt.timezone.utc)
++    tables = {r[0] for r in d.execute("SELECT name FROM sqlite_master WHERE type='table'")}
++    if 'pipeline_items' not in tables:
++        return {'initialised': False}
++    workers = []
++    supported = set()
++    if 'worker_registry' in tables:
++        for row in d.execute('SELECT * FROM worker_registry'):
++            w = dict(row)
++            supported.update(w['kind'].split(','))
++            age = (at - timestamp(w['heartbeat_at'])).total_seconds()
++            workers.append({k: w[k] for k in ('worker_id', 'kind', 'started_at', 'heartbeat_at')}
++                           | {'heartbeat_age_seconds': max(0, age),
++                              'stale': age > 2 * w['lease_seconds']})
++    counts = dict(eligible=0, active_leases=0, expired_leases=0, waiting_retry=0,
++                  dead_lettered=0, held_or_terminal=0)
++    states = {}
++    for row in d.execute('SELECT state,lease_until,next_retry_at FROM pipeline_items'):
++        state, lease, retry = row
++        states[state] = states.get(state, 0) + 1
++        if state in ('RETRYABLE_FAILURE', 'PERMANENT_FAILURE'):
++            counts['dead_lettered'] += 1
++        if lease:
++            counts['active_leases' if timestamp(lease) > at else 'expired_leases'] += 1
++        if state not in supported:
++            counts['held_or_terminal'] += 1
++        elif lease and timestamp(lease) > at:
++            continue
++        elif retry and timestamp(retry) > at:
++            counts['waiting_retry'] += 1
++        else:
++            counts['eligible'] += 1
++    if counts['eligible']:
++        activity = 'eligible_work_available'
++    elif counts['active_leases']:
++        activity = 'work_in_flight'
++    elif counts['waiting_retry']:
++        activity = 'waiting_for_retry'
++    else:
++        activity = 'idle_no_eligible_work'
++    metrics = {r[0]: r[1] for r in d.execute('SELECT name,value FROM mm_metrics')} if 'mm_metrics' in tables else {}
++    return {'initialised': True, 'at': at.isoformat(), 'states': states, **counts,
++            'activity': activity, 'workers': workers, 'metrics': metrics,
++            'eligibility_basis': 'registered worker input states',
++            'note': 'Queue activity does not attest supervisor liveness or external safety.'}
+diff --git a/money-machine/test_queue_reliability.py b/money-machine/test_queue_reliability.py
+new file mode 100644
+index 00000000..963ff200
+--- /dev/null
++++ b/money-machine/test_queue_reliability.py
+@@ -0,0 +1,83 @@
++"""Disposable queue regressions: no providers, real prospects or sends."""
++import sqlite3
++
++import mm_pipeline as p
++import pytest
++
++
++@pytest.fixture
++def db(tmp_path, monkeypatch):
++    monkeypatch.setenv("MM_ROOT", str(tmp_path))
++    d = sqlite3.connect(tmp_path / "queue.db")
++    d.row_factory = sqlite3.Row
++    d.execute("CREATE TABLE businesses(id INTEGER PRIMARY KEY)")
++    p.migrate(d)
++    for bid in (1, 2):
++        d.execute("INSERT INTO businesses VALUES(?)", (bid,))
++        p.enqueue(d, bid)
++    d.commit()
++    yield d
++    d.close()
++
++
++def test_active_lease_does_not_hide_next_eligible_item(db):
++    assert p.claim(db, ("DISCOVERED",), "first")[0]["business_id"] == 1
++    db.execute("UPDATE pipeline_items SET updated_at='2000-01-01T00:00:00+00:00' WHERE business_id=1")
++    claimed = p.claim(db, ("DISCOVERED",), "second")
++    assert [r["business_id"] for r in claimed] == [2]
++
++
++def test_rejected_completion_does_not_increment_success_metric(db):
++    p.claim(db, ("DISCOVERED",), "first")
++    with pytest.raises(ValueError):
++        p.complete(db, 1, "first", "APPROVED")
++    assert db.execute("SELECT value FROM mm_metrics WHERE name='pipeline.items.completed'").fetchone() is None
++    assert p.item(db, 1)["lease_owner"] == "first"
++
++
++@pytest.mark.parametrize("operation", ["complete", "fail"])
++def test_stale_worker_cannot_change_new_owners_item(db, operation):
++    p.claim(db, ("DISCOVERED",), "old")
++    db.execute("UPDATE pipeline_items SET lease_until='2000-01-01T00:00:00+00:00', updated_at='2000-01-01T00:00:00+00:00' WHERE business_id=1")
++    assert p.claim(db, ("DISCOVERED",), "new")[0]['business_id'] == 1
++    assert p.item(db, 1)['lease_owner'] == 'new'
++    before = dict(p.item(db, 1))
++    with pytest.raises(ValueError):
++        if operation == "complete":
++            p.complete(db, 1, "old", "IDENTITY_PENDING")
++        else:
++            p.fail(db, 1, "old", p.RetryableError("late result"))
++    assert dict(p.item(db, 1)) == before
++
++
++def test_expired_worker_outcome_is_not_counted(db):
++    def expired(d, row, worker):
++        d.execute("UPDATE pipeline_items SET lease_until='2000-01-01T00:00:00+00:00' WHERE business_id=?", (row['business_id'],))
++        return 'IDENTITY_PENDING', 'late', None
++    assert p.Worker('late', ('DISCOVERED',), expired).run_once(db) == 0
++    assert p.item(db, 1)['state'] == 'DISCOVERED'
++    p.drain_expired_leases(db)
++    assert p.item(db, 1)['lease_owner'] is None
++
++
++def test_health_is_readonly_and_separates_idle_from_stale_workers(db):
++    import mm_queue_health
++    p.register_worker(db, 'idle', 'DISCOVERED')
++    db.execute("UPDATE pipeline_items SET state='NEEDS_REVIEW'")
++    db.execute("UPDATE worker_registry SET heartbeat_at='2000-01-01T00:00:00+00:00'")
++    db.commit()
++    db.execute('PRAGMA query_only=ON')
++    snap = mm_queue_health.snapshot(db)
++    assert snap['activity'] == 'idle_no_eligible_work'
++    assert snap['eligible'] == 0
++    assert snap['held_or_terminal'] == 2
++    assert snap['workers'][0]['stale'] is True
++
++
++def test_health_counts_due_retries_and_expired_leases(db):
++    import mm_queue_health
++    p.register_worker(db, 'worker', 'DISCOVERED')
++    db.execute("UPDATE pipeline_items SET next_retry_at='2999-01-01T00:00:00+00:00' WHERE business_id=2")
++    db.execute("UPDATE pipeline_items SET lease_until='2000-01-01T00:00:00+00:00' WHERE business_id=1")
++    snap = mm_queue_health.snapshot(db)
++    assert (snap['eligible'], snap['expired_leases'], snap['waiting_retry']) == (1, 1, 1)
+diff --git a/toolkit_tests/test_supervisor_log_retention.py b/toolkit_tests/test_supervisor_log_retention.py
+new file mode 100644
+index 00000000..99952dac
+--- /dev/null
++++ b/toolkit_tests/test_supervisor_log_retention.py
+@@ -0,0 +1,31 @@
++import os
++import time
++
++from supervisor.daemon import rotate_logs
++
++
++def test_archive_retention_preserves_recent_and_active_logs(tmp_path):
++    old = tmp_path / 'worker.jsonl.20000101_000000.gz'
++    recent = tmp_path / 'worker.jsonl.20990101_000000.gz'
++    active = tmp_path / 'supervisor.jsonl'
++    unrelated = tmp_path / 'evidence.gz'
++    for file in (old, recent, active, unrelated):
++        file.write_bytes(b'fixture')
++    os.utime(old, (time.time()-31*86400,) * 2)
++    rotate_logs(tmp_path, retention_days=30)
++    assert not old.exists()
++    assert recent.exists() and active.exists() and unrelated.exists()
++
++
++def test_old_daily_log_is_compressed_and_symbolic_links_ignored(tmp_path):
++    import gzip
++    old = tmp_path / '2000-01-01.jsonl'
++    old.write_bytes(b'{"kind":"synthetic"}\n')
++    os.utime(old, (time.time()-31*86400,) * 2)
++    link = tmp_path / 'linked.jsonl'
++    link.symlink_to(old)
++    archives = rotate_logs(tmp_path)
++    assert not old.exists() and link.is_symlink()
++    assert len(archives) == 1
++    with gzip.open(archives[0]) as stream:
++        assert stream.read() == b'{"kind":"synthetic"}\n'
+diff --git a/ops/reliability_review/observe_queue.py b/ops/reliability_review/observe_queue.py
+new file mode 100644
+index 00000000..28ff709e
+--- /dev/null
++++ b/ops/reliability_review/observe_queue.py
+@@ -0,0 +1,61 @@
++"""Bounded read-only queue sampling; never restarts workers or probes networks."""
++import argparse
++import datetime as dt
++import json
++import shutil
++import sqlite3
++import sys
++import time
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parents[2]
++sys.path.insert(0, str(ROOT / 'money-machine'))
++from mm_queue_health import snapshot  # noqa: E402
++
++
++def main():
++    parser = argparse.ArgumentParser()
++    parser.add_argument('--database', type=Path, required=True)
++    parser.add_argument('--output', type=Path, required=True)
++    parser.add_argument('--samples', type=int, default=6)
++    parser.add_argument('--interval', type=float, default=5)
++    args = parser.parse_args()
++    if not 2 <= args.samples <= 60 or not 1 <= args.interval <= 30:
++        parser.error('Use 2-60 samples and a 1-30 second interval')
++    output = args.output.resolve()
++    if not output.is_relative_to(ROOT / 'reports/reliability-review'):
++        parser.error('Output must remain within candidate review reports')
++    samples = []
++    start = time.monotonic()
++    for i in range(args.samples):
++        with sqlite3.connect(args.database.resolve().as_uri() + '?mode=ro', uri=True) as d:
++            d.row_factory = sqlite3.Row
++            row = snapshot(d)
++            row['quick_check'] = d.execute('PRAGMA quick_check').fetchone()[0]
++            row['foreign_key_violations'] = len(d.execute('PRAGMA foreign_key_check').fetchall())
++        row['disk_free_bytes'] = shutil.disk_usage(args.database.parent).free
++        row['sample_monotonic_seconds'] = round(time.monotonic()-start, 3)
++        samples.append(row)
++        if i < args.samples-1:
++            time.sleep(args.interval)
++    elapsed = samples[-1]['sample_monotonic_seconds'] - samples[0]['sample_monotonic_seconds']
++    first, last = samples[0]['metrics'], samples[-1]['metrics']
++    delta = {name: last.get(name, 0)-first.get(name, 0) for name in set(first) | set(last)}
++    done = delta.get('pipeline.items.completed', 0)
++    retries = delta.get('pipeline.items.retry_scheduled', 0)
++    dead = delta.get('pipeline.items.dead_lettered', 0)
++    receipt = {'at': dt.datetime.now(dt.timezone.utc).isoformat(), 'mode': 'read_only_no_recovery',
++               'samples': samples, 'elapsed_seconds': elapsed, 'counter_deltas': delta,
++               'jobs_processed_per_hour': done*3600/elapsed if elapsed else None,
++               'completion_rate': done/(done+retries+dead) if done+retries+dead else None,
++               'retry_rate': retries/(done+retries+dead) if done+retries+dead else None,
++               'failure_rate': dead/(done+retries+dead) if done+retries+dead else None,
++               'recovery_attempts_by_observer': 0,
++               'note': 'Idle rates are null when no outcomes occur; zero work is not a worker failure.'}
++    output.parent.mkdir(parents=True, exist_ok=True)
++    output.write_text(json.dumps(receipt, indent=2)+'\n')
++    print(json.dumps({k: v for k, v in receipt.items() if k != 'samples'}))
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/ops/reliability_review/run_tests.py b/ops/reliability_review/run_tests.py
+new file mode 100644
+index 00000000..71cdc3b2
+--- /dev/null
++++ b/ops/reliability_review/run_tests.py
+@@ -0,0 +1,65 @@
++"""Run candidate tests with isolated state, credential-free env and receipts."""
++import hashlib
++import json
++import os
++import sqlite3
++import subprocess
++import sys
++import time
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parents[2]
++
++
++def main():
++    name, *args = sys.argv[1:]
++    evidence = ROOT / 'reports/reliability-review/evidence'
++    evidence.mkdir(parents=True, exist_ok=True)
++    state = ROOT / 'reports/reliability-review/staging' / name
++    state.mkdir(parents=True, exist_ok=True)
++    # Allowlist prevents provider and mail credentials leaking into child tests.
++    env = {k: os.environ[k] for k in ('PATH', 'HOME', 'TMPDIR', 'LANG') if k in os.environ}
++    env.update(MM_ROOT=str(state), PYTHONPATH=str(ROOT) + os.pathsep + str(ROOT / 'money-machine'),
++               MM_PYTHON=sys.executable,
++               MM_EXTERNAL_SEND_DISABLED='1', ZERO_LLM='1',
++               PYTHONPYCACHEPREFIX=str(state / 'fresh-pycache'),
++               WA_BROWSER_E2E='1' if name == 'browser' else '0',
++               WA_E2E_OUTPUT=str(evidence / 'browser-artifacts'))
++    if name.startswith(('money-machine-synthetic', 'acceptance-synthetic')):
++        source = state / 'synthetic-source.db'
++        if source.exists():
++            raise RuntimeError('Use a fresh suite name/state directory')
++        with sqlite3.connect(source) as d:
++            schema = (ROOT / 'money-machine/database/schema.sql').read_text()
++            tables, guards = schema.split('-- Triggers', 1)
++            d.executescript(tables)
++            # Fixture contract: three historical unverified claims. These are
++            # synthetic legacy rows, never transport operations or approvals.
++            for _ in range(3):
++                d.execute("INSERT INTO outreach(draft,sent_at) VALUES(?,?)",
++                          ('SYNTHETIC UNVERIFIED CLAIM; NO MESSAGE SENT', '2000-01-01'))
++            d.commit()
++            d.executescript(guards)
++            assert d.execute('SELECT count(*) FROM businesses').fetchone()[0] == 0
++            assert d.execute('PRAGMA quick_check').fetchone()[0] == 'ok'
++        env['MM_TEST_SOURCE'] = str(source)
++    sources = [ROOT / p for p in ('money-machine/mm_pipeline.py', 'money-machine/mm_queue_health.py',
++                                 'money-machine/supervisor/cli.py', 'money-machine/supervisor/daemon.py')]
++    def hashes():
++        return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sources}
++    before = hashes()
++    start = time.monotonic()
++    with (evidence / (name + '.txt')).open('w') as out:
++        result = subprocess.run([sys.executable, '-m', 'pytest', *args], cwd=ROOT, env=env,
++                                stdout=out, stderr=subprocess.STDOUT, timeout=1200)
++    receipt = dict(command=['pytest', *args], exit_code=result.returncode,
++                   elapsed_seconds=round(time.monotonic()-start, 3), source_hashes=before,
++                   changed_during_run=hashes() != before, state_root=str(state),
++                   credentials_inherited=False)
++    (evidence / (name + '.json')).write_text(json.dumps(receipt, indent=2) + '\n')
++    print(json.dumps(receipt))
++    return result.returncode
++
++
++if __name__ == '__main__':
++    raise SystemExit(main())
+diff --git a/ops/reliability_review/sample_pipeline.py b/ops/reliability_review/sample_pipeline.py
+new file mode 100644
+index 00000000..ef5c71c3
+--- /dev/null
++++ b/ops/reliability_review/sample_pipeline.py
+@@ -0,0 +1,77 @@
++"""Loopback-only evidence -> remediation -> demo -> review packet example."""
++import hashlib
++import json
++import sys
++import threading
++from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parents[2]
++sys.path.insert(0, str(ROOT))
++from auditor_toolkit.demo import build_demo  # noqa: E402
++from auditor_toolkit.packet import build_packet  # noqa: E402
++from auditor_toolkit.pipeline import AuditOptions, run_audit  # noqa: E402
++from auditor_toolkit.remediation import build_remediation  # noqa: E402
++
++
++class Fixture(BaseHTTPRequestHandler):
++    def do_GET(self):
++        if self.path != '/':
++            self.send_response(404)
++            self.end_headers()
++            return
++        self.send_response(200)
++        self.send_header('Content-Type', 'text/html')
++        self.end_headers()
++        self.wfile.write(b'<!doctype html><html lang="en"><head><title>Synthetic NZ Plumbing</title></head><body><main><h1>Synthetic NZ Plumbing</h1><p>Canterbury fixture, not a real business.</p><img src="/missing.png"><a href="/broken">Request a quote</a></main></body></html>')
++
++    def log_message(self, *args):
++        pass
++
++
++def main():
++    output = ROOT / 'reports/reliability-review/sample'
++    server = ThreadingHTTPServer(('127.0.0.1', 0), Fixture)
++    thread = threading.Thread(target=server.serve_forever, daemon=True)
++    thread.start()
++    try:
++        report = run_audit(f'http://127.0.0.1:{server.server_port}/', AuditOptions(
++            output_root=output / 'audit', allow_private=True, browser=True,
++            deep=True, max_pages=3, max_links=5, timeout=3, ai=False))
++        assert report['status'] == 'complete', report['checks']
++        screenshot = Path(report['artifacts']['screenshot'])
++        assert screenshot.is_file() and screenshot.stat().st_size > 100
++        assert report['defects']
++        remediation = build_remediation(report, output / 'remediation')
++        demo = build_demo(report, remediation, output / 'demo',
++                          report_path=report['artifacts']['json'])
++        packet = build_packet(report, remediation, demo, None, output / 'packet')
++        assert packet['human_approved'] is False and packet['send_enabled'] is False
++        assert packet['outreach_eligible'] is False and packet['outbound_sent'] == 0
++        queue = ROOT / 'approval/reliability-review/APPROVAL_QUEUE.yaml'
++        queue.parent.mkdir(parents=True, exist_ok=True)
++        queue.write_text('schema_version: 1\nscope: synthetic_staging_only\nitems:\n'
++                         '  - id: reliability-review-synthetic\n'
++                         '    status: NOT_SENT_AWAITING_APPROVAL\n'
++                         '    human_approved: false\n    send_enabled: false\n'
++                         '    recipient: null\n    synthetic: true\n'
++                         '    packet: reports/reliability-review/sample/packet/packet.json\n')
++        receipt = {'synthetic': True, 'network_scope': 'loopback fixture only',
++                   'source_run_id': report['run_id'], 'status': report['status'],
++                   'confirmed_fixture_findings': [{'key': f['defect_key'], 'evidence': f.get('observed') or f.get('evidence_summary')} for f in report['defects']],
++                   'screenshot': str(screenshot),
++                   'screenshot_sha256': hashlib.sha256(screenshot.read_bytes()).hexdigest(),
++                   'demo': demo, 'packet': packet, 'queue_path': str(queue),
++                   'paid_calls': 0, 'outbound_sent': 0,
++                   'inference': 'Potential lost enquiries are a hypothesis, not measured revenue.'}
++        (output / 'pipeline-receipt.json').write_text(json.dumps(receipt, indent=2)+'\n')
++        print(json.dumps({'status': report['status'], 'defects': len(report['defects']),
++                          'screenshot': str(screenshot), 'queue': str(queue)}))
++    finally:
++        server.shutdown()
++        server.server_close()
++        thread.join(5)
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/ops/reliability_review/staging_soak.py b/ops/reliability_review/staging_soak.py
+new file mode 100644
+index 00000000..9c69d96c
+--- /dev/null
++++ b/ops/reliability_review/staging_soak.py
+@@ -0,0 +1,133 @@
++"""Bounded concurrent queue acceptance on synthetic data only."""
++import datetime as dt
++import hashlib
++import json
++import multiprocessing as mp
++import os
++import sqlite3
++import sys
++import time
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parents[2]
++sys.path.insert(0, str(ROOT / 'money-machine'))
++import mm_pipeline as p  # noqa: E402
++import mm_queue_health  # noqa: E402
++
++
++def connection(path):
++    d = sqlite3.connect(path, timeout=10)
++    d.row_factory = sqlite3.Row
++    d.execute('PRAGMA busy_timeout=10000')
++    return d
++
++
++def process(path, worker_id):
++    d = connection(path)
++    def handler(db, row, worker):
++        db.execute('INSERT INTO executions VALUES(?,?)', (row['business_id'], worker.worker_id))
++        return 'DEMO_READY', 'synthetic concept prepared', {'synthetic': True}
++    worker = p.Worker(worker_id, ('DEMO_PENDING',), handler)
++    for _ in range(40):
++        worker.run_once(d, limit=5)
++        d.commit()
++        if d.execute("SELECT count(*) FROM pipeline_items WHERE state='DEMO_PENDING'").fetchone()[0] == 0:
++            break
++        time.sleep(.01)
++    d.close()
++
++
++def abandon(path):
++    d = connection(path)
++    p.claim(d, ('DEMO_PENDING',), 'crashed', lease_seconds=1, limit=5)
++    d.commit()
++    # Only this disposable child exits
++    # The live supervisor is never signalled.
++    os._exit(17)
++
++
++def main():
++    state = Path(os.environ['MM_ROOT'])
++    state.mkdir(parents=True, exist_ok=True)
++    path = state / 'synthetic-queue.db'
++    if path.exists():
++        raise RuntimeError('Use a fresh staging directory')
++    start = time.monotonic()
++    source = ROOT / 'money-machine/mm_pipeline.py'
++    digest = hashlib.sha256(source.read_bytes()).hexdigest()
++    d = connection(path)
++    d.execute('PRAGMA journal_mode=WAL')
++    d.executescript('CREATE TABLE businesses(id INTEGER PRIMARY KEY);'
++                    'CREATE TABLE executions(business_id INTEGER PRIMARY KEY, worker TEXT);')
++    p.migrate(d)
++    for bid in range(1, 101):
++        d.execute('INSERT INTO businesses VALUES(?)', (bid,))
++        p.enqueue(d, bid, state='DEMO_PENDING')
++    p.register_worker(d, 'staging-a', 'DEMO_PENDING')
++    d.commit()
++    before = mm_queue_health.snapshot(d)
++    ctx = mp.get_context('spawn')
++    crash = ctx.Process(target=abandon, args=(str(path),))
++    crash.start()
++    crash.join(15)
++    if crash.is_alive():
++        crash.terminate()
++        crash.join(5)
++        raise RuntimeError('Staging crash probe timed out')
++    abandoned = d.execute("SELECT count(*) FROM pipeline_items WHERE lease_owner='crashed'").fetchone()[0]
++    time.sleep(1.2)
++    p.drain_expired_leases(d)
++    d.commit()
++    children = [ctx.Process(target=process, args=(str(path), name)) for name in ('staging-a', 'staging-b')]
++    for child in children:
++        child.start()
++    for child in children:
++        child.join(45)
++        if child.is_alive():
++            child.terminate()
++            child.join(5)
++            raise RuntimeError('Staging worker exceeded bound')
++    # Restart an empty worker: it cannot execute successful jobs a second time.
++    process(str(path), 'restarted')
++    after = mm_queue_health.snapshot(d)
++    completed = d.execute('SELECT count(*) FROM executions').fetchone()[0]
++    dupes = d.execute('SELECT count(*)-count(distinct business_id) FROM executions').fetchone()[0]
++    # Additional fault-injection jobs prove bounded retries and dead-lettering.
++    for bid in (101, 102):
++        d.execute('INSERT INTO businesses VALUES(?)', (bid,))
++        p.enqueue(d, bid, state='DISCOVERED', max_attempts=2)
++    def failure(db, row, worker):
++        raise p.RetryableError('synthetic transient')
++    retry = p.Worker('retry-probe', ('DISCOVERED',), failure)
++    retry.run_once(d, limit=2)
++    scheduled = d.execute('SELECT count(*) FROM pipeline_items WHERE next_retry_at IS NOT NULL').fetchone()[0]
++    d.execute('UPDATE pipeline_items SET next_retry_at=NULL WHERE business_id>100')
++    retry.run_once(d, limit=2)
++    exhausted = d.execute("SELECT count(*) FROM pipeline_items WHERE state='RETRYABLE_FAILURE'").fetchone()[0]
++    d.commit()
++    quick = d.execute('PRAGMA quick_check').fetchone()[0]
++    receipt = {'at': dt.datetime.now(dt.timezone.utc).isoformat(), 'synthetic_jobs': 100,
++               'completed': completed, 'success_rate': completed/100,
++               'duplicate_successful_executions': dupes, 'abandoned_leases': abandoned,
++               'crash_probe_exit_code': crash.exitcode,
++               'worker_exit_codes': [child.exitcode for child in children],
++               'stranded_eligible': after['eligible'], 'retry_scheduled': scheduled,
++               'retry_budget_exhausted': exhausted, 'quick_check': quick,
++               'before': before, 'after': after, 'paid_api_calls': 0, 'messages_sent': 0,
++               'elapsed_seconds': round(time.monotonic()-start, 3),
++               'source_sha256': digest,
++               'changed_during_run': digest != hashlib.sha256(source.read_bytes()).hexdigest(),
++               'scope': 'bounded synthetic queue acceptance; not production soak'}
++    receipt['soak_passed'] = (completed == 100 and dupes == 0 and after['eligible'] == 0
++                              and abandoned == 5 and scheduled == exhausted == 2
++                              and quick == 'ok' and all(child.exitcode == 0 for child in children)
++                              and not receipt['changed_during_run'])
++    out = ROOT / 'reports/reliability-review/evidence/staging-soak.json'
++    out.write_text(json.dumps(receipt, indent=2) + '\n')
++    d.close()
++    print(json.dumps(receipt))
++    return 0 if receipt['soak_passed'] else 1
++
++
++if __name__ == '__main__':
++    raise SystemExit(main())
+diff --git a/approval/reliability-review/APPROVAL_QUEUE.yaml b/approval/reliability-review/APPROVAL_QUEUE.yaml
+new file mode 100644
+index 00000000..f9a9aceb
+--- /dev/null
++++ b/approval/reliability-review/APPROVAL_QUEUE.yaml
+@@ -0,0 +1,10 @@
++schema_version: 1
++scope: synthetic_staging_only
++items:
++  - id: reliability-review-synthetic
++    status: NOT_SENT_AWAITING_APPROVAL
++    human_approved: false
++    send_enabled: false
++    recipient: null
++    synthetic: true
++    packet: reports/reliability-review/sample/packet/packet.json

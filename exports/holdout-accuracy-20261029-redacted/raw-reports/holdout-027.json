@@ -1,0 +1,1475 @@
+{
+  "schema_version": 2,
+  "browser_requested": false,
+  "performance": {
+    "total_elapsed_ms": 12897,
+    "checks": {
+      "fetch": 0,
+      "page": 4152,
+      "schema": 5002,
+      "headers": 0,
+      "technology": 1261,
+      "js_vulnerabilities": 1593,
+      "structured_validation": 945,
+      "hreflang": 3279,
+      "language": 3151,
+      "images": 1571,
+      "social_meta": 986,
+      "hygiene": 3344,
+      "ux": 785,
+      "links": 0,
+      "lychee": 0,
+      "lighthouse": 0,
+      "tls": 297,
+      "dns": 0,
+      "crawl": 0,
+      "browser": 0,
+      "third_party": 0,
+      "browser_console": 0,
+      "cookie_consent": 0,
+      "axe": 0
+    },
+    "slowest_checks": [
+      [
+        "schema",
+        5002
+      ],
+      [
+        "page",
+        4152
+      ],
+      [
+        "hygiene",
+        3344
+      ],
+      [
+        "hreflang",
+        3279
+      ],
+      [
+        "language",
+        3151
+      ]
+    ]
+  },
+  "run_id": "20261029T002600-c2860cf572af",
+  "url": "https://www.houzz.com/",
+  "domain": "www.houzz.com",
+  "timestamp": "2026-10-29T00:26:00.171619+00:00",
+  "profile": "static",
+  "brand": "Website Auditor",
+  "status": "complete",
+  "score": 52,
+  "severity_score": 52,
+  "health_score": 48,
+  "breakdown": {
+    "health_score": 48,
+    "severity_total": 52,
+    "heuristic_count": 1,
+    "method": "severity sum capped at 100; health = 100 - severity",
+    "deductions": [
+      {
+        "finding_id": "27429e341f3ec94e6b8ca8f0",
+        "defect_key": "cookie-secure",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "hzmgcan"
+      },
+      {
+        "finding_id": "f55f07513173031d30841933",
+        "defect_key": "cookie-secure",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "hzref"
+      },
+      {
+        "finding_id": "3e8340669f8279707570d3fa",
+        "defect_key": "cookie-secure",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "kcan"
+      },
+      {
+        "finding_id": "46ea9d61f9d98d1c1dca6892",
+        "defect_key": "hreflang-no-x-default",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "No <link rel=\"alternate\" hreflang=\"x-default\"> tag present"
+      },
+      {
+        "finding_id": "9f3a6512359ece3d3ad00c0c",
+        "defect_key": "hreflang-no-self",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "No hreflang link points to this page URL"
+      },
+      {
+        "finding_id": "7048d4580bc099c6dc3349aa",
+        "defect_key": "images-missing-dimensions",
+        "severity": "low",
+        "points": 4,
+        "confidence": "heuristic",
+        "evidence_summary": "5 of 95 images do not provide positive numeric width and height attributes"
+      },
+      {
+        "finding_id": "9420f4707831801e1bf1545d",
+        "defect_key": "images-external-hosting",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "94 image(s) served from external domains"
+      },
+      {
+        "finding_id": "91dacfdbbc4b1d014f5f5501",
+        "defect_key": "social-meta-og-image",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "No <meta property=\"og:image\"> tag present"
+      }
+    ]
+  },
+  "defects": [
+    {
+      "defect_key": "cookie-secure",
+      "defect": "Cookie lacks Secure attribute",
+      "impact": "hzmgcan",
+      "severity": "medium",
+      "source_url": "https://www.houzz.com/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "hzmgcan",
+      "confidence": "observed",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "27429e341f3ec94e6b8ca8f0",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-29T00:26:02.632186+00:00",
+      "evidence_summary": "hzmgcan",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "cookie-secure",
+      "defect": "Cookie lacks Secure attribute",
+      "impact": "hzref",
+      "severity": "medium",
+      "source_url": "https://www.houzz.com/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "hzref",
+      "confidence": "observed",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "f55f07513173031d30841933",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-29T00:26:02.632186+00:00",
+      "evidence_summary": "hzref",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "cookie-secure",
+      "defect": "Cookie lacks Secure attribute",
+      "impact": "kcan",
+      "severity": "medium",
+      "source_url": "https://www.houzz.com/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "kcan",
+      "confidence": "observed",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "3e8340669f8279707570d3fa",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-29T00:26:02.632186+00:00",
+      "evidence_summary": "kcan",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "hreflang-no-x-default",
+      "defect": "Missing hreflang x-default",
+      "impact": "No x-default link tag found",
+      "severity": "low",
+      "source_url": "https://www.houzz.com/",
+      "review_required": true,
+      "check": "hreflang",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:link[rel=alternate][hreflang]",
+      "observed": "No <link rel=\"alternate\" hreflang=\"x-default\"> tag present",
+      "business_impact": "Search engines have no fallback language rule for users whose locale is not explicitly covered.",
+      "remediation_action": "Add an hreflang=\"x-default\" link pointing to a neutral version of the page.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "46ea9d61f9d98d1c1dca6892",
+      "evidence_ref": "hreflang",
+      "observed_at": "2026-10-29T00:26:00.171619+00:00",
+      "evidence_summary": "No <link rel=\"alternate\" hreflang=\"x-default\"> tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "hreflang-no-self",
+      "defect": "Missing self-referencing hreflang",
+      "impact": "No hreflang link points back to this page",
+      "severity": "medium",
+      "source_url": "https://www.houzz.com/",
+      "review_required": true,
+      "check": "hreflang",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:link[rel=alternate][hreflang]",
+      "observed": "No hreflang link points to this page URL",
+      "business_impact": "Search engines may not recognise this page as the canonical version for its language.",
+      "remediation_action": "Add an hreflang link for this page's language that points back to this URL.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "9f3a6512359ece3d3ad00c0c",
+      "evidence_ref": "hreflang",
+      "observed_at": "2026-10-29T00:26:00.171619+00:00",
+      "evidence_summary": "No hreflang link points to this page URL",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "images-missing-dimensions",
+      "defect": "Images missing width/height (5)",
+      "impact": "Space reservation needs rendered review; CSS or a sized container may already prevent layout shift",
+      "severity": "low",
+      "source_url": "https://www.houzz.com/",
+      "review_required": true,
+      "check": "images",
+      "selector": "",
+      "confidence": "heuristic",
+      "evidence_source": "dom:img element",
+      "observed": "5 of 95 images do not provide positive numeric width and height attributes",
+      "business_impact": "Layout shift is possible only if the rendered page does not already reserve image space. Static HTML alone does not establish CLS or its impact.",
+      "remediation_action": "Inspect computed styles, container sizing and measured layout shifts. Add dimensions or equivalent space reservation only where needed; preserve intentional framework fill layouts.",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "S",
+      "finding_id": "7048d4580bc099c6dc3349aa",
+      "evidence_ref": "images",
+      "observed_at": "2026-10-29T00:26:00.171619+00:00",
+      "evidence_summary": "5 of 95 images do not provide positive numeric width and height attributes",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "images-external-hosting",
+      "defect": "Images hosted externally (94)",
+      "impact": "Third-party image dependency",
+      "severity": "low",
+      "source_url": "https://www.houzz.com/",
+      "review_required": true,
+      "check": "images",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:img element",
+      "observed": "94 image(s) served from external domains",
+      "business_impact": "External images depend on third-party uptime and add DNS/HTTP overhead. Critical images should be self-hosted.",
+      "remediation_action": "Self-host critical images or use a proven CDN with fallback.",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "9420f4707831801e1bf1545d",
+      "evidence_ref": "images",
+      "observed_at": "2026-10-29T00:26:00.171619+00:00",
+      "evidence_summary": "94 image(s) served from external domains",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-og-image",
+      "defect": "Missing og:image",
+      "impact": "No Open Graph image for social sharing",
+      "severity": "medium",
+      "source_url": "https://www.houzz.com/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[property=og:image]",
+      "observed": "No <meta property=\"og:image\"> tag present",
+      "business_impact": "Social shares show no thumbnail, reducing visual appeal and click-through.",
+      "remediation_action": "Add an og:image meta tag pointing to a 1200x630 image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "91dacfdbbc4b1d014f5f5501",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-29T00:26:00.171619+00:00",
+      "evidence_summary": "No <meta property=\"og:image\"> tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    }
+  ],
+  "defect_count": 8,
+  "fault_taxonomy": {
+    "root_causes": [
+      {
+        "root_cause_id": "security_delivery_configuration_gap",
+        "taxonomy": [
+          "security_trust"
+        ],
+        "finding_ids": [
+          "27429e341f3ec94e6b8ca8f0",
+          "f55f07513173031d30841933",
+          "3e8340669f8279707570d3fa"
+        ],
+        "symptom_count": 3,
+        "likely": true,
+        "confidence": "MODERATE",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      },
+      {
+        "root_cause_id": "unclassified_observation",
+        "taxonomy": [
+          "unknown"
+        ],
+        "finding_ids": [
+          "46ea9d61f9d98d1c1dca6892",
+          "9f3a6512359ece3d3ad00c0c",
+          "7048d4580bc099c6dc3349aa",
+          "9420f4707831801e1bf1545d",
+          "91dacfdbbc4b1d014f5f5501"
+        ],
+        "symptom_count": 5,
+        "likely": true,
+        "confidence": "MODERATE",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      }
+    ],
+    "reproducible_count": 8,
+    "weak_or_unknown_count": 1
+  },
+  "checks": {
+    "fetch": {
+      "status": "ok",
+      "required": true
+    },
+    "page": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 4152
+    },
+    "schema": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 5002
+    },
+    "headers": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "technology": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1261
+    },
+    "js_vulnerabilities": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1593
+    },
+    "structured_validation": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 945
+    },
+    "hreflang": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 3279
+    },
+    "language": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 3151
+    },
+    "images": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1571
+    },
+    "social_meta": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 986
+    },
+    "hygiene": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 3344
+    },
+    "ux": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 785
+    },
+    "links": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "lychee": {
+      "status": "skipped",
+      "reason": "Enable external local tools",
+      "required": false
+    },
+    "lighthouse": {
+      "status": "skipped",
+      "reason": "Enable external local tools",
+      "required": false
+    },
+    "tls": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 297
+    },
+    "dns": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "crawl": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "browser": {
+      "status": "skipped",
+      "reason": "Disabled in selected audit profile",
+      "required": false
+    },
+    "third_party": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "browser_console": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "cookie_consent": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "axe": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "pdf": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    }
+  },
+  "evidence": {
+    "fetch": {
+      "url": "https://www.houzz.com/",
+      "observed_at": "2026-10-29T00:26:02.632186+00:00",
+      "mode": "static",
+      "check_version": "1",
+      "data": {
+        "status_code": 200,
+        "redirects": [],
+        "revalidated_at": null
+      }
+    },
+    "page": {
+      "url": "https://www.houzz.com/",
+      "observed_at": "2026-10-29T00:26:02.632186+00:00",
+      "mode": "static",
+      "data": {
+        "title": "Houzz for Pros and Homeowners | Build and Design Software | Try Free for 30 Days",
+        "word_count": 994,
+        "link_count": 276,
+        "sample_links": [
+          "https://www.houzz.com/",
+          "https://www.houzz.com/",
+          "https://www.houzz.com/professionals",
+          "https://www.houzz.com/professionals/interior-designer/probr0-bo~t_11785",
+          "https://www.houzz.com/professionals/architect/probr0-bo~t_11784",
+          "https://www.houzz.com/professionals/kitchen-and-bath/probr0-bo~t_11790",
+          "https://www.houzz.com/professionals/design-build/probr0-bo~t_11793",
+          "https://www.houzz.com/professionals/general-contractor/probr0-bo~t_11786",
+          "https://www.houzz.com/professionals/home-builders/probr0-bo~t_11823",
+          "https://www.houzz.com/professionals/kitchen-remodelers/probr0-bo~t_34334",
+          "https://www.houzz.com/professionals/kitchen-and-bath-remodelers/probr0-bo~t_11825",
+          "https://www.houzz.com/professionals/cabinets/probr0-bo~t_11829",
+          "https://www.houzz.com/professionals/custom-countertops/probr0-bo~t_33909",
+          "https://www.houzz.com/professionals/tile-and-stone-contractors/probr0-bo~t_33910",
+          "https://www.houzz.com/professionals/carpenter/probr0-bo~t_11831",
+          "https://www.houzz.com/professionals/hardwood-flooring-dealers/probr0-bo~t_28349",
+          "https://www.houzz.com/professionals/home-remodeling/probr0-bo~t_34257",
+          "https://www.houzz.com/professionals/landscape-architect/probr0-bo~t_11788",
+          "https://www.houzz.com/professionals/landscape-contractors/probr0-bo~t_11812",
+          "https://www.houzz.com/professionals/stone-pavers-and-concrete/probr0-bo~t_11824",
+          "https://www.houzz.com/professionals/pools-and-spas/probr0-bo~t_11795",
+          "https://www.houzz.com/professionals/decks-and-patios/probr0-bo~t_11830",
+          "https://www.houzz.com/professionals/windows/probr0-bo~t_11797",
+          "https://www.houzz.com/professionals/painters/probr0-bo~t_27105",
+          "https://www.houzz.com/professionals/roofing-and-gutter/probr0-bo~t_11819"
+        ],
+        "emails": [
+          "1_1_Build_your_profile@2x.png",
+          "1_2_Request_Reviews@2x.png",
+          "1_2_UploadProjectPhoto@2x.png",
+          "1_3_Get_your_website@2x.png",
+          "2_1_Set_up_ad_settings@2x.png",
+          "2_2_SetUpLiveConnections@2x.png",
+          "3_2_Send_a_test_estimate_GC@2x.png",
+          "3_2_Send_a_test_estimate_ID@2x.png",
+          "4_1_Preview_Client_Dashboard_GC@2x.png",
+          "4_1_Preview_Client_Dashboard_ID@2x.png",
+          "5_1_Online_Payments@2x.png",
+          "5_2_Quickbook@2x.png",
+          "visual_tools@2x.png"
+        ],
+        "schema_count": 1
+      },
+      "check_version": "1"
+    },
+    "schema": {
+      "url": "https://www.houzz.com/",
+      "observed_at": "2026-10-29T00:26:02.632186+00:00",
+      "mode": "static",
+      "data": {
+        "types": [
+          "ImageObject",
+          "Organization",
+          "WebPage"
+        ],
+        "profile": "static",
+        "generator": "",
+        "local_business_review": "Check identity, address and service area against the business owner.",
+        "crawler_readiness": {
+          "robots_meta": [
+            "all"
+          ],
+          "rendered_content_comparison": "Available only in rendered mode"
+        }
+      },
+      "check_version": "1"
+    },
+    "headers": {
+      "url": "https://www.houzz.com/",
+      "observed_at": "2026-10-29T00:26:02.632186+00:00",
+      "mode": "static",
+      "data": {
+        "headers": {
+          "content-type": "text/html; charset=utf-8",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "SAMEORIGIN",
+          "cache-control": "no-store, no-cache, must-revalidate,post-check=0, pre-check=0",
+          "content-security-policy": "frame-ancestors 'self';",
+          "strict-transport-security": "max-age=31536000; includeSubdomains; preload",
+          "content-length": "933830"
+        },
+        "cookies": [
+          {
+            "name": "hzmgcan",
+            "secure": false,
+            "httponly": false,
+            "samesite": ""
+          },
+          {
+            "name": "vct",
+            "secure": true,
+            "httponly": false,
+            "samesite": "None"
+          },
+          {
+            "name": "hzref",
+            "secure": false,
+            "httponly": false,
+            "samesite": ""
+          },
+          {
+            "name": "_csrf",
+            "secure": true,
+            "httponly": false,
+            "samesite": "None"
+          },
+          {
+            "name": "jdv",
+            "secure": true,
+            "httponly": false,
+            "samesite": "None"
+          },
+          {
+            "name": "v",
+            "secure": true,
+            "httponly": false,
+            "samesite": "None"
+          },
+          {
+            "name": "kcan",
+            "secure": false,
+            "httponly": false,
+            "samesite": ""
+          }
+        ]
+      },
+      "check_version": "1"
+    },
+    "technology": {
+      "url": "https://www.houzz.com/",
+      "observed_at": "2026-10-29T00:26:00.171619+00:00",
+      "mode": "static",
+      "data": {
+        "technologies": [
+          {
+            "technology": "Bootstrap",
+            "category": "CSS Framework",
+            "version": null,
+            "version_confidence": 0.0,
+            "evidence": "Bootstrap CSS or JS detected",
+            "confidence": 0.6
+          }
+        ]
+      },
+      "check_version": "1"
+    },
+    "js_vulnerabilities": {
+      "url": "https://www.houzz.com/",
+      "observed_at": "2026-10-29T00:26:00.171619+00:00",
+      "mode": "static",
+      "data": {
+        "js_vulnerabilities_detected": 0
+      },
+      "check_version": "1"
+    },
+    "structured_validation": {
+      "url": "https://www.houzz.com/",
+      "observed_at": "2026-10-29T00:26:00.171619+00:00",
+      "mode": "static",
+      "data": {
+        "structured_data_scripts_found": 1
+      },
+      "check_version": "1"
+    },
+    "hreflang": {
+      "url": "https://www.houzz.com/",
+      "observed_at": "2026-10-29T00:26:00.171619+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://www.houzz.com/",
+        "hreflang_links": [
+          {
+            "hreflang": "en-us",
+            "href": "https://www.houzz.com"
+          },
+          {
+            "hreflang": "en-gb",
+            "href": "https://www.houzz.co.uk"
+          },
+          {
+            "hreflang": "en-au",
+            "href": "https://www.houzz.com.au"
+          },
+          {
+            "hreflang": "fr",
+            "href": "https://www.houzz.fr"
+          },
+          {
+            "hreflang": "de",
+            "href": "https://www.houzz.de"
+          },
+          {
+            "hreflang": "ja",
+            "href": "https://www.houzz.jp"
+          },
+          {
+            "hreflang": "it",
+            "href": "https://www.houzz.it"
+          },
+          {
+            "hreflang": "es",
+            "href": "https://www.houzz.es"
+          },
+          {
+            "hreflang": "da",
+            "href": "https://www.houzz.dk"
+          },
+          {
+            "hreflang": "sv",
+            "href": "https://www.houzz.se"
+          },
+          {
+            "hreflang": "en-ie",
+            "href": "https://www.houzz.ie"
+          },
+          {
+            "hreflang": "en-nz",
+            "href": "https://www.houzz.co.nz"
+          },
+          {
+            "hreflang": "en-sg",
+            "href": "https://www.houzz.com.sg"
+          },
+          {
+            "hreflang": "en-in",
+            "href": "https://www.houzz.in"
+          }
+        ],
+        "hreflang_count": 14,
+        "invalid_links": [],
+        "limitation": "Declared annotations only; cross-page reciprocity was not fetched."
+      },
+      "check_version": "3"
+    },
+    "language": {
+      "url": "https://www.houzz.com/",
+      "observed_at": "2026-10-29T00:26:00.171619+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://www.houzz.com/",
+        "html_lang": "en-us",
+        "meta_content_language": null,
+        "is_nz_domain": false,
+        "limitation": "Declared language only; content language is not inferred from the domain."
+      },
+      "check_version": "3"
+    },
+    "images": {
+      "url": "https://www.houzz.com/",
+      "observed_at": "2026-10-29T00:26:00.171619+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://www.houzz.com/",
+        "image_count": 95,
+        "missing_alt": 0,
+        "missing_dimensions": 5,
+        "missing_loading": 4,
+        "framework_fill_images": 0,
+        "external_images": 94,
+        "large_file_hints": []
+      },
+      "check_version": "3"
+    },
+    "social_meta": {
+      "url": "https://www.houzz.com/",
+      "observed_at": "2026-10-29T00:26:00.171619+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://www.houzz.com/",
+        "og_tags": {
+          "type": "website",
+          "site_name": "Houzz",
+          "title": "Houzz for Pros and Homeowners | Build and Design Software | Try Free for 30 Days",
+          "url": "https://www.houzz.com/",
+          "description": "The largest collection of interior design and decorating ideas on the Internet, including kitchens and bathrooms. Over 25 million inspiring photos and 100,000 idea books from top designers around the world. Remodeling and decorating ideas and inspiration for designing your kitchen, bath, patio and more. Find architects, interior designers and home improvement contractors."
+        },
+        "twitter_tags": {
+          "card": "summary_large_image",
+          "site": "@Houzz"
+        }
+      },
+      "check_version": "3"
+    },
+    "hygiene": {
+      "url": "https://www.houzz.com/",
+      "observed_at": "2026-10-29T00:26:02.632186+00:00",
+      "mode": "static",
+      "data": {
+        "robots": {
+          "url": "https://www.houzz.com/robots.txt",
+          "status_code": 200,
+          "bytes": 8703,
+          "sitemaps_declared": [
+            "https://www.houzz.com/sitemap/v3/browse-photo/browse-photo_index_00.xml",
+            "https://www.houzz.com/sitemap/v3/view-pro/view-pro_index_00.xml",
+            "https://www.houzz.com/sitemap/v3/pro-directory/pro-directory_index_00.xml"
+          ]
+        },
+        "sitemap": {
+          "checked": [
+            {
+              "url": "https://www.houzz.com/sitemap/v3/browse-photo/browse-photo_index_00.xml",
+              "status": 200,
+              "loc_count": 68,
+              "well_formed": true
+            },
+            {
+              "url": "https://www.houzz.com/sitemap/v3/view-pro/view-pro_index_00.xml",
+              "status": 200,
+              "loc_count": 63,
+              "well_formed": true
+            }
+          ]
+        },
+        "security_headers": {
+          "graded": [
+            "content-security-policy",
+            "x-content-type-options",
+            "strict-transport-security"
+          ],
+          "present": [
+            "content-security-policy",
+            "strict-transport-security",
+            "x-content-type-options"
+          ]
+        },
+        "mixed_content": {
+          "offenders": [],
+          "count": 0
+        }
+      },
+      "check_version": "1"
+    },
+    "ux": {
+      "url": "https://www.houzz.com/",
+      "observed_at": "2026-10-29T00:26:02.632186+00:00",
+      "mode": "static",
+      "data": {
+        "signals": {
+          "contact_path": true,
+          "phone": false,
+          "booking": false,
+          "quote_form": false,
+          "form_present": true
+        }
+      },
+      "check_version": "1"
+    },
+    "tls": {
+      "url": "https://www.houzz.com/",
+      "observed_at": "2026-10-29T00:26:00.171619+00:00",
+      "mode": "static",
+      "data": {
+        "expires_at": "2027-01-15T04:37:52+00:00",
+        "days_remaining": 78,
+        "protocol": "TLSv1.3",
+        "cipher": "TLS_AES_128_GCM_SHA256"
+      },
+      "check_version": "1"
+    },
+    "browser": {}
+  },
+  "check_registry": {
+    "fetch": {
+      "id": "fetch",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "page": {
+      "id": "page",
+      "category": "seo",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Content and conversion observations require editorial review."
+    },
+    "schema": {
+      "id": "schema",
+      "category": "local",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Presence does not establish eligibility or business identity."
+    },
+    "accessibility_static": {
+      "id": "accessibility_static",
+      "category": "accessibility",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Static checks do not establish conformance."
+    },
+    "ux": {
+      "id": "ux",
+      "category": "privacy",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Observed behavior is not a legal determination."
+    },
+    "headers": {
+      "id": "headers",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "hygiene": {
+      "id": "hygiene",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Deterministic robots, sitemap, header and mixed-content checks."
+    },
+    "links": {
+      "id": "links",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Bounded same-origin link validation; not an exhaustive crawler."
+    },
+    "tls": {
+      "id": "tls",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "dns": {
+      "id": "dns",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "crawl": {
+      "id": "crawl",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "lychee": {
+      "id": "lychee",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "External local CLI check; bounded by Lychee configuration and network conditions."
+    },
+    "lighthouse": {
+      "id": "lighthouse",
+      "category": "performance",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Laboratory result; not field Core Web Vitals."
+    },
+    "browser": {
+      "id": "browser",
+      "category": "performance",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Laboratory observations, not field Core Web Vitals."
+    },
+    "axe": {
+      "id": "axe",
+      "category": "accessibility",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Manual keyboard, screen-reader and content review remains necessary."
+    },
+    "pdf": {
+      "id": "pdf",
+      "category": "reporting",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "technology": {
+      "id": "technology",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "js_vulnerabilities": {
+      "id": "js_vulnerabilities",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "structured_validation": {
+      "id": "structured_validation",
+      "category": "local",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "hreflang": {
+      "id": "hreflang",
+      "category": "seo",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "language": {
+      "id": "language",
+      "category": "technical",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "images": {
+      "id": "images",
+      "category": "performance",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "social_meta": {
+      "id": "social_meta",
+      "category": "technical",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "cookie_consent": {
+      "id": "cookie_consent",
+      "category": "privacy",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Passive bounded observations only; cookie purpose and legal obligations require human review."
+    },
+    "third_party": {
+      "id": "third_party",
+      "category": "technical",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "browser_console": {
+      "id": "browser_console",
+      "category": "technical",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "server_technology": {
+      "id": "server_technology",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    }
+  },
+  "scoring": {
+    "method": "severity sum capped at 100; health = 100 - severity",
+    "weights": {
+      "low": 4,
+      "medium": 8,
+      "high": 16,
+      "critical": 30
+    },
+    "limitation": "Heuristic prioritization, not certification"
+  },
+  "financial_assumptions": [
+    "No fines or measured lost revenue. Estimates require explicit rates."
+  ],
+  "artifacts": {
+    "json": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002600-c2860cf572af/report.json",
+    "html": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002600-c2860cf572af/report.html",
+    "trend": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002600-c2860cf572af/trend.svg",
+    "actions": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002600-c2860cf572af/actions/preview.json"
+  },
+  "category_scores": {
+    "accessibility": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": null
+    },
+    "local": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": 100
+    },
+    "performance": {
+      "score": 8,
+      "severity_score": 8,
+      "health_score": 92
+    },
+    "privacy": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": 100
+    },
+    "security": {
+      "score": 24,
+      "severity_score": 24,
+      "health_score": 76
+    },
+    "seo": {
+      "score": 12,
+      "severity_score": 12,
+      "health_score": 88
+    },
+    "technical": {
+      "score": 8,
+      "severity_score": 8,
+      "health_score": 92
+    }
+  },
+  "comparison": {
+    "baseline": null,
+    "new": [
+      "27429e341f3ec94e6b8ca8f0",
+      "3e8340669f8279707570d3fa",
+      "46ea9d61f9d98d1c1dca6892",
+      "7048d4580bc099c6dc3349aa",
+      "91dacfdbbc4b1d014f5f5501",
+      "9420f4707831801e1bf1545d",
+      "9f3a6512359ece3d3ad00c0c",
+      "f55f07513173031d30841933"
+    ],
+    "persistent": [],
+    "regressed": [],
+    "resolved": [],
+    "resolution_assessed": false
+  },
+  "fault_regression": {
+    "new": [
+      "27429e341f3ec94e6b8ca8f0",
+      "3e8340669f8279707570d3fa",
+      "46ea9d61f9d98d1c1dca6892",
+      "7048d4580bc099c6dc3349aa",
+      "91dacfdbbc4b1d014f5f5501",
+      "9420f4707831801e1bf1545d",
+      "9f3a6512359ece3d3ad00c0c",
+      "f55f07513173031d30841933"
+    ],
+    "resolved": [],
+    "unchanged": []
+  },
+  "claim_ledger": [
+    {
+      "claim_id": "finding:27429e341f3ec94e6b8ca8f0",
+      "claim": "Cookie lacks Secure attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "27429e341f3ec94e6b8ca8f0",
+      "evidence_ref": "headers",
+      "evidence": "hzmgcan",
+      "source_url": "https://www.houzz.com/",
+      "observed_at": "2026-10-29T00:26:02.632186+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:f55f07513173031d30841933",
+      "claim": "Cookie lacks Secure attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "f55f07513173031d30841933",
+      "evidence_ref": "headers",
+      "evidence": "hzref",
+      "source_url": "https://www.houzz.com/",
+      "observed_at": "2026-10-29T00:26:02.632186+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:3e8340669f8279707570d3fa",
+      "claim": "Cookie lacks Secure attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "3e8340669f8279707570d3fa",
+      "evidence_ref": "headers",
+      "evidence": "kcan",
+      "source_url": "https://www.houzz.com/",
+      "observed_at": "2026-10-29T00:26:02.632186+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:46ea9d61f9d98d1c1dca6892",
+      "claim": "Missing hreflang x-default",
+      "claim_type": "observed_fact",
+      "finding_id": "46ea9d61f9d98d1c1dca6892",
+      "evidence_ref": "hreflang",
+      "evidence": "No <link rel=\"alternate\" hreflang=\"x-default\"> tag present",
+      "source_url": "https://www.houzz.com/",
+      "observed_at": "2026-10-29T00:26:00.171619+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:9f3a6512359ece3d3ad00c0c",
+      "claim": "Missing self-referencing hreflang",
+      "claim_type": "observed_fact",
+      "finding_id": "9f3a6512359ece3d3ad00c0c",
+      "evidence_ref": "hreflang",
+      "evidence": "No hreflang link points to this page URL",
+      "source_url": "https://www.houzz.com/",
+      "observed_at": "2026-10-29T00:26:00.171619+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:7048d4580bc099c6dc3349aa",
+      "claim": "Images missing width/height (5)",
+      "claim_type": "hypothesis",
+      "finding_id": "7048d4580bc099c6dc3349aa",
+      "evidence_ref": "images",
+      "evidence": "5 of 95 images do not provide positive numeric width and height attributes",
+      "source_url": "https://www.houzz.com/",
+      "observed_at": "2026-10-29T00:26:00.171619+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:9420f4707831801e1bf1545d",
+      "claim": "Images hosted externally (94)",
+      "claim_type": "observed_fact",
+      "finding_id": "9420f4707831801e1bf1545d",
+      "evidence_ref": "images",
+      "evidence": "94 image(s) served from external domains",
+      "source_url": "https://www.houzz.com/",
+      "observed_at": "2026-10-29T00:26:00.171619+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:91dacfdbbc4b1d014f5f5501",
+      "claim": "Missing og:image",
+      "claim_type": "observed_fact",
+      "finding_id": "91dacfdbbc4b1d014f5f5501",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta property=\"og:image\"> tag present",
+      "source_url": "https://www.houzz.com/",
+      "observed_at": "2026-10-29T00:26:00.171619+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    }
+  ],
+  "drafts": {
+    "status": "fallback",
+    "review_required": true,
+    "drafts": {
+      "metadata": {
+        "text": "Title: Example services\nDescription: [review required]",
+        "source": "template",
+        "review_required": true
+      },
+      "platform_fix": {
+        "text": "Prepare an evidence-backed fix draft for review.",
+        "source": "template",
+        "review_required": true
+      },
+      "outreach": {
+        "text": "Prepare factual outreach from verified findings.",
+        "source": "template",
+        "review_required": true
+      },
+      "content_expansion": {
+        "text": "Outline services, proof, FAQs, and contact details.",
+        "source": "template",
+        "review_required": true
+      },
+      "bilingual": {
+        "text": "EN: [English draft]\nMI: [te reo Māori review required]",
+        "source": "template",
+        "review_required": true
+      }
+    },
+    "reason": "Local generation not requested"
+  },
+  "proofing": {
+    "metadata": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 8,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "platform_fix": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 8,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "outreach": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 8,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "content_expansion": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 8,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "bilingual": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 8,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    }
+  },
+  "proposal": {
+    "currency": "NZD",
+    "hourly_rate": null,
+    "assumptions": "Versioned effort bands with shared setup for repeated defects and 15% contingency; scope and rates require human review.",
+    "hours_low": 11.0,
+    "hours_high": 32.78,
+    "estimate_low": null,
+    "estimate_high": null,
+    "rules_version": "quote-v1",
+    "review_required": true,
+    "llm_determined_price": false
+  },
+  "action_preview": {
+    "count": 8,
+    "status": "preview",
+    "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002600-c2860cf572af/actions/preview.json"
+  },
+  "coverage": {
+    "version": 1,
+    "required": 14,
+    "passed": 14,
+    "required_checks": [
+      "fetch",
+      "headers",
+      "hreflang",
+      "hygiene",
+      "images",
+      "js_vulnerabilities",
+      "language",
+      "page",
+      "schema",
+      "social_meta",
+      "structured_validation",
+      "technology",
+      "tls",
+      "ux"
+    ],
+    "missing_checks": []
+  },
+  "manifest": {
+    "html": {
+      "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002600-c2860cf572af/report.html",
+      "size": 27434,
+      "sha256": "c9f49cc79450ab7c0fa27cbe56659393fb145a2ac06c366e97d5c66ca1d0833e"
+    },
+    "trend": {
+      "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002600-c2860cf572af/trend.svg",
+      "size": 241,
+      "sha256": "614152c8b5c739375fb0fa7f1ff32a3c697d1ab819bf6331c7b8c7d8ac18a994"
+    },
+    "actions": {
+      "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002600-c2860cf572af/actions/preview.json",
+      "size": 14595,
+      "sha256": "df2b678b459acb8824ffe3ee92233069324f6d04d66bd61a1cc664a27088d388"
+    }
+  }
+}

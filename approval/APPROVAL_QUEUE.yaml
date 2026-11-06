@@ -88,6 +88,16 @@ requires_dion_approval:
   current_state: 5 of 9 prospects permitted (clyne-bennie, jcconstruction, tbir, prodecorators, davidrobertson);
     4 of 9 have no published email (NO_EMAIL_PUBLISHED) and route to phone/post — these cannot be emailed
     by design. Gate check against prospect_dossier.json confirms 5 PERMITTED, 4 BLOCKED (no address).
+- id: APR-RELIABILITY-SYNTHETIC-20261015
+  type: synthetic_review_packet
+  engine: WEBSITE-AUDITOR reliability staging
+  description: Review the synthetic loopback audit, demo concept and exact draft.
+  status: NOT_SENT_AWAITING_APPROVAL
+  synthetic: true
+  human_approved: false
+  send_enabled: false
+  recipient: null
+  detail_ref: reports/reliability-review/sample/packet/APPROVAL_PACKET.md
 autonomous_no_approval_needed:
 - prospect research from public sources
 - opportunity scoring

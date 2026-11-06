@@ -1,0 +1,27 @@
+{
+  "source_sha": "09ab41ab61656ae4b63110d4ee7d418f3fbf07b8",
+  "started_at_utc": "2026-10-16T02:41:48.568265+00:00",
+  "duration_seconds": 1.127,
+  "command": [
+    "/Users/dd/WEBSITE-AUDITOR/.venv-email/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "toolkit_tests/test_outcomes_transport.py",
+    "toolkit_tests/test_rejection_intelligence.py",
+    "tests/test_fcc_bridge_transport.py",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=/Users/dd/WEBSITE-AUDITOR-codex/work/codex-r00/pytest-offline",
+    "--junitxml=/Users/dd/WEBSITE-AUDITOR-codex/evidence/codex/q10-offline.xml"
+  ],
+  "exit_code": 0,
+  "test_source_sha256": {
+    "toolkit_tests/test_outcomes_transport.py": "6ceafb903011f23f6a9fa6bb3e04d15f12276b647758c00e7c95c9b75b69be3d",
+    "toolkit_tests/test_rejection_intelligence.py": "df28e1fae07943d05309b7b0a8b3a3b79a1ae8b6b83d73ec27eb488b5ce3fe6a",
+    "tests/test_fcc_bridge_transport.py": "1f28d7126a76212b31133b8d44d5095a9031526b899f7209d3f6d81756d9073b"
+  },
+  "source_unchanged": true,
+  "scope": "offline transport, synthetic outcomes and rejection tests; not full Q10; no real provider or mail requests"
+}

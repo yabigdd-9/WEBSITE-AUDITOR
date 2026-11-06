@@ -1,4 +1,4 @@
-# RUNBOOK — WEBSITE-AUDITOR / Money-Machine (v32 canonical execution)
+# RUNBOOK — WEBSITE-AUDITOR / Money-Machine (v44 local-machine convergence)
 
 Human decisions only. Nothing in this runbook sends, publishes, or prices to a customer.
 Runtime: Python 3.11 in `.venv-email` (never "fix" with global 3.14). All commands run from `/Users/dd/WEBSITE-AUDITOR`.
@@ -37,16 +37,31 @@ Runtime: Python 3.11 in `.venv-email` (never "fix" with global 3.14). All comman
 - Stale-process hygiene: `ps aux | grep '[s]upervisor'` may match multiple; confirm cwd with
   `lsof -p <PID> | awk '$4=="cwd"'` before killing strays (e.g. pre-flock Python 3.14 leftovers).
 
-## 4. Continuity cron (ensure-running) — install & removal
+## 4. Always-on local runtime — launchd primary
 
-Installed (one line, built into macOS, plus @reboot):
+The supported macOS path is the user-scoped LaunchAgent in `money-machine/supervisor/launchd.py`.
+It uses `RunAtLoad=true` and `KeepAlive=true`, while the supervisor PID/flock still prevents duplicates.
+
+- Install + verify: `sh scripts/local-machine.sh install`
+- Status + health: `sh scripts/local-machine.sh status`
+- Restart: `sh scripts/local-machine.sh restart`
+- Logs: `sh scripts/local-machine.sh logs`
+- Remove: `sh scripts/local-machine.sh uninstall`
+- Label: `ai.website-auditor.supervisor`
+- External sends remain disabled in the LaunchAgent environment.
+
+The installer now exits non-zero if the plist is written but `launchctl bootstrap` fails, so a broken always-on setup cannot look successful.
+
+### Optional cron fallback
+
+If launchd is intentionally not used, the existing idempotent fallback remains:
+
 ```
 */5 * * * * cd /Users/dd/WEBSITE-AUDITOR && ./mm supervisor ensure-running >> state/ensure-running.log 2>&1
 @reboot cd /Users/dd/WEBSITE-AUDITOR && ./mm supervisor ensure-running >> state/ensure-running.log 2>&1
 ```
-- Install: `crontab -e`, add both lines. Verify: `kill -9 <supervisor_pid>` → new PID within 5 min, no duplicates.
-- **Removal:** `crontab -e`, delete both lines, save. Then `./mm supervisor stop` if you want it fully down.
-- Log: `state/ensure-running.log` (tail it to see no-op vs start events).
+
+Do not rely on cron as the primary path when the LaunchAgent is healthy.
 
 ## 5. Sandbox vs host capability table
 
@@ -59,10 +74,23 @@ Installed (one line, built into macOS, plus @reboot):
 | Playwright / browser e2e | ❌ (skipped) | ✅ |
 | Discovery tests (frozen 12) | ✅ pass | ✅ pass |
 | Email send transport | ❌ none (fail-closed, cap 0) | ❌ must stay none |
-| launchd install | ❌ blocked | optional; cron is the supported path |
+| launchd install | host-only | ✅ primary always-on path on macOS |
 
 `./mm doctor` prints live capabilities so "why skipped" is one command away. Test skips are explicit
 (`BLOCKED_FIXTURE: <path> not present in this environment`) — never silently green.
+
+## 5.1 Recurring discovery
+
+The supervisor checks the recurring-discovery scheduler on startup and periodically thereafter.
+
+- Schedule: `money-machine/config/discovery_schedule.yaml`
+- Default cadence: every 360 minutes.
+- Search endpoint: loopback SearXNG only (`127.0.0.1:8888`).
+- Local inbox: `discovery-inbox/` accepts CSV, JSON, and JSONL.
+- Maximum per cycle: 20 import files and 20 search queries.
+- Known hosts/names are deduplicated before queue work.
+- Missing SearXNG produces typed source errors; it does not stop the supervisor.
+- Recurring discovery never sends outreach and never invokes paid models.
 
 ## 6. Backup / restore
 
@@ -82,10 +110,10 @@ Installed (one line, built into macOS, plus @reboot):
 
 ## 8. Iron rules (from the master plan — restated for operators)
 
-$0 spend (`paid_allowed=false`, never set `MM_ALLOW_EXTERNAL_FREE_MODELS=1`) · zero new software/deps ·
+$0 spend (`paid_allowed=false`, `max_cost_usd=0`) · Claude via FCC only when its exact model is certified zero-cost · Hermes verified-free fallback only · no automatic paid fallback ·
 fail-closed transport (`external_send_allowed=false`, `daily_cap=0`) · loopback-only probes ·
 one writer per file · never commit `state/*`, `*.db`, `.env`, reports outputs, caches, secrets ·
-human-only: external sends, model enablement, pricing to customers, approvals, launchd, SearXNG host service, master merges, remote pushes.
+human-only: external sends, model enablement, pricing to customers, approvals, SearXNG host service, master merges, remote pushes.
 
 ## 9. Fast audit and visual evidence
 
@@ -111,5 +139,8 @@ human-only: external sends, model enablement, pricing to customers, approvals, l
 
 - `report.json` contains a claim ledger mapping draftable claims to finding IDs, source URLs, evidence references, freshness and confidence.
 - Draft proofing rejects guarantees, invented percentages, unsupported revenue claims and unbounded promises.
-- Optional external free-model prompts must pass the redaction boundary; secrets, contact details and local paths are masked, and human review remains required.
+- Model-assisted work uses Claude through the loopback FCC harness first. The exact FCC model must be explicitly certified zero-cost; `auto` is not trusted as free.
+- If FCC/Claude is unavailable or would require payment, Hermes may use only its live-verified `:free` role routes with zero price caps. Repository policy remains `data_collection: deny` by default; only an explicitly attested public/synthetic request may opt into a data-collecting free endpoint at request time. Secrets/PII/confidential customer content must be held. If no such route is available, the task DEFERs.
+- llama.cpp and Ollama are not active Money Machine inference routes.
+- External-model prompts pass the redaction boundary; secrets, contact details and local paths are masked, and human review remains required.
 - Deterministic findings and evidence remain canonical; model output is challenger material only.

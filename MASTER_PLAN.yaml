@@ -1,8 +1,11 @@
 plan:
   name: "WEBSITE-AUDITOR Master Merged Plan"
-  version: "32.0"
+  version: "44.0"
+  reviewed_at: "2026-10-08"
+  verified_baseline_sha: "b349cd9fb23b6cf9c5a2e8a8c74691158e9cda8f"
   status: "CANONICAL_EXECUTION_PLAN"
   primary_workspace: "/Users/dd/WEBSITE-AUDITOR"
+  target_release: "PR #52 — v44 local-machine convergence"
   experimental_cline_workspace: "/Users/dd/Downloads/WEBSITE-AUDITOR-master"
   execution_mode: "local-first, zero-paid-token, evidence-first, supervised, obsidian-operator-workspace"
   paid_allowed: false
@@ -109,9 +112,11 @@ phases:
     name: "Audit engine"
     priority: HIGH
     keep: ["Playwright", "axe-core", "BeautifulSoup", "trafilatura", "HTTP checks"]
+    implemented_adapters: ["Lighthouse lab metrics", "Lychee broken-link validation"]
+    remaining_acceptance:
+      - "Exact-head real-tool host evidence when installed and required; unavailable capabilities stay explicit."
     finish:
-      - "Lighthouse/Core Web Vitals"
-      - "Lychee broken-link validation"
+      - "Future implementation of seven audit stages; current candidate records explicit required/optional skipped coverage."
       - "canonical domain resolution"
       - "security headers"
       - "robots/sitemap/schema"
@@ -152,7 +157,7 @@ phases:
   P12:
     name: "Quote engine"
     priority: HIGH
-    rule: "Versioned deterministic pricing rules; LLM may explain but never determine price."
+    rule: "Versioned deterministic pricing rules; only an explicit finite positive operator rate enables priced output; LLM never determines price."
   P13:
     name: "Prospect packet"
     priority: HIGH
@@ -165,7 +170,7 @@ phases:
   P15:
     name: "Free model router"
     priority: HIGH
-    route: ["DETERMINISTIC_CODE", "LOCAL_FREE_MODEL", "FREE_EXTERNAL_ROUTE_1", "FREE_EXTERNAL_ROUTE_2", "DEFER"]
+    route: ["DETERMINISTIC_CODE", "FCC_EXACT_CERTIFIED_ZERO_COST", "HERMES_LIVE_VERIFIED_FREE", "DEFER"]
     max_cost_usd: 0
     max_large_local_models_concurrent: 0
     preferred_small_local_models_concurrent: 1
@@ -243,10 +248,10 @@ exact_execution_order:
   - "Maintain gitleaks, dependency audit and CI security checks."
   - "Consolidate auditor implementations."
   - "Consolidate planning/operator documentation."
-  - "Finish supervisor/daemon and prove crash recovery."
+  - "Verify existing supervisor/health/log/rotation/DLQ capabilities and exact-head host recovery acceptance."
   - "Create Obsidian operator workspace as non-authoritative view."
   - "Improve identity and deterministic audit evidence."
-  - "Add Lighthouse/Lychee."
+  - "Verify existing Lighthouse/Lychee adapters on the host only when installed and required."
   - "Build multi-source NZ discovery."
   - "Upgrade Email Finder V2."
   - "Keep technical and commercial opportunity scores separate."
@@ -260,7 +265,7 @@ exact_execution_order:
 
 final_acceptance:
   reliability:
-    - "24+ hour unattended run."
+    - "One uninterrupted independently verified 24+ hour run at the exact final frozen revision; historical or incomplete runs earn no credit."
     - "Crash/restart recovery."
     - "No duplicate restart work."
     - "Visible dead-letter triage."
@@ -285,3 +290,51 @@ final_acceptance:
     - "One canonical repo/auditor/control plane/master plan."
     - "Obsidian is human-facing only."
     - "n8n is not required by the default stack."
+
+
+github_todo_review:
+  reviewed_at: "2026-10-08"
+  source: "https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/52"
+  baseline_sha: "b349cd9fb23b6cf9c5a2e8a8c74691158e9cda8f"
+  pr_state: "OPEN_DRAFT"
+  baseline_latest_checks: "13 succeeded"
+  review_status: "CodeRabbit skipped draft; review not complete"
+  sonar_maintenance_suggestions: 39
+  sonar_groups: {compound_assertions: 33, exception_assertion_scopes: 4, technology_detection: 2}
+  candidate_status: "ISOLATED_LOCAL_COMMIT_UNPUBLISHED"
+  candidate_work: ["explicit skipped statuses for seven audit stubs", "audit-cache coverage guards and audit NEEDS_REVIEW", "unsupported secret list without Keychain", "quote safety and shared effort", "Sonar maintenance with single throwing pytest.raises invocations", "technology alias compatibility", "canonical documentation", "malformed falsey effort bands", "invalid JSON CLI validation", "partial rendered screenshot baselines", "stale verification/resolution guards", "rendered/browser metadata consistency"]
+  register: "docs/GITHUB_TODO_REGISTER.md"
+  current_runtime_acceptance: "BLOCKED_NETWORK_SAMPLE; active attempt null; no valid deadline"
+  historical_runtime_acceptance: "e83121b only; not b349 or candidate acceptance"
+  approval_required: ["controller rearm/start", "candidate promotion and runtime rollout", "master integration", "external actions"]
+  candidate_validation:
+    focused_coverage_quote_worker: "82 passed"
+    portable: "424 passed; 45 subtests passed"
+    chromium: "Fresh full suite: 6 passed in 47.98 seconds; earlier receipts historical"
+    local_sonar_receipt: "All 39 annotations reverified against 19 current source hashes; no new hosted result"
+    tier1: "29 tests OK"
+    scoped_ruff_compile_pip_check: "passed"
+    wheel_build: "passed"
+    dependency_audits: "project and email passed; no known vulnerabilities reported"
+    canonical: "1048 passed; 3 skipped; 3 warnings"
+    canonical_skips: "2 opt-in Chromium covered by 6 fresh passing journeys; 1 unavailable PIL.Image"
+    supplemental_image: "Formerly skipped test passed once using work-only Python 3.12.14/Pillow 12.3.0 with network denied; canonical Python 3.11 skip and suite counts unchanged; no host/source/environment change."
+    installed_wheel: "17 imports, CLI help, local doctor and axe assets passed"
+    operator_cli_help: "passed"
+    model_limitation: "llama_cpp/model absent; no model generation tested"
+    retained_evidence: "Earlier canonical1029/focused63 receipts are historical; portable/tier1/dependency/image receipts retained"
+    wheel_sha256: "1740e919e8a95137a55cc2903a2431a1c18d6233b2a504e01a0b92f1af466dac"
+    final_receipts: "External review bundle records exact local commit SHA and final test/build/import receipts."
+  hosted_candidate_status: "Locally committed; exact SHA in external review bundle; no push, new hosted checks or Sonar analysis."
+  historical_secret_triage:
+    priority: "P1"
+    register_task: "T20"
+    full_history_scan: "Completed: 1003 commits; 56.47 MB; 185.366 seconds; exit 1; 87 inputs"
+    static_assessment: "All 87 inputs individually assessed; duplicate-looking inputs retained"
+    disposition: {not_actionable: 71, needs_review: 16, confirmed: 0}
+    remaining_inputs: "14 captured Maps-key observations; 1 historical Stripe test-key-shaped example; 1 WPForms form token"
+    source: "Review bundle follow-up/HISTORICAL_SECRET_TRIAGE.md and historical-secrets-triage.json"
+    status: "Static assessment complete; owner/restriction/purpose review OPEN for 16; no clearance claimed"
+    policy: "No credential values, provider calls, rotation, history rewrite or allow-list expansion; exact remediation/rotation authority required for any later confirmed credential."
+  deferred_analyzer_work: "Implement the seven skipped analyzer stages with evidence-backed findings under separate scope."
+  separate_acceptance: ["host tools and browser", "human contact precision", "disjoint intelligence holdout", "final-revision 24-hour soak", "code review"]

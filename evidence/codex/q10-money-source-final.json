@@ -1,0 +1,14 @@
+{
+  "source": "Versioned schema, real canonical migrations and synthetic historical rows",
+  "fixture_path": "/Users/dd/WEBSITE-AUDITOR-codex/work/codex-r00/money-source-legacy-final/database/money_machine.db",
+  "schema_sha256": "f36cd58782b5bfa293b19e38767b4127a3a437c00e3d2f0f7b858ad1b71f88dc",
+  "customer_records_copied": 0,
+  "actual_external_sends": 0,
+  "synthetic_unverified_legacy_claims": 3,
+  "synthetic_archive_rows": 1,
+  "all_base_triggers_installed_before_migrations": true,
+  "new_unapproved_send_claim_rejected": true,
+  "reason": "Existing tests assume three historical claims and an archived score; all data is fabricated fixture data, never business evidence",
+  "integrity_check": "ok",
+  "foreign_key_violations": 0
+}

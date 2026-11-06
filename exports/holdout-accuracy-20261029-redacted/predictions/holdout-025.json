@@ -1,0 +1,53 @@
+{
+ "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+ "fixture_sha256": "ec9667c941b2ee6a0e4f30f8a5a73e29908a304f596e5871e30a2f33859ed59d",
+ "scope": "javascript-application",
+ "prediction_author": "wa-static-profile (deterministic, no model)",
+ "observations": [
+  {
+   "rule": "header-content-security-policy",
+   "url": "https://irvingbuilders.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "header-x-content-type-options",
+   "url": "https://irvingbuilders.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "cookie-secure",
+   "url": "https://irvingbuilders.co.nz/",
+   "location": "PHPSESSID"
+  },
+  {
+   "rule": "structured_data_missing_type",
+   "url": "https://irvingbuilders.co.nz/",
+   "location": "Search engines may ignore or misinterpret the structured data."
+  },
+  {
+   "rule": "images-missing-dimensions",
+   "url": "https://irvingbuilders.co.nz/",
+   "location": "Space reservation needs rendered review; CSS or a sized container may already prevent layout shift"
+  },
+  {
+   "rule": "images-external-hosting",
+   "url": "https://irvingbuilders.co.nz/",
+   "location": "Third-party image dependency"
+  },
+  {
+   "rule": "social-meta-og-image",
+   "url": "https://irvingbuilders.co.nz/",
+   "location": "No Open Graph image for social sharing"
+  },
+  {
+   "rule": "social-meta-twitter-handle",
+   "url": "https://irvingbuilders.co.nz/",
+   "location": "No twitter:site or twitter:creator declared"
+  },
+  {
+   "rule": "mixed-content",
+   "url": "https://irvingbuilders.co.nz/",
+   "location": "link[href=http://gmpg.org/xfn/11]"
+  }
+ ]
+}

@@ -18,7 +18,7 @@ Then open the printed URL (default http://127.0.0.1:8755/).
 Artifacts read (relative to the repo root = parent of this folder):
     db/master_opportunity_database.json
     db/MASTER_OPPORTUNITY_DATABASE.csv
-    approval/APPROVAL_QUEUE.yaml
+    state/hermes_zero_token/APPROVAL_QUEUE.yaml (legacy approval/ fallback)
     state/HERMES_EXECUTION_STATE.yaml
     outputs/*.md
 """
@@ -47,6 +47,7 @@ REPO_ROOT = os.path.dirname(HERE)  # audit-dashboard/ -> HERMES_MONEY_ENGINE/
 DB_JSON = os.path.join(REPO_ROOT, "db", "master_opportunity_database.json")
 DB_CSV = os.path.join(REPO_ROOT, "db", "MASTER_OPPORTUNITY_DATABASE.csv")
 APPROVAL_YAML = os.path.join(REPO_ROOT, "approval", "APPROVAL_QUEUE.yaml")
+RUNTIME_APPROVAL_YAML = os.path.join(REPO_ROOT, "state", "hermes_zero_token", "APPROVAL_QUEUE.yaml")
 STATE_YAML = os.path.join(REPO_ROOT, "state", "HERMES_EXECUTION_STATE.yaml")
 OUTPUTS_DIR = os.path.join(REPO_ROOT, "outputs")
 
@@ -129,7 +130,7 @@ def analyze_pipeline(db):
 
 def analyze_approval(approval):
     """Counts derived from APPROVAL_QUEUE.yaml."""
-    if not isinstance(approval, dict):
+    if not isinstance(approval, dict) or '_error' in approval:
         return None
     items = approval.get("requires_dion_approval", []) or []
     statuses = Counter(it.get("status", "<none>") for it in items)
@@ -291,7 +292,7 @@ def render_html(model):
         <p class="blocking"><b>Blocking summary:</b> {blocking}</p>
         """
     else:
-        approval_html = '<p class="err">approval/APPROVAL_QUEUE.yaml not found or unreadable.</p>'
+        approval_html = '<p class="err">Selected approval queue not found or unreadable.</p>'
 
     # ---- execution state section ----
     if st:
@@ -416,7 +417,7 @@ def render_html(model):
     {pipeline_html}
   </section>
   <section>
-    <h2>2 · Approval Queue <span class="muted">(approval/APPROVAL_QUEUE.yaml)</span></h2>
+    <h2>2 · Approval Queue <span class="muted">({esc(model.get('approval_queue_path', 'approval/APPROVAL_QUEUE.yaml'))})</span></h2>
     {approval_html}
   </section>
   <section>
@@ -435,11 +436,15 @@ def render_html(model):
 # --- request handler --------------------------------------------------------
 def build_model():
     db = read_json(DB_JSON)
-    approval = read_yaml(APPROVAL_YAML)
+    # Select on every request so a live migration takes effect without using a
+    # stale historical queue after runtime state becomes available.
+    approval_path = RUNTIME_APPROVAL_YAML if os.path.exists(RUNTIME_APPROVAL_YAML) else APPROVAL_YAML
+    approval = read_yaml(approval_path)
     state = read_yaml(STATE_YAML)
     return {
         "pipeline": analyze_pipeline(db),
         "approval": analyze_approval(approval),
+        "approval_queue_path": os.path.relpath(approval_path, REPO_ROOT),
         "state": analyze_state(state),
         "reports": list_output_reports(),
         "csv_rows": csv_row_count(DB_CSV),

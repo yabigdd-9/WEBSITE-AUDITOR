@@ -1,0 +1,16 @@
+{
+  "scope": "disposable synthetic queue and drafts; no production data or network",
+  "source_sha256": "24e669d95c0214dea2eccb86e860eee57b208bca99e7b93abf325578a760c010",
+  "exit_codes": [
+    0,
+    0
+  ],
+  "run_count": 2,
+  "queue_item_count": 2,
+  "unique_id_count": 2,
+  "owner_existing_item_retained": true,
+  "owner_metadata_retained": true,
+  "idempotency_status": "PASS",
+  "preserve_unknown_owner_fields_status": "PASS",
+  "outbound_sends": 0
+}

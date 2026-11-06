@@ -1,0 +1,26 @@
+{
+  "mm_pipeline": {
+    "loaded_file": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/money-machine/mm_pipeline.py",
+    "source_sha256": "ab0e4a5428b6c14b2ffff69bc4d4e71deb7c3754f1ebbc37c612e71ad9b54cf8",
+    "executed_code_matches_fresh_compilation": true,
+    "loaded_code_sha256": "498c3f558ccf2988f31565d93540efb00235d3c3a41ac9a3b24ed6882b780280"
+  },
+  "mm_queue_health": {
+    "loaded_file": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/money-machine/mm_queue_health.py",
+    "source_sha256": "50d2f9aa8d23a32f2b82a21228b4b959b5d4f71239afb2c4dc714096a8f8a280",
+    "executed_code_matches_fresh_compilation": true,
+    "loaded_code_sha256": "2ff3cd3bdc00b882f3bab614773c779f1ef3f19f2f64c74f4f8231d542e96a1e"
+  },
+  "supervisor.cli": {
+    "loaded_file": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/money-machine/supervisor/cli.py",
+    "source_sha256": "11a272cd7da6634b6014cc144b2873081832fb3cfa764e5dcffb50b278a4d7ee",
+    "executed_code_matches_fresh_compilation": true,
+    "loaded_code_sha256": "243c19c5bf611bf620334c4ce0a7310e0bdb36329b24f6cf9605760a90e0b074"
+  },
+  "supervisor.daemon": {
+    "loaded_file": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/money-machine/supervisor/daemon.py",
+    "source_sha256": "66ae98d59c9eabe6ca1e0086979a1ad8b98c34374290419874b4149564a8a220",
+    "executed_code_matches_fresh_compilation": true,
+    "loaded_code_sha256": "977076ad393406ac88e4e2cc71f7cd947f4d6506f3e18d56ebe98cf07ed8d3a9"
+  }
+}

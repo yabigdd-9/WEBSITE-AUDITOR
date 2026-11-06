@@ -1,0 +1,16 @@
+{
+  "parsed_schedule": {
+    "kind": "interval",
+    "minutes": 360,
+    "display": "every 360m"
+  },
+  "matches_candidate_minutes": true,
+  "candidate_disabled": true,
+  "no_agent": true,
+  "existing_staging_job_count": 0,
+  "jobs_total": 17,
+  "jobs_enabled": 8,
+  "jobs_paused": 9,
+  "job_created": false,
+  "status": "PASS"
+}

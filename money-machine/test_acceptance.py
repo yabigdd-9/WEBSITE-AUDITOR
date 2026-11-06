@@ -48,7 +48,7 @@ class Acceptance(unittest.TestCase):
             bid=self.d.execute("INSERT INTO businesses(name,source,discovered_at,current_status) VALUES(?,?,?,?)", (f'Fixture suppressed {index + 1}', 'fixture', c.now(), 'discovered')).lastrowid
             self.suppressed_ids.append(bid)
             self.d.execute("INSERT INTO mm_deals(business_id,stage,updated_at) VALUES(?,?,?)", (bid, 'DISCOVERED', c.now()))
-            self.d.execute("INSERT INTO mm_holds(business_id, reason, created_at) VALUES(?,?,?)", (bid, 'fixture hold', c.now()))
+            self.d.execute("INSERT INTO mm_holds(business_id, reason) VALUES(?,?)", (bid, 'fixture hold'))
         self.capture=self.r/'capture.txt';self.capture.write_text('<html><title>Acceptance Fixture</title><h1>Acceptance Fixture</h1><p>Fixturetown</p><p>Contact email: '+self.address+'</p><p>Verified local fixture observation, not a real business.</p></html>');self.demo=self.r/'demo.html';self.demo.write_text(DEMO)
         meta={'url':'https://fixture.example.co.nz','captured_at':c.now(),'sha256':c.sha(self.capture.read_bytes()),'path':str(self.capture)}
         page=email_engine.parse_page(meta,self.capture.read_bytes())

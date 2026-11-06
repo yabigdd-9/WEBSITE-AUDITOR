@@ -1,0 +1,63 @@
+{
+ "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+ "fixture_sha256": "09d59b83fbbd6b18aa3d1632461b03f42c7030330ecdaf27c43453082db9a128",
+ "scope": "commerce-catalogue",
+ "prediction_author": "wa-static-profile (deterministic, no model)",
+ "observations": [
+  {
+   "rule": "image-alt",
+   "url": "https://tanz.net.nz/",
+   "location": "img:nth-of-type(6)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://tanz.net.nz/",
+   "location": "img:nth-of-type(11)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://tanz.net.nz/",
+   "location": "img:nth-of-type(13)"
+  },
+  {
+   "rule": "image-alt",
+   "url": "https://tanz.net.nz/",
+   "location": "img:nth-of-type(14)"
+  },
+  {
+   "rule": "header-content-security-policy",
+   "url": "https://tanz.net.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "header-x-content-type-options",
+   "url": "https://tanz.net.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "header-hsts",
+   "url": "https://tanz.net.nz/",
+   "location": "Review HTTPS deployment"
+  },
+  {
+   "rule": "structured_data_missing_type",
+   "url": "https://tanz.net.nz/",
+   "location": "Search engines may ignore or misinterpret the structured data."
+  },
+  {
+   "rule": "images-missing-alt",
+   "url": "https://tanz.net.nz/",
+   "location": "Screen readers cannot describe images; accessibility and SEO suffer"
+  },
+  {
+   "rule": "images-missing-dimensions",
+   "url": "https://tanz.net.nz/",
+   "location": "Space reservation needs rendered review; CSS or a sized container may already prevent layout shift"
+  },
+  {
+   "rule": "social-meta-twitter-handle",
+   "url": "https://tanz.net.nz/",
+   "location": "No twitter:site or twitter:creator declared"
+  }
+ ]
+}

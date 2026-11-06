@@ -1,0 +1,48 @@
+{
+ "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+ "fixture_sha256": "3dded88489681a1020b7172c3d170e84dcc25f413f6d8974f2be01086643738f",
+ "scope": "commerce-catalogue",
+ "prediction_author": "wa-static-profile (deterministic, no model)",
+ "observations": [
+  {
+   "rule": "header-content-security-policy",
+   "url": "https://www.reece.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "header-x-content-type-options",
+   "url": "https://www.reece.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "header-hsts",
+   "url": "https://www.reece.co.nz/",
+   "location": "Review HTTPS deployment"
+  },
+  {
+   "rule": "images-missing-dimensions",
+   "url": "https://www.reece.co.nz/",
+   "location": "Space reservation needs rendered review; CSS or a sized container may already prevent layout shift"
+  },
+  {
+   "rule": "images-external-hosting",
+   "url": "https://www.reece.co.nz/",
+   "location": "Third-party image dependency"
+  },
+  {
+   "rule": "social-meta-og-image",
+   "url": "https://www.reece.co.nz/",
+   "location": "No Open Graph image for social sharing"
+  },
+  {
+   "rule": "social-meta-twitter-handle",
+   "url": "https://www.reece.co.nz/",
+   "location": "No twitter:site or twitter:creator declared"
+  },
+  {
+   "rule": "no-contact-path",
+   "url": "https://www.reece.co.nz/",
+   "location": "No phone, contact link or form"
+  }
+ ]
+}

@@ -52,7 +52,7 @@ def build_demo(report: dict, remediation: dict, output_dir, *, render: bool = Fa
     html = """<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
 <title>Website improvement concept</title>
 <style>
 body{font:16px/1.55 system-ui;max-width:1000px;margin:32px auto;padding:24px;color:#17231f}
@@ -60,7 +60,7 @@ body{font:16px/1.55 system-ui;max-width:1000px;margin:32px auto;padding:24px;col
 table{width:100%;border-collapse:collapse;margin-top:24px}th,td{text-align:left;vertical-align:top;padding:10px;border-bottom:1px solid #bbb}
 code{overflow-wrap:anywhere}
 </style></head><body>
-<div class="notice"><strong>LOCAL CONCEPT ONLY.</strong> Nothing on the source website has been changed.
+<div class="notice"><strong>LOCAL CONCEPT ONLY.</strong> This is a local demonstration. Nothing is sent. Nothing on the source website has been changed.
 This page is not proof of improved performance, accessibility, SEO, leads or revenue.</div>
 <h1>Reviewable website improvement concept</h1>
 <p>Source: <code>""" + escape(str(report.get("url") or "")) + """</code></p>

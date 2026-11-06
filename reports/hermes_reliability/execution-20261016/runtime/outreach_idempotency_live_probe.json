@@ -1,0 +1,17 @@
+{
+  "scope": "disposable synthetic queue and drafts; no production data or network",
+  "source_path": "/Users/dd/WEBSITE-AUDITOR/ops/hermes_zero_token/outreach_draft.py",
+  "source_sha256": "a77a87e8a52ee64cc35877f386bb84d1a35b0e4c1d154fb0340f338a0ba7460e",
+  "exit_codes": [
+    0,
+    0
+  ],
+  "run_count": 2,
+  "queue_item_count": 3,
+  "unique_id_count": 2,
+  "owner_existing_item_retained": true,
+  "owner_metadata_retained": false,
+  "idempotency_status": "FAIL",
+  "preserve_unknown_owner_fields_status": "FAIL",
+  "outbound_sends": 0
+}

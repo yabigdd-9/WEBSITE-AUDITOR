@@ -1,0 +1,75 @@
+schema_version: 1
+observed_on: "2026-10-16"
+timezone: Pacific/Auckland
+purpose: evidence_only_not_runtime_configuration
+baseline_head: 09ab41ab
+incremental_spending_limit_nzd: 0
+activation_authorized_by_this_file: false
+global_hermes:
+  config_path: /Users/dd/.hermes/config.yaml
+  primary:
+    provider: fcc-claude
+    model: anthropic/kilo/anthropic/claude-opus-5.5
+    base_url: http://127.0.0.1:8082/v1
+    api_mode: codex_responses
+    catalog_present: true
+    inference_verified: false
+    included_allowance_verified: false
+    eligible_for_new_production_activation: false
+  configured_fallbacks:
+    - provider: fcc-claude
+      model: claude-fable-5
+      catalog_present: true
+      included_allowance_verified: false
+    - provider: fcc-claude
+      model: claude-opus-5.5
+      catalog_present: false
+      included_allowance_verified: false
+    - provider: nous
+      model: upstage/solar-pro4:free
+      catalog_present: unknown
+      account_telemetry_verified: true
+      account_plan: Free
+      total_usable_paid_credits: 0
+      exact_free_model_entitlement_verified: false
+money_machine:
+  implementation: money-machine/mm_model_router.py
+  configured_primary: gateway:fcc-claude
+  mm_fcc_model_configured: false
+  mm_fcc_free_models_configured: false
+  primary_currently_selected: false
+  fallback:
+    provider: hermes:free-role
+    actual_backend: openrouter
+    implementation: money-machine/scripts/free_role_router.py
+    equivalent_to_global_hermes_nous_fallback: false
+    requires_live_catalog_zero_price: true
+    request_price_caps_usd:
+      prompt: 0
+      completion: 0
+      request: 0
+      image: 0
+    openrouter_credential_present_in_checked_sources: false
+    current_inference_verified: false
+  otherwise: DEFER_BLOCKED_COST
+  candidate_repair:
+    billing_anomaly_latch: state/model-routing-cost-stop.json
+    private_mode: "0600"
+    blocks_later_router_plan_and_completion: true
+    unknown_reported_cost: safety_stop
+    nonzero_reported_cost: safety_stop_preserve_observed_amount
+    exact_response_model_required: true
+    malformed_response: bounded_safe_fallback
+    global_hermes_or_direct_bridge_covered: false
+local_fallback:
+  ollama_listener_observed: false
+  llama_listener_on_8080_observed: false
+  executables_on_path: false
+  enabled_in_existing_money_machine_router: false
+  current_status: unavailable
+required_activation_gates:
+  - verify_official_per_model_allowance_and_remaining_quota
+  - install_shared_admission_across_every_inference_entrypoint
+  - prove_no_metered_fallback_or_auto_topup
+  - verify_supported_api_end_to_end_without_incremental_spend
+  - satisfy_health_recovery_and_stability_acceptance

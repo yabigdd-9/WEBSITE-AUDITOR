@@ -1,0 +1,22 @@
+{
+  "money-machine/mm_model_router.py": {
+    "baseline_count": 2,
+    "candidate_count": 1,
+    "introduced_diagnostics": []
+  },
+  "money-machine/mm_reporting.py": {
+    "baseline_count": 0,
+    "candidate_count": 0,
+    "introduced_diagnostics": []
+  },
+  "money-machine/test_pipeline.py": {
+    "baseline_count": 12,
+    "candidate_count": 12,
+    "introduced_diagnostics": []
+  },
+  "money-machine/test_reporting.py": {
+    "baseline_count": 0,
+    "candidate_count": 0,
+    "introduced_diagnostics": []
+  }
+}

@@ -220,27 +220,20 @@ def test_searxng_must_be_loopback():
 
 
 def test_searxng_results_are_rooted_deduped_and_contact_free():
-    payload = json.dumps(
-        {
-            "results": [
-                {"title": "Alpha", "url": "https://alpha.example/services/plumbing"},
-                {"title": "Alpha Contact", "url": "https://www.alpha.example/contact"},
-                {"title": "Beta", "url": "https://beta.example/about"},
-            ]
-        }
-    ).encode()
+    backend = {
+        "state": discovery.mm_search_backend.OK,
+        "provider": "searxng",
+        "query_ref": "fixture-query",
+        "results": [
+            {"title": "Alpha", "url": "https://alpha.example/services/plumbing"},
+            {"title": "Alpha Contact", "url": "https://www.alpha.example/contact"},
+            {"title": "Beta", "url": "https://beta.example/about"},
+        ],
+    }
 
-    class Response:
-        def __enter__(self):
-            return self
-
-        def __exit__(self, *args):
-            return False
-
-        def read(self, _limit):
-            return payload
-
-    with patch.object(discovery, "urlopen", return_value=Response()) as request:
+    with patch.object(
+        discovery.mm_search_backend, "search", return_value=backend
+    ) as request:
         rows = discovery.searxng_candidates(
             "plumber christchurch",
             "Canterbury",
@@ -249,5 +242,25 @@ def test_searxng_results_are_rooted_deduped_and_contact_free():
         )
     assert [r["canonical_host"] for r in rows] == ["alpha.example", "beta.example"]
     assert rows[0]["public_website"] == "https://alpha.example/"
+    assert rows[0]["source_lane"] == "searxng"
+    assert rows[0]["source_record_id"] == "fixture-query"
     assert all("email" not in row for row in rows)
-    request.assert_called_once()
+    request.assert_called_once_with(
+        "plumber christchurch",
+        "Canterbury",
+        endpoint="http://127.0.0.1:8888",
+        limit=10,
+        timeout=discovery.SEARCH_TIMEOUT,
+    )
+
+
+def test_searxng_backend_failure_maps_to_discovery_block():
+    blocked = {
+        "state": discovery.mm_search_backend.BLOCKED_NOT_LISTENING,
+        "reason": "connection refused",
+        "results": [],
+    }
+    with patch.object(discovery.mm_search_backend, "search", return_value=blocked):
+        with pytest.raises(discovery.SearchBlocked) as exc:
+            discovery.searxng_candidates("builder", "Christchurch")
+    assert exc.value.code == "BLOCKED_SEARCH_SERVICE_ABSENT"

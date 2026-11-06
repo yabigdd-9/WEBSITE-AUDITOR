@@ -1,0 +1,2 @@
+# macOS Keychain only; no Gmail API or model SDK dependency.
+keyring==25.7.0
