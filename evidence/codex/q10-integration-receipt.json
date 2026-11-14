@@ -1,0 +1,23 @@
+{
+  "source_sha": "09ab41ab61656ae4b63110d4ee7d418f3fbf07b8",
+  "cwd": "/Users/dd/WEBSITE-AUDITOR-codex",
+  "started_at_utc": "2026-10-16T02:40:40.230944+00:00",
+  "duration_seconds": 0.964,
+  "command": [
+    "/Users/dd/WEBSITE-AUDITOR/.venv-email/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "ops/hermes_zero_token/test_integration_safety.py",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=/Users/dd/WEBSITE-AUDITOR-codex/work/codex-r00/pytest-integration",
+    "--junitxml=/Users/dd/WEBSITE-AUDITOR-codex/evidence/codex/q10-integration.xml"
+  ],
+  "exit_code": 0,
+  "test_source_sha256": "ba12cb6346443ab78804afcbf58196c31dfb12df8067046e2f0a7b0fc5dd46ac",
+  "source_unchanged": true,
+  "scope": "synthetic integration cases only; not full Q10 acceptance; source-loaded module attestation not performed",
+  "production_actions": false
+}

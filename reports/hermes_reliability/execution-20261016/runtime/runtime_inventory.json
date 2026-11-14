@@ -1,0 +1,495 @@
+{
+  "captured_at": "2026-10-15T19:49:03.402122+00:00",
+  "scheduler": {
+    "total_jobs": 17,
+    "configuration": {
+      "path": "/Users/dd/.hermes/cron/jobs.json",
+      "exists": true,
+      "sha256": "cec8e97cc669d7a1a06d3941b5b63e041884209f4bca12df44e86916ea3d758a",
+      "mode": "0o600"
+    },
+    "jobs": [
+      {
+        "name": "ZA system supervisor",
+        "script": "za_system_supervisor.sh",
+        "no_agent": true,
+        "schedule": {
+          "kind": "interval",
+          "minutes": 15,
+          "display": "every 15m"
+        },
+        "schedule_display": "every 15m",
+        "enabled": true,
+        "state": "scheduled",
+        "last_status": "ok",
+        "last_run_at": "2026-10-16T08:36:54.964120+13:00",
+        "next_run_at": "2026-10-16T08:51:54.964120+13:00",
+        "failure_streak": 0
+      },
+      {
+        "name": "ZA database guard",
+        "script": "za_database_guard.sh",
+        "no_agent": true,
+        "schedule": {
+          "kind": "interval",
+          "minutes": 360,
+          "display": "every 360m"
+        },
+        "schedule_display": "every 360m",
+        "enabled": true,
+        "state": "scheduled",
+        "last_status": "ok",
+        "last_run_at": "2026-10-16T03:25:53.370643+13:00",
+        "next_run_at": "2026-10-16T09:25:53.370643+13:00",
+        "failure_streak": 0
+      },
+      {
+        "name": "ZA daily report",
+        "script": "za_daily_report.sh",
+        "no_agent": true,
+        "schedule": {
+          "kind": "cron",
+          "expr": "0 8 * * *",
+          "display": "0 8 * * *"
+        },
+        "schedule_display": "0 8 * * *",
+        "enabled": true,
+        "state": "scheduled",
+        "last_status": "ok",
+        "last_run_at": "2026-10-16T08:00:54.387830+13:00",
+        "next_run_at": "2026-10-17T08:00:00+13:00",
+        "failure_streak": 0
+      },
+      {
+        "name": "ZA queue dispatcher",
+        "script": "za_queue_dispatcher.sh",
+        "no_agent": true,
+        "schedule": {
+          "kind": "interval",
+          "minutes": 30,
+          "display": "every 30m"
+        },
+        "schedule_display": "every 30m",
+        "enabled": true,
+        "state": "scheduled",
+        "last_status": "error",
+        "last_run_at": "2026-10-16T08:30:58.939522+13:00",
+        "next_run_at": "2026-10-16T09:00:58.939522+13:00",
+        "failure_streak": 49
+      },
+      {
+        "name": "ZA identity resolution",
+        "script": "za_identity_resolution.sh",
+        "no_agent": true,
+        "schedule": {
+          "kind": "interval",
+          "minutes": 120,
+          "display": "every 120m"
+        },
+        "schedule_display": "every 120m",
+        "enabled": true,
+        "state": "scheduled",
+        "last_status": "error",
+        "last_run_at": "2026-10-16T07:36:54.097371+13:00",
+        "next_run_at": "2026-10-16T09:36:54.097371+13:00",
+        "failure_streak": 12
+      },
+      {
+        "name": "ZA site auditor",
+        "script": "za_site_auditor.sh",
+        "no_agent": true,
+        "schedule": {
+          "kind": "interval",
+          "minutes": 180,
+          "display": "every 180m"
+        },
+        "schedule_display": "every 180m",
+        "enabled": true,
+        "state": "scheduled",
+        "last_status": "error",
+        "last_run_at": "2026-10-16T06:44:53.909205+13:00",
+        "next_run_at": "2026-10-16T09:44:53.909205+13:00",
+        "failure_streak": 8
+      },
+      {
+        "name": "ZA scoring judge",
+        "script": "za_scoring_judge.sh",
+        "no_agent": true,
+        "schedule": {
+          "kind": "interval",
+          "minutes": 240,
+          "display": "every 240m"
+        },
+        "schedule_display": "every 240m",
+        "enabled": true,
+        "state": "scheduled",
+        "last_status": "ok",
+        "last_run_at": "2026-10-16T05:27:53.673538+13:00",
+        "next_run_at": "2026-10-16T09:27:53.673538+13:00",
+        "failure_streak": 0
+      },
+      {
+        "name": "ZA evidence proofer",
+        "script": "za_evidence_proofer.sh",
+        "no_agent": true,
+        "schedule": {
+          "kind": "interval",
+          "minutes": 240,
+          "display": "every 240m"
+        },
+        "schedule_display": "every 240m",
+        "enabled": true,
+        "state": "scheduled",
+        "last_status": "ok",
+        "last_run_at": "2026-10-16T05:27:53.687082+13:00",
+        "next_run_at": "2026-10-16T09:27:53.687082+13:00",
+        "failure_streak": 0
+      },
+      {
+        "name": "ZA discover NZ businesses",
+        "script": "za_discover_nz_businesses.sh",
+        "no_agent": true,
+        "schedule": {
+          "kind": "interval",
+          "minutes": 120,
+          "display": "every 120m"
+        },
+        "schedule_display": "every 120m",
+        "enabled": true,
+        "state": "scheduled",
+        "last_status": "error",
+        "last_run_at": "2026-10-16T07:36:54.104022+13:00",
+        "next_run_at": "2026-10-16T09:36:54.104022+13:00",
+        "failure_streak": 12
+      },
+      {
+        "name": "ZA screenshot worker",
+        "script": "za_screenshot_worker.sh",
+        "no_agent": true,
+        "schedule": {
+          "kind": "interval",
+          "minutes": 180,
+          "display": "every 180m"
+        },
+        "schedule_display": "every 180m",
+        "enabled": true,
+        "state": "scheduled",
+        "last_status": "ok",
+        "last_run_at": "2026-10-16T06:28:53.675495+13:00",
+        "next_run_at": "2026-10-16T09:28:53.675495+13:00",
+        "failure_streak": 0
+      },
+      {
+        "name": "ZA tests",
+        "script": "za_testing.sh",
+        "no_agent": true,
+        "schedule": {
+          "kind": "interval",
+          "minutes": 360,
+          "display": "every 360m"
+        },
+        "schedule_display": "every 360m",
+        "enabled": true,
+        "state": "scheduled",
+        "last_status": "ok",
+        "last_run_at": "2026-10-16T03:30:18.962226+13:00",
+        "next_run_at": "2026-10-16T09:30:18.962226+13:00",
+        "failure_streak": 0
+      },
+      {
+        "name": "ZA git observer",
+        "script": "za_git_observer.sh",
+        "no_agent": true,
+        "schedule": {
+          "kind": "interval",
+          "minutes": 360,
+          "display": "every 360m"
+        },
+        "schedule_display": "every 360m",
+        "enabled": true,
+        "state": "scheduled",
+        "last_status": "ok",
+        "last_run_at": "2026-10-16T03:25:53.409060+13:00",
+        "next_run_at": "2026-10-16T09:25:53.409060+13:00",
+        "failure_streak": 0
+      },
+      {
+        "name": "ZA competitor research",
+        "script": "za_competitor_research.sh",
+        "no_agent": true,
+        "schedule": {
+          "kind": "interval",
+          "minutes": 720,
+          "display": "every 720m"
+        },
+        "schedule_display": "every 720m",
+        "enabled": true,
+        "state": "scheduled",
+        "last_status": "error",
+        "last_run_at": "2026-10-15T21:24:52.412342+13:00",
+        "next_run_at": "2026-10-16T09:24:52.412342+13:00",
+        "failure_streak": 4
+      },
+      {
+        "name": "ZA demo blueprint",
+        "script": "za_demo_blueprint.sh",
+        "no_agent": true,
+        "schedule": {
+          "kind": "interval",
+          "minutes": 480,
+          "display": "every 480m"
+        },
+        "schedule_display": "every 480m",
+        "enabled": true,
+        "state": "scheduled",
+        "last_status": "ok",
+        "last_run_at": "2026-10-16T05:26:53.551974+13:00",
+        "next_run_at": "2026-10-16T13:26:53.551974+13:00",
+        "failure_streak": 0
+      },
+      {
+        "name": "ZA outreach draft",
+        "script": "za_outreach_draft.sh",
+        "no_agent": true,
+        "schedule": {
+          "kind": "interval",
+          "minutes": 480,
+          "display": "every 480m"
+        },
+        "schedule_display": "every 480m",
+        "enabled": true,
+        "state": "scheduled",
+        "last_status": "ok",
+        "last_run_at": "2026-10-16T05:26:53.819661+13:00",
+        "next_run_at": "2026-10-16T13:26:53.819661+13:00",
+        "failure_streak": 0
+      },
+      {
+        "name": "ZA weekly review",
+        "script": "za_weekly_review.sh",
+        "no_agent": true,
+        "schedule": {
+          "kind": "interval",
+          "minutes": 10080,
+          "display": "every 10080m"
+        },
+        "schedule_display": "every 10080m",
+        "enabled": true,
+        "state": "scheduled",
+        "last_status": null,
+        "last_run_at": null,
+        "next_run_at": "2026-10-20T20:28:08.101222+13:00",
+        "failure_streak": 0
+      },
+      {
+        "name": "ZA provider monitor",
+        "script": "za_provider_monitor.sh",
+        "no_agent": true,
+        "schedule": {
+          "kind": "interval",
+          "minutes": 360,
+          "display": "every 360m"
+        },
+        "schedule_display": "every 360m",
+        "enabled": true,
+        "state": "scheduled",
+        "last_status": "ok",
+        "last_run_at": "2026-10-16T03:25:53.195291+13:00",
+        "next_run_at": "2026-10-16T09:25:53.195291+13:00",
+        "failure_streak": 0
+      }
+    ],
+    "has_staging_db": false,
+    "ticker": [
+      {
+        "path": "/Users/dd/.hermes/cron/ticker_heartbeat",
+        "exists": true,
+        "sha256": "cdfe375e304788696d238c52886ae5f87b9998841e115667722bc8c36659eae3",
+        "mode": "0o600"
+      },
+      {
+        "path": "/Users/dd/.hermes/cron/ticker_last_success",
+        "exists": true,
+        "sha256": "c5fcece10e401187eb2d3f29a82f4d8795ab897101560a9328075f73a1558fd2",
+        "mode": "0o600"
+      }
+    ]
+  },
+  "obsidian": {
+    "settings": {
+      "path": "/Users/dd/Library/Application Support/obsidian/obsidian.json",
+      "exists": true,
+      "sha256": "2f1abc560b6d99e99668a7e97cfa6df3d89c943a67a389b1decad4e427343d57",
+      "mode": "0o644"
+    },
+    "vaults": [
+      {
+        "path": "/Users/dd/Downloads/CatalyxLabs_Master_Brain_V7",
+        "exists": true,
+        "open": true,
+        "settings_directory_exists": true
+      }
+    ],
+    "canonical_default_vault_exists": true
+  },
+  "state_files": [
+    {
+      "path": "/Users/dd/WEBSITE-AUDITOR/HERMES_EXECUTION_STATE.yaml",
+      "exists": false,
+      "sha256": null,
+      "mode": null
+    },
+    {
+      "path": "/Users/dd/WEBSITE-AUDITOR/outputs/TOP_20_MONEY_ENGINES.md",
+      "exists": true,
+      "sha256": "5d4c5674f4190fda21af893743f70dd56c03d004760c0252d2b9b72cde0947dc",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/dd/WEBSITE-AUDITOR/approval/APPROVAL_QUEUE.yaml",
+      "exists": true,
+      "sha256": "53fa2bae4de79e77bccd7f43c7f205a099ab32e84aeed5d30e083f0b0c6230a8",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/dd/WEBSITE-AUDITOR/state/supervisor.pid",
+      "exists": true,
+      "sha256": "bfeb5877b8ea5c7a4fc2d54ea90cce99532f855750d9b9f2ae9e83a899fb6f4c",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/dd/WEBSITE-AUDITOR/state/supervisor.heartbeat",
+      "exists": true,
+      "sha256": "7e1ea0bc1ad38a5cd653976863799958f7ab7e36a3ded87956531c753144649f",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/dd/WEBSITE-AUDITOR/state/runtime-startup/89903.json",
+      "exists": true,
+      "sha256": "c1e7efc4722b7af28f8acdb04d659b9821a159030bcdeaa51a7fe70c1e484934",
+      "mode": "0o600"
+    }
+  ],
+  "state_alternatives": [
+    {
+      "path": "/Users/dd/WEBSITE-AUDITOR/.claude/worktrees/happy-sutherland-4f1b01/outputs/TOP_20_MONEY_ENGINES.md",
+      "exists": true,
+      "sha256": "5d4c5674f4190fda21af893743f70dd56c03d004760c0252d2b9b72cde0947dc",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/dd/WEBSITE-AUDITOR/.claude/worktrees/happy-sutherland-4f1b01/approval/APPROVAL_QUEUE.yaml",
+      "exists": true,
+      "sha256": "1cf14034325cede7e61a2ad9d3ca8e9b7847b05796eb38eb87fceab3bb56b38d",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/dd/WEBSITE-AUDITOR/.claude/worktrees/quizzical-raman-5ad6c6/outputs/TOP_20_MONEY_ENGINES.md",
+      "exists": true,
+      "sha256": "5d4c5674f4190fda21af893743f70dd56c03d004760c0252d2b9b72cde0947dc",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/dd/WEBSITE-AUDITOR/.claude/worktrees/quizzical-raman-5ad6c6/approval/APPROVAL_QUEUE.yaml",
+      "exists": true,
+      "sha256": "1cf14034325cede7e61a2ad9d3ca8e9b7847b05796eb38eb87fceab3bb56b38d",
+      "mode": "0o644"
+    }
+  ],
+  "transport": {
+    "version": 1,
+    "enabled": false,
+    "provider": "none",
+    "daily_cap": 0,
+    "requires_exact_approval": true,
+    "requires_verified_recipient": true,
+    "requires_suppression_check": true,
+    "external_send_allowed": false
+  },
+  "sources": [
+    {
+      "path": "/Users/dd/WEBSITE-AUDITOR/ops/hermes_zero_token/runner.py",
+      "exists": true,
+      "sha256": "961aea11e180519b5963fc64c367605ffc7018babd5e56bf853ad8cd39ba5998",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/dd/WEBSITE-AUDITOR/ops/hermes_zero_token/staging_db.py",
+      "exists": true,
+      "sha256": "482f89b1605da9d372904033c9dfbc238b2eda588f152e5153903f2d62c4d29d",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/dd/WEBSITE-AUDITOR/ops/hermes_zero_token/screenshot_worker.py",
+      "exists": true,
+      "sha256": "6b9a715d1b1dfd7b1cb5b27342b90bbdc3a85568a4035129e06545cca7dbed9e",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/dd/WEBSITE-AUDITOR/ops/hermes_zero_token/demo_blueprint.py",
+      "exists": true,
+      "sha256": "6f1e968a45e28952245871f61e07aef1a826a2c8d737530d58754199a53a96b4",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/dd/WEBSITE-AUDITOR/ops/hermes_zero_token/outreach_draft.py",
+      "exists": true,
+      "sha256": "24e669d95c0214dea2eccb86e860eee57b208bca99e7b93abf325578a760c010",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/dd/WEBSITE-AUDITOR/ops/hermes_zero_token/daily_report.py",
+      "exists": true,
+      "sha256": "c5339e342b4e1b3b1c8a183ac47695aa510d11a290336559a2f69524b7f07721",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/dd/WEBSITE-AUDITOR/money-machine/mm_pipeline.py",
+      "exists": true,
+      "sha256": "37f5e9dd86c59d033dfee895bbadec175600d0a74419ac8395776879a84d752c",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/dd/WEBSITE-AUDITOR/money-machine/mm_transport.py",
+      "exists": true,
+      "sha256": "b584c4b9fce0b4df1a5745740d0dbaf9150e7c3a38b0aea0d56ada28614c312e",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/dd/WEBSITE-AUDITOR/money-machine/mm_obsidian.py",
+      "exists": true,
+      "sha256": "231d1d111af0e1498506f5e508133a2127a15c7ebcfc3205ccccebca180a4d5f",
+      "mode": "0o644"
+    },
+    {
+      "path": "/Users/dd/WEBSITE-AUDITOR/money-machine/supervisor/cli.py",
+      "exists": true,
+      "sha256": "93f4177e27465fe576ae13257b80a568ddbfb4e72ed0700f408a44e5f746788c",
+      "mode": "0o755"
+    }
+  ],
+  "launchd": {
+    "path": "/Users/dd/Library/LaunchAgents/ai.website-auditor.supervisor.plist",
+    "exists": true,
+    "sha256": "7c789219b3ca3d8cbbcfdf44cb58bb2742146b3f3e435405f05b41c8e0ed1946",
+    "mode": "0o644",
+    "Label": "ai.website-auditor.supervisor",
+    "ProgramArguments": [
+      "/Users/dd/WEBSITE-AUDITOR/.venv-email/bin/python",
+      "-m",
+      "supervisor.cli",
+      "_run-foreground",
+      "--sleep",
+      "5",
+      "--lease",
+      "300",
+      "--rotate-every",
+      "60"
+    ],
+    "WorkingDirectory": "/Users/dd/WEBSITE-AUDITOR/money-machine",
+    "RunAtLoad": true,
+    "KeepAlive": true,
+    "ThrottleInterval": 10,
+    "external_send_disabled": true
+  }
+}

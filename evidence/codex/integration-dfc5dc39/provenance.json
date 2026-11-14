@@ -1,0 +1,96 @@
+{
+  "captured_at_utc": "2026-10-16T07:44:43.410318+00:00",
+  "integration_owner": "human operator",
+  "authorization": "User asked Codex to integrate with Claude; local assigned Codex branch only",
+  "codex_before": "d0459d8301becb45b6f5f0f5b8102d609002d4ac",
+  "opus_pinned": "dfc5dc397504dc80e6d9ffc5f09f3c0c9682ab75",
+  "imported_commits": [
+    {
+      "sha": "5f461d43dd133fe1084527c52e67a301a550de74",
+      "subject": "fix(supervisor): resolve portability and runtime defects in PID lock, daemon, dashboard, ritual cycles",
+      "files": [
+        "money-machine/mm_dashboard.py",
+        "money-machine/mm_ritual_cycles.py",
+        "money-machine/supervisor/daemon.py",
+        "money-machine/supervisor/pid.py"
+      ]
+    },
+    {
+      "sha": "713bf244cd838b5b6329e83167b5a9d5bc746a10",
+      "subject": "docs(CURRENT_STATE): record agents/opus-r01 supervisor fixes and test results",
+      "files": [
+        "CURRENT_STATE.md"
+      ]
+    },
+    {
+      "sha": "f12a83c7f028f52fca6d4b5c5e9c5d0495aeb586",
+      "subject": "fix(supervisor): correct inverted os.kill logic in SupervisorDaemon.start()",
+      "files": [
+        "money-machine/supervisor/daemon.py",
+        "toolkit_tests/test_daemon_start.py"
+      ]
+    },
+    {
+      "sha": "891f88f467a47713322c5cc32ed28046bcaeef6e",
+      "subject": "docs(CURRENT_STATE): warn that 5f461d43 needs corrective commit f12a83c",
+      "files": [
+        "CURRENT_STATE.md"
+      ]
+    },
+    {
+      "sha": "d61306bcc997fd63f26e26bd31ff09296b4fe38c",
+      "subject": "test(supervisor): isolate daemon.start() tests from live repo and signal state",
+      "files": [
+        "toolkit_tests/test_daemon_start.py"
+      ]
+    },
+    {
+      "sha": "bfa4b31ca9b09d1cc6b30330b1ec436b42ab5b48",
+      "subject": "feat(pipeline): tag DLQ provider outages with provider_state and lane (A10)",
+      "files": [
+        "money-machine/mm_pipeline.py",
+        "money-machine/test_pipeline.py",
+        "reports/search-service/a10-dlq-tag.txt"
+      ]
+    },
+    {
+      "sha": "dfc5dc397504dc80e6d9ffc5f09f3c0c9682ab75",
+      "subject": "docs(CURRENT_STATE): record A10 DLQ provider-outage tagging complete",
+      "files": [
+        "CURRENT_STATE.md"
+      ]
+    }
+  ],
+  "imported_files": [
+    "CURRENT_STATE.md",
+    "money-machine/mm_dashboard.py",
+    "money-machine/mm_pipeline.py",
+    "money-machine/mm_ritual_cycles.py",
+    "money-machine/supervisor/daemon.py",
+    "money-machine/supervisor/pid.py",
+    "money-machine/test_pipeline.py",
+    "reports/search-service/a10-dlq-tag.txt",
+    "toolkit_tests/test_daemon_start.py"
+  ],
+  "merge_commit": "adec8b282f43f3f2918a4fe4aefcd9c54860324b",
+  "merge_parents": [
+    "d0459d8301becb45b6f5f0f5b8102d609002d4ac",
+    "dfc5dc397504dc80e6d9ffc5f09f3c0c9682ab75"
+  ],
+  "merge_conflicts": false,
+  "compatibility_commit": "b032c8c1d22d4000bb5db1d19fe5a4fa21f5d845",
+  "compatibility_files": [
+    "money-machine/supervisor/pid.py",
+    "toolkit_tests/test_daemon_start.py"
+  ],
+  "tested_application_sha": "b032c8c1d22d4000bb5db1d19fe5a4fa21f5d845",
+  "shared_integration_head_before": "09ab41ab61656ae4b63110d4ee7d418f3fbf07b8",
+  "shared_integration_head_after": "09ab41ab61656ae4b63110d4ee7d418f3fbf07b8",
+  "opus_head_after": "dfc5dc397504dc80e6d9ffc5f09f3c0c9682ab75",
+  "opus_status_after": "",
+  "excluded_candidate": "a365d6b1ed301cb85d5ade58aa2ae042aa693fcd",
+  "canonical_A10_runtime_attestation_complete": false,
+  "scope": "Local integration candidate; no shared branch merge, push, deployment, service modification, soak or outreach",
+  "shared_status_unchanged": true,
+  "final_checked_at_utc": "2026-10-16T07:46:18.383604+00:00"
+}

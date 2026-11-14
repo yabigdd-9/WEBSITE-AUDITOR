@@ -1,0 +1,38 @@
+{
+  "commit": "f12a83c7f028f52fca6d4b5c5e9c5d0495aeb586",
+  "at_utc": "2026-10-16T05:56:00.384882+00:00",
+  "scope": "Independent five-case start() fixture; bypasses constructor to avoid signal-handler and LOG_DIR side effects",
+  "cases": [
+    {
+      "case": "live",
+      "expected": false,
+      "actual": false,
+      "passed": true
+    },
+    {
+      "case": "dead",
+      "expected": true,
+      "actual": true,
+      "passed": true
+    },
+    {
+      "case": "permission",
+      "expected": false,
+      "actual": false,
+      "passed": true
+    },
+    {
+      "case": "malformed",
+      "expected": true,
+      "actual": true,
+      "passed": true
+    },
+    {
+      "case": "missing",
+      "expected": true,
+      "actual": true,
+      "passed": true
+    }
+  ],
+  "all_passed": true
+}

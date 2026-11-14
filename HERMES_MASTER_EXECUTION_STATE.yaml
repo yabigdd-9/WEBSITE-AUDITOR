@@ -1,0 +1,326 @@
+schema_version: 1
+execution_id: hermes-production-readiness-20261016
+updated_at: '2026-10-16T09:14:19.416895+13:00'
+final_status: BLOCKED_REMEDIATION_REQUIRED
+financial_policy:
+  maximum_incremental_nzd: 0
+  unknown_cost_routes: BLOCKED
+  actual_historical_provider_charges: NOT_RECONCILED
+  paid_inference_requests_initiated_this_execution: 0
+repository:
+  authoritative_path: /Users/dd/WEBSITE-AUDITOR
+  branch: integration/v44-local-machine-convergence
+  head: 09ab41ab61656ae4b63110d4ee7d418f3fbf07b8
+  candidate_path: /Users/dd/Documents/Codex/2026-10-16/hi-2/work/release-candidate
+  candidate_branch: codex/hermes-production-readiness-20261016
+  candidate_head: a365d6b1ed301cb85d5ade58aa2ae042aa693fcd
+  candidate_base: 09ab41ab61656ae4b63110d4ee7d418f3fbf07b8
+  push_status: NOT_PUSHED
+  merge_status: NOT_MERGED
+  production_code_deployed: false
+  stashes_preserved: 20
+  initial_worktrees_preserved: 10
+live_actions:
+- Offline editable-registration repair
+- Eight private database backup/restore pairs
+- Nineteen owner-only permission fixes
+- Nine affected schedules paused; eight retained
+- Additive manual dashboard in registered existing Obsidian vault
+tests:
+  final-canonical:
+    passed: 1127
+    failed: 0
+    skipped: 0
+    subtests_passed: 0
+    exit_code: 0
+    elapsed_seconds: 168.691
+    changed_during_run: []
+    loaded_mismatches: []
+    loaded_module_count: 157
+    status: PASS
+    evidence: reports/hermes_reliability/execution-20261016/validation/final-canonical-receipt.json
+  release-money-hermes:
+    passed: 751
+    failed: 0
+    skipped: 2
+    subtests_passed: 95
+    exit_code: 0
+    elapsed_seconds: 237.311
+    changed_during_run: []
+    loaded_mismatches: []
+    loaded_module_count: 105
+    status: PASS
+    evidence: reports/hermes_reliability/execution-20261016/validation/release-money-hermes-receipt.json
+  zero-token:
+    passed: 18
+    failed: 0
+    skipped: 0
+    subtests_passed: 0
+    exit_code: 0
+    elapsed_seconds: 71.014
+    changed_during_run: []
+    loaded_mismatches: []
+    loaded_module_count: 5
+    status: PASS
+    evidence: reports/hermes_reliability/execution-20261016/validation/zero-token-receipt.json
+candidate_source_sha256:
+  money-machine/mm_model_router.py: 20128f264a0340f164ae85e7f23aa02d3c98cf33ce3d7c8f4305294e5c80b70f
+  money-machine/mm_reporting.py: 4604d1401cf355647a221cba510166743e834d84e20f237641923bdaa925111b
+  money-machine/test_pipeline.py: 568b77b1d3de3a595fd13a7af2e3f0c06da26307eec85a8b2912426c01949d69
+  money-machine/test_reporting.py: 0a7408f92d5003039b6bdf8607031d15a216386379ffd44301314c97f0e54850
+  ops/hermes_zero_token/runner.py: a1ef345ae26ce11cf3fbe715d8fd84a40d323b11dea5e25c037f24aa715c92ef
+  ops/hermes_zero_token/outreach_draft.py: 24e669d95c0214dea2eccb86e860eee57b208bca99e7b93abf325578a760c010
+  ops/hermes_zero_token/screenshot_worker.py: d6ff2db774352e30ecf4c5f4fb7706d87971f9b0d61c6e12d9cf3bcfebeb6392
+  ops/hermes_zero_token/daily_report.py: 5cda1f899b6a05ff4057d61a997cd145c01767aae7400d826bc130c307b96e9f
+  ops/hermes_zero_token/test_integration_safety.py: ddcdbd4a01e5233ab18c8981ce1eca42ceacc0f31157cfc4b20a79663fd57d32
+  ops/hermes_zero_token/test_runner_ownership.py: bcfb353d5d27bdbd55bc825f71f631275d239a2ef6f3498b5f6e2802e0f8e6a3
+  ops/hermes_zero_token/test_outreach_queue_safety.py: 9a62b2101775535236d6d138c7621b86f2ba23ca9a742687b1895a079813fee3
+  ops/hermes_zero_token/test_reporting_cases.py: 489a9f674c0694b7f6643912b1bc834ed67c2c10e5cb53b17a23590a5d0628ef
+  ops/hermes_zero_token/test_screenshot_safety.py: 4ede33685033cac104ab950fe380c13156f8d08d886f9998370aac5660659aec
+  tests/test_proof_diff.py: 5392fdf43fb49d3614305cce2bd277e283dc7088819b132529daa580831f7744
+phases:
+- phase_id: P0
+  owner_agent: Codex execution team
+  status: PASS
+  dependencies: []
+  last_execution_time: '2026-10-16T09:14:19.416895+13:00'
+  tests_performed:
+  - See phase evidence and final validation receipts
+  evidence_paths:
+  - reports/hermes_reliability/execution-20261016/P0_VERIFIED_BASELINE.md
+  remaining_blockers: []
+  human_approvals_required: []
+  next_action: Preserve private backup retention and original worktree/stash inventory.
+- phase_id: P1
+  owner_agent: Codex execution team
+  status: PASS_SCOPED
+  dependencies:
+  - P0
+  last_execution_time: '2026-10-16T09:14:19.416895+13:00'
+  tests_performed:
+  - See phase evidence and final validation receipts
+  evidence_paths:
+  - reports/hermes_reliability/execution-20261016/P1_ACCEPTANCE_REPAIRS.md
+  remaining_blockers:
+  - Two acceptance skips remain release-relevant; individual scopes are documented.
+  human_approvals_required: []
+  next_action: Retain final source/test receipts and separately resolve global accounting/provider
+    receipt gaps.
+- phase_id: P2
+  owner_agent: Codex execution team
+  status: BLOCKED
+  dependencies:
+  - P0
+  - P1
+  last_execution_time: '2026-10-16T09:14:19.416895+13:00'
+  tests_performed:
+  - See phase evidence and final validation receipts
+  evidence_paths:
+  - reports/hermes_reliability/execution-20261016/fcc/FCC_PRODUCTION_READINESS.md
+  remaining_blockers:
+  - FCC health intermittent; official entitlement and free end-to-end generation not
+    verified.
+  human_approvals_required: []
+  next_action: Obtain authoritative supported-model/allowance evidence before inference
+    or provider reconfiguration.
+- phase_id: P3
+  owner_agent: Codex execution team
+  status: BLOCKED
+  dependencies:
+  - P0
+  last_execution_time: '2026-10-16T09:14:19.416895+13:00'
+  tests_performed:
+  - See phase evidence and final validation receipts
+  evidence_paths:
+  - reports/hermes_reliability/execution-20261016/fcc/P3_MONTHLY_ALLOWANCE_AUDIT.md
+  remaining_blockers:
+  - Shared atomic allowance admission and global/direct route coverage incomplete.
+  human_approvals_required: []
+  next_action: Implement common pre-request admission; keep unknown-cost routes disabled.
+- phase_id: P4
+  owner_agent: Codex execution team
+  status: PARTIAL
+  dependencies:
+  - P3
+  last_execution_time: '2026-10-16T09:14:19.416895+13:00'
+  tests_performed:
+  - See phase evidence and final validation receipts
+  evidence_paths:
+  - reports/hermes_reliability/execution-20261016/runtime/P4_AGENT_ARCHITECTURE.md
+  remaining_blockers:
+  - Seven logical roles mapped, but common provider admission and all-role operation
+    not accepted.
+  human_approvals_required: []
+  next_action: Extend the existing persistent queue and permissions after financial
+    gates.
+- phase_id: P5
+  owner_agent: Codex execution team
+  status: PARTIAL
+  dependencies:
+  - P1
+  - P3
+  - P6
+  last_execution_time: '2026-10-16T09:14:19.416895+13:00'
+  tests_performed:
+  - See phase evidence and final validation receipts
+  evidence_paths:
+  - reports/hermes_reliability/execution-20261016/runtime/P5_WORKER_READINESS.md
+  remaining_blockers:
+  - Candidate is undeployed; direct-entry ownership, staging progress and live contract
+    isolation still need acceptance.
+  human_approvals_required: []
+  next_action: Promote only individually accepted workers; refactor live-path contract
+    tests before isolated execution.
+- phase_id: P6
+  owner_agent: Codex execution team
+  status: PASS_SCOPED
+  dependencies:
+  - P0
+  last_execution_time: '2026-10-16T09:14:19.416895+13:00'
+  tests_performed:
+  - See phase evidence and final validation receipts
+  evidence_paths:
+  - reports/hermes_reliability/execution-20261016/runtime/P6_DATABASE_RECOVERY.md
+  remaining_blockers:
+  - No production migration or live rollback was performed.
+  human_approvals_required: []
+  next_action: Revalidate backup freshness and worker-specific migration/rollback
+    gates before production writes.
+- phase_id: P7
+  owner_agent: Codex execution team
+  status: BLOCKED
+  dependencies:
+  - P5
+  last_execution_time: '2026-10-16T09:14:19.416895+13:00'
+  tests_performed:
+  - See phase evidence and final validation receipts
+  evidence_paths:
+  - reports/hermes_reliability/execution-20261016/runtime/P7_MONEY_ENGINE_READINESS.md
+  remaining_blockers:
+  - Existing leads require current evidence and independent commercial qualification.
+  human_approvals_required: []
+  next_action: Refresh high-value existing opportunity evidence before adding discovery
+    volume.
+- phase_id: P8
+  owner_agent: Codex execution team
+  status: BLOCKED
+  dependencies:
+  - P6
+  - P7
+  - P11
+  last_execution_time: '2026-10-16T09:14:19.416895+13:00'
+  tests_performed:
+  - See phase evidence and final validation receipts
+  evidence_paths:
+  - reports/hermes_reliability/execution-20261016/runtime/P8_OUTREACH_ACTIVATION.md
+  remaining_blockers:
+  - No exact sender/recipient/message batch approval; transport remains disabled.
+  human_approvals_required:
+  - Exact sender, recipient batch and message content
+  next_action: Prepare a compliant canary package for exact-message approval; do not
+    send.
+- phase_id: P9
+  owner_agent: Codex execution team
+  status: PARTIAL
+  dependencies:
+  - P5
+  - P6
+  last_execution_time: '2026-10-16T09:14:19.416895+13:00'
+  tests_performed:
+  - See phase evidence and final validation receipts
+  evidence_paths:
+  - reports/hermes_reliability/execution-20261016/runtime/P9_HEALTH_AND_RECOVERY.md
+  remaining_blockers:
+  - Loaded runtime revision and complete independent emergency controls unverified.
+  human_approvals_required: []
+  next_action: Keep nine affected schedules paused; attest revision and satisfy worker/stability
+    gates before individual resume.
+- phase_id: P10
+  owner_agent: Codex execution team
+  status: PARTIAL
+  dependencies:
+  - P9
+  last_execution_time: '2026-10-16T09:14:19.416895+13:00'
+  tests_performed:
+  - See phase evidence and final validation receipts
+  evidence_paths:
+  - reports/hermes_reliability/execution-20261016/runtime/P10_REPORTING_READINESS.md
+  remaining_blockers:
+  - Manual registered-vault dashboard exported; recurring destination/export acceptance
+    incomplete.
+  human_approvals_required: []
+  next_action: Extend the existing reporting integration with accepted destination
+    and period semantics.
+- phase_id: P11
+  owner_agent: Codex execution team
+  status: BLOCKED
+  dependencies:
+  - P1
+  - P3
+  - P5
+  - P6
+  - P9
+  last_execution_time: '2026-10-16T09:14:19.416895+13:00'
+  tests_performed:
+  - See phase evidence and final validation receipts
+  evidence_paths:
+  - reports/hermes_reliability/execution-20261016/verification/P11_INDEPENDENT_VERIFICATION.md
+  remaining_blockers:
+  - Full-history secret scan incomplete with 15 untriaged candidates; global release
+    verification incomplete.
+  human_approvals_required: []
+  next_action: Finish redacted historical triage and exact-candidate security/hosted
+    acceptance.
+- phase_id: P12
+  owner_agent: Codex execution team
+  status: BLOCKED
+  dependencies:
+  - P11
+  last_execution_time: '2026-10-16T09:14:19.416895+13:00'
+  tests_performed:
+  - See phase evidence and final validation receipts
+  evidence_paths:
+  - reports/hermes_reliability/execution-20261016/verification/P12_STABILITY_EVIDENCE.md
+  remaining_blockers:
+  - No current-candidate accepted long soak; tracked config consumer/duration criteria
+    require reconciliation.
+  human_approvals_required:
+  - Separate 24-hour/72-hour staging soak authorization
+  next_action: Prepare a reviewed executable staging soak, obtain separate duration
+    authorization, then capture full measured evidence.
+- phase_id: P13
+  owner_agent: Codex execution team
+  status: BLOCKED
+  dependencies:
+  - P2
+  - P3
+  - P5
+  - P8
+  - P9
+  - P11
+  - P12
+  last_execution_time: '2026-10-16T09:14:19.416895+13:00'
+  tests_performed:
+  - See phase evidence and final validation receipts
+  evidence_paths:
+  - reports/hermes_reliability/execution-20261016/verification/P13_PRODUCTION_ACTIVATION.md
+  remaining_blockers:
+  - Local source candidate only; no push, merge, production deployment or worker expansion.
+  human_approvals_required: []
+  next_action: Resolve mandatory gates before integrating or activating the affected
+    components.
+- phase_id: P14
+  owner_agent: Codex execution team
+  status: PARTIAL
+  dependencies:
+  - P13
+  last_execution_time: '2026-10-16T09:14:19.416895+13:00'
+  tests_performed:
+  - See phase evidence and final validation receipts
+  evidence_paths:
+  - reports/hermes_reliability/execution-20261016/P14_IMPROVEMENT_BACKLOG.md
+  remaining_blockers:
+  - Bounded backlog recorded; autonomous production self-modification remains disabled.
+  human_approvals_required: []
+  next_action: Use isolated, tested, independently reviewed patches and measure actual
+    outcomes.

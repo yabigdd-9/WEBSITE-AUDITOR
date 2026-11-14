@@ -263,7 +263,7 @@ whole stack must survive `docker compose down && up` with no data loss.
 | **Twenty CRM** | **REJECT** | AGPL-3.0, ~750 MB, 4 services, and **no native workflow automation or reporting** — *worse* than the bespoke SQLite CRM already present. EspoCRM (GPL-3.0, ~630 MB) is the better of the two, but still replaces working code with a PHP stack you'd have to integrate |
 | **Celery + Redis/RabbitMQ** | **REJECT** | Two extra daemons to replace a working SQLite leased-queue. Keep `mm_pipeline.claim()`, which already has lease expiry recovery |
 | **Uptime Kuma** | Optional | ~80 MB Node vs Gatus's 15 MB Go. Only pick it if you want the GUI monitor editor over config-as-code |
-| **n8n** | Keep if already valuable | Fair-code/sustainable-use licence; not needed once Windmill or the cron supervisor is live — avoid running both |
+| **n8n** | **REJECT for the current kit** | The local SQLite queue and supervisor already own workflow state and human approval; no n8n runtime or bridge is required |
 | **Redis** | **REJECT** | No consumer for it; SQLite + files cover cache and queue |
 | **Lightpanda** | **TEST only, not web-tier** | AGPL-3.0 ✅V, and explicitly **has no graphical rendering engine** — it **cannot take screenshots**. Keep for cheap HTML crawl; Playwright stays for rendering |
 | **Qdrant** | Optional (P3) | Apache-2.0 and excellent, but `sqlite-vec` in the existing SQLite file is enough for the current data volume (6 audits, ~50 tables) |

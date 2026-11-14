@@ -1,0 +1,1 @@
+Validation at 8b95f433 was deliberately interrupted with SIGINT to its owned pytest child after discovering the outermost-savepoint commit edge during self-review. Exit 2 is not acceptance evidence. Source was unchanged during that run. Original receipt/XML/log are retained. A corrective source commit and full replay follow.

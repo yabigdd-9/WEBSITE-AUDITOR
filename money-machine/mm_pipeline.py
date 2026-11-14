@@ -14,12 +14,15 @@ Design rules:
     dead-letter after max attempts, circuit breakers per external service.
 """
 import datetime as dt
+import functools
 import json
+import math
 import os
 import random
 import socket
 import sqlite3
-import traceback
+import time
+import uuid
 from pathlib import Path
 
 from mm_core import now, root, sha, timestamp
@@ -224,8 +227,16 @@ class RetryableError(Exception):
 class PermanentError(Exception):
     """Unrecoverable failure for this item: dead-letter immediately."""
 
-class BlockedCost(Exception):
+class BlockedCostError(Exception):
     """No free model/provider route: defer, never fall back to paid."""
+
+
+class LeaseLostError(ValueError):
+    """An expired or replaced lease cannot author a worker outcome."""
+
+
+# Public compatibility name used by model routers and injected handlers.
+BlockedCost = BlockedCostError
 
 
 # ---------------------------------------------------------------------------
@@ -297,14 +308,17 @@ def heartbeat(d, worker_id, business_id=None):
 
 def claim(d, states, worker_id, lease_seconds=300, limit=1):
     """Claim up to `limit` items in `states`. Expired leases are recoverable."""
+    if not states or limit <= 0:
+        return []
     at = dt.datetime.now(dt.timezone.utc)
     until = (at + dt.timedelta(seconds=lease_seconds)).isoformat()
     marks = ','.join('?' * len(states))
     rows = d.execute(
         "SELECT * FROM pipeline_items WHERE state IN (%s) "
         "AND (next_retry_at IS NULL OR next_retry_at<=?) "
+        "AND (lease_until IS NULL OR lease_until<=?) "
         "ORDER BY updated_at LIMIT ?" % marks,
-        tuple(states) + (at.isoformat(), limit)).fetchall()
+        tuple(states) + (at.isoformat(), at.isoformat(), limit)).fetchall()
     got = []
     for r in rows:
         if r['lease_until'] and timestamp(r['lease_until']) > at:
@@ -312,8 +326,10 @@ def claim(d, states, worker_id, lease_seconds=300, limit=1):
         cur = d.execute(
             "UPDATE pipeline_items SET lease_owner=?,lease_until=?,"
             "heartbeat_at=?,updated_at=? WHERE business_id=? AND "
-            "(lease_until IS NULL OR lease_until<=?)",
-            (worker_id, until, now(), now(), r['business_id'], at.isoformat()))
+            "(lease_until IS NULL OR lease_until<=?) AND state=? "
+            "AND (next_retry_at IS NULL OR next_retry_at<=?)",
+            (worker_id, until, now(), now(), r['business_id'], at.isoformat(),
+             r['state'], at.isoformat()))
         if cur.rowcount:
             got.append(item(d, r['business_id']))
     return got
@@ -356,11 +372,63 @@ def backoff_seconds(attempts, base=30, cap=3600, jitter=0.2):
     return delay * (1 + random.uniform(-jitter, jitter))
 
 
-def fail(d, business_id, worker_id, error, retryable=True):
+
+def _atomic_mutation(function):
+    @functools.wraps(function)
+    def guarded(d, *args, **kwargs):
+        # Match normal SQLite DML transaction semantics, including `with d:`.
+        if not d.in_transaction and d.isolation_level is not None:
+            d.execute('BEGIN')
+        point = 'pipeline_' + uuid.uuid4().hex
+        d.execute('SAVEPOINT ' + point)
+        try:
+            result = function(d, *args, **kwargs)
+        except BaseException:
+            d.execute('ROLLBACK TO ' + point)
+            d.execute('RELEASE ' + point)
+            raise
+        d.execute('RELEASE ' + point)
+        return result
+    return guarded
+
+def _require_lease(d, business_id, worker_id, allow_unleased=False, expected_lease=None):
+    # Obtain the SQLite write lock before checking ownership. A stale result
+    # must not reset another worker's retry budget, release its lease or advance.
+    cur = d.execute(
+        "UPDATE pipeline_items SET heartbeat_at=heartbeat_at WHERE business_id=? "
+        "AND ((lease_owner=? AND lease_until>?) "
+        "OR (? AND lease_owner IS NULL AND lease_until IS NULL)) "
+        "AND (? IS NULL OR lease_until=?)",
+        (business_id, worker_id, now(), int(allow_unleased), expected_lease, expected_lease))
+    if not cur.rowcount:
+        raise LeaseLostError('Worker lease no longer owned')
+
+
+@_atomic_mutation
+def fail(d, business_id, worker_id, error, retryable=True, require_lease=False,
+         provider_state=None, lane=None, expected_lease=None):
     """Record a failure; schedule retry or dead-letter."""
+    # Preserve the explicit unleased diagnostic API used by operator tooling;
+    # the worker loop always requires its current lease.
+    _require_lease(d, business_id, worker_id,
+                   allow_unleased=not require_lease and expected_lease is None,
+                   expected_lease=expected_lease)
     r = item(d, business_id)
+    # Preserve the original payload and lease fencing while retaining typed
+    # provider failures for operator diagnosis and dead-letter disposition.
+    provider_state = provider_state or getattr(error, 'provider_state', None)
+    lane = lane or getattr(error, 'lane', None)
+    if provider_state is not None or lane is not None:
+        payload = json.loads(r['payload'])
+        if provider_state is not None:
+            payload['provider_state'] = provider_state
+        if lane is not None:
+            payload['lane'] = lane
+        d.execute('UPDATE pipeline_items SET payload=? WHERE business_id=?',
+                  (json.dumps(payload), business_id))
     attempts = r['attempts'] + 1
-    msg = str(error)[:500]
+    msg = ('BLOCKED_COST: %s' % error if isinstance(error, BlockedCost)
+           else str(error))[:500]
 
     # Generate error fingerprint and determine component
     component = getattr(worker_id, 'kind', str(worker_id)) if hasattr(worker_id, 'kind') else str(worker_id)
@@ -477,12 +545,16 @@ def mark_sent(d, business_id, actor, provider_message_id):
                        'idempotency_key': row['idempotency_key']})
 
 
-def complete(d, business_id, worker_id, to_state, reason='ok', evidence=None):
+@_atomic_mutation
+def complete(d, business_id, worker_id, to_state, reason='ok', evidence=None,
+             expected_lease=None):
+    _require_lease(d, business_id, worker_id, expected_lease=expected_lease)
+    advance(d, business_id, to_state, worker_id, reason, evidence)
     release(d, business_id, worker_id)
-    d.execute("UPDATE pipeline_items SET attempts=0,next_retry_at=NULL "
-              "WHERE business_id=?", (business_id,))
+    d.execute("UPDATE pipeline_items SET attempts=0,next_retry_at=NULL WHERE business_id=?",
+              (business_id,))
     metric(d, 'pipeline.items.completed')
-    return advance(d, business_id, to_state, worker_id, reason, evidence)
+    return item(d, business_id)
 
 
 
@@ -601,8 +673,19 @@ def transition(d, business_id, to_state, actor, reason, evidence=None):
         raise ValueError('Terminal state %s has no outgoing transitions' % frm)
     if to_state not in TRANSITIONS.get(frm, ()):  # fail closed on illegal edge
         raise ValueError('Illegal transition %s -> %s' % (frm, to_state))
-    d.execute("UPDATE pipeline_items SET state=?,last_error=NULL,updated_at=? "
-              "WHERE business_id=?", (to_state, now(), business_id))
+    if to_state in {'RETRYABLE_FAILURE', 'PERMANENT_FAILURE'}:
+        # Keep the diagnostic on the item as well as in the append-only event
+        # log so root-cause queries remain useful after a worker dead-letters it.
+        d.execute("UPDATE pipeline_items SET state=?,updated_at=? "
+                  "WHERE business_id=?", (to_state, now(), business_id))
+    elif frm == 'RETRYABLE_FAILURE' and to_state.endswith('_PENDING'):
+        # An operator-approved retry starts a fresh bounded attempt budget.
+        d.execute("UPDATE pipeline_items SET state=?,attempts=0,next_retry_at=NULL,"
+                  "lease_owner=NULL,lease_until=NULL,last_error=NULL,updated_at=? "
+                  "WHERE business_id=?", (to_state, now(), business_id))
+    else:
+        d.execute("UPDATE pipeline_items SET state=?,last_error=NULL,updated_at=? "
+                  "WHERE business_id=?", (to_state, now(), business_id))
     _record(d, business_id, frm, to_state, actor, reason, evidence)
     return item(d, business_id)
 
@@ -646,6 +729,18 @@ class Worker:
         register_worker(d, self.worker_id, kind=','.join(self.states),
                         lease_seconds=self.lease_seconds)
         processed = 0
+        def record_failure(it, error, retryable=True):
+            bid = it['business_id']
+            try:
+                fail(d, bid, self.worker_id, error, retryable=retryable,
+                     require_lease=True, expected_lease=it['lease_until'])
+            except LeaseLostError:
+                log({'kind': 'lease_lost', 'business_id': bid,
+                     'worker': self.worker_id})
+                return
+            for svc in self.services:
+                breaker_failure(d, svc)
+
         for it in claim(d, self.states, self.worker_id,
                         lease_seconds=self.lease_seconds, limit=limit):
             bid = it['business_id']
@@ -659,29 +754,31 @@ class Worker:
                         raise RetryableError('circuit open for ' + svc)
                 try:
                     nxt, reason, evidence = self.handler(d, it, self)
-                except (RetryableError, PermanentError, BlockedCost):
+                except (RetryableError, PermanentError, BlockedCost, LeaseLostError):
                     raise
                 except Exception as ex:  # unknown faults are retryable, bounded
                     raise classify_unexpected(ex)
-                for svc in self.services:
-                    breaker_success(d, svc)
                 try:
-                    complete(d, bid, self.worker_id, nxt, reason, evidence)
+                    complete(d, bid, self.worker_id, nxt, reason, evidence,
+                             expected_lease=it['lease_until'])
+                except LeaseLostError:
+                    raise
                 except Exception as ex:
                     # A bad handler target must never crash the worker loop:
                     # record it as a bounded retryable failure instead.
                     raise classify_unexpected(ex, 'completion rejected: ')
+                for svc in self.services:
+                    breaker_success(d, svc)
                 processed += 1
+            except LeaseLostError:
+                log({'kind': 'lease_lost', 'business_id': bid,
+                     'worker': self.worker_id})
             except BlockedCost as ex:
-                for svc in self.services:
-                    breaker_failure(d, svc)
-                fail(d, bid, self.worker_id, 'BLOCKED_COST: %s' % ex)
+                record_failure(it, ex)
             except RetryableError as ex:
-                for svc in self.services:
-                    breaker_failure(d, svc)
-                fail(d, bid, self.worker_id, ex)
+                record_failure(it, ex)
             except PermanentError as ex:
-                fail(d, bid, self.worker_id, ex, retryable=False)
+                record_failure(it, ex, retryable=False)
             heartbeat(d, self.worker_id)
         return processed
 
@@ -696,7 +793,24 @@ def run_pipelineloop(d, workers, sleep_seconds=60, max_cycles=None,
     metrics but never takes external actions by itself (sends/approvals are
     still gated by the approval engine).
     """
-    metrics_sink = log_destination or (root() / 'state' / 'worker-logs')
+    if not math.isfinite(sleep_seconds) or not 0 <= sleep_seconds <= 3600:
+        raise ValueError('sleep_seconds must be finite and between 0 and 3600')
+    if max_cycles is not None and not 1 <= max_cycles <= 100000:
+        raise ValueError('max_cycles must be between 1 and 100000')
+    if max_cycles is None and sleep_seconds == 0:
+        raise ValueError('continuous loops require a positive sleep_seconds')
+    if not 1 <= report_every <= 100000:
+        raise ValueError('report_every must be between 1 and 100000')
+
+    def emit(record):
+        log(record)
+        if log_destination is not None:
+            destination = Path(log_destination)
+            if not destination.is_absolute():
+                destination = root() / destination
+            destination.mkdir(parents=True, exist_ok=True)
+            with (destination / 'pipeline-loop.jsonl').open('a') as fh:
+                fh.write(json.dumps({**record, 'at': now()}, sort_keys=True) + '\n')
     migrate(d)
     for idx, w in enumerate(workers):
         register_worker(d, w.worker_id, w.kind, lease_seconds=w.lease_seconds)
@@ -709,17 +823,20 @@ def run_pipelineloop(d, workers, sleep_seconds=60, max_cycles=None,
                                  'processed': w.run_once(d)})
             drain_expired_leases(d)
             report(d, snapshot)
+            d.commit()
             cycles += 1
-            log({'kind': 'loop_cycle', 'cycle': cycles,
+            emit({'kind': 'loop_cycle', 'cycle': cycles,
                  'snapshot': snapshot, 'sleep_before_next': sleep_seconds})
             if cycles % report_every == 0:
-                log({'kind': 'loop_checkpoint', 'cycle': cycles,
+                emit({'kind': 'loop_checkpoint', 'cycle': cycles,
                      'elapsed_hint': 'agent-local'})
+            if max_cycles is None or cycles < max_cycles:
+                time.sleep(sleep_seconds)
     except Exception as ex:
-        log({'kind': 'loop_stopped', 'reason': '%s: %s' % (type(ex).__name__, ex),
+        emit({'kind': 'loop_stopped', 'reason': '%s: %s' % (type(ex).__name__, ex),
              'cycles_completed': cycles})
         raise
-    log({'kind': 'loop_ended', 'cycles_completed': cycles,
+    emit({'kind': 'loop_ended', 'cycles_completed': cycles,
          'report_every': report_every})
     return cycles
 
@@ -732,12 +849,29 @@ def run_pipelineloop_cli(argv=None):
     p.add_argument('--sleep', type=float, default=60)
     p.add_argument('--cycles', type=int, default=None)
     p.add_argument('--report-every', type=int, default=10)
-    args = p.parse_known_args(argv)[0]
+    args = p.parse_args(argv)
     from mm_workers import WORKERS
-    names = set(args.workers) if args.workers else set(WORKERS)
-    workers = [p.Worker('w-' + n, *WORKERS[n]) for n in sorted(names)]
-    return run_pipelineloop(d, workers, sleep_seconds=args.sleep,
-                            max_cycles=args.cycles, report_every=args.report_every)
+    names = list(dict.fromkeys(args.workers)) if args.workers else sorted(WORKERS)
+    unknown = sorted(set(names) - set(WORKERS))
+    if unknown:
+        p.error('unknown worker(s): ' + ', '.join(unknown))
+    if not math.isfinite(args.sleep) or not 0 <= args.sleep <= 3600:
+        p.error('--sleep must be between 0 and 3600 seconds')
+    if args.cycles is not None and not 1 <= args.cycles <= 100000:
+        p.error('--cycles must be between 1 and 100000')
+    if args.cycles is None and args.sleep == 0:
+        p.error('continuous loops require a positive --sleep')
+    if not 1 <= args.report_every <= 100000:
+        p.error('--report-every must be between 1 and 100000')
+    workers = [Worker('w-' + n, *WORKERS[n]) for n in names]
+    from mm_core import connect
+    d = connect()
+    try:
+        with d:
+            return run_pipelineloop(d, workers, sleep_seconds=args.sleep,
+                                    max_cycles=args.cycles, report_every=args.report_every)
+    finally:
+        d.close()
 
 
 def drain_expired_leases(d):

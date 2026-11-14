@@ -1,0 +1,262 @@
+{
+  "money-machine/mm_test_capabilities.py": {
+    "actual_sha256": "bc5e591030dabe6d6a5fcd680cd3fd7761fac223b129aad5da0774df25b2598a",
+    "fresh_sha256": "bc5e591030dabe6d6a5fcd680cd3fd7761fac223b129aad5da0774df25b2598a",
+    "matches_fresh_compile": true
+  },
+  "money-machine/mm_core.py": {
+    "actual_sha256": "28f2935813b44ef24f319ba434f23595c93f2de7640138e2e37ac07711bc1b11",
+    "fresh_sha256": "28f2935813b44ef24f319ba434f23595c93f2de7640138e2e37ac07711bc1b11",
+    "matches_fresh_compile": true
+  },
+  "money-machine/mm_pipeline.py": {
+    "actual_sha256": "7dc7fd811e3135432108ffdbfa93d8efbd73ee8d9346c07e725b195258168391",
+    "fresh_sha256": "7dc7fd811e3135432108ffdbfa93d8efbd73ee8d9346c07e725b195258168391",
+    "matches_fresh_compile": true
+  },
+  "money-machine/mm_approval.py": {
+    "actual_sha256": "abd81a314607179efd1ade4b65b9ac807f4a273b2fe5250e86050b530d72c3fa",
+    "fresh_sha256": "abd81a314607179efd1ade4b65b9ac807f4a273b2fe5250e86050b530d72c3fa",
+    "matches_fresh_compile": true
+  },
+  "money-machine/mm_model_router.py": {
+    "actual_sha256": "0bf0c6fa619ca9ee903d3a017aeaf15ebb705a06cee6736dcb63db7760ddad3f",
+    "fresh_sha256": "0bf0c6fa619ca9ee903d3a017aeaf15ebb705a06cee6736dcb63db7760ddad3f",
+    "matches_fresh_compile": true
+  },
+  "money-machine/mm_redaction.py": {
+    "actual_sha256": "77c8695ebf5e2d71776a57119e582619c3e86ac5231aa85eec7d76183659856a",
+    "fresh_sha256": "77c8695ebf5e2d71776a57119e582619c3e86ac5231aa85eec7d76183659856a",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/__init__.py": {
+    "actual_sha256": "05ea8d1bb4f78cc83803efb76fe07be7c8947c5c47cd88dee3a7a633f36518dd",
+    "fresh_sha256": "05ea8d1bb4f78cc83803efb76fe07be7c8947c5c47cd88dee3a7a633f36518dd",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/pipeline.py": {
+    "actual_sha256": "4ef55608c41474c0178ef365aabe19721bb79027daaba7f3d195a962c0de5a5f",
+    "fresh_sha256": "4ef55608c41474c0178ef365aabe19721bb79027daaba7f3d195a962c0de5a5f",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/browser_console.py": {
+    "actual_sha256": "adde05209fa67e84605145cd6272aa3379d93e9dda34d251a2ef81fb809075ca",
+    "fresh_sha256": "adde05209fa67e84605145cd6272aa3379d93e9dda34d251a2ef81fb809075ca",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/checks.py": {
+    "actual_sha256": "bb3e54c8e0795d3f9e8048cffa5003938650c7894c1ae8a7d94ded785c92b54c",
+    "fresh_sha256": "bb3e54c8e0795d3f9e8048cffa5003938650c7894c1ae8a7d94ded785c92b54c",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/cookie_consent.py": {
+    "actual_sha256": "6587bc8b4fb6028d3eea471ae201d7e97ae321cc4e21afef8b8c3239a5dff8bd",
+    "fresh_sha256": "6587bc8b4fb6028d3eea471ae201d7e97ae321cc4e21afef8b8c3239a5dff8bd",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/hreflang.py": {
+    "actual_sha256": "0d99fc11264a5c7e1020393950cc063bf58ab9f98c81689814af5c7695800442",
+    "fresh_sha256": "0d99fc11264a5c7e1020393950cc063bf58ab9f98c81689814af5c7695800442",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/images.py": {
+    "actual_sha256": "db14efc3280b380a948674bff72dd929b691a9ba8b4f6a5a918f8efb8d0d092a",
+    "fresh_sha256": "db14efc3280b380a948674bff72dd929b691a9ba8b4f6a5a918f8efb8d0d092a",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/language.py": {
+    "actual_sha256": "3d6c713b5a802de772b75a0886f85441038d2712eca21e0522d64d78036bf450",
+    "fresh_sha256": "3d6c713b5a802de772b75a0886f85441038d2712eca21e0522d64d78036bf450",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/social_meta.py": {
+    "actual_sha256": "7a84326f2fc06bbebe48caae385c01d05d71b04ec3b756463e21008eb9c38c84",
+    "fresh_sha256": "7a84326f2fc06bbebe48caae385c01d05d71b04ec3b756463e21008eb9c38c84",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/structured_validation.py": {
+    "actual_sha256": "0ad70bf3a4a4120410842b9e7d1e251753d6affec00a5f4e0786d6a0dd2461f5",
+    "fresh_sha256": "0ad70bf3a4a4120410842b9e7d1e251753d6affec00a5f4e0786d6a0dd2461f5",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/tech.py": {
+    "actual_sha256": "81a3cbeabe6a9684115b89fe75a273cdbe9f4afddba8f3f2afad6b076579025f",
+    "fresh_sha256": "81a3cbeabe6a9684115b89fe75a273cdbe9f4afddba8f3f2afad6b076579025f",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/third_party.py": {
+    "actual_sha256": "238c0567f5faf3495815842457b7439b6baf62cf1b3c1bae64440daa975631f7",
+    "fresh_sha256": "238c0567f5faf3495815842457b7439b6baf62cf1b3c1bae64440daa975631f7",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/vuln_js.py": {
+    "actual_sha256": "063aec4069e7568cb26faa27d686ede00927115c481161d2d8e0bc2057321c9d",
+    "fresh_sha256": "063aec4069e7568cb26faa27d686ede00927115c481161d2d8e0bc2057321c9d",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/browser.py": {
+    "actual_sha256": "976b28b73832963137b14113fbc67c8bedbd528ebf54f301e2f9c148a931289a",
+    "fresh_sha256": "976b28b73832963137b14113fbc67c8bedbd528ebf54f301e2f9c148a931289a",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/common.py": {
+    "actual_sha256": "3601a4e40734663134b71b86c4c283f5525b9344ec35192e8ee2cc9a17bedfb7",
+    "fresh_sha256": "3601a4e40734663134b71b86c4c283f5525b9344ec35192e8ee2cc9a17bedfb7",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/external_tools.py": {
+    "actual_sha256": "269e68afdd188e4c0b4e618669dd4561f7674eea427463f0bfc6fd7049a9a506",
+    "fresh_sha256": "269e68afdd188e4c0b4e618669dd4561f7674eea427463f0bfc6fd7049a9a506",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/faults.py": {
+    "actual_sha256": "897aa289a753f3bfa55c211bf9c4adf152e936a8989a874668db873cde4e142a",
+    "fresh_sha256": "897aa289a753f3bfa55c211bf9c4adf152e936a8989a874668db873cde4e142a",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/hygiene.py": {
+    "actual_sha256": "0d85cb27ec7ac8153a2ec5771f43afe17c789cddad4a84b3fd6b3f63eda0a115",
+    "fresh_sha256": "0d85cb27ec7ac8153a2ec5771f43afe17c789cddad4a84b3fd6b3f63eda0a115",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/models.py": {
+    "actual_sha256": "a0c99ce919df8ca8c3b59f04e366be9131d3a2ed0b118b8067535ebba5378e9d",
+    "fresh_sha256": "a0c99ce919df8ca8c3b59f04e366be9131d3a2ed0b118b8067535ebba5378e9d",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/network.py": {
+    "actual_sha256": "1633cd6d3c363e7e6286cce18de24a1922bf3ba1584c5162b108d95efe8d1e7e",
+    "fresh_sha256": "1633cd6d3c363e7e6286cce18de24a1922bf3ba1584c5162b108d95efe8d1e7e",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/quality_checks.py": {
+    "actual_sha256": "6b41ea119357a310bb17f86fa51ab108cead54b7946bcd1ee75031e794dbe850",
+    "fresh_sha256": "6b41ea119357a310bb17f86fa51ab108cead54b7946bcd1ee75031e794dbe850",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/reporting.py": {
+    "actual_sha256": "67f606fbd6ac9401e12f749622ecd6b950a63dcdcd727c6e7c64c0aa16a0b5af",
+    "fresh_sha256": "67f606fbd6ac9401e12f749622ecd6b950a63dcdcd727c6e7c64c0aa16a0b5af",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/storage.py": {
+    "actual_sha256": "09aa8a3dc848a49383573bcc7536d5046d5f7b1d328efc361bca3315c495659e",
+    "fresh_sha256": "09aa8a3dc848a49383573bcc7536d5046d5f7b1d328efc361bca3315c495659e",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/runtime/__init__.py": {
+    "actual_sha256": "e77e71cbbc5221acf34d8eb1486036d664dafa1eaa87b7a93c54431b215c9792",
+    "fresh_sha256": "e77e71cbbc5221acf34d8eb1486036d664dafa1eaa87b7a93c54431b215c9792",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/runtime/health.py": {
+    "actual_sha256": "39e91f2360d89a2d7b2a5d94f324e406a5185d8ce570d91c7f9a17066252e7ba",
+    "fresh_sha256": "39e91f2360d89a2d7b2a5d94f324e406a5185d8ce570d91c7f9a17066252e7ba",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/runtime/readiness.py": {
+    "actual_sha256": "adaf23eaa60b21843ef13edd228bbe36f603d65e94fefa6273ff96597d8af5dd",
+    "fresh_sha256": "adaf23eaa60b21843ef13edd228bbe36f603d65e94fefa6273ff96597d8af5dd",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/runtime/report.py": {
+    "actual_sha256": "0f4d2ec7304a881fb6a03e419c7b3a500067618ef527b2c8768c66a5fcc4e970",
+    "fresh_sha256": "0f4d2ec7304a881fb6a03e419c7b3a500067618ef527b2c8768c66a5fcc4e970",
+    "matches_fresh_compile": true
+  },
+  "auditor_toolkit/server_technology.py": {
+    "actual_sha256": "655d75ec2e813897c7571f6c738a3e231fa6dc1683264a2fac460a5bf756022f",
+    "fresh_sha256": "655d75ec2e813897c7571f6c738a3e231fa6dc1683264a2fac460a5bf756022f",
+    "matches_fresh_compile": true
+  },
+  "money-machine/mm_reporting.py": {
+    "actual_sha256": "69dc8531e17c8eee2710f65db4eb7e1662f52a0a807fb865262e36ccec8dea54",
+    "fresh_sha256": "69dc8531e17c8eee2710f65db4eb7e1662f52a0a807fb865262e36ccec8dea54",
+    "matches_fresh_compile": true
+  },
+  "money-machine/mm_transport.py": {
+    "actual_sha256": "76db7282222c85067f9fff88ffb93fdfcae175b88f9e5fcc74d86dc46a44e3e6",
+    "fresh_sha256": "76db7282222c85067f9fff88ffb93fdfcae175b88f9e5fcc74d86dc46a44e3e6",
+    "matches_fresh_compile": true
+  },
+  "ops/hermes_zero_token/runner.py": {
+    "actual_sha256": "9e04eca9ed7c68ac2372907283c7e63db8544514fd771a791f98442509254403",
+    "fresh_sha256": "9e04eca9ed7c68ac2372907283c7e63db8544514fd771a791f98442509254403",
+    "matches_fresh_compile": true
+  },
+  "ops/hermes_zero_token/outreach_draft.py": {
+    "actual_sha256": "7e56e73fd3f8ce59f7d8b01da4ffa8278490987a69a693a8816661b56f27a12f",
+    "fresh_sha256": "7e56e73fd3f8ce59f7d8b01da4ffa8278490987a69a693a8816661b56f27a12f",
+    "matches_fresh_compile": true
+  },
+  "ops/hermes_zero_token/staging_db.py": {
+    "actual_sha256": "6b1adf0448d86c2793a39de10dc18e6582db1e67e208e58642a352ee26c74464",
+    "fresh_sha256": "6b1adf0448d86c2793a39de10dc18e6582db1e67e208e58642a352ee26c74464",
+    "matches_fresh_compile": true
+  },
+  "ops/hermes_zero_token/daily_report.py": {
+    "actual_sha256": "40453c2857c6b6ca69b4f8a2c64b6795a906d414097d0514db71a81325a35200",
+    "fresh_sha256": "40453c2857c6b6ca69b4f8a2c64b6795a906d414097d0514db71a81325a35200",
+    "matches_fresh_compile": true
+  },
+  "ops/hermes_zero_token/screenshot_worker.py": {
+    "actual_sha256": "d9906ed771a4aff8c57d4592b6fda9db93edd6805a93a705d921055724f8aa53",
+    "fresh_sha256": "d9906ed771a4aff8c57d4592b6fda9db93edd6805a93a705d921055724f8aa53",
+    "matches_fresh_compile": true
+  },
+  "money-machine/scripts/fcc-bridge.py": {
+    "actual_sha256": "31febfca8ec492ec83cefa44cee958bf71d63661c0fe7f312796e9507fd2d7d4",
+    "fresh_sha256": "31febfca8ec492ec83cefa44cee958bf71d63661c0fe7f312796e9507fd2d7d4",
+    "matches_fresh_compile": true
+  },
+  "money-machine/mm_observability.py": {
+    "actual_sha256": "9a2b4bef3b7ee7c8f9b1b4a155c2ed926bb01f18717a8d86d849d76e215129d1",
+    "fresh_sha256": "9a2b4bef3b7ee7c8f9b1b4a155c2ed926bb01f18717a8d86d849d76e215129d1",
+    "matches_fresh_compile": true
+  },
+  "money-machine/supervisor/__init__.py": {
+    "actual_sha256": "69b8d769add9a077205af7046ae68fa422cf9647c26e2dd3c9fb2fbb1421fdce",
+    "fresh_sha256": "69b8d769add9a077205af7046ae68fa422cf9647c26e2dd3c9fb2fbb1421fdce",
+    "matches_fresh_compile": true
+  },
+  "money-machine/supervisor/cli.py": {
+    "actual_sha256": "454979f8a984211908dc34b380cd0031691bef107d58215469fc429aedba4b0c",
+    "fresh_sha256": "454979f8a984211908dc34b380cd0031691bef107d58215469fc429aedba4b0c",
+    "matches_fresh_compile": true
+  },
+  "money-machine/mm_runtime_guards.py": {
+    "actual_sha256": "43bf501e78366bec7c5a02c3e361f155dc6f09688de1a69bc23a7cbf1304797b",
+    "fresh_sha256": "43bf501e78366bec7c5a02c3e361f155dc6f09688de1a69bc23a7cbf1304797b",
+    "matches_fresh_compile": true
+  },
+  "money-machine/supervisor/daemon.py": {
+    "actual_sha256": "160e8f9f6b8ec5315062541a505882eaca43c5f201b2f6975b23fa749fafeee3",
+    "fresh_sha256": "160e8f9f6b8ec5315062541a505882eaca43c5f201b2f6975b23fa749fafeee3",
+    "matches_fresh_compile": true
+  },
+  "money-machine/supervisor/pid.py": {
+    "actual_sha256": "e9b760ccb846009e9648ac609f2aa86557db869de85b37aa1f8270b7528e0f17",
+    "fresh_sha256": "e9b760ccb846009e9648ac609f2aa86557db869de85b37aa1f8270b7528e0f17",
+    "matches_fresh_compile": true
+  },
+  "money-machine/mm_recurring_discovery.py": {
+    "actual_sha256": "4eb2ab4f92f0bab3909d7ad0743b85e7f4df7bd2e404de5d59b8de756675fafe",
+    "fresh_sha256": "4eb2ab4f92f0bab3909d7ad0743b85e7f4df7bd2e404de5d59b8de756675fafe",
+    "matches_fresh_compile": true
+  },
+  "money-machine/mm_discovery.py": {
+    "actual_sha256": "3830610da5a8f8c2409c2f6d412e226e2bdd0b2af58bbcf74029b412cbb62678",
+    "fresh_sha256": "3830610da5a8f8c2409c2f6d412e226e2bdd0b2af58bbcf74029b412cbb62678",
+    "matches_fresh_compile": true
+  },
+  "money-machine/mm_search_backend.py": {
+    "actual_sha256": "5e1b3d3d316be3e18b876321890d2da13e69fb0beffd1c43fa2a11ccb11e5d62",
+    "fresh_sha256": "5e1b3d3d316be3e18b876321890d2da13e69fb0beffd1c43fa2a11ccb11e5d62",
+    "matches_fresh_compile": true
+  },
+  "money-machine/mm_discovery_quality.py": {
+    "actual_sha256": "ed347677b5147754a889c53ab8ae35d892a21d03b9a9cf97fc87be4b894092f0",
+    "fresh_sha256": "ed347677b5147754a889c53ab8ae35d892a21d03b9a9cf97fc87be4b894092f0",
+    "matches_fresh_compile": true
+  }
+}

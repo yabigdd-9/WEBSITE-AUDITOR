@@ -21,7 +21,7 @@ Gaps: no queue/supervisor, single-lane fetch, single-verifier email, no eval loo
 14. Supervisor daemon CONTINUITY P0 - reliability, required for 24/7
 15. MCP lane: Playwright + SQLite + Fetch - plugins
 16. MinIO + Litestream - artifacts + DB backup
-17. n8n formalized flows - workflow (keep human approval gate)
+17. Local SQLite leased workflow execution in `mm_pipeline` - state, retries and human approval gate
 18. Mailpit + Gmail OAuth via Keychain - outreach safety
 19. Gitleaks + pip-audit + ruff in CI - security (fixes exposed keys)
 20. Gotenberg PDF from existing report.html - reporting
@@ -58,7 +58,7 @@ Gaps: no queue/supervisor, single-lane fetch, single-verifier email, no eval loo
 - Pollinations primary: REJECT, OPTIONAL fallback
 - Dramatiq + Redis 7-alpine: INSTALL NOW
 - RQ fallback: OPTIONAL
-- n8n keep formalize (Sustainable-Use): KEEP
+- n8n: REJECT for this kit; the existing local `mm_pipeline` already provides workflow execution and approval gates
 - SQLite WAL+FTS5+sqlite-vec: INSTALL NOW
 - MinIO + Litestream: TEST->prod
 - Langfuse self-host (MIT): TEST
@@ -82,7 +82,7 @@ Gaps: no queue/supervisor, single-lane fetch, single-verifier email, no eval loo
 - cmd: ollama pull qwen3:8b qwen3:4b qwen2.5-coder:7b hermes3:8b qwen2-vl:7b nomic-embed-text
 
 ## 4. Docker Stack
-- redis:7-alpine, gotenberg:8, mailpit, uptime-kuma:1, beszel, langfuse, searxng (keep), minio, reacher, n8n (keep)
+- redis:7-alpine, gotenberg:8, mailpit, uptime-kuma:1, beszel, langfuse, searxng (keep), minio, reacher
 - Playwright browsers stay native on macOS (playwright install chromium); Docker Chromium CI only.
 - See docker-stack.yaml companion.
 
@@ -96,7 +96,7 @@ Gaps: no queue/supervisor, single-lane fetch, single-verifier email, no eval loo
 - Keep DSH_MM_ALLOW_BOUNDED_WRITES=0; route FS/network via MCP.
 
 ## 6-7. Workflow + Parallel Workers
-- discover(Overpass+SearXNG+Nominatim) -> resolve(tldextract+Splink) -> fetch L1 Lightpanda/Crawl4AI fallback L2 Playwright -> audit fan-out x6 (perf/SEO/axe/lychee/sslyze+nuclei-light/content) -> contact x3 + verify x2 consensus>=0.75 -> score+quote guarded range -> draft Hermes-3 evidence-cited -> n8n APPROVAL GATE -> Mailpit/Gmail -> Gotenberg PDF -> Twenty CRM -> Langfuse/Promptfoo learn
+- discover(Overpass+SearXNG+Nominatim) -> resolve(tldextract+Splink) -> fetch L1 Lightpanda/Crawl4AI fallback L2 Playwright -> audit fan-out x6 (perf/SEO/axe/lychee/sslyze+nuclei-light/content) -> contact x3 + verify x2 consensus>=0.75 -> score+quote guarded range -> draft Hermes-3 evidence-cited -> local approval engine and human approval gate -> Mailpit/Gmail -> Gotenberg PDF -> Twenty CRM -> Langfuse/Promptfoo learn
 - Queues: discover,fetch,audit,verify,score,draft (Dramatiq). Msg {domain,geo,niche,attempt,provenance[]}. Retry exp-backoff, DLQ after 3. Limits: Overpass 1rps, Nominatim 1rps, PSI 1qps cached 24h, SMTP 5/min/domain. Concurrency fetch=8 audit=4 (playwright cap2) verify=3 LLM=2.
 
 ## 8. Self-Improvement Loop
@@ -120,12 +120,12 @@ Gaps: no queue/supervisor, single-lane fetch, single-verifier email, no eval loo
 
 ## 11-12. Missing / Remove / Replace
 - Missing: queue, screenshot/PDF, consensus verifier, entity resolution, eval harness, artifact store, approval sender, geocoded discovery, TLS deep-check, schema validator, rotation, runbook.
-- Remove: ultimate_auditor.py + website_auditor_enhanced.py -> auditor_toolkit+wa.py; Pollinations primary -> Gotenberg; ThreadPool+watch -> Dramatiq+n8n; regex domain -> tldextract; single-verifier -> consensus; outputs/ FS-only -> MinIO; nightly_watchdog.py -> Kuma+supervisor.
+- Remove: ultimate_auditor.py + website_auditor_enhanced.py -> auditor_toolkit+wa.py; Pollinations primary -> Gotenberg; ThreadPool+watch -> local SQLite leased queue and supervisor; regex domain -> tldextract; single-verifier -> consensus; outputs/ FS-only -> MinIO; nightly_watchdog.py -> Kuma+supervisor.
 
 ## 13. Implementation Order
 - P0 (~1 day): gitleaks+rotate, axe wiring, tldextract, lychee, local consensus, docker up redis/gotenberg/mailpit/kuma/beszel, supervisor P0.1-P0.4, deprecate dupes.
 - P1 (2 wks): Crawl4AI+Lightpanda chain, Dramatiq DLQ CLI, Overpass NZ packs, Gotenberg diffs, sqlite-vec+FTS5, Promptfoo golden, Keychain secrets, quote guardrails.
-- P2: Splink nightly, Reacher, Langfuse+MinIO+Litestream, Nuclei-light+sslyze, vision HOT-only, Twenty CRM, n8n approval hardening.
+- P2: Splink nightly, Reacher, Langfuse+MinIO+Litestream, Nuclei-light+sslyze, vision HOT-only, Twenty CRM.
 - P3: Mautic, multi-host, auto-challenger, Inspect AI, Postgres only if >1M rows.
 
 ## 14. Snippets
@@ -133,11 +133,11 @@ Gaps: no queue/supervisor, single-lane fetch, single-verifier email, no eval loo
 - routing.yaml roles: {plan: qwen3:8b, code: qwen2.5-coder:7b, extract: qwen3:4b, judge: qwen3:4b, proofread: hermes3:8b, vision: qwen2-vl:7b}; fallbacks [local-4b, openrouter-free, cached-summary].
 
 ## 15. Architecture Diagram
-- Overpass+SearXNG+Nominatim -> Resolve(tldextract+Splink)->SQLite FTS/vec -> L1 Lightpanda/Crawl4AI fallback L2 Playwright -> audit fan-out (lychee/sslyze/nuclei-light/SEO/content) -> consensus>=0.75? no->archive+retry yes->Score+Quote->Draft->n8n APPROVAL->Mailpit/Gmail -> Gotenberg PDF->Twenty->Langfuse/Promptfoo; Redis/Dramatiq+Supervisor+Kuma/Beszel+MinIO/Litestream underneath.
+- Overpass+SearXNG+Nominatim -> Resolve(tldextract+Splink)->SQLite FTS/vec -> L1 Lightpanda/Crawl4AI fallback L2 Playwright -> audit fan-out (lychee/sslyze/nuclei-light/SEO/content) -> consensus>=0.75? no->archive+retry yes->Score+Quote->Draft->local human approval gate->Mailpit/Gmail -> Gotenberg PDF->Twenty->Langfuse/Promptfoo; SQLite queue+Supervisor+Kuma/Beszel+MinIO/Litestream underneath.
 
 ## 16. Backlog P0/P1/P2/P3
 - P0: rotate keys+gitleaks CI; axe wiring; tldextract; lychee; local consensus; Redis+Gotenberg+Mailpit+Kuma up; supervisor daemon; deprecate dupes.
 - P1: Crawl4AI+Lightpanda; Dramatiq queues+DLQ; Overpass packs; Gotenberg diffs; Promptfoo golden; Keychain secrets; quote guardrails.
-- P2: Splink nightly; Reacher; Langfuse+MinIO+Litestream; Nuclei-light+sslyze; vision HOT-only; Twenty CRM; n8n hardening.
+- P2: Splink nightly; Reacher; Langfuse+MinIO+Litestream; Nuclei-light+sslyze; vision HOT-only; Twenty CRM.
 - P3: Mautic; multi-host; auto-challenger; Inspect AI; Postgres if >1M.
-- Install now ($0/OSS/Docker): Crawl4AI, Lightpanda, Gotenberg, Dramatiq+Redis, Lychee, sslyze, tldextract, Reacher, Mailpit, Kuma+Beszel. Keep Playwright, SearXNG, n8n, Ollama/Qwen+Hermes, trafilatura, axe.
+- Install now ($0/OSS/Docker): Crawl4AI, Lightpanda, Gotenberg, Dramatiq+Redis, Lychee, sslyze, tldextract, Reacher, Mailpit, Kuma+Beszel. Keep Playwright, SearXNG, Ollama/Qwen+Hermes, trafilatura, axe.

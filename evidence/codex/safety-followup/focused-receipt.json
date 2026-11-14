@@ -1,0 +1,21 @@
+{
+  "exit_code": 0,
+  "duration_seconds": 17.188,
+  "arguments": [
+    "/Users/dd/WEBSITE-AUDITOR/.venv-email/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "toolkit_tests/test_pid_ownership.py",
+    "toolkit_tests/test_daemon_start.py",
+    "money-machine/test_runtime_bootstrap.py",
+    "money-machine/test_worker_failure_metadata.py",
+    "money-machine/test_router_cost_stop.py",
+    "tests/test_watchdog_delivery_policy.py",
+    "money-machine/test_pipeline.py",
+    "money-machine/test_discovery.py",
+    "money-machine/test_search_backend.py",
+    "--junitxml=/Users/dd/WEBSITE-AUDITOR-codex/evidence/codex/safety-followup/focused.xml"
+  ]
+}

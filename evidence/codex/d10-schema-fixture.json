@@ -1,0 +1,8 @@
+{
+  "scope": "Schema DDL only read from production sqlite_master; zero production business records copied",
+  "schema_fingerprint": "27bc262e4962200d5b858ee8e77dc6e09bdfd071caea61cafe03cd2eac86e8d8",
+  "objects": 182,
+  "tables": 63,
+  "fixture_path": "/Users/dd/WEBSITE-AUDITOR-codex/work/codex-r00/canonical-schema/database/money_machine.db",
+  "all_tables_empty": true
+}

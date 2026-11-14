@@ -1,0 +1,722 @@
+[
+ {
+  "case_id": "holdout-001",
+  "stratum": "brochure-service",
+  "scope": "brochure-service",
+  "fixture": {
+   "path": "cases/holdout-001.html",
+   "sha256": "b829c1db17f3840e0d3011b4536997cec6763f9d4bed329c5b80019900d0ac01"
+  },
+  "predictions": {
+   "path": "predictions/holdout-001.json",
+   "sha256": "75714b265cdf444a610923375545375f40e66fd62f267e590a6e71e5e7de670b"
+  },
+  "review": {
+   "path": "reviews/holdout-001.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-001.json",
+   "sha256": "6f5ca646965b441d4708c7f2ff78aec3f1f6770a4b87ae92cd54bf12f02cf3ca"
+  },
+  "url": "https://mitchellplumbers.co.nz/",
+  "finding_count": 14,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-002",
+  "stratum": "brochure-service",
+  "scope": "brochure-service",
+  "fixture": {
+   "path": "cases/holdout-002.html",
+   "sha256": "4967a3fdf2cd87cf7bcb650a948e49c367174f7179e5fa43f2b403a87ba08aa4"
+  },
+  "predictions": {
+   "path": "predictions/holdout-002.json",
+   "sha256": "92466738af0b187933daa9a023a655a3693b460dc2e908a47ffcca44972b2ed5"
+  },
+  "review": {
+   "path": "reviews/holdout-002.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-002.json",
+   "sha256": "d3e0adf733da58e1ce7720d7d07849e5194d6e536981d0d259147a6d5c667381"
+  },
+  "url": "https://www.leaderhomes.co.nz/",
+  "finding_count": 24,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-003",
+  "stratum": "brochure-service",
+  "scope": "brochure-service",
+  "fixture": {
+   "path": "cases/holdout-003.html",
+   "sha256": "1c07d400a92cb918ce556453f18862f66c4f203a2417e4aeccd005d61786cb9f"
+  },
+  "predictions": {
+   "path": "predictions/holdout-003.json",
+   "sha256": "28ac894639e96e5288f2cb81d7284ac679da68267dff5711c8a30fbddcd25396"
+  },
+  "review": {
+   "path": "reviews/holdout-003.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-003.json",
+   "sha256": "5330f2907b359e4115285610decda2d0e4088c243b66babdf535f23dc1d7c913"
+  },
+  "url": "https://prosserbuilders.co.nz/",
+  "finding_count": 7,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-004",
+  "stratum": "brochure-service",
+  "scope": "brochure-service",
+  "fixture": {
+   "path": "cases/holdout-004.html",
+   "sha256": "63dfde9597aefb6611634d7ff93002c6505e519733711a7676f3a8d3f474b201"
+  },
+  "predictions": {
+   "path": "predictions/holdout-004.json",
+   "sha256": "145a34142511f10f9135baed53e73f7886a16503e845ea8e47c8190ab3691780"
+  },
+  "review": {
+   "path": "reviews/holdout-004.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-004.json",
+   "sha256": "8d9d537ba2d235fc093e2519c8507f87aa622af4f86d9c77b421c0752a79ef7a"
+  },
+  "url": "https://www.excelsior.net.nz/",
+  "finding_count": 0,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-005",
+  "stratum": "brochure-service",
+  "scope": "brochure-service",
+  "fixture": {
+   "path": "cases/holdout-005.html",
+   "sha256": "9f59e1b7ac9368bd61499a4d674f323e666ff9b68d35b9bb249201086098cab3"
+  },
+  "predictions": {
+   "path": "predictions/holdout-005.json",
+   "sha256": "a6219f04ca62e64759f5136cde0e6891548771823238bdac660b4644c0fe2853"
+  },
+  "review": {
+   "path": "reviews/holdout-005.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-005.json",
+   "sha256": "c8f30d29c47b79bb4d2a710d8bff90ffbcb80aaccfb52f318638707538769c22"
+  },
+  "url": "https://sivadelectrical.co.nz/",
+  "finding_count": 3,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-006",
+  "stratum": "brochure-service",
+  "scope": "brochure-service",
+  "fixture": {
+   "path": "cases/holdout-006.html",
+   "sha256": "3d3135f066b2934cdbe280d21bc4c062e24a305311ff4ec020d748e57315470e"
+  },
+  "predictions": {
+   "path": "predictions/holdout-006.json",
+   "sha256": "da911e0872be7d2b574b5f090b6c092cbc559c8da20acdd160961eeb773f6b04"
+  },
+  "review": {
+   "path": "reviews/holdout-006.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-006.json",
+   "sha256": "6003e92510401ba0157d829f89bc2ca2f858e7c6b97155cf71c6de244e2b258f"
+  },
+  "url": "https://emen.co.nz/",
+  "finding_count": 5,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-007",
+  "stratum": "brochure-service",
+  "scope": "brochure-service",
+  "fixture": {
+   "path": "cases/holdout-007.html",
+   "sha256": "79a533effe1b95841e115033324759e209fe4958e78cacd86ffc1f47fe57d164"
+  },
+  "predictions": {
+   "path": "predictions/holdout-007.json",
+   "sha256": "4f422d1953bdeef8030511345e7efecaa59494406868d333a4964307fed7404f"
+  },
+  "review": {
+   "path": "reviews/holdout-007.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-007.json",
+   "sha256": "dd5962b736124589a1b67271e9fa5b4075cae9e38227f4f452abff72d5bb8b99"
+  },
+  "url": "https://xpelectrical.co.nz/",
+  "finding_count": 5,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-008",
+  "stratum": "brochure-service",
+  "scope": "brochure-service",
+  "fixture": {
+   "path": "cases/holdout-008.html",
+   "sha256": "231c698fe8b885768afdaac60cfda85d3498afa92a163e072707c54e867610b2"
+  },
+  "predictions": {
+   "path": "predictions/holdout-008.json",
+   "sha256": "1686f7f3ca3320d72053eb392c0ee00bbba4c5dd4e190dfb3001d5b8489cd38d"
+  },
+  "review": {
+   "path": "reviews/holdout-008.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-008.json",
+   "sha256": "2afe59e7ddfbeace6c3b5093c2d4e2b0c7e6552ff2e9d614c96931051219e7d6"
+  },
+  "url": "https://www.northeastvalley.org/",
+  "finding_count": 53,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-009",
+  "stratum": "brochure-service",
+  "scope": "brochure-service",
+  "fixture": {
+   "path": "cases/holdout-009.html",
+   "sha256": "474bed2c957fb52bb1990b59e63fef02a767885289da833f1854a76cba8a662d"
+  },
+  "predictions": {
+   "path": "predictions/holdout-009.json",
+   "sha256": "6045534da8d5a70b1be686f7163779d2aa6f02eb32b277ec4e539792c1d9335d"
+  },
+  "review": {
+   "path": "reviews/holdout-009.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-009.json",
+   "sha256": "9103efe2ba18fda6bc9404e1bcf2760afee9335f2b589ec4ecfd949d0efe03a9"
+  },
+  "url": "https://electric-city.co.nz/",
+  "finding_count": 8,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-010",
+  "stratum": "brochure-service",
+  "scope": "brochure-service",
+  "fixture": {
+   "path": "cases/holdout-010.html",
+   "sha256": "0b3a048aee7b2f84438628f0c26b12541d77a32eb7440570f00af6aa1001bf6f"
+  },
+  "predictions": {
+   "path": "predictions/holdout-010.json",
+   "sha256": "ec500a12e35ebee9410e8f7d2d0f470878a1a79b02a775a5fe46ed45b40fed6b"
+  },
+  "review": {
+   "path": "reviews/holdout-010.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-010.json",
+   "sha256": "2aa2011bc5e71caf1f6579ab7459fe61d531d9a484c06c2dfa5c66930ec4c1ad"
+  },
+  "url": "https://www.glp.co.nz/",
+  "finding_count": 26,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-011",
+  "stratum": "commerce-catalogue",
+  "scope": "commerce-catalogue",
+  "fixture": {
+   "path": "cases/holdout-011.html",
+   "sha256": "02d9ce464007dff978eb1906cbe7e87334eccf0562bd03b7047413ab6f1932d3"
+  },
+  "predictions": {
+   "path": "predictions/holdout-011.json",
+   "sha256": "8acb59aa6e998b0176d84dac9b497e27c01e806b847617ccc828ec88b66fe9ea"
+  },
+  "review": {
+   "path": "reviews/holdout-011.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-011.json",
+   "sha256": "e7b133cbd21b4ee79bf3d99b0e4a659e214f6887966dab6dd1eec2cbd1e522a4"
+  },
+  "url": "https://nzbuilders.co.nz/",
+  "finding_count": 32,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-012",
+  "stratum": "commerce-catalogue",
+  "scope": "commerce-catalogue",
+  "fixture": {
+   "path": "cases/holdout-012.html",
+   "sha256": "87c816e61eec3d0a5983e7badd60e06b2506709e3c1533a2fc0af4403d89ed58"
+  },
+  "predictions": {
+   "path": "predictions/holdout-012.json",
+   "sha256": "e0d4722ed70f83079eb3109e278873be6984900d62f00103cd64ab993d0f66a6"
+  },
+  "review": {
+   "path": "reviews/holdout-012.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-012.json",
+   "sha256": "dbaf91cac9cc67b9bdd900a610ddce7990a52c755ce67ed52ffaed0a115b9463"
+  },
+  "url": "https://hvacrcentre.nz/",
+  "finding_count": 5,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-013",
+  "stratum": "commerce-catalogue",
+  "scope": "commerce-catalogue",
+  "fixture": {
+   "path": "cases/holdout-013.html",
+   "sha256": "8c9943621bb4e10a19205c5c85d073a90ce18772603ea95c3b9953397f3a8e15"
+  },
+  "predictions": {
+   "path": "predictions/holdout-013.json",
+   "sha256": "2db40e4955330cc259594342741a3938c27e3fa7bc0864d2a5b90a2a1b7fbe6d"
+  },
+  "review": {
+   "path": "reviews/holdout-013.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-013.json",
+   "sha256": "d21673a1df028b336cc1b2fac0ffb30c5b8a4a453ccd504bc42331c10c4beb9c"
+  },
+  "url": "https://www.fas.co.nz/",
+  "finding_count": 6,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-014",
+  "stratum": "commerce-catalogue",
+  "scope": "commerce-catalogue",
+  "fixture": {
+   "path": "cases/holdout-014.html",
+   "sha256": "09d59b83fbbd6b18aa3d1632461b03f42c7030330ecdaf27c43453082db9a128"
+  },
+  "predictions": {
+   "path": "predictions/holdout-014.json",
+   "sha256": "d8a2d119ae79461de5acc33a57d7a080cc45d578c78041e146e70c9f374f94d1"
+  },
+  "review": {
+   "path": "reviews/holdout-014.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-014.json",
+   "sha256": "20fb96ea4caa31aa194f3f97c4e1451129054653a1fc67b48d1bebd12ba6a51a"
+  },
+  "url": "https://tanz.net.nz/",
+  "finding_count": 11,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-015",
+  "stratum": "commerce-catalogue",
+  "scope": "commerce-catalogue",
+  "fixture": {
+   "path": "cases/holdout-015.html",
+   "sha256": "3dded88489681a1020b7172c3d170e84dcc25f413f6d8974f2be01086643738f"
+  },
+  "predictions": {
+   "path": "predictions/holdout-015.json",
+   "sha256": "f1051fac8bb111e5c7ffcf9495f091feb6a663159db5aadfac05a76788437947"
+  },
+  "review": {
+   "path": "reviews/holdout-015.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-015.json",
+   "sha256": "628fad98c93baa62f5e439fd29e52bd1fc6b4be16f1d01d5625c5cf55fb15cb8"
+  },
+  "url": "http://www.reece.co.nz/",
+  "finding_count": 8,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-016",
+  "stratum": "commerce-catalogue",
+  "scope": "commerce-catalogue",
+  "fixture": {
+   "path": "cases/holdout-016.html",
+   "sha256": "c459de4f48dd4b63b4725447cca8888762b190d1f7c95db4a9f806ee6c9cf582"
+  },
+  "predictions": {
+   "path": "predictions/holdout-016.json",
+   "sha256": "14348a00626630d85df9fd5a32ab20fcee41ff9388d74ec9181e1721707b99e1"
+  },
+  "review": {
+   "path": "reviews/holdout-016.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-016.json",
+   "sha256": "0c1249ebbfd6a927c094ef56b07e1e5e211859fe39d83027ee2d7eeeab4ef95d"
+  },
+  "url": "https://whitepages.co.nz/",
+  "finding_count": 13,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-017",
+  "stratum": "commerce-catalogue",
+  "scope": "commerce-catalogue",
+  "fixture": {
+   "path": "cases/holdout-017.html",
+   "sha256": "5122af4bada24c048170f6d96cad4c61aa59f9f1fc68717fed2cfdaead45b201"
+  },
+  "predictions": {
+   "path": "predictions/holdout-017.json",
+   "sha256": "d82ff7ac94db4f896811671e9eb7c1bedd0d4c831e830fd36b84d0a878847b49"
+  },
+  "review": {
+   "path": "reviews/holdout-017.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-017.json",
+   "sha256": "e31bb7ac6ce749b19ae541be4f77202e2563bddf032600e5ff4836a0b6a0486f"
+  },
+  "url": "https://rohe.nz/",
+  "finding_count": 4,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-018",
+  "stratum": "commerce-catalogue",
+  "scope": "commerce-catalogue",
+  "fixture": {
+   "path": "cases/holdout-018.html",
+   "sha256": "8b01a69ad04743ca7c30e1b1caa14749d80d6aad1e522587ca347d9784d90983"
+  },
+  "predictions": {
+   "path": "predictions/holdout-018.json",
+   "sha256": "25ef0d2132c0fbd1c37145a3281983697c2bf0eb3b9ca5e97e45bdee73e41cf8"
+  },
+  "review": {
+   "path": "reviews/holdout-018.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-018.json",
+   "sha256": "309b485115c17a4f065e5fe1e8270619b9174cf248cc3305e8b4ecd57d99c4ce"
+  },
+  "url": "https://tradietools.nz/",
+  "finding_count": 3,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-019",
+  "stratum": "commerce-catalogue",
+  "scope": "commerce-catalogue",
+  "fixture": {
+   "path": "cases/holdout-019.html",
+   "sha256": "b8dc58e3f1850aa7830f50498cdbc9c044d9bdc90eeeef59eab03e03edb245d0"
+  },
+  "predictions": {
+   "path": "predictions/holdout-019.json",
+   "sha256": "d53a6e552d7b464d0f05a3d6cbe487e2f66d35a17611d38a1aecf25f36d23e50"
+  },
+  "review": {
+   "path": "reviews/holdout-019.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-019.json",
+   "sha256": "514c794f8e013030761377a2ed31ea32d71254dc185f21680860c6e091246888"
+  },
+  "url": "https://toprated.nz/",
+  "finding_count": 9,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-020",
+  "stratum": "commerce-catalogue",
+  "scope": "commerce-catalogue",
+  "fixture": {
+   "path": "cases/holdout-020.html",
+   "sha256": "ec3cf4886a87481dcbb23adcdce48c4e28d07a956d939bc96b5c50bd6568cd6d"
+  },
+  "predictions": {
+   "path": "predictions/holdout-020.json",
+   "sha256": "d340357d36466f4cecf08001c22798217531cc8ceb180a6224907d4c0ccea1b9"
+  },
+  "review": {
+   "path": "reviews/holdout-020.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-020.json",
+   "sha256": "010625d37cb25187edd45c4ec4cac6904d14365beb081c2f95e4850fbaefacf1"
+  },
+  "url": "https://topchoice.co.nz/",
+  "finding_count": 2,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-021",
+  "stratum": "javascript-application",
+  "scope": "javascript-application",
+  "fixture": {
+   "path": "cases/holdout-021.html",
+   "sha256": "958173731103f341e7691949661ab3e4bdc46a0884d19688a49d783d8cf6d598"
+  },
+  "predictions": {
+   "path": "predictions/holdout-021.json",
+   "sha256": "fca2fb3bb80fb02ded3ab36fd16b32b03f728d6fd54c322289ebd0f46ca6a506"
+  },
+  "review": {
+   "path": "reviews/holdout-021.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-021.json",
+   "sha256": "57423cb8e973c4627fa212fdb10533b195d81e5d67b99e809f077ff91d4e4930"
+  },
+  "url": "https://natoliplumbing.co.nz/",
+  "finding_count": 10,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-022",
+  "stratum": "javascript-application",
+  "scope": "javascript-application",
+  "fixture": {
+   "path": "cases/holdout-022.html",
+   "sha256": "1b52739ad1ec9c8510af0242df45406ca9e0aa6af7c4bd5794654f88af7c68db"
+  },
+  "predictions": {
+   "path": "predictions/holdout-022.json",
+   "sha256": "fa30a7ca87763876a749333a1fbfedbde3fafc0c310f1b60dfd28b74b9bf7fde"
+  },
+  "review": {
+   "path": "reviews/holdout-022.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-022.json",
+   "sha256": "dac44fe0fcb7aad11698d075edf25573a99861334669d11dca7c08708ce64f87"
+  },
+  "url": "https://www.3chomes.co.nz/",
+  "finding_count": 12,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-023",
+  "stratum": "javascript-application",
+  "scope": "javascript-application",
+  "fixture": {
+   "path": "cases/holdout-023.html",
+   "sha256": "a23e3c5e2b0ba9f30082f0feb971a405b52e2a7b16c40d4d37a00ad59f70f84a"
+  },
+  "predictions": {
+   "path": "predictions/holdout-023.json",
+   "sha256": "28b191bcb580d59ce7e0e1dbe856b56f4cbe2cfc055720c103f382b2c6b9e04b"
+  },
+  "review": {
+   "path": "reviews/holdout-023.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-023.json",
+   "sha256": "3f949c12224cc409cfb97d36b202e6d43f737d3098e55d6fbd2f66f7aad79d96"
+  },
+  "url": "https://buildfirm.co.nz/",
+  "finding_count": 8,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-024",
+  "stratum": "javascript-application",
+  "scope": "javascript-application",
+  "fixture": {
+   "path": "cases/holdout-024.html",
+   "sha256": "cb922da4439078f4bf52d2ba125c964663d23da15065cdd363e2de3525bff0b0"
+  },
+  "predictions": {
+   "path": "predictions/holdout-024.json",
+   "sha256": "402fd144c392180c781202d23aa6fc75fbd433d53cdbd0d9a6de44f855f39c19"
+  },
+  "review": {
+   "path": "reviews/holdout-024.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-024.json",
+   "sha256": "78cf223830fdf1e1173d7b5812f9a4358f66ae3af767bd6514fa76279eee84f1"
+  },
+  "url": "https://nexushomes.co.nz/",
+  "finding_count": 29,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-025",
+  "stratum": "javascript-application",
+  "scope": "javascript-application",
+  "fixture": {
+   "path": "cases/holdout-025.html",
+   "sha256": "ec9667c941b2ee6a0e4f30f8a5a73e29908a304f596e5871e30a2f33859ed59d"
+  },
+  "predictions": {
+   "path": "predictions/holdout-025.json",
+   "sha256": "131705a2910d826f1cb4922ac225d7698c125da73a378389d28df8f77ea99e70"
+  },
+  "review": {
+   "path": "reviews/holdout-025.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-025.json",
+   "sha256": "721a8f9fcf3fc85a857d021b388d102bc75d368494b41efa6217826fe46d4d3d"
+  },
+  "url": "https://irvingbuilders.co.nz/",
+  "finding_count": 9,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-026",
+  "stratum": "javascript-application",
+  "scope": "javascript-application",
+  "fixture": {
+   "path": "cases/holdout-026.html",
+   "sha256": "2c74cbbb66cfbdc0d5e2e6ac164c90541b6e2180b0e0edc7e1d37219ffa0f66d"
+  },
+  "predictions": {
+   "path": "predictions/holdout-026.json",
+   "sha256": "1c94ae3058a22d2869184929e001fa43439221008866644c02ebdb375715ad44"
+  },
+  "review": {
+   "path": "reviews/holdout-026.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-026.json",
+   "sha256": "fec814bceec0465aa775cbf635f9deb674dda0dc662b62d41084ef6607d4157c"
+  },
+  "url": "https://greaterconstruction.co.nz/",
+  "finding_count": 6,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-027",
+  "stratum": "javascript-application",
+  "scope": "javascript-application",
+  "fixture": {
+   "path": "cases/holdout-027.html",
+   "sha256": "dd9e9218a8a3179bbaae890af6415ca1ac481607e8c86685cfe091d425b4ab0f"
+  },
+  "predictions": {
+   "path": "predictions/holdout-027.json",
+   "sha256": "0ca360f375d0ac25dccbf894aa1bc5f20249f9868022dbaa2a40c7d1b9702d35"
+  },
+  "review": {
+   "path": "reviews/holdout-027.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-027.json",
+   "sha256": "54773cd83a9e0748deec85011643018a96abeff17bbb28c1c4cca4019d022ffa"
+  },
+  "url": "https://www.houzz.com/",
+  "finding_count": 8,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-028",
+  "stratum": "javascript-application",
+  "scope": "javascript-application",
+  "fixture": {
+   "path": "cases/holdout-028.html",
+   "sha256": "f365610337f5b8e3e44752f43f1fb49240793e573080b226c1eadb36e0fe6f60"
+  },
+  "predictions": {
+   "path": "predictions/holdout-028.json",
+   "sha256": "eaf8ac6c7e0c1832c13c00fedc4bb533976f8a1c82a449a5c4b97851d65da87c"
+  },
+  "review": {
+   "path": "reviews/holdout-028.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-028.json",
+   "sha256": "e380616d97a856f05615dda4337697295f5a9cefdb4654d79bb411ea00f6864d"
+  },
+  "url": "https://tgc.nz/",
+  "finding_count": 9,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-029",
+  "stratum": "javascript-application",
+  "scope": "javascript-application",
+  "fixture": {
+   "path": "cases/holdout-029.html",
+   "sha256": "c60720d27286331f6dddf194191cda7bd7dd63503fa50fcc9cf43cdd0b63e0e6"
+  },
+  "predictions": {
+   "path": "predictions/holdout-029.json",
+   "sha256": "00dcfaf7843ca324a402e8e12942eb61df80542e990f9b3ba787117af64c7e85"
+  },
+  "review": {
+   "path": "reviews/holdout-029.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-029.json",
+   "sha256": "06173646d35e92cdc703bf38cebb9ef9f7837399dc72f0a2e95098adf4f00eca"
+  },
+  "url": "https://www.jmpsltd.co.nz/",
+  "finding_count": 5,
+  "fixture_redacted": true
+ },
+ {
+  "case_id": "holdout-030",
+  "stratum": "javascript-application",
+  "scope": "javascript-application",
+  "fixture": {
+   "path": "cases/holdout-030.html",
+   "sha256": "3765b4c8d7e3e356741286c0a459912e7e2914a902b6ee7b20a47664adfa5e35"
+  },
+  "predictions": {
+   "path": "predictions/holdout-030.json",
+   "sha256": "820430f9d24f25ce8cc8a419353f5d4b1dee1d42ebc23895d0a7855e958474a0"
+  },
+  "review": {
+   "path": "reviews/holdout-030.json",
+   "sha256": "PENDING"
+  },
+  "raw_report": {
+   "path": "raw-reports/holdout-030.json",
+   "sha256": "90479034ea6e177b5a1f849cbd443261f12592351bbfaccccc7645198425c319"
+  },
+  "url": "https://www.tawabusiness.co.nz/",
+  "finding_count": 5,
+  "fixture_redacted": true
+ }
+]

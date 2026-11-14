@@ -1,0 +1,20 @@
+{
+  "arguments": [
+    "/Users/dd/WEBSITE-AUDITOR/.venv-email/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "toolkit_tests/test_registry_integrity.py",
+    "money-machine/test_email_network_imports.py",
+    "toolkit_tests/test_p4_hygiene.py",
+    "toolkit_tests/test_v44_analyzers.py",
+    "tests/test_contact_review_network_upgrade.py",
+    "money-machine/test_email_integration.py",
+    "money-machine/test_email_finder.py",
+    "--junitxml=/Users/dd/WEBSITE-AUDITOR-codex/evidence/codex/preserved-adoption/focused.xml"
+  ],
+  "exit_code": 0,
+  "duration_seconds": 6.095,
+  "scope": "Precommit focused verification; final frozen full-suite replay follows."
+}

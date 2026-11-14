@@ -1,0 +1,33 @@
+{
+ "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+ "fixture_sha256": "79a533effe1b95841e115033324759e209fe4958e78cacd86ffc1f47fe57d164",
+ "scope": "brochure-service",
+ "prediction_author": "wa-static-profile (deterministic, no model)",
+ "observations": [
+  {
+   "rule": "schema_missing",
+   "url": "https://xpelectrical.co.nz/",
+   "location": "script[type=\"application/ld+json\"]"
+  },
+  {
+   "rule": "header-content-security-policy",
+   "url": "https://xpelectrical.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "header-x-content-type-options",
+   "url": "https://xpelectrical.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "header-hsts",
+   "url": "https://xpelectrical.co.nz/",
+   "location": "Review HTTPS deployment"
+  },
+  {
+   "rule": "social-meta-twitter-handle",
+   "url": "https://xpelectrical.co.nz/",
+   "location": "No twitter:site or twitter:creator declared"
+  }
+ ]
+}

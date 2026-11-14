@@ -31,6 +31,8 @@ from mm_runtime_guards import (
     disk_guard,
     network_guard_event,
     network_status,
+)
+from mm_runtime_guards import (
     snapshot as guard_snapshot,
 )
 
@@ -42,6 +44,12 @@ LEASE_SECONDS = 300
 
 from supervisor.daemon import rotate_logs  # noqa: E402
 from supervisor.pid import PIDFile  # noqa: E402
+
+# launchd starts this module from money-machine/, so expose the repository root
+# before workers import the sibling auditor_toolkit package.
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 # ---------------------------------------------------------------------------
 # helpers
@@ -129,11 +137,18 @@ def cmd_health(args) -> dict:
     read-only connection; here we read the pipeline tables directly and only if
     they already exist.
     """
-    import datetime as dt
+    from mm_queue_health import snapshot as queue_snapshot
     db_path = root() / "database" / "money_machine.db"
     if not db_path.is_file():
-        return {"supervisor": cmd_status(args),
-                "pipeline": {"initialised": False, "note": "database not created yet"}}
+        return {
+            "supervisor": cmd_status(args),
+            "pipeline": {
+                "initialised": False,
+                "note": "database not created yet",
+            },
+            "network": network_status(),
+            "guards": guard_snapshot(probe_network=False),
+        }
     with contextlib.closing(connect(readonly=True)) as d:
         try:
             tables = {r[0] for r in d.execute(
@@ -141,17 +156,7 @@ def cmd_health(args) -> dict:
             if "pipeline_items" not in tables:
                 snap = {"initialised": False, "note": "pipeline tables not created yet"}
             else:
-                at = dt.datetime.now(dt.timezone.utc).isoformat()
-                states = {r[0]: r[1] for r in d.execute(
-                    "SELECT state,count(*) FROM pipeline_items GROUP BY state")}
-                leased = d.execute(
-                    "SELECT count(*) FROM pipeline_items WHERE lease_until IS NOT NULL "
-                    "AND lease_until>?", (at,)).fetchone()[0]
-                dead = d.execute(
-                    "SELECT count(*) FROM pipeline_items WHERE state IN "
-                    "('RETRYABLE_FAILURE','PERMANENT_FAILURE')").fetchone()[0]
-                snap = {"initialised": True, "states": states,
-                        "active_leases": leased, "dead_lettered": dead}
+                snap = queue_snapshot(d)
         except Exception as ex:
             snap = {"error": str(ex)}
     return {
@@ -216,22 +221,47 @@ def cmd_run_foreground(args) -> int:
                     _log({"kind": "runtime_guard", "cycle": cycles, "disk": disk, "action": "pause_new_work"})
                     time.sleep(min(max(sleep_seconds, 1), 60))
                     continue
+                # Refresh inherited network status before the first discovery
+                # tick; the old process's cache is not this process's evidence.
+                if cycles == 0 or cycles % rotate_every == 0:
+                    net_result, net_kind = network_guard_event(refresh=cycles == 0)
+                    if net_kind:
+                        _log({"kind": net_kind, **net_result})
+                if cycles == 0 or cycles % 60 == 0:
+                    try:
+                        import mm_recurring_discovery
+                        discovery = mm_recurring_discovery.run_due(d)
+                        if discovery.get("ran") or discovery.get("reason") not in {"disabled_or_not_due"}:
+                            _log({"kind": "recurring_discovery", **discovery})
+                    except Exception as ex:
+                        _log({"kind": "recurring_discovery_error", "error": str(ex)[:500]})
                 snapshot = [{"worker": w.worker_id, "processed": w.run_once(d)} for w in workers]
                 mm_pipeline.drain_expired_leases(d)
                 d.commit()
+                try:
+                    import mm_recurring_contact_review
+                    contact_review = mm_recurring_contact_review.tick(d)
+                    if contact_review.get("ran") or contact_review.get("reason") not in {
+                        "not_due", "worker_running", "all_current", "disabled",
+                    }:
+                        _log({"kind": "recurring_contact_review", **contact_review})
+                except Exception as ex:
+                    _log({"kind": "recurring_contact_review_error", "error": str(ex)[:500]})
                 cycles += 1
                 _heartbeat(pid, "running")
                 _log({"kind": "loop_cycle", "cycle": cycles, "snapshot": snapshot, "disk": disk})
                 if cycles % rotate_every == 0:
-                    net_result, net_kind = network_guard_event()
-                    if net_kind:
-                        _log({"kind": net_kind, **net_result})
                     _rotate_and_report()
                 for _ in range(int(sleep_seconds * 10)):  # interruptible sleep
                     if stop["flag"]:
                         break
                     time.sleep(0.1)
     finally:
+        try:
+            import mm_recurring_contact_review
+            mm_recurring_contact_review.shutdown()
+        except Exception as ex:
+            _log({"kind": "contact_review_shutdown_error", "error": str(ex)[:300]})
         _heartbeat(pid, "stopped")
         _log({"kind": "supervisor_stop", "pid": pid, "cycles": cycles})
         try:

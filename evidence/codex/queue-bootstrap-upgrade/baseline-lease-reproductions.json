@@ -1,0 +1,17 @@
+{
+  "stale_completion": {
+    "state": "IDENTITY_PENDING",
+    "lease_owner": "worker-B",
+    "attempts": 0
+  },
+  "stale_failure": {
+    "state": "DISCOVERED",
+    "lease_owner": null,
+    "attempts": 4
+  },
+  "invalid_completion": {
+    "rejected": true,
+    "completed_metric": 1,
+    "lease_owner": null
+  }
+}

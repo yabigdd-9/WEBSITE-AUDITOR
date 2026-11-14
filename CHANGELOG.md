@@ -1,5 +1,30 @@
 # Changelog
 
+## [Unreleased] — v44 local-machine convergence (2026-10-15)
+
+### Bug fixes
+
+- `auditor_toolkit/storage.py`: `compare()` now uses `.get("defects", [])` so partial
+  reports (missing `defects` key) no longer raise `KeyError`.
+- `auditor_toolkit/storage.py`: `transition()` now scopes the historical-run lookup to
+  `WHERE url = ?` instead of loading every run into memory.
+- `auditor_toolkit/pipeline.py`: removed dead `except Exception: raise` in the
+  parallel `timed()` wrapper.
+- `money-machine/mm_operator.py`: `run_day()` now deduplicates businesses with
+  multiple deals using `ROW_NUMBER() OVER (PARTITION BY b.id ORDER BY m.id DESC)`.
+
+### Features
+
+- Implemented six previously-stubbed audit checks in `auditor_toolkit/`:
+  - `third_party.py` — external domain inventory from script/iframe/img/link/source tags.
+  - `hreflang.py` — hreflang coverage, x-default, self-reference, and duplicate detection.
+  - `language.py` — html lang attribute, content-language, NZ domain checks, and mismatch detection.
+  - `images.py` — missing alt text, dimensions, loading attribute, and external image hosting.
+  - `social_meta.py` — Open Graph and Twitter Card coverage (title, description, image, type, card, handle).
+  - `browser_console.py` — document.write detection, mixed content warnings, and console log extraction.
+- Added an "Audit checks" section to `README.md` documenting every check, its category, mode, and what it detects.
+- Updated `CURRENT_STATE.md` to reflect the 2026-10-15 work session.
+
 ## [Unreleased] — v32 canonical execution
 
 ### Master plan / control-plane alignment

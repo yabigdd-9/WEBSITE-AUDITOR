@@ -1,0 +1,20 @@
+{
+  "command": [
+    "pytest",
+    "money-machine/test_acceptance.py::Acceptance::test_05_historical_unverified_sends_excluded",
+    "money-machine/test_acceptance.py::Acceptance::test_56_status_cli_persists_no_fixture_changes",
+    "money-machine/test_email_hardening.py::HardeningDatabase::test_replace_cannot_overwrite_event_or_archived_score",
+    "-q"
+  ],
+  "exit_code": 1,
+  "elapsed_seconds": 87.725,
+  "source_hashes": {
+    "money-machine/mm_pipeline.py": "ab0e4a5428b6c14b2ffff69bc4d4e71deb7c3754f1ebbc37c612e71ad9b54cf8",
+    "money-machine/mm_queue_health.py": "50d2f9aa8d23a32f2b82a21228b4b959b5d4f71239afb2c4dc714096a8f8a280",
+    "money-machine/supervisor/cli.py": "11a272cd7da6634b6014cc144b2873081832fb3cfa764e5dcffb50b278a4d7ee",
+    "money-machine/supervisor/daemon.py": "66ae98d59c9eabe6ca1e0086979a1ad8b98c34374290419874b4149564a8a220"
+  },
+  "changed_during_run": false,
+  "state_root": "/Users/dd/.codex/worktrees/reliability-review/WEBSITE-AUDITOR/reports/reliability-review/staging/acceptance-synthetic-portable",
+  "credentials_inherited": false
+}

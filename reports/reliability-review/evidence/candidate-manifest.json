@@ -1,0 +1,136 @@
+{
+  "at": "2026-10-14T15:17:43.320293+00:00",
+  "branch": "codex/reliability-review-20261015",
+  "base_sha": "1695615263d3e10eaa4e94a98588dcca5d6eaae9",
+  "new_commit": false,
+  "verdict": "READY_FOR_REVIEW",
+  "production_ready": false,
+  "files": {
+    "approval/APPROVAL_QUEUE.yaml": "fc973067b298b184f783c2e5d12f1047ac991769fe6d59f5a640966b2f2b1e44",
+    "money-machine/mm_pipeline.py": "ab0e4a5428b6c14b2ffff69bc4d4e71deb7c3754f1ebbc37c612e71ad9b54cf8",
+    "money-machine/supervisor/cli.py": "11a272cd7da6634b6014cc144b2873081832fb3cfa764e5dcffb50b278a4d7ee",
+    "money-machine/supervisor/daemon.py": "66ae98d59c9eabe6ca1e0086979a1ad8b98c34374290419874b4149564a8a220",
+    "money-machine/test_email_hardening.py": "03029ccb236ad72038c59ffb2f2f0f03e96bc8809116fb513e9edf0a9834965f",
+    "money-machine/mm_queue_health.py": "50d2f9aa8d23a32f2b82a21228b4b959b5d4f71239afb2c4dc714096a8f8a280",
+    "money-machine/test_queue_reliability.py": "19f339c4b25d684bd42687db0ae718f28cc97a119a75760b16777e48c02947eb",
+    "toolkit_tests/test_supervisor_log_retention.py": "c220a14f657ef40ed2d3f7852dd7d2f805f92202fadd513724842bcf45290d07",
+    "ops/reliability_review/observe_queue.py": "eeef28b2e92be0c9181a9752baa51ec562b111eedfb7a313049538a36421aabd",
+    "ops/reliability_review/run_tests.py": "694dcc054321a05f2fc1dbaded476e98d82daa01f95a2a976eacc8c3996fb4cc",
+    "ops/reliability_review/sample_pipeline.py": "b726aa043411f27b187019c2821f5c8bc3dfbb54c34c267f835b231f744b310f",
+    "ops/reliability_review/staging_soak.py": "5c7be2928cf73f72ae129882092007d01a0f168b882a9b25c457e3831a470c5c",
+    "approval/reliability-review/APPROVAL_QUEUE.yaml": "160a491703a1871a842514deed7a4cec9b588799f75b9abacee4072db338af59"
+  },
+  "patch_sha256": "cfec8d68f96cf15bfa89b9e14b2e2192e86918973cc39e9856b51e5bcaddcdc6",
+  "report_files": [
+    "BRANCH_AND_WORKTREE_AUDIT.md",
+    "CURRENT_STATE_REVIEW.md",
+    "IMPLEMENTATION_SUMMARY.md",
+    "OPERATOR_HEALTH_REPORT.md",
+    "OPPORTUNITY_QUALITY_REPORT.md",
+    "PERFORMANCE_COMPARISON.md",
+    "PIPELINE_VALIDATION_REPORT.md",
+    "REMAINING_BLOCKERS.md",
+    "ROLLBACK_PLAN.md",
+    "ROOT_CAUSE_REPORT.md",
+    "RUNTIME_BASELINE.md",
+    "SAFETY_AND_COST_CONTROLS.md",
+    "TEST_RESULTS.md",
+    "WORKER_ROOT_CAUSE_REPORT.md"
+  ],
+  "acceptance": {
+    "at": "2026-10-14T15:06:34.747538+00:00",
+    "synthetic_jobs": 100,
+    "completed": 100,
+    "success_rate": 1.0,
+    "duplicate_successful_executions": 0,
+    "abandoned_leases": 5,
+    "crash_probe_exit_code": 17,
+    "worker_exit_codes": [
+      0,
+      0
+    ],
+    "stranded_eligible": 0,
+    "retry_scheduled": 2,
+    "retry_budget_exhausted": 2,
+    "quick_check": "ok",
+    "before": {
+      "initialised": true,
+      "at": "2026-10-14T15:06:30.057261+00:00",
+      "states": {
+        "DEMO_PENDING": 100
+      },
+      "eligible": 100,
+      "active_leases": 0,
+      "expired_leases": 0,
+      "waiting_retry": 0,
+      "dead_lettered": 0,
+      "held_or_terminal": 0,
+      "activity": "eligible_work_available",
+      "workers": [
+        {
+          "worker_id": "staging-a",
+          "kind": "DEMO_PENDING",
+          "started_at": "2026-10-14T15:06:29.950661+00:00",
+          "heartbeat_at": "2026-10-14T15:06:29.950680+00:00",
+          "heartbeat_age_seconds": 0.106581,
+          "stale": false
+        }
+      ],
+      "metrics": {},
+      "eligibility_basis": "registered worker input states",
+      "note": "Queue activity does not attest supervisor liveness or external safety."
+    },
+    "after": {
+      "initialised": true,
+      "at": "2026-10-14T15:06:34.720891+00:00",
+      "states": {
+        "DEMO_READY": 100
+      },
+      "eligible": 0,
+      "active_leases": 0,
+      "expired_leases": 0,
+      "waiting_retry": 0,
+      "dead_lettered": 0,
+      "held_or_terminal": 100,
+      "activity": "idle_no_eligible_work",
+      "workers": [
+        {
+          "worker_id": "staging-a",
+          "kind": "DEMO_PENDING",
+          "started_at": "2026-10-14T15:06:29.950661+00:00",
+          "heartbeat_at": "2026-10-14T15:06:34.612686+00:00",
+          "heartbeat_age_seconds": 0.108205,
+          "stale": false
+        },
+        {
+          "worker_id": "staging-b",
+          "kind": "DEMO_PENDING",
+          "started_at": "2026-10-14T15:06:34.080898+00:00",
+          "heartbeat_at": "2026-10-14T15:06:34.610967+00:00",
+          "heartbeat_age_seconds": 0.109924,
+          "stale": false
+        },
+        {
+          "worker_id": "restarted",
+          "kind": "DEMO_PENDING",
+          "started_at": "2026-10-14T15:06:34.717357+00:00",
+          "heartbeat_at": "2026-10-14T15:06:34.717390+00:00",
+          "heartbeat_age_seconds": 0.003501,
+          "stale": false
+        }
+      ],
+      "metrics": {
+        "pipeline.items.completed": 100
+      },
+      "eligibility_basis": "registered worker input states",
+      "note": "Queue activity does not attest supervisor liveness or external safety."
+    },
+    "paid_api_calls": 0,
+    "messages_sent": 0,
+    "elapsed_seconds": 4.956,
+    "source_sha256": "ab0e4a5428b6c14b2ffff69bc4d4e71deb7c3754f1ebbc37c612e71ad9b54cf8",
+    "changed_during_run": false,
+    "scope": "bounded synthetic queue acceptance; not production soak",
+    "soak_passed": true
+  }
+}

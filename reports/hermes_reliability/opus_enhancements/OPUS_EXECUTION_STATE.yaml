@@ -1,0 +1,47 @@
+opus_programme:
+  branch: integration/v44-local-machine-convergence
+  head_sha: 09ab41ab
+  target_pr: 52
+  owner: yabigdd-9/WEBSITE-AUDITOR
+  workspace: /Users/dd/WEBSITE-AUDITOR
+  policy:
+    paid_allowed: false
+    max_cost_usd: 0
+    external_send_allowed: false
+    daily_cap: 0
+    outreach_default_enabled: false
+  baseline_verified_2026_09_22:
+    toolkit_suite: "145 passed, 2 skipped"
+    money_machine_acceptance: "56 passed, 2 intentional safety skips"
+    mm_doctor_research_only: "database integrity OK; models disabled intentionally"
+  baseline_reverified_2026_10_16:
+    toolkit_suite: "297 passed, 2 skipped (46.49s)"
+    money_machine_acceptance: "58 passed, 2 skipped (38.69s)"
+    python: "3.11.16 (.venv) and .venv-email"
+  release_readiness: HELD (per CURRENT_STATE.md 2026-10-15)
+  held_gates:
+    - secondary Sonar triage
+    - independent model/provider/contact/receipt acceptance
+    - missing fixture coverage
+    - historical privacy/secret review (T20, 16 inputs needs_review)
+    - authorized exact-revision runtime/soak acceptance
+  phases:
+    P15: in_progress
+    P16: not_started
+    P17: not_started
+    P18: not_started
+    P19: not_started
+    P20: not_started
+    P21: not_started
+    P22: not_started
+    P23: not_started
+    P24: not_started
+    P25: not_started
+    P26: not_started
+    P27: not_started
+    P28: not_started
+  deliverables_dir: reports/hermes_reliability/opus_enhancements
+  notes: >
+    Preserve P0-P14. Do not overwrite concurrent Codex work. No n8n. No paid
+    fallback. Deterministic first; defer rather than pay. One writer per file;
+    isolated branches. Test evidence required before promotion.

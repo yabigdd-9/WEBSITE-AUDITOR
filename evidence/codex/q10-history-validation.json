@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/Users/dd/WEBSITE-AUDITOR/.venv-email/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "money-machine/test_acceptance.py::Acceptance::test_05_historical_unverified_sends_excluded",
+    "money-machine/test_email_hardening.py::HardeningDatabase::test_replace_cannot_overwrite_event_or_archived_score",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=/Users/dd/WEBSITE-AUDITOR-codex/work/codex-r00/pytest-history-check"
+  ],
+  "exit_code": 0,
+  "duration_seconds": 19.877,
+  "output": "..                                                                       [100%]\n2 passed in 13.99s\n"
+}

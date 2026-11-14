@@ -1,0 +1,19 @@
+{
+  "source_sha": "8b95f4331c7afeacf786348ad4b7d5348d253148",
+  "python_files": 334,
+  "old_git_processes": 335,
+  "new_git_processes": 2,
+  "old_seconds": [
+    9.966745285084471,
+    13.001929580932483,
+    11.93540028994903
+  ],
+  "new_seconds": [
+    0.20037020999006927,
+    0.12996959197334945,
+    0.11151729198172688
+  ],
+  "byte_identical_all_trials": true,
+  "median_speedup": 91.83,
+  "scope": "Both timings include tree enumeration; local warm-cache source-read microbenchmark, not full startup. Concurrent validation may affect timings."
+}

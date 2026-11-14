@@ -1,0 +1,209 @@
+{
+  "project": "yabigdd-9_HERMES_MONEY_ENGINE",
+  "revision": "2bd7a12274ea3403329f45d0cc270bffc1fb2033",
+  "gate": {
+    "projectStatus": {
+      "status": "ERROR",
+      "conditions": [
+        {
+          "status": "ERROR",
+          "metricKey": "new_reliability_rating",
+          "comparator": "GT",
+          "periodIndex": 1,
+          "errorThreshold": "1",
+          "actualValue": "4"
+        },
+        {
+          "status": "ERROR",
+          "metricKey": "new_security_rating",
+          "comparator": "GT",
+          "periodIndex": 1,
+          "errorThreshold": "1",
+          "actualValue": "5"
+        },
+        {
+          "status": "OK",
+          "metricKey": "new_maintainability_rating",
+          "comparator": "GT",
+          "periodIndex": 1,
+          "errorThreshold": "1",
+          "actualValue": "1"
+        },
+        {
+          "status": "OK",
+          "metricKey": "new_duplicated_lines_density",
+          "comparator": "GT",
+          "periodIndex": 1,
+          "errorThreshold": "3",
+          "actualValue": "0.9"
+        },
+        {
+          "status": "OK",
+          "metricKey": "new_security_hotspots_reviewed",
+          "comparator": "LT",
+          "periodIndex": 1,
+          "errorThreshold": "100",
+          "actualValue": "100.0"
+        }
+      ],
+      "periods": [],
+      "ignoredConditions": false
+    }
+  },
+  "issues": [
+    {
+      "line": 133,
+      "rule": "python:S4830",
+      "severity": "CRITICAL",
+      "type": "VULNERABILITY",
+      "message": "Enable server certificate validation on this SSL/TLS connection.",
+      "path": "integrations/catalyx_gmail_bridge.py",
+      "local_review_status": "VALIDATING_CONTEXT_PRESENT",
+      "note": "Source explicitly supplies ssl.create_default_context(); local default context verifies hostname and requires certificates. Remote annotation remains open; no external TLS handshake was performed.",
+      "issue_id": "AaE7ikYRHbBfbeHOGyFG"
+    },
+    {
+      "line": 149,
+      "rule": "python:S4830",
+      "severity": "CRITICAL",
+      "type": "VULNERABILITY",
+      "message": "Enable server certificate validation on this SSL/TLS connection.",
+      "path": "integrations/catalyx_gmail_bridge.py",
+      "local_review_status": "VALIDATING_CONTEXT_PRESENT",
+      "note": "Source explicitly supplies ssl.create_default_context(); local default context verifies hostname and requires certificates. Remote annotation remains open; no external TLS handshake was performed.",
+      "issue_id": "AaE7ikYRHbBfbeHOGyFH"
+    },
+    {
+      "line": 99,
+      "rule": "python:S4830",
+      "severity": "CRITICAL",
+      "type": "VULNERABILITY",
+      "message": "Enable server certificate validation on this SSL/TLS connection.",
+      "path": "money-machine/email_baseline_capture.py",
+      "local_review_status": "VALIDATING_CONTEXT_PRESENT",
+      "note": "Source explicitly supplies ssl.create_default_context(); local default context verifies hostname and requires certificates. Remote annotation remains open; no external TLS handshake was performed.",
+      "issue_id": "AaENeNzGPE9bmgAqE9ch"
+    },
+    {
+      "line": 47,
+      "rule": "pythonsecurity:S8707",
+      "severity": "MAJOR",
+      "type": "VULNERABILITY",
+      "message": "Path Traversal via faulty LLM-supplied CLI arguments",
+      "path": "money-machine/mm_contact_draft_bridge.py",
+      "local_review_status": "NEEDS_SEPARATE_REVIEW",
+      "note": "Outside the configured Website Auditor analysis; no automatic issue suppression or wider source/configuration change.",
+      "issue_id": "AaENeOCcPE9bmgAqE9c9"
+    },
+    {
+      "line": 521,
+      "rule": "pythonsecurity:S2083",
+      "severity": "BLOCKER",
+      "type": "VULNERABILITY",
+      "message": "Path Traversal via unsanitized user input",
+      "path": "money-machine/mm_contact_review_pathway.py",
+      "local_review_status": "NEEDS_SEPARATE_REVIEW",
+      "note": "Outside the configured Website Auditor analysis; no automatic issue suppression or wider source/configuration change.",
+      "issue_id": "AaELCmH_Lk6dYFiXdTJD"
+    },
+    {
+      "line": 231,
+      "rule": "pythonsecurity:S8707",
+      "severity": "MAJOR",
+      "type": "VULNERABILITY",
+      "message": "Path Traversal via faulty LLM-supplied CLI arguments",
+      "path": "money-machine/mm_soak.py",
+      "local_review_status": "NEEDS_SEPARATE_REVIEW",
+      "note": "Outside the configured Website Auditor analysis; no automatic issue suppression or wider source/configuration change.",
+      "issue_id": "AaD0FbomoYNv_kdB9P0P"
+    },
+    {
+      "line": 433,
+      "rule": "pythonsecurity:S8707",
+      "severity": "MAJOR",
+      "type": "VULNERABILITY",
+      "message": "Path Traversal via faulty LLM-supplied CLI arguments",
+      "path": "money-machine/mm_operator.py",
+      "local_review_status": "NEEDS_SEPARATE_REVIEW",
+      "note": "Outside the configured Website Auditor analysis; no automatic issue suppression or wider source/configuration change.",
+      "issue_id": "AaD0FbwJoYNv_kdB9P0g"
+    },
+    {
+      "line": 436,
+      "rule": "pythonsecurity:S8707",
+      "severity": "MAJOR",
+      "type": "VULNERABILITY",
+      "message": "Path Traversal via faulty LLM-supplied CLI arguments",
+      "path": "money-machine/mm_operator.py",
+      "local_review_status": "NEEDS_SEPARATE_REVIEW",
+      "note": "Outside the configured Website Auditor analysis; no automatic issue suppression or wider source/configuration change.",
+      "issue_id": "AaD0FbwJoYNv_kdB9P0d"
+    },
+    {
+      "line": 437,
+      "rule": "pythonsecurity:S8707",
+      "severity": "MAJOR",
+      "type": "VULNERABILITY",
+      "message": "Path Traversal via faulty LLM-supplied CLI arguments",
+      "path": "money-machine/mm_operator.py",
+      "local_review_status": "NEEDS_SEPARATE_REVIEW",
+      "note": "Outside the configured Website Auditor analysis; no automatic issue suppression or wider source/configuration change.",
+      "issue_id": "AaD0FbwJoYNv_kdB9P0f"
+    },
+    {
+      "line": 629,
+      "rule": "pythonsecurity:S8707",
+      "severity": "MAJOR",
+      "type": "VULNERABILITY",
+      "message": "Path Traversal via faulty LLM-supplied CLI arguments",
+      "path": "money-machine/mm_operator.py",
+      "local_review_status": "NEEDS_SEPARATE_REVIEW",
+      "note": "Outside the configured Website Auditor analysis; no automatic issue suppression or wider source/configuration change.",
+      "issue_id": "AaD0FbwJoYNv_kdB9P0h"
+    },
+    {
+      "line": 608,
+      "rule": "pythonsecurity:S8707",
+      "severity": "MAJOR",
+      "type": "VULNERABILITY",
+      "message": "Path Traversal via faulty LLM-supplied CLI arguments",
+      "path": "money-machine/mm_operator.py",
+      "local_review_status": "NEEDS_SEPARATE_REVIEW",
+      "note": "Outside the configured Website Auditor analysis; no automatic issue suppression or wider source/configuration change.",
+      "issue_id": "AaD0FbwJoYNv_kdB9P0e"
+    },
+    {
+      "line": 305,
+      "rule": "pythonbugs:S6466",
+      "severity": "CRITICAL",
+      "type": "BUG",
+      "message": "Fix this access on a collection that may trigger an 'IndexError'.",
+      "path": "money-machine/mm_opportunity_intelligence.py",
+      "local_review_status": "NONEMPTY_BRANCH_OBSERVED",
+      "note": "The flagged contradictions[0] access is guarded by if contradictions. No assertion was weakened and no annotation was suppressed.",
+      "issue_id": "AaD0FbysoYNv_kdB9P0r"
+    },
+    {
+      "line": 85,
+      "rule": "python:S5332",
+      "severity": "MINOR",
+      "type": "VULNERABILITY",
+      "message": "Using HTTP protocol is insecure. Use HTTPS instead.",
+      "path": "money-machine/scripts/fcc-bridge.py",
+      "local_review_status": "NEEDS_SEPARATE_REVIEW",
+      "note": "Outside the configured Website Auditor analysis; no automatic issue suppression or wider source/configuration change.",
+      "issue_id": "AaDpDX8dsiZyQEaLK2NA"
+    },
+    {
+      "line": 85,
+      "rule": "python:S5332",
+      "severity": "MINOR",
+      "type": "VULNERABILITY",
+      "message": "Using HTTP protocol is insecure. Use HTTPS instead.",
+      "path": "money-machine/scripts/fcc-bridge.py",
+      "local_review_status": "NEEDS_SEPARATE_REVIEW",
+      "note": "Outside the configured Website Auditor analysis; no automatic issue suppression or wider source/configuration change.",
+      "issue_id": "AaDpDX8dsiZyQEaLK2NB"
+    }
+  ]
+}

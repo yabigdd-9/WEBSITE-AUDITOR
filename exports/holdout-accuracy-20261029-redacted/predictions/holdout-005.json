@@ -1,0 +1,23 @@
+{
+ "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+ "fixture_sha256": "9f59e1b7ac9368bd61499a4d674f323e666ff9b68d35b9bb249201086098cab3",
+ "scope": "brochure-service",
+ "prediction_author": "wa-static-profile (deterministic, no model)",
+ "observations": [
+  {
+   "rule": "header-content-security-policy",
+   "url": "https://www.sivadelectrical.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "header-hsts",
+   "url": "https://www.sivadelectrical.co.nz/",
+   "location": "Review HTTPS deployment"
+  },
+  {
+   "rule": "social-meta-twitter-handle",
+   "url": "https://www.sivadelectrical.co.nz/",
+   "location": "No twitter:site or twitter:creator declared"
+  }
+ ]
+}

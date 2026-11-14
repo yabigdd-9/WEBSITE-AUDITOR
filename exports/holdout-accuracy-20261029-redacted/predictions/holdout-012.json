@@ -1,0 +1,33 @@
+{
+ "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+ "fixture_sha256": "87c816e61eec3d0a5983e7badd60e06b2506709e3c1533a2fc0af4403d89ed58",
+ "scope": "commerce-catalogue",
+ "prediction_author": "wa-static-profile (deterministic, no model)",
+ "observations": [
+  {
+   "rule": "header-content-security-policy",
+   "url": "https://hvacrcentre.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "header-hsts",
+   "url": "https://hvacrcentre.nz/",
+   "location": "Review HTTPS deployment"
+  },
+  {
+   "rule": "structured_data_missing_type",
+   "url": "https://hvacrcentre.nz/",
+   "location": "Search engines may ignore or misinterpret the structured data."
+  },
+  {
+   "rule": "social-meta-og-image",
+   "url": "https://hvacrcentre.nz/",
+   "location": "No Open Graph image for social sharing"
+  },
+  {
+   "rule": "social-meta-twitter-handle",
+   "url": "https://hvacrcentre.nz/",
+   "location": "No twitter:site or twitter:creator declared"
+  }
+ ]
+}

@@ -43,12 +43,33 @@ def request(path, key=None, payload=None):
         return error.code, data
 
 
+def _env_file_value(path, name):
+    """Read one simple KEY=VALUE entry without requiring python-dotenv."""
+    try:
+        lines = path.read_text().splitlines()
+    except OSError:
+        return None
+    for raw in lines:
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.startswith("export "):
+            line = line[7:].lstrip()
+        key, sep, value = line.partition("=")
+        if not sep or key.strip() != name:
+            continue
+        value = value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
+            value = value[1:-1]
+        return value or None
+    return None
+
+
 def credential():
     key = os.environ.get("OPENROUTER_API_KEY")
     if key:
         return key
-    from dotenv import dotenv_values
-    key = dotenv_values(Path.home() / ".hermes/.env").get("OPENROUTER_API_KEY")
+    key = _env_file_value(Path.home() / ".hermes/.env", "OPENROUTER_API_KEY")
     if key:
         return key
     path = Path.home() / ".hermes/auth.json"
@@ -75,6 +96,8 @@ def validate(config):
         raise RouteError("Only OpenRouter zero-paid-token requests are permitted")
     if policy.get("require_parameters") is not True:
         raise RouteError("require_parameters must remain true")
+    if policy.get("data_collection") != "deny":
+        raise RouteError("Repository routing policy must default data_collection to deny")
     if policy.get("max_price") != {"prompt": 0, "completion": 0, "request": 0, "image": 0}:
         raise RouteError("All price caps must be zero")
     for role, spec in config["roles"].items():
@@ -83,7 +106,8 @@ def validate(config):
             raise RouteError("Invalid or non-free route for " + role)
 
 
-def route(config, role, prompt, key, catalog, transport=request, image_data=None, creator_model=None):
+def route(config, role, prompt, key, catalog, transport=request, image_data=None,
+          creator_model=None, allow_data_collection=False):
     validate(config)
     if not config.get("manual_role_requests_enabled"):
         raise RouteError("Explicit role requests are paused")
@@ -111,7 +135,8 @@ def route(config, role, prompt, key, catalog, transport=request, image_data=None
         payload = {"model": slug, "messages": [{"role": "user", "content": content}],
             "max_tokens": 2048, "stream": False,
             "provider": {"require_parameters": True, "allow_fallbacks": True,
-                "sort": "price", "data_collection": config["policy"].get("data_collection", "allow"),
+                "sort": "price",
+                "data_collection": "allow" if allow_data_collection else "deny",
                 "max_price": {"prompt": 0, "completion": 0, "request": 0, "image": 0}}}
         try:
             code, body = transport("/chat/completions", key, payload)
@@ -159,8 +184,10 @@ def main():
     parser.add_argument("--prompt-file", type=Path, required=True)
     parser.add_argument("--image", type=Path, help="Synthetic/public PNG or JPEG only")
     parser.add_argument("--creator-model", help="For JUDGE/CRITIC independent-review checks")
+    parser.add_argument("--public-or-synthetic", action="store_true",
+        help="Explicitly allow data-collecting free endpoints for public/synthetic prompts")
     args = parser.parse_args()
-    config = yaml.safe_load((ROOT / "control-plane/config/routing.yaml").read_text())
+    config = yaml.safe_load((ROOT / "money-machine/config/routing.yaml").read_text())
     prompt = args.prompt_file.read_text()
     image_data = None
     if args.image:
@@ -176,7 +203,8 @@ def main():
         if status != 200:
             raise RouteError("Cannot verify live catalog; no model request made")
         result = route(config, args.role, prompt, credential(), {m["id"]: m for m in catalog["data"]},
-            image_data=image_data, creator_model=args.creator_model)
+            image_data=image_data, creator_model=args.creator_model,
+            allow_data_collection=args.public_or_synthetic)
         log.update({k: v for k, v in result.items() if k != "answer"}, status="response")
         print(json.dumps(result, indent=2))
         exit_code = 0

@@ -1,0 +1,2175 @@
+{
+  "schema_version": 2,
+  "browser_requested": false,
+  "performance": {
+    "total_elapsed_ms": 2492,
+    "checks": {
+      "fetch": 0,
+      "page": 300,
+      "schema": 263,
+      "headers": 0,
+      "technology": 104,
+      "js_vulnerabilities": 84,
+      "structured_validation": 89,
+      "hreflang": 908,
+      "language": 503,
+      "images": 847,
+      "social_meta": 1007,
+      "hygiene": 493,
+      "ux": 84,
+      "links": 0,
+      "lychee": 0,
+      "lighthouse": 0,
+      "tls": 145,
+      "dns": 0,
+      "crawl": 0,
+      "browser": 0,
+      "third_party": 0,
+      "browser_console": 0,
+      "cookie_consent": 0,
+      "axe": 0
+    },
+    "slowest_checks": [
+      [
+        "social_meta",
+        1007
+      ],
+      [
+        "hreflang",
+        908
+      ],
+      [
+        "images",
+        847
+      ],
+      [
+        "language",
+        503
+      ],
+      [
+        "hygiene",
+        493
+      ]
+    ]
+  },
+  "run_id": "20261029T002459-c93e791d675e",
+  "url": "https://www.leaderhomes.co.nz/",
+  "domain": "www.leaderhomes.co.nz",
+  "timestamp": "2026-10-29T00:24:59.974947+00:00",
+  "profile": "static",
+  "brand": "Website Auditor",
+  "status": "complete",
+  "score": 100,
+  "severity_score": 100,
+  "health_score": 0,
+  "breakdown": {
+    "health_score": 0,
+    "severity_total": 100,
+    "heuristic_count": 3,
+    "method": "severity sum capped at 100; health = 100 - severity",
+    "deductions": [
+      {
+        "finding_id": "a2329a37842be876d95df3a0",
+        "defect_key": "missing_canonical_url",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "no canonical href declared"
+      },
+      {
+        "finding_id": "67bc7c5c00b8e978b1141fdd",
+        "defect_key": "missing_open_graph_tags",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "zero Open Graph tags"
+      },
+      {
+        "finding_id": "c25f64b82eecb88ab6123147",
+        "defect_key": "schema_missing",
+        "severity": "low",
+        "points": 4,
+        "confidence": "heuristic",
+        "evidence_summary": "zero structured-data blocks"
+      },
+      {
+        "finding_id": "a53a12c4a01154c03b4554d8",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=assets/phone-white.png has no alt"
+      },
+      {
+        "finding_id": "fc8453b2f0322da4c7bfe87a",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=assets/email-white.png has no alt"
+      },
+      {
+        "finding_id": "3419a847bf2796c613de7a3c",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=assets/phone-white.png has no alt"
+      },
+      {
+        "finding_id": "38b152aa553782d254217881",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=assets/person-8x.png has no alt"
+      },
+      {
+        "finding_id": "05a7ef86c80c0c24e40bc0f8",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=assets/envelope-closed-8x.png has no alt"
+      },
+      {
+        "finding_id": "0f95d4b5b67d4482798de284",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=assets/phone-8x.png has no alt"
+      },
+      {
+        "finding_id": "cf5e2e1d594e250403edcc8d",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=assets/text-8x.png has no alt"
+      },
+      {
+        "finding_id": "83118aee2bba7f4b0db5571e",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=assets/phone-white.png has no alt"
+      },
+      {
+        "finding_id": "a35fd7022e1347b87f0a8b35",
+        "defect_key": "image-alt",
+        "severity": "high",
+        "points": 16,
+        "confidence": "observed",
+        "evidence_summary": "img src=assets/email-white.png has no alt"
+      },
+      {
+        "finding_id": "08ac4d53c8761aabc2db9a55",
+        "defect_key": "header-content-security-policy",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "headers"
+      },
+      {
+        "finding_id": "0ebdad4ad9aa8c0d9da10320",
+        "defect_key": "header-x-content-type-options",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "headers"
+      },
+      {
+        "finding_id": "73ba96acbaab08c6822e47bd",
+        "defect_key": "header-hsts",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "heuristic",
+        "evidence_summary": "headers"
+      },
+      {
+        "finding_id": "9b8b955f24691b000155e361",
+        "defect_key": "images-missing-alt",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "9 of 14 images have no alt text"
+      },
+      {
+        "finding_id": "9da59e8f31ae4dd08181ce42",
+        "defect_key": "images-missing-dimensions",
+        "severity": "low",
+        "points": 4,
+        "confidence": "heuristic",
+        "evidence_summary": "14 of 14 images do not provide positive numeric width and height attributes"
+      },
+      {
+        "finding_id": "1aad183066e3e8c8b1038ba4",
+        "defect_key": "social-meta-og-title",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "No <meta property=\"og:title\"> tag present"
+      },
+      {
+        "finding_id": "d6aff6f069b70d1fef6eee64",
+        "defect_key": "social-meta-og-description",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "No <meta property=\"og:description\"> tag present"
+      },
+      {
+        "finding_id": "575ec6c9f749e09d0f70a5ac",
+        "defect_key": "social-meta-og-image",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "No <meta property=\"og:image\"> tag present"
+      },
+      {
+        "finding_id": "eb09ad69fb44df3981802147",
+        "defect_key": "social-meta-og-type",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "No <meta property=\"og:type\"> tag present"
+      },
+      {
+        "finding_id": "f38f0500f90cdb7a2222d671",
+        "defect_key": "social-meta-twitter-card",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "No <meta name=\"twitter:card\"> tag present"
+      },
+      {
+        "finding_id": "a07bf1bae6c9524675a5741d",
+        "defect_key": "social-meta-twitter-handle",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "No <meta name=\"twitter:site\"> or twitter:creator tag present"
+      },
+      {
+        "finding_id": "ebbf8ffea9cd8ea80fbd4507",
+        "defect_key": "robots-no-sitemap",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "robots.txt has no sitemap directive"
+      }
+    ]
+  },
+  "defects": [
+    {
+      "defect_key": "missing_canonical_url",
+      "defect": "Missing canonical URL",
+      "impact": "Duplicate content risk",
+      "severity": "medium",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "page",
+      "selector": "head > link[rel=\"canonical\"]",
+      "confidence": "observed",
+      "evidence_source": "dom:link[rel=\"canonical\"] absent",
+      "observed": "no canonical href declared",
+      "business_impact": "Search engines may split ranking across URL variants.",
+      "remediation_action": "Add a self-referencing canonical link tag.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "a2329a37842be876d95df3a0",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "evidence_summary": "no canonical href declared",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "missing_open_graph_tags",
+      "defect": "Missing Open Graph tags",
+      "impact": "Poor social preview",
+      "severity": "medium",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "page",
+      "selector": "head > meta[property^=\"og:\"]",
+      "confidence": "observed",
+      "evidence_source": "dom:no meta[property^=og:] elements",
+      "observed": "zero Open Graph tags",
+      "business_impact": "Link shares render as plain text; less social traffic.",
+      "remediation_action": "Add og:title, og:description, og:image tags.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "S",
+      "finding_id": "67bc7c5c00b8e978b1141fdd",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "evidence_summary": "zero Open Graph tags",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "schema_missing",
+      "defect": "No structured data found",
+      "impact": "Eligibility not guaranteed",
+      "severity": "low",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "schema",
+      "selector": "script[type=\"application/ld+json\"]",
+      "confidence": "heuristic",
+      "evidence_source": "dom:no ld+json script blocks",
+      "observed": "zero structured-data blocks",
+      "business_impact": "No rich-result eligibility signals for local business info.",
+      "remediation_action": "Add LocalBusiness JSON-LD with name, phone, address.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "S",
+      "finding_id": "c25f64b82eecb88ab6123147",
+      "evidence_ref": "schema",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "evidence_summary": "zero structured-data blocks",
+      "fault_taxonomy": "seo_content",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "content_discovery_configuration_gap"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "assets/phone-white.png",
+      "severity": "high",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(1)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=assets/phone-white.png has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "a53a12c4a01154c03b4554d8",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "evidence_summary": "img src=assets/phone-white.png has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "assets/email-white.png",
+      "severity": "high",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(2)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=assets/email-white.png has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "fc8453b2f0322da4c7bfe87a",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "evidence_summary": "img src=assets/email-white.png has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "assets/phone-white.png",
+      "severity": "high",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(4)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=assets/phone-white.png has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "3419a847bf2796c613de7a3c",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "evidence_summary": "img src=assets/phone-white.png has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "assets/person-8x.png",
+      "severity": "high",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(8)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=assets/person-8x.png has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "38b152aa553782d254217881",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "evidence_summary": "img src=assets/person-8x.png has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "assets/envelope-closed-8x.png",
+      "severity": "high",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(9)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=assets/envelope-closed-8x.png has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "05a7ef86c80c0c24e40bc0f8",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "evidence_summary": "img src=assets/envelope-closed-8x.png has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "assets/phone-8x.png",
+      "severity": "high",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(10)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=assets/phone-8x.png has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "0f95d4b5b67d4482798de284",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "evidence_summary": "img src=assets/phone-8x.png has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "assets/text-8x.png",
+      "severity": "high",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(11)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=assets/text-8x.png has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "cf5e2e1d594e250403edcc8d",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "evidence_summary": "img src=assets/text-8x.png has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "assets/phone-white.png",
+      "severity": "high",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(13)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=assets/phone-white.png has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "83118aee2bba7f4b0db5571e",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "evidence_summary": "img src=assets/phone-white.png has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "image-alt",
+      "defect": "Image missing alt attribute",
+      "impact": "assets/email-white.png",
+      "severity": "high",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "accessibility_static",
+      "selector": "img:nth-of-type(14)",
+      "confidence": "observed",
+      "evidence_source": "dom:img without alt attribute",
+      "observed": "img src=assets/email-white.png has no alt",
+      "business_impact": "Screen-reader users miss the image meaning; weaker image SEO.",
+      "remediation_action": "Add concise descriptive alt text to the image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "a35fd7022e1347b87f0a8b35",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "evidence_summary": "img src=assets/email-white.png has no alt",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "header-content-security-policy",
+      "defect": "Missing content-security-policy",
+      "impact": "Review deployment requirements",
+      "severity": "low",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "08ac4d53c8761aabc2db9a55",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "evidence_summary": "headers",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "header-x-content-type-options",
+      "defect": "Missing x-content-type-options",
+      "impact": "Review deployment requirements",
+      "severity": "low",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "0ebdad4ad9aa8c0d9da10320",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "evidence_summary": "headers",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "header-hsts",
+      "defect": "Missing HSTS",
+      "impact": "Review HTTPS deployment",
+      "severity": "medium",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "",
+      "confidence": "heuristic",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "73ba96acbaab08c6822e47bd",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "evidence_summary": "headers",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "images-missing-alt",
+      "defect": "Images missing alt text (9)",
+      "impact": "Screen readers cannot describe images; accessibility and SEO suffer",
+      "severity": "medium",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "images",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:img element",
+      "observed": "9 of 14 images have no alt text",
+      "business_impact": "Screen readers announce 'image' instead of context. Search engines cannot index image content. Both hurt accessibility and SEO.",
+      "remediation_action": "Add descriptive alt text to every informative image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "S",
+      "finding_id": "9b8b955f24691b000155e361",
+      "evidence_ref": "images",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "evidence_summary": "9 of 14 images have no alt text",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "images-missing-dimensions",
+      "defect": "Images missing width/height (14)",
+      "impact": "Space reservation needs rendered review; CSS or a sized container may already prevent layout shift",
+      "severity": "low",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "images",
+      "selector": "",
+      "confidence": "heuristic",
+      "evidence_source": "dom:img element",
+      "observed": "14 of 14 images do not provide positive numeric width and height attributes",
+      "business_impact": "Layout shift is possible only if the rendered page does not already reserve image space. Static HTML alone does not establish CLS or its impact.",
+      "remediation_action": "Inspect computed styles, container sizing and measured layout shifts. Add dimensions or equivalent space reservation only where needed; preserve intentional framework fill layouts.",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "S",
+      "finding_id": "9da59e8f31ae4dd08181ce42",
+      "evidence_ref": "images",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "evidence_summary": "14 of 14 images do not provide positive numeric width and height attributes",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-og-title",
+      "defect": "Missing og:title",
+      "impact": "No Open Graph title for social sharing",
+      "severity": "medium",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[property=og:title]",
+      "observed": "No <meta property=\"og:title\"> tag present",
+      "business_impact": "When this page is shared on social platforms, the default page title is used instead of a custom share title.",
+      "remediation_action": "Add an og:title meta tag with a compelling share title.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "1aad183066e3e8c8b1038ba4",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "evidence_summary": "No <meta property=\"og:title\"> tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-og-description",
+      "defect": "Missing og:description",
+      "impact": "No Open Graph description for social sharing",
+      "severity": "medium",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[property=og:description]",
+      "observed": "No <meta property=\"og:description\"> tag present",
+      "business_impact": "Social shares show generic text instead of a compelling description, reducing click-through from shares.",
+      "remediation_action": "Add an og:description meta tag (120-200 chars).",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "d6aff6f069b70d1fef6eee64",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "evidence_summary": "No <meta property=\"og:description\"> tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-og-image",
+      "defect": "Missing og:image",
+      "impact": "No Open Graph image for social sharing",
+      "severity": "medium",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[property=og:image]",
+      "observed": "No <meta property=\"og:image\"> tag present",
+      "business_impact": "Social shares show no thumbnail, reducing visual appeal and click-through.",
+      "remediation_action": "Add an og:image meta tag pointing to a 1200x630 image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "575ec6c9f749e09d0f70a5ac",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "evidence_summary": "No <meta property=\"og:image\"> tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-og-type",
+      "defect": "Missing og:type",
+      "impact": "No Open Graph type declared",
+      "severity": "low",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[property=og:type]",
+      "observed": "No <meta property=\"og:type\"> tag present",
+      "business_impact": "Social platforms may not know how to render this page as a preview card.",
+      "remediation_action": "Add an og:type meta tag (e.g. \"website\" or \"article\").",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "eb09ad69fb44df3981802147",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "evidence_summary": "No <meta property=\"og:type\"> tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-twitter-card",
+      "defect": "Missing Twitter Card",
+      "impact": "No twitter:card declared",
+      "severity": "low",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[name=twitter:card]",
+      "observed": "No <meta name=\"twitter:card\"> tag present",
+      "business_impact": "Twitter/X shares show no image or rich preview.",
+      "remediation_action": "Add a twitter:card meta tag (e.g. \"summary_large_image\").",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "f38f0500f90cdb7a2222d671",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "evidence_summary": "No <meta name=\"twitter:card\"> tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-twitter-handle",
+      "defect": "Missing Twitter handle",
+      "impact": "No twitter:site or twitter:creator declared",
+      "severity": "low",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[name=twitter:site]",
+      "observed": "No <meta name=\"twitter:site\"> or twitter:creator tag present",
+      "business_impact": "Twitter/X attribution is missing; the account that shares this page is not tagged.",
+      "remediation_action": "Add a twitter:site meta tag with your @handle.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "a07bf1bae6c9524675a5741d",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "evidence_summary": "No <meta name=\"twitter:site\"> or twitter:creator tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "robots-no-sitemap",
+      "defect": "robots.txt declares no sitemap",
+      "impact": "Sitemap undiscoverable",
+      "severity": "low",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "review_required": true,
+      "check": "crawl",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "parse:robots.txt body",
+      "observed": "robots.txt has no sitemap directive",
+      "business_impact": "Search engines may discover new pages more slowly.",
+      "remediation_action": "Add a Sitemap: line pointing at the sitemap URL.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "ebbf8ffea9cd8ea80fbd4507",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "evidence_summary": "robots.txt has no sitemap directive",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    }
+  ],
+  "defect_count": 24,
+  "fault_taxonomy": {
+    "root_causes": [
+      {
+        "root_cause_id": "content_discovery_configuration_gap",
+        "taxonomy": [
+          "seo_content"
+        ],
+        "finding_ids": [
+          "a2329a37842be876d95df3a0",
+          "67bc7c5c00b8e978b1141fdd",
+          "c25f64b82eecb88ab6123147"
+        ],
+        "symptom_count": 3,
+        "likely": true,
+        "confidence": "MODERATE",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      },
+      {
+        "root_cause_id": "security_delivery_configuration_gap",
+        "taxonomy": [
+          "security_trust"
+        ],
+        "finding_ids": [
+          "08ac4d53c8761aabc2db9a55",
+          "0ebdad4ad9aa8c0d9da10320",
+          "73ba96acbaab08c6822e47bd"
+        ],
+        "symptom_count": 3,
+        "likely": true,
+        "confidence": "MODERATE",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      },
+      {
+        "root_cause_id": "unclassified_observation",
+        "taxonomy": [
+          "unknown"
+        ],
+        "finding_ids": [
+          "a53a12c4a01154c03b4554d8",
+          "fc8453b2f0322da4c7bfe87a",
+          "3419a847bf2796c613de7a3c",
+          "38b152aa553782d254217881",
+          "05a7ef86c80c0c24e40bc0f8",
+          "0f95d4b5b67d4482798de284",
+          "cf5e2e1d594e250403edcc8d",
+          "83118aee2bba7f4b0db5571e",
+          "a35fd7022e1347b87f0a8b35",
+          "9b8b955f24691b000155e361",
+          "9da59e8f31ae4dd08181ce42",
+          "1aad183066e3e8c8b1038ba4",
+          "d6aff6f069b70d1fef6eee64",
+          "575ec6c9f749e09d0f70a5ac",
+          "eb09ad69fb44df3981802147",
+          "f38f0500f90cdb7a2222d671",
+          "a07bf1bae6c9524675a5741d",
+          "ebbf8ffea9cd8ea80fbd4507"
+        ],
+        "symptom_count": 18,
+        "likely": true,
+        "confidence": "MODERATE",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      }
+    ],
+    "reproducible_count": 24,
+    "weak_or_unknown_count": 3
+  },
+  "checks": {
+    "fetch": {
+      "status": "ok",
+      "required": true
+    },
+    "page": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 300
+    },
+    "schema": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 263
+    },
+    "headers": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "technology": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 104
+    },
+    "js_vulnerabilities": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 84
+    },
+    "structured_validation": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 89
+    },
+    "hreflang": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 908
+    },
+    "language": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 503
+    },
+    "images": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 847
+    },
+    "social_meta": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1007
+    },
+    "hygiene": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 493
+    },
+    "ux": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 84
+    },
+    "links": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "lychee": {
+      "status": "skipped",
+      "reason": "Enable external local tools",
+      "required": false
+    },
+    "lighthouse": {
+      "status": "skipped",
+      "reason": "Enable external local tools",
+      "required": false
+    },
+    "tls": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 145
+    },
+    "dns": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "crawl": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "browser": {
+      "status": "skipped",
+      "reason": "Disabled in selected audit profile",
+      "required": false
+    },
+    "third_party": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "browser_console": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "cookie_consent": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "axe": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "pdf": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    }
+  },
+  "evidence": {
+    "fetch": {
+      "url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "mode": "static",
+      "check_version": "1",
+      "data": {
+        "status_code": 200,
+        "redirects": [],
+        "revalidated_at": null
+      }
+    },
+    "page": {
+      "url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "mode": "static",
+      "data": {
+        "title": "Leader Homes | Multi-Award Winning Building Company | Auckland | New Zealand",
+        "word_count": 331,
+        "link_count": 18,
+        "sample_links": [
+          "https://www.leaderhomes.co.nz/home",
+          "https://www.leaderhomes.co.nz/home",
+          "https://www.leaderhomes.co.nz/home",
+          "https://www.leaderhomes.co.nz/about",
+          "https://www.leaderhomes.co.nz/awards",
+          "https://www.leaderhomes.co.nz/services",
+          "https://www.leaderhomes.co.nz/projects",
+          "https://www.leaderhomes.co.nz/contact",
+          "https://www.leaderhomes.co.nz/contact",
+          "https://www.leaderhomes.co.nz/services",
+          "https://www.leaderhomes.co.nz/services",
+          "https://www.leaderhomes.co.nz/home",
+          "https://www.leaderhomes.co.nz/about",
+          "https://www.leaderhomes.co.nz/awards",
+          "https://www.leaderhomes.co.nz/services",
+          "https://www.leaderhomes.co.nz/projects",
+          "https://www.leaderhomes.co.nz/contact",
+          "https://www.customwebsites.co.nz"
+        ],
+        "emails": [
+          "leaderhomes@xtra.co.nz"
+        ],
+        "schema_count": 0
+      },
+      "check_version": "1"
+    },
+    "schema": {
+      "url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "mode": "static",
+      "data": {
+        "types": [],
+        "profile": "static",
+        "generator": "",
+        "local_business_review": "Check identity, address and service area against the business owner.",
+        "crawler_readiness": {
+          "robots_meta": [],
+          "rendered_content_comparison": "Available only in rendered mode"
+        }
+      },
+      "check_version": "1"
+    },
+    "headers": {
+      "url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "mode": "static",
+      "data": {
+        "headers": {
+          "content-type": "text/html",
+          "server": "AmazonS3",
+          "last-modified": "Wed, 08 Mar 2023 08:22:31 GMT",
+          "etag": "\"6ccdc4d43dd0995eb328f246abb0125e\"",
+          "content-length": "19836"
+        },
+        "cookies": []
+      },
+      "check_version": "1"
+    },
+    "technology": {
+      "url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "mode": "static",
+      "data": {
+        "technologies": []
+      },
+      "check_version": "1"
+    },
+    "js_vulnerabilities": {
+      "url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "mode": "static",
+      "data": {
+        "js_vulnerabilities_detected": 0
+      },
+      "check_version": "1"
+    },
+    "structured_validation": {
+      "url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "mode": "static",
+      "data": {
+        "structured_data_scripts_found": 0
+      },
+      "check_version": "1"
+    },
+    "hreflang": {
+      "url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://www.leaderhomes.co.nz/",
+        "hreflang_links": [],
+        "hreflang_count": 0,
+        "limitation": "No multilingual annotations declared; reciprocity not fetched."
+      },
+      "check_version": "3"
+    },
+    "language": {
+      "url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://www.leaderhomes.co.nz/",
+        "html_lang": "en",
+        "meta_content_language": null,
+        "is_nz_domain": true,
+        "limitation": "Declared language only; content language is not inferred from the domain."
+      },
+      "check_version": "3"
+    },
+    "images": {
+      "url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://www.leaderhomes.co.nz/",
+        "image_count": 14,
+        "missing_alt": 9,
+        "missing_dimensions": 14,
+        "missing_loading": 14,
+        "framework_fill_images": 0,
+        "external_images": 0,
+        "large_file_hints": []
+      },
+      "check_version": "3"
+    },
+    "social_meta": {
+      "url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://www.leaderhomes.co.nz/",
+        "og_tags": {},
+        "twitter_tags": {}
+      },
+      "check_version": "3"
+    },
+    "hygiene": {
+      "url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "mode": "static",
+      "data": {
+        "robots": {
+          "url": "https://www.leaderhomes.co.nz/robots.txt",
+          "status_code": 200,
+          "bytes": 13,
+          "sitemaps_declared": []
+        },
+        "sitemap": {
+          "checked": [
+            {
+              "url": "https://www.leaderhomes.co.nz/sitemap.xml",
+              "status": 200,
+              "loc_count": 7,
+              "well_formed": true
+            }
+          ]
+        },
+        "security_headers": {
+          "graded": [
+            "content-security-policy",
+            "x-content-type-options",
+            "strict-transport-security"
+          ],
+          "present": []
+        },
+        "mixed_content": {
+          "offenders": [],
+          "count": 0
+        }
+      },
+      "check_version": "1"
+    },
+    "ux": {
+      "url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "mode": "static",
+      "data": {
+        "signals": {
+          "contact_path": true,
+          "phone": true,
+          "booking": false,
+          "quote_form": false,
+          "form_present": true
+        }
+      },
+      "check_version": "1"
+    },
+    "tls": {
+      "url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "mode": "static",
+      "data": {
+        "expires_at": "2027-01-08T23:59:59+00:00",
+        "days_remaining": 71,
+        "protocol": "TLSv1.3",
+        "cipher": "TLS_AES_128_GCM_SHA256"
+      },
+      "check_version": "1"
+    },
+    "browser": {}
+  },
+  "check_registry": {
+    "fetch": {
+      "id": "fetch",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "page": {
+      "id": "page",
+      "category": "seo",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Content and conversion observations require editorial review."
+    },
+    "schema": {
+      "id": "schema",
+      "category": "local",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Presence does not establish eligibility or business identity."
+    },
+    "accessibility_static": {
+      "id": "accessibility_static",
+      "category": "accessibility",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Static checks do not establish conformance."
+    },
+    "ux": {
+      "id": "ux",
+      "category": "privacy",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Observed behavior is not a legal determination."
+    },
+    "headers": {
+      "id": "headers",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "hygiene": {
+      "id": "hygiene",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Deterministic robots, sitemap, header and mixed-content checks."
+    },
+    "links": {
+      "id": "links",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Bounded same-origin link validation; not an exhaustive crawler."
+    },
+    "tls": {
+      "id": "tls",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "dns": {
+      "id": "dns",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "crawl": {
+      "id": "crawl",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "lychee": {
+      "id": "lychee",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "External local CLI check; bounded by Lychee configuration and network conditions."
+    },
+    "lighthouse": {
+      "id": "lighthouse",
+      "category": "performance",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Laboratory result; not field Core Web Vitals."
+    },
+    "browser": {
+      "id": "browser",
+      "category": "performance",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Laboratory observations, not field Core Web Vitals."
+    },
+    "axe": {
+      "id": "axe",
+      "category": "accessibility",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Manual keyboard, screen-reader and content review remains necessary."
+    },
+    "pdf": {
+      "id": "pdf",
+      "category": "reporting",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "technology": {
+      "id": "technology",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "js_vulnerabilities": {
+      "id": "js_vulnerabilities",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "structured_validation": {
+      "id": "structured_validation",
+      "category": "local",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "hreflang": {
+      "id": "hreflang",
+      "category": "seo",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "language": {
+      "id": "language",
+      "category": "technical",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "images": {
+      "id": "images",
+      "category": "performance",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "social_meta": {
+      "id": "social_meta",
+      "category": "technical",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "cookie_consent": {
+      "id": "cookie_consent",
+      "category": "privacy",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Passive bounded observations only; cookie purpose and legal obligations require human review."
+    },
+    "third_party": {
+      "id": "third_party",
+      "category": "technical",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "browser_console": {
+      "id": "browser_console",
+      "category": "technical",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "server_technology": {
+      "id": "server_technology",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    }
+  },
+  "scoring": {
+    "method": "severity sum capped at 100; health = 100 - severity",
+    "weights": {
+      "low": 4,
+      "medium": 8,
+      "high": 16,
+      "critical": 30
+    },
+    "limitation": "Heuristic prioritization, not certification"
+  },
+  "financial_assumptions": [
+    "No fines or measured lost revenue. Estimates require explicit rates."
+  ],
+  "artifacts": {
+    "json": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002459-c93e791d675e/report.json",
+    "html": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002459-c93e791d675e/report.html",
+    "trend": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002459-c93e791d675e/trend.svg",
+    "actions": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002459-c93e791d675e/actions/preview.json"
+  },
+  "category_scores": {
+    "accessibility": {
+      "score": 100,
+      "severity_score": 100,
+      "health_score": null
+    },
+    "local": {
+      "score": 4,
+      "severity_score": 4,
+      "health_score": 96
+    },
+    "performance": {
+      "score": 12,
+      "severity_score": 12,
+      "health_score": 88
+    },
+    "privacy": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": 100
+    },
+    "security": {
+      "score": 16,
+      "severity_score": 16,
+      "health_score": 84
+    },
+    "seo": {
+      "score": 16,
+      "severity_score": 16,
+      "health_score": 84
+    },
+    "technical": {
+      "score": 40,
+      "severity_score": 40,
+      "health_score": 60
+    }
+  },
+  "comparison": {
+    "baseline": null,
+    "new": [
+      "05a7ef86c80c0c24e40bc0f8",
+      "08ac4d53c8761aabc2db9a55",
+      "0ebdad4ad9aa8c0d9da10320",
+      "0f95d4b5b67d4482798de284",
+      "1aad183066e3e8c8b1038ba4",
+      "3419a847bf2796c613de7a3c",
+      "38b152aa553782d254217881",
+      "575ec6c9f749e09d0f70a5ac",
+      "67bc7c5c00b8e978b1141fdd",
+      "73ba96acbaab08c6822e47bd",
+      "83118aee2bba7f4b0db5571e",
+      "9b8b955f24691b000155e361",
+      "9da59e8f31ae4dd08181ce42",
+      "a07bf1bae6c9524675a5741d",
+      "a2329a37842be876d95df3a0",
+      "a35fd7022e1347b87f0a8b35",
+      "a53a12c4a01154c03b4554d8",
+      "c25f64b82eecb88ab6123147",
+      "cf5e2e1d594e250403edcc8d",
+      "d6aff6f069b70d1fef6eee64",
+      "eb09ad69fb44df3981802147",
+      "ebbf8ffea9cd8ea80fbd4507",
+      "f38f0500f90cdb7a2222d671",
+      "fc8453b2f0322da4c7bfe87a"
+    ],
+    "persistent": [],
+    "regressed": [],
+    "resolved": [],
+    "resolution_assessed": false
+  },
+  "fault_regression": {
+    "new": [
+      "05a7ef86c80c0c24e40bc0f8",
+      "08ac4d53c8761aabc2db9a55",
+      "0ebdad4ad9aa8c0d9da10320",
+      "0f95d4b5b67d4482798de284",
+      "1aad183066e3e8c8b1038ba4",
+      "3419a847bf2796c613de7a3c",
+      "38b152aa553782d254217881",
+      "575ec6c9f749e09d0f70a5ac",
+      "67bc7c5c00b8e978b1141fdd",
+      "73ba96acbaab08c6822e47bd",
+      "83118aee2bba7f4b0db5571e",
+      "9b8b955f24691b000155e361",
+      "9da59e8f31ae4dd08181ce42",
+      "a07bf1bae6c9524675a5741d",
+      "a2329a37842be876d95df3a0",
+      "a35fd7022e1347b87f0a8b35",
+      "a53a12c4a01154c03b4554d8",
+      "c25f64b82eecb88ab6123147",
+      "cf5e2e1d594e250403edcc8d",
+      "d6aff6f069b70d1fef6eee64",
+      "eb09ad69fb44df3981802147",
+      "ebbf8ffea9cd8ea80fbd4507",
+      "f38f0500f90cdb7a2222d671",
+      "fc8453b2f0322da4c7bfe87a"
+    ],
+    "resolved": [],
+    "unchanged": []
+  },
+  "claim_ledger": [
+    {
+      "claim_id": "finding:a2329a37842be876d95df3a0",
+      "claim": "Missing canonical URL",
+      "claim_type": "observed_fact",
+      "finding_id": "a2329a37842be876d95df3a0",
+      "evidence_ref": "page",
+      "evidence": "no canonical href declared",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:67bc7c5c00b8e978b1141fdd",
+      "claim": "Missing Open Graph tags",
+      "claim_type": "observed_fact",
+      "finding_id": "67bc7c5c00b8e978b1141fdd",
+      "evidence_ref": "page",
+      "evidence": "zero Open Graph tags",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:c25f64b82eecb88ab6123147",
+      "claim": "No structured data found",
+      "claim_type": "hypothesis",
+      "finding_id": "c25f64b82eecb88ab6123147",
+      "evidence_ref": "schema",
+      "evidence": "zero structured-data blocks",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:a53a12c4a01154c03b4554d8",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "a53a12c4a01154c03b4554d8",
+      "evidence_ref": "page",
+      "evidence": "img src=assets/phone-white.png has no alt",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:fc8453b2f0322da4c7bfe87a",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "fc8453b2f0322da4c7bfe87a",
+      "evidence_ref": "page",
+      "evidence": "img src=assets/email-white.png has no alt",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:3419a847bf2796c613de7a3c",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "3419a847bf2796c613de7a3c",
+      "evidence_ref": "page",
+      "evidence": "img src=assets/phone-white.png has no alt",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:38b152aa553782d254217881",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "38b152aa553782d254217881",
+      "evidence_ref": "page",
+      "evidence": "img src=assets/person-8x.png has no alt",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:05a7ef86c80c0c24e40bc0f8",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "05a7ef86c80c0c24e40bc0f8",
+      "evidence_ref": "page",
+      "evidence": "img src=assets/envelope-closed-8x.png has no alt",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:0f95d4b5b67d4482798de284",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "0f95d4b5b67d4482798de284",
+      "evidence_ref": "page",
+      "evidence": "img src=assets/phone-8x.png has no alt",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:cf5e2e1d594e250403edcc8d",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "cf5e2e1d594e250403edcc8d",
+      "evidence_ref": "page",
+      "evidence": "img src=assets/text-8x.png has no alt",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:83118aee2bba7f4b0db5571e",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "83118aee2bba7f4b0db5571e",
+      "evidence_ref": "page",
+      "evidence": "img src=assets/phone-white.png has no alt",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:a35fd7022e1347b87f0a8b35",
+      "claim": "Image missing alt attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "a35fd7022e1347b87f0a8b35",
+      "evidence_ref": "page",
+      "evidence": "img src=assets/email-white.png has no alt",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:08ac4d53c8761aabc2db9a55",
+      "claim": "Missing content-security-policy",
+      "claim_type": "observed_fact",
+      "finding_id": "08ac4d53c8761aabc2db9a55",
+      "evidence_ref": "headers",
+      "evidence": "headers",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:0ebdad4ad9aa8c0d9da10320",
+      "claim": "Missing x-content-type-options",
+      "claim_type": "observed_fact",
+      "finding_id": "0ebdad4ad9aa8c0d9da10320",
+      "evidence_ref": "headers",
+      "evidence": "headers",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:73ba96acbaab08c6822e47bd",
+      "claim": "Missing HSTS",
+      "claim_type": "hypothesis",
+      "finding_id": "73ba96acbaab08c6822e47bd",
+      "evidence_ref": "headers",
+      "evidence": "headers",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:9b8b955f24691b000155e361",
+      "claim": "Images missing alt text (9)",
+      "claim_type": "observed_fact",
+      "finding_id": "9b8b955f24691b000155e361",
+      "evidence_ref": "images",
+      "evidence": "9 of 14 images have no alt text",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:9da59e8f31ae4dd08181ce42",
+      "claim": "Images missing width/height (14)",
+      "claim_type": "hypothesis",
+      "finding_id": "9da59e8f31ae4dd08181ce42",
+      "evidence_ref": "images",
+      "evidence": "14 of 14 images do not provide positive numeric width and height attributes",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:1aad183066e3e8c8b1038ba4",
+      "claim": "Missing og:title",
+      "claim_type": "observed_fact",
+      "finding_id": "1aad183066e3e8c8b1038ba4",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta property=\"og:title\"> tag present",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:d6aff6f069b70d1fef6eee64",
+      "claim": "Missing og:description",
+      "claim_type": "observed_fact",
+      "finding_id": "d6aff6f069b70d1fef6eee64",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta property=\"og:description\"> tag present",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:575ec6c9f749e09d0f70a5ac",
+      "claim": "Missing og:image",
+      "claim_type": "observed_fact",
+      "finding_id": "575ec6c9f749e09d0f70a5ac",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta property=\"og:image\"> tag present",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:eb09ad69fb44df3981802147",
+      "claim": "Missing og:type",
+      "claim_type": "observed_fact",
+      "finding_id": "eb09ad69fb44df3981802147",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta property=\"og:type\"> tag present",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:f38f0500f90cdb7a2222d671",
+      "claim": "Missing Twitter Card",
+      "claim_type": "observed_fact",
+      "finding_id": "f38f0500f90cdb7a2222d671",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta name=\"twitter:card\"> tag present",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:a07bf1bae6c9524675a5741d",
+      "claim": "Missing Twitter handle",
+      "claim_type": "observed_fact",
+      "finding_id": "a07bf1bae6c9524675a5741d",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta name=\"twitter:site\"> or twitter:creator tag present",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:24:59.974947+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:ebbf8ffea9cd8ea80fbd4507",
+      "claim": "robots.txt declares no sitemap",
+      "claim_type": "observed_fact",
+      "finding_id": "ebbf8ffea9cd8ea80fbd4507",
+      "evidence_ref": "page",
+      "evidence": "robots.txt has no sitemap directive",
+      "source_url": "https://www.leaderhomes.co.nz/",
+      "observed_at": "2026-10-29T00:25:00.398657+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    }
+  ],
+  "drafts": {
+    "status": "fallback",
+    "review_required": true,
+    "drafts": {
+      "metadata": {
+        "text": "Title: Example services\nDescription: [review required]",
+        "source": "template",
+        "review_required": true
+      },
+      "platform_fix": {
+        "text": "Prepare an evidence-backed fix draft for review.",
+        "source": "template",
+        "review_required": true
+      },
+      "outreach": {
+        "text": "Prepare factual outreach from verified findings.",
+        "source": "template",
+        "review_required": true
+      },
+      "content_expansion": {
+        "text": "Outline services, proof, FAQs, and contact details.",
+        "source": "template",
+        "review_required": true
+      },
+      "bilingual": {
+        "text": "EN: [English draft]\nMI: [te reo Māori review required]",
+        "source": "template",
+        "review_required": true
+      }
+    },
+    "reason": "Local generation not requested"
+  },
+  "proofing": {
+    "metadata": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 24,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "platform_fix": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 24,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "outreach": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 24,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "content_expansion": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 24,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "bilingual": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 24,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    }
+  },
+  "proposal": {
+    "currency": "NZD",
+    "hourly_rate": null,
+    "assumptions": "Versioned effort bands with shared setup for repeated defects and 15% contingency; scope and rates require human review.",
+    "hours_low": 22.5,
+    "hours_high": 68.43,
+    "estimate_low": null,
+    "estimate_high": null,
+    "rules_version": "quote-v1",
+    "review_required": true,
+    "llm_determined_price": false
+  },
+  "action_preview": {
+    "count": 24,
+    "status": "preview",
+    "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002459-c93e791d675e/actions/preview.json"
+  },
+  "coverage": {
+    "version": 1,
+    "required": 14,
+    "passed": 14,
+    "required_checks": [
+      "fetch",
+      "headers",
+      "hreflang",
+      "hygiene",
+      "images",
+      "js_vulnerabilities",
+      "language",
+      "page",
+      "schema",
+      "social_meta",
+      "structured_validation",
+      "technology",
+      "tls",
+      "ux"
+    ],
+    "missing_checks": []
+  },
+  "manifest": {
+    "html": {
+      "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002459-c93e791d675e/report.html",
+      "size": 24881,
+      "sha256": "30ef453abf16e0343d4de0e5348a898f78ff2d14cafe1991bedfb4f6161e7986"
+    },
+    "trend": {
+      "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002459-c93e791d675e/trend.svg",
+      "size": 239,
+      "sha256": "861eaab7fa54f1f140e9393704cb2bb465ba6c6b06e386d3c55e42e7020052c4"
+    },
+    "actions": {
+      "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002459-c93e791d675e/actions/preview.json",
+      "size": 44345,
+      "sha256": "35259eeae4f81b20126f1d73949329cf151fd64e9e2ebff301036dad45736638"
+    }
+  }
+}

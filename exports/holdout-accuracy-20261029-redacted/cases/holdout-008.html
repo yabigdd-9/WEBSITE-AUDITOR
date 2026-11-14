@@ -1,0 +1,2812 @@
+<!doctype html>
+<html lang="en">
+
+	
+	<head>
+
+				<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+									<link href="/sitemap.xml" rel="sitemap" title="Sitemap" type="application/xml">
+							<link href="https://asset.turboweb.co.nz/152/cache/resource/favicon.svg?1639446223" rel="shortcut icon">
+			<link href="https://asset.turboweb.co.nz/152/cache/resource/favicon.svg?1639446223" rel="apple-touch-icon">
+		
+							<meta name="description" content="The Valley Project connects people across North East Valley, Dalmore, Pine Hill, Opoho, Upper Junction and the gardens through community led development . By the people for the people. We are creating a community full of social inclusion, belonging and kindness."/>
+			<meta property="og:description" content="The Valley Project connects people across North East Valley, Dalmore, Pine Hill, Opoho, Upper Junction and the gardens through community led development . By the people for the people. We are creating a community full of social inclusion, belonging and kindness."/>
+							<title>Home | The Valley Project</title>
+			<meta property="og:title" content="Home | The Valley Project" />
+										<meta property="og:image" content="https://asset.turboweb.co.nz/152/cache/file/klwijyt9m5nn8pvlfjsj/84f03b6641ba08f154201425bbf2ff91/The%20Valley%20Project%20Dunedin%20New%20Zealand.png" />
+							<meta property="og:type" content="website" />
+		<meta property="og:url" content="https://www.northeastvalley.org/" />
+		
+				<script src="https://asset.turboweb.co.nz/core/cache/resource/vendor/jquery-3.5.1/jquery-3.5.1.min.js?1792726504"></script>
+
+				<script src="https://asset.turboweb.co.nz/152/site.js?1787864610"></script>
+							<script src="https://www.google.com/recaptcha/api.js?onload=recaptchaLoadedCallback&render=explicit" async defer></script>					<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-58087511-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-58087511-1');
+</script>
+					<script async defer src="https://maps.googleapis.com/maps/api/js?key=[REDACTED_GOOGLE_API_KEY]&amp;callback=window.lib.maps._onLoad&amp;libraries=places"></script>		
+				<link rel="stylesheet" href="https://asset.turboweb.co.nz/152/site.css?1787701826">
+	</head>
+
+	<body>
+				
+							<div id="lightbox" data-bind="css: {'is-open': isOpen}">
+
+	<div class="lightbox-close is-visible" data-bind="click: close">
+		<i class="fas fa-2x fa-times-circle"></i>
+	</div>
+
+	<!-- ko if: usingClickButtons -->
+		<div class="lightbox-previous" data-bind="click: clickPrevious, css: {'is-visible': canClickPrevious}">
+			<i class="fas fa-2x fa-chevron-circle-left"></i>
+		</div>
+		<div class="lightbox-next" data-bind="click: clickNext, css: {'is-visible': canClickNext}">
+			<i class="fas fa-2x fa-chevron-circle-right"></i>
+		</div>
+	<!-- /ko -->
+
+
+	<!-- ko if: !usingClickButtons && items().length > 1 -->
+		<div class="lightbox-previous-mobile">
+			<i class="fas fa-2x fa-chevron-left"></i>
+		</div>
+		<div class="lightbox-next-mobile">
+			<i class="fas fa-2x fa-chevron-right"></i>
+		</div>
+	<!-- /ko -->
+
+	<div class="lightbox-frames" data-bind="css: {'is-snap': !usingClickButtons}">
+		<!-- ko foreach: items -->
+			<div class="lightbox-frame" data-bind="attr: {id: elementId}">
+
+				<div class="lightbox-frame-image">
+					<!-- ko if: href -->
+						<a data-bind="attr: {href: href}">
+							<img data-bind="attr: {src: src, srcset: srcset, alt: title, sizes: sizes}">
+						</a>
+					<!-- /ko -->
+					<!-- ko ifnot: href -->
+						<img data-bind="attr: {src: src, srcset: srcset, alt: title, sizes: sizes}">
+					<!-- /ko -->
+				</div>
+
+				<!-- ko if: showCaption -->
+					<div class="lightbox-frame-caption">
+						<div data-bind="text: prettyIndex" class="small"></div>
+						<div data-bind="text: title"></div>
+					</div>
+				<!-- /ko -->
+			</div>
+		<!-- /ko -->
+	</div>
+
+</div>
+
+					<script type="text/html" id="template-filmstrip">
+
+	<div class="filmstrip">
+		<div class="preview">
+			<div class="preview-inner">
+				<!-- ko with: selectedItem -->
+
+					<div class="preview-image">
+						<img
+							data-bind="
+								click: $parent.onClickPreview,
+								attr: {
+									'src': preview.src,
+									'srcset': preview.srcset,
+									'sizes': preview.sizes,
+									'title': title,
+									'alt': alt
+								}">
+					</div>
+
+					<!-- ko if: $parent.showCaptions -->
+						<!-- ko if: title -->
+							<div class="preview-title" data-bind="text: title" style="color: white;"></div>
+						<!-- /ko -->
+					<!-- /ko -->
+
+				<!-- /ko -->
+			</div>
+		</div>
+
+		<div class="thumbnails">
+
+			<button type="button" class="thumbnails-back" data-bind="click: scrollBack">
+				<i class="fal fa-angle-left"></i>
+			</button>
+
+			<div class="thumbnails-inner" data-bind="attr: {id: thumbnailsInnerId}">
+				<!-- ko foreach: items -->
+					<img
+						class="lightbox-item"
+						data-bind="
+							click: $parent.onClickThumbnail.bind($data, $index()),
+							css: {'is-selected': $index() == $parent.selectedItemIndex()},
+							attr: {
+								'id': id,
+								'src': cropped.src,
+								'srcset': cropped.srcset,
+								'sizes': cropped.sizes,
+								'data-lightbox-src': full.src,
+								'data-lightbox-srcset': full.srcset,
+								'data-lightbox-sizes': full.sizes,
+								'alt': alt
+							}">
+				<!-- /ko -->
+			</div>
+			
+			<button type="button" class="thumbnails-forward" data-bind="click: scrollForward">
+				<i class="fal fa-angle-right"></i>
+			</button>
+
+		</div>
+	</div>
+
+</script>					<div id="alert-modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" data-bind="text: title"></h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<!-- ko if: icon -->
+						<div class="col-auto">
+							<i data-bind="css: icon"></i>
+						</div>
+					<!-- /ko -->
+					<div class="col">
+						<p data-bind="html: message"></p>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+					<div id="confirm-modal" class="modal fade" tabindex="-1" role="dialog">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" data-bind="text: title"></h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<p data-bind="text: message"></p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				<!-- ko if: confirmButtonLabel -->
+					<button type="button" class="btn" data-bind="
+						text: confirmButtonLabel,
+						css: confirmButtonStyle,
+						click: doAccept"></button>
+				<!-- /ko -->
+			</div>
+		</div>
+	</div>
+</div>
+
+					
+	<script>
+		if('modelContext' in navigator) {
+			navigator.modelContext.provideContext({ tools: [] });
+		}
+	</script>
+					<script>
+	$(() => {
+		var cartJson = {"messages":[],"items":[],"subtotal":0,"freightTitle":null,"freightSubtitle":null,"freightPrice":null,"total":0,"taxAmount":0,"taxName":"GST","taxableTotal":0,"hasTotal":true,"customerSessionId":"ah70n1b0mg8vd3p13pilfp6r7h"};
+		window.lib.ecom.cart.updateFromJson(cartJson);
+
+		var highlights = ["button","bar"];
+		if (highlights) {
+			window.lib.ecom.cart.summaryHighlights =
+				highlights.map(style => window.lib.ecom.cart.summary[style]);
+		}
+
+		if(cartJson.messages) {
+			cartJson.messages.forEach(message => {
+				if(message.type == 'success') {
+					window.lib.successAlert(message.message)
+				}
+				if(message.type == 'warning') {
+					window.lib.warningAlert(message.message)
+				}
+				if(message.type == 'error') {
+					window.lib.errorAlert(message.message)
+				}
+			});
+		}
+	});
+</script>					
+<script type="text/html" id="template-ecom-cart-table">
+
+	<div class="cart-table">
+
+		<!-- ko if: cart.isEmpty -->
+			<div class="">Your cart is empty.</div>
+		<!-- /ko -->
+
+		<!-- ko ifnot: cart.isEmpty -->
+			<div class="cart-table-inner rounded">
+				<div class="">
+					<table class="table mb-0 table-light table-bordered table-striped">
+						<!-- ko template: 'template-ecom-cart-table-header' --><!-- /ko -->
+						<tbody class="">
+							<!-- ko foreach: cart.items -->
+								<!-- ko template: 'template-ecom-cart-table-row' --><!-- /ko -->
+							<!-- /ko -->
+						</tbody>
+						<!-- ko template: 'template-ecom-cart-table-footer' --><!-- /ko -->
+					</table>
+				</div>
+			</div>
+		<!-- /ko -->
+	</div>
+</script>					<script type="text/html" id="template-ecom-cart-table-footer">
+	<tfoot class="">
+
+		
+			<!-- ko if: cart.freightPrice() || cart.taxAmount() -->
+				<tr class="d-none d-md-table-row">
+					<th class="py-2 text-right" colspan="3">Subtotal:</th>
+					<th class="py-2 text-right" data-bind="text: cart.prettySubtotal"></th>
+					<!-- ko if: showActions -->
+						<th class="py-2"></th>
+					<!-- /ko -->
+				</tr>
+			<!-- /ko -->
+
+			<!-- ko if: cart.freightPrice -->
+				<tr class="d-none d-md-table-row">
+					<th class="py-2 text-right" colspan="3">
+						<div data-bind="text: cart.prettyFreightTitle"></div>
+						<div data-bind="text: cart.prettyFreightSubtitle" class="text-muted small"></div>
+					</th>
+					<th class="py-2 text-right" data-bind="text: cart.prettyFreightPrice"></th>
+					<!-- ko if: showActions -->
+						<th class="py-2"></th>
+					<!-- /ko -->
+				</tr>
+			<!-- /ko -->
+
+			<!-- ko if: cart.taxAmount -->
+				<tr class="d-none d-md-table-row">
+					<th class="py-2 text-right" colspan="3" data-bind="text: cart.prettyTaxName"></th>
+					<th class="py-2 text-right" data-bind="text: cart.prettyTaxAmount"></th>
+					<!-- ko if: showActions -->
+						<th class="py-2"></th>
+					<!-- /ko -->
+				</tr>
+			<!-- /ko -->
+
+			<tr class="d-none d-md-table-row">
+				<th class="py-2 text-right" colspan="3">Total:</th>
+				<th class="py-2 text-right" data-bind="text: cart.prettyTotal"></th>
+				<!-- ko if: showActions -->
+					<th class="py-2"></th>
+				<!-- /ko -->
+			</tr>
+
+		
+			<!-- ko if: cart.freightPrice() || cart.taxAmount() -->
+				<tr class="d-md-none">
+					<th class="py-2 text-right" colspan="1">Subtotal:</th>
+					<th class="py-2 text-right" data-bind="text: cart.prettySubtotal"></th>
+					<!-- ko if: showActions -->
+						<th class="py-2"></th>
+					<!-- /ko -->
+				</tr>
+			<!-- /ko -->
+
+			<!-- ko if: cart.freightPrice -->
+				<tr class="d-md-none">
+					<th class="py-2 text-right" colspan="1">
+						<div data-bind="text: cart.prettyFreightTitle"></div>
+						<div data-bind="text: cart.prettyFreightSubtitle" class="text-muted small"></div>
+					</th>
+					<th class="py-2 text-right" data-bind="text: cart.prettyFreightPrice"></th>
+					<!-- ko if: showActions -->
+						<th class="py-2"></th>
+					<!-- /ko -->
+				</tr>
+			<!-- /ko -->
+
+			<!-- ko if: cart.taxAmount -->
+				<tr class="d-md-none">
+					<th class="py-2 text-right" colspan="1" data-bind="text: cart.prettyTaxName"></th>
+					<th class="py-2 text-right" data-bind="text: cart.prettyTaxAmount"></th>
+					<!-- ko if: showActions -->
+						<th class="py-2"></th>
+					<!-- /ko -->
+				</tr>
+			<!-- /ko -->
+
+			<tr class="d-md-none">
+				<th class="py-2 text-right" colspan="1">Total:</th>
+				<th class="py-2 text-right" data-bind="text: cart.prettyTotal"></th>
+				<!-- ko if: showActions -->
+					<th class="py-2"></th>
+				<!-- /ko -->
+			</tr>
+
+		
+	</tfoot>
+</script>
+					<script type="text/html" id="template-ecom-cart-table-header">
+	<thead class="thead-light">
+		<tr class="">
+			<th class="py-1">Product</th>
+			<th class="py-1 width-1 text-right text-nowrap d-none d-md-table-cell">Price</th>
+			<th class="py-1 width-1 text-right text-nowrap d-none d-md-table-cell">Quantity</th>
+			<th class="py-1 width-1 text-right text-nowrap d-none d-md-table-cell">Total</th>
+			<th class="py-1 width-1 text-right text-nowrap d-md-none">Price</th>
+			<!-- ko if: showActions -->
+				<th class="py-1 width-1 text-right text-nowrap"></th>
+			<!-- /ko -->
+		</tr>
+	</thead>
+</script>
+					<script type="text/html" id="template-ecom-cart-table-row">
+	<tr class="">
+		<td class="">
+			<a data-bind="attr: {href: clickableUrl}" class="unlink">
+				<div class="d-flex align-items-center">
+					<!-- ko if: thumbnail -->
+						<div class="align-self-start mt-1 mr-2 d-none d-sm-block d-lg-none d-xl-block">
+							<img class="mw-100 rounded" data-bind="attr: {src: thumbnail}">
+						</div>
+					<!-- /ko -->
+					<div class="w-100">
+						<div class="" data-bind="text: title"></div>
+						<!-- ko ifnot: available -->
+							<div class="text-danger"><small><i>Currently unavailable</i></small></div>
+						<!-- /ko -->
+						<div class="small font-weight-bold" data-bind="text: subtitle"></div>
+						<!-- ko if: note -->
+							<!-- ko with: noteEditor -->
+								<!-- ko ifnot: editing -->
+									<div data-bind="click: beginEditing" class="small">
+										<span data-bind="text: $parent.prettySummarisedNote"></span>
+										<span title="Edit your note" class="btn btn-primary btn-sm px-1 py-0"><i class="fa fa-pencil"></i></span>
+									</div>
+								<!-- /ko -->
+								<!-- ko if: editing -->
+									<textarea style="font-size: 90%;" class="p-1 form-control mb-2" rows="4" data-bind="value: edited"></textarea>
+									<div class="text-right">
+										<button class="btn btn-sm btn-outline-secondary ml-2" data-bind="click: cancel">Cancel</button>
+										<button class="btn btn-sm btn-outline-secondary ml-2" data-bind="click: save">Save</button>
+									</div>
+								<!-- /ko -->
+							<!-- /ko -->
+						<!-- /ko -->
+					</div>
+				</div>
+			</a>
+		</td>
+		<td class="width-1 text-right text-nowrap align-middle d-none d-md-table-cell">
+			<span data-bind="text: prettyPrice"></span>
+			<!-- ko if: unitLabel -->
+				<span>/</span>
+				<span data-bind="text: unitLabel"></span>
+			<!-- /ko -->
+		</td>
+		<td class="width-1 text-right text-nowrap align-middle d-table-cell cart-quantity-col text-center">
+			<div class="d-block d-md-none mb-1">
+				<small data-bind="text: prettyPrice"></small>
+				<small>&times;</small>
+			</div>
+			<div class="row">
+								<div class="col p-0 d-flex align-items-center justify-content-center">
+					<span data-bind="text: quantity"></span>
+				</div>
+							</div>
+		</td>
+		<td class="width-1 text-right text-nowrap align-middle d-none d-md-table-cell cart-total-col" data-bind="text: prettyTotalPrice"></td>
+		<!-- ko if: $parent.showActions -->
+			<td class="width-1 text-right text-nowrap align-middle">
+				<!-- ko template: 'template-ecom-cart-table-rowactions' --><!-- /ko -->
+			</td>
+		<!-- /ko -->
+	</tr>
+</script>
+					<script type="text/html" id="template-ecom-cart-table-rowactions">
+	<button class="btn btn-sm btn-outline-danger" title="Remove item" data-bind="click: remove"><i class="fa fas fa-fw fa-times"></i></button>
+</script>					
+<script type="text/html" id="template-ecom-cart-summary-button">
+	<div data-bind="css: {'is-highlight': isHighlight}">
+		<a href="/cart" class="mx-xl-3">
+			<i class="fas fa-shopping-cart"></i>
+			<span data-bind="text: prettyQuantity"></span>
+		</a>
+	</div>
+</script>
+					
+<script type="text/html" id="template-ecom-cart-summary-bar">
+	<div
+		data-bind="css: {'is-highlight': isHighlight}"
+		class="cart-summary-bar-wrapper w-100 py-2">
+
+		<div class="container">
+			<div class="cart-summary-bar small">
+
+				<div class="cart-summary-bar-expand-wrapper" data-bind="hidden: cart.isEmpty">
+					<button class="cart-summary-bar-expand btn btn-primary" type="button" data-bind="click: toggleIsOpen">
+						<i class="fas fa-arrow-up" data-bind="css: {'fa-rotate-180': isOpen}"></i>
+					</button>
+				</div>
+
+				<div data-bind="attr: {id: tableId}" style="display: none;">
+					<div class="py-3">
+						<div data-bind="template: { name: 'template-ecom-cart-table', data: table}"></div>
+					</div>
+				</div>
+
+				<div class="row justify-content-center align-items-center">
+					<div class="col-auto font-weight-bold">
+						<span data-bind="text: prettyQuantity"></span>
+					</div>
+					<div class="col-auto" data-bind="hidden: cart.isEmpty">
+						<a class="btn btn-sm btn-primary" href="/cart">Review Cart</a>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</script>										<script type="text/html" id="template-app-upload">
+
+	<div
+		class="p-2 text-center"
+		data-bind="
+				event: {
+					drop: onDrop,
+					dragover: onDragOver,
+					dragenter: onDragEnter,
+					dragleave: onDragLeave
+				},
+				css: {
+					'bg-light': !isDragHover(),
+					'bg-dark': isDragHover
+				}">
+
+		<input
+			style="display: none;"
+			type="file"
+			data-bind="
+				attr: {
+					id: inputId,
+					accept: accept,
+					multiple: supportsMultiple
+				},
+				event: {change: onChangeFile}
+			">
+
+		<!-- ko if: isDragHover -->
+			<span class="btn btn-link btn-sm mb-0">
+				Drop image here
+			</span>
+		<!-- /ko -->
+		<!-- ko ifnot: isDragHover -->
+			<label class="btn btn-primary btn-sm mb-0" data-bind="attr: {for: inputId}">
+				<!-- ko if: isUploading -->
+					<i class="fas fa-spinner fa-spin"></i>
+				<!-- /ko -->
+				<!-- ko ifnot: isUploading -->
+					<i class="fas fa-cloud-upload"></i>
+				<!-- /ko -->
+				Upload
+			</label>
+		<!-- /ko -->
+	</div>
+
+</script>
+		
+				
+
+<div id="main" class="d-flex flex-column min-vh-100 has-banner">
+
+	
+<script>
+$(() => {
+	window.mobileNav = {
+		toggle: () => {
+			$('html').toggleClass('is-mobile-nav-open');
+			$('.mobile-nav').toggleClass('is-open');
+		}
+	}
+	$('.mobile-nav-header').click(window.mobileNav.toggle);
+});
+</script>
+<div class="mobile-nav">
+
+	<div class="mobile-nav-header">
+		<button type="button"><i class="fas fa-fw fa-times-circle"></i></button>
+	</div>
+
+	<div class="mobile-nav-inner">
+					
+			<div class="parent is-active">
+				
+									<a
+																		class="item"
+						href="/">Home</a>
+				
+
+				<div class="children">
+									</div>
+
+			</div>
+
+					
+			<div class="parent has-children">
+				
+									<a
+																		class="item"
+						href="/directory">Directory</a>
+				
+
+				<div class="children">
+					
+						
+						<a
+														class="child"
+							href="/directory/log-in-sign-up">Log in/Sign up</a>
+					
+						
+						<a
+														class="child"
+							href="/directory?category=5">Business</a>
+					
+						
+						<a
+														class="child"
+							href="/directory?category=3">Clubs &amp; Groups</a>
+					
+						
+						<a
+														class="child"
+							href="/directory?category=1">Community Response</a>
+					
+						
+						<a
+														class="child"
+							href="/directory?category=6">Education &amp; Training</a>
+					
+						
+						<a
+														class="child"
+							href="/directory?category=4">Housing &amp; Accommodation</a>
+					
+						
+						<a
+														class="child"
+							href="/directory?category=7">Other</a>
+					
+						
+						<a
+														class="child"
+							href="/directory?category=2">Social Services &amp; Health</a>
+									</div>
+
+			</div>
+
+					
+			<div class="parent has-children">
+				
+									<a
+																		class="item"
+						href="/about">About</a>
+				
+
+				<div class="children">
+					
+						
+						<a
+														class="child"
+							href="/about/our-kaupapa">Our Kaupapa</a>
+					
+						
+						<a
+														class="child"
+							href="/about/staff">Staff</a>
+					
+						
+						<a
+														class="child"
+							href="/about/membership">Membership</a>
+					
+						
+						<a
+														class="child"
+							href="/about/exec">Exec</a>
+					
+						
+						<a
+														class="child"
+							href="/about/agm-and-sgm">AGM and SGM</a>
+					
+						
+						<a
+														class="child"
+							href="/about/supporters">Supporters</a>
+					
+						
+						<a
+														class="child"
+							href="/about/our-place">Our Place</a>
+					
+						
+						<a
+														class="child"
+							href="/about/media">Media</a>
+					
+						
+						<a
+														class="child"
+							href="/about/social-media-guidelines">Social Media Guidelines</a>
+									</div>
+
+			</div>
+
+					
+			<div class="parent has-children">
+				
+									<a
+																		class="item"
+						href="/community">Community</a>
+				
+
+				<div class="children">
+					
+						
+						<a
+														class="child"
+							href="/community/good-sort-allsort-award">Good Sort allsort Award</a>
+					
+						
+						<a
+														class="child"
+							href="/community/community-rooms">Community Rooms</a>
+					
+						
+						<a
+														class="child"
+							href="/community/valley-voice">Valley Voice</a>
+					
+						
+						<a
+														class="child"
+							href="/community/volunteer">Volunteer</a>
+					
+						
+						<a
+														class="child"
+							href="/community/open-vue">Open VUE</a>
+					
+						
+						<a
+														class="child"
+							href="/community/kai-share">Kai Share</a>
+					
+						
+						<a
+														class="child"
+							href="/community/valley-blog">Valley Blog</a>
+					
+						
+						<a
+														class="child"
+							href="/community/valley-kai">Valley Kai</a>
+					
+						
+						<a
+														class="child"
+							href="/community/valley-community-workspace">Valley Community Workspace</a>
+									</div>
+
+			</div>
+
+					
+			<div class="parent has-children">
+				
+									<a
+																		class="item"
+						href="/services">Services</a>
+				
+
+				<div class="children">
+					
+						
+						<a
+														class="child"
+							href="/services/advertise-in-valley-voice">Advertise in Valley Voice</a>
+					
+						
+						<a
+														class="child"
+							href="/services/print-photocopy">Print &amp; Photocopy</a>
+					
+						
+						<a
+														class="child"
+							href="/services/community-resources">Community Resources</a>
+					
+						
+						<a
+														class="child"
+							href="/services/what-s-on">What&#039;s On</a>
+					
+						
+						<a
+														class="child"
+							href="/services/community-room-bookings">Community Room Bookings</a>
+									</div>
+
+			</div>
+
+					
+			<div class="parent">
+				
+									<a
+																		class="item"
+						href="/contact">Contact</a>
+				
+
+				<div class="children">
+									</div>
+
+			</div>
+
+					
+			<div class="parent has-children">
+				
+									<a
+																		class="item"
+						href="/store">Store</a>
+				
+
+				<div class="children">
+					
+						
+						<a
+														class="child"
+							href="/store/shipping-dunedin-city-wide">Shipping - Dunedin City Wide</a>
+					
+						
+						<a
+														class="child"
+							href="/store/shipping-south-island-wide">Shipping  - South Island Wide</a>
+					
+						
+						<a
+														class="child"
+							href="/store/shipping-north-island-wide">Shipping - North Island Wide</a>
+					
+						
+						<a
+														class="child"
+							href="/store/one-step-at-a-time-by-shalane-hopkins">One Step at a Time - by Shalane Hopkins</a>
+					
+						
+						<a
+														class="child"
+							href="/store/ferguslei-to-hawthorne-the-story-of-north-east-valley">Ferguslei to Hawthorne - The Story of North East Valley</a>
+					
+						
+						<a
+														class="child"
+							href="/store/the-steepest-street-in-the-world">The Steepest Street in the World</a>
+					
+						
+						<a
+														class="child"
+							href="/store/a-change-in-the-weather">A Change in the Weather</a>
+					
+						
+						<a
+														class="child"
+							href="/store/baby-matinee-jacket-trevor-marsh-orginial">Baby Matinee Jacket - Trevor Marsh Orginial</a>
+					
+						
+						<a
+														class="child"
+							href="/store/baby-beanie-bootie-set-trevor-orginials">Baby Beanie &amp; Bootie Set - Trevor Orginials</a>
+					
+						
+						<a
+														class="child"
+							href="/store/baby-beanie-mittens-set-trevor-marsh-originals">Baby Beanie &amp; Mittens Set - Trevor Marsh Originals</a>
+					
+						
+						<a
+														class="child"
+							href="/store/baby-blue-merino-new-born-trevor-marsh-orginials">Baby Blue Merino new born - Trevor Marsh Orginials</a>
+					
+						
+						<a
+														class="child"
+							href="/store/rainbow-baby-swaddle-blanket-trevor-marsh-orginials">Rainbow Baby Swaddle Blanket - Trevor Marsh Orginials</a>
+					
+						
+						<a
+														class="child"
+							href="/store/white-baby-swaddle-blanket-trevor-marsh-orginials">White Baby Swaddle Blanket - Trevor Marsh Orginials</a>
+					
+						
+						<a
+														class="child"
+							href="/store/baby-beanie-white-trevor-marsh-orginials">Baby Beanie White - Trevor Marsh Orginials</a>
+					
+						
+						<a
+														class="child"
+							href="/store/large-crochet-baby-swaddle-trevor-marsh-orginials">Large Crochet Baby Swaddle - Trevor Marsh Orginials</a>
+					
+						
+						<a
+														class="child"
+							href="/store/baby-beanie-trevor-marsh-originals">Baby Beanie - Trevor Marsh Originals</a>
+					
+						
+						<a
+														class="child"
+							href="/store/japanese-style-puzzle-box-kyle-atkins">Japanese style puzzle box - Kyle Atkins</a>
+					
+						
+						<a
+														class="child"
+							href="/store/large-red-toadstool">Large Red Toadstool</a>
+					
+						
+						<a
+														class="child"
+							href="/store/small-red-toadstool-kyle-atkins">Small Red Toadstool - Kyle Atkins</a>
+					
+						
+						<a
+														class="child"
+							href="/store/biege-bowl-kyle-atkins">Biege Bowl - Kyle Atkins</a>
+					
+						
+						<a
+														class="child"
+							href="/store/blue-biege-bowl-kyle-atkins">Blue-Biege Bowl - Kyle Atkins</a>
+					
+						
+						<a
+														class="child"
+							href="/store/blue-black-mug-kyle-atkins">Blue-black Mug - Kyle Atkins</a>
+					
+						
+						<a
+														class="child"
+							href="/store/glazed-green-bowl-kyle-atkins">Glazed Green Bowl - Kyle Atkins</a>
+					
+						
+						<a
+														class="child"
+							href="/store/multi-coloured-mug-kyle-atkins">Multi Coloured Mug - Kyle Atkins</a>
+					
+						
+						<a
+														class="child"
+							href="/store/spoon-rest-tea-bag-holder-dish-kyle-atkins">Spoon Rest/ Tea Bag Holder Dish - Kyle Atkins</a>
+					
+						
+						<a
+														class="child"
+							href="/store/a4-art-print-amigos-by-bear-with-tattoo">A4 Art Print - Amigos by Bear with Tattoo</a>
+					
+						
+						<a
+														class="child"
+							href="/store/a4-art-print-howdy-by-bear-with-tattoo">A4 Art Print - Howdy by Bear with Tattoo</a>
+					
+						
+						<a
+														class="child"
+							href="/store/a4-art-print-kitty-cat-by-bear-with-tattoo">A4 Art Print - Kitty Cat by Bear with Tattoo</a>
+					
+						
+						<a
+														class="child"
+							href="/store/a4-art-print-surfs-up-by-bear-with-tattoo">A4 Art Print - Surfs Up by Bear with Tattoo</a>
+					
+						
+						<a
+														class="child"
+							href="/store/a4-art-print-word-tree-by-bear-with-tattoo">A4 Art Print - Word Tree by Bear with Tattoo</a>
+					
+						
+						<a
+														class="child"
+							href="/store/a5-art-print-amigos-by-bear-with-tattoo">A5 Art Print - Amigos by Bear with Tattoo</a>
+					
+						
+						<a
+														class="child"
+							href="/store/assorted-cards-see-in-store-by-bear-with-tattoo">Assorted Cards - see in store by Bear with Tattoo</a>
+					
+						
+						<a
+														class="child"
+							href="/store/black-lace-leaf-earrings-pandah-crafts">Black lace leaf earrings - Pandah Crafts</a>
+					
+						
+						<a
+														class="child"
+							href="/store/blue-fern-earrings-pandah-crafts">Blue Fern earrings - Pandah Crafts</a>
+					
+						
+						<a
+														class="child"
+							href="/store/colourful-cats-in-teacup-earrings-pandah-crafts">Colourful Cats in Teacup earrings - Pandah Crafts</a>
+					
+						
+						<a
+														class="child"
+							href="/store/silver-dog-earrings-pandah-crafts">Silver Dog earrings - Pandah Crafts</a>
+					
+						
+						<a
+														class="child"
+							href="/store/navy-red-white-flower-earrings-pandah-crafts">Navy, Red &amp; White Flower earrings - Pandah Crafts</a>
+					
+						
+						<a
+														class="child"
+							href="/store/pine-cone-earrings-pandah-crafts">Pine cone earrings - Pandah Crafts</a>
+					
+						
+						<a
+														class="child"
+							href="/store/poppy-rectangle-earrings-pandah-crafts">Poppy rectangle earrings - Pandah Crafts</a>
+					
+						
+						<a
+														class="child"
+							href="/store/round-pearl-shaped-earrings-with-leaf-pandah-crafts">Round Pearl Shaped earrings with leaf - Pandah Crafts</a>
+					
+						
+						<a
+														class="child"
+							href="/store/silver-dragonfly-earrings-pandah-crafts">Silver Dragonfly earrings - Pandah Crafts</a>
+					
+						
+						<a
+														class="child"
+							href="/store/snowdrop-earrings-pandah-crafts">Snowdrop earrings - Pandah Crafts</a>
+					
+						
+						<a
+														class="child"
+							href="/store/ice-cream-sundae-earrings-pandah-crafts">Ice-cream Sundae earrings - Pandah Crafts</a>
+					
+						
+						<a
+														class="child"
+							href="/store/windmill-earrings-pandah-crafts">Windmill earrings - Pandah Crafts</a>
+					
+						
+						<a
+														class="child"
+							href="/store/christmas-tree-ornament-snowman-two-friends-felt-creations">Christmas tree ornament - Snowman - Two Friends Felt Creations</a>
+					
+						
+						<a
+														class="child"
+							href="/store/christmas-ornament-joy-gnomes-two-friends-felt-creations">Christmas ornament - JOY gnomes - Two Friends Felt Creations</a>
+					
+						
+						<a
+														class="child"
+							href="/store/felted-tiger-two-friends-felt-creations">Felted Tiger - Two Friends Felt Creations</a>
+					
+						
+						<a
+														class="child"
+							href="/store/felted-haning-falling-cat-two-friends-felt-creations">Felted Haning Falling Cat - Two Friends Felt Creations</a>
+					
+						
+						<a
+														class="child"
+							href="/store/felted-hanging-monkey-two-friends-felt-creations">Felted Hanging Monkey - Two Friends Felt Creations</a>
+					
+						
+						<a
+														class="child"
+							href="/store/felted-bear-with-puppy-two-friends-felt-creations">Felted Bear with Puppy - Two Friends Felt Creations</a>
+					
+						
+						<a
+														class="child"
+							href="/store/felted-ladybird-with-her-flower-two-friends-felt-creations">Felted Ladybird with her Flower - Two Friends Felt Creations</a>
+					
+						
+						<a
+														class="child"
+							href="/store/felted-little-blue-owl-two-friends-felt-creations">Felted Little Blue Owl - Two Friends Felt Creations</a>
+					
+						
+						<a
+														class="child"
+							href="/store/felted-white-rainbow-unicorn-two-friends-felt-creations">Felted White Rainbow Unicorn - Two Friends Felt Creations</a>
+					
+						
+						<a
+														class="child"
+							href="/store/felted-blue-rainbow-horse-two-friends-felt-creations">Felted Blue Rainbow Horse - Two Friends Felt Creations</a>
+					
+						
+						<a
+														class="child"
+							href="/store/felted-purple-cat-two-friends-felt-creations">Felted Purple Cat - Two Friends Felt Creations</a>
+					
+						
+						<a
+														class="child"
+							href="/store/felted-patchwork-dog-white-two-friends-felt-creations">Felted Patchwork Dog (white) - Two Friends Felt Creations</a>
+					
+						
+						<a
+														class="child"
+							href="/store/felted-patchwork-dog-green-two-friends-felt-creations">Felted Patchwork Dog (Green) - Two Friends Felt Creations</a>
+					
+						
+						<a
+														class="child"
+							href="/store/felted-rainbow-giraffe-two-friends-felt-creations">Felted Rainbow Giraffe - Two Friends Felt Creations</a>
+					
+						
+						<a
+														class="child"
+							href="/store/felted-cat-with-party-balloons-two-friends-felt-creations">Felted Cat with Party Balloons - Two Friends Felt Creations</a>
+					
+						
+						<a
+														class="child"
+							href="/store/felted-flowers-7-50-each-colour-selected-at-random-two-friends-felt-creations">Felted Flowers $7.50 each - colour selected at random - Two Friends Felt Creations</a>
+					
+						
+						<a
+														class="child"
+							href="/store/felted-flowers-3-for-20-colours-selected-at-random-two-friends-felt-creations">Felted Flowers 3 for $20 - colours selected at random - Two Friends Felt Creations</a>
+					
+						
+						<a
+														class="child"
+							href="/store/felted-grey-bunny-two-friends-felt-creations">Felted Grey Bunny - Two Friends Felt Creations</a>
+					
+						
+						<a
+														class="child"
+							href="/store/felted-terrier-two-friends-felt-creations">Felted Terrier - Two Friends Felt Creations</a>
+					
+						
+						<a
+														class="child"
+							href="/store/felted-brown-owl-two-friends-felt-creations">Felted Brown Owl - Two Friends Felt Creations</a>
+					
+						
+						<a
+														class="child"
+							href="/store/crocheted-earrings-by-andrea-muggeridge">Crocheted Earrings by Andrea Muggeridge</a>
+					
+						
+						<a
+														class="child"
+							href="/store/crocheted-earrings-purple-by-andrea-muggeridge">Crocheted Earrings - purple by Andrea Muggeridge</a>
+					
+						
+						<a
+														class="child"
+							href="/store/crocheted-earrings-multi-coloured-by-andrea-muggeridge">Crocheted Earrings - multi-coloured by Andrea Muggeridge</a>
+					
+						
+						<a
+														class="child"
+							href="/store/woven-earings-blue-by-andrea-muggeridge">Woven Earings - blue by Andrea Muggeridge</a>
+					
+						
+						<a
+														class="child"
+							href="/store/crocheted-earrings-oval-by-andrea-muggeridge">Crocheted Earrings - oval by Andrea Muggeridge</a>
+					
+						
+						<a
+														class="child"
+							href="/store/crocheted-earrings-pink-flower-by-andrea-muggeridge">Crocheted Earrings - pink flower by Andrea Muggeridge</a>
+					
+						
+						<a
+														class="child"
+							href="/store/polymer-clay-earrings-pink-square-by-andrea-muggeridge">Polymer Clay Earrings - Pink square by Andrea Muggeridge</a>
+					
+						
+						<a
+														class="child"
+							href="/store/polymer-clay-earrings-pink-by-andrea-muggeridge">Polymer Clay Earrings - pink by Andrea Muggeridge</a>
+					
+						
+						<a
+														class="child"
+							href="/store/polymer-clay-earrings-light-blue-by-andrea-muggeridge">Polymer Clay Earrings - light blue by Andrea Muggeridge</a>
+					
+						
+						<a
+														class="child"
+							href="/store/polymer-clay-earrings-blue-oval-by-andrea-muggeridge">Polymer Clay Earrings - Blue oval by Andrea Muggeridge</a>
+					
+						
+						<a
+														class="child"
+							href="/store/polymer-clay-necklace-pink-by-andrea-muggeridge">Polymer Clay Necklace - Pink by Andrea Muggeridge</a>
+					
+						
+						<a
+														class="child"
+							href="/store/polymer-clay-necklace-white-by-andrea-muggeridge">Polymer Clay Necklace - white by Andrea Muggeridge</a>
+					
+						
+						<a
+														class="child"
+							href="/store/resin-necklace-bronze-by-andrea-muggeridge">Resin Necklace - bronze by Andrea Muggeridge</a>
+					
+						
+						<a
+														class="child"
+							href="/store/resin-necklace-brown-by-andrea-muggeridge">Resin Necklace - brown by Andrea Muggeridge</a>
+					
+						
+						<a
+														class="child"
+							href="/store/polymer-clay-necklace-multi-coloured-by-andrea-muggeridge">Polymer Clay Necklace - multi-coloured by Andrea Muggeridge</a>
+					
+						
+						<a
+														class="child"
+							href="/store/resin-necklace-gold-by-andrea-muggeridge">Resin Necklace - gold by Andrea Muggeridge</a>
+					
+						
+						<a
+														class="child"
+							href="/store/resin-necklace-pink-by-andrea-muggeridge">Resin Necklace - pink by Andrea Muggeridge</a>
+					
+						
+						<a
+														class="child"
+							href="/store/crocheted-earrings-sunburst-by-andrea-muggeridge">Crocheted Earrings - sunburst by Andrea Muggeridge</a>
+					
+						
+						<a
+														class="child"
+							href="/store/woven-earrings-red-by-andrea-muggeridge">Woven Earrings - red by Andrea Muggeridge</a>
+					
+						
+						<a
+														class="child"
+							href="/store/woven-earrings-thick-rainbow-by-andrea-muggeridge">Woven Earrings - thick rainbow by Andrea Muggeridge</a>
+					
+						
+						<a
+														class="child"
+							href="/store/woven-earrings-thin-rainbow-by-andrea-muggeridge">Woven Earrings - thin rainbow by Andrea Muggeridge</a>
+									</div>
+
+			</div>
+
+					
+			<div class="parent">
+				
+									<a
+																		class="item"
+						href="/donate">Donate</a>
+				
+
+				<div class="children">
+									</div>
+
+			</div>
+
+			</div>
+</div>
+
+<header>
+	<div class="container is-wide-container py-3">
+		<div class="form-row align-items-center justify-content-end flex-column flex-sm-row">
+			<div class="col-auto col-logo">
+				<a href="/"><img src="https://asset.turboweb.co.nz/152/cache/resource/image/logo.svg?1635996941"></a>
+			</div>
+			<div class="col d-none d-xl-block">
+				<div class="row">
+					<div class="col-12 d-flex justify-content-center">
+						
+<div class="simple-nav">
+			
+		<div class="parent is-active">
+			
+							<a
+										class="item"
+					href="/">Home</a>
+			
+			<div class="children">
+							</div>
+
+		</div>
+			
+		<div class="parent has-children">
+			
+							<a
+										class="item"
+					href="/directory">Directory</a>
+			
+			<div class="children">
+				
+					
+					<a
+												class="child"
+						href="/directory/log-in-sign-up">Log in/Sign up</a>
+				
+					
+					<a
+												class="child"
+						href="/directory?category=5">Business</a>
+				
+					
+					<a
+												class="child"
+						href="/directory?category=3">Clubs &amp; Groups</a>
+				
+					
+					<a
+												class="child"
+						href="/directory?category=1">Community Response</a>
+				
+					
+					<a
+												class="child"
+						href="/directory?category=6">Education &amp; Training</a>
+				
+					
+					<a
+												class="child"
+						href="/directory?category=4">Housing &amp; Accommodation</a>
+				
+					
+					<a
+												class="child"
+						href="/directory?category=7">Other</a>
+				
+					
+					<a
+												class="child"
+						href="/directory?category=2">Social Services &amp; Health</a>
+							</div>
+
+		</div>
+			
+		<div class="parent has-children">
+			
+							<a
+										class="item"
+					href="/about">About</a>
+			
+			<div class="children">
+				
+					
+					<a
+												class="child"
+						href="/about/our-kaupapa">Our Kaupapa</a>
+				
+					
+					<a
+												class="child"
+						href="/about/staff">Staff</a>
+				
+					
+					<a
+												class="child"
+						href="/about/membership">Membership</a>
+				
+					
+					<a
+												class="child"
+						href="/about/exec">Exec</a>
+				
+					
+					<a
+												class="child"
+						href="/about/agm-and-sgm">AGM and SGM</a>
+				
+					
+					<a
+												class="child"
+						href="/about/supporters">Supporters</a>
+				
+					
+					<a
+												class="child"
+						href="/about/our-place">Our Place</a>
+				
+					
+					<a
+												class="child"
+						href="/about/media">Media</a>
+				
+					
+					<a
+												class="child"
+						href="/about/social-media-guidelines">Social Media Guidelines</a>
+							</div>
+
+		</div>
+			
+		<div class="parent has-children">
+			
+							<a
+										class="item"
+					href="/community">Community</a>
+			
+			<div class="children">
+				
+					
+					<a
+												class="child"
+						href="/community/good-sort-allsort-award">Good Sort allsort Award</a>
+				
+					
+					<a
+												class="child"
+						href="/community/community-rooms">Community Rooms</a>
+				
+					
+					<a
+												class="child"
+						href="/community/valley-voice">Valley Voice</a>
+				
+					
+					<a
+												class="child"
+						href="/community/volunteer">Volunteer</a>
+				
+					
+					<a
+												class="child"
+						href="/community/open-vue">Open VUE</a>
+				
+					
+					<a
+												class="child"
+						href="/community/kai-share">Kai Share</a>
+				
+					
+					<a
+												class="child"
+						href="/community/valley-blog">Valley Blog</a>
+				
+					
+					<a
+												class="child"
+						href="/community/valley-kai">Valley Kai</a>
+				
+					
+					<a
+												class="child"
+						href="/community/valley-community-workspace">Valley Community Workspace</a>
+							</div>
+
+		</div>
+			
+		<div class="parent has-children">
+			
+							<a
+										class="item"
+					href="/services">Services</a>
+			
+			<div class="children">
+				
+					
+					<a
+												class="child"
+						href="/services/advertise-in-valley-voice">Advertise in Valley Voice</a>
+				
+					
+					<a
+												class="child"
+						href="/services/print-photocopy">Print &amp; Photocopy</a>
+				
+					
+					<a
+												class="child"
+						href="/services/community-resources">Community Resources</a>
+				
+					
+					<a
+												class="child"
+						href="/services/what-s-on">What&#039;s On</a>
+				
+					
+					<a
+												class="child"
+						href="/services/community-room-bookings">Community Room Bookings</a>
+							</div>
+
+		</div>
+			
+		<div class="parent">
+			
+							<a
+										class="item"
+					href="/contact">Contact</a>
+			
+			<div class="children">
+							</div>
+
+		</div>
+			
+		<div class="parent has-children">
+			
+							<a
+										class="item"
+					href="/store">Store</a>
+			
+			<div class="children">
+				
+					
+					<a
+												class="child"
+						href="/store/shipping-dunedin-city-wide">Shipping - Dunedin City Wide</a>
+				
+					
+					<a
+												class="child"
+						href="/store/shipping-south-island-wide">Shipping  - South Island Wide</a>
+				
+					
+					<a
+												class="child"
+						href="/store/shipping-north-island-wide">Shipping - North Island Wide</a>
+				
+					
+					<a
+												class="child"
+						href="/store/one-step-at-a-time-by-shalane-hopkins">One Step at a Time - by Shalane Hopkins</a>
+				
+					
+					<a
+												class="child"
+						href="/store/ferguslei-to-hawthorne-the-story-of-north-east-valley">Ferguslei to Hawthorne - The Story of North East Valley</a>
+				
+					
+					<a
+												class="child"
+						href="/store/the-steepest-street-in-the-world">The Steepest Street in the World</a>
+				
+					
+					<a
+												class="child"
+						href="/store/a-change-in-the-weather">A Change in the Weather</a>
+				
+					
+					<a
+												class="child"
+						href="/store/baby-matinee-jacket-trevor-marsh-orginial">Baby Matinee Jacket - Trevor Marsh Orginial</a>
+				
+					
+					<a
+												class="child"
+						href="/store/baby-beanie-bootie-set-trevor-orginials">Baby Beanie &amp; Bootie Set - Trevor Orginials</a>
+				
+					
+					<a
+												class="child"
+						href="/store/baby-beanie-mittens-set-trevor-marsh-originals">Baby Beanie &amp; Mittens Set - Trevor Marsh Originals</a>
+				
+					
+					<a
+												class="child"
+						href="/store/baby-blue-merino-new-born-trevor-marsh-orginials">Baby Blue Merino new born - Trevor Marsh Orginials</a>
+				
+					
+					<a
+												class="child"
+						href="/store/rainbow-baby-swaddle-blanket-trevor-marsh-orginials">Rainbow Baby Swaddle Blanket - Trevor Marsh Orginials</a>
+				
+					
+					<a
+												class="child"
+						href="/store/white-baby-swaddle-blanket-trevor-marsh-orginials">White Baby Swaddle Blanket - Trevor Marsh Orginials</a>
+				
+					
+					<a
+												class="child"
+						href="/store/baby-beanie-white-trevor-marsh-orginials">Baby Beanie White - Trevor Marsh Orginials</a>
+				
+					
+					<a
+												class="child"
+						href="/store/large-crochet-baby-swaddle-trevor-marsh-orginials">Large Crochet Baby Swaddle - Trevor Marsh Orginials</a>
+				
+					
+					<a
+												class="child"
+						href="/store/baby-beanie-trevor-marsh-originals">Baby Beanie - Trevor Marsh Originals</a>
+				
+					
+					<a
+												class="child"
+						href="/store/japanese-style-puzzle-box-kyle-atkins">Japanese style puzzle box - Kyle Atkins</a>
+				
+					
+					<a
+												class="child"
+						href="/store/large-red-toadstool">Large Red Toadstool</a>
+				
+					
+					<a
+												class="child"
+						href="/store/small-red-toadstool-kyle-atkins">Small Red Toadstool - Kyle Atkins</a>
+				
+					
+					<a
+												class="child"
+						href="/store/biege-bowl-kyle-atkins">Biege Bowl - Kyle Atkins</a>
+				
+					
+					<a
+												class="child"
+						href="/store/blue-biege-bowl-kyle-atkins">Blue-Biege Bowl - Kyle Atkins</a>
+				
+					
+					<a
+												class="child"
+						href="/store/blue-black-mug-kyle-atkins">Blue-black Mug - Kyle Atkins</a>
+				
+					
+					<a
+												class="child"
+						href="/store/glazed-green-bowl-kyle-atkins">Glazed Green Bowl - Kyle Atkins</a>
+				
+					
+					<a
+												class="child"
+						href="/store/multi-coloured-mug-kyle-atkins">Multi Coloured Mug - Kyle Atkins</a>
+				
+					
+					<a
+												class="child"
+						href="/store/spoon-rest-tea-bag-holder-dish-kyle-atkins">Spoon Rest/ Tea Bag Holder Dish - Kyle Atkins</a>
+				
+					
+					<a
+												class="child"
+						href="/store/a4-art-print-amigos-by-bear-with-tattoo">A4 Art Print - Amigos by Bear with Tattoo</a>
+				
+					
+					<a
+												class="child"
+						href="/store/a4-art-print-howdy-by-bear-with-tattoo">A4 Art Print - Howdy by Bear with Tattoo</a>
+				
+					
+					<a
+												class="child"
+						href="/store/a4-art-print-kitty-cat-by-bear-with-tattoo">A4 Art Print - Kitty Cat by Bear with Tattoo</a>
+				
+					
+					<a
+												class="child"
+						href="/store/a4-art-print-surfs-up-by-bear-with-tattoo">A4 Art Print - Surfs Up by Bear with Tattoo</a>
+				
+					
+					<a
+												class="child"
+						href="/store/a4-art-print-word-tree-by-bear-with-tattoo">A4 Art Print - Word Tree by Bear with Tattoo</a>
+				
+					
+					<a
+												class="child"
+						href="/store/a5-art-print-amigos-by-bear-with-tattoo">A5 Art Print - Amigos by Bear with Tattoo</a>
+				
+					
+					<a
+												class="child"
+						href="/store/assorted-cards-see-in-store-by-bear-with-tattoo">Assorted Cards - see in store by Bear with Tattoo</a>
+				
+					
+					<a
+												class="child"
+						href="/store/black-lace-leaf-earrings-pandah-crafts">Black lace leaf earrings - Pandah Crafts</a>
+				
+					
+					<a
+												class="child"
+						href="/store/blue-fern-earrings-pandah-crafts">Blue Fern earrings - Pandah Crafts</a>
+				
+					
+					<a
+												class="child"
+						href="/store/colourful-cats-in-teacup-earrings-pandah-crafts">Colourful Cats in Teacup earrings - Pandah Crafts</a>
+				
+					
+					<a
+												class="child"
+						href="/store/silver-dog-earrings-pandah-crafts">Silver Dog earrings - Pandah Crafts</a>
+				
+					
+					<a
+												class="child"
+						href="/store/navy-red-white-flower-earrings-pandah-crafts">Navy, Red &amp; White Flower earrings - Pandah Crafts</a>
+				
+					
+					<a
+												class="child"
+						href="/store/pine-cone-earrings-pandah-crafts">Pine cone earrings - Pandah Crafts</a>
+				
+					
+					<a
+												class="child"
+						href="/store/poppy-rectangle-earrings-pandah-crafts">Poppy rectangle earrings - Pandah Crafts</a>
+				
+					
+					<a
+												class="child"
+						href="/store/round-pearl-shaped-earrings-with-leaf-pandah-crafts">Round Pearl Shaped earrings with leaf - Pandah Crafts</a>
+				
+					
+					<a
+												class="child"
+						href="/store/silver-dragonfly-earrings-pandah-crafts">Silver Dragonfly earrings - Pandah Crafts</a>
+				
+					
+					<a
+												class="child"
+						href="/store/snowdrop-earrings-pandah-crafts">Snowdrop earrings - Pandah Crafts</a>
+				
+					
+					<a
+												class="child"
+						href="/store/ice-cream-sundae-earrings-pandah-crafts">Ice-cream Sundae earrings - Pandah Crafts</a>
+				
+					
+					<a
+												class="child"
+						href="/store/windmill-earrings-pandah-crafts">Windmill earrings - Pandah Crafts</a>
+				
+					
+					<a
+												class="child"
+						href="/store/christmas-tree-ornament-snowman-two-friends-felt-creations">Christmas tree ornament - Snowman - Two Friends Felt Creations</a>
+				
+					
+					<a
+												class="child"
+						href="/store/christmas-ornament-joy-gnomes-two-friends-felt-creations">Christmas ornament - JOY gnomes - Two Friends Felt Creations</a>
+				
+					
+					<a
+												class="child"
+						href="/store/felted-tiger-two-friends-felt-creations">Felted Tiger - Two Friends Felt Creations</a>
+				
+					
+					<a
+												class="child"
+						href="/store/felted-haning-falling-cat-two-friends-felt-creations">Felted Haning Falling Cat - Two Friends Felt Creations</a>
+				
+					
+					<a
+												class="child"
+						href="/store/felted-hanging-monkey-two-friends-felt-creations">Felted Hanging Monkey - Two Friends Felt Creations</a>
+				
+					
+					<a
+												class="child"
+						href="/store/felted-bear-with-puppy-two-friends-felt-creations">Felted Bear with Puppy - Two Friends Felt Creations</a>
+				
+					
+					<a
+												class="child"
+						href="/store/felted-ladybird-with-her-flower-two-friends-felt-creations">Felted Ladybird with her Flower - Two Friends Felt Creations</a>
+				
+					
+					<a
+												class="child"
+						href="/store/felted-little-blue-owl-two-friends-felt-creations">Felted Little Blue Owl - Two Friends Felt Creations</a>
+				
+					
+					<a
+												class="child"
+						href="/store/felted-white-rainbow-unicorn-two-friends-felt-creations">Felted White Rainbow Unicorn - Two Friends Felt Creations</a>
+				
+					
+					<a
+												class="child"
+						href="/store/felted-blue-rainbow-horse-two-friends-felt-creations">Felted Blue Rainbow Horse - Two Friends Felt Creations</a>
+				
+					
+					<a
+												class="child"
+						href="/store/felted-purple-cat-two-friends-felt-creations">Felted Purple Cat - Two Friends Felt Creations</a>
+				
+					
+					<a
+												class="child"
+						href="/store/felted-patchwork-dog-white-two-friends-felt-creations">Felted Patchwork Dog (white) - Two Friends Felt Creations</a>
+				
+					
+					<a
+												class="child"
+						href="/store/felted-patchwork-dog-green-two-friends-felt-creations">Felted Patchwork Dog (Green) - Two Friends Felt Creations</a>
+				
+					
+					<a
+												class="child"
+						href="/store/felted-rainbow-giraffe-two-friends-felt-creations">Felted Rainbow Giraffe - Two Friends Felt Creations</a>
+				
+					
+					<a
+												class="child"
+						href="/store/felted-cat-with-party-balloons-two-friends-felt-creations">Felted Cat with Party Balloons - Two Friends Felt Creations</a>
+				
+					
+					<a
+												class="child"
+						href="/store/felted-flowers-7-50-each-colour-selected-at-random-two-friends-felt-creations">Felted Flowers $7.50 each - colour selected at random - Two Friends Felt Creations</a>
+				
+					
+					<a
+												class="child"
+						href="/store/felted-flowers-3-for-20-colours-selected-at-random-two-friends-felt-creations">Felted Flowers 3 for $20 - colours selected at random - Two Friends Felt Creations</a>
+				
+					
+					<a
+												class="child"
+						href="/store/felted-grey-bunny-two-friends-felt-creations">Felted Grey Bunny - Two Friends Felt Creations</a>
+				
+					
+					<a
+												class="child"
+						href="/store/felted-terrier-two-friends-felt-creations">Felted Terrier - Two Friends Felt Creations</a>
+				
+					
+					<a
+												class="child"
+						href="/store/felted-brown-owl-two-friends-felt-creations">Felted Brown Owl - Two Friends Felt Creations</a>
+				
+					
+					<a
+												class="child"
+						href="/store/crocheted-earrings-by-andrea-muggeridge">Crocheted Earrings by Andrea Muggeridge</a>
+				
+					
+					<a
+												class="child"
+						href="/store/crocheted-earrings-purple-by-andrea-muggeridge">Crocheted Earrings - purple by Andrea Muggeridge</a>
+				
+					
+					<a
+												class="child"
+						href="/store/crocheted-earrings-multi-coloured-by-andrea-muggeridge">Crocheted Earrings - multi-coloured by Andrea Muggeridge</a>
+				
+					
+					<a
+												class="child"
+						href="/store/woven-earings-blue-by-andrea-muggeridge">Woven Earings - blue by Andrea Muggeridge</a>
+				
+					
+					<a
+												class="child"
+						href="/store/crocheted-earrings-oval-by-andrea-muggeridge">Crocheted Earrings - oval by Andrea Muggeridge</a>
+				
+					
+					<a
+												class="child"
+						href="/store/crocheted-earrings-pink-flower-by-andrea-muggeridge">Crocheted Earrings - pink flower by Andrea Muggeridge</a>
+				
+					
+					<a
+												class="child"
+						href="/store/polymer-clay-earrings-pink-square-by-andrea-muggeridge">Polymer Clay Earrings - Pink square by Andrea Muggeridge</a>
+				
+					
+					<a
+												class="child"
+						href="/store/polymer-clay-earrings-pink-by-andrea-muggeridge">Polymer Clay Earrings - pink by Andrea Muggeridge</a>
+				
+					
+					<a
+												class="child"
+						href="/store/polymer-clay-earrings-light-blue-by-andrea-muggeridge">Polymer Clay Earrings - light blue by Andrea Muggeridge</a>
+				
+					
+					<a
+												class="child"
+						href="/store/polymer-clay-earrings-blue-oval-by-andrea-muggeridge">Polymer Clay Earrings - Blue oval by Andrea Muggeridge</a>
+				
+					
+					<a
+												class="child"
+						href="/store/polymer-clay-necklace-pink-by-andrea-muggeridge">Polymer Clay Necklace - Pink by Andrea Muggeridge</a>
+				
+					
+					<a
+												class="child"
+						href="/store/polymer-clay-necklace-white-by-andrea-muggeridge">Polymer Clay Necklace - white by Andrea Muggeridge</a>
+				
+					
+					<a
+												class="child"
+						href="/store/resin-necklace-bronze-by-andrea-muggeridge">Resin Necklace - bronze by Andrea Muggeridge</a>
+				
+					
+					<a
+												class="child"
+						href="/store/resin-necklace-brown-by-andrea-muggeridge">Resin Necklace - brown by Andrea Muggeridge</a>
+				
+					
+					<a
+												class="child"
+						href="/store/polymer-clay-necklace-multi-coloured-by-andrea-muggeridge">Polymer Clay Necklace - multi-coloured by Andrea Muggeridge</a>
+				
+					
+					<a
+												class="child"
+						href="/store/resin-necklace-gold-by-andrea-muggeridge">Resin Necklace - gold by Andrea Muggeridge</a>
+				
+					
+					<a
+												class="child"
+						href="/store/resin-necklace-pink-by-andrea-muggeridge">Resin Necklace - pink by Andrea Muggeridge</a>
+				
+					
+					<a
+												class="child"
+						href="/store/crocheted-earrings-sunburst-by-andrea-muggeridge">Crocheted Earrings - sunburst by Andrea Muggeridge</a>
+				
+					
+					<a
+												class="child"
+						href="/store/woven-earrings-red-by-andrea-muggeridge">Woven Earrings - red by Andrea Muggeridge</a>
+				
+					
+					<a
+												class="child"
+						href="/store/woven-earrings-thick-rainbow-by-andrea-muggeridge">Woven Earrings - thick rainbow by Andrea Muggeridge</a>
+				
+					
+					<a
+												class="child"
+						href="/store/woven-earrings-thin-rainbow-by-andrea-muggeridge">Woven Earrings - thin rainbow by Andrea Muggeridge</a>
+							</div>
+
+		</div>
+			
+		<div class="parent">
+			
+							<a
+										class="item"
+					href="/donate">Donate</a>
+			
+			<div class="children">
+							</div>
+
+		</div>
+	</div>
+
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-12 d-flex justify-content-center mt-3">
+						
+<div class="simple-nav">
+	</div>
+
+					</div>
+				</div>
+			</div>
+			<div class="col d-xl-none">
+			</div>
+							<div class="col-auto">
+					<a class="btn btn-primary" target="_blank" href="https://givealittle.co.nz/org/northeastvalley">Donate Now</a>
+				</div>
+						<div class="col-auto d-xl-none">
+				<button
+					class="btn btn-link"
+					onClick="window.mobileNav.toggle();">
+					<i class="fas fa-bars"></i>
+				</button>
+			</div>
+		</div>
+	</div>
+</header>
+
+	
+	<script>
+		$(function() {
+			var items = $('#pid-0 .banner-item');
+			var buttons = $('#pid-0 .banner-picker button');
+			var banner = new window.lib.Banner(5000, items, buttons);
+		});
+	</script>
+
+	<div class="banner" id="pid-0">
+
+		<div class="banner-items">
+
+							
+				<div class="banner-item is-active" style="z-index: 0">
+
+					<img loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/0ns7ibc6gp2eha7us5pz/c48655f870a8f547349003c1bdc83c5b/AGM-2026-Banner.png" srcset="https://asset.turboweb.co.nz/152/cache/file/0ns7ibc6gp2eha7us5pz/3a5546ce4f5979aabcc115df3b581406/AGM-2026-Banner.png 500w, https://asset.turboweb.co.nz/152/cache/file/0ns7ibc6gp2eha7us5pz/d71c1d49ef410d58a4566882ce0fd6c1/AGM-2026-Banner.png 800w, https://asset.turboweb.co.nz/152/cache/file/0ns7ibc6gp2eha7us5pz/12e0967969fa08ada873f1af51bfa2ea/AGM-2026-Banner.png 1300w, https://asset.turboweb.co.nz/152/cache/file/0ns7ibc6gp2eha7us5pz/c48655f870a8f547349003c1bdc83c5b/AGM-2026-Banner.png 2000w" sizes="(max-width: 500px) 500px, (min-width: 501px) and (max-width: 800px) 800px, (min-width: 801px) and (max-width: 1300px) 1300px, (min-width: 1301px) 2000px" alt="">
+					<div class="banner-item-overlay">
+																				<div class="container">
+								<a
+									class="banner-item-overlay-inner"
+									href="/community/valley-blog/the-valley-project-2026-agm"
+									>
+									<div class="subtitle"></div>
+									<div class="title"></div>
+									<div class="description"></div>
+									<div class="btn btn-primary">More Information</div>
+								</a>
+							</div>
+											</div>
+					
+				</div>
+
+							
+				<div class="banner-item is-after-active" style="z-index: 1">
+
+					<img loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/tyadlf4w7j3tpejpe3i3/c48655f870a8f547349003c1bdc83c5b/Valley-Cuppa-%26-Connections-Event-Banner.png" srcset="https://asset.turboweb.co.nz/152/cache/file/tyadlf4w7j3tpejpe3i3/3a5546ce4f5979aabcc115df3b581406/Valley-Cuppa-%26-Connections-Event-Banner.png 500w, https://asset.turboweb.co.nz/152/cache/file/tyadlf4w7j3tpejpe3i3/d71c1d49ef410d58a4566882ce0fd6c1/Valley-Cuppa-%26-Connections-Event-Banner.png 800w, https://asset.turboweb.co.nz/152/cache/file/tyadlf4w7j3tpejpe3i3/12e0967969fa08ada873f1af51bfa2ea/Valley-Cuppa-%26-Connections-Event-Banner.png 1300w, https://asset.turboweb.co.nz/152/cache/file/tyadlf4w7j3tpejpe3i3/c48655f870a8f547349003c1bdc83c5b/Valley-Cuppa-%26-Connections-Event-Banner.png 2000w" sizes="(max-width: 500px) 500px, (min-width: 501px) and (max-width: 800px) 800px, (min-width: 801px) and (max-width: 1300px) 1300px, (min-width: 1301px) 2000px" alt="">
+					<div class="banner-item-overlay">
+																				<div class="container">
+								<a
+									class="banner-item-overlay-inner"
+									href="/community/valley-blog/cuppa-connections"
+									>
+									<div class="subtitle"></div>
+									<div class="title"></div>
+									<div class="description"></div>
+									<div class="btn btn-primary">More Information</div>
+								</a>
+							</div>
+											</div>
+					
+				</div>
+
+							
+				<div class="banner-item is-after-active" style="z-index: 2">
+
+					<img loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/lhhxatf0mrfc6gqj21ew/c48655f870a8f547349003c1bdc83c5b/Crop-Swap-in-the-Valley-Event-Banner.png" srcset="https://asset.turboweb.co.nz/152/cache/file/lhhxatf0mrfc6gqj21ew/3a5546ce4f5979aabcc115df3b581406/Crop-Swap-in-the-Valley-Event-Banner.png 500w, https://asset.turboweb.co.nz/152/cache/file/lhhxatf0mrfc6gqj21ew/d71c1d49ef410d58a4566882ce0fd6c1/Crop-Swap-in-the-Valley-Event-Banner.png 800w, https://asset.turboweb.co.nz/152/cache/file/lhhxatf0mrfc6gqj21ew/12e0967969fa08ada873f1af51bfa2ea/Crop-Swap-in-the-Valley-Event-Banner.png 1300w, https://asset.turboweb.co.nz/152/cache/file/lhhxatf0mrfc6gqj21ew/c48655f870a8f547349003c1bdc83c5b/Crop-Swap-in-the-Valley-Event-Banner.png 2000w" sizes="(max-width: 500px) 500px, (min-width: 501px) and (max-width: 800px) 800px, (min-width: 801px) and (max-width: 1300px) 1300px, (min-width: 1301px) 2000px" alt="">
+					<div class="banner-item-overlay">
+																				<div class="container">
+								<a
+									class="banner-item-overlay-inner"
+									href="/community/valley-blog/crop-swap-in-the-valley"
+									>
+									<div class="subtitle"></div>
+									<div class="title"></div>
+									<div class="description"></div>
+									<div class="btn btn-primary">More Information</div>
+								</a>
+							</div>
+											</div>
+					
+				</div>
+
+							
+				<div class="banner-item is-after-active" style="z-index: 3">
+
+					<img loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/ighxx3tyur1yurbxx00f/c48655f870a8f547349003c1bdc83c5b/Website%20header%20image.png" srcset="https://asset.turboweb.co.nz/152/cache/file/ighxx3tyur1yurbxx00f/3a5546ce4f5979aabcc115df3b581406/Website%20header%20image.png 500w, https://asset.turboweb.co.nz/152/cache/file/ighxx3tyur1yurbxx00f/d71c1d49ef410d58a4566882ce0fd6c1/Website%20header%20image.png 800w, https://asset.turboweb.co.nz/152/cache/file/ighxx3tyur1yurbxx00f/12e0967969fa08ada873f1af51bfa2ea/Website%20header%20image.png 1300w, https://asset.turboweb.co.nz/152/cache/file/ighxx3tyur1yurbxx00f/c48655f870a8f547349003c1bdc83c5b/Website%20header%20image.png 2000w" sizes="(max-width: 500px) 500px, (min-width: 501px) and (max-width: 800px) 800px, (min-width: 801px) and (max-width: 1300px) 1300px, (min-width: 1301px) 2000px" alt="">
+					<div class="banner-item-overlay">
+													<div class="container">
+								<div class="banner-item-overlay-inner">
+									<div class="subtitle">connect + inspire + support</div>
+									<div class="title">Your community</div>
+									<div class="description">In North East Valley, Opoho, and Pine Hill</div>
+								</div>
+							</div>
+											</div>
+					
+				</div>
+
+			
+		</div>
+
+					<div class="banner-picker">
+				<div class="container text-center">
+											<button class="is-active"></button>
+											<button class=""></button>
+											<button class=""></button>
+											<button class=""></button>
+									</div>
+			</div>
+		
+	</div>
+
+	
+<div class="home-content">
+
+	<div class="bg-secondary text-white py-3">
+		<div class="container is-wide-container">
+			<div class="row">
+				<div class="col-12 col-md">
+					<h1 class="h2">Do you want to live in a community where everybody... <br></h1>
+					<ul class="font-weight-bold">
+													<li class="teaser-bulletpoint">feels like they belong?</li>
+													<li class="teaser-bulletpoint">has enough food?</li>
+													<li class="teaser-bulletpoint">has support around them?</li>
+													<li class="teaser-bulletpoint">cares for our environment?</li>
+											</ul>
+				</div>
+				<div class="col-12 col-md text-body">
+					<div class="stream clearfix"><div class="section section-richtext  section-count-0 sectiontype-count-0">
+	<p>Here at the Valley Project, we help you to help make these things happen in your community for the community.</p><p>Whether you want to get involved, need some help, or have an idea, we can help connect you with others and/or provide support, so that everybody can live a better life in North East Valley and its surrounds.</p></div></div>					<div class="text-center text-md-left">
+						<div class="stream clearfix"><div class="section section-button  section-count-0 sectiontype-count-0">
+	<div class="mb-3">
+		<a
+			class="btn btn-primary"
+						href="/about/our-kaupapa">More</a>
+	</div>
+</div></div>					</div>
+				</div>
+				<div class="col-12 col-md text-center">
+					<img class="rounded-circle mw-100" loading="lazy" src="https://asset.turboweb.co.nz/152/cache/resourceimage/c90ee59588949266b35d4522addade1b/79a7b03aa2fa03e309be816ec0298ebd/valley_circular.jpg">				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="my-5">
+		<div class="container is-narrow-container text-center mb-4">
+			<h2>Featured Initiatives</h2>
+			We have lots of great resources available for community use.		</div>
+		
+<div class="container is-wide-container">
+	<div class="row is-slider justify-content-start justify-content-md-center">
+								<div class="col-10 col-md-6 col-lg-3 d-flex mb-4">
+				<a
+					class="unlink hover-image d-flex flex-column"
+					href="/community/kai-share"
+									>
+					<div class="box-feathered overflow-hidden">
+						<img class="w-100" loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/rmc9raatqbfrxkbqlhqd/9cb6710e843b4a378d57ee4e418e2920/Valley%20Project%20Valley%20Kai.png">					</div>
+					<div class="bg-primary px-3 pb-3 flex-grow-1">
+						<h3 class="plus text-white mb-0">Kai Share</h3>
+						<div class="text-body small">Kai Share provides food boxes for families and people in need.</div>
+					</div>
+				</a>
+			</div>
+								<div class="col-10 col-md-6 col-lg-3 d-flex mb-4">
+				<a
+					class="unlink hover-image d-flex flex-column"
+					href="/directory"
+									>
+					<div class="box-feathered overflow-hidden">
+						<img class="w-100" loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/rfm2lucd8xv0blc38w6e/9cb6710e843b4a378d57ee4e418e2920/Valley%20Project%20support%20local%20business.png">					</div>
+					<div class="bg-primary px-3 pb-3 flex-grow-1">
+						<h3 class="plus text-white mb-0">Directory</h3>
+						<div class="text-body small">Support local business and organisations in and around North East Valley, Dunedin!</div>
+					</div>
+				</a>
+			</div>
+								<div class="col-10 col-md-6 col-lg-3 d-flex mb-4">
+				<a
+					class="unlink hover-image d-flex flex-column"
+					href="/community/open-vue"
+									>
+					<div class="box-feathered overflow-hidden">
+						<img class="w-100" loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/0xszn2y6el4xd1hy9y7n/9cb6710e843b4a378d57ee4e418e2920/Screenshot%202022-01-27%20103630.png">					</div>
+					<div class="bg-primary px-3 pb-3 flex-grow-1">
+						<h3 class="plus text-white mb-0">Open VUE</h3>
+						<div class="text-body small">A project to encourage wildlife friendly actions in backyards and community spaces and enhance the habitat corridor linking Orokonui Ecosanctuary to the rest of Dunedin.</div>
+					</div>
+				</a>
+			</div>
+			</div>
+</div>	</div>
+
+	<div class="my-5">
+		<div class="container is-narrow-container text-center mb-4">
+			<h2>Featured Services</h2>
+			Much of the resources and services we offer are free of charge for the benefit of the community. However, there is sometimes a small cost to keep the Valley Project mahi running. 		</div>
+		
+<div class="container is-wide-container">
+	<div class="row is-slider justify-content-start justify-content-md-center">
+								<div class="col-10 col-md-6 col-lg-3 d-flex mb-4">
+				<a
+					class="unlink hover-image d-flex flex-column"
+					href="/community/community-rooms"
+									>
+					<div class="box-feathered overflow-hidden">
+						<img class="w-100" loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/cywz3r5zyn45h7isono7/9cb6710e843b4a378d57ee4e418e2920/Valley%20Project%20Community%20Rooms%201.png">					</div>
+					<div class="bg-primary px-3 pb-3 flex-grow-1">
+						<h3 class="plus text-white mb-0">Community Rooms</h3>
+						<div class="text-body small">We have three rooms of various sizes available for booking:</div>
+					</div>
+				</a>
+			</div>
+								<div class="col-10 col-md-6 col-lg-3 d-flex mb-4">
+				<a
+					class="unlink hover-image d-flex flex-column"
+					href="/services/print-photocopy"
+									>
+					<div class="box-feathered overflow-hidden">
+						<img class="w-100" loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/swtz4ffdw7dqojgjc7xy/9cb6710e843b4a378d57ee4e418e2920/copier.jpg">					</div>
+					<div class="bg-primary px-3 pb-3 flex-grow-1">
+						<h3 class="plus text-white mb-0">Copy Centre</h3>
+						<div class="text-body small">A local service right in the Valley to print, photocopy, scan and laminate.</div>
+					</div>
+				</a>
+			</div>
+								<div class="col-10 col-md-6 col-lg-3 d-flex mb-4">
+				<a
+					class="unlink hover-image d-flex flex-column"
+					href="/services/community-resources"
+									>
+					<div class="box-feathered overflow-hidden">
+						<img class="w-100" loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/dnt6z6gmkobqie113vhz/9cb6710e843b4a378d57ee4e418e2920/The%20Valley%20Project%20Data%20Projector.png">					</div>
+					<div class="bg-primary px-3 pb-3 flex-grow-1">
+						<h3 class="plus text-white mb-0">Gear Hire</h3>
+						<div class="text-body small">Hire a sound system, a data projector, a marquee and more!</div>
+					</div>
+				</a>
+			</div>
+								<div class="col-10 col-md-6 col-lg-3 d-flex mb-4">
+				<a
+					class="unlink hover-image d-flex flex-column"
+					href="/community/valley-voice"
+									>
+					<div class="box-feathered overflow-hidden">
+						<img class="w-100" loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/trftujojjjoyrj659fpb/9cb6710e843b4a378d57ee4e418e2920/The%20Valley%20Project%20Advertise%20in%20the%20Valley%20Voice.png">					</div>
+					<div class="bg-primary px-3 pb-3 flex-grow-1">
+						<h3 class="plus text-white mb-0">Valley Voice</h3>
+						<div class="text-body small">The Valley Voice is a free community newsletter delivered every month.</div>
+					</div>
+				</a>
+			</div>
+			</div>
+</div>	</div>
+
+	
+	<img class="w-100" loading="lazy" alt="" src="https://asset.turboweb.co.nz/152/cache/file/klwijyt9m5nn8pvlfjsj/82e08c41534073b85c40dd2d1ccf091f/The%20Valley%20Project%20Dunedin%20New%20Zealand.png">
+	<div class="container my-5">
+		<div class="row align-items-center justify-content-center">
+			<div class="col-12 col-lg-4">
+				<div class="embed-responsive embed-responsive-1by1">
+	<div class="circle embed-responsive-item d-flex justify-content-center align-items-center">
+		<div class="circle-text text-white text-center mb-0 h2">
+			Watch our story		</div>
+	</div>
+</div>			</div>
+			<div class="col-12 col-lg-8 col-home-video">
+				<div class="stream clearfix"><div class="section section-video section-count-0 sectiontype-count-0">
+	<div class="">
+		<div class="embed-responsive embed-responsive-16by9">
+							<iframe
+					src="https://www.youtube.com/embed/1a-vXchgsq0"
+					class="embed-responsive-item"
+					frameborder="0"
+					allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+					allowfullscreen></iframe>
+			
+					</div>
+	</div>
+</div></div>			</div>
+		</div>
+	</div>
+
+	<div class="my-5">
+		<div class="container">
+			<h2 class="text-center">News from the Valley</h2>
+		</div>
+		
+<script>
+$(() => {
+	var Slot = function(item) {
+		var self = this;
+		var timeoutDuration = 300; // must match css
+
+		self.item = ko.observable(item);
+		self.upcomingItem = ko.observable(item);
+		self.isFading = ko.observable(false);
+
+		self.timeout = null;
+		self.updateItem = item => {
+
+			self.isFading(true);
+
+			self.upcomingItem(item);
+			clearTimeout(self.timeout);
+			self.timeout = setTimeout(() => {
+				self.item(item);
+				self.isFading(false);
+			}, timeoutDuration);
+		};
+
+		self.isVisible = ko.pureComputed(() => !!self.upcomingItem());
+		self.url       = ko.pureComputed(() => self.item() ? self.item().url : '');
+		self.image     = ko.pureComputed(() => self.item() ? self.item().image : '');
+		self.title     = ko.pureComputed(() => self.item() ? self.item().title : '');
+		self.date      = ko.pureComputed(() => self.item() ? self.item().date : '');
+
+	};
+
+	var News = function(json) {
+		var self = this;
+		var maxSlots = 6;
+		var timeoutOffset = 75;
+
+		self.items = json;
+		self.slotCount = Math.min(self.items.length, maxSlots);
+		self.showArrows = self.items.length > maxSlots;
+		self.pageCount = Math.ceil(self.items.length / maxSlots);
+		self.page = ko.observable(0);
+
+		self.slots = [];
+		for (var i = 0; i < self.slotCount; i++) {
+			self.slots[i] = new Slot(self.items[i]);
+		}
+
+		self.canPrev = ko.pureComputed(() => self.page() > 0);
+		self.canNext = ko.pureComputed(() => self.page() + 1 < self.pageCount);
+
+		self.prev = () => {
+			self.page(self.page() - 1);
+			self.assignSlots(self.page());
+		};
+
+		self.next = () => {
+			self.page(self.page() + 1);
+			self.assignSlots(self.page());
+		};
+
+		self.assignSlots = function(page) {
+			for (var i = 0; i < self.slotCount; i++) {
+
+				// affix these vars for closure
+				const slot = self.slots[i];
+				const itemNumber = page * maxSlots + i;
+
+				setTimeout(
+					() => slot.updateItem(self.items[itemNumber]),
+					i * timeoutOffset
+				);
+			}
+		};
+	}
+
+	var vm = new News([{"title":"The Valley Project 2026 AGM","url":"\/community\/valley-blog\/the-valley-project-2026-agm","date":"Oct 20","image":"https:\/\/asset.turboweb.co.nz\/152\/cache\/file\/ofjev1gs87sit0exnvgr\/95299ea74d724f9c72b58cfd7178bbf4\/FB-tile-AGM2026.png"},{"title":"Backyard Pests: Wasps","url":"\/community\/valley-blog\/backyard-pests-wasps","date":"Oct 16","image":"https:\/\/asset.turboweb.co.nz\/152\/cache\/file\/kdftwpn0qnpk6qrpkgkf\/95299ea74d724f9c72b58cfd7178bbf4\/German%20Wasp%2001%20-%20Photo%20credit%20Richard%20Bartz.jpg"},{"title":"Crop Swap in the Valley","url":"\/community\/valley-blog\/crop-swap-in-the-valley","date":"Oct 12","image":"https:\/\/asset.turboweb.co.nz\/152\/cache\/file\/h2sb55xaoiyn3kmb34ms\/95299ea74d724f9c72b58cfd7178bbf4\/Crop-Swap-Oct-FB-tile.png"},{"title":"Cuppa & Connections","url":"\/community\/valley-blog\/cuppa-connections","date":"Sep 28","image":"https:\/\/asset.turboweb.co.nz\/152\/cache\/file\/m0zj6o9y5npubx3vkkxa\/95299ea74d724f9c72b58cfd7178bbf4\/Cuppa-%26-Connections-Sept-FB-tile.png"},{"title":"Crop Swap Pot Luck","url":"\/community\/valley-blog\/crop-swap-pot-luck","date":"Sep 26","image":"https:\/\/asset.turboweb.co.nz\/152\/cache\/file\/x3fkphzuxkf8bk6z5hea\/95299ea74d724f9c72b58cfd7178bbf4\/Crop-Swap-FB-Tile.png"},{"title":"Valley Fest 2026 Calendar of Events","url":"\/community\/valley-blog\/valley-fest-2026-calendar-of-events","date":"Aug 11","image":"https:\/\/asset.turboweb.co.nz\/152\/cache\/file\/1n2nkl5ww1bojz087bij\/95299ea74d724f9c72b58cfd7178bbf4\/VF-Calendar-of-Events-tile.png"},{"title":"Kids' Day Out","url":"\/community\/valley-blog\/kids-day-out","date":"Jun 29","image":"https:\/\/asset.turboweb.co.nz\/152\/cache\/file\/sqpuvq57qn0sew7oyd5g\/95299ea74d724f9c72b58cfd7178bbf4\/Kids-Day-Out-FB-Tile.png"},{"title":"Winter Donation Drive","url":"\/community\/valley-blog\/winter-donation-drive","date":"Jun 28","image":"https:\/\/asset.turboweb.co.nz\/152\/cache\/file\/okszeier2by0teuyt5c2\/95299ea74d724f9c72b58cfd7178bbf4\/Winter-Donation-Drive-FB-page.png"},{"title":"The Ferment Kitchen","url":"\/community\/valley-blog\/the-ferment-kitchen","date":"Jun 28","image":"https:\/\/asset.turboweb.co.nz\/152\/cache\/file\/p4rcggzp0xofs1knbkau\/95299ea74d724f9c72b58cfd7178bbf4\/The-Ferment-Kitchen-FB-tile-2.png"},{"title":"Stitch Kitchen - Mend & Make Awesome!","url":"\/community\/valley-blog\/stitch-kitchen-mend-make-awesome","date":"Jun 28","image":"https:\/\/asset.turboweb.co.nz\/152\/cache\/file\/cafp1r9hetgi79dgpxwc\/95299ea74d724f9c72b58cfd7178bbf4\/Stitch-Kitchen-FB-Tile.png"},{"title":"Crop Swap & Special Seed Swab","url":"\/community\/valley-blog\/crop-swap-special-seed-swab","date":"Jun 28","image":"https:\/\/asset.turboweb.co.nz\/152\/cache\/file\/35e9n8euypj4z9c7hwcg\/95299ea74d724f9c72b58cfd7178bbf4\/CropSwap-FB-Tile.png"},{"title":"North East Valley Community Garden Tour","url":"\/community\/valley-blog\/north-east-valley-community-garden-tour","date":"Jun 28","image":"https:\/\/asset.turboweb.co.nz\/152\/cache\/file\/oiwvz83xismpky73a9tg\/95299ea74d724f9c72b58cfd7178bbf4\/Garden-Tour-FB-tile.png"},{"title":"Have-A-Go Archery","url":"\/community\/valley-blog\/have-a-go-archery","date":"Jun 28","image":"https:\/\/asset.turboweb.co.nz\/152\/cache\/file\/oum1yakggm6xynow818p\/95299ea74d724f9c72b58cfd7178bbf4\/Dunedin-Archery--FB-Tile.png"},{"title":"Garden Tool Refurb Workshop","url":"\/community\/valley-blog\/garden-tool-refurb-workshop","date":"Jun 26","image":"https:\/\/asset.turboweb.co.nz\/152\/cache\/file\/51sdixir11ru0ff15odt\/95299ea74d724f9c72b58cfd7178bbf4\/Tool-Refurb-Workshop-FB-tile.png"},{"title":"Foraging Workshop","url":"\/community\/valley-blog\/foraging-workshop","date":"Jun 26","image":"https:\/\/asset.turboweb.co.nz\/152\/cache\/file\/a3fi7kagdel5dc7bvbw8\/95299ea74d724f9c72b58cfd7178bbf4\/Foraging%20Workshop%20FB%20tile2.jpg"},{"title":"Bug Out After Dark!","url":"\/community\/valley-blog\/bug-out-after-dark","date":"Jun 26","image":"https:\/\/asset.turboweb.co.nz\/152\/cache\/file\/bl9xzjg3bv81xay7wve9\/95299ea74d724f9c72b58cfd7178bbf4\/Bug-Out-After-FB-Tile.png"},{"title":"North East Valley Art Class - Open Studio","url":"\/community\/valley-blog\/north-east-valley-art-class-open-studio","date":"Jun 26","image":"https:\/\/asset.turboweb.co.nz\/152\/cache\/file\/m4k3crts2wbyhiwzil3v\/95299ea74d724f9c72b58cfd7178bbf4\/Thursday-Art-Group-FB-Tile.png"},{"title":"Give Tech a Second Life - Com2Tech","url":"\/community\/valley-blog\/give-tech-a-second-life-com2tech","date":"Jun 26","image":"https:\/\/asset.turboweb.co.nz\/152\/cache\/file\/y4y04nteqrkuo3l3a5d4\/95299ea74d724f9c72b58cfd7178bbf4\/Com2Tech-FB-Tile.png"}]);
+	ko.applyBindings(vm, $('#home-news').get(0));
+})
+</script>
+
+
+<div id="home-news" class="container d-none d-md-block">
+
+	<!-- ko if: showArrows -->
+		<div class="text-right">
+			<button
+				class="btn btn-link p-1"
+				type="button"
+				data-bind="click: prev, enable: canPrev"
+			><i class="far fa-arrow-left"></i></button>
+			<button
+				class="btn btn-link p-1"
+				type="button"
+				data-bind="click: next, enable: canNext"
+			><i class="far fa-arrow-right"></i></button>
+		</div>
+	<!-- /ko -->
+
+	<div class="row">
+		<!-- ko foreach: slots -->
+			<div class="col-6 col-lg-4 mb-3">
+				<a
+					class="unlink hover-image d-block home-news"
+					data-bind="attr: {href: url}, css: {'is-fading': isFading, 'is-visible': isVisible}"
+				>
+					<div class="home-news-fader"></div>
+					<div class="embed-responsive embed-responsive-1by1">
+						<div class="embed-responsive-item">
+							<img class="w-100" data-bind="attr: {src: image}">
+						</div>
+					</div>
+					<div class="home-news-overlay">
+						<div class="home-news-title" data-bind="text: title"></div>
+						<div class="home-news-date" data-bind="text: date"></div>
+					</div>
+				</a>
+			</div>
+		<!-- /ko -->
+	</div>
+</div>
+
+<div class="container-fluid d-md-none">
+	<div class="row is-slider mb-2 justify-content-start justify-content-md-center">
+					<div class="col-10 mb-1">
+				<a
+					class="unlink hover-image d-block home-news is-visible"
+					href="/community/valley-blog/the-valley-project-2026-agm"
+				>
+					<img class="w-100" src="https://asset.turboweb.co.nz/152/cache/file/ofjev1gs87sit0exnvgr/95299ea74d724f9c72b58cfd7178bbf4/FB-tile-AGM2026.png">
+					<div class="home-news-overlay">
+						<div class="home-news-title">The Valley Project 2026 AGM</div>
+						<div class="home-news-date">Oct 20</div>
+					</div>
+				</a>
+			</div>
+					<div class="col-10 mb-1">
+				<a
+					class="unlink hover-image d-block home-news is-visible"
+					href="/community/valley-blog/backyard-pests-wasps"
+				>
+					<img class="w-100" src="https://asset.turboweb.co.nz/152/cache/file/kdftwpn0qnpk6qrpkgkf/95299ea74d724f9c72b58cfd7178bbf4/German%20Wasp%2001%20-%20Photo%20credit%20Richard%20Bartz.jpg">
+					<div class="home-news-overlay">
+						<div class="home-news-title">Backyard Pests: Wasps</div>
+						<div class="home-news-date">Oct 16</div>
+					</div>
+				</a>
+			</div>
+					<div class="col-10 mb-1">
+				<a
+					class="unlink hover-image d-block home-news is-visible"
+					href="/community/valley-blog/crop-swap-in-the-valley"
+				>
+					<img class="w-100" src="https://asset.turboweb.co.nz/152/cache/file/h2sb55xaoiyn3kmb34ms/95299ea74d724f9c72b58cfd7178bbf4/Crop-Swap-Oct-FB-tile.png">
+					<div class="home-news-overlay">
+						<div class="home-news-title">Crop Swap in the Valley</div>
+						<div class="home-news-date">Oct 12</div>
+					</div>
+				</a>
+			</div>
+					<div class="col-10 mb-1">
+				<a
+					class="unlink hover-image d-block home-news is-visible"
+					href="/community/valley-blog/cuppa-connections"
+				>
+					<img class="w-100" src="https://asset.turboweb.co.nz/152/cache/file/m0zj6o9y5npubx3vkkxa/95299ea74d724f9c72b58cfd7178bbf4/Cuppa-%26-Connections-Sept-FB-tile.png">
+					<div class="home-news-overlay">
+						<div class="home-news-title">Cuppa &amp; Connections</div>
+						<div class="home-news-date">Sep 28</div>
+					</div>
+				</a>
+			</div>
+					<div class="col-10 mb-1">
+				<a
+					class="unlink hover-image d-block home-news is-visible"
+					href="/community/valley-blog/crop-swap-pot-luck"
+				>
+					<img class="w-100" src="https://asset.turboweb.co.nz/152/cache/file/x3fkphzuxkf8bk6z5hea/95299ea74d724f9c72b58cfd7178bbf4/Crop-Swap-FB-Tile.png">
+					<div class="home-news-overlay">
+						<div class="home-news-title">Crop Swap Pot Luck</div>
+						<div class="home-news-date">Sep 26</div>
+					</div>
+				</a>
+			</div>
+					<div class="col-10 mb-1">
+				<a
+					class="unlink hover-image d-block home-news is-visible"
+					href="/community/valley-blog/valley-fest-2026-calendar-of-events"
+				>
+					<img class="w-100" src="https://asset.turboweb.co.nz/152/cache/file/1n2nkl5ww1bojz087bij/95299ea74d724f9c72b58cfd7178bbf4/VF-Calendar-of-Events-tile.png">
+					<div class="home-news-overlay">
+						<div class="home-news-title">Valley Fest 2026 Calendar of Events</div>
+						<div class="home-news-date">Aug 11</div>
+					</div>
+				</a>
+			</div>
+					<div class="col-10 mb-1">
+				<a
+					class="unlink hover-image d-block home-news is-visible"
+					href="/community/valley-blog/kids-day-out"
+				>
+					<img class="w-100" src="https://asset.turboweb.co.nz/152/cache/file/sqpuvq57qn0sew7oyd5g/95299ea74d724f9c72b58cfd7178bbf4/Kids-Day-Out-FB-Tile.png">
+					<div class="home-news-overlay">
+						<div class="home-news-title">Kids&#039; Day Out</div>
+						<div class="home-news-date">Jun 29</div>
+					</div>
+				</a>
+			</div>
+					<div class="col-10 mb-1">
+				<a
+					class="unlink hover-image d-block home-news is-visible"
+					href="/community/valley-blog/winter-donation-drive"
+				>
+					<img class="w-100" src="https://asset.turboweb.co.nz/152/cache/file/okszeier2by0teuyt5c2/95299ea74d724f9c72b58cfd7178bbf4/Winter-Donation-Drive-FB-page.png">
+					<div class="home-news-overlay">
+						<div class="home-news-title">Winter Donation Drive</div>
+						<div class="home-news-date">Jun 28</div>
+					</div>
+				</a>
+			</div>
+					<div class="col-10 mb-1">
+				<a
+					class="unlink hover-image d-block home-news is-visible"
+					href="/community/valley-blog/the-ferment-kitchen"
+				>
+					<img class="w-100" src="https://asset.turboweb.co.nz/152/cache/file/p4rcggzp0xofs1knbkau/95299ea74d724f9c72b58cfd7178bbf4/The-Ferment-Kitchen-FB-tile-2.png">
+					<div class="home-news-overlay">
+						<div class="home-news-title">The Ferment Kitchen</div>
+						<div class="home-news-date">Jun 28</div>
+					</div>
+				</a>
+			</div>
+					<div class="col-10 mb-1">
+				<a
+					class="unlink hover-image d-block home-news is-visible"
+					href="/community/valley-blog/stitch-kitchen-mend-make-awesome"
+				>
+					<img class="w-100" src="https://asset.turboweb.co.nz/152/cache/file/cafp1r9hetgi79dgpxwc/95299ea74d724f9c72b58cfd7178bbf4/Stitch-Kitchen-FB-Tile.png">
+					<div class="home-news-overlay">
+						<div class="home-news-title">Stitch Kitchen - Mend &amp; Make Awesome!</div>
+						<div class="home-news-date">Jun 28</div>
+					</div>
+				</a>
+			</div>
+					<div class="col-10 mb-1">
+				<a
+					class="unlink hover-image d-block home-news is-visible"
+					href="/community/valley-blog/crop-swap-special-seed-swab"
+				>
+					<img class="w-100" src="https://asset.turboweb.co.nz/152/cache/file/35e9n8euypj4z9c7hwcg/95299ea74d724f9c72b58cfd7178bbf4/CropSwap-FB-Tile.png">
+					<div class="home-news-overlay">
+						<div class="home-news-title">Crop Swap &amp; Special Seed Swab</div>
+						<div class="home-news-date">Jun 28</div>
+					</div>
+				</a>
+			</div>
+					<div class="col-10 mb-1">
+				<a
+					class="unlink hover-image d-block home-news is-visible"
+					href="/community/valley-blog/north-east-valley-community-garden-tour"
+				>
+					<img class="w-100" src="https://asset.turboweb.co.nz/152/cache/file/oiwvz83xismpky73a9tg/95299ea74d724f9c72b58cfd7178bbf4/Garden-Tour-FB-tile.png">
+					<div class="home-news-overlay">
+						<div class="home-news-title">North East Valley Community Garden Tour</div>
+						<div class="home-news-date">Jun 28</div>
+					</div>
+				</a>
+			</div>
+					<div class="col-10 mb-1">
+				<a
+					class="unlink hover-image d-block home-news is-visible"
+					href="/community/valley-blog/have-a-go-archery"
+				>
+					<img class="w-100" src="https://asset.turboweb.co.nz/152/cache/file/oum1yakggm6xynow818p/95299ea74d724f9c72b58cfd7178bbf4/Dunedin-Archery--FB-Tile.png">
+					<div class="home-news-overlay">
+						<div class="home-news-title">Have-A-Go Archery</div>
+						<div class="home-news-date">Jun 28</div>
+					</div>
+				</a>
+			</div>
+					<div class="col-10 mb-1">
+				<a
+					class="unlink hover-image d-block home-news is-visible"
+					href="/community/valley-blog/garden-tool-refurb-workshop"
+				>
+					<img class="w-100" src="https://asset.turboweb.co.nz/152/cache/file/51sdixir11ru0ff15odt/95299ea74d724f9c72b58cfd7178bbf4/Tool-Refurb-Workshop-FB-tile.png">
+					<div class="home-news-overlay">
+						<div class="home-news-title">Garden Tool Refurb Workshop</div>
+						<div class="home-news-date">Jun 26</div>
+					</div>
+				</a>
+			</div>
+					<div class="col-10 mb-1">
+				<a
+					class="unlink hover-image d-block home-news is-visible"
+					href="/community/valley-blog/foraging-workshop"
+				>
+					<img class="w-100" src="https://asset.turboweb.co.nz/152/cache/file/a3fi7kagdel5dc7bvbw8/95299ea74d724f9c72b58cfd7178bbf4/Foraging%20Workshop%20FB%20tile2.jpg">
+					<div class="home-news-overlay">
+						<div class="home-news-title">Foraging Workshop</div>
+						<div class="home-news-date">Jun 26</div>
+					</div>
+				</a>
+			</div>
+					<div class="col-10 mb-1">
+				<a
+					class="unlink hover-image d-block home-news is-visible"
+					href="/community/valley-blog/bug-out-after-dark"
+				>
+					<img class="w-100" src="https://asset.turboweb.co.nz/152/cache/file/bl9xzjg3bv81xay7wve9/95299ea74d724f9c72b58cfd7178bbf4/Bug-Out-After-FB-Tile.png">
+					<div class="home-news-overlay">
+						<div class="home-news-title">Bug Out After Dark!</div>
+						<div class="home-news-date">Jun 26</div>
+					</div>
+				</a>
+			</div>
+					<div class="col-10 mb-1">
+				<a
+					class="unlink hover-image d-block home-news is-visible"
+					href="/community/valley-blog/north-east-valley-art-class-open-studio"
+				>
+					<img class="w-100" src="https://asset.turboweb.co.nz/152/cache/file/m4k3crts2wbyhiwzil3v/95299ea74d724f9c72b58cfd7178bbf4/Thursday-Art-Group-FB-Tile.png">
+					<div class="home-news-overlay">
+						<div class="home-news-title">North East Valley Art Class - Open Studio</div>
+						<div class="home-news-date">Jun 26</div>
+					</div>
+				</a>
+			</div>
+					<div class="col-10 mb-1">
+				<a
+					class="unlink hover-image d-block home-news is-visible"
+					href="/community/valley-blog/give-tech-a-second-life-com2tech"
+				>
+					<img class="w-100" src="https://asset.turboweb.co.nz/152/cache/file/y4y04nteqrkuo3l3a5d4/95299ea74d724f9c72b58cfd7178bbf4/Com2Tech-FB-Tile.png">
+					<div class="home-news-overlay">
+						<div class="home-news-title">Give Tech a Second Life - Com2Tech</div>
+						<div class="home-news-date">Jun 26</div>
+					</div>
+				</a>
+			</div>
+			</div>
+</div>
+		<div class="container text-center">
+			<a class="btn btn-primary" href="/community/valley-blog">See News</a>
+		</div>
+	</div>
+
+	<div class="bg-primary py-4 my-5">
+		<div class="container-fluid">
+			<div class="row justify-content-center align-items-center">
+				<div class="col-auto col-subscribe-logo d-none d-sm-block">
+					<img src="https://asset.turboweb.co.nz/152/cache/resource/image/logo.svg?1635996941">
+				</div>
+				<div class="col-auto">
+					<div class="h3 mb-0">Check out what is coming up</div>
+				</div>
+				<div class="col-auto">
+					<a class="btn btn-secondary" href="/services/what-s-on">See Events</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+		<h2 class="text-center">Our Main Supporters</h2>
+		<div class="stream clearfix">
+<div class="section section-supporter">
+	<div class="">
+		<div class="d-flex flex-wrap justify-content-center align-items-center">
+							
+				<div class="text-center d-inline-block m-3">
+											<a target="_blank" href="https://www.agt.nz/">
+							<img class="mw-100" title="Aotearoa Gaming Trust" loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/1grzg5sj8n3slhy7y3so/228610799bdbc25be36642e8c3975520/1638743489_Aotearoa-Gaming-Trust-600.png">						</a>
+									</div>
+
+							
+				<div class="text-center d-inline-block m-3">
+											<a target="_blank" href="https://www.catalytic.org.nz/community_grants">
+							<img class="mw-100" title="Catalytic Foundation" loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/39f292fc21wq2swkcv4b/228610799bdbc25be36642e8c3975520/Catalytic%20Foundation%20Logo.png">						</a>
+									</div>
+
+							
+				<div class="text-center d-inline-block m-3">
+											<a target="_blank" href="https://www.citysanctuary.nz/">
+							<img class="mw-100" title="City Sanctuary" loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/fxffg53nktznljqx7oho/228610799bdbc25be36642e8c3975520/Screenshot%20%28112%29.png">						</a>
+									</div>
+
+							
+				<div class="text-center d-inline-block m-3">
+											<a target="_blank" href="https://www.communitymatters.govt.nz/community-organisations-grants-scheme/">
+							<img class="mw-100" title="Community Organisation Grants Scheme" loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/l3qe6xwu2763tp8f5utv/228610799bdbc25be36642e8c3975520/Image%2029%402x.png">						</a>
+									</div>
+
+							
+				<div class="text-center d-inline-block m-3">
+											<a target="_blank" href="https://www.foodstuffs-si.co.nz/foodstuffs-community-trust">
+							<img class="mw-100" title="Community Trust Foodstuffs South Island" loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/bc7l1iv04c6lh6eh1rj9/228610799bdbc25be36642e8c3975520/Community-Trust-Foodstuffs.png">						</a>
+									</div>
+
+							
+				<div class="text-center d-inline-block m-3">
+											<a target="_blank" href="https://www.dunedin.govt.nz/">
+							<img class="mw-100" title="Dunedin City Council" loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/tcqgwngkvg3d52l97fqu/228610799bdbc25be36642e8c3975520/Image%2028%402x.png">						</a>
+									</div>
+
+							
+				<div class="text-center d-inline-block m-3">
+											<a target="_blank" href="https://www.communitymatters.govt.nz/lottery-grants-board/">
+							<img class="mw-100" title="Lottery Grants Board" loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/a80l45ruf8ozthz9qy0m/228610799bdbc25be36642e8c3975520/Image%2027%402x.png">						</a>
+									</div>
+
+							
+				<div class="text-center d-inline-block m-3">
+											<a target="_blank" href="https://www.otagocatchments.co.nz/">
+							<img class="mw-100" title="Otago Catchment Community Inc" loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/6grrllcwbd3bueu4q533/228610799bdbc25be36642e8c3975520/OCCINC_Final%20Logolong.png">						</a>
+									</div>
+
+							
+				<div class="text-center d-inline-block m-3">
+											<span>
+							<img class="mw-100" title="Predator Free" loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/rtrkkjzkjvx7g6t4uurf/228610799bdbc25be36642e8c3975520/PFNZ_LOGO_BLACK.png">						</span>
+									</div>
+
+							
+				<div class="text-center d-inline-block m-3">
+											<a target="_blank" href="https://www.pubcharitylimited.org.nz/">
+							<img class="mw-100" title="Pub Charity" loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/be0b7k3thw6s5zxidq5q/228610799bdbc25be36642e8c3975520/456c095c-e62d-4e49-8d67-cda6d809a698_wo.png">						</a>
+									</div>
+
+							
+				<div class="text-center d-inline-block m-3">
+											<a target="_blank" href="https://www.southernpresbyterians.nz/">
+							<img class="mw-100" title="SYNOD" loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/k98fquszd6tfn8nh9sbh/228610799bdbc25be36642e8c3975520/SYNOD-2.png">						</a>
+									</div>
+
+							
+				<div class="text-center d-inline-block m-3">
+											<a target="_blank" href="https://lionfoundation.nz/">
+							<img class="mw-100" title="The Lion Foundation" loading="lazy" src="https://asset.turboweb.co.nz/152/cache/file/ofrs5g4gjq2oezrobtk9/228610799bdbc25be36642e8c3975520/LF_CorporateLogo_jpg_A.jpg">						</a>
+									</div>
+
+					</div>
+	</div>
+</div></div>	</div>
+
+</div>
+	<div class="flex-grow-1"></div>
+
+	
+<div class="footer-feather mt-5">
+	<img src="https://asset.turboweb.co.nz/152/cache/resource/image/feathered_large_black.svg?1635996941">
+</div>
+
+<footer class="bg-dark small">
+	<div class="container is-wide-container">
+
+		<div class="row">
+
+			<div class="col-12 col-lg-4 my-3 text-center text-md-left">
+				<h3 class="text-primary plus footer-underline">Quick Links</h3>
+
+				<div class="row">
+											<div class="col-12 col-md-6 col-lg-12 col-xl-6">
+							<a class="text-white" href="/">Home</a>
+						</div>
+											<div class="col-12 col-md-6 col-lg-12 col-xl-6">
+							<a class="text-white" href="/directory">Directory</a>
+						</div>
+											<div class="col-12 col-md-6 col-lg-12 col-xl-6">
+							<a class="text-white" href="/about">About</a>
+						</div>
+											<div class="col-12 col-md-6 col-lg-12 col-xl-6">
+							<a class="text-white" href="/community">Community</a>
+						</div>
+											<div class="col-12 col-md-6 col-lg-12 col-xl-6">
+							<a class="text-white" href="/services">Services</a>
+						</div>
+											<div class="col-12 col-md-6 col-lg-12 col-xl-6">
+							<a class="text-white" href="/contact">Contact</a>
+						</div>
+											<div class="col-12 col-md-6 col-lg-12 col-xl-6">
+							<a class="text-white" href="/store">Store</a>
+						</div>
+											<div class="col-12 col-md-6 col-lg-12 col-xl-6">
+							<a class="text-white" href="/donate">Donate</a>
+						</div>
+											<div class="col-12 col-md-6 col-lg-12 col-xl-6">
+							<a class="text-white" href="/privacy">Privacy</a>
+						</div>
+											<div class="col-12 col-md-6 col-lg-12 col-xl-6">
+							<a class="text-white" href="/directory-terms">Directory Terms</a>
+						</div>
+											<div class="col-12 col-md-6 col-lg-12 col-xl-6">
+							<a class="text-white" href="/sitemap">Sitemap</a>
+						</div>
+									</div>
+
+			</div>
+
+			<div class="col-12 col-lg offset-xl-1 my-3 text-center text-md-left">
+				<h3 class="text-primary plus footer-underline">Contact</h3>
+
+				<div class="row">
+					<div class="col-12 col-xl mb-5 mb-xl-3">
+
+													<div class="text-white mb-2">
+								Reception is open Monday to Friday from 9am - 5pm.							</div>
+						
+													<div class="mb-2">
+								<a class="footer-link" target="_blank" href="https://goo.gl/maps/rUWt9EhYDDXpFrMT6">
+									262 North Road, North East Valley, Dunedin 9010								</a>
+							</div>
+						
+													<div>
+								<a class="footer-link" href="mailto:project@northeastvalley.org">
+									project@northeastvalley.org								</a>
+							</div>
+						
+					</div>
+
+					<div class="col-12 col-xl-auto offset-xl-2 mb-3 d-flex flex-column text-xl-right">
+
+						<div>
+							<a class="footer-link h3 mb-0" href="tel:+6434738614">
+								03 473 8614							</a>
+						</div>
+
+						<div class="flex-grow-1"></div>
+
+						<div class="footer-socials">
+															<a href="https://www.facebook.com/valleyproject">
+									<i class="fab fa-facebook-f"></i>
+								</a>
+																						<a href="http://www.instagram.com/valleyproject">
+									<i class="fab fa-instagram"></i>
+								</a>
+																						<a href="http://www.twitter.com/valleyproject">
+									<i class="fab fa-twitter"></i>
+								</a>
+													</div>
+
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+
+		<div class="footer-underline mb-0"></div>
+
+		<div class="py-3 row justify-content-center align-items-center">
+			<div class="col-12 col-md-auto text-white font-weight-bold text-center mb-2 mb-lg-0">
+				Sign up for the latest news straight to your inbox			</div>
+			<div class="col-12 col-md-auto text-center">
+				<a class="btn btn-primary" href="http://eepurl.com/Vvlan" target="_blank">
+					Sign Up				</a>
+			</div>
+		</div>
+
+		<div class="footer-underline pb-0"></div>
+
+		<div class="py-2 small row justify-content-center align-items-center">
+			<div class="col-12 col-md-auto text-center">
+				<a class="footer-info" target="_blank" href="https://www.register.charities.govt.nz/Charity/CC45702">
+					Charities Number: <strong>CC45702</strong>
+				</a>
+			</div>
+			<div class="col-12 col-md-auto text-center">
+				<a class="footer-info" target="_blank" href="https://app.businessregisters.govt.nz/view/is/9429042674184">
+					New Zealand Business Number: <strong>9429042674184</strong>
+				</a>
+			</div>
+			<div class="col-12 col-md-auto text-center">
+				<a class="footer-info" target="_blank" href="https://www.turboweb.co.nz">
+					Site by <strong>Turboweb</strong>
+				</a>
+			</div>
+		</div>
+
+	</div>
+</footer>
+
+	<div
+		data-attach="window.lib.ecom.cart.summary.bar"
+		data-bind="template: 'template-ecom-cart-summary-bar'">
+	</div>
+
+</div>
+				<link rel="stylesheet" href="https://asset.turboweb.co.nz/core/cache/resource/vendor/fontawesome-pro-5.13.0-web/css/all.min.css?1792726504">
+					<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+		
+				
+
+	</body>
+
+</html>

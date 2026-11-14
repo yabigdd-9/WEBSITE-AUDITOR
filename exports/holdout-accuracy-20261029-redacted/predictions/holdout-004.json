@@ -1,0 +1,7 @@
+{
+ "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+ "fixture_sha256": "63dfde9597aefb6611634d7ff93002c6505e519733711a7676f3a8d3f474b201",
+ "scope": "brochure-service",
+ "prediction_author": "wa-static-profile (deterministic, no model)",
+ "observations": []
+}

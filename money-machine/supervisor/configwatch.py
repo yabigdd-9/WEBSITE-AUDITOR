@@ -1,6 +1,7 @@
 
 """Configuration hot-reload watcher for routing.yaml."""
 import json
+import yaml
 import threading
 import time
 from pathlib import Path
@@ -13,7 +14,6 @@ try:
 except ImportError:
     WATCHDOG_AVAILABLE = False
 
-from mm_model_router import probe_llamacpp
 from mm_pipeline import log
 
 
@@ -79,22 +79,29 @@ class ConfigWatcher:
     def _validate_and_cache(self) -> bool:
         try:
             config_text = self.config_path.read_text()
-            config = json.loads(config_text)
+            config = yaml.safe_load(config_text) if self.config_path.suffix in {'.yaml', '.yml'} else json.loads(config_text)
 
-            if 'PURPOSE_ROUTES' not in config:
+            if not isinstance(config, dict):
                 return False
 
-            for role, routes in config['PURPOSE_ROUTES'].items():
-                for provider, model in routes:
-                    if provider.startswith('local:'):
-                        kind = provider.split(':', 1)[1]
-                        if kind == 'llamacpp':
-                            from mm_model_router import probe_llamacpp
-                            probe_llamacpp()
+            # Accept either the historical PURPOSE_ROUTES shape or the current
+            # role-based zero-cost routing.yaml. Validation must never trigger
+            # model/network probes.
+            if 'PURPOSE_ROUTES' in config:
+                routes = config['PURPOSE_ROUTES']
+                if not isinstance(routes, dict) or not routes:
+                    return False
+            else:
+                policy = config.get('policy') or {}
+                roles = config.get('roles') or {}
+                if policy.get('paid_tokens') is not False or not roles:
+                    return False
+                if policy.get('max_price') != {
+                    'prompt': 0, 'completion': 0, 'request': 0, 'image': 0
+                }:
+                    return False
 
-            with open(self.config_path) as f:
-                self._last_known_good = json.load(f)
-
+            self._last_known_good = config
             return True
 
         except Exception:

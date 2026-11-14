@@ -1,0 +1,9 @@
+{
+  "source": "versioned money-machine/database/schema.sql plus real canonical core/email/pipeline/approval migrations",
+  "customer_records_copied": 0,
+  "fixture_path": "/Users/dd/WEBSITE-AUDITOR-codex/work/codex-r00/money-source/database/money_machine.db",
+  "schema_sha256": "f36cd58782b5bfa293b19e38767b4127a3a437c00e3d2f0f7b858ad1b71f88dc",
+  "integrity_check": "ok",
+  "foreign_key_violations": 0,
+  "business_rows": 0
+}

@@ -1,0 +1,46 @@
+{
+  "captured_at": "2026-10-15T19:49:03.433014+00:00",
+  "scope": "disposable synthetic databases and fixture MM_ROOT; no production worker invocation",
+  "suites": [
+    {
+      "suite": "money-machine/test_pipeline_recovery.py",
+      "source_sha256": "bb6c3b22c2b445ee5d3b8954de6a91ecf65f8247e157bbe631fbb2c63309e1aa",
+      "returncode": 0,
+      "elapsed_seconds": 3.72,
+      "log": "/Users/dd/WEBSITE-AUDITOR/reports/hermes_reliability/execution-20261016/runtime/test_pipeline_recovery.log",
+      "summary": [
+        "5 passed in 2.78s"
+      ]
+    },
+    {
+      "suite": "money-machine/test_soak_discovery_recovery.py",
+      "source_sha256": "4549d69cdfc4e2148762406c1a6f3b8c1519d5b77b22c3d28f18d7797fbafb21",
+      "returncode": 0,
+      "elapsed_seconds": 2.648,
+      "log": "/Users/dd/WEBSITE-AUDITOR/reports/hermes_reliability/execution-20261016/runtime/test_soak_discovery_recovery.log",
+      "summary": [
+        "17 passed in 1.47s"
+      ]
+    },
+    {
+      "suite": "money-machine/test_reporting.py",
+      "source_sha256": "e0749991c900ac95d3739caf0c150e8736c00c49acbcee6da4b6d3f885346639",
+      "returncode": 0,
+      "elapsed_seconds": 9.874,
+      "log": "/Users/dd/WEBSITE-AUDITOR/reports/hermes_reliability/execution-20261016/runtime/test_reporting.log",
+      "summary": [
+        "8 passed in 8.77s"
+      ]
+    },
+    {
+      "suite": "money-machine/test_brain.py",
+      "source_sha256": "4a076dd8380812f3497de3d76d01288dccbd53186fab0e64fafd304d2d54127f",
+      "returncode": 0,
+      "elapsed_seconds": 1.759,
+      "log": "/Users/dd/WEBSITE-AUDITOR/reports/hermes_reliability/execution-20261016/runtime/test_brain.log",
+      "summary": [
+        "6 passed in 0.73s"
+      ]
+    }
+  ]
+}

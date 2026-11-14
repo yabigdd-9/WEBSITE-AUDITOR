@@ -1,0 +1,1431 @@
+{
+  "schema_version": 2,
+  "browser_requested": false,
+  "performance": {
+    "total_elapsed_ms": 13187,
+    "checks": {
+      "fetch": 0,
+      "page": 2272,
+      "schema": 2508,
+      "headers": 0,
+      "technology": 554,
+      "js_vulnerabilities": 152,
+      "structured_validation": 312,
+      "hreflang": 1905,
+      "language": 1929,
+      "images": 622,
+      "social_meta": 451,
+      "hygiene": 5452,
+      "ux": 730,
+      "links": 0,
+      "lychee": 0,
+      "lighthouse": 0,
+      "tls": 1429,
+      "dns": 0,
+      "crawl": 0,
+      "browser": 0,
+      "third_party": 0,
+      "browser_console": 0,
+      "cookie_consent": 0,
+      "axe": 0
+    },
+    "slowest_checks": [
+      [
+        "hygiene",
+        5452
+      ],
+      [
+        "schema",
+        2508
+      ],
+      [
+        "page",
+        2272
+      ],
+      [
+        "language",
+        1929
+      ],
+      [
+        "hreflang",
+        1905
+      ]
+    ]
+  },
+  "run_id": "20261029T002554-c9f2342bac92",
+  "url": "https://irvingbuilders.co.nz/",
+  "domain": "irvingbuilders.co.nz",
+  "timestamp": "2026-10-29T00:25:54.281296+00:00",
+  "profile": "static",
+  "brand": "Website Auditor",
+  "status": "complete",
+  "score": 52,
+  "severity_score": 52,
+  "health_score": 48,
+  "breakdown": {
+    "health_score": 48,
+    "severity_total": 52,
+    "heuristic_count": 1,
+    "method": "severity sum capped at 100; health = 100 - severity",
+    "deductions": [
+      {
+        "finding_id": "486879af6ce7c15e52ecae79",
+        "defect_key": "header-content-security-policy",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "headers"
+      },
+      {
+        "finding_id": "ee7d30bbf0a7b08f8a7dfeb2",
+        "defect_key": "header-x-content-type-options",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "headers"
+      },
+      {
+        "finding_id": "0d4daf0ad04d73e263c75e1d",
+        "defect_key": "cookie-secure",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "PHPSESSID"
+      },
+      {
+        "finding_id": "633edfbcfd1fa111cc583ca0",
+        "defect_key": "structured_data_missing_type",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "JSON-LD object has no @type property"
+      },
+      {
+        "finding_id": "61c8e91f2dbffc89fa5a7e54",
+        "defect_key": "images-missing-dimensions",
+        "severity": "low",
+        "points": 4,
+        "confidence": "heuristic",
+        "evidence_summary": "3 of 17 images do not provide positive numeric width and height attributes"
+      },
+      {
+        "finding_id": "d5a4fbc073e4bd55b7990d62",
+        "defect_key": "images-external-hosting",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "1 image(s) served from external domains"
+      },
+      {
+        "finding_id": "2c266fb306efae45ff60e24f",
+        "defect_key": "social-meta-og-image",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "No <meta property=\"og:image\"> tag present"
+      },
+      {
+        "finding_id": "584f16657c1c2ae00f75e749",
+        "defect_key": "social-meta-twitter-handle",
+        "severity": "low",
+        "points": 4,
+        "confidence": "observed",
+        "evidence_summary": "No <meta name=\"twitter:site\"> or twitter:creator tag present"
+      },
+      {
+        "finding_id": "e12b865e1a6f39b43e814054",
+        "defect_key": "mixed-content",
+        "severity": "medium",
+        "points": 8,
+        "confidence": "observed",
+        "evidence_summary": "1 subresources load over http://"
+      }
+    ]
+  },
+  "defects": [
+    {
+      "defect_key": "header-content-security-policy",
+      "defect": "Missing content-security-policy",
+      "impact": "Review deployment requirements",
+      "severity": "low",
+      "source_url": "https://irvingbuilders.co.nz/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "486879af6ce7c15e52ecae79",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-29T00:25:56.936138+00:00",
+      "evidence_summary": "headers",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "header-x-content-type-options",
+      "defect": "Missing x-content-type-options",
+      "impact": "Review deployment requirements",
+      "severity": "low",
+      "source_url": "https://irvingbuilders.co.nz/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "ee7d30bbf0a7b08f8a7dfeb2",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-29T00:25:56.936138+00:00",
+      "evidence_summary": "headers",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "cookie-secure",
+      "defect": "Cookie lacks Secure attribute",
+      "impact": "PHPSESSID",
+      "severity": "medium",
+      "source_url": "https://irvingbuilders.co.nz/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "PHPSESSID",
+      "confidence": "observed",
+      "evidence_source": "",
+      "observed": "",
+      "business_impact": "",
+      "remediation_action": "",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "0d4daf0ad04d73e263c75e1d",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-29T00:25:56.936138+00:00",
+      "evidence_summary": "PHPSESSID",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    },
+    {
+      "defect_key": "structured_data_missing_type",
+      "defect": "JSON-LD entity is missing @type",
+      "impact": "Search engines may ignore or misinterpret the structured data.",
+      "severity": "medium",
+      "source_url": "https://irvingbuilders.co.nz/",
+      "review_required": true,
+      "check": "structured_data",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:script[type='application/ld+json']",
+      "observed": "JSON-LD object has no @type property",
+      "business_impact": "Invalid structured data can prevent enhanced search results.",
+      "remediation_action": "Correct the JSON-LD syntax and provide a valid entity @type.",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "633edfbcfd1fa111cc583ca0",
+      "evidence_ref": "page",
+      "observed_at": "2026-10-29T00:25:56.936138+00:00",
+      "evidence_summary": "JSON-LD object has no @type property",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "images-missing-dimensions",
+      "defect": "Images missing width/height (3)",
+      "impact": "Space reservation needs rendered review; CSS or a sized container may already prevent layout shift",
+      "severity": "low",
+      "source_url": "https://irvingbuilders.co.nz/",
+      "review_required": true,
+      "check": "images",
+      "selector": "",
+      "confidence": "heuristic",
+      "evidence_source": "dom:img element",
+      "observed": "3 of 17 images do not provide positive numeric width and height attributes",
+      "business_impact": "Layout shift is possible only if the rendered page does not already reserve image space. Static HTML alone does not establish CLS or its impact.",
+      "remediation_action": "Inspect computed styles, container sizing and measured layout shifts. Add dimensions or equivalent space reservation only where needed; preserve intentional framework fill layouts.",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "S",
+      "finding_id": "61c8e91f2dbffc89fa5a7e54",
+      "evidence_ref": "images",
+      "observed_at": "2026-10-29T00:25:54.281296+00:00",
+      "evidence_summary": "3 of 17 images do not provide positive numeric width and height attributes",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "WEAK",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "images-external-hosting",
+      "defect": "Images hosted externally (1)",
+      "impact": "Third-party image dependency",
+      "severity": "low",
+      "source_url": "https://irvingbuilders.co.nz/",
+      "review_required": true,
+      "check": "images",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:img element",
+      "observed": "1 image(s) served from external domains",
+      "business_impact": "External images depend on third-party uptime and add DNS/HTTP overhead. Critical images should be self-hosted.",
+      "remediation_action": "Self-host critical images or use a proven CDN with fallback.",
+      "remediation_automation": "HUMAN_REVIEW",
+      "effort_band": "M",
+      "finding_id": "d5a4fbc073e4bd55b7990d62",
+      "evidence_ref": "images",
+      "observed_at": "2026-10-29T00:25:54.281296+00:00",
+      "evidence_summary": "1 image(s) served from external domains",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-og-image",
+      "defect": "Missing og:image",
+      "impact": "No Open Graph image for social sharing",
+      "severity": "medium",
+      "source_url": "https://irvingbuilders.co.nz/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[property=og:image]",
+      "observed": "No <meta property=\"og:image\"> tag present",
+      "business_impact": "Social shares show no thumbnail, reducing visual appeal and click-through.",
+      "remediation_action": "Add an og:image meta tag pointing to a 1200x630 image.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "2c266fb306efae45ff60e24f",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-29T00:25:54.281296+00:00",
+      "evidence_summary": "No <meta property=\"og:image\"> tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "social-meta-twitter-handle",
+      "defect": "Missing Twitter handle",
+      "impact": "No twitter:site or twitter:creator declared",
+      "severity": "low",
+      "source_url": "https://irvingbuilders.co.nz/",
+      "review_required": true,
+      "check": "social_meta",
+      "selector": "",
+      "confidence": "observed",
+      "evidence_source": "dom:meta[name=twitter:site]",
+      "observed": "No <meta name=\"twitter:site\"> or twitter:creator tag present",
+      "business_impact": "Twitter/X attribution is missing; the account that shares this page is not tagged.",
+      "remediation_action": "Add a twitter:site meta tag with your @handle.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "XS",
+      "finding_id": "584f16657c1c2ae00f75e749",
+      "evidence_ref": "social_meta",
+      "observed_at": "2026-10-29T00:25:54.281296+00:00",
+      "evidence_summary": "No <meta name=\"twitter:site\"> or twitter:creator tag present",
+      "fault_taxonomy": "unknown",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "unclassified_observation"
+    },
+    {
+      "defect_key": "mixed-content",
+      "defect": "Mixed content on HTTPS page",
+      "impact": "1 http:// subresources",
+      "severity": "medium",
+      "source_url": "https://irvingbuilders.co.nz/",
+      "review_required": true,
+      "check": "headers",
+      "selector": "link[href=http://gmpg.org/xfn/11]",
+      "confidence": "observed",
+      "evidence_source": "dom:http:// subresource URLs",
+      "observed": "1 subresources load over http://",
+      "business_impact": "Browsers block or warn on mixed content; broken media/trust.",
+      "remediation_action": "Serve all subresources over https://.",
+      "remediation_automation": "AUTO_PREVIEW",
+      "effort_band": "S",
+      "finding_id": "e12b865e1a6f39b43e814054",
+      "evidence_ref": "headers",
+      "observed_at": "2026-10-29T00:25:56.936138+00:00",
+      "evidence_summary": "1 subresources load over http://",
+      "fault_taxonomy": "security_trust",
+      "confidence_assessment": {
+        "class": "PROVEN",
+        "observed": true,
+        "reproducible": true
+      },
+      "reproducibility": true,
+      "root_cause_candidate": "security_delivery_configuration_gap"
+    }
+  ],
+  "defect_count": 9,
+  "fault_taxonomy": {
+    "root_causes": [
+      {
+        "root_cause_id": "security_delivery_configuration_gap",
+        "taxonomy": [
+          "security_trust"
+        ],
+        "finding_ids": [
+          "486879af6ce7c15e52ecae79",
+          "ee7d30bbf0a7b08f8a7dfeb2",
+          "0d4daf0ad04d73e263c75e1d",
+          "e12b865e1a6f39b43e814054"
+        ],
+        "symptom_count": 4,
+        "likely": true,
+        "confidence": "MODERATE",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      },
+      {
+        "root_cause_id": "unclassified_observation",
+        "taxonomy": [
+          "unknown"
+        ],
+        "finding_ids": [
+          "633edfbcfd1fa111cc583ca0",
+          "61c8e91f2dbffc89fa5a7e54",
+          "d5a4fbc073e4bd55b7990d62",
+          "2c266fb306efae45ff60e24f",
+          "584f16657c1c2ae00f75e749"
+        ],
+        "symptom_count": 5,
+        "likely": true,
+        "confidence": "MODERATE",
+        "explanation": "Correlated symptoms suggest one root cause; verify before claiming causation."
+      }
+    ],
+    "reproducible_count": 9,
+    "weak_or_unknown_count": 1
+  },
+  "checks": {
+    "fetch": {
+      "status": "ok",
+      "required": true
+    },
+    "page": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 2272
+    },
+    "schema": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 2508
+    },
+    "headers": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 0
+    },
+    "technology": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 554
+    },
+    "js_vulnerabilities": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 152
+    },
+    "structured_validation": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 312
+    },
+    "hreflang": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1905
+    },
+    "language": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1929
+    },
+    "images": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 622
+    },
+    "social_meta": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 451
+    },
+    "hygiene": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 5452
+    },
+    "ux": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 730
+    },
+    "links": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "lychee": {
+      "status": "skipped",
+      "reason": "Enable external local tools",
+      "required": false
+    },
+    "lighthouse": {
+      "status": "skipped",
+      "reason": "Enable external local tools",
+      "required": false
+    },
+    "tls": {
+      "status": "ok",
+      "required": true,
+      "elapsed_ms": 1429
+    },
+    "dns": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "crawl": {
+      "status": "skipped",
+      "reason": "Enable deep checks",
+      "required": false
+    },
+    "browser": {
+      "status": "skipped",
+      "reason": "Disabled in selected audit profile",
+      "required": false
+    },
+    "third_party": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "browser_console": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "cookie_consent": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "axe": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    },
+    "pdf": {
+      "status": "skipped",
+      "reason": "Rendered mode required",
+      "required": false
+    }
+  },
+  "evidence": {
+    "fetch": {
+      "url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:56.936138+00:00",
+      "mode": "static",
+      "check_version": "1",
+      "data": {
+        "status_code": 200,
+        "redirects": [],
+        "revalidated_at": null
+      }
+    },
+    "page": {
+      "url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:56.936138+00:00",
+      "mode": "static",
+      "data": {
+        "title": "Licensed Home Builder Practitioner in Canterbury | Irving Builders",
+        "word_count": 1082,
+        "link_count": 62,
+        "sample_links": [
+          "https://irvingbuilders.co.nz/contact-us/design-to-build-consultation/",
+          "https://houseoftheyear.co.nz/results/list/#?year=2021&region=97371&builder=105701",
+          "https://www.facebook.com/irvingbuilders/",
+          "https://www.linkedin.com/in/lance-irving-1aa156103",
+          "https://irvingbuilders.co.nz/",
+          "https://irvingbuilders.co.nz/about-the-company/",
+          "https://irvingbuilders.co.nz/about-the-company/",
+          "https://irvingbuilders.co.nz/about-the-company/meet-the-team/",
+          "https://irvingbuilders.co.nz/about-the-company/why-choose-us/",
+          "https://irvingbuilders.co.nz/success-stories/",
+          "https://irvingbuilders.co.nz/guarantee/",
+          "https://irvingbuilders.co.nz/building-guide/",
+          "https://irvingbuilders.co.nz/new-builds/",
+          "https://irvingbuilders.co.nz/renovation/",
+          "https://irvingbuilders.co.nz/sips-building/",
+          "https://irvingbuilders.co.nz/videos/",
+          "https://irvingbuilders.co.nz/contact-us/",
+          "https://irvingbuilders.co.nz/building-guide/faq/",
+          "https://irvingbuilders.co.nz/contact-us/design-to-build-consultation/",
+          "https://irvingbuilders.co.nz/pricing-process/",
+          "https://irvingbuilders.co.nz/about-the-company/",
+          "https://irvingbuilders.co.nz/about-the-company/",
+          "https://irvingbuilders.co.nz/about-the-company/meet-the-team/",
+          "https://irvingbuilders.co.nz/about-the-company/why-choose-us/",
+          "https://irvingbuilders.co.nz/success-stories/"
+        ],
+        "emails": [
+          "lance.irving@irvingbuilders.co.nz"
+        ],
+        "schema_count": 2
+      },
+      "check_version": "1"
+    },
+    "schema": {
+      "url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:56.936138+00:00",
+      "mode": "static",
+      "data": {
+        "types": [
+          "BreadcrumbList",
+          "EntryPoint",
+          "GeneralContractor",
+          "GeoCoordinates",
+          "ImageObject",
+          "ListItem",
+          "OpeningHoursSpecification",
+          "Organization",
+          "PostalAddress",
+          "PropertyValueSpecification",
+          "ReadAction",
+          "SearchAction",
+          "WebPage",
+          "WebSite"
+        ],
+        "profile": "static",
+        "generator": "Redux 4.5.16",
+        "local_business_review": "Check identity, address and service area against the business owner.",
+        "crawler_readiness": {
+          "robots_meta": [
+            "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+          ],
+          "rendered_content_comparison": "Available only in rendered mode"
+        }
+      },
+      "check_version": "1"
+    },
+    "headers": {
+      "url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:56.936138+00:00",
+      "mode": "static",
+      "data": {
+        "headers": {
+          "server": "nginx",
+          "content-type": "text/html; charset=UTF-8",
+          "strict-transport-security": "max-age=31536000",
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "content-length": "511524"
+        },
+        "cookies": [
+          {
+            "name": "PHPSESSID",
+            "secure": false,
+            "httponly": false,
+            "samesite": ""
+          }
+        ]
+      },
+      "check_version": "1"
+    },
+    "technology": {
+      "url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:54.281296+00:00",
+      "mode": "static",
+      "data": {
+        "technologies": [
+          {
+            "technology": "Bootstrap",
+            "category": "CSS Framework",
+            "version": null,
+            "version_confidence": 0.0,
+            "evidence": "Bootstrap CSS or JS detected",
+            "confidence": 0.6
+          },
+          {
+            "technology": "jQuery",
+            "category": "JavaScript Library",
+            "version": null,
+            "version_confidence": 0.0,
+            "evidence": "jQuery script detected",
+            "confidence": 0.6
+          }
+        ]
+      },
+      "check_version": "1"
+    },
+    "js_vulnerabilities": {
+      "url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:54.281296+00:00",
+      "mode": "static",
+      "data": {
+        "js_vulnerabilities_detected": 0
+      },
+      "check_version": "1"
+    },
+    "structured_validation": {
+      "url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:54.281296+00:00",
+      "mode": "static",
+      "data": {
+        "structured_data_scripts_found": 2
+      },
+      "check_version": "1"
+    },
+    "hreflang": {
+      "url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:54.281296+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://irvingbuilders.co.nz/",
+        "hreflang_links": [],
+        "hreflang_count": 0,
+        "limitation": "No multilingual annotations declared; reciprocity not fetched."
+      },
+      "check_version": "3"
+    },
+    "language": {
+      "url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:54.281296+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://irvingbuilders.co.nz/",
+        "html_lang": "en-nz",
+        "meta_content_language": null,
+        "is_nz_domain": true,
+        "limitation": "Declared language only; content language is not inferred from the domain."
+      },
+      "check_version": "3"
+    },
+    "images": {
+      "url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:54.281296+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://irvingbuilders.co.nz/",
+        "image_count": 17,
+        "missing_alt": 0,
+        "missing_dimensions": 3,
+        "missing_loading": 17,
+        "framework_fill_images": 0,
+        "external_images": 1,
+        "large_file_hints": []
+      },
+      "check_version": "3"
+    },
+    "social_meta": {
+      "url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:54.281296+00:00",
+      "mode": "static",
+      "data": {
+        "url": "https://irvingbuilders.co.nz/",
+        "og_tags": {
+          "locale": "en_US",
+          "type": "website",
+          "title": "Licensed Home Builder Practitioner in Canterbury | Irving Builders",
+          "description": "Trusted home builder in Canterbury. Licensed building practitioners, expert in new builds and home renovations. Call us now (03) 318 1770.",
+          "url": "https://irvingbuilders.co.nz/",
+          "site_name": "Irving Builders"
+        },
+        "twitter_tags": {
+          "card": "summary_large_image"
+        }
+      },
+      "check_version": "3"
+    },
+    "hygiene": {
+      "url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:56.936138+00:00",
+      "mode": "static",
+      "data": {
+        "robots": {
+          "url": "https://irvingbuilders.co.nz/robots.txt",
+          "status_code": 200,
+          "bytes": 299,
+          "sitemaps_declared": [
+            "https://irvingbuilders.co.nz/sitemap_index.xml"
+          ]
+        },
+        "sitemap": {
+          "checked": [
+            {
+              "url": "https://irvingbuilders.co.nz/sitemap_index.xml",
+              "status": 200,
+              "loc_count": 3,
+              "well_formed": true
+            }
+          ]
+        },
+        "security_headers": {
+          "graded": [
+            "content-security-policy",
+            "x-content-type-options",
+            "strict-transport-security"
+          ],
+          "present": [
+            "strict-transport-security"
+          ]
+        },
+        "mixed_content": {
+          "offenders": [
+            "link[href=http://gmpg.org/xfn/11]"
+          ],
+          "count": 1
+        }
+      },
+      "check_version": "1"
+    },
+    "ux": {
+      "url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:56.936138+00:00",
+      "mode": "static",
+      "data": {
+        "signals": {
+          "contact_path": true,
+          "phone": true,
+          "booking": true,
+          "quote_form": false,
+          "form_present": false
+        }
+      },
+      "check_version": "1"
+    },
+    "tls": {
+      "url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:54.281296+00:00",
+      "mode": "static",
+      "data": {
+        "expires_at": "2027-01-21T16:31:58+00:00",
+        "days_remaining": 84,
+        "protocol": "TLSv1.3",
+        "cipher": "TLS_AES_128_GCM_SHA256"
+      },
+      "check_version": "1"
+    },
+    "browser": {}
+  },
+  "check_registry": {
+    "fetch": {
+      "id": "fetch",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "page": {
+      "id": "page",
+      "category": "seo",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Content and conversion observations require editorial review."
+    },
+    "schema": {
+      "id": "schema",
+      "category": "local",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Presence does not establish eligibility or business identity."
+    },
+    "accessibility_static": {
+      "id": "accessibility_static",
+      "category": "accessibility",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Static checks do not establish conformance."
+    },
+    "ux": {
+      "id": "ux",
+      "category": "privacy",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Observed behavior is not a legal determination."
+    },
+    "headers": {
+      "id": "headers",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "hygiene": {
+      "id": "hygiene",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Deterministic robots, sitemap, header and mixed-content checks."
+    },
+    "links": {
+      "id": "links",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Bounded same-origin link validation; not an exhaustive crawler."
+    },
+    "tls": {
+      "id": "tls",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "dns": {
+      "id": "dns",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "crawl": {
+      "id": "crawl",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "lychee": {
+      "id": "lychee",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "External local CLI check; bounded by Lychee configuration and network conditions."
+    },
+    "lighthouse": {
+      "id": "lighthouse",
+      "category": "performance",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Laboratory result; not field Core Web Vitals."
+    },
+    "browser": {
+      "id": "browser",
+      "category": "performance",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Laboratory observations, not field Core Web Vitals."
+    },
+    "axe": {
+      "id": "axe",
+      "category": "accessibility",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": "Manual keyboard, screen-reader and content review remains necessary."
+    },
+    "pdf": {
+      "id": "pdf",
+      "category": "reporting",
+      "mode": "rendered",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "technology": {
+      "id": "technology",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "js_vulnerabilities": {
+      "id": "js_vulnerabilities",
+      "category": "security",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "structured_validation": {
+      "id": "structured_validation",
+      "category": "local",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    },
+    "hreflang": {
+      "id": "hreflang",
+      "category": "seo",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "language": {
+      "id": "language",
+      "category": "technical",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "images": {
+      "id": "images",
+      "category": "performance",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "social_meta": {
+      "id": "social_meta",
+      "category": "technical",
+      "mode": "static",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "cookie_consent": {
+      "id": "cookie_consent",
+      "category": "privacy",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Passive bounded observations only; cookie purpose and legal obligations require human review."
+    },
+    "third_party": {
+      "id": "third_party",
+      "category": "technical",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "browser_console": {
+      "id": "browser_console",
+      "category": "technical",
+      "mode": "rendered",
+      "version": "3",
+      "evidence_required": true,
+      "limitation": "Bounded page observation; not exhaustive site coverage."
+    },
+    "server_technology": {
+      "id": "server_technology",
+      "category": "technical",
+      "mode": "static",
+      "version": "1",
+      "evidence_required": true,
+      "limitation": ""
+    }
+  },
+  "scoring": {
+    "method": "severity sum capped at 100; health = 100 - severity",
+    "weights": {
+      "low": 4,
+      "medium": 8,
+      "high": 16,
+      "critical": 30
+    },
+    "limitation": "Heuristic prioritization, not certification"
+  },
+  "financial_assumptions": [
+    "No fines or measured lost revenue. Estimates require explicit rates."
+  ],
+  "artifacts": {
+    "json": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002554-c9f2342bac92/report.json",
+    "html": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002554-c9f2342bac92/report.html",
+    "trend": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002554-c9f2342bac92/trend.svg",
+    "actions": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002554-c9f2342bac92/actions/preview.json"
+  },
+  "category_scores": {
+    "accessibility": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": null
+    },
+    "local": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": 100
+    },
+    "performance": {
+      "score": 8,
+      "severity_score": 8,
+      "health_score": 92
+    },
+    "privacy": {
+      "score": 0,
+      "severity_score": 0,
+      "health_score": 100
+    },
+    "security": {
+      "score": 24,
+      "severity_score": 24,
+      "health_score": 76
+    },
+    "seo": {
+      "score": 8,
+      "severity_score": 8,
+      "health_score": 92
+    },
+    "technical": {
+      "score": 12,
+      "severity_score": 12,
+      "health_score": 88
+    }
+  },
+  "comparison": {
+    "baseline": null,
+    "new": [
+      "0d4daf0ad04d73e263c75e1d",
+      "2c266fb306efae45ff60e24f",
+      "486879af6ce7c15e52ecae79",
+      "584f16657c1c2ae00f75e749",
+      "61c8e91f2dbffc89fa5a7e54",
+      "633edfbcfd1fa111cc583ca0",
+      "d5a4fbc073e4bd55b7990d62",
+      "e12b865e1a6f39b43e814054",
+      "ee7d30bbf0a7b08f8a7dfeb2"
+    ],
+    "persistent": [],
+    "regressed": [],
+    "resolved": [],
+    "resolution_assessed": false
+  },
+  "fault_regression": {
+    "new": [
+      "0d4daf0ad04d73e263c75e1d",
+      "2c266fb306efae45ff60e24f",
+      "486879af6ce7c15e52ecae79",
+      "584f16657c1c2ae00f75e749",
+      "61c8e91f2dbffc89fa5a7e54",
+      "633edfbcfd1fa111cc583ca0",
+      "d5a4fbc073e4bd55b7990d62",
+      "e12b865e1a6f39b43e814054",
+      "ee7d30bbf0a7b08f8a7dfeb2"
+    ],
+    "resolved": [],
+    "unchanged": []
+  },
+  "claim_ledger": [
+    {
+      "claim_id": "finding:486879af6ce7c15e52ecae79",
+      "claim": "Missing content-security-policy",
+      "claim_type": "observed_fact",
+      "finding_id": "486879af6ce7c15e52ecae79",
+      "evidence_ref": "headers",
+      "evidence": "headers",
+      "source_url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:56.936138+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:ee7d30bbf0a7b08f8a7dfeb2",
+      "claim": "Missing x-content-type-options",
+      "claim_type": "observed_fact",
+      "finding_id": "ee7d30bbf0a7b08f8a7dfeb2",
+      "evidence_ref": "headers",
+      "evidence": "headers",
+      "source_url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:56.936138+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:0d4daf0ad04d73e263c75e1d",
+      "claim": "Cookie lacks Secure attribute",
+      "claim_type": "observed_fact",
+      "finding_id": "0d4daf0ad04d73e263c75e1d",
+      "evidence_ref": "headers",
+      "evidence": "PHPSESSID",
+      "source_url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:56.936138+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:633edfbcfd1fa111cc583ca0",
+      "claim": "JSON-LD entity is missing @type",
+      "claim_type": "observed_fact",
+      "finding_id": "633edfbcfd1fa111cc583ca0",
+      "evidence_ref": "page",
+      "evidence": "JSON-LD object has no @type property",
+      "source_url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:56.936138+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:61c8e91f2dbffc89fa5a7e54",
+      "claim": "Images missing width/height (3)",
+      "claim_type": "hypothesis",
+      "finding_id": "61c8e91f2dbffc89fa5a7e54",
+      "evidence_ref": "images",
+      "evidence": "3 of 17 images do not provide positive numeric width and height attributes",
+      "source_url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:54.281296+00:00",
+      "confidence": "WEAK",
+      "allowed_language": "may indicate",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:d5a4fbc073e4bd55b7990d62",
+      "claim": "Images hosted externally (1)",
+      "claim_type": "observed_fact",
+      "finding_id": "d5a4fbc073e4bd55b7990d62",
+      "evidence_ref": "images",
+      "evidence": "1 image(s) served from external domains",
+      "source_url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:54.281296+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:2c266fb306efae45ff60e24f",
+      "claim": "Missing og:image",
+      "claim_type": "observed_fact",
+      "finding_id": "2c266fb306efae45ff60e24f",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta property=\"og:image\"> tag present",
+      "source_url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:54.281296+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:584f16657c1c2ae00f75e749",
+      "claim": "Missing Twitter handle",
+      "claim_type": "observed_fact",
+      "finding_id": "584f16657c1c2ae00f75e749",
+      "evidence_ref": "social_meta",
+      "evidence": "No <meta name=\"twitter:site\"> or twitter:creator tag present",
+      "source_url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:54.281296+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    },
+    {
+      "claim_id": "finding:e12b865e1a6f39b43e814054",
+      "claim": "Mixed content on HTTPS page",
+      "claim_type": "observed_fact",
+      "finding_id": "e12b865e1a6f39b43e814054",
+      "evidence_ref": "headers",
+      "evidence": "1 subresources load over http://",
+      "source_url": "https://irvingbuilders.co.nz/",
+      "observed_at": "2026-10-29T00:25:56.936138+00:00",
+      "confidence": "PROVEN",
+      "allowed_language": "observed",
+      "human_review_required": true
+    }
+  ],
+  "drafts": {
+    "status": "fallback",
+    "review_required": true,
+    "drafts": {
+      "metadata": {
+        "text": "Title: Example services\nDescription: [review required]",
+        "source": "template",
+        "review_required": true
+      },
+      "platform_fix": {
+        "text": "Prepare an evidence-backed fix draft for review.",
+        "source": "template",
+        "review_required": true
+      },
+      "outreach": {
+        "text": "Prepare factual outreach from verified findings.",
+        "source": "template",
+        "review_required": true
+      },
+      "content_expansion": {
+        "text": "Outline services, proof, FAQs, and contact details.",
+        "source": "template",
+        "review_required": true
+      },
+      "bilingual": {
+        "text": "EN: [English draft]\nMI: [te reo Māori review required]",
+        "source": "template",
+        "review_required": true
+      }
+    },
+    "reason": "Local generation not requested"
+  },
+  "proofing": {
+    "metadata": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 9,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "platform_fix": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 9,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "outreach": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 9,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "content_expansion": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 9,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    },
+    "bilingual": {
+      "passed": true,
+      "errors": [],
+      "warnings": [
+        "draft_contains_no_traceable_claim_reference"
+      ],
+      "referenced_claim_ids": [],
+      "unreferenced_claim_count": 9,
+      "human_review_required": true,
+      "scope": "Pattern and evidence-reference checks; human factual review remains required."
+    }
+  },
+  "proposal": {
+    "currency": "NZD",
+    "hourly_rate": null,
+    "assumptions": "Versioned effort bands with shared setup for repeated defects and 15% contingency; scope and rates require human review.",
+    "hours_low": 24.0,
+    "hours_high": 70.15,
+    "estimate_low": null,
+    "estimate_high": null,
+    "rules_version": "quote-v1",
+    "review_required": true,
+    "llm_determined_price": false
+  },
+  "action_preview": {
+    "count": 9,
+    "status": "preview",
+    "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002554-c9f2342bac92/actions/preview.json"
+  },
+  "coverage": {
+    "version": 1,
+    "required": 14,
+    "passed": 14,
+    "required_checks": [
+      "fetch",
+      "headers",
+      "hreflang",
+      "hygiene",
+      "images",
+      "js_vulnerabilities",
+      "language",
+      "page",
+      "schema",
+      "social_meta",
+      "structured_validation",
+      "technology",
+      "tls",
+      "ux"
+    ],
+    "missing_checks": []
+  },
+  "manifest": {
+    "html": {
+      "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002554-c9f2342bac92/report.html",
+      "size": 23724,
+      "sha256": "eb95cb574fa5bec2f4ff5220509a6348d71b79b4e651d4da2337deb1b2541af2"
+    },
+    "trend": {
+      "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002554-c9f2342bac92/trend.svg",
+      "size": 241,
+      "sha256": "614152c8b5c739375fb0fa7f1ff32a3c697d1ab819bf6331c7b8c7d8ac18a994"
+    },
+    "actions": {
+      "path": "/Users/dd/WEBSITE-AUDITOR/outputs/holdout-accuracy-20261029/raw/20261029T002554-c9f2342bac92/actions/preview.json",
+      "size": 16524,
+      "sha256": "833d16838a4bd38859ecdd3b40f07c3f6a5ffdc1e7f6280b4c8bf1f6ffe07ffd"
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+ "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+ "fixture_sha256": "3765b4c8d7e3e356741286c0a459912e7e2914a902b6ee7b20a47664adfa5e35",
+ "scope": "javascript-application",
+ "prediction_author": "wa-static-profile (deterministic, no model)",
+ "observations": [
+  {
+   "rule": "header-content-security-policy",
+   "url": "https://www.tawabusiness.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "cookie-secure",
+   "url": "https://www.tawabusiness.co.nz/",
+   "location": "ssr-caching"
+  },
+  {
+   "rule": "images-missing-dimensions",
+   "url": "https://www.tawabusiness.co.nz/",
+   "location": "Space reservation needs rendered review; CSS or a sized container may already prevent layout shift"
+  },
+  {
+   "rule": "images-external-hosting",
+   "url": "https://www.tawabusiness.co.nz/",
+   "location": "Third-party image dependency"
+  },
+  {
+   "rule": "social-meta-twitter-handle",
+   "url": "https://www.tawabusiness.co.nz/",
+   "location": "No twitter:site or twitter:creator declared"
+  }
+ ]
+}

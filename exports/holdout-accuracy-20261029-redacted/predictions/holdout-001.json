@@ -1,0 +1,78 @@
+{
+ "source_sha": "40b2a6233ac079160d8ffcdcba755d9335524a02",
+ "fixture_sha256": "b829c1db17f3840e0d3011b4536997cec6763f9d4bed329c5b80019900d0ac01",
+ "scope": "brochure-service",
+ "prediction_author": "wa-static-profile (deterministic, no model)",
+ "observations": [
+  {
+   "rule": "missing_canonical_url",
+   "url": "https://mitchellplumbers.co.nz/",
+   "location": "head > link[rel=\"canonical\"]"
+  },
+  {
+   "rule": "missing_open_graph_tags",
+   "url": "https://mitchellplumbers.co.nz/",
+   "location": "head > meta[property^=\"og:\"]"
+  },
+  {
+   "rule": "header-content-security-policy",
+   "url": "https://mitchellplumbers.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "header-x-content-type-options",
+   "url": "https://mitchellplumbers.co.nz/",
+   "location": "Review deployment requirements"
+  },
+  {
+   "rule": "header-hsts",
+   "url": "https://mitchellplumbers.co.nz/",
+   "location": "Review HTTPS deployment"
+  },
+  {
+   "rule": "images-missing-dimensions",
+   "url": "https://mitchellplumbers.co.nz/",
+   "location": "Space reservation needs rendered review; CSS or a sized container may already prevent layout shift"
+  },
+  {
+   "rule": "images-external-hosting",
+   "url": "https://mitchellplumbers.co.nz/",
+   "location": "Third-party image dependency"
+  },
+  {
+   "rule": "social-meta-og-title",
+   "url": "https://mitchellplumbers.co.nz/",
+   "location": "No Open Graph title for social sharing"
+  },
+  {
+   "rule": "social-meta-og-description",
+   "url": "https://mitchellplumbers.co.nz/",
+   "location": "No Open Graph description for social sharing"
+  },
+  {
+   "rule": "social-meta-og-image",
+   "url": "https://mitchellplumbers.co.nz/",
+   "location": "No Open Graph image for social sharing"
+  },
+  {
+   "rule": "social-meta-og-type",
+   "url": "https://mitchellplumbers.co.nz/",
+   "location": "No Open Graph type declared"
+  },
+  {
+   "rule": "social-meta-twitter-card",
+   "url": "https://mitchellplumbers.co.nz/",
+   "location": "No twitter:card declared"
+  },
+  {
+   "rule": "social-meta-twitter-handle",
+   "url": "https://mitchellplumbers.co.nz/",
+   "location": "No twitter:site or twitter:creator declared"
+  },
+  {
+   "rule": "sitemap-malformed",
+   "url": "https://mitchellplumbers.co.nz/",
+   "location": "https://mitchellplumbers.co.nz/sitemap.xml"
+  }
+ ]
+}

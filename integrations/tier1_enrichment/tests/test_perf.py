@@ -2,7 +2,7 @@
 import asyncio
 import time
 import unittest
-from unittest.mock import patch
+
 import httpx
 
 from integrations.tier1_enrichment.perf import (
@@ -18,13 +18,13 @@ class TestMakeClient(unittest.TestCase):
     def test_client_has_pooling(self):
         c = make_client(concurrency=4)
         # We only assert no crash; internal httpx attribute names vary by version
-        c.aclose()
+        asyncio.run(c.aclose())
 
     def test_falls_back_to_http1_without_h2(self):
         """If h2 package missing, client still works; no crash."""
         c = make_client()
         # We don't assert http2 state — we only assert it doesn't crash
-        c.aclose()
+        asyncio.run(c.aclose())
 
 
 class TestDomainLimiter(unittest.TestCase):
@@ -59,6 +59,19 @@ class TestCircuitBreaker(unittest.TestCase):
 
 
 class TestFetchHtmlCapped(unittest.TestCase):
+    def test_success_uses_get_and_preserves_html(self):
+        def handler(request):
+            self.assertEqual(request.method, 'GET')
+            return httpx.Response(200, text='<h1>Synthetic page</h1>')
+
+        async def run():
+            async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+                return await fetch_html_capped(client, 'https://example.com')
+
+        html, size = asyncio.run(run())
+        self.assertEqual(html, '<h1>Synthetic page</h1>')
+        self.assertEqual(size, len(html.encode()))
+
     def test_cap_exceeded(self):
         def handler(request):
             # return 20 MB of data
@@ -73,7 +86,7 @@ class TestFetchHtmlCapped(unittest.TestCase):
 
         html, n = asyncio.run(_run())
         self.assertEqual(n, 1024)  # capped
-        client.aclose()
+        asyncio.run(client.aclose())
 
     def test_bad_url_returns_empty(self):
         client = httpx.AsyncClient(transport=httpx.MockTransport(lambda r: None))
@@ -84,7 +97,7 @@ class TestFetchHtmlCapped(unittest.TestCase):
         html, n = asyncio.run(_run())
         self.assertEqual(html, "")
         self.assertEqual(n, 0)
-        client.aclose()
+        asyncio.run(client.aclose())
 
 
 class TestUvloop(unittest.TestCase):

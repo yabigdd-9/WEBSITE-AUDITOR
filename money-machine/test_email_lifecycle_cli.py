@@ -12,9 +12,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-import pytest
-
 import mm_core as core
+import pytest
 
 REPO = Path(__file__).resolve().parents[1]
 MM = REPO / "mm"
@@ -49,7 +48,8 @@ def database(tmp_path):
 
 
 def run_cli(args, tmp_path, check=True):
-    env = {**os.environ, "MM_ROOT": str(tmp_path), "PYTHONDONTWRITEBYTECODE": "1"}
+    env = {**os.environ, "MM_ROOT": str(tmp_path), "PYTHONDONTWRITEBYTECODE": "1",
+           "MM_PYTHON": sys.executable}
     result = subprocess.run(
         [str(MM), *args], capture_output=True, text=True, env=env, timeout=60, cwd=str(REPO)
     )

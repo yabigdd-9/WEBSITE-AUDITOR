@@ -1,0 +1,31 @@
+version: 1
+status: PREPARED_NOT_INSTALLED
+name: ZA staging database validation
+existing_scheduler: Hermes cron
+proposed_job:
+  script: za_staging_db.sh
+  no_agent: true
+  enabled: false
+  state: paused
+  schedule:
+    kind: interval
+    minutes: 360
+    display: every 360m
+  workdir: /Users/dd/WEBSITE-AUDITOR
+required_environment:
+  HERMES_ZERO_TOKEN_MODE: ZERO_LLM
+  HERMES_ALLOW_HOSTED_LLM: '0'
+  HERMES_ALLOW_PAID_FALLBACK: '0'
+  WEBSITE_AUDITOR_OUTREACH_SEND: '0'
+  MM_EXTERNAL_SEND_DISABLED: '1'
+activation_gates:
+  - Verify final runner process-group timeout and shared artifact lock tests
+  - Retain verified backup and isolated restore receipts
+  - Validate staging worker external website request scope and bounded batch
+  - Verify exact runtime revision and independent acceptance
+  - Recheck existing job identities to prevent duplicate installation
+  - Satisfy applicable staging soak gate
+rollback:
+  method: Pause only the newly installed exact job ID through Hermes cron API
+  overwrite_live_scheduler_json: false
+  production_database_restore: false

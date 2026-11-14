@@ -1,9 +1,15 @@
 #!/bin/sh
 set -eu
 MM_COMMAND_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-MM_PYTHON=${MM_PYTHON:-"$MM_COMMAND_DIR/../.venv-email/bin/python"}
+if [ -n "${MM_PYTHON:-}" ]; then
+    MM_PYTHON="$MM_PYTHON"
+elif [ -x "$MM_COMMAND_DIR/../.venv-email/bin/python" ]; then
+    MM_PYTHON="$MM_COMMAND_DIR/../.venv-email/bin/python"
+else
+    MM_PYTHON="$MM_COMMAND_DIR/../.venv/bin/python"
+fi
 if [ ! -x "$MM_PYTHON" ]; then
-    printf 'BLOCKED_RUNTIME: Python email environment missing.\nWorkspace: %s\nPython: %s\nCreate the environment using requirements-email.txt or set MM_PYTHON to a verified interpreter.\n' "${MM_ROOT:-$MM_COMMAND_DIR/..}" "$MM_PYTHON" >&2
+    printf 'BLOCKED_RUNTIME: verified project Python environment missing.\nWorkspace: %s\nPython: %s\nCreate the environment using requirements-email.txt or set MM_PYTHON to a verified interpreter.\n' "${MM_ROOT:-$MM_COMMAND_DIR/..}" "$MM_PYTHON" >&2
     exit 2
 fi
 if ! "$MM_PYTHON" -c 'import sys; sys.exit(0 if sys.version_info >= (3,11) else 1)'; then

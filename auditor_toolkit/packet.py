@@ -22,7 +22,7 @@ def _bind(label: str, obj: dict) -> dict:
     return {"kind": label, "sha256": hashlib.sha256(encoded).hexdigest()}
 
 
-def _draft(report: dict, quote: dict) -> str:
+def _draft(report: dict, quote: dict | None) -> str:
     defects = report.get("defects") or []
     top = defects[0] if defects else None
     subject = "A website improvement concept"
@@ -39,14 +39,19 @@ def _draft(report: dict, quote: dict) -> str:
             f"I reviewed the public website at {report.get('url')}. "
             "I prepared a local concept for review. "
         )
+    if quote is not None:
+        body += (
+            "The deterministic estimate is NZ$"
+            + quote["price_band_nzd"]["low"]
+            + "–NZ$"
+            + quote["price_band_nzd"]["high"]
+            + " for the currently evidenced scope. "
+            + "That estimate still needs human scope/access review. "
+        )
+    else:
+        body += "We can discuss the scope and cost before any work begins. "
     body += (
-        "The deterministic estimate is NZ$"
-        + quote["price_band_nzd"]["low"]
-        + "–NZ$"
-        + quote["price_band_nzd"]["high"]
-        + " for the currently evidenced scope. "
-        + "That estimate still needs human scope/access review. "
-        + "I have not measured or guaranteed any change in traffic, enquiries, sales or revenue. "
+        "I have not measured or guaranteed any change in traffic, enquiries, sales or revenue. "
         + "If this is not relevant, reply no thanks and there will be no follow-up."
     )
     return f"Subject: {subject}\n\n{body}\n"
@@ -56,17 +61,18 @@ def build_packet(
     report: dict,
     remediation: dict,
     demo: dict,
-    quote: dict,
+    quote: dict | None,
     output_dir,
     *,
     contact: dict | None = None,
 ) -> dict:
     run_id = report.get("run_id")
-    if not run_id or any(x.get("source_run_id") != run_id for x in (remediation, demo, quote)):
+    components = (remediation, demo) + ((quote,) if quote is not None else ())
+    if not run_id or any(x.get("source_run_id") != run_id for x in components):
         raise ValueError("All packet components must bind to the same audit run")
     if demo.get("live_site_changed") is not False or demo.get("improvement_claim_valid") is not False:
         raise ValueError("Concept demo must not claim a live-site improvement")
-    if quote.get("llm_determined_price") is not False:
+    if quote is not None and quote.get("llm_determined_price") is not False:
         raise ValueError("Quote must be deterministic")
 
     output = Path(output_dir)
@@ -105,8 +111,8 @@ def build_packet(
         ],
         "before_images": [demo["before"]] if demo.get("before") else [],
         "after_images": [demo["after"]] if demo.get("after") else [],
-        "recommended_package": quote.get("package"),
-        "quote_band": quote.get("price_band_nzd"),
+        "recommended_package": quote.get("package") if quote else None,
+        "quote_band": quote.get("price_band_nzd") if quote else None,
         "proof": {
             "demo_status": demo.get("status"),
             "live_site_changed": False,
@@ -116,8 +122,7 @@ def build_packet(
             _bind("audit", report),
             _bind("remediation", remediation),
             _bind("demo", demo),
-            _bind("quote", quote),
-        ],
+        ] + ([_bind("quote", quote)] if quote is not None else []),
         "draft_message_path": str(output / "draft-message.txt"),
         "draft_message_sha256": _sha(output / "draft-message.txt"),
         "qa_status": "HUMAN_REVIEW_REQUIRED",
@@ -134,9 +139,10 @@ def build_packet(
     approval = (
         "# Prospect packet — HUMAN_APPROVAL_REQUIRED\n\n"
         + "Website: " + str(report.get("url")) + "\n\n"
-        + "Package: " + str(quote.get("package")) + "\n\n"
-        + "Quote band: NZ$" + quote["price_band_nzd"]["low"]
-        + "–NZ$" + quote["price_band_nzd"]["high"] + "\n\n"
+        + ("Package: " + str(quote.get("package")) + "\n\n"
+           + "Quote band: NZ$" + quote["price_band_nzd"]["low"]
+           + "–NZ$" + quote["price_band_nzd"]["high"] + "\n\n"
+           if quote else "Price: no estimate supplied; scope and cost remain to be discussed.\n\n")
         + "The demo is a local concept only. No live-site improvement, outreach send, "
         + "deployment, payment, or paid AI call occurred.\n\n"
         + "Review packet.json, the evidence, the exact draft and contact provenance "

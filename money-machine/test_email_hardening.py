@@ -6,10 +6,12 @@ import sqlite3
 import unittest
 from unittest.mock import patch
 import test_acceptance as legacy
-from test_email_finder import page, good_dns, ROOT
+from test_email_finder import page, good_dns
 import mm_email as e
 import mm_email_store as store
 import mm_email_cli as cli
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def frozen_case(cid):
@@ -24,14 +26,15 @@ from mm_test_capabilities import HAS_EMAIL_CASE_FIXTURES
 _CASES_ABSENT=("BLOCKED_FIXTURE: reports/email-observation-evidence/cases corpus "
                "not present in this environment")
 
-@unittest.skipUnless(HAS_EMAIL_CASE_FIXTURES,_CASES_ABSENT)
 class HardeningEvidence(unittest.TestCase):
+    @unittest.skipUnless(HAS_EMAIL_CASE_FIXTURES,_CASES_ABSENT)
     def test_real_privacy_only_admin_rejected_legitimate_office_retained(self):
         _,r=frozen_case('new-039');v={v['email']:v for v in r['results']}
         self.assertEqual(v['admin@skilledelectrical.co.nz']['confidence_label'],'REJECTED')
         self.assertEqual(v['admin@skilledelectrical.co.nz']['role_account'],'privacy/legal')
         self.assertEqual(r['selected']['email'],'office@skilledelectrical.co.nz')
 
+    @unittest.skipUnless(HAS_EMAIL_CASE_FIXTURES,_CASES_ABSENT)
     def test_real_mixed_branch_and_locations_pages(self):
         _,r=frozen_case('new-094');v={v['email']:v for v in r['results']}
         self.assertEqual(r['selected']['email'],'sales@urban.co.nz')
@@ -89,7 +92,14 @@ class HardeningDatabase(unittest.TestCase):
         with self.assertRaisesRegex(sqlite3.IntegrityError,'replacement blocked'):
             self.d.execute('INSERT OR REPLACE INTO mm_events VALUES(?,?,?,?,?)',
                            (event['id'],e.utcnow(),'replaced',self.bid,'tampered'))
-        score = self.d.execute('SELECT * FROM mm_score_history ORDER BY id LIMIT 1').fetchone()
+        # Archive this test's synthetic score; an empty staging source must not
+        # depend on a historical customer score already being present.
+        self.d.execute('INSERT INTO mm_scores VALUES(?,?,?,?,?)',
+                       (self.bid,self.eid,'{}','{"score":1}',e.utcnow()))
+        self.d.execute('UPDATE mm_scores SET computed_json=? WHERE business_id=?',
+                       ('{"score":2}',self.bid))
+        score = self.d.execute('SELECT * FROM mm_score_history WHERE business_id=? ORDER BY id LIMIT 1',
+                               (self.bid,)).fetchone()
         with self.assertRaisesRegex(sqlite3.IntegrityError,'replacement blocked'):
             self.d.execute('INSERT OR REPLACE INTO mm_score_history VALUES(?,?,?,?,?,?,?)',
                            (score['id'],self.bid,self.eid,'{}','{}',e.utcnow(),e.utcnow()))

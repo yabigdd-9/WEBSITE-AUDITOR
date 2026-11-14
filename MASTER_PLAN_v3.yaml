@@ -1,0 +1,545 @@
+plan:
+  name: "WEBSITE-AUDITOR Master Plan v3.1"
+  version: "3.1"
+  reviewed_at: "2026-10-16"
+  verified_baseline_sha: "09ab41ab61656ae4b63110d4ee7d418f3fbf07b8"
+  status: "DRAFT_FOR_REVIEW"
+  primary_workspace: "/Users/dd/WEBSITE-AUDITOR"
+  target_release: "PR #52 — v44 local-machine convergence (updated for v3.1)"
+  execution_mode: "local-first, zero-paid-token, evidence-first, supervised, obsidian-operator-workspace"
+  paid_allowed: false
+  max_cost_usd: 0
+  outreach_default_enabled: false
+  destructive_actions_default_allowed: false
+
+  non_negotiables:
+    zero_cost:
+      paid_allowed: false
+      max_cost_usd: 0
+      rules:
+        - "Never silently fall back to a paid provider."
+        - "When all free providers are unavailable, defer the job."
+        - "Prefer deterministic Python over LLM calls."
+    repository_safety:
+      rules:
+        - "Do not overwrite /Users/dd/WEBSITE-AUDITOR with experimental copies."
+        - "Do not merge experimental files directly into master."
+        - "Use isolated branches/worktrees for all coding agent work."
+        - "Back up databases/state before migrations."
+        - "Never allow concurrent coding agents to edit the same file."
+        - "All changes must be reviewed and tested before promotion."
+    outreach_safety:
+      send_enabled: false
+      rules:
+        - "No guessed email pattern is verified."
+        - "Catch-all does not equal verified."
+        - "NO_VERIFIED_EMAIL is acceptable."
+        - "Respect suppression, duplicate prevention, cooldown, bounce and stop-on-response rules."
+        - "Live sends require explicitly approved recipient batches and message content."
+    production_change_policy:
+      rules:
+        - "No autonomous direct-to-master edits."
+        - "Tests and quality gates are required before promotion."
+        - "No measurable improvement means no self-improvement merge."
+        - "Human review remains required for high-risk changes."
+        - "All outreach must be approved by human operator before sending."
+
+  canonical_direction:
+    repository: "/Users/dd/WEBSITE-AUDITOR"
+    audit_engine: "auditor_toolkit + thin CLI layer"
+    operator_cli: "./mm"
+    runtime_state: "SQLite + state files"
+    queue: "SQLite leased work queue"
+    supervisor: "launchd + ./mm supervisor"
+    orchestrator: "Hermes"
+    human_workspace: "Obsidian"
+    obsidian_authoritative: false
+    n8n_default_runtime: false
+
+  # Core phases focusing on critical gaps and high impact
+  phases:
+    # Foundation and Recovery
+    F0:
+      name: "Historical Secret Remediation & Environment Hardening"
+      priority: CRITICAL
+      goal: "Remove exposed secrets, harden environment, ensure reproducible baseline."
+      actions:
+        - "Rotate all credentials identified in historical secret scan (16 needs_review)."
+        - "Enforce gitleaks and secret detection in pre-commit."
+        - "Standardize dependency management with uv.lock and requirements.txt."
+        - "Verify Python 3.11 environment and isolated venvs for each worktree."
+        - "Confirm no paid API keys present in configuration."
+        - "Validate .gitignore excludes all sensitive files."
+      gate:
+        - "All historical secrets remediated (rotated) or confirmed non-credential."
+        - "gitleaks passes on entire history."
+        - "Dependency audit passes with no known vulnerabilities."
+        - "Working tree clean with no untracked files containing secrets."
+        - "./mm doctor --profile research-only passes."
+        - "Pre-commit hooks block secret introduction."
+
+    F1:
+      name: "Production Control Plane & Quota Management"
+      priority: CRITICAL
+      goal: "Establish immutable runtime guarantees, shared quota control, and recovery."
+      actions:
+        - "Implement atomic shared quota manager for FCC/Nous/local model calls."
+        - "Add circuit breakers for all external service calls."
+        - "Enhance leased queue with persistent checkpoints and crash recovery."
+        - "Implement runtime truth engine to detect config/service drift."
+        - "Add automated rollback on verified failure detection."
+        - "Strengthen supervisor health checks with restart recovery verification."
+        - "Add dead-letter queue monitoring and alerting."
+      gate:
+        - "Shared quota manager prevents simultaneous agent overconsumption."
+        - "Circuit breakers tested with simulated provider failures."
+        - "Queue recovery verified after simulated crash/power loss."
+        - "Runtime truth engine detects intentional config mismatches within 5 min."
+        - "Rollback procedure tested and documented."
+        - "Supervisor survives restart without duplicate work."
+        - "DLQ visibility and manual reprocessing available."
+
+    # Acceptance and Code Quality
+    Q0:
+      name: "Test Suite Stabilization & Flaky Test Elimination"
+      priority: CRITICAL
+      goal: "Achieve reliable, fast test suite for rapid feedback."
+      actions:
+        - "Identify and fix flaky tests in toolkit and acceptance suites."
+        - "Implement test isolation and parallel execution where safe."
+        - "Add property-based testing for deterministic components (scoring, quoting)."
+        - "Create golden dataset for audit evidence provenance validation."
+        - "Ensure full test suite runs under 90 seconds on CI."
+        - "Add test for historical secret scanning completeness."
+        - "Integrate Ruff, MyPy, and bandit in pre-commit."
+      gate:
+        - "All tests pass consistently in CI-like environment (3 consecutive runs)."
+        - "Flaky test rate < 0.5%."
+        - "Test suite completion time < 90 seconds."
+        - "Golden dataset validates evidence provenance for 100% of sampled findings."
+        - "Historical secret scan test passes."
+        - "Pre-commit blocks Ruff/MyPy/bandit violations."
+
+    Q1:
+      name: "Automated Security & Quality Gates"
+      priority: HIGH
+      goal: "Prevent regressions through automated checks in CI."
+      actions:
+        - "Integrate automated security scanning (bandit, safety) in PR workflow."
+        - "Enforce Ruff and MyPy with strict configuration (zero new warnings)."
+        - "Add dependency vulnerability scanning with safety-db."
+        - "Implement automated secret detection in pre-commit (already in F0)."
+        - "Create security gates for outreach and data handling (block if send_enabled)."
+        - "Add performance regression detection for critical paths (audit, demo)."
+      gate:
+        - "Security scan passes with no high/severe findings."
+        - "Ruff/MyPy enforce zero new warnings on changed files."
+        - "Dependency scan passes with no known vulnerabilities."
+        - "Pre-commit hooks block secret introduction."
+        - "Outreach gates prevent unauthorized sends (send_enabled false)."
+        - "Performance benchmarks detect >10% regressions on main branch."
+
+    # FCC and AI Routing
+    A0:
+      name: "FCC Claude Allowance Intelligence & Local Fallback"
+      priority: CRITICAL
+      goal: "Guarantee zero-cost operation with intelligent model routing and local fallback."
+      actions:
+        - "Implement shared quota manager with atomic admission (reuse from F1)."
+        - "Add model capability classification and health weighting."
+        - "Implement request deduplication and context summarization."
+        - "Add local model fallback with Ollama/llama.cpp integration (opt-in)."
+        - "Create deferred work queues for quota exhaustion (persistent)."
+        - "Implement accurate usage accounting with provider reset detection."
+        - "Add circuit breakers for provider failures (reuse from F1)."
+        - "Add usage alerts at 80% quota consumption."
+      gate:
+        - "Shared quota manager prevents overconsumption across agents."
+        - "Model routing selects cheapest capable model (local > free > defer)."
+        - "Deduplication reduces redundant requests by >50% on repeated tasks."
+        - "Local fallback functional when remote providers unavailable (tested)."
+        - "Deferred work queues hold jobs until quota reset (verified)."
+        - "Usage accounting matches provider reports within 5% (audit)."
+        - "Circuit breakers prevent cascading failures (simulated)."
+        - "Usage alerts trigger at 80% quota."
+
+    # Agent Orchestration (lightweight)
+    O0:
+      name: "Hermes Agent Role Contracts & Memory Compression"
+      priority: HIGH
+      goal: "Define clear roles, reduce context overload, enable bounded retries."
+      actions:
+        - "Define explicit role contracts (Researcher, Coder, Operator, Judge) with input/output schemas."
+        - "Implement agent memory compression (summarization) for inter-agent handoff."
+        - "Add task decomposition with dependency tracking for complex jobs."
+        - "Create self-correction loops with independent verification (Judge role)."
+        - "Implement bounded retries with exponential backoff and jitter."
+        - "Add agent performance profiling to detect bottlenecks."
+        - "Create agent handoff protocols with state transfer (checkpointing)."
+      gate:
+        - "Role contracts prevent ambiguous responsibilities (documented)."
+        - "Agent memory compression reduces context by >70% (measured)."
+        - "Task decomposition enables parallel execution for independent subtasks."
+        - "Self-correction loops improve output quality by >30% (Judge overrides)."
+        - "Bounded retries prevent infinite loops (max 3 attempts)."
+        - "Profiling identifies and resolves bottlenecks (>20% speedup)."
+        - "Handoff protocols maintain state integrity (verified via test)."
+
+    # Business Discovery and Auditing
+    D0:
+      name: "NZ Business Discovery Enhancement"
+      priority: HIGH
+      goal: "Improve discovery accuracy, efficiency, and evidence freshness."
+      actions:
+        - "Integrate NZBN API with rate limiting, caching, and fallback to web scrape."
+        - "Improve SearXNG integration with result validation against known sources."
+        - "Add business identity reconciliation across NZBN, website, and domain data."
+        - "Implement duplicate detection with fuzzy matching (name, address, phone)."
+        - "Add evidence freshness monitoring for business data (flag >30 days old)."
+        - "Create discovery pipeline with checkpointing and resume capability."
+        - "Add permit/license data sources where publicly available (council sites)."
+      gate:
+        - "NZBN integration verifies >85% of NZ businesses (sample test)."
+        - "SearXNG results validated against known sources (>80% precision)."
+        - "Identity reconciliation reduces false positives by >35% (A/B test)."
+        - "Duplicate detection catches >90% of duplicates (known test set)."
+        - "Evidence freshness flags stale data >30 days old (verified)."
+        - "Discovery pipeline survives interruptions and resumes cleanly."
+        - "New data sources increase qualified leads by >15% (pilot)."
+
+    D1:
+      name: "Evidence-Based Website Auditing & Scoring"
+      priority: HIGH
+      goal: "Produce accurate, traceable audit findings with calibrated scoring."
+      actions:
+        - "Implement evidence provenance for all findings (URL, timestamp, rule, screenshot/hash)."
+        - "Add visual regression testing for demo comparisons (perceptual hash diff)."
+        - "Create calibrated scoring system for audit severity (based on business impact)."
+        - "Implement deterministic validation before expensive checks (HTTP lightweight first)."
+        - "Add automated duplicate-finding suppression (same URL/rule within 24h)."
+        - "Create evidence freshness monitoring for audit data (flag >7 days old)."
+        - "Implement business-specific audit rule sets (e.g., retail, hospitality)."
+      gate:
+        - "Every material finding has traceable evidence (verified sample)."
+        - "Visual regression testing detects changes >5% threshold (tested)."
+        - "Scoring system calibrated against business outcomes (correlation >0.6)."
+        - "Deterministic validation reduces false positives by >50% (A/B test)."
+        - "Duplicate suppression reduces audit noise by >60% (log analysis)."
+        - "Evidence freshness ensures audit data <7 days old (enforced)."
+        - "Business-specific rules improve relevance by >30% (client feedback)."
+
+    # Demos and Quoting
+    M0:
+      name: "Demo Factory & Deterministic Quote Engine"
+      priority: HIGH
+      goal: "Create reliable, evidence-based demonstrations and quotes with fast turnaround."
+      actions:
+        - "Implement automated audit-to-demo-to-quote pipeline (triggered on audit completion)."
+        - "Create reusable industry-specific demo templates (HTML/CSS/JS)."
+        - "Add deterministic quote generation with versioned pricing rules (operator-supplied rate)."
+        - "Implement before/after evidence collection with screenshots and console logs."
+        - "Add demo quality scoring based on business relevance and conversion prediction."
+        - "Create quote accuracy tracking with actual project data (post-engagement)."
+        - "Implement demo library with version control and template inheritance."
+      gate:
+        - "Pipeline produces demo and quote from audit in <5 minutes (measured)."
+        - "Demo templates reduce creation time by >70% (time comparison)."
+        - "Quote generation is deterministic and auditable (same input → same output)."
+        - "Before/after evidence shows clear improvement (visual diff >10%)."
+        - "Demo quality score correlates with client engagement (pilot data)."
+        - "Quote accuracy within 15% of actual project cost (sampled completed jobs)."
+        - "Demo library enables reuse across similar businesses (template usage >50%)."
+
+    # Outreach and CRM
+    C0:
+      name: "Outreach Safety, Consent, & CRM Integration"
+      priority: CRITICAL
+      goal: "Ensure compliant, effective outreach with relationship tracking and safety."
+      actions:
+        - "Implement transactional outbox for all external actions (persistent queue with deduplication)."
+        - "Add recipient deduplication and consent/eligibility checking (NZ spam act)."
+        - "Create approval workflow for outreach batches (human review of batch + content)."
+        - "Implement bounce and complaint handling with automatic suppression lists."
+        - "Add unsubscribe handling and preference centers (link in footer)."
+        - "Create CRM integration for lead tracking, nurturing, and stage progression."
+        - "Immediate outbound kill switch with audit trail (one-second cutoff)."
+        - "Add suppression list persistence and periodic refresh."
+      gate:
+        - "Transactional outbox ensures exactly-once delivery (tested with failures)."
+        - "Recipient deduplication prevents duplicate messages (verified)."
+        - "Consent verification blocks non-compliant sends (tested with invalid consents)."
+        - "Approval workflow requires human sign-off for batches (logged)."
+        - "Bounce/complaint handling updates suppression lists (verified)."
+        - "Unsubscribe handling removes leads from active outreach (tested)."
+        - "CRM tracks lead journey from discovery to close (sampled leads)."
+        - "Kill switch stops all outreach within 1 second (measured)."
+        - "Suppression list persists across restarts and refreshes daily."
+
+    # Financial Controls and Commercial Tracking
+    F2:
+      name: "Financial Governance & Commercial Performance Feedback"
+      priority: HIGH
+      goal: "Track financial performance, enforce zero-cost, and improve qualification."
+      actions:
+        - "Implement commercial performance feedback system (track leads, quotes, won)."
+        - "Track valid leads, qualified opportunities, revenue, delivery effort, support costs."
+        - "Add calibrated opportunity-ranking engine (based on historical conversion)."
+        - "Implement financial controls for zero-cost guarantee (quota manager + alerts)."
+        - "Add automated cost alerts and deferral mechanisms (at 80% quota)."
+        - "Create revenue pipeline visualization (funnel metrics)."
+        - "Implement price accuracy validation against actual project data."
+      gate:
+        - "Performance tracking correlates with business outcomes (correlation >0.5)."
+        - "Lead qualification improves conversion rate by >20% (A/B test)."
+        - "Revenue tracking matches invoiced amounts (>95% accuracy)."
+        - "Opportunity engine prioritizes high-value prospects (top 20% yield >50% revenue)."
+        - "Financial controls prevent any paid API usage (quota never exceeded)."
+        - "Cost alerts trigger job deferral before exceeding limits (tested)."
+        - "Revenue pipeline shows clear conversion funnel (stage-wise drop-off)."
+
+    # Security and Compliance
+    S0:
+      name: "Security Hardening & Privacy Assurance"
+      priority: CRITICAL
+      goal: "Protect against threats and ensure NZ privacy compliance."
+      actions:
+        - "Complete historical credential remediation (rotate/revoke confirmed exposures)."
+        - "Implement least-privilege permissions for all processes (OS-level, file caps)."
+        - "Add browser isolation for untrusted website access (separate user/profile)."
+        - "Implement prompt injection and data exfiltration protections (input sanitization, output encoding)."
+        - "Add supply-chain vulnerability scanning for dependencies (safety-db, pip-audit)."
+        - "Create audit trails for all system actions (append-only log with integrity hash)."
+        - "Implement GDPR/NZ privacy compliance controls (data minimization, retention)."
+        - "Add regular lightweight security penetration testing (automated scripts)."
+      gate:
+        - "All historical credentials remediated or rotated (verified)."
+        - "Least-privilege permissions limit breach impact (principle verified)."
+        - "Browser isolation prevents website-based attacks (tested with malicious site)."
+        - "Prompt injection protections block >90% of attempts (OWASP test suite)."
+        - "Supply-chain scan passes with no critical vulnerabilities (CVSS <7)."
+        - "Audit trails capture all security-relevant events (tamper-evident)."
+        - "Privacy controls satisfy NZ legal requirements (legal review sign-off)."
+        - "Penetration testing finds no critical vulnerabilities (CVSS <7)."
+
+    # Production Reliability
+    R0:
+      name: "Production Readiness, Soak Testing & Recovery"
+      priority: CRITICAL
+      goal: "Achieve verifiable production stability, rapid recovery, and monitoring."
+      actions:
+        - "Implement production configuration drift detection (file hash + config version)."
+        - "Add automated rollback triggered by verified failure criteria (health checks)."
+        - "Create runbooks for common failure scenarios (network, crash, quota exhaustion)."
+        - "Implement verified backup rotation and restore testing (monthly schedule)."
+        - "Add loss-of-power and crash recovery procedures (checkpoint replay)."
+        - "Create incident management workflow with timelines (detection → resolution)."
+        - "Implement health dashboard with key metrics (quota, queue depth, error rate)."
+        - "Add progressive production feature flags (for safe testing)."
+        - "Run 24-hour stability soak with exact-frozen revision (post-merge)."
+      gate:
+        - "Configuration drift detected within 5 minutes of change (alert)."
+        - "Automated rollback recovers from failure in <2 minutes (tested)."
+        - "Runbooks reduce MTTR by >50% (measured vs baseline)."
+        - "Backup restore verified monthly with RPO <1 hour (test restore)."
+        - "Loss-of-power recovery tested and documented (power loss simulation)."
+        - "Incident workflow ensures timely resolution (SLA <4 hours for critical)."
+        - "Health dashboard shows system status at a glance (visible)."
+        - "Feature flags enable safe production testing (no unintended side effects)."
+        - "24-hour stability soak passes with zero duplicate work and visible DLQ."
+
+    # Deployment and Verification
+    D2:
+      name: "Guarded Production Rollout & Release Verification"
+      priority: HIGH
+      goal: "Ensure safe, verifiable production deployment with rollback capability."
+      actions:
+        - "Create release controller with exact commit verification (hash match)."
+        - "Implement canary rollout with health checks (5% traffic, monitor)."
+        - "Add release verification tied to exact commit hashes (post-deploy validation)."
+        - "Implement automated rollback on verified failure metrics (reuse R0)."
+        - "Create acceptance gates for production promotion (test evidence + human review)."
+        - "Add post-release health monitoring for 24 hours (alerts on degradation)."
+        - "Implement audit evidence collection for releases (artifacts, logs, test receipts)."
+        - "Add rollback procedures verified in staging (tested)."
+      gate:
+        - "Release controller blocks promotion without exact commit match (hash)."
+        - "Canary rollout validates health before full promotion (error rate <1%)."
+        - "Release verification confirms exact code deployment (hash match)."
+        - "Automated rollback triggers on verified failure metrics (health checks)."
+        - "Acceptance gates require test evidence and human review (signed off)."
+        - "Post-release monitoring detects issues within 24 hours (alert)."
+        - "Audit evidence package includes all release artifacts (verified)."
+        - "Rollback procedure tested and documented (staging rollback success)."
+
+  # Dependencies between phases (strict order for safety)
+  dependencies:
+    F0: []
+    F1: [F0]
+    Q0: [F0]
+    Q1: [Q0]
+    A0: [F1, Q0]
+    O0: [F1, Q0]
+    D0: [F0, A0]
+    D1: [D0, Q0]
+    M0: [D1, Q0]
+    C0: [M0, Q0, A0]
+    F2: [C0, Q0]
+    S0: [F0, Q0]
+    R0: [F1, S0, Q0]
+    D2: [R0, Q0]
+
+  # Milestones
+  milestones:
+    M1:
+      name: "Foundation & Control Plane"
+      criteria: ["F0", "F1"]
+      description: "Secrets remediated, environment hardened, quota management and recovery in place."
+    M2:
+      name: "Quality, Security & AI Routing"
+      criteria: ["Q0", "Q1", "A0", "O0"]
+      description: "Test suite stable, automated gates, intelligent model routing, agent contracts."
+    M3:
+      name: "Core Business Functions"
+      criteria: ["D0", "D1", "M0", "C0"]
+      description: "Discovery, auditing, demo/quoting, and outreach compliant and effective."
+    M4:
+      name: "Financial, Security & Production Ready"
+      criteria: ["F2", "S0", "R0"]
+      description: "Financial tracking, security hardened, production reliability verified."
+    M5:
+      name: "Verified Deployment Pipeline"
+      criteria: ["D2"]
+      description: "Guarded rollout, release verification, and rollback tested."
+    M6:
+      name: "Release Ready"
+      criteria: []
+      description: "All milestones completed; system ready for controlled production activation."
+
+  final_acceptance:
+    reliability:
+      - "One uninterrupted independently verified 24+ hour run at the exact final frozen revision"
+      - "Crash/restart recovery verified with no duplicate work"
+      - "Configuration drift detection operational and alerting"
+      - "Visible dead-letter queue with manual reprocessing"
+      - "Automated rollback recovers from verified failures in <2 minutes"
+    audit_quality:
+      - "Every material finding has traceable evidence (URL, time, rule, screenshot/hash)"
+      - "Scores derived from findings with business impact calibration"
+      - "False positives tracked and minimized via deterministic validation"
+      - "Evidence freshness monitored (audit data <7 days, business data <30 days)"
+    lead_quality:
+      - "Businesses deduplicated with identity confidence weighting"
+      - "Eligible emails have full provenance (consent, source, timestamp)"
+      - "Consent verified before outreach (NZ spam act compliance)"
+    commercial_output:
+      - "Qualified prospects produce demo, before/after proof, quote band, and draft"
+      - "Quote accuracy within 15% of actual project cost (sampled completed jobs)"
+      - "Demo quality score correlates with client engagement (pilot data >0.5 correlation)"
+    cost:
+      - "Paid model/API spend remains $0 (quota manager enforces limits)"
+      - "No silent paid inference path (circuit breakers → defer)"
+      - "Shared quota manager prevents agent overconsumption (atomic admission)"
+    safety:
+      - "Live outreach disabled by default with explicit human approval required"
+      - "High-risk changes require human review (acceptance gates)"
+      - "No autonomous direct-to-master self-improvement (all changes via PR)"
+      - "Outbound kill switch stops all outreach within 1 second (audit trail)"
+    maintainability:
+      - "One canonical repo/auditor/control plane/master plan"
+      - "Obsidian is human-facing only (no runtime authority)"
+      - "n8n not required by default stack"
+      - "Automated security and quality gates in CI (Ruff/MyPy/bandit/security-scanners)"
+
+  github_todo_review:
+    reviewed_at: "2026-10-16"
+    source: "https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/52"
+    baseline_sha: "09ab41ab61656ae4b63110d4ee7d418f3fbf07b8"
+    pr_state: "OPEN_DRAFT"
+    baseline_latest_checks: "13 succeeded"
+    review_status: "CodeRabbit skipped draft; review not complete"
+    sonar_maintenance_suggestions: 39
+    sonar_groups: {compound_assertions: 33, exception_assertion_scopes: 4, technology_detection: 2}
+    candidate_status: "ISOLATED_LOCAL_COMMIT_UNPUBLISHED"
+    candidate_work: [
+      "explicit skipped statuses for seven audit stubs",
+      "audit-cache coverage guards and audit NEEDS_REVIEW",
+      "unsupported secret list without Keychain",
+      "quote safety and shared effort",
+      "Sonar maintenance with single throwing pytest.raises invocations",
+      "technology alias compatibility",
+      "canonical documentation",
+      "malformed falsey effort bands",
+      "invalid JSON CLI validation",
+      "partial rendered screenshot baselines",
+      "stale verification/resolution guards",
+      "rendered/browser metadata consistency"
+    ]
+    register: "docs/GITHUB_TODO_REGISTER.md"
+    current_runtime_acceptance: "BLOCKED_NETWORK_SAMPLE; active attempt null; no valid deadline"
+    historical_runtime_acceptance: "e83121b only; not b349 or candidate acceptance"
+    approval_required: [
+      "controller rearm/start",
+      "candidate promotion and runtime rollout",
+      "master integration",
+      "external actions"
+    ]
+    candidate_validation:
+      focused_coverage_quote_worker: "82 passed"
+      portable: "424 passed; 45 subtests passed"
+      chromium: "Fresh full suite: 6 passed in 47.98 seconds; earlier receipts historical"
+      local_sonar_receipt: "All 39 annotations reverified against 19 current source hashes; no new hosted result"
+      tier1: "29 tests OK"
+      scoped_ruff_compile_pip_check: "passed"
+      wheel_build: "passed"
+      dependency_audits: "project and email passed; no known vulnerabilities reported"
+      canonical: "1048 passed; 3 skipped; 3 warnings"
+      canonical_skips: "2 opt-in Chromium covered by 6 fresh passing journeys; 1 unavailable PIL.Image"
+      supplemental_image: "Formerly skipped test passed once using work-only Python 3.12.14/Pillow 12.3.0 with network denied; canonical Python 3.11 skip and suite counts unchanged; no host/source/environment change."
+      installed_wheel: "17 imports, CLI help, local doctor and axe assets passed"
+      operator_cli_help: "passed"
+      model_limitation: "llama_cpp/model absent; no model generation tested"
+      retained_evidence: "Earlier canonical1029/focused63 receipts are historical; portable/tier1/dependency/image receipts retained"
+      wheel_sha256: "1740e919e8a95137a55cc2903a2431a1c18d6233b2a504e01a0b92f1af466dac"
+      final_receipts: "External review bundle records exact local commit SHA and final test/build/import receipts."
+    hosted_candidate_status: "Locally committed; exact SHA in external review bundle; no push, new hosted checks or Sonar analysis."
+    historical_secret_triage:
+      priority: "F0"
+      register_task: "T20"
+      full_history_scan: "Completed: 1003 commits; 56.47 MB; 185.366 seconds; exit 1; 87 inputs"
+      static_assessment: "All 87 inputs individually assessed; duplicate-looking inputs retained"
+      disposition: {not_actionable: 71, needs_review: 16, confirmed: 0}
+      remaining_inputs: "14 captured Maps-key observations; 1 historical Stripe test-key-shaped example; 1 WPForms form token"
+      source: "Review bundle follow-up/HISTORICAL_SECRET_TRIAGE.md and historical-secrets-triage.json"
+      status: "Static assessment complete; owner/restriction/purpose review OPEN for 16; no clearance claimed"
+      policy: "No credential values, provider calls, rotation, history rewrite or allow-list expansion; exact remediation/rotation authority required for any later confirmed credential."
+    deferred_analyzer_work: "Implement the seven skipped analyzer stages with evidence-backed findings under separate scope."
+    separate_acceptance: [
+      "host tools and browser",
+      "human contact precision",
+      "disjoint intelligence holdout",
+      "final-revision 24-hour soak",
+      "code review"
+    ]
+
+execution_order:
+  # Parallel-safe groups for Codex and Opus worktrees
+  # Group 1: Foundation (can be done in parallel across worktrees)
+  - [F0]
+  # Group 2: Control plane and quality (depends on F0; Codex can work on F1/Q0/Q1, Opus on A0/O0)
+  - [F1, Q0, Q1, A0, O0]
+  # Group 3: Discovery and auditing (depends on F0, A0; can parallelize D0/D1)
+  - [D0, D1]
+  # Group 4: Demo/quoting and outreach (depends on D1, Q0; can parallelize M0/C0)
+  - [M0, C0]
+  # Group 5: Financial, security, production reliability (depends on prior groups; can parallelize F2/S0/R0)
+  - [F2, S0, R0]
+  # Group 6: Deployment and verification (depends on R0)
+  - [D2]
+  # Milestones are checkpoints, not work packets
+
+notes: |
+  - Codex and Opus should work in separate Git worktrees linked to the same repo.
+  - Each worktree can execute its assigned phases independently, respecting dependencies.
+  - Phases within a group can be executed in parallel by the two agents, but must wait for the group to complete before moving to the next group.
+  - All changes must be submitted as PRs and pass the automated gates (Q1) before merging.
+  - The final promotion to production requires milestone M6 completion and human approval.

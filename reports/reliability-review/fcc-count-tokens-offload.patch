@@ -1,0 +1,34 @@
+--- /Users/dd/.local/share/uv/tools/free-claude-code/lib/python3.14/site-packages/free_claude_code/api/routes.py	2026-09-24 00:20:03
++++ fcc-patched/free_claude_code/api/routes.py	2026-10-15 05:18:04
+@@ -1,6 +1,7 @@
+ """FastAPI route handlers."""
+ 
+ from collections.abc import Mapping
++from functools import partial
+ 
+ from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response
+ from loguru import logger
+@@ -14,6 +15,7 @@
+     TokenCountRequest,
+     get_token_count,
+ )
++from free_claude_code.core.async_tasks import run_sync_owned
+ from free_claude_code.core.openai_responses import OpenAIResponsesRequest
+ from free_claude_code.core.trace import trace_event
+ 
+@@ -172,7 +174,14 @@
+     try:
+         await lease.wait_for_token_estimation()
+         handler = TokenCountHandler(lease.settings, token_counter=get_token_count)
+-        return handler.count(request_data, request_id=get_request_id(request))
++        # Token counting runs tiktoken's cl100k_base encoder once per content
++        # block across the whole conversation. That is CPU-bound C work holding
++        # the GIL, so running it inline starves the event loop for seconds and
++        # stalls every concurrent request, including /health. Run it on a worker
++        # thread, matching the boundary already used for the admin config path.
++        return await run_sync_owned(
++            partial(handler.count, request_data, request_id=get_request_id(request))
++        )
+     finally:
+         await lease.release()
+ 
