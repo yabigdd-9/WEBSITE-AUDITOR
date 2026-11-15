@@ -178,7 +178,8 @@ def run_audit(url, options=None, fetcher=None):
             },
         }
     except Exception as exc:
-        checks["fetch"] = {"status": "error", "required": True, "reason": str(exc)}
+        checks["fetch"] = {"status": "error", "required": True, "reason": str(exc),
+                           "error_type": type(exc).__name__}
     try:
         if checks["fetch"]["status"] == "ok":
             final_url = str(response.url)

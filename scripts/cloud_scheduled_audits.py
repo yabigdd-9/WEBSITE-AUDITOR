@@ -111,7 +111,17 @@ def _audit_status(completed: subprocess.CompletedProcess, output_root: Path) -> 
         )
         if not incomplete:
             return fallback
-        label = ", ".join(incomplete[:4])
+        fetch_detail = checks.get("fetch", {})
+        fetch_type = (fetch_detail.get("error_type")
+                      if isinstance(fetch_detail, dict) else None)
+        if not (isinstance(fetch_type, str) and
+                re.fullmatch(r"[A-Za-z][A-Za-z0-9]{0,40}", fetch_type)):
+            fetch_type = None
+        labels = [
+            f"fetch/{fetch_type}" if name == "fetch" and fetch_type else name
+            for name in incomplete[:4]
+        ]
+        label = ", ".join(labels)
         if len(incomplete) > 4:
             label += f" (+{len(incomplete) - 4} more)"
         return f"FAIL (partial: {label})"
