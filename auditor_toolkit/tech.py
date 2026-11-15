@@ -13,7 +13,7 @@ from auditor_toolkit.checks import Finding
 
 
 @dataclass
-class Technology:
+class TechnologyFingerprint:
     technology: str
     category: str
     version: Optional[str] = None
@@ -22,7 +22,11 @@ class Technology:
     confidence: float = 0.0
 
 
-def detect_technology(html: str, url: str, headers: dict) -> List[Technology]:
+# Preserve the public import while keeping the class and field names distinct.
+Technology = TechnologyFingerprint
+
+
+def detect_technology(html: str, headers: dict) -> List[Technology]:
     """Detect technologies used by the website."""
     soup = BeautifulSoup(html, "html.parser")
     technologies = [
@@ -136,14 +140,10 @@ def _detect_analytics(soup: BeautifulSoup) -> Technology | None:
 
 
 def analyse_html(html: str, url: str, headers: dict) -> tuple[List[Finding], dict[str, Any]]:
-    """Analyse HTML for technology findings."""
-    techs = detect_technology(html, url, headers)
-    findings = []
-    for tech in techs:
-        if tech.technology:
-            findings.append(
-                Finding(
-                    defect_key=f"technology_{tech.technology.lower().replace(' ', '_')}",
-                )
-            )
-    return findings, {"technologies": [t.__dict__ for t in techs]}
+    """Record passive technology fingerprints as evidence, not defects.
+
+    Detecting a CMS or library does not establish a vulnerability or other
+    actionable defect. A separate evidence-backed check must make that claim.
+    """
+    techs = detect_technology(html, headers)
+    return [], {"technologies": [{**t.__dict__, "source_url": url} for t in techs]}

@@ -67,6 +67,7 @@ jobs:
         continue-on-error: true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -o pipefail
           task_file=.scannerwork/report-task.txt
@@ -85,3 +86,16 @@ jobs:
             --header "Authorization: Basic $(printf '%s:' "$SONAR_TOKEN" | base64 --wrap=0)" \
             "https://sonarcloud.io/api/ce/task?id=${task_id}" \
             | jq '{task: (.task | {id, status, type, componentKey, analysisId, warningCount, errorMessage})}'
+
+          # Diagnostics are limited to the audited PR. Never expose the token.
+          # Keep this step non-blocking: the scan itself owns the quality gate.
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && [ -n "${PR_NUMBER}" ]; then
+            echo "SonarCloud PR issue summary:"
+            curl --fail --silent --show-error --get \
+              --header "Authorization: Basic $(printf '%s:' "$SONAR_TOKEN" | base64 --wrap=0)" \
+              --data-urlencode "componentKeys=yabigdd-9_website-auditor" \
+              --data-urlencode "pullRequest=${PR_NUMBER}" \
+              --data-urlencode "ps=100" \
+              "https://sonarcloud.io/api/issues/search" \
+              | jq '{total, issues: [.issues[]? | {rule, severity, type, message, component, line, effort}]}'
+          fi
