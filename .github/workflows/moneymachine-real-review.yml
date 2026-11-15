@@ -10,6 +10,9 @@ on:
     paths:
       - '.github/workflows/moneymachine-real-review.yml'
       - 'scripts/cloud_review_only_opportunities.py'
+      - 'scripts/report_vault.py'
+      - 'toolkit_tests/test_report_vault.py'
+      - 'pyproject.toml'
       - 'toolkit_tests/test_cloud_review_only_opportunities.py'
       - 'clients.txt'
   push:
@@ -36,7 +39,6 @@ jobs:
       MM_PAID_ALLOWED: '0'
       MM_EXTERNAL_SEND_ALLOWED: '0'
       MM_REPORT_PUBLIC_KEY_B64: ${{ vars.MM_REPORT_PUBLIC_KEY_B64 }}
-      MM_ENCRYPTED_REPORT_OUT: ${{ runner.temp }}/mm-private-review.enc.json
     steps:
       - name: Checkout reviewed code (no persisted token)
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -51,10 +53,14 @@ jobs:
       - name: Install auditor without optional browser or AI services
         run: python -m pip install -e '.[vault]'
 
-      - name: Verify no-send review-only behavior with local fixtures
-        run: python -m unittest discover -s toolkit_tests -p 'test_cloud_review_only_opportunities.py' -v
+      - name: Verify no-send review-only behavior and encrypted-vault safety
+        run: |
+          python -m unittest discover -s toolkit_tests -p 'test_cloud_review_only_opportunities.py' -v
+          python -m unittest discover -s toolkit_tests -p 'test_report_vault.py' -v
 
       - name: Produce review-only shortlist and optional sealed owner archive
+        env:
+          MM_ENCRYPTED_REPORT_OUT: ${{ runner.temp }}/mm-private-review.enc.json
         run: python -m scripts.cloud_review_only_opportunities --all
 
       # The public repository's artifacts are downloadable by other users.
