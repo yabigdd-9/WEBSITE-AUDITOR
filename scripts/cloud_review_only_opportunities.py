@@ -126,7 +126,8 @@ def make_internal_brief(report: dict, directory: Path) -> dict:
     }
 
 
-def run_review_sites(sites: list[tuple[str, str]], workspace: Path) -> list[dict]:
+def run_review_sites(sites: list[tuple[str, str]], workspace: Path,
+                     encrypted_review_entries: list[dict] | None = None) -> list[dict]:
     """Bounded sequential audits; a failure on one site never blocks the others."""
     results = []
     for index, (host, url) in enumerate(sites):
@@ -170,12 +171,45 @@ def run_review_sites(sites: list[tuple[str, str]], workspace: Path) -> list[dict
                     ).items()
                     if key in {"evidenced_candidates", "internal_scope_draft"}
                 })
+                if encrypted_review_entries is not None:
+                    # The only detailed fields eligible for opt-in encryption.
+                    # Never capture contact details, raw HTML, or customer data.
+                    draft = workspace / f"review-{index}" / "internal-scope-draft.txt"
+                    encrypted_review_entries.append({
+                        "domain": host,
+                        "status": "COMPLETE",
+                        "run_id": _safe_text(audit.get("run_id"), 120),
+                        "timestamp": _safe_text(audit.get("timestamp"), 80),
+                        "findings": [
+                            {
+                                "finding_id": _safe_text(item.get("finding_id"), 100),
+                                "defect_key": _safe_text(item.get("defect_key"), 80),
+                                "severity": _safe_text(item.get("severity"), 24),
+                                "observed": _safe_text(item.get("observed"), 500),
+                                "remediation_action": _safe_text(
+                                    item.get("remediation_action"), 500
+                                ),
+                            }
+                            for item in eligible[:20]
+                        ],
+                        "internal_scope_draft": (
+                            draft.read_text(encoding="utf-8")[:9000]
+                            if row["internal_scope_draft"] else None
+                        ),
+                        "approval_status": "HUMAN_REVIEW_REQUIRED",
+                        "outbound_sent": 0,
+                    })
             else:
                 row["status"] = "INCOMPLETE"
         except Exception:
             # Website and exception content are untrusted; NEVER write them
             # into publicly visible Actions logs.
             row["status"] = "ERROR"
+        if encrypted_review_entries is not None and row["status"] != "COMPLETE":
+            encrypted_review_entries.append({
+                "domain": host, "status": row["status"], "findings": [],
+                "internal_scope_draft": None, "outbound_sent": 0,
+            })
         results.append(row)
     return results
 
@@ -217,8 +251,8 @@ def _summary(rows: list[dict]) -> str:
         f"**{sum(bool(row['internal_scope_draft']) for row in rows)}**.",
         "",
         "**No customer contact, paid providers, paid AI, deployment, or payments.**",
-        "All detailed evidence and draft documents were temporary and NOT"
-        " uploaded as public artifacts.",
+        "Full audit files and local drafts are temporary. An encrypted, bounded"
+        " review copy is uploaded only when the owner explicitly configures a public key.",
         "Public summary contains only pre-approved domains and aggregate counts.",
         "This is an opportunity-review queue, not a commercial lead list or"
         " production-ready autonomous worker.",
@@ -242,8 +276,32 @@ def main(argv: list[str] | None = None) -> int:
             raise ValueError("Site index must select an approved allowlist entry")
         selected = sites if args.all else [sites[args.site_index]]
         with tempfile.TemporaryDirectory(prefix="wa-review-shortlist-") as tmp:
-            rows = run_review_sites(selected, Path(tmp))
+            public_key = os.environ.get("MM_REPORT_PUBLIC_KEY_B64", "").strip()
+            encrypt_requested = bool(public_key) and (
+                os.environ.get("GITHUB_EVENT_NAME") != "pull_request"
+            )
+            entries = [] if encrypt_requested else None
+            rows = run_review_sites(selected, Path(tmp), entries)
             summary = _summary(rows)
+            if encrypt_requested:
+                from scripts.report_vault import write_encrypted
+
+                runner_temp = Path(os.environ["RUNNER_TEMP"]).resolve()
+                archive_path = Path(os.environ["MM_ENCRYPTED_REPORT_OUT"]).resolve()
+                if not archive_path.is_relative_to(runner_temp):
+                    raise ValueError("Encrypted reports must remain in runner temp")
+                write_encrypted({
+                    "schema_version": 1,
+                    "kind": "website_auditor_encrypted_review_bundle",
+                    "allowlist_only": True,
+                    "owner_review_required": True,
+                    "external_sends": 0,
+                    "paid_calls": 0,
+                    "sites": entries,
+                }, public_key, archive_path)
+                summary += "\nEncrypted report archive: prepared for 30-day retention.\n"
+            else:
+                summary += "\nEncrypted report archive: not configured; details discarded.\n"
             print(summary)
             destination = os.environ.get("GITHUB_STEP_SUMMARY")
             if destination:
