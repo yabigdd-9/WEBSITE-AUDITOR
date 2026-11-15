@@ -1,10 +1,10 @@
 """Unit tests for free GitHub scheduled-audit bounded runner."""
-import subprocess
 import json
-from contextlib import redirect_stdout
-from io import StringIO
+import subprocess
 import tempfile
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 
 from scripts.cloud_scheduled_audits import load_sites, run
