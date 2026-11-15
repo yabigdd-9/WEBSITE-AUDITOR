@@ -1,8 +1,8 @@
 """Unit tests for free GitHub scheduled-audit bounded runner."""
-from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from pathlib import Path
 
 from scripts.cloud_scheduled_audits import load_sites, run
 
