@@ -12,6 +12,8 @@ on:
       - '.github/workflows/cloud-scheduled-audits.yml'
       - 'scripts/cloud_scheduled_audits.py'
       - 'clients.txt'
+      - 'auditor_toolkit/**'
+      - 'pyproject.toml'
 
 permissions:
   contents: read
