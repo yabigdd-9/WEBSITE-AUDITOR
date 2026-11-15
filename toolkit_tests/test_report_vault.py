@@ -14,10 +14,8 @@ from pathlib import Path
 from unittest.mock import patch
 
 from scripts import report_vault
-from scripts.cloud_review_only_opportunities import (
-    main as review_main,
-    run_review_sites,
-)
+from scripts.cloud_review_only_opportunities import main as review_main
+from scripts.cloud_review_only_opportunities import run_review_sites
 from toolkit_tests.test_cloud_review_only_opportunities import sample_report
 
 CRYPTO_AVAILABLE = importlib.util.find_spec("cryptography") is not None
