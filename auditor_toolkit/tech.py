@@ -13,7 +13,7 @@ from auditor_toolkit.checks import Finding
 
 
 @dataclass
-class Technology:
+class TechnologyFingerprint:
     technology: str
     category: str
     version: Optional[str] = None
@@ -22,7 +22,11 @@ class Technology:
     confidence: float = 0.0
 
 
-def detect_technology(html: str, url: str, headers: dict) -> List[Technology]:
+# Preserve the public import while keeping the class and field names distinct.
+Technology = TechnologyFingerprint
+
+
+def detect_technology(html: str, headers: dict) -> List[Technology]:
     """Detect technologies used by the website."""
     soup = BeautifulSoup(html, "html.parser")
     technologies = [
@@ -141,5 +145,5 @@ def analyse_html(html: str, url: str, headers: dict) -> tuple[List[Finding], dic
     Detecting a CMS or library does not establish a vulnerability or other
     actionable defect. A separate evidence-backed check must make that claim.
     """
-    techs = detect_technology(html, url, headers)
-    return [], {"technologies": [t.__dict__ for t in techs]}
+    techs = detect_technology(html, headers)
+    return [], {"technologies": [{**t.__dict__, "source_url": url} for t in techs]}
