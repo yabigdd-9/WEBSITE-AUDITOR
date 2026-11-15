@@ -20,7 +20,10 @@ on:
     paths:
       - '.github/workflows/moneymachine-real-review.yml'
       - 'scripts/cloud_review_only_opportunities.py'
+      - 'scripts/report_vault.py'
+      - 'toolkit_tests/test_report_vault.py'
       - 'toolkit_tests/test_cloud_review_only_opportunities.py'
+      - 'pyproject.toml'
       - 'clients.txt'
 
 permissions:
