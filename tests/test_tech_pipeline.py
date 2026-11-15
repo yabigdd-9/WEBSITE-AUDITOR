@@ -1,6 +1,6 @@
 """Tests for technology enrichment pipeline."""
 
-from auditor_toolkit.tech import detect_technology
+from auditor_toolkit.tech import analyse_html as analyse_technology_html, detect_technology
 from auditor_toolkit.technology.pipeline import enrich_technology
 
 
@@ -53,3 +53,21 @@ def test_legacy_detector_extracts_generator_version():
     wordpress = next(item for item in result if item.technology == "WordPress")
     assert wordpress.version == "6.4.2"
     assert wordpress.version_confidence == 0.9
+
+
+def test_legacy_technology_analysis_keeps_detected_software_as_evidence():
+    html = (
+        '<meta name="generator" content="WordPress 6.4.2">'
+        '<script src="https://cdn.shopify.com/shopify.js"></script>'
+    )
+    findings, evidence = analyse_technology_html(html, "https://example.com", {})
+    assert findings == []  # A fingerprint alone is not a defect.
+    technologies = {item["technology"]: item for item in evidence["technologies"]}
+    assert technologies["WordPress"]["version"] == "6.4.2"
+    assert technologies["Shopify"]["category"] == "Ecommerce"
+
+
+def test_legacy_technology_analysis_empty_html_remains_valid():
+    findings, evidence = analyse_technology_html("<html></html>", "https://example.com", {})
+    assert findings == []
+    assert evidence == {"technologies": []}
