@@ -72,6 +72,8 @@ def main(argv=None):
     audit.add_argument("--no-tls", action="store_true")
     audit.add_argument("--deep", action="store_true")
     audit.add_argument("--external-tools", action="store_true", help="Require installed local Lighthouse + Lychee checks")
+    audit.add_argument("--max-bytes", type=int, default=2_000_000,
+                       help="Maximum decoded bytes per HTTP response (1024 to 10000000)")
     audit.add_argument("--max-pages", type=int, default=10)
     audit.add_argument("--max-depth", type=int, default=2)
     audit.add_argument("--cache", action="store_true")
@@ -335,6 +337,7 @@ def main(argv=None):
         deep=args.deep,
         max_pages=args.max_pages,
         max_depth=args.max_depth,
+        max_bytes=args.max_bytes,
         cache=args.cache,
         ai=args.ai,
         ai_timeout=args.ai_timeout,

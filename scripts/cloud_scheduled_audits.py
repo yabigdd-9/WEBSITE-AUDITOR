@@ -19,6 +19,9 @@ from urllib.parse import urlsplit
 
 HOST = re.compile(r"^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$")
 MAX_SITES = 10
+DEFAULT_MAX_RESPONSE_BYTES = 2_000_000
+# Reviewed exception: large public Wix homepage; cap remains finite and fail-closed.
+SITE_MAX_RESPONSE_BYTES = {"www.jcconstruction.co.nz": 5_000_000}
 
 
 def load_sites(path: Path) -> list[tuple[str, str]]:
@@ -166,6 +169,7 @@ def run(sites: list[tuple[str, str]], *, executable: str = "wa",
             executable, "audit", url, "--profile", "nz",
             "--max-pages", "2", "--max-depth", "1",
             "--concurrency", "1", "--output-root", str(output_root),
+            "--max-bytes", str(SITE_MAX_RESPONSE_BYTES.get(host, DEFAULT_MAX_RESPONSE_BYTES)),
         ]
         print(f"Running bounded canonical audit: {host}", flush=True)
         try:
