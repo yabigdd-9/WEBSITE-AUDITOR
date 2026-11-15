@@ -107,7 +107,7 @@ class Fetcher:
             timeout=httpx.Timeout(timeout),
             follow_redirects=False,
             trust_env=False,
-            headers={"user-agent": "WebsiteAuditorToolkit/2"},
+            # Avoid optional/malformed site compression making otherwise readable\n            # HTML unavailable to the bounded cloud scanner.\n            headers={"user-agent": "WebsiteAuditorToolkit/2",\n                     "accept-encoding": "identity"},
             transport=transport,
         )
 
