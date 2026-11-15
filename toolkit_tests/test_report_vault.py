@@ -3,14 +3,14 @@
 These tests generate temporary keys. They never use or print an owner's key.
 """
 import base64
-from contextlib import redirect_stdout
-from io import StringIO
 import importlib.util
 import json
 import os
-from pathlib import Path
 import tempfile
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
+from pathlib import Path
 from unittest.mock import patch
 
 from scripts import report_vault
@@ -106,6 +106,7 @@ class EncryptedReportVaultTests(unittest.TestCase):
                 "MM_ENCRYPTED_REPORT_OUT": str(out),
                 "RUNNER_TEMP": str(root),
                 "GITHUB_EVENT_NAME": "pull_request",
+                "GITHUB_STEP_SUMMARY": str(root / "unit-test-summary.md"),
             }
             with patch.dict(os.environ, env):
                 with patch(
