@@ -1,0 +1,141 @@
+name: MoneyMachine Synthetic Opportunity Trial
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/moneymachine-synthetic-trial.yml'
+      - 'money-machine/run_dummy_pipeline.py'
+      - 'money-machine/database/schema.sql'
+  pull_request:
+    branches: [master]
+    paths:
+      - '.github/workflows/moneymachine-synthetic-trial.yml'
+      - 'money-machine/run_dummy_pipeline.py'
+      - 'money-machine/database/schema.sql'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: moneymachine-synthetic-trial
+  cancel-in-progress: false
+
+jobs:
+  synthetic-opportunity-to-draft:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      MM_ALLOW_EXTERNAL_FREE_MODELS: '0'
+      MM_PAID_ALLOWED: '0'
+      MM_EXTERNAL_SEND_ALLOWED: '0'
+    steps:
+      - name: Checkout reviewed test code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+
+      - name: Use Python 3.11
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+
+      - name: Prove synthetic discovery through draft with no outreach or cost
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import shutil
+          import sqlite3
+          import subprocess
+          import sys
+          import tempfile
+
+          repo = Path.cwd()
+          config = json.loads((repo / "money-machine/config/transport.json").read_text())
+          assert config.get("enabled") is False, "Transport must be disabled"
+          assert config.get("external_send_allowed") is False, "Sending must be blocked"
+          assert config.get("daily_cap") == 0, "Daily send cap must be zero"
+          assert os.environ["MM_PAID_ALLOWED"] == "0", "Paid providers must be blocked"
+          assert os.environ["MM_ALLOW_EXTERNAL_FREE_MODELS"] == "0", "Model calls must be blocked"
+          assert os.environ["MM_EXTERNAL_SEND_ALLOWED"] == "0", "External sending must be blocked"
+
+          # Deliberately never open the operator's real database. This is a new,
+          # temporary workspace with only the verified synthetic script/schema.
+          with tempfile.TemporaryDirectory(prefix="mm-synthetic-", dir=os.environ.get("RUNNER_TEMP")) as temp:
+              trial = Path(temp)
+              (trial / "money-machine").mkdir()
+              (trial / "database").mkdir()
+              shutil.copyfile(repo / "money-machine/run_dummy_pipeline.py",
+                              trial / "money-machine/run_dummy_pipeline.py")
+              schema = (repo / "money-machine/database/schema.sql").read_text()
+              database = trial / "database/money_machine.db"
+              assert not database.exists(), "Test must start from an empty, disposable workspace"
+              with sqlite3.connect(database) as con:
+                  con.executescript(schema)
+
+              result = subprocess.run(
+                  [sys.executable, str(trial / "money-machine/run_dummy_pipeline.py")],
+                  cwd=trial, env=os.environ.copy(), capture_output=True,
+                  text=True, timeout=45, check=True,
+              )
+              output = json.loads(result.stdout)
+              saved_report = json.loads((trial / "reports/dummy-pipeline-latest.json").read_text())
+              assert output == saved_report, "Generated report differs from execution"
+              assert saved_report["test"] == "dummy prospect pipeline"
+              assert saved_report["status"] == "PASS — awaiting human review"
+              assert saved_report["opportunity_score"] == 78
+              assert saved_report["external_send_approved"] is False
+              assert saved_report["external_send_performed"] is False
+              assert saved_report["cost_nzd"] == 0
+              expected = ["discovered", "audited", "scored", "offer_drafted", "human_review"]
+              actual = [item["stage"] for item in saved_report["stages"]]
+              assert actual == expected, f"Pipeline stages differ: {actual!r}"
+
+              with sqlite3.connect(database) as con:
+                  business = con.execute(
+                      "SELECT name, is_dummy, current_status FROM businesses"
+                  ).fetchall()
+                  assert business == [("Koru Test Plumbing Ltd", 1, "human_review")]
+                  offers = con.execute(
+                      "SELECT draft, external_send_approved, price_test FROM offers"
+                  ).fetchall()
+                  assert len(offers) == 1, "Exactly one synthetic offer required"
+                  draft, approved, price = offers[0]
+                  assert draft.startswith("INTERNAL TEST DRAFT — DO NOT SEND")
+                  assert "mobile quote" in draft.lower()
+                  assert approved == 0 and price is None
+                  assert con.execute("SELECT count(*) FROM outreach").fetchone()[0] == 0
+                  assert con.execute("SELECT count(*) FROM contacts").fetchone()[0] == 0
+                  assert con.execute("SELECT count(*) FROM projects").fetchone()[0] == 0
+                  assert con.execute("SELECT count(*) FROM revenue").fetchone()[0] == 0
+                  approvals = con.execute(
+                      "SELECT approved FROM approval_events"
+                  ).fetchall()
+                  assert approvals == [(0,)], "Explicit human-review gate required"
+                  runs = con.execute(
+                      "SELECT model, cost_nzd FROM agent_runs"
+                  ).fetchall()
+                  assert runs == [("none", 0)], "Model execution or charges are forbidden"
+
+              summary = (
+                  "## Synthetic MoneyMachine cloud trial: PASS\n\n"
+                  "- Data: **one fabricated plumbing business**, zero real clients\n"
+                  "- Verified stages: **discovered → audited → scored → offer drafted → human review**\n"
+                  "- Synthetic opportunity score: **78/100** (fixture inputs; not evidence about any real site)\n"
+                  "- Output: **JSON pipeline report and internal draft proposal**\n"
+                  "- Approval: **blocked pending human review**\n"
+                  "- Outgoing messages: **0**; contacts: **0**; model calls: **0**; cost: **NZ$0**\n"
+                  "- Runtime: disposable temporary SQLite database, deleted after job\n"
+                  "- This checks deterministic internal flow only. It does **not** prove"
+                  " live prospect discovery, customer conversion, or production readiness.\n"
+              )
+              print(summary)
+              if os.environ.get("GITHUB_STEP_SUMMARY"):
+                  with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
+                      f.write(summary)
+          PY
