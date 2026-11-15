@@ -1,6 +1,9 @@
-name: MoneyMachine Real-Site Review-Only Trial
+name: MoneyMachine Free Real-Site Shortlist
 
 on:
+  # Low frequency: twice weekly; GitHub schedules may be delayed or skipped.
+  schedule:
+    - cron: '35 3 * * 2,5'
   workflow_dispatch:
   pull_request:
     branches: [master]
@@ -8,12 +11,14 @@ on:
       - '.github/workflows/moneymachine-real-review.yml'
       - 'scripts/cloud_review_only_opportunities.py'
       - 'toolkit_tests/test_cloud_review_only_opportunities.py'
+      - 'clients.txt'
   push:
     branches: [master]
     paths:
       - '.github/workflows/moneymachine-real-review.yml'
       - 'scripts/cloud_review_only_opportunities.py'
       - 'toolkit_tests/test_cloud_review_only_opportunities.py'
+      - 'clients.txt'
 
 permissions:
   contents: read
@@ -25,7 +30,7 @@ concurrency:
 jobs:
   review-one-real-allowlisted-site:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       MM_ALLOW_EXTERNAL_FREE_MODELS: '0'
       MM_PAID_ALLOWED: '0'
@@ -47,5 +52,5 @@ jobs:
       - name: Verify no-send review-only behavior with local fixtures
         run: python -m unittest discover -s toolkit_tests -p 'test_cloud_review_only_opportunities.py' -v
 
-      - name: Run a single bounded real-site audit and review-only draft
-        run: python -m scripts.cloud_review_only_opportunities --site-index 0
+      - name: Produce review-only shortlist for approved sites (no public evidence uploads)
+        run: python -m scripts.cloud_review_only_opportunities --all
