@@ -11,7 +11,9 @@ from io import StringIO
 from pathlib import Path
 
 from scripts.cloud_real_opportunity_trial import (
-    _review_candidates, _review_packet, _verified_report, run,
+    _review_candidates,
+    _verified_report,
+    run,
 )
 
 
