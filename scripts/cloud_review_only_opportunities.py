@@ -2,9 +2,9 @@
 """Review-only, real-public-website opportunity trial on an ephemeral cloud runner.
 
 No live client database, contact discovery, outreach, paid model, browser, or
-published audit artifact. The existing reviewed clients.txt allowlist is the
-only source of target sites. Any detailed evidence and draft are discarded when
-the job finishes; only a non-sensitive run summary reaches GitHub logs.
+published audit artifact. The reviewed clients.txt allowlist is the only source
+of target sites. Local evidence and drafts are deleted after each run. Scheduled
+jobs publish only a bounded shortlist of domains and aggregated counts.
 """
 from __future__ import annotations
 
@@ -42,6 +42,29 @@ def _verify_safety(repo: Path) -> None:
             raise ValueError(f"{name} must be explicitly set to 0")
 
 
+
+def eligible_findings(report: dict) -> list[dict]:
+    """Evidence-gate candidate technical findings; never infer sale probability."""
+    checks = report.get("checks") or {}
+    evidence = report.get("evidence") or {}
+    selected = []
+    for defect in report.get("defects") or []:
+        if not isinstance(defect, dict):
+            continue
+        ref = defect.get("evidence_ref")
+        if (defect.get("confidence") == "observed"
+                and defect.get("finding_id")
+                and defect.get("observed")
+                and defect.get("severity") in {"medium", "high", "critical"}
+                and isinstance(ref, str)
+                and ref == defect.get("check")
+                and isinstance(evidence.get(ref), dict)
+                and isinstance(checks.get(ref), dict)
+                and checks[ref].get("status") == "ok"):
+            selected.append(defect)
+    return selected
+
+
 def make_internal_brief(report: dict, directory: Path) -> dict:
     """Derive a scope-only draft from verified, observed real audit findings.
 
@@ -53,19 +76,7 @@ def make_internal_brief(report: dict, directory: Path) -> dict:
     directory.mkdir(parents=True, exist_ok=True)
     evidence = report.get("evidence") or {}
     checks = report.get("checks") or {}
-    eligible = []
-    for defect in report.get("defects") or []:
-        if not isinstance(defect, dict):
-            continue
-        ref = defect.get("evidence_ref")
-        if (defect.get("confidence") == "observed"
-                and defect.get("finding_id")
-                and defect.get("observed")
-                and defect.get("severity") in {"medium", "high", "critical"}
-                and isinstance(ref, str)
-                and ref in evidence
-                and checks.get(ref, {}).get("status") == "ok"):
-            eligible.append(defect)
+    eligible = eligible_findings(report)
 
     if not eligible:
         return {"evidenced_candidates": 0, "internal_scope_draft": False}
@@ -117,43 +128,22 @@ def make_internal_brief(report: dict, directory: Path) -> dict:
     }
 
 
-def _summary(outcome: dict) -> str:
-    # Do not expose site-specific defects, contact data or evidence in public Actions.
-    lines = [
-        "## Real-site MoneyMachine review-only trial",
-        "",
-        "- Source: one reviewed HTTPS site from clients.txt",
-        "- Audit: " + ("COMPLETE" if outcome["audit_complete"] else "INCOMPLETE - no proposal"),
-        "- Evidence-anchored candidate count: " + str(outcome["evidenced_candidates"]),
-        "- Internal scope draft generated: " + str(outcome["internal_scope_draft"]).lower(),
-        "- Pricing: not set; customer claims and scope require review",
-        "- Contact lookup: **off**; outbound messages: **0**; website changes: **0**",
-        "- Paid models: **off**; paid providers: **off**",
-        "- Evidence, remediation concept and draft: **temporary, not uploaded or logged**",
-        "- This does not establish customer interest, conversion or production readiness.",
-        "",
-    ]
-    return "\n".join(lines)
-
-
-def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--allowlist", type=Path, default=Path("clients.txt"))
-    parser.add_argument("--site-index", type=int, default=0)
-    args = parser.parse_args(argv)
-    repo = Path(__file__).resolve().parent.parent
-    try:
-        _verify_safety(repo)
-        sites = load_sites(repo / args.allowlist)
-        if not 0 <= args.site_index < len(sites):
-            raise ValueError("Site index must select a reviewed allowlist entry")
-        host, url = sites[args.site_index]
-        with tempfile.TemporaryDirectory(prefix="wa-real-review-") as temporary:
-            root = Path(temporary)
+def run_review_sites(sites: list[tuple[str, str]], workspace: Path) -> list[dict]:
+    """Bounded sequential audits; a failure on one site never blocks the others."""
+    results = []
+    for index, (host, url) in enumerate(sites):
+        row = {
+            "domain": host,
+            "status": "ERROR",
+            "evidenced_candidates": 0,
+            "high_or_critical": 0,
+            "internal_scope_draft": False,
+        }
+        try:
             audit = run_audit(
                 url,
                 AuditOptions(
-                    output_root=root / "audits",
+                    output_root=workspace / f"audit-{index}",
                     profile="nz",
                     allow_private=False,
                     browser=False,
@@ -165,20 +155,106 @@ def main(argv: list[str] | None = None) -> int:
                     max_bytes=SITE_MAX_RESPONSE_BYTES.get(host, DEFAULT_MAX_RESPONSE_BYTES),
                 ),
             )
-            outcome = {"audit_complete": audit["status"] == "complete",
-                       "evidenced_candidates": 0, "internal_scope_draft": False}
-            if outcome["audit_complete"]:
-                outcome.update(make_internal_brief(audit, root / "review"))
-            summary = _summary(outcome)
+            if audit.get("status") == "complete":
+                row["status"] = "COMPLETE"
+                eligible = eligible_findings(audit)
+                row["high_or_critical"] = sum(
+                    item.get("severity") in {"high", "critical"} for item in eligible
+                )
+                # Re-use the existing review-only, unpriced, non-sending draft path.
+                row.update({
+                    "evidenced_candidates": 0,
+                    "internal_scope_draft": False,
+                })
+                row.update({
+                    key: value for key, value in make_internal_brief(
+                        audit, workspace / f"review-{index}"
+                    ).items()
+                    if key in {"evidenced_candidates", "internal_scope_draft"}
+                })
+            else:
+                row["status"] = "INCOMPLETE"
+        except Exception:
+            # Website and exception content are untrusted; NEVER write them
+            # into publicly visible Actions logs.
+            row["status"] = "ERROR"
+        results.append(row)
+    return results
+
+
+def _summary(rows: list[dict]) -> str:
+    """A durable but public shortlist; details remain in ephemeral runner only."""
+    ranked = sorted(
+        rows,
+        key=lambda item: (
+            item["status"] != "COMPLETE",
+            -item["high_or_critical"],
+            -item["evidenced_candidates"],
+            item["domain"],
+        ),
+    )
+    lines = [
+        "## MoneyMachine: review-only real-site shortlist",
+        "",
+        "Sites come exclusively from the reviewed public clients.txt allowlist.",
+        "Rank is based on counts of observed technical findings, NOT likelihood"
+        " of purchase, client suitability, legal compliance, or expected revenue.",
+        "Findings are candidates for human verification; no customer has agreed"
+        " to anything.",
+        "",
+        "| Review order | Approved site | Audit | Observed candidate findings | High/critical | Internal draft |",
+        "| --- | --- | --- | ---: | ---: | --- |",
+    ]
+    for index, row in enumerate(ranked, 1):
+        lines.append(
+            f"| {index} | `{row['domain']}` | {row['status']} | "
+            f"{row['evidenced_candidates']} | {row['high_or_critical']} | "
+            f"{'yes' if row['internal_scope_draft'] else 'no'} |"
+        )
+    lines.extend([
+        "",
+        f"Reviewed: **{len(rows)}**; complete audits: "
+        f"**{sum(row['status'] == 'COMPLETE' for row in rows)}**;"
+        f" temporary internal drafts: "
+        f"**{sum(bool(row['internal_scope_draft']) for row in rows)}**.",
+        "",
+        "**No customer contact, paid providers, paid AI, deployment, or payments.**",
+        "All detailed evidence and draft documents were temporary and NOT"
+        " uploaded as public artifacts.",
+        "Public summary contains only pre-approved domains and aggregate counts.",
+        "This is an opportunity-review queue, not a commercial lead list or"
+        " production-ready autonomous worker.",
+        "",
+    ])
+    return "\n".join(lines)
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--allowlist", type=Path, default=Path("clients.txt"))
+    selection = parser.add_mutually_exclusive_group()
+    selection.add_argument("--all", action="store_true", help="Review every allowlisted site")
+    selection.add_argument("--site-index", type=int, default=0)
+    args = parser.parse_args(argv)
+    repo = Path(__file__).resolve().parent.parent
+    try:
+        _verify_safety(repo)
+        sites = load_sites(repo / args.allowlist)
+        if not args.all and not 0 <= args.site_index < len(sites):
+            raise ValueError("Site index must select an approved allowlist entry")
+        selected = sites if args.all else [sites[args.site_index]]
+        with tempfile.TemporaryDirectory(prefix="wa-review-shortlist-") as tmp:
+            rows = run_review_sites(selected, Path(tmp))
+            summary = _summary(rows)
             print(summary)
             destination = os.environ.get("GITHUB_STEP_SUMMARY")
             if destination:
                 with Path(destination).open("a", encoding="utf-8") as stream:
                     stream.write(summary)
-            return 0 if outcome["audit_complete"] else 2
+            return 0 if all(row["status"] == "COMPLETE" for row in rows) else 2
     except (OSError, ValueError, RuntimeError) as exc:
-        # Error type only; exception text may contain external-site details.
-        print(f"REVIEW TRIAL BLOCKED ({type(exc).__name__}); no drafts published")
+        # Never echo error strings that may embed untrusted site content.
+        print(f"REVIEW SHORTLIST BLOCKED ({type(exc).__name__})")
         return 2
 
 
