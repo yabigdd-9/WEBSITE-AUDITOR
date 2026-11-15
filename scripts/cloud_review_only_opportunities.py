@@ -74,8 +74,6 @@ def make_internal_brief(report: dict, directory: Path) -> dict:
     if report.get("status") != "complete":
         raise ValueError("Cannot draft from an incomplete audit")
     directory.mkdir(parents=True, exist_ok=True)
-    evidence = report.get("evidence") or {}
-    checks = report.get("checks") or {}
     eligible = eligible_findings(report)
 
     if not eligible:
