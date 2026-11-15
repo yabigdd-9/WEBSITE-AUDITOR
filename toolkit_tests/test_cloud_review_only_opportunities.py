@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from scripts.cloud_review_only_opportunities import (make_internal_brief, run_review_sites, _summary)
+from scripts.cloud_review_only_opportunities import _summary, make_internal_brief, run_review_sites
 
 
 def sample_report(status="complete", confidence="observed"):
