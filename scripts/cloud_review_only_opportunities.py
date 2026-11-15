@@ -19,7 +19,7 @@ from auditor_toolkit.demo import build_demo
 from auditor_toolkit.pipeline import AuditOptions, run_audit
 from auditor_toolkit.remediation import build_remediation
 
-from cloud_scheduled_audits import (
+from scripts.cloud_scheduled_audits import (
     DEFAULT_MAX_RESPONSE_BYTES,
     SITE_MAX_RESPONSE_BYTES,
     load_sites,
