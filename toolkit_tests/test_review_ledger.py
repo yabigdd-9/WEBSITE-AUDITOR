@@ -1,14 +1,13 @@
 """Network-free privacy, dedupe and lifecycle tests for the local review ledger."""
 from __future__ import annotations
 
-from contextlib import redirect_stdout
-from io import StringIO
 import json
-from pathlib import Path
 import sqlite3
 import tempfile
 import unittest
-from unittest.mock import patch
+from contextlib import redirect_stdout
+from io import StringIO
+from pathlib import Path
 
 from scripts import review_ledger
 
