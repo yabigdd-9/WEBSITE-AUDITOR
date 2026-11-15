@@ -136,14 +136,10 @@ def _detect_analytics(soup: BeautifulSoup) -> Technology | None:
 
 
 def analyse_html(html: str, url: str, headers: dict) -> tuple[List[Finding], dict[str, Any]]:
-    """Analyse HTML for technology findings."""
+    """Record passive technology fingerprints as evidence, not defects.
+
+    Detecting a CMS or library does not establish a vulnerability or other
+    actionable defect. A separate evidence-backed check must make that claim.
+    """
     techs = detect_technology(html, url, headers)
-    findings = []
-    for tech in techs:
-        if tech.technology:
-            findings.append(
-                Finding(
-                    defect_key=f"technology_{tech.technology.lower().replace(' ', '_')}",
-                )
-            )
-    return findings, {"technologies": [t.__dict__ for t in techs]}
+    return [], {"technologies": [t.__dict__ for t in techs]}
