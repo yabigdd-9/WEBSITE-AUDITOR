@@ -70,6 +70,29 @@ def summarize(results: list[tuple[str, str]], path: Path | None) -> None:
     print(summary)
 
 
+def _safe_fetch_value_error(reason: object) -> str | None:
+    """Classify known fetch failures without exposing site content or URLs."""
+    if not isinstance(reason, str):
+        return None
+    exact = {
+        "Response exceeded configured byte/time limit": "response_limit",
+        "Too many redirects": "redirect_limit",
+        "Redirect missing location": "redirect_missing_location",
+        "URL resolves to a non-global address": "blocked_dns",
+        "Private and non-global URLs are disabled": "blocked_address",
+        "Control characters are not allowed in URLs": "invalid_url",
+        "Only absolute HTTP(S) URLs without credentials are supported": "invalid_url",
+    }
+    if reason in exact:
+        return exact[reason]
+    if reason.startswith("Could not resolve host: "):
+        return "dns_unresolved"
+    if re.fullmatch(r"HTTP [45][0-9]{2}", reason):
+        return "http_status"
+    return None
+
+
+
 def _audit_status(completed: subprocess.CompletedProcess, output_root: Path) -> str:
     """Expose only names of incomplete required checks, never raw site evidence.
 
@@ -117,8 +140,13 @@ def _audit_status(completed: subprocess.CompletedProcess, output_root: Path) -> 
         if not (isinstance(fetch_type, str) and
                 re.fullmatch(r"[A-Za-z][A-Za-z0-9]{0,40}", fetch_type)):
             fetch_type = None
+        fetch_code = (
+            _safe_fetch_value_error(fetch_detail.get("reason"))
+            if fetch_type == "ValueError" else None
+        )
         labels = [
-            f"fetch/{fetch_type}" if name == "fetch" and fetch_type else name
+            ("fetch/ValueError/" + fetch_code if fetch_code else f"fetch/{fetch_type}")
+            if name == "fetch" and fetch_type else name
             for name in incomplete[:4]
         ]
         label = ", ".join(labels)
