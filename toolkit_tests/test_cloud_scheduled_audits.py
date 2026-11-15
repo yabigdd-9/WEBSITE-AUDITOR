@@ -71,7 +71,9 @@ class CloudScheduledAuditsTests(unittest.TestCase):
         report_path.write_text(json.dumps({
             "status": "partial",
             "checks": {
-                "fetch": {"status": "ok", "required": True},
+                "fetch": {"status": "error", "required": True,
+                          "error_type": "ConnectError",
+                          "reason": "private internal details"},
                 "tls": {"status": "error", "required": True, "reason": "redacted"},
                 "dns": {"status": "error", "required": True, "reason": "do not publish"},
                 "browser": {"status": "skipped", "required": False},
@@ -88,10 +90,11 @@ class CloudScheduledAuditsTests(unittest.TestCase):
                          output_root=self.root, runner=fake_runner)
         self.assertEqual(result, 1)
         output = captured.getvalue()
-        self.assertIn("FAIL (partial: dns, tls)", output)
+        self.assertIn("FAIL (partial: dns, fetch/ConnectError, tls)", output)
         self.assertNotIn("sensitive failure", output)
         self.assertNotIn("do not publish", output)
         self.assertNotIn("redacted", output)
+        self.assertNotIn("private internal details", output)
 
     def test_partial_report_outside_tmp_dir_is_not_read(self):
         with tempfile.TemporaryDirectory() as outside_dir:
