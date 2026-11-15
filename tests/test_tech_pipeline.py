@@ -1,6 +1,7 @@
 """Tests for technology enrichment pipeline."""
 
-from auditor_toolkit.tech import analyse_html as analyse_technology_html, detect_technology
+from auditor_toolkit.tech import analyse_html as analyse_technology_html
+from auditor_toolkit.tech import detect_technology
 from auditor_toolkit.technology.pipeline import enrich_technology
 
 
