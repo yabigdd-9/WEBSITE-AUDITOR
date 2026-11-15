@@ -61,8 +61,23 @@ class CloudScheduledAuditsTests(unittest.TestCase):
         self.assertEqual(command[:3], ["wa", "audit", "https://example.com"])
         self.assertIn("--max-pages", command)
         self.assertIn("--max-depth", command)
+        self.assertEqual(command[command.index("--max-bytes") + 1], "2000000")
         self.assertNotIn("--browser", command)
         self.assertEqual(options["timeout"], 150)
+
+    def test_reviewed_large_public_site_has_explicit_finite_cap(self):
+        captured = []
+        def fake_runner(command, **kwargs):
+            captured.append(command)
+            return subprocess.CompletedProcess(command, 0, "", "")
+        sites = [
+            ("www.jcconstruction.co.nz", "https://www.jcconstruction.co.nz"),
+            ("example.co.nz", "https://example.co.nz"),
+        ]
+        self.assertEqual(run(sites, output_root=self.root, runner=fake_runner), 0)
+        self.assertEqual(captured[0][captured[0].index("--max-bytes") + 1], "5000000")
+        self.assertEqual(captured[1][captured[1].index("--max-bytes") + 1], "2000000")
+        self.assertEqual(captured[0][captured[0].index("--max-pages") + 1], "2")
 
     def test_partial_audit_reports_only_required_failed_checks(self):
         report_dir = self.root / "bounded-run"
