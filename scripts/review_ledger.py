@@ -7,13 +7,13 @@ Never run against the existing MoneyMachine production database.
 from __future__ import annotations
 
 import argparse
-from datetime import datetime, timezone
 import hashlib
 import json
 import os
-from pathlib import Path
 import re
 import sqlite3
+from datetime import datetime, timezone
+from pathlib import Path
 
 KIND = "website_auditor_encrypted_review_bundle"
 MAX_SOURCE_BYTES = 1_000_000
@@ -72,13 +72,15 @@ def _is_safe_db_location(path: Path) -> Path:
     path = Path(path).expanduser().absolute()
     if path.suffix != ".sqlite3":
         raise ValueError("Use an explicit private .sqlite3 database path")
-    project = Path(__file__).resolve().parents[1]
-    if path == project or project in path.parents:
-        raise ValueError("Database must be outside the public source checkout")
-    if path.is_symlink() or path.parent.is_symlink():
+    if path.is_symlink():
         raise ValueError("Refusing symlink database paths")
     if not path.parent.is_dir():
         raise ValueError("Create the private destination directory first")
+    # Follow and check every ancestor to block a symlink redirect into source.
+    path = path.parent.resolve() / path.name
+    project = Path(__file__).resolve().parents[1]
+    if path == project or project in path.parents:
+        raise ValueError("Database must be outside the public source checkout")
     if path.exists() and (not path.is_file() or path.stat().st_mode & 0o077):
         raise ValueError("Existing private database must be a 0600 file")
     return path
@@ -229,6 +231,7 @@ def import_bundle(bundle: dict, db_path: Path) -> dict:
                     """INSERT INTO sites(domain,first_observed_at,last_observed_at,last_run_id)
                        VALUES(?,?,?,?)
                        ON CONFLICT(domain) DO UPDATE SET
+                       first_observed_at=MIN(sites.first_observed_at,excluded.first_observed_at),
                        last_observed_at=MAX(sites.last_observed_at,excluded.last_observed_at),
                        last_run_id=CASE WHEN excluded.last_observed_at >= sites.last_observed_at
                                         THEN excluded.last_run_id ELSE sites.last_run_id END""",
