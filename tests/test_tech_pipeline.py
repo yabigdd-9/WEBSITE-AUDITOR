@@ -37,10 +37,9 @@ def test_enrich_with_errors():
 
 
 def test_legacy_detector_handles_missing_and_empty_generator():
-    assert detect_technology("<html></html>", "https://example.com", {}) == []
+    assert detect_technology("<html></html>", {}) == []
     assert detect_technology(
         '<meta name="generator" content="">',
-        "https://example.com",
         {},
     ) == []
 
@@ -48,7 +47,6 @@ def test_legacy_detector_handles_missing_and_empty_generator():
 def test_legacy_detector_extracts_generator_version():
     result = detect_technology(
         '<meta name="generator" content="WordPress 6.4.2">',
-        "https://example.com",
         {},
     )
     wordpress = next(item for item in result if item.technology == "WordPress")
@@ -65,6 +63,7 @@ def test_legacy_technology_analysis_keeps_detected_software_as_evidence():
     assert findings == []  # A fingerprint alone is not a defect.
     technologies = {item["technology"]: item for item in evidence["technologies"]}
     assert technologies["WordPress"]["version"] == "6.4.2"
+    assert technologies["WordPress"]["source_url"] == "https://example.com"
     assert technologies["Shopify"]["category"] == "Ecommerce"
 
 
