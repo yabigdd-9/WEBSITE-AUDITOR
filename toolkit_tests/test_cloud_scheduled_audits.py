@@ -96,6 +96,41 @@ class CloudScheduledAuditsTests(unittest.TestCase):
         self.assertNotIn("redacted", output)
         self.assertNotIn("private internal details", output)
 
+    def test_safe_value_error_categories_and_no_raw_reason_in_logs(self):
+        examples = [
+            ("Could not resolve host: private-client-host.example", "dns_unresolved"),
+            ("Response exceeded configured byte/time limit", "response_limit"),
+            ("Too many redirects", "redirect_limit"),
+            ("Redirect missing location", "redirect_missing_location"),
+            ("URL resolves to a non-global address", "blocked_dns"),
+            ("HTTP 403", "http_status"),
+            ("arbitrary secret traceback text", None),
+        ]
+        for reason, category in examples:
+            with self.subTest(category=category):
+                report_path = self.root / "report.json"
+                report_path.write_text(json.dumps({
+                    "status": "partial",
+                    "checks": {
+                        "fetch": {"status": "error", "required": True,
+                                  "error_type": "ValueError", "reason": reason},
+                        "page": {"status": "skipped", "required": True},
+                    },
+                }))
+                def fake_runner(command, **kwargs):
+                    return subprocess.CompletedProcess(command, 2, json.dumps([{
+                        "status": "partial", "artifacts": {"json": str(report_path)}
+                    }]), "")
+
+                captured = StringIO()
+                with redirect_stdout(captured):
+                    status = run([("example.com", "https://example.com")],
+                                 output_root=self.root, runner=fake_runner)
+                self.assertEqual(status, 1)
+                label = "fetch/ValueError" + ("/" + category if category else "")
+                self.assertIn(label, captured.getvalue())
+                self.assertNotIn(reason, captured.getvalue())
+
     def test_partial_report_outside_tmp_dir_is_not_read(self):
         with tempfile.TemporaryDirectory() as outside_dir:
             outside = Path(outside_dir) / "report.json"
