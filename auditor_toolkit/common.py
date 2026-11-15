@@ -107,7 +107,11 @@ class Fetcher:
             timeout=httpx.Timeout(timeout),
             follow_redirects=False,
             trust_env=False,
-            headers={"user-agent": "WebsiteAuditorToolkit/2"},
+            # Request uncompressed content to avoid malformed encoding from sites.
+            headers={
+                "user-agent": "WebsiteAuditorToolkit/2",
+                "accept-encoding": "identity",
+            },
             transport=transport,
         )
 
