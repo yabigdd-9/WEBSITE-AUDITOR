@@ -8,6 +8,7 @@ Raw audit findings are not committed or uploaded from the public repository.
 from __future__ import annotations
 
 import argparse
+import json
 import os
 from pathlib import Path
 import re
@@ -69,6 +70,55 @@ def summarize(results: list[tuple[str, str]], path: Path | None) -> None:
     print(summary)
 
 
+def _audit_status(completed: subprocess.CompletedProcess, output_root: Path) -> str:
+    """Expose only names of incomplete required checks, never raw site evidence.
+
+    A canonical audit returns exit code 2 when required checks are incomplete.
+    The full report stays in a temporary directory; Actions gets only a bounded
+    status summary. Reject paths that escape that temporary directory.
+    """
+    if completed.returncode == 0:
+        return "PASS"
+    fallback = f"FAIL (exit {completed.returncode})"
+    if completed.returncode != 2:
+        return fallback
+    try:
+        records = json.loads(completed.stdout)
+        if not isinstance(records, list) or len(records) != 1:
+            return fallback
+        record = records[0]
+        if not isinstance(record, dict) or record.get("status") != "partial":
+            return fallback
+        artifact = record.get("artifacts", {}).get("json")
+        if not isinstance(artifact, str):
+            return fallback
+        report_path = Path(artifact).resolve()
+        if not report_path.is_relative_to(output_root.resolve()):
+            return fallback
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        if report.get("status") != "partial":
+            return fallback
+        checks = report.get("checks", {})
+        if not isinstance(checks, dict):
+            return fallback
+        incomplete = sorted(
+            name for name, check in checks.items()
+            if isinstance(name, str)
+            and re.fullmatch(r"[a-z][a-z0-9_]{0,48}", name)
+            and isinstance(check, dict)
+            and check.get("required") is True
+            and check.get("status") != "ok"
+        )
+        if not incomplete:
+            return fallback
+        label = ", ".join(incomplete[:4])
+        if len(incomplete) > 4:
+            label += f" (+{len(incomplete) - 4} more)"
+        return f"FAIL (partial: {label})"
+    except (OSError, ValueError, TypeError, AttributeError):
+        return fallback
+
+
 def run(sites: list[tuple[str, str]], *, executable: str = "wa",
         timeout_seconds: int = 150, runner=subprocess.run,
         output_root: Path) -> int:
@@ -85,7 +135,7 @@ def run(sites: list[tuple[str, str]], *, executable: str = "wa",
                 command, check=False, capture_output=True,
                 text=True, timeout=timeout_seconds,
             )
-            status = "PASS" if completed.returncode == 0 else f"FAIL (exit {completed.returncode})"
+            status = _audit_status(completed, output_root)
         except subprocess.TimeoutExpired:
             status = "FAIL (timeout)"
         except OSError as exc:

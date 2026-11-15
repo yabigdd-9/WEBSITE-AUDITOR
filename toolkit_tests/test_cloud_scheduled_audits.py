@@ -1,7 +1,10 @@
 """Unit tests for free GitHub scheduled-audit bounded runner."""
+import json
 import subprocess
 import tempfile
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 
 from scripts.cloud_scheduled_audits import load_sites, run
@@ -60,6 +63,54 @@ class CloudScheduledAuditsTests(unittest.TestCase):
         self.assertIn("--max-depth", command)
         self.assertNotIn("--browser", command)
         self.assertEqual(options["timeout"], 150)
+
+    def test_partial_audit_reports_only_required_failed_checks(self):
+        report_dir = self.root / "bounded-run"
+        report_dir.mkdir()
+        report_path = report_dir / "report.json"
+        report_path.write_text(json.dumps({
+            "status": "partial",
+            "checks": {
+                "fetch": {"status": "ok", "required": True},
+                "tls": {"status": "error", "required": True, "reason": "redacted"},
+                "dns": {"status": "error", "required": True, "reason": "do not publish"},
+                "browser": {"status": "skipped", "required": False},
+            },
+        }))
+        def fake_runner(command, **kwargs):
+            return subprocess.CompletedProcess(command, 2, json.dumps([{
+                "status": "partial", "artifacts": {"json": str(report_path)}
+            }]), "sensitive failure text")
+
+        captured = StringIO()
+        with redirect_stdout(captured):
+            result = run([("example.com", "https://example.com")],
+                         output_root=self.root, runner=fake_runner)
+        self.assertEqual(result, 1)
+        output = captured.getvalue()
+        self.assertIn("FAIL (partial: dns, tls)", output)
+        self.assertNotIn("sensitive failure", output)
+        self.assertNotIn("do not publish", output)
+        self.assertNotIn("redacted", output)
+
+    def test_partial_report_outside_tmp_dir_is_not_read(self):
+        with tempfile.TemporaryDirectory() as outside_dir:
+            outside = Path(outside_dir) / "report.json"
+            outside.write_text(json.dumps({
+                "status": "partial",
+                "checks": {"untrusted": {"status": "error", "required": True}},
+            }))
+            def fake_runner(command, **kwargs):
+                return subprocess.CompletedProcess(command, 2, json.dumps([{
+                    "status": "partial", "artifacts": {"json": str(outside)}
+                }]), "")
+            captured = StringIO()
+            with redirect_stdout(captured):
+                result = run([("example.com", "https://example.com")],
+                             output_root=self.root, runner=fake_runner)
+            self.assertEqual(result, 1)
+            self.assertIn("FAIL (exit 2)", captured.getvalue())
+            self.assertNotIn("untrusted", captured.getvalue())
 
     def test_nonzero_exit_fails_job(self):
         def fake_runner(command, **kwargs):
