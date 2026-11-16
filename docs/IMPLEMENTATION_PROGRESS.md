@@ -145,3 +145,25 @@ Continue independent synthetic implementation while these remain blocked.
 - Live outreach remains DISABLED pending separate owner activation and verified
   sender/recipient/NZ compliance/provider/unsubscribe evidence. No send claimed.
   Client acceptance and project tracking are next independent integration work.
+
+## Continued execution — Phase 6 client project records
+
+- Phase 5 commit af44824a71cfff8773c5bdba7154939900b33703; draft PR #86:
+  https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/86. Eligible stacked workflows
+  passed: security 43823956783, cloud tests 43823956693, toolkit 43823956699.
+- Separate branch cloud/client-projects. Connects exact approved proposal +
+  explicit owner-verified customer acceptance evidence to an idempotent project
+  with frozen scope, tasks, access/assets and sequential delivery milestones.
+- Owner portal acceptance and completion forms reuse authenticated CSRF/origin/
+  body/rate/version controls. Projects view shows private tracking records.
+  Task/milestone completion requires evidence and prerequisites; handover closes
+  tracking. No site change, customer handover send, invoice, charge or credential
+  collection occurs. Accepted scope/completed evidence/history are immutable.
+- Verification: 41 connected portal/project/approval/store tests passed, including
+  an authenticated synthetic approve -> acceptance -> tasks -> QA -> handover
+  closure flow; 33 project/approval/store tests also passed. Ruff/diff checks pass.
+- Customer acceptance remains owner-attested, not independently signature-verified.
+  Real customer/project/production acceptance is not claimed. Remaining Phase 7
+  work includes interrupted-work quota durability, operational recovery evidence
+  and final integration checks. Hosted activation remains blocked on destination
+  mapping, quota/access review and explicit deployment approval.

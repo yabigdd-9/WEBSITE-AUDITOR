@@ -301,6 +301,9 @@ def metrics(state):
         ),
         proposal_drafts_ready=sum(bool(p.get("proposal_version")) for p in prospects),
         proposal_reviews_pending=sum(proposal_pending(p) for p in prospects),
+        active_projects=sum(
+            project["status"] != "closed" for p in prospects for project in p.get("projects", {}).values()
+        ),
         approvals_pending=ready,
         contacts_sent=0,
         provider_accepted=0,

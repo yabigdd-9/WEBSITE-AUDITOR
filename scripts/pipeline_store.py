@@ -181,10 +181,26 @@ class PipelineStore:
                 if prospect.get("status") == "suppressed" and current.get("status") != "suppressed":
                     raise ValueError("Suppression cannot be cleared by a worker")
                 for key in ("proposal_versions", "recommendation_reviews", "approvals",
-                            "outreach_drafts", "outreach_events", "suppression_events"):
+                            "outreach_drafts", "outreach_events", "suppression_events", "project_events"):
                     prior = prospect.get(key, [])
                     if current.get(key, [])[:len(prior)] != prior:
                         raise ValueError("Proposal and review history is append-only")
+                for project_id, project in prospect.get("projects", {}).items():
+                    latest = current.get("projects", {}).get(project_id)
+                    if latest is None or any(
+                        latest[key] != project[key] for key in ("frozen_proposal", "proposal_version", "acceptance")
+                    ):
+                        raise ValueError("Accepted proposal and project acceptance are immutable")
+                    for key in ("tasks", "milestones"):
+                        if len(latest[key]) != len(project[key]):
+                            raise ValueError("Accepted project scope is immutable")
+                        for old, new in zip(project[key], latest[key], strict=True):
+                            if (
+                                {k: v for k, v in old.items() if k not in {"status", "evidence_sha256"}}
+                                != {k: v for k, v in new.items() if k not in {"status", "evidence_sha256"}}
+                                or old["status"] == "complete" and old != new
+                            ):
+                                raise ValueError("Project scope and completed evidence are immutable")
             for identity, candidate in previous.get("discovery_candidates", {}).items():
                 current = state.get("discovery_candidates", {}).get(identity)
                 if (

@@ -53,7 +53,7 @@ def login(client):
 def test_pipeline_requires_owner_session_everywhere(owner):
     client, store, identity, _ = owner
     for path in ("/pipeline", "/pipeline/prospects", f"/pipeline/prospects/{identity}",
-                 "/pipeline/discovery", "/pipeline/health", "/pipeline/outreach"):
+                 "/pipeline/discovery", "/pipeline/health", "/pipeline/outreach", "/pipeline/projects"):
         response = client.get(path)
         assert response.status_code == 401
         assert "example.com" not in response.text
@@ -132,6 +132,31 @@ def test_owner_proposal_approval_is_version_bound_and_does_not_approve_sending(o
     assert record["approvals"][0]["version_sha256"] == version
     assert record["approvals"][0]["action_type"] == "proposal"
     assert not record.get("outreach_drafts")
+
+
+def test_owner_records_acceptance_and_project_delivery_without_external_actions(owner):
+    client, store, identity, _ = owner
+    token = login(client)
+    version = store.read()["prospects"][identity]["proposal_version"]
+    data = {"version": version, "reason": "Synthetic acceptance evidence", "csrf": token}
+    accept = f"/pipeline/prospects/{identity}/accept"
+    assert client.post(accept, json={**data, "owner_verified": True, "acceptance_evidence": "a" * 64}).status_code == 400
+    assert client.post(f"/pipeline/prospects/{identity}/approve", json=data, follow_redirects=False).status_code == 303
+    assert client.post(accept, json={**data, "owner_verified": False, "acceptance_evidence": "a" * 64}).status_code == 400
+    result = client.post(accept, data={**data, "owner_verified": "true", "acceptance_evidence": "a" * 64}, follow_redirects=False)
+    assert result.status_code == 303
+    p = store.read()["prospects"][identity]
+    project_id = next(iter(p["projects"]))
+    assert client.get("/pipeline/projects").status_code == 200
+    base = f"/pipeline/prospects/{identity}/projects/{project_id}"
+    proof = {"reason": "Verified synthetic completion", "completion_evidence": "b" * 64, "csrf": token}
+    assert client.post(base + "/milestone/handover/complete", json=proof).status_code == 400
+    for kind, item in (("milestone", "scope"), ("milestone", "access"), ("task", "1"),
+                       ("milestone", "implementation"), ("milestone", "quality"), ("milestone", "handover")):
+        assert client.post(base + f"/{kind}/{item}/complete", json=proof, follow_redirects=False).status_code == 303
+    project = store.read()["prospects"][identity]["projects"][project_id]
+    assert project["status"] == "closed"
+    assert project["automated_changes"] == 0 and project["automatic_invoicing"] is False
 
 
 def test_dashboard_refuses_missing_or_public_database(owner):
