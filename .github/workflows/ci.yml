@@ -91,11 +91,12 @@ jobs:
           python-version: '3.11'
       - name: Install browser test dependencies
         run: |
-          python -m pip install -e '.[browser,portal,dev]' pillow
+          python -m pip install --only-binary=:all: --require-hashes -r requirements-browser-ci.txt
           python -m playwright install --with-deps chromium
       - name: Verify fixture audit, portal, PDF delivery and proof capture
         run: |
           python -m pytest toolkit_tests/test_browser_e2e.py \
             toolkit_tests/test_monthly_browser_e2e.py \
             tests/e2e/test_proof_browser_capture.py \
-            tests/test_proof_rendering.py -v
+            tests/test_proof_rendering.py tests/test_proof_diff.py \
+            tests/test_proof_environment.py -v

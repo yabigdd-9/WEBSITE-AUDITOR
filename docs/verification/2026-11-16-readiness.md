@@ -80,8 +80,11 @@ key is missing. It does not enable the worker or change any secret.
 
 ## Local validation and limits
 
-- Canonical/upgrade regression: 763 passed, 5 optional tests initially skipped,
-  14 subtests passed. The one DNS-dependent handler test was made deterministic;
+- Canonical/upgrade regression before optional browser dependencies: 763 passed,
+  5 optional tests initially skipped, 14 subtests passed. With Pillow and
+  Playwright installed, the final shell run passed 767 tests and 14 subtests,
+  with two browser-fixture skips and two real-launch tests excluded because of
+  the shell restriction. The one DNS-dependent handler test was made deterministic;
   a separate test verifies unresolved targets are rejected before an audit.
 - Portable MoneyMachine regression: 113 passed, 45 subtests passed.
 - Workflow configuration branches: disabled manual dispatch fails; disabled
@@ -98,6 +101,19 @@ key is missing. It does not enable the worker or change any secret.
   cleanup and successful retry are now covered for both launch and context
   failures. The new CI browser job runs the real local-fixture audit, portal
   login/logout, PDF downloads and proof-browser checks on an Ubuntu runner.
+- GitHub browser/PDF job at initial PR head `aa46d92`: 11 tests passed, including
+  actual fixture audit, portal login/logout, authenticated PDF downloads and
+  proof contexts. [Run 43818589071](https://github.com/yabigdd-9/WEBSITE-AUDITOR/actions/runs/43818589071).
+  Installing optional dependencies also exposed a test relying on absent Pillow
+  and environment probing that failed when the browser binary was unavailable.
+  The test now explicitly exercises missing Pillow; probing records defaults
+  on a Playwright launch error. Actual capture still fails when no browser runs.
+- Two Sonar projects publish checks for this repository. At `aa46d92`, the CI
+  scan for `yabigdd-9_website-auditor` passed its PR quality gate, while the
+  automatic `yabigdd-9_HERMES_MONEY_ENGINE` check failed its security rating.
+  Diagnostics now query both known project keys without changing either gate.
+  This is evidence of duplicate repository analyses, not yet proof of how much
+  quota can safely be reclaimed.
 - Actual GitHub bootstrap/restore and the post-fix SonarCloud gate remain
   unverified. The earlier completed soak test was not repeated.
 
