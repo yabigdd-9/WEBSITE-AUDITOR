@@ -31,3 +31,19 @@ the free limit again, either reduce unused legacy code, move workloads to a
 separately funded plan with explicit owner approval, or adjust documented
 analysis scope while keeping meaningful safeguards. No paid tier is enabled
 by this change.
+
+## Follow-up: quota no longer blocks analysis, quality gate still fails
+
+The post-merge main-branch scan on commit `821ee744` completed its server
+analysis successfully, but the **actual SonarCloud quality gate failed**. This
+must not be reported as a green check or a remaining quota exception. The
+repository also has an external Sonar check linked to the separate
+`yabigdd-9_HERMES_MONEY_ENGINE` project; its failed conditions must not be
+assumed to describe `yabigdd-9_website-auditor`.
+
+A nonblocking diagnostic step now queries `api/qualitygates/project_status`
+for the **Website Auditor** project on `master`. It prints only failing metric
+names, observed values and thresholds; no token, audited HTML, customer data
+or draft is logged. The scan's own failure outcome remains authoritative.
+Actual code-quality issues require investigation and fixes, not disabling the
+gate or fabricating an all-green status.
