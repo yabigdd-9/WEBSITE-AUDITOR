@@ -244,3 +244,36 @@ from opening this integration review. The formal scan remains blocked as noted.
 - Post-correction verification: 125 dedicated pipeline tests and 37 portal/
   history/delivery tests passed; canonical/test Ruff and diff checks passed.
   Full CI and the unchanged Sonar gate will rerun before reporting final status.
+
+## Verified integrated implementation — final source evidence
+
+Source commit **7339e4c1c560354976a9ea40f32243359197ec2c**, integration draft
+[PR #88](https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/88): all nine workflows
+completed successfully after the quality corrections:
+
+| Workflow | Run ID | Result |
+| --- | --- | --- |
+| CI | 43832640119 | success; canonical 850 passed / 14 optional skips / 14 subtests; portable 113 passed / 45 subtests |
+| Local toolkit tests | 43832640298 | success; lint, dependency check, wheel and existing real-browser E2E steps passed |
+| security | 43832640193 | success; existing secret/dependency gates |
+| CodeQL | 43832640256 | success |
+| SonarCloud | 43832640042 | success; unchanged quality gate passed |
+| Durable cloud pipeline tests | 43832640084 | success; worker explicitly skipped on PR |
+| Scheduled canonical regression | 43832640097 | success; no production worker execution on PR |
+| Review shortlist regression | 43832640161 | success |
+| Private ledger tests | 43832640493 | success |
+
+The dedicated cloud/vault suite and local command cover 125 passing tests.
+Optional vault tests skipped in the generic CI job are exercised by the separate
+vault-enabled regression jobs. Local post-correction portal/history/delivery
+coverage passed 37 tests. Existing real-browser checks are not a claim that the
+new dashboard has passed remote/mobile acceptance.
+
+Implementation is committed/published in seven focused phase branches and
+reviewable through drafts #82-#88. PR #88 contains the integration and fixes;
+no merge has occurred. Current docs-only evidence updates do not change the
+implementation above. Production gates, external configuration and the formal
+scan limitation remain as documented. The next owner information needed is the
+intended hosted storage/project mapping; no private key or paid activation is
+requested. Continue with provider-specific deployment/security planning only
+after that mapping is known.

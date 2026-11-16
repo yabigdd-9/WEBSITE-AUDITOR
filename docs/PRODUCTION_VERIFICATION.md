@@ -67,3 +67,19 @@ was addressed with explicit HTML escaping while keeping the existing identity
 validation. No formal vulnerability exploitation or formal diff-scan completion
 is inferred from that analyzer warning. Exact correction verification is recorded
 in IMPLEMENTATION_PROGRESS.md. Production activation remains unperformed.
+
+### Corrected integration verified in CI
+
+At source commit 7339e4c1c560354976a9ea40f32243359197ec2c on draft PR #88,
+all nine workflows passed, including the unchanged SonarCloud quality gate
+(43832640042), CodeQL (43832640256), security (43832640193), full CI
+(43832640119), toolkit/browser checks (43832640298), cloud tests
+(43832640084 / 43832640097 / 43832640161) and ledger tests (43832640493).
+Generic CI reported 850 passed and 14 optional skips; separate vault-enabled
+jobs cover encryption, and the existing real-browser steps passed.
+
+These are PR CI runs. The durable production worker is explicitly skipped on
+PRs, as confirmed by job inspection. No hosted database changes, production
+archive retrieval, remote owner authentication or production deployment were
+verified. Formal Security Diff Scan remains unavailable; a deployment-context
+security review still needs the actual chosen host/database/archive settings.

@@ -47,5 +47,6 @@ security_diff_scan config preflight before scan review, but the referenced
 config-preflight.md could not be read and the helper is not available in this
 host. Existing gitleaks/pip-audit/CodeQL and ordinary implementation review are
 separate evidence, not a substitute claim that this formal scan completed.
-The scan remains a production security release gate. Skill source:
+A deployment-context security review remains required; this particular formal
+scan is unavailable, and an appropriate alternative review may be used. Skill source:
 `skill://Plugin_1e648473be9c8191a91ac3947151af55/security-diff-scan/SKILL.md`.

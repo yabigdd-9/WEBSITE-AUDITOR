@@ -160,7 +160,7 @@ not an authorization token.
 | 4 | Authenticated loopback owner views and review controls | Remote HTTPS/auth deployment, real mobile browser acceptance |
 | 5 | Exact proposal/message approvals, suppression and sandbox-only transport | Live outreach remains disabled; legal/provider/owner activation gates |
 | 6 | Owner-attested acceptance -> frozen project -> evidence-backed closure | Real accepted customer project and authorized delivery |
-| 7 | Private job history, crash-durable quotas, pause controls, paired restore tests | Formal security scan, durable archive, hosted recovery and production verification |
+| 7 | Private job history, crash-durable quotas, pause controls, paired restore tests | Deployment security review (formal scan unavailable), durable archive, hosted recovery and production verification |
 
 The logical operational ledger supplements the existing SQLite writer lock; it
 does not replace the local supervisor or introduce a paid always-on service.
