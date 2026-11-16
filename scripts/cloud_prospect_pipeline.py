@@ -54,6 +54,18 @@ def event(state, now, run_id, entity_id, action, status, error="none"):
 
 
 def policy_rows(path: Path, allowlist: Path) -> list[dict]:
+    root = Path(__file__).resolve().parents[1]
+    for candidate in (path, allowlist):
+        resolved = candidate.resolve()
+        if (
+            candidate.is_symlink()
+            or ".." in candidate.parts
+            or not any(
+                resolved.is_relative_to(base)
+                for base in (root, Path(tempfile.gettempdir()).resolve())
+            )
+        ):
+            raise ValueError("Source must be in the checkout or private temporary directory")
     allowed = dict(load_sites(allowlist))
     rows = json.loads(path.read_text())
     if not isinstance(rows, list) or len(rows) > MAX_PROSPECTS:
@@ -191,22 +203,45 @@ def metrics(state):
     )
 
 
+def private_state_path(path: Path) -> Path:
+    """Only explicit checkpoint files inside the runner/system temporary directory."""
+    root = Path(os.environ.get("RUNNER_TEMP", tempfile.gettempdir())).resolve()
+    path = Path(path).absolute()
+    if (
+        path.suffix != ".enc"
+        or ".." in path.parts
+        or path.is_symlink()
+        or not path.parent.is_dir()
+        or not path.resolve().is_relative_to(root)
+        or path.parent.resolve() != path.parent
+    ):
+        raise ValueError("Checkpoint must be a regular .enc file inside runner temp")
+    return path
+
+
 def seal(state: dict, path: Path, key: str):
     from cryptography.fernet import Fernet
 
+    path = private_state_path(path)
     raw = json.dumps(state, sort_keys=True).encode()
     if len(raw) > MAX_STATE_BYTES:
         raise ValueError("State capacity exceeded")
     encrypted = Fernet(key.encode()).encrypt(raw)
-    temporary = path.with_suffix(".tmp")
-    temporary.write_bytes(encrypted)
-    temporary.chmod(0o600)
-    temporary.replace(path)
+    with tempfile.NamedTemporaryFile(dir=path.parent, delete=False) as stream:
+        temporary = Path(stream.name)
+        stream.write(encrypted)
+        stream.flush()
+        os.fsync(stream.fileno())
+    try:
+        temporary.replace(path)
+    finally:
+        temporary.unlink(missing_ok=True)
 
 
 def unseal(path: Path, key: str) -> dict:
     from cryptography.fernet import Fernet
 
+    path = private_state_path(path)
     if path.stat().st_size > MAX_STATE_BYTES * 2:
         raise ValueError("Oversized checkpoint")
     state = json.loads(Fernet(key.encode()).decrypt(path.read_bytes()))

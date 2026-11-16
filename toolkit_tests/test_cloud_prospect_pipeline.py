@@ -1,3 +1,4 @@
+import importlib.util
 import json
 import tempfile
 import unittest
@@ -5,6 +6,8 @@ from pathlib import Path
 from unittest.mock import patch
 
 from scripts import cloud_prospect_pipeline as p
+
+CRYPTO_AVAILABLE = importlib.util.find_spec("cryptography") is not None
 
 
 class PipelineTests(unittest.TestCase):
@@ -30,6 +33,7 @@ class PipelineTests(unittest.TestCase):
         entries.append(dict(run_id="audit-1", findings=[], internal_scope_draft="review"))
         return [dict(status="COMPLETE")]
 
+    @unittest.skipUnless(CRYPTO_AVAILABLE, "Optional vault dependency is not installed")
     def test_idempotent_queue_and_draft_across_checkpoint(self):
         from cryptography.fernet import Fernet
 
@@ -109,6 +113,7 @@ class PipelineTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 p._verify_safety(Path(__file__).resolve().parents[1])
 
+    @unittest.skipUnless(CRYPTO_AVAILABLE, "Optional vault dependency is not installed")
     def test_bad_checkpoint_and_capacity_fail_closed(self):
         from cryptography.fernet import Fernet, InvalidToken
 
@@ -138,6 +143,7 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(result["drafts_ready"], 0)
         self.assertEqual(result["retries_pending"], 3)
 
+    @unittest.skipUnless(CRYPTO_AVAILABLE, "Optional vault dependency is not installed")
     def test_main_roundtrip_and_public_output_contains_counts_only(self):
         import contextlib
         import io
@@ -162,6 +168,18 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(len(restored["events"]), 2)
         self.assertNotIn(env["WA_PIPELINE_STATE_KEY"], output.getvalue())
         self.assertNotIn("example.com", output.getvalue())
+
+    def test_checkpoint_rejects_symlink_and_source_escape(self):
+        target = self.root / "target.enc"
+        target.write_bytes(b"private")
+        link = self.root / "link.enc"
+        link.symlink_to(target)
+        with self.assertRaises(ValueError):
+            p.private_state_path(link)
+        with self.assertRaises(ValueError):
+            p.private_state_path(Path("/workspace/escape.enc"))
+        with self.assertRaises(ValueError):
+            p.policy_rows(Path("/etc/passwd"), self.root / "allowlist.txt")
 
     def test_source_requires_owner_policy_review(self):
         allowlist = self.root / "clients.txt"

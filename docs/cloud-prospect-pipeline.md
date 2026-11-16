@@ -75,8 +75,8 @@ business data from any private exports according to the owner's retention policy
 This is bounded continuity on Actions, not a permanently backed-up CRM.
 
 For private review, download the latest `pipeline-state` artifact on a trusted
-machine, load the key from a private environment variable, and call
-`scripts.cloud_prospect_pipeline.unseal(Path("pipeline-state.enc"), key)`.
+machine, load the key from a private environment variable, and place it in a private temporary directory and call
+`scripts.cloud_prospect_pipeline.unseal(Path("/tmp/private-review/pipeline-state.enc"), key)`.
 Write the resulting JSON to a private 0600 file outside this checkout. Review
 `prospects[*].audit`, `.draft` and `events`; never paste decrypted output in a
 public issue or Actions log. Existing offline review-ledger imports remain
@@ -117,7 +117,7 @@ issue 78 as fully accepted on the basis of this draft-only foundation.
 
 ## Validation and rollback
 
-Local Python 3.12: 44 tests passed plus 14 subtests across the new queue and the
+Local Python 3.12: 45 tests passed plus 14 subtests across the new queue and the
 existing scheduled-audit, review-only, review-ledger and vault suites. No network
 audits, production send, payment, paid model call, repeated soak, or deployment
 was performed. New CI uses supported Python 3.11; PR checks must be inspected
