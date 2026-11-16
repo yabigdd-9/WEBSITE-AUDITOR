@@ -15,6 +15,9 @@ class PipelineTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
+        runner_env = patch.dict("os.environ", {"RUNNER_TEMP": str(self.root)})
+        runner_env.start()
+        self.addCleanup(runner_env.stop)
         self.rows = [dict(domain="example.com", url="https://example.com/")]
         self.state = p.empty_state()
 
