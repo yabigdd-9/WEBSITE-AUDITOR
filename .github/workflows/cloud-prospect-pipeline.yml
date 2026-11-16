@@ -48,11 +48,38 @@ jobs:
           python-version: '3.11'
       - run: python -m pip install -e '.[vault]'
       - run: python -m unittest toolkit_tests.test_cloud_prospect_pipeline toolkit_tests.test_cloud_pipeline_outcomes toolkit_tests.test_cloud_pipeline_checkpoint -v
+  configuration:
+    name: Check durable worker activation
+    needs: tests
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    env:
+      PIPELINE_ENABLED: ${{ vars.WA_PIPELINE_ENABLED }}
+      STATE_KEY_CONFIGURED: ${{ secrets.WA_PIPELINE_STATE_KEY != '' }}
+    steps:
+      - name: Report actual activation separately from offline tests
+        shell: bash
+        run: |
+          if [ "$PIPELINE_ENABLED" != 'true' ]; then
+            echo '## Durable worker: DISABLED' >> "$GITHUB_STEP_SUMMARY"
+            echo 'Offline tests do not prove live queue execution. Set WA_PIPELINE_ENABLED=true and configure WA_PIPELINE_STATE_KEY before the first bootstrap dispatch.' >> "$GITHUB_STEP_SUMMARY"
+            if [ "$GITHUB_EVENT_NAME" = 'workflow_dispatch' ]; then
+              echo '::error::Manual dispatch did not execute the worker: WA_PIPELINE_ENABLED is not true.'
+              exit 1
+            fi
+          elif [ "$STATE_KEY_CONFIGURED" != 'true' ]; then
+            echo '## Durable worker: BLOCKED - state key missing' >> "$GITHUB_STEP_SUMMARY"
+            echo '::error::WA_PIPELINE_STATE_KEY must be configured before activation.'
+            exit 1
+          else
+            echo '## Durable worker: configured; verify worker steps and checkpoint upload below' >> "$GITHUB_STEP_SUMMARY"
+          fi
   draft-pipeline:
     permissions:
       contents: read
       actions: read
-    needs: tests
+    needs: [tests, configuration]
     # Owner configuration required; merging never activates prospect requests.
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && vars.WA_PIPELINE_ENABLED == 'true'
     runs-on: ubuntu-latest

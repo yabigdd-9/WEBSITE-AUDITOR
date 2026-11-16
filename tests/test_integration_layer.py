@@ -1,6 +1,7 @@
 import hashlib
 import hmac
 import json
+import socket
 import urllib.request
 from http.server import ThreadingHTTPServer
 
@@ -138,6 +139,29 @@ def test_github_handler_rejects_private_or_unresolvable_targets(monkeypatch):
         raise AssertionError("private audit target must be rejected")
 
 
+def test_github_handler_rejects_unresolvable_target_before_audit(monkeypatch):
+    import pytest
+
+    import auditor_toolkit.pipeline as pipeline
+
+    monkeypatch.setenv("GITHUB_AUDIT_SITE_URL", "https://unresolvable.example")
+    monkeypatch.setenv("GITHUB_REPOSITORY_ALLOWLIST", "yabigdd-9/WEBSITE-AUDITOR")
+
+    def fail_dns(*args, **kwargs):
+        raise socket.gaierror("DNS unavailable")
+
+    def forbidden_audit(*args, **kwargs):
+        raise AssertionError("Audit started before DNS validation")
+
+    monkeypatch.setattr(socket, "getaddrinfo", fail_dns)
+    monkeypatch.setattr(pipeline, "run_audit", forbidden_audit)
+    with pytest.raises(ValueError, match="site_host_not_resolvable"):
+        handle_github_audit(
+            "github.push",
+            {"delivery": "gh-dns", "payload": {"repository": "yabigdd-9/WEBSITE-AUDITOR"}},
+        )
+
+
 def test_github_handler_skips_unsupported_pull_request_action(monkeypatch):
     monkeypatch.setenv("GITHUB_AUDIT_SITE_URL", "https://example.com")
     monkeypatch.setenv("GITHUB_REPOSITORY_ALLOWLIST", "yabigdd-9/WEBSITE-AUDITOR")
@@ -164,6 +188,11 @@ def test_github_handler_runs_static_no_ai_audit(monkeypatch, tmp_path):
     monkeypatch.setenv("GITHUB_AUDIT_SITE_URL", "https://example.com")
     monkeypatch.setenv("GITHUB_REPOSITORY_ALLOWLIST", "yabigdd-9/WEBSITE-AUDITOR")
     monkeypatch.setenv("WA_ROOT", str(tmp_path))
+    # This test exercises the handler/options, not public DNS availability.
+    monkeypatch.setattr(
+        socket, "getaddrinfo",
+        lambda *args, **kwargs: [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("93.184.216.34", 443))],
+    )
     monkeypatch.setattr(pipeline, "run_audit", fake_run)
     result = handle_github_audit(
         "github.push",
