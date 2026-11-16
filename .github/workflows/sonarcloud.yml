@@ -90,12 +90,15 @@ jobs:
           # Diagnostics are limited to the audited PR. Never expose the token.
           # Keep this step non-blocking: the scan itself owns the quality gate.
           if [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && [ -n "${PR_NUMBER}" ]; then
-            echo "SonarCloud PR issue summary:"
-            curl --fail --silent --show-error --get \
-              --header "Authorization: Basic $(printf '%s:' "$SONAR_TOKEN" | base64 --wrap=0)" \
-              --data-urlencode "componentKeys=yabigdd-9_website-auditor" \
-              --data-urlencode "pullRequest=${PR_NUMBER}" \
-              --data-urlencode "ps=100" \
-              "https://sonarcloud.io/api/issues/search" \
-              | jq '{total, issues: [.issues[]? | {rule, severity, type, message, component, line, effort}]}'
+            # Both keys currently publish checks for this same repository.
+            for project in yabigdd-9_website-auditor yabigdd-9_HERMES_MONEY_ENGINE; do
+              echo "SonarCloud PR issue summary: $project"
+              curl --fail --silent --show-error --get \
+                --header "Authorization: Basic $(printf '%s:' "$SONAR_TOKEN" | base64 --wrap=0)" \
+                --data-urlencode "componentKeys=${project}" \
+                --data-urlencode "pullRequest=${PR_NUMBER}" \
+                --data-urlencode "ps=100" \
+                "https://sonarcloud.io/api/issues/search" \
+                | jq '{total, issues: [.issues[]? | {rule, severity, type, message, component, line, effort}]}'
+            done
           fi
