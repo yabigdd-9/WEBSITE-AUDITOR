@@ -310,3 +310,24 @@ configuration and release review. The formal Security Diff Scan tool/preflight
 limitation recorded above remains unresolved. Next: inspect focused PR CI and
 resolve any regressions, then prepare provider-specific integration when the
 owner identifies the intended storage/project.
+
+### Focused archive PR and CI evidence
+
+Draft [PR #90](https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/90) targets
+`cloud/operational-recovery` (#88). Implementation commit:
+`053b81cf5c74413b16a07cae46c5ae0ce9615169`.
+All six triggered workflows completed successfully on that exact commit:
+
+| Workflow | Run ID | Result |
+| --- | --- | --- |
+| CI | 43841613688 | success: canonical 881 passed / 15 optional skips / 14 subtests; portable 113 passed / 45 subtests |
+| Local toolkit tests | 43841613700 | success |
+| security | 43841613899 | success |
+| CodeQL | 43841613716 | success |
+| SonarCloud | 43841615545 | success; unchanged quality gate |
+| Durable Cloud Draft Pipeline | 43841613693 | success; no production worker on PR |
+
+The built wheel was installed outside the checkout and passed schema v4,
+ciphertext round-trip and authenticated report-page smoke checks. No deployment
+or production verification is implied by CI. This evidence-only update does not
+change tested source. Remaining owner/storage/security-release gates are unchanged.
