@@ -37,16 +37,28 @@ def create_proof_browser_context(
         env = probe_environment()
 
     pw = sync_playwright().start()
-    browser = pw.chromium.launch(headless=True)
-    context = browser.new_context(
-        viewport={"width": env.viewport_width, "height": env.viewport_height},
-        device_scale_factor=env.device_scale_factor,
-        locale=env.locale,
-        timezone_id=env.timezone,
-        reduced_motion=env.reduced_motion,
-        color_scheme=env.color_scheme,
-    )
-    return pw, browser, context
+    browser = None
+    try:
+        browser = pw.chromium.launch(headless=True)
+        context = browser.new_context(
+            viewport={"width": env.viewport_width, "height": env.viewport_height},
+            device_scale_factor=env.device_scale_factor,
+            locale=env.locale,
+            timezone_id=env.timezone,
+            reduced_motion=env.reduced_motion,
+            color_scheme=env.color_scheme,
+        )
+        return pw, browser, context
+    except Exception:
+        # Failed setup must not leave Playwright's event loop running and break
+        # the next proof attempt in this process.
+        try:
+            if browser is not None:
+                browser.close()
+        finally:
+            pw.stop()
+        raise
+
 
 
 def capture_before_state(
