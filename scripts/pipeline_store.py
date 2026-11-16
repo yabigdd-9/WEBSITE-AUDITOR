@@ -16,7 +16,7 @@ from pathlib import Path
 
 from scripts.review_ledger import _is_safe_db_location
 
-VERSION = 1
+VERSION = 2
 MAX_BYTES = 5_000_000
 SCHEMA = (
     "CREATE TABLE metadata (singleton INTEGER PRIMARY KEY CHECK(singleton=1), "
@@ -30,6 +30,13 @@ SCHEMA = (
     "body TEXT NOT NULL CHECK(json_valid(body)))",
     "CREATE TABLE business_events (sequence INTEGER PRIMARY KEY, event_id TEXT UNIQUE NOT NULL, "
     "prospect_id TEXT NOT NULL REFERENCES prospects(id), "
+    "body TEXT NOT NULL CHECK(json_valid(body)))",
+)
+DISCOVERY_SCHEMA = (
+    "CREATE TABLE discovery_candidates (id TEXT PRIMARY KEY, domain TEXT NOT NULL UNIQUE, "
+    "prospect_id TEXT REFERENCES prospects(id), body TEXT NOT NULL CHECK(json_valid(body)))",
+    "CREATE TABLE discovery_events (sequence INTEGER PRIMARY KEY, "
+    "candidate_id TEXT NOT NULL REFERENCES discovery_candidates(id), "
     "body TEXT NOT NULL CHECK(json_valid(body)))",
 )
 
@@ -46,22 +53,28 @@ def validate(state):
         or len(state.get("business_events", [])) > 10000
         or not isinstance(state.get("audit_runs", []), list)
         or len(state.get("audit_runs", [])) > 10000
+        or not isinstance(state.get("discovery_candidates", {}), dict)
+        or len(state.get("discovery_candidates", {})) > 100
+        or not isinstance(state.get("discovery_events", []), list)
+        or len(state.get("discovery_events", [])) > 10000
+        or ("discovery_candidates" in state) != ("discovery_events" in state)
         or any(k.startswith("_store_") for k in state)
     ):
         raise ValueError("Invalid bounded pipeline state")
-    domains = set()
-    for identity, prospect in state["prospects"].items():
-        domain = prospect.get("domain")
-        if (
-            not isinstance(domain, str)
-            or domain != domain.lower().rstrip(".")
-            or not re.fullmatch(r"[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?", domain)
-            or "." not in domain
-            or domain in domains
-            or hashlib.sha256(domain.encode()).hexdigest() != identity
-        ):
-            raise ValueError("Invalid canonical prospect identity")
-        domains.add(domain)
+    for records in (state.get("discovery_candidates", {}), state["prospects"]):
+        domains = set()
+        for identity, prospect in records.items():
+            domain = prospect.get("domain")
+            if (
+                not isinstance(domain, str)
+                or domain != domain.lower().rstrip(".")
+                or not re.fullmatch(r"[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?", domain)
+                or "." not in domain
+                or domain in domains
+                or hashlib.sha256(domain.encode()).hexdigest() != identity
+            ):
+                raise ValueError("Invalid canonical prospect identity")
+            domains.add(domain)
     raw = json.dumps(state, sort_keys=True, allow_nan=False)
     if len(raw.encode()) > MAX_BYTES:
         raise ValueError("Archive pipeline history before continuing")
@@ -91,7 +104,14 @@ class PipelineStore:
                 # Refuse a legacy MoneyMachine/History/review ledger DB.
                 if db.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchone():
                     raise ValueError("Use a separate pipeline database")
-                for statement in SCHEMA:
+                for statement in (*SCHEMA, *DISCOVERY_SCHEMA):
+                    db.execute(statement)
+                db.execute(f"PRAGMA user_version={VERSION}")
+            elif version == 1:
+                tables = {r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+                if not {"metadata", "prospects", "audit_runs", "system_events", "business_events"} <= tables:
+                    raise ValueError("Unrecognized version 1 database")
+                for statement in DISCOVERY_SCHEMA:
                     db.execute(statement)
                 db.execute(f"PRAGMA user_version={VERSION}")
             elif version != VERSION:
@@ -129,6 +149,17 @@ class PipelineStore:
                 json.loads(row[0])
                 for row in db.execute("SELECT body FROM audit_runs ORDER BY rowid")
             ]
+        if state.pop("_store_has_discovery", False):
+            state["discovery_candidates"] = {
+                identity: json.loads(body) for identity, body in db.execute(
+                    "SELECT id,body FROM discovery_candidates ORDER BY rowid"
+                )
+            }
+            state["discovery_events"] = [
+                json.loads(row[0]) for row in db.execute(
+                    "SELECT body FROM discovery_events ORDER BY sequence"
+                )
+            ]
         validate(state)
         return state
 
@@ -137,7 +168,7 @@ class PipelineStore:
         validate(state)
         previous = PipelineStore._load(db)
         if previous is not None:
-            for key in ("events", "business_events", "audit_runs"):
+            for key in ("events", "business_events", "audit_runs", "discovery_events"):
                 prior = previous.get(key, [])
                 if state.get(key, [])[:len(prior)] != prior:
                     raise ValueError("Persisted history is append-only; use explicit backup recovery")
@@ -147,20 +178,41 @@ class PipelineStore:
                     raise ValueError("Prospect deletion/identity change requires a retention migration")
                 if prospect.get("status") == "suppressed" and current.get("status") != "suppressed":
                     raise ValueError("Suppression cannot be cleared by a worker")
+            for identity, candidate in previous.get("discovery_candidates", {}).items():
+                current = state.get("discovery_candidates", {}).get(identity)
+                if (
+                    current is None or current["domain"] != candidate["domain"]
+                    or current["first_seen"] != candidate["first_seen"]
+                    or any(s not in current["sources"] for s in candidate["sources"])
+                ):
+                    raise ValueError("Discovery provenance cannot be discarded by a worker")
         metadata = {
             k: v for k, v in state.items()
-            if k not in {"prospects", "events", "business_events", "audit_runs"}
+            if k not in {"prospects", "events", "business_events", "audit_runs",
+                         "discovery_candidates", "discovery_events"}
         }
         metadata["_store_has_business_events"] = "business_events" in state
         metadata["_store_has_audit_runs"] = "audit_runs" in state
+        metadata["_store_has_discovery"] = "discovery_candidates" in state
         # All replacement writes share the caller's transaction. A failed FK,
         # constraint or process interruption preserves the previous full state.
-        for table in ("business_events", "audit_runs", "system_events", "prospects", "metadata"):
+        for table in ("discovery_events", "discovery_candidates", "business_events", "audit_runs",
+                      "system_events", "prospects", "metadata"):
             db.execute(f"DELETE FROM {table}")
         db.execute("INSERT INTO metadata VALUES (1,?)", (json.dumps(metadata),))
         db.executemany(
             "INSERT INTO prospects VALUES (?,?,?)",
             [(i, p["domain"], json.dumps(p)) for i, p in state["prospects"].items()],
+        )
+        db.executemany(
+            "INSERT INTO discovery_candidates VALUES (?,?,?,?)",
+            [(i, c["domain"], c.get("prospect_id"), json.dumps(c))
+             for i, c in state.get("discovery_candidates", {}).items()],
+        )
+        db.executemany(
+            "INSERT INTO discovery_events VALUES (?,?,?)",
+            [(i, e["candidate_id"], json.dumps(e))
+             for i, e in enumerate(state.get("discovery_events", []))],
         )
         db.executemany(
             "INSERT INTO audit_runs VALUES (?,?,?)",

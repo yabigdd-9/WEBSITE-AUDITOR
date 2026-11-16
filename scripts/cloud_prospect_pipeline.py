@@ -79,7 +79,12 @@ def policy_rows(repo: Path) -> list[dict]:
             or (host not in allowed and row.get("suppressed") is not True)
         ):
             raise ValueError("Prospects must be unique reviewed allowlist domains")
-        seen.add(host)
+        from scripts.cloud_discovery import canonical_domain
+
+        canonical = canonical_domain(host)
+        if canonical in seen:
+            raise ValueError("Duplicate canonical website in reviewed intake")
+        seen.add(canonical)
         # Only curated business prospects with an explicit owner policy review.
         if (
             row.get("public_business") is not True
@@ -166,6 +171,27 @@ def process(
             p["status"] = "removed"
             p["draft"] = None
             event(state, now, run_id, identity, "suppression", "blocked", "policy_blocked")
+    # Discovery alone never supplies audit queue entries. Link only records that
+    # independently passed the tracked policy/allowlist gate above.
+    from scripts.cloud_discovery import canonical_domain
+
+    for identity, p in state["prospects"].items():
+        candidate_id = hashlib.sha256(canonical_domain(p["domain"]).encode()).hexdigest()
+        candidate = state.get("discovery_candidates", {}).get(candidate_id)
+        if candidate is not None:
+            p.setdefault("discovery", {})
+            existing_link = candidate.get("prospect_id")
+            if existing_link not in (None, identity):
+                raise ValueError("Ambiguous canonical discovery link")
+            candidate["prospect_id"] = identity
+            p["discovery_candidate_id"] = candidate_id
+            p["discovery_sources"] = candidate["sources"]
+            for key in ("business_name", "region", "category"):
+                if not p["discovery"].get(key):
+                    p["discovery"][key] = candidate.get(key, "")
+            candidate["eligibility_status"] = (
+                "blocked" if p["status"] in {"suppressed", "removed"} else "reviewed_allowlist"
+            )
     history = state.setdefault("audit_runs", [])
     if len(history) + limit > MAX_EVENTS:
         raise ValueError("Archive audit history before continuing")
@@ -233,6 +259,9 @@ def process(
         attempt["status"] = "partial" if error == "audit_incomplete" else "failed"
         p["next_attempt"] = now + 3600 * 2 ** (p["attempts"] - 1)
         event(state, now, run_id, identity, "audit", p["status"], error)
+    for candidate in state.get("discovery_candidates", {}).values():
+        if candidate.get("prospect_id") in state["prospects"]:
+            candidate["audit_status"] = state["prospects"][candidate["prospect_id"]]["status"]
     return metrics(state)
 
 

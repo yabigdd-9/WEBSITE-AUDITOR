@@ -100,3 +100,13 @@ connection/pause/storage quotas); Neon Postgres (compute/storage/pause limits);
 private SQLite on an already approved durable host (single writer, volume and
 backup requirements). No current prices, quotas, account or service availability
 have been verified. Do not provision any option based on assumed free allowances.
+
+## Subsequent integration status
+
+The opt-in private PipelineStore and its CI are implemented on PR #82; hosted
+persistence remains unverified. Phase 2 adds offline export intake through the
+existing mm_discovery adapters, pending-review candidates, provenance and explicit
+reviewed-queue links. See IMPLEMENTATION_PROGRESS.md for exact evidence/status.
+These additions do not establish live source acquisition, remote dashboard or
+production readiness. Supabase account discovery found existing projects but no
+repo-to-project mapping; the owner mapping question is pending.
