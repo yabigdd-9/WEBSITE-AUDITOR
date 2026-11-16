@@ -14,16 +14,6 @@ on:
       - 'pyproject.toml'
       - 'toolkit_tests/test_cloud_review_only_opportunities.py'
       - 'clients.txt'
-  push:
-    branches: [master]
-    paths:
-      - '.github/workflows/moneymachine-real-review.yml'
-      - 'scripts/cloud_review_only_opportunities.py'
-      - 'scripts/report_vault.py'
-      - 'toolkit_tests/test_report_vault.py'
-      - 'toolkit_tests/test_cloud_review_only_opportunities.py'
-      - 'pyproject.toml'
-      - 'clients.txt'
 
 permissions:
   contents: read
@@ -61,6 +51,7 @@ jobs:
           python -m unittest discover -s toolkit_tests -p 'test_report_vault.py' -v
 
       - name: Produce review-only shortlist and optional sealed owner archive
+        if: github.event_name != 'pull_request'
         env:
           MM_ENCRYPTED_REPORT_OUT: ${{ runner.temp }}/mm-private-review.enc.json
         run: python -m scripts.cloud_review_only_opportunities --all
