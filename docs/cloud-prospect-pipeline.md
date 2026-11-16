@@ -5,12 +5,14 @@ This worker has no email, payment, AI-provider or paid-service adapter.
 
 ## Evidence and gaps
 
-Inspection base: default `master`, `caa81ade80fe2e1ee44301e0b64593fb0305ede9`.
+Initial inspection: default `master`, `caa81ade80fe2e1ee44301e0b64593fb0305ede9`.
+Rebased and revalidated after PR #77 merged at
+`c4e96d2d5dea1011944ed452aa13c1d078d0ffe8`; its scheduled review/archive integration is preserved.
 
 | Existing evidence | Gap / change |
 | --- | --- |
-| `.github/workflows/cloud-scheduled-audits.yml`: twice daily, contents read, serialized, 30 minute timeout; `scripts/cloud_scheduled_audits.py`: max ten HTTPS allowlisted roots, bounded subprocesses, coded errors, temporary reports | Preserve existing scans unchanged. No cross-run business state there. |
-| `scripts/cloud_review_only_opportunities.py`: observed confidence + successful evidence check gates; temporary unpriced scope drafts, no transport; `moneymachine-real-review.yml`: optional public-key archive with 30 day retention | Reuse audit and brief generation; retain finding confidence and evidence reference in sealed entries. |
+| `.github/workflows/cloud-scheduled-audits.yml`: twice daily, contents read, serialized, 30 minute timeout; `scripts/cloud_scheduled_audits.py`: max ten HTTPS allowlisted roots; scheduled job now reuses the review-only audit/draft path and optional sealed archive | Preserve existing scans unchanged. No cross-run business state there. |
+| `scripts/cloud_review_only_opportunities.py`: observed confidence + successful evidence check gates; temporary unpriced scope drafts, no transport; scheduled and manual review workflows: optional public-key archive with 30 day retention | Reuse audit and brief generation; retain finding confidence and evidence reference in sealed entries. |
 | `scripts/review_ledger.py`: private offline SQLite, atomic/idempotent import, never sent | Useful local archive; does not restore cloud queue state. New cloud encrypted checkpoint restores that queue. |
 | `auditor_toolkit/common.py`: public-address validation on fetch/redirect, bounded responses; `network.py`: robots controls subsequent crawling | New worker checks robots before entry page too, fails closed if unavailable; source requires explicit terms and authorization review. |
 | [Canonical run 43787336509](https://github.com/yabigdd-9/WEBSITE-AUDITOR/actions/runs/43787336509), [shortlist run 43787336241](https://github.com/yabigdd-9/WEBSITE-AUDITOR/actions/runs/43787336241), both at `dddab5c` | Green regression checks, but live audit/shortlist/archive steps **skipped**. These runs are not evidence of live processing or durable revenue. |
