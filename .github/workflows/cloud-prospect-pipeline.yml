@@ -47,6 +47,23 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e '.[vault]'
+      - name: Validate state-key format on manual dispatch (no key output)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          STATE_KEY: ${{ secrets.WA_PIPELINE_STATE_KEY }}
+        run: |
+          python - <<'PYCODE'
+          import os
+          from cryptography.fernet import Fernet
+          try:
+              key = os.environ.get("STATE_KEY", "").strip()
+              cipher = Fernet(key.encode())
+              assert cipher.decrypt(cipher.encrypt(b"checkpoint-test")) == b"checkpoint-test"
+          except Exception:
+              print("STATE_KEY_FORMAT_INVALID: replace WA_PIPELINE_STATE_KEY with only a fresh Fernet key.")
+              raise SystemExit(2)
+          print("STATE_KEY_FORMAT_VALID")
+          PYCODE
       - run: python -m unittest toolkit_tests.test_cloud_prospect_pipeline toolkit_tests.test_cloud_pipeline_outcomes toolkit_tests.test_cloud_pipeline_checkpoint -v
   draft-pipeline:
     permissions:
