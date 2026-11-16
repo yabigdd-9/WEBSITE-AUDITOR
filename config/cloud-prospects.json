@@ -1,1 +1,52 @@
-[]
+[
+  {
+    "domain": "clyne-bennie.co.nz",
+    "public_business": true,
+    "terms_reviewed": true,
+    "audit_authorized": true,
+    "suppressed": false,
+    "reviewed_at": "2026-11-16",
+    "policy_evidence_sha256": "f9e9b4fe40aac953e808c35005a8342177bba5d8cf5a18276cb1882f22ccc131",
+    "review_basis": "public_passive_technical_audit_only"
+  },
+  {
+    "domain": "prodecorators.co.nz",
+    "public_business": true,
+    "terms_reviewed": true,
+    "audit_authorized": true,
+    "suppressed": false,
+    "reviewed_at": "2026-11-16",
+    "policy_evidence_sha256": "47aa6651520aef2bcba434b034499305698abc8e66b4accd6ad1f8eaa8744a5e",
+    "review_basis": "public_passive_technical_audit_only"
+  },
+  {
+    "domain": "www.jcconstruction.co.nz",
+    "public_business": true,
+    "terms_reviewed": true,
+    "audit_authorized": false,
+    "suppressed": true,
+    "reviewed_at": "2026-11-16",
+    "policy_evidence_sha256": "4ca22999c26112a12b23ed4f7209278fab3855c62930b9c31066a3735690c76d",
+    "review_basis": "commercial_content_permission_required"
+  },
+  {
+    "domain": "tbir.co.nz",
+    "public_business": true,
+    "terms_reviewed": true,
+    "audit_authorized": true,
+    "suppressed": false,
+    "reviewed_at": "2026-11-16",
+    "policy_evidence_sha256": "9a3b596ec70db95c4e0f742cfd2163986a3d7ca0326a5d8610bba561455ff8c5",
+    "review_basis": "public_passive_technical_audit_only"
+  },
+  {
+    "domain": "davidrobertson.co.nz",
+    "public_business": true,
+    "terms_reviewed": true,
+    "audit_authorized": true,
+    "suppressed": false,
+    "reviewed_at": "2026-11-16",
+    "policy_evidence_sha256": "b56386dbb10d6e82b84450df61293603f052a1390bf1dd8d970e6f33b80c1f11",
+    "review_basis": "public_passive_technical_audit_only"
+  }
+]

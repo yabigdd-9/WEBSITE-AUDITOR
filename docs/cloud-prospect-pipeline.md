@@ -1,134 +1,156 @@
-# Issue 78: durable cloud audit-to-draft pipeline
+# Durable cloud audit-to-draft pipeline — issue 78
 
-Implemented on a feature branch; not deployed or enabled. No soak test repeated.
-This worker has no email, payment, AI-provider or paid-service adapter.
+The owner authorized completion and activation after PR review. The GitHub-hosted
+worker audits approved public websites, retains encrypted evidence-backed scope
+drafts, and records owner-verified business outcomes. It does not send messages,
+charge payments, or call paid models. Sending remains disabled; public access
+and an audit are not email consent.
 
-## Evidence and gaps
+## Deployment and configuration
 
-Initial inspection: default `master`, `caa81ade80fe2e1ee44301e0b64593fb0305ede9`.
-Rebased and revalidated after PR #77 merged at
-`c4e96d2d5dea1011944ed452aa13c1d078d0ffe8`; its scheduled review/archive integration is preserved.
+- Merge PR #79 after checks pass. Existing twice-daily canonical review jobs are
+  preserved. The durable queue runs twice weekly, on Tuesday/Friday at 04:50 UTC;
+  GitHub may delay schedules. No Mac or Oracle account is required.
+- Repository Actions secret `WA_PIPELINE_STATE_KEY`: a locally generated Fernet
+  key. Keep a private recovery copy. Never commit, log, or paste it into chat.
+- Repository Actions variable `WA_PIPELINE_ENABLED=true`: enable the queue.
+  Setting false is the kill switch; also cancel any worker already running.
+- First dispatch **Durable Cloud Draft Pipeline** on master with `bootstrap=true`.
+  Subsequent dispatches must use false. A missing key or checkpoint blocks work.
+- Validate an actual bootstrap run and a second restore run; inspect successful
+  worker steps and the retained `pipeline-state` artifact, not just a green
+  workflow whose worker was skipped. Neither run contacts prospects.
 
-| Existing evidence | Gap / change |
-| --- | --- |
-| `.github/workflows/cloud-scheduled-audits.yml`: twice daily, contents read, serialized, 30 minute timeout; `scripts/cloud_scheduled_audits.py`: max ten HTTPS allowlisted roots; scheduled job now reuses the review-only audit/draft path and optional sealed archive | Preserve existing scans unchanged. No cross-run business state there. |
-| `scripts/cloud_review_only_opportunities.py`: observed confidence + successful evidence check gates; temporary unpriced scope drafts, no transport; scheduled and manual review workflows: optional public-key archive with 30 day retention | Reuse audit and brief generation; retain finding confidence and evidence reference in sealed entries. |
-| `scripts/review_ledger.py`: private offline SQLite, atomic/idempotent import, never sent | Useful local archive; does not restore cloud queue state. New cloud encrypted checkpoint restores that queue. |
-| `auditor_toolkit/common.py`: public-address validation on fetch/redirect, bounded responses; `network.py`: robots controls subsequent crawling | New worker checks robots before entry page too, fails closed if unavailable; source requires explicit terms and authorization review. |
-| [Canonical run 43787336509](https://github.com/yabigdd-9/WEBSITE-AUDITOR/actions/runs/43787336509), [shortlist run 43787336241](https://github.com/yabigdd-9/WEBSITE-AUDITOR/actions/runs/43787336241), both at `dddab5c` | Green regression checks, but live audit/shortlist/archive steps **skipped**. These runs are not evidence of live processing or durable revenue. |
+`config/cloud-prospects.json` is curated discovery intake, with authorization and
+terms review per domain. Active domains must also be in `clients.txt`. Suppressed
+records may remain after removal from the allowlist. Intake has four active
+public businesses and one suppressed business. On 2026-11-16 the linked terms
+and robots policies were reviewed. JC Construction restricts commercial use of
+its content without permission; it was removed from `clients.txt` and suppressed.
+TBIR had no linked terms page in the reviewed homepage. Public technical audit
+review is not a legal conclusion or permission to contact anyone. Re-review terms
+before extending scope; robots is checked again before every audit attempt.
 
-Reproduce inspection with `gh run view RUN_ID --json jobs,url`,
-`git show HEAD:.github/workflows/cloud-scheduled-audits.yml` and
-`git show HEAD:scripts/cloud_review_only_opportunities.py`.
+Each run attempts at most three due domains, with existing public-address,
+redirect, byte/time/page limits and request pacing. Retry delays are one then two
+hours, capped at three attempts. Completed domains are not automatically audited
+again. A removed or suppressed entry cannot run; suppression is sticky and
+clears its draft. Robots failures retry within the same cap. Findings require
+observed confidence and successful evidence checks. Drafts are unpriced,
+internal, evidence-backed scopes requiring human verification.
 
-## Configuration after review and merge
+## Persistent state and recovery
 
-1. Review `config/cloud-prospects.json`. Initially empty; discovery is owner-curated
-   intake, not automated search or contact harvesting. Each business must already
-   appear in `clients.txt`. Example record:
-   `{"domain":"example.co.nz","public_business":true,"audit_authorized":true,"terms_reviewed":true,"suppressed":false}`.
-   These attestations require an actual owner review; public accessibility alone
-   does not establish permission or outreach consent. Never add private targets.
-2. Generate a Fernet key locally with `Fernet.generate_key()` from `cryptography`.
-   Store it in repository Actions secret `WA_PIPELINE_STATE_KEY`, and keep a private
-   recovery copy. Do not print or commit it. Unlike the existing one-way public-key
-   review archive, a resumable worker needs a decryption secret on the runner.
-3. After owner approval, set repository variable `WA_PIPELINE_ENABLED=true` and
-   manually dispatch **Durable Cloud Draft Pipeline** on master with `bootstrap=true`.
-   This is only for the first checkpoint. Subsequent dispatches use bootstrap=false.
-   No configuration was changed by this PR.
-4. The twice-weekly schedule restores the immediately preceding non-skipped worker
-   run's `pipeline-state` artifact. Contents and Actions permissions are read-only;
-   no PAT is required. PRs execute offline synthetic tests only, without state keys.
-   GitHub schedules can be delayed. The Mac need not be running.
+The checkpoint contains prospects, observed findings/evidence references,
+canonical audit run IDs, draft text, UTC events and owner-verified outcome events.
+Only authenticated Fernet ciphertext is uploaded; only aggregate counts and
+codes appear in public logs. Raw exceptions are never logged by these workers.
+Local checkpoint/import paths are restricted to runner/system temporary storage;
+atomic temporary files start with private permissions.
 
-Each run processes at most three due prospects sequentially. A domain is queued
-once; attempts back off one then two hours, and stop after three failures.
-Completed prospects are not automatically re-audited. Removing intake blocks
-further attempts; setting `suppressed=true` irreversibly suppresses that queue
-entry and removes its draft. It does not contact anyone to confirm an opt-out.
-Robots errors retry within the same cap. Existing auditor fetch limits and
-request pacing apply; no parallel prospect workers or browser rendering.
+GitHub Actions artifacts in this public repository are publicly downloadable.
+Confidentiality depends on the state key, which trusted repository administrators
+and workflow editors can access indirectly. Restrict those roles. PRs execute
+synthetic offline tests with no state key, paid services or live audits. Worker
+permissions are contents/actions read only; no long-lived PAT is needed.
 
-Events contain UTC timestamp, Actions correlation/run ID, hashed entity ID,
-allowlisted action, status and sanitized error code. Audit records separately
-retain canonical run ID, timestamp, observed findings, evidence check references,
-confidence and remediation. Scope drafts stay unpriced and require review.
-Only aggregate metrics reach stdout and the Actions summary. Website evidence,
-credentials, email addresses and raw exceptions never enter public logs through
-this worker. Untrusted site text stays in the encrypted review record and must
-be verified by a human; it is not executed as instructions.
+Artifacts expire after 30 days; scheduled checkpoints carry prior history
+forward. Bounds: 100 prospects, 10,000 audit events, 10,000 outcome events, 5 MB
+plaintext checkpoint. Reaching a cap blocks processing pending owner archival.
+There is no silent trimming. Archive ciphertext privately before retention
+expires, and apply the owner's data deletion policy to private decrypted copies.
+This is bounded cloud persistence, not an indefinitely backed-up CRM.
 
-## Persistence, access and review
+Restoration selects the latest non-skipped scheduled/manual worker on master,
+including failed/cancelled runs. It validates the source workflow/event/branch.
+A missing, corrupt or expired checkpoint blocks processing rather than falling
+back. Explicit recovery is available only through a manual dispatch with
+`recovery_run=OLDER_RUN_ID`, `bootstrap=false`; select a trusted intact artifact
+and review any lost events first. Recovery is logged with the new run ID. It
+never contacts leads or replays delivery. A failed first bootstrap can be rerun
+with its original run ID. Key rotation requires a deliberate decrypt/re-encrypt
+migration, not replacing the secret while keeping old ciphertext.
 
-Only Fernet-authenticated ciphertext is uploaded. Artifacts in this public repo
-are publicly downloadable; confidentiality depends on protecting the key.
-Repository administrators and authorized workflow editors can access the secret
-indirectly by modifying a workflow; restrict those permissions. Fork PRs cannot
-run the worker. No plaintext state is committed, cached or uploaded.
+For private review, download the artifact to a private directory under `/tmp`,
+load the recovery key into the local environment, then use
+`scripts.cloud_prospect_pipeline.unseal(path, key)`. Keep plaintext exports in
+0600 files outside the checkout. Original public-key review archives and their
+offline SQLite ledger remain supported independently; they use a different key
+and format.
 
-Artifact copies expire after 30 days. The rolling checkpoint carries prior
-records forward, up to 100 prospects, 10,000 events and 5 MB plaintext; reaching
-a cap blocks requests and requires owner archival. History is not silently
-trimmed. Archive ciphertext offline before retention expires; delete expired
-business data from any private exports according to the owner's retention policy.
-This is bounded continuity on Actions, not a permanently backed-up CRM.
+## Owner-verified outcomes and real metrics
 
-For private review, download the latest `pipeline-state` artifact on a trusted
-machine, load the key from a private environment variable, and place it in a private temporary directory and call
-`scripts.cloud_prospect_pipeline.unseal(Path("/tmp/private-review/pipeline-state.enc"), key)`.
-Write the resulting JSON to a private 0600 file outside this checkout. Review
-`prospects[*].audit`, `.draft` and `events`; never paste decrypted output in a
-public issue or Actions log. Existing offline review-ledger imports remain
-available for the original public-key review bundles (different format).
+`scripts/cloud_pipeline_outcomes.py` imports approvals, queued sends, attempts,
+provider acceptance, delivery, bounces, replies, quotes, invoices, payments,
+refunds, costs and opt-outs. These are **owner-attested source records**, not
+provider callbacks or independently bank-reconciled data. Each must have a
+UTC timestamp, unique event ID, known hashed prospect ID, record ID, SHA-256 of
+source evidence, and `owner_verified=true`. No free text, email address or
+credential field is accepted. Keep original receipts/evidence in private storage.
 
-A missing, expired or corrupt checkpoint, wrong key, failed run before upload,
-or unexpected restore response stops processing. The worker never silently
-falls back to an older checkpoint or an empty database. Disabled/skipped runs
-are excluded from restore. Do not delete history to force bootstrap. Recovery
-requires owner inspection of the last intact archive and a reviewed restoration;
-there is deliberately no automatic rollback override. Key rotation also requires
-a reviewed decrypt/re-encrypt migration. Artifact upload/download and runner
-cancellation recovery still need a live owner-configured cloud trial.
+Approvals must hash the exact current draft. Delivery requires an earlier
+provider acceptance; acceptance requires a recorded attempt and active approval.
+Accepted quotes require an issued quote. Payments require an issued invoice
+and a separate receipt reference. Only positive integer NZD minor units are
+accepted. Quotes/invoices do not increase revenue. Refunds cannot exceed recorded
+receipts. Duplicate IDs are idempotent, conflicting IDs and reused evidence are
+rejected, and the entire import is atomic. Opt-outs clear drafts, suppress future
+audits and block further send records. Actual sending remains absent.
 
-## Approval and business outcome gates
+Prepare a private JSON document with `kind=website_auditor_business_outcomes_v1`
+and `events=[...]`. Required event fields are `event_id`, `entity_id`, `action`,
+`status`, `timestamp_utc`, `evidence_sha256`, `record_id`, `owner_verified`. Payment
+and cost records also require `amount_minor` and `currency=NZD`. Allowed actions
+and transitions are defined in `STATES` in the module. IDs use letters/digits,
+underscore/hyphen; entity/evidence hashes are 64 lowercase hex characters.
 
-Production sending remains blocked structurally: no provider adapter or send
-operation exists. Changing an environment flag to allow sending or paid models
-causes startup to fail. The existing transport configuration must also remain
-disabled with daily cap zero. There is no approval bypass in this worker.
-
-The owner's guarded auto-send proposal is **not ready to enable**. Future work
-requires verified NZ consent basis per recipient; sender identity/contact details;
-working unsubscribe/suppression ingestion; individually reviewed accurate copy;
-daily caps; provider idempotency; bounce/reply processing; end-to-end delivery
-checks; persisted approval and provider events; kill switch and cost caps. None
-of these can be marked verified from an audit alone. Existing consent/transport
-modules do not establish end-to-end readiness for this new worker.
-
-Metrics count this worker's prospects, final audit results, retry queue and
-pending drafts. Contacts sent, provider accepted, delivered, replies, accepted
-quotes and verified revenue are zero for this worker. External business outcomes
-are **not reconciled**; no revenue is inferred. Paid API cost is zero by design;
-Actions/storage billing is unknown and must be checked against the owner's free
-allowance. Business-wide sends, responses, quotes, invoices and payment logging
-are still blocked on a reviewed outcome-ingestion integration. Do not close
-issue 78 as fully accepted on the basis of this draft-only foundation.
-
-## Validation and rollback
-
-Local Python 3.12: 45 tests passed plus 14 subtests across the new queue and the
-existing scheduled-audit, review-only, review-ledger and vault suites. No network
-audits, production send, payment, paid model call, repeated soak, or deployment
-was performed. New CI uses supported Python 3.11; PR checks must be inspected
-separately. Ruff checks and YAML parsing are also run locally.
+Locally, with the state key loaded privately:
 
 ```bash
-python -m pytest toolkit_tests/test_cloud_prospect_pipeline.py toolkit_tests/test_cloud_scheduled_audits.py toolkit_tests/test_cloud_review_only_opportunities.py toolkit_tests/test_review_ledger.py toolkit_tests/test_report_vault.py -q
-python -m ruff check scripts/cloud_prospect_pipeline.py toolkit_tests/test_cloud_prospect_pipeline.py
+python -m scripts.cloud_pipeline_outcomes --input /tmp/private-review/outcomes.json --output /tmp/private-review/outcomes.enc
 ```
 
-Rollback/kill switch: set `WA_PIPELINE_ENABLED=false`, cancel any already-running
-worker, preserve its last encrypted archive, and revert this PR if necessary.
-The existing canonical scan workflow is unchanged. Revoking the state key blocks
-further processing but also prevents recovery unless a private key copy exists.
+Dispatch the workflow with the ciphertext file contents in its `outcomes` input;
+never place plaintext records or keys in dispatch inputs. Inputs are bounded to
+50 KB ciphertext and 100 events. The runner decrypts, validates, records the
+import actor as a hash, checkpoints, and prints aggregates. Invalid imports stop
+the run without modifying saved state. Reimporting the same bundle is safe.
+
+Metrics distinguish queued, accepted by provider, delivered, bounced and replied.
+Revenue is the sum of owner-verified receipts minus refunds, never inferred from
+opportunities or quotes. External unreported outcomes remain unknown. Paid API
+cost is zero for this worker; recorded external costs appear separately, and
+Actions/storage billing remains unknown until checked in GitHub billing.
+
+## Sending gates and remaining external dependencies
+
+`MM_EXTERNAL_SEND_ALLOWED`, `MM_PAID_ALLOWED` and external-model flags must remain
+zero, and the existing transport must have cap zero and be disabled. No provider
+or payment adapter is called. Completion of the audit-to-draft worker does not
+make autonomous outreach ready.
+
+Before live sending, separately verify recipient consent under applicable NZ
+requirements, sender identity/contact details, functioning unsubscribe ingestion,
+copy accuracy/quality, daily caps, provider idempotency, bounce/reply callbacks,
+end-to-end delivery, exact approval and a kill switch. Those need real sender,
+mailbox/provider and recipient evidence. None is inferred from public contact
+information. No revenue or delivery is claimed without its recorded evidence.
+
+## Inspection and validation
+
+Initial base `caa81ad`; preserved PR #77's integration at `c4e96d2`. Inspected
+Actions runs [43787336509](https://github.com/yabigdd-9/WEBSITE-AUDITOR/actions/runs/43787336509)
+and [43787336241](https://github.com/yabigdd-9/WEBSITE-AUDITOR/actions/runs/43787336241):
+regressions passed, but live processing/archive steps were skipped. They were
+not evidence of deployed persistence. Reproduce with `gh run view ID --json jobs,url`.
+
+Local targeted validation: 59 tests plus 14 subtests passed, including restored
+queue idempotency, retries, redaction, exact approvals, receipt accounting,
+atomic imports, suppressed targets, trusted recovery and no-send/cost gates.
+Ruff and workflow YAML checks passed. CI runs supported Python 3.11. Actual
+activation/run evidence is recorded in the PR after deployment; no soak is rerun.
+
+Rollback: disable `WA_PIPELINE_ENABLED`, cancel an active worker, preserve its
+last artifact, and revert the pipeline changes if necessary. Do not delete or
+reset state to hide failed runs. Restoring JC Construction to active intake
+requires permission review; sending remains a separate gate.

@@ -182,6 +182,36 @@ class PipelineTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             p.private_state_path(Path("/workspace/escape.enc"))
 
+    def test_suppressed_removed_target_does_not_require_active_authorization(self):
+        allowlist = self.root / "clients.txt"
+        allowlist.write_text("https://example.com/\n")
+        (self.root / "config").mkdir()
+        source = self.root / "config" / "cloud-prospects.json"
+        source.write_text(
+            json.dumps(
+                [
+                    dict(
+                        domain="blocked.example.com",
+                        public_business=True,
+                        terms_reviewed=True,
+                        audit_authorized=False,
+                        suppressed=True,
+                    )
+                ]
+            )
+        )
+        rows = p.policy_rows(self.root)
+        self.assertEqual(rows[0]["url"], "")
+        p.process(
+            self.state,
+            rows,
+            workspace=self.root,
+            now=0,
+            run_id="run-1",
+            audit=lambda *args: self.fail("Suppressed site audited"),
+        )
+        self.assertEqual(next(iter(self.state["prospects"].values()))["status"], "suppressed")
+
     def test_source_requires_owner_policy_review(self):
         allowlist = self.root / "clients.txt"
         allowlist.write_text("https://example.com/\n")

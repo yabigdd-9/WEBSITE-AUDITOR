@@ -9,12 +9,24 @@ on:
         description: 'Create first checkpoint only (requires no previous runs)'
         type: boolean
         default: false
+      recovery_run:
+        description: 'Explicit owner recovery from a trusted older checkpoint run ID'
+        type: string
+        required: false
+      outcomes:
+        description: 'Optional encrypted owner-verified outcome bundle; never plaintext'
+        type: string
+        required: false
   pull_request:
     paths:
       - 'scripts/cloud_prospect_pipeline.py'
       - 'toolkit_tests/test_cloud_prospect_pipeline.py'
       - '.github/workflows/cloud-prospect-pipeline.yml'
       - 'config/cloud-prospects.json'
+      - 'scripts/cloud_pipeline_outcomes.py'
+      - 'toolkit_tests/test_cloud_pipeline_outcomes.py'
+      - 'scripts/cloud_pipeline_checkpoint.py'
+      - 'toolkit_tests/test_cloud_pipeline_checkpoint.py'
 
 permissions:
   contents: read
@@ -35,7 +47,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e '.[vault]'
-      - run: python -m unittest discover -s toolkit_tests -p 'test_cloud_prospect_pipeline.py' -v
+      - run: python -m unittest toolkit_tests.test_cloud_prospect_pipeline toolkit_tests.test_cloud_pipeline_outcomes toolkit_tests.test_cloud_pipeline_checkpoint -v
   draft-pipeline:
     permissions:
       contents: read
@@ -53,6 +65,8 @@ jobs:
       MM_ALLOW_EXTERNAL_FREE_MODELS: '0'
       MM_EXTERNAL_SEND_ALLOWED: '0'
       BOOTSTRAP: ${{ inputs.bootstrap || false }}
+      WA_RECOVERY_RUN: ${{ inputs.recovery_run || '' }}
+      WA_OUTCOMES_ENCRYPTED: ${{ inputs.outcomes || '' }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -63,29 +77,7 @@ jobs:
       - run: python -m pip install -e '.[vault]'
       - name: Restore immediately preceding checkpoint or fail closed
         shell: bash
-        run: |
-          set -euo pipefail
-          STATE_FILE="$RUNNER_TEMP/pipeline-state.enc"
-          test -n "$WA_PIPELINE_STATE_KEY"
-          # Include failed/cancelled runs: never silently roll state backwards.
-          previous=$(gh run list --workflow cloud-prospect-pipeline.yml --branch master --event schedule --limit 100 --json databaseId,createdAt)
-          manual=$(gh run list --workflow cloud-prospect-pipeline.yml --branch master --event workflow_dispatch --limit 100 --json databaseId,createdAt)
-          candidates=$(jq -nr --argjson a "$previous" --argjson b "$manual" --arg id "$GITHUB_RUN_ID" '$a + $b | map(select(.databaseId < ($id|tonumber))) | sort_by(.databaseId) | reverse | .[].databaseId')
-          prior=''
-          for candidate in $candidates; do
-            job=$(gh api "repos/$GH_REPO/actions/runs/$candidate/jobs" --jq '.jobs[] | select(.name == "draft-pipeline") | .conclusion')
-            if [ "$job" != 'skipped' ]; then
-              prior=$candidate
-              break
-            fi
-          done
-          if [ -n "$prior" ]; then
-            test "$BOOTSTRAP" != 'true'
-            gh run download "$prior" --name pipeline-state --dir "$RUNNER_TEMP/restore"
-            mv "$RUNNER_TEMP/restore/pipeline-state.enc" "$STATE_FILE"
-          else
-            test "$BOOTSTRAP" = 'true'
-          fi
+        run: python -m scripts.cloud_pipeline_checkpoint
       - name: Audit eligible queue and checkpoint without sending
         shell: bash
         run: |

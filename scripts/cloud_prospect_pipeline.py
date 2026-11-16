@@ -12,15 +12,16 @@ from pathlib import Path
 from urllib.robotparser import RobotFileParser
 
 from auditor_toolkit.common import Fetcher
+from scripts.cloud_pipeline_outcomes import import_outcomes, outcome_metrics
 from scripts.cloud_review_only_opportunities import _verify_safety, run_review_sites
-from scripts.cloud_scheduled_audits import load_sites
+from scripts.cloud_scheduled_audits import HOST, load_sites
 
 MAX_PROSPECTS = 100
 MAX_EVENTS = 10000
 MAX_STATE_BYTES = 5_000_000
 ERRORS = {"none", "audit_incomplete", "audit_failed", "robots_blocked", "policy_blocked"}
-ACTIONS = {"discovery", "audit", "draft", "suppression", "approval_config"}
-STATUSES = {"queued", "succeeded", "retry", "failed", "pending", "blocked", "disabled"}
+ACTIONS = {"discovery", "audit", "draft", "suppression", "approval_config", "recovery"}
+STATUSES = {"queued", "succeeded", "retry", "failed", "pending", "blocked", "disabled", "approved"}
 
 
 def timestamp(now: int) -> str:
@@ -68,18 +69,24 @@ def policy_rows(repo: Path) -> list[dict]:
     seen = set()
     for row in rows:
         host = row.get("domain")
-        if host not in allowed or host in seen:
+        if (
+            not isinstance(host, str)
+            or not HOST.fullmatch(host)
+            or "." not in host
+            or host in seen
+            or (host not in allowed and row.get("suppressed") is not True)
+        ):
             raise ValueError("Prospects must be unique reviewed allowlist domains")
         seen.add(host)
         # Only curated business prospects with an explicit owner policy review.
         if (
             row.get("public_business") is not True
             or row.get("terms_reviewed") is not True
-            or row.get("audit_authorized") is not True
+            or (row.get("audit_authorized") is not True and row.get("suppressed") is not True)
             or not isinstance(row.get("suppressed", False), bool)
         ):
             raise ValueError("Missing public business, authorization or terms review")
-        row["url"] = allowed[host]
+        row["url"] = allowed.get(host, "")
     return rows
 
 
@@ -178,7 +185,7 @@ def process(
 def metrics(state):
     prospects = list(state["prospects"].values())
     ready = sum(bool(p["draft"]) for p in prospects)
-    return dict(
+    report = dict(
         prospects_found=len(prospects),
         audits_succeeded=sum(p["status"] == "complete" for p in prospects),
         audits_failed=sum(p["status"] == "failed" for p in prospects),
@@ -196,6 +203,16 @@ def metrics(state):
         infrastructure_cost="unknown; check Actions billing",
         auto_send="blocked; delivery/compliance gates unverified",
     )
+    report.update(outcome_metrics(state))
+    approved = {}
+    for item in state.get("business_events", []):
+        if item["action"] == "approval":
+            approved[item["entity_id"]] = item["status"] == "approved"
+    report["approvals_pending"] = sum(
+        bool(prospect["draft"]) and not approved.get(identity, False)
+        for identity, prospect in state["prospects"].items()
+    )
+    return report
 
 
 def private_state_path(path: Path) -> Path:
@@ -266,6 +283,30 @@ def main(argv=None):
         if args.bootstrap and args.state.exists():
             raise ValueError("Refusing to replace an existing checkpoint")
         state = empty_state() if args.bootstrap else unseal(args.state, key)
+        recovery = os.environ.get("WA_RECOVERY_RUN", "").strip()
+        if recovery:
+            if not recovery.isdecimal() or args.bootstrap:
+                raise ValueError("Invalid explicit recovery")
+            event(
+                state,
+                int(datetime.now(timezone.utc).timestamp()),
+                os.environ.get("GITHUB_RUN_ID", "local"),
+                "0" * 64,
+                "recovery",
+                "approved",
+            )
+        token = os.environ.get("WA_OUTCOMES_ENCRYPTED", "").strip()
+        if token:
+            if len(token) > 50_000:
+                raise ValueError("Oversized outcome import")
+            document = json.loads(Fernet(key.encode()).decrypt(token.encode()))
+            import_outcomes(
+                state,
+                document,
+                now=int(datetime.now(timezone.utc).timestamp()),
+                run_id=os.environ.get("GITHUB_RUN_ID", "local"),
+                actor=os.environ.get("GITHUB_ACTOR", "local-owner"),
+            )
         rows = policy_rows(Path(__file__).resolve().parents[1])
         with tempfile.TemporaryDirectory(prefix="wa-pipeline-") as temporary:
             report = process(
