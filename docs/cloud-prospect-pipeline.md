@@ -154,3 +154,12 @@ Rollback: disable `WA_PIPELINE_ENABLED`, cancel an active worker, preserve its
 last artifact, and revert the pipeline changes if necessary. Do not delete or
 reset state to hide failed runs. Restoring JC Construction to active intake
 requires permission review; sending remains a separate gate.
+
+## Durable database integration (opt-in, undeployed)
+
+The worker also accepts `--database` for a separate private SQLite store on a
+trusted persistent filesystem. Existing Actions/checkpoint behavior is preserved.
+See [schema](DATABASE_SCHEMA.md), [deployment](DEPLOYMENT.md), and
+[recovery](RECOVERY.md). The queue now retains attempt metadata and reviewed
+source fields and limits committed attempts to six per UTC day across runs.
+This does not activate a hosted database or extend artifact expiry.

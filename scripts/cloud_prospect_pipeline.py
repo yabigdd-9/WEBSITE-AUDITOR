@@ -7,7 +7,9 @@ import hashlib
 import json
 import os
 import tempfile
+from contextlib import ExitStack
 from datetime import datetime, timezone
+from importlib.metadata import version
 from pathlib import Path
 from urllib.robotparser import RobotFileParser
 
@@ -106,10 +108,13 @@ def robots_allowed(url: str) -> bool:
 
 
 def process(
-    state, rows, *, now, run_id, workspace, audit=run_review_sites, robots=robots_allowed, limit=3
+    state, rows, *, now, run_id, workspace, audit=run_review_sites, robots=robots_allowed, limit=3,
+    daily_limit=6,
 ):
-    if not 1 <= limit <= 3:
+    if type(limit) is not int or not 1 <= limit <= 3:
         raise ValueError("Maximum three audits per run")
+    if type(daily_limit) is not int or not 0 <= daily_limit <= 6:
+        raise ValueError("Maximum six audits per UTC day")
     # Reserve enough room before any requests; never silently discard history.
     if len(state["events"]) + len(rows) * 3 + limit * 3 + 1 > MAX_EVENTS:
         raise ValueError("Archive state before continuing")
@@ -141,6 +146,16 @@ def process(
             state["prospects"][identity] = p
             event(state, now, run_id, identity, "discovery", "queued")
         p["last_seen"] = timestamp(now)
+        # Curated intake is the permitted source adapter. Absent metadata remains
+        # unknown; do not manufacture business names, sectors or source evidence.
+        p["discovery"] = {
+            key: row[key] for key in (
+                "business_name", "category", "region", "source", "source_url",
+                "reviewed_at", "policy_evidence_sha256", "review_basis",
+            ) if key in row
+        }
+        p["discovery"].setdefault("source", "owner_reviewed_manifest")
+        p["verification_status"] = "policy_reviewed_identity_unverified"
         if row.get("suppressed") and p["status"] != "suppressed":
             p["status"] = "suppressed"
             p["draft"] = None
@@ -151,13 +166,34 @@ def process(
             p["status"] = "removed"
             p["draft"] = None
             event(state, now, run_id, identity, "suppression", "blocked", "policy_blocked")
+    history = state.setdefault("audit_runs", [])
+    if len(history) + limit > MAX_EVENTS:
+        raise ValueError("Archive audit history before continuing")
+    day = timestamp(now)[:10]
+    # Count older checkpoint audit events too, so migration cannot reset usage.
+    used_today = sum(
+        e.get("action") == "audit" and e.get("timestamp_utc", "")[:10] == day
+        for e in state["events"]
+    )
+    budget = min(limit, max(0, daily_limit - used_today))
     used = 0
     for identity, p in state["prospects"].items():
-        if used >= limit or p["status"] not in {"queued", "retry"} or p["next_attempt"] > now:
+        if used >= budget or p["status"] not in {"queued", "retry"} or p["next_attempt"] > now:
             continue
         used += 1
         p["attempts"] += 1
         p["last_attempt"] = timestamp(now)
+        attempt = dict(
+            audit_id=hashlib.sha256(f"{identity}:{run_id}:{p['attempts']}".encode()).hexdigest(),
+            prospect_id=identity, domain=p["domain"], execution_timestamp=timestamp(now),
+            pipeline_run_id=run_id,
+            auditor_version=version("website-auditor"), status="failed",
+            retry_count=p["attempts"] - 1, failure_category="audit_failed",
+            canonical_run_id=None, evidence_references=[], finding_counts={},
+            encrypted_artifact_reference=None,
+            checks_completed=[],
+        )
+        history.append(attempt)
         error = "audit_failed"
         try:
             if not robots(p["url"]):
@@ -166,6 +202,20 @@ def process(
                 entries = []
                 result = audit([(p["domain"], p["url"])], workspace / identity, entries)[0]
                 if result["status"] == "COMPLETE" and len(entries) == 1:
+                    attempt.update(
+                        status="complete", failure_category="none",
+                        canonical_run_id=entries[0].get("run_id"),
+                        checks_completed=entries[0].get("checks_completed", []),
+                        evidence_references=sorted({
+                            f["evidence_ref"] for f in entries[0].get("findings", [])
+                            if f.get("evidence_ref")
+                        }),
+                        finding_counts={
+                            severity: sum(f.get("severity") == severity
+                                          for f in entries[0].get("findings", []))
+                            for severity in ("low", "medium", "high", "critical")
+                        },
+                    )
                     p["audit"] = entries[0]
                     p["draft"] = entries[0].get("internal_scope_draft")
                     p["status"] = "complete"
@@ -177,6 +227,10 @@ def process(
         except Exception:
             pass  # Raw exceptions can contain credentials or external personal data.
         p["status"] = "failed" if p["attempts"] >= 3 else "retry"
+        p["audit"] = None
+        p["draft"] = None
+        attempt["failure_category"] = error
+        attempt["status"] = "partial" if error == "audit_incomplete" else "failed"
         p["next_attempt"] = now + 3600 * 2 ** (p["attempts"] - 1)
         event(state, now, run_id, identity, "audit", p["status"], error)
     return metrics(state)
@@ -270,55 +324,68 @@ def unseal(path: Path, key: str) -> dict:
 
 def main(argv=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--state", type=Path, required=True)
+    storage = parser.add_mutually_exclusive_group(required=True)
+    storage.add_argument("--state", type=Path)
+    storage.add_argument("--database", type=Path, help="Private durable SQLite; never an Actions artifact")
     parser.add_argument("--bootstrap", action="store_true")
     args = parser.parse_args(argv)
     try:
         _verify_safety(Path(__file__).resolve().parents[1])
-        key = os.environ["WA_PIPELINE_STATE_KEY"]
-        # Validate key before requests, even at bootstrap.
-        from cryptography.fernet import Fernet
+        key = os.environ.get("WA_PIPELINE_STATE_KEY", "")
+        if args.state or os.environ.get("WA_OUTCOMES_ENCRYPTED"):
+            from cryptography.fernet import Fernet
 
-        Fernet(key.encode())
-        if args.bootstrap and args.state.exists():
-            raise ValueError("Refusing to replace an existing checkpoint")
-        state = empty_state() if args.bootstrap else unseal(args.state, key)
-        recovery = os.environ.get("WA_RECOVERY_RUN", "").strip()
-        if recovery:
-            if not recovery.isdecimal() or args.bootstrap:
-                raise ValueError("Invalid explicit recovery")
-            event(
-                state,
-                int(datetime.now(timezone.utc).timestamp()),
-                os.environ.get("GITHUB_RUN_ID", "local"),
-                "0" * 64,
-                "recovery",
-                "approved",
-            )
-        token = os.environ.get("WA_OUTCOMES_ENCRYPTED", "").strip()
-        if token:
-            if len(token) > 50_000:
-                raise ValueError("Oversized outcome import")
-            document = json.loads(Fernet(key.encode()).decrypt(token.encode()))
-            import_outcomes(
-                state,
-                document,
-                now=int(datetime.now(timezone.utc).timestamp()),
-                run_id=os.environ.get("GITHUB_RUN_ID", "local"),
-                actor=os.environ.get("GITHUB_ACTOR", "local-owner"),
-            )
-        rows = policy_rows(Path(__file__).resolve().parents[1])
-        with tempfile.TemporaryDirectory(prefix="wa-pipeline-") as temporary:
-            report = process(
-                state,
-                rows,
-                now=int(datetime.now(timezone.utc).timestamp()),
-                run_id=os.environ.get("GITHUB_RUN_ID", "local"),
-                workspace=Path(temporary),
-            )
-        seal(state, args.state, key)
+            Fernet(key.encode())  # Validate before requests.
+        with ExitStack() as stack:
+            if args.database:
+                from scripts.pipeline_store import PipelineStore
+
+                if os.environ.get("WA_RECOVERY_RUN"):
+                    raise ValueError("Artifact recovery does not apply to SQLite")
+                state = stack.enter_context(
+                    PipelineStore(args.database).transaction(bootstrap=args.bootstrap)
+                )
+            else:
+                if args.bootstrap and args.state.exists():
+                    raise ValueError("Refusing to replace an existing checkpoint")
+                state = empty_state() if args.bootstrap else unseal(args.state, key)
+            recovery = os.environ.get("WA_RECOVERY_RUN", "").strip()
+            if recovery:
+                if not recovery.isdecimal() or args.bootstrap:
+                    raise ValueError("Invalid explicit recovery")
+                event(
+                    state,
+                    int(datetime.now(timezone.utc).timestamp()),
+                    os.environ.get("GITHUB_RUN_ID", "local"),
+                    "0" * 64,
+                    "recovery",
+                    "approved",
+                )
+            token = os.environ.get("WA_OUTCOMES_ENCRYPTED", "").strip()
+            if token:
+                if len(token) > 50_000:
+                    raise ValueError("Oversized outcome import")
+                document = json.loads(Fernet(key.encode()).decrypt(token.encode()))
+                import_outcomes(
+                    state,
+                    document,
+                    now=int(datetime.now(timezone.utc).timestamp()),
+                    run_id=os.environ.get("GITHUB_RUN_ID", "local"),
+                    actor=os.environ.get("GITHUB_ACTOR", "local-owner"),
+                )
+            rows = policy_rows(Path(__file__).resolve().parents[1])
+            with tempfile.TemporaryDirectory(prefix="wa-pipeline-") as temporary:
+                report = process(
+                    state,
+                    rows,
+                    now=int(datetime.now(timezone.utc).timestamp()),
+                    run_id=os.environ.get("GITHUB_RUN_ID", "local"),
+                    workspace=Path(temporary),
+                )
+            if args.state:
+                seal(state, args.state, key)
         summary = json.dumps(report, sort_keys=True, indent=2)
-        print(summary)  # Counts only. Plaintext evidence never leaves temporary storage.
+        print(summary)  # Counts only; detailed records stay in private storage.
         if os.environ.get("GITHUB_STEP_SUMMARY"):
             with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a") as stream:
                 stream.write("## Durable draft pipeline\n\n```json\n" + summary + "\n```\n")
