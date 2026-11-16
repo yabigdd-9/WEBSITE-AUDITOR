@@ -398,3 +398,25 @@ proposal; no implementation tests or production verification are claimed.
 The changelog endpoint returned HTTP 403; current official docs were consulted
 through the connected plugin. Next owner action: approve creation of this exact
 $0/month project. Creation is separate from approval to deploy or enable sending.
+
+## Approved Supabase project created — 2026-11-16
+
+The owner approved creation after reviewing the $0/month proposal in draft
+[PR #99](https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/99). A fresh cost quote
+remained zero, and inventory showed no existing `moneymachine`. Creation succeeded
+in the selected organization/region. Independent project lookup verified
+`srymerkhraklwuttzexi`, name `moneymachine`, `ap-southeast-2`, `ACTIVE_HEALTHY`;
+organization lookup verified `free` / `tier_free` after creation.
+
+A read-only SQL query succeeded on PostgreSQL 17.11 and returned zero public
+base tables and zero Storage buckets. Supabase's security advisor returned an
+empty lint list. No application schema, credentials, bucket, data collection,
+paid upgrade, external send, existing-project change or production deployment was
+performed. This is verified database provisioning, not platform deployment.
+
+Updated DEPLOYMENT.md with the public project reference and actual verification
+boundary. Docs-only whitespace check passed; no code changes/tests are implied.
+Next: implement/test the Postgres adapter against existing store/quota contracts,
+configure least-privilege server credentials securely, and prepare migrations and
+access/restore verification before production activation. Storage destination
+selection is resolved; the integration and production release gates remain open.

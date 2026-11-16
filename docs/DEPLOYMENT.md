@@ -1,7 +1,8 @@
 # Deployment status
 
-No new service has been provisioned or deployed. Existing Actions workflows are
-preserved. See [cloud pipeline runbook](cloud-prospect-pipeline.md) and
+The owner-approved `moneymachine` Supabase project has been provisioned on
+the Free plan; application workloads and the remote dashboard are not deployed.
+Existing Actions workflows are preserved. See [cloud pipeline runbook](cloud-prospect-pipeline.md) and
 [scheduled audit runbook](GITHUB_CLOUD_SCHEDULED_AUDITS.md) for existing configuration.
 GitHub schedules run independently of the Mac, but do not provide an always-on
 supervisor or a permanent database.
@@ -95,7 +96,8 @@ mapping, authorization controls and recovery verification remain release gates.
 
 ## Supabase free-tier proposal — 2026-11-16
 
-Status: prepared for owner approval; **not created or connected**.
+Historical proposal: subsequently approved and created; see the verified
+provisioning record below. Application integration remains pending.
 The owner selected `yabigdd-9's Org` (`luvtvzzhzutxizpfdsgb`) for the proposal.
 The organization API reports `plan=free`, `tier=tier_free`. The project-cost
 quote for that organization returned `amount=0`, `recurrence=monthly`.
@@ -108,7 +110,7 @@ quote for that organization returned `amount=0`, `recurrence=monthly`.
 | Plan / quoted project cost | Free / $0 per month |
 | Existing project changes | None; do not repurpose or resume another project |
 | Paid add-ons / upgrades | Disabled; require separate explicit owner authorization |
-| Current approval | Organization selection and proposal preparation only |
+| Proposal-stage approval | Organization selection and proposal preparation; later creation approved below |
 
 Account inventory shows one `ACTIVE_HEALTHY` project (Catalyx Labs) and two
 `INACTIVE` projects. Official documentation allows two free projects across
@@ -173,3 +175,36 @@ The skill-requested changelog URL returned HTTP 403 from this environment.
 Current billing/storage/security documentation was available through the plugin;
 recheck relevant breaking changes before implementing the adapter. No Supabase
 schema, Storage object, credential, deployment or billing setting was modified.
+
+## Owner-approved Supabase provisioning — verified 2026-11-16
+
+The owner approved the exact $0/month creation proposal with “Do it”. The
+cost was rechecked immediately before creation and remained `amount=0`,
+`recurrence=monthly`. Existing project inventory contained no `moneymachine`,
+avoiding duplicate provisioning. Creation returned the following verified target:
+
+| Setting | Verified value |
+| --- | --- |
+| Name | `moneymachine` |
+| Project reference | `srymerkhraklwuttzexi` |
+| Organization | `yabigdd-9's Org` / `luvtvzzhzutxizpfdsgb` |
+| Region | Sydney / `ap-southeast-2` |
+| State | `ACTIVE_HEALTHY` (separate post-create lookup) |
+| Organization plan | `free` / `tier_free` (post-create lookup) |
+| Database | PostgreSQL 17.11 (read-only query) |
+| Public application tables / Storage buckets | 0 / 0 |
+| Supabase security advisor | `lints: []` on the empty project |
+
+[Project dashboard](https://supabase.com/dashboard/project/srymerkhraklwuttzexi).
+The reference is an identifier, not a credential. No API secret, password or owner
+private key was requested, printed or committed. No existing project was changed,
+and no paid plan, add-on, schema, bucket or production workflow was activated.
+An empty-project advisor result is not a security review of future application
+schemas or a deployed dashboard.
+
+Next implementation work: prepare/test the Postgres adapter and migrations with
+the existing pipeline contracts, establish least-privilege server credentials
+through secure configuration, then complete the documented access/backup/recovery
+and independent-run checks before authorized production activation. Existing
+SQLite code is not yet connected to this database. Project creation does not
+complete cloud persistence, remote dashboard deployment or durable report custody.

@@ -114,3 +114,19 @@ Local verification: 30 browser/portal/release tests passed, including the two re
 Chromium workflows. The toolkit CI browser job now explicitly runs this suite.
 This is local emulation, not proof of a remote HTTPS dashboard or real-device
 production acceptance. Those deployment gates remain open.
+
+## Supabase provisioning verification — 2026-11-16
+
+Following explicit owner approval of the $0/month project proposal, a separate
+Supabase project was created: `moneymachine`, reference `srymerkhraklwuttzexi`,
+Sydney `ap-southeast-2`, organization `luvtvzzhzutxizpfdsgb`. The quote remained
+zero immediately before creation. Separate post-create lookups verified
+`ACTIVE_HEALTHY` and organization plan `free` / `tier_free`.
+
+A read-only query verified a responsive PostgreSQL 17.11 database, zero public
+base tables and zero Storage buckets. Security advisor returned `lints: []` for
+the empty project. These are provisioning checks only: no pipeline adapter,
+application migrations, prospect records, bucket, credentials, worker, hosted
+dashboard or independent-run persistence test was activated or verified. Existing
+projects were untouched. Exact reviewed code/run/restore evidence is still
+required for a future authorized application release.
