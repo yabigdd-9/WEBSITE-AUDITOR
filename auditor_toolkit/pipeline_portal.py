@@ -161,6 +161,13 @@ def attach_pipeline(app, store, session, csrf):
             durable_encrypted_archive="not configured",
             recent_events=document["events"][-25:],
         )
+        if store.operations_path.exists():
+            from scripts.operational_ledger import OperationalLedger
+
+            try:
+                report["operational_ledger"] = OperationalLedger(store.operations_path).summary(document)
+            except (ValueError, sqlite3.Error, OSError):
+                report["operational_ledger"] = "unavailable; processing must remain blocked"
         return page("System health", '<pre>' + escaped(json.dumps(report, indent=2)) + '</pre>')
 
     @app.get("/pipeline/outreach", response_class=HTMLResponse)

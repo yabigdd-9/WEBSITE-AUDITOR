@@ -181,7 +181,7 @@ def test_v1_database_migration_preserves_original_history_and_restores_backup(wo
     store.backup(backup)
     assert PipelineStore(backup).read() == store.read()
     with sqlite3.connect(path) as db:
-        assert db.execute("PRAGMA user_version").fetchone()[0] == 2
+        assert db.execute("PRAGMA user_version").fetchone()[0] == 3
     with pytest.raises(ValueError):
         with store.transaction() as state:
             state["discovery_events"].clear()

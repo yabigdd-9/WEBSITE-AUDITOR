@@ -34,3 +34,18 @@ or publicly accessible databases fail closed. Installed adapters additionally
 reject plaintext DBs in other recognizable Git checkouts (including worktrees).
 No raw DB exception is returned to pipeline users. Remote TLS/cookie/auth
 configuration remains unimplemented and unactivated.
+
+Operational quotas now commit separately before HTTP; deleting required quota
+history cannot silently reset capacity, including during first bootstrap. Main
+state remains atomic and writer-serialized. Backups retain both ledgers; only
+hashes, job states and counts are recorded operationally. Database directories
+reject group/other write permissions. No untrusted event can activate paid
+providers or a live transport.
+
+Formal Security Diff Scan is incomplete: its SKILL.md requires the
+security_diff_scan config preflight before scan review, but the referenced
+config-preflight.md could not be read and the helper is not available in this
+host. Existing gitleaks/pip-audit/CodeQL and ordinary implementation review are
+separate evidence, not a substitute claim that this formal scan completed.
+The scan remains a production security release gate. Skill source:
+`skill://Plugin_1e648473be9c8191a91ac3947151af55/security-diff-scan/SKILL.md`.

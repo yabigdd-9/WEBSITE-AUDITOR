@@ -167,3 +167,61 @@ Continue independent synthetic implementation while these remain blocked.
   work includes interrupted-work quota durability, operational recovery evidence
   and final integration checks. Hosted activation remains blocked on destination
   mapping, quota/access review and explicit deployment approval.
+
+## Continued execution — Phase 7 bounded operational hardening
+
+- Phase 6 commit c5f56f67bc72041fc2940658f097906d0725200c; draft PR #87:
+  https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/87. Eligible stacked workflows
+  passed: cloud 43825129749, security 43825129902, toolkit 43825129798.
+- Separate branch cloud/operational-recovery. Schema v3 requires a private paired
+  operational ledger before requests, including first bootstrap. It records
+  jobs and durable quota reservations independently of queue rollback. Existing
+  SQLite writer locking still prevents overlapping work; readers remain available.
+- Quotas include legacy committed events and interrupted reservations, avoid
+  double counting committed IDs, and enforce per-job/daily/per-prospect caps.
+  An atomic last-committed-job marker repairs interrupted status finalization.
+- Backups preserve state + operations with private permissions/integrity checks.
+  Missing ledger, corrupt/mismatched schema or history caps fail closed. Added
+  explicit CLI pause/lower-budget controls and operational health summaries.
+- Local tests cover actual killed subprocess, rollback quota durability, failed
+  bootstrap ledger loss, legacy attempts, day/per-job caps, no double charging,
+  paired restore, missing-ledger rejection, schema v2 -> v3, pause/caps before
+  work and no requests after denial. Current hardening/migration set: 63 passed.
+- Earlier integrated full run: 849 passed, 5 skipped, 3 failures, 14 subtests.
+  The three failures are the same supervisor/DNS failures reproduced on untouched
+  master. Final v3 run: 855 passed, 5 skipped, the same 3 baseline/environment failures,
+  14 subtests passed. The exact final cloud CI command passed 124 tests.
+  116 portable MoneyMachine tests + 45 subtests passed; canonical/new-code
+  Ruff and pip check passed.
+- Formal Security Diff Scan is BLOCKED: required config-preflight resource is
+  unavailable and its helper is not exposed. SKILL.md says to run that preflight
+  before scan review/goal creation. See SECURITY.md for the exact skill source.
+  No formal scan success is claimed. Other security CI checks remain enforced.
+- Existing README/pyproject declare MIT; no standalone LICENSE was found. Source
+  export/provider licensing and current free quotas still require owner review.
+
+## Remaining owner/external gates
+
+No merges, cloud provisioning, deployment dispatch, customer sends, charges,
+paid activation or client-site changes were performed. The intended Supabase/
+hosted-storage mapping question remains pending. Next owner information needed:
+identify the intended existing project, or request a separate free-tier project
+proposal. Before activation: verify quotas/access, remote TLS/auth, durable
+encrypted archive/retention, formal security review, paired hosted restore and
+two independent bounded hosted runs. Stacked PRs must be reviewed and retargeted
+with required checks before any authorized merge. Release authorization and
+production activation remain unconfirmed; no merges have been performed.
+
+Final synthetic internal E2E also passed: existing discovery adapter -> real
+canonical auditor with mocked public-site HTTP/TLS fixtures and real SSRF URL
+validation -> evidence/score/proposal -> separate owner/message approvals ->
+sandbox result (zero external sends) -> explicit acceptance -> tasks/QA/handover
+closure -> paired backup/restore with preserved quotas. No real network or
+customer message is used by this test. The dedicated CI command now includes
+this test. Latest wheel build/installed-package smoke also passed for schema v3,
+paired quotas, restore and the owner project portal outside a source checkout.
+
+The final integration draft targets master so master-only CI/CodeQL/Sonar can
+run over the accumulated changes before any future authorized merge. Earlier
+phase drafts retain their focused stacked reviews. No merge or activation occurs
+from opening this integration review. The formal scan remains blocked as noted.
