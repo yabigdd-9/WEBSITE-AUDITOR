@@ -96,3 +96,14 @@ The backup API now creates a pair with matching stems. Keep/restore both files.
 Older binaries refuse schema v3; do not roll back the schema or delete the quota
 ledger to resume work. Private parent directories must not be group/other
 writable, preventing replacement of private files by another account.
+
+## Schema v4: encrypted report references
+
+`report_artifacts` stores a unique ciphertext SHA-256, bounded byte count, existing
+vault format, recorded GitHub run/artifact IDs, creation/source expiry/local
+retention timestamps and envelope-only verification status. `audit_artifact_links`
+uses a composite primary key with foreign keys to reports and audit runs. Links
+preserve the audit's original status/canonical run ID and owner review record.
+Existing immutable audit snapshots are not rewritten. Index metadata and links
+are append-only through the store. Migrations from v1-v3 preserve earlier records.
+No key or decrypted report is stored. Ciphertext remains outside the database.

@@ -234,7 +234,7 @@ class OwnerPortal:
             raise HTTPException(status_code=500, detail=str(e))
 
 
-def _attach_private_pipeline(app, owner, pipeline_db):
+def _attach_private_pipeline(app, owner, pipeline_db, report_archive_root=None):
     from scripts.pipeline_store import PipelineStore
 
     from .pipeline_portal import attach_pipeline
@@ -244,10 +244,12 @@ def _attach_private_pipeline(app, owner, pipeline_db):
     store = PipelineStore(Path(pipeline_db))
     if store.read() is None:
         raise ValueError("Initialize the private pipeline database before serving")
-    attach_pipeline(app, store, owner.session, owner.csrf)
+    attach_pipeline(app, store, owner.session, owner.csrf, archive_root=report_archive_root)
 
 
-def create_app(root, session_seconds=3600, pipeline_db=None):
+def create_app(root, session_seconds=3600, pipeline_db=None, report_archive_root=None):
+    if report_archive_root is not None and pipeline_db is None:
+        raise ValueError("Encrypted archive requires a configured private pipeline database")
     history = History(root)
     auth_file = Path(root) / "portal-auth.json"
     if not auth_file.is_file():
@@ -279,5 +281,5 @@ def create_app(root, session_seconds=3600, pipeline_db=None):
         options = {"response_class": response_class} if response_class else {}
         app.add_api_route(route, endpoint, methods=methods, **options)
     if pipeline_db is not None:
-        _attach_private_pipeline(app, owner, pipeline_db)
+        _attach_private_pipeline(app, owner, pipeline_db, report_archive_root)
     return app

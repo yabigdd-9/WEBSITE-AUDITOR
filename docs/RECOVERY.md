@@ -63,3 +63,21 @@ appropriate. Paused runs cannot import outcome changes. To stop an already
 running job, stop/cancel its process; changing a future schedule does not cancel
 current execution. The Actions emergency switch/cancellation procedure remains
 unchanged. No new scheduler has been installed.
+
+## Indexed encrypted reports
+
+Schema v4 database backups preserve the report index and immutable audit links,
+not ciphertext files. Back up the dedicated private archive directory separately
+with its 0700 directory and 0600 file permissions. Preserve the existing paired
+pipeline/operations database backup procedure. Test restored ciphertext checksums
+and owner-side authenticated decryption on the trusted device before relying on
+a backup. Synthetic tests verify index restore and a real vault round trip; no
+owner archive recovery has been production-verified.
+
+A failed database commit after ciphertext publication can leave an unindexed
+file. Repeating the same import safely reuses its checksum; inspect unmatched
+files privately before any owner-directed cleanup. Missing/altered files block
+download. Expiry does not erase data: follow the owner's retention decision for
+secure deletion and backup removal; there is no automatic deletion or retention
+extension service. Lost private keys cannot be recovered from this index; use
+the owner's separate trusted key backup. Do not upload keys to recover service.

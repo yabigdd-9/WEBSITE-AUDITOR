@@ -30,3 +30,13 @@ from the operational ledger. These are bounded scheduled/transactional jobs,
 not an always-on process. Use CLI --paused, --max-audits (1-3), --daily-limit
 (0-6) for explicit controls; invalid budgets fail before work. Existing Actions
 activation is unchanged, and no DB-backed workflow is enabled by this code.
+
+## Encrypted report index operations
+
+Use the explicit trusted-device import in ENCRYPTED_REPORT_VAULT.md. The portal's
+Audit reports view distinguishes available, expired, missing, corrupt and
+unconfigured local custody; its source link does not check GitHub availability.
+No import runs on page load. Health identifies local custody separately from
+unverified hosted storage. Database backups require a separate ciphertext
+directory backup. Monitor the 50 MB/1,000-file local cap and act before GitHub's
+30-day expiry; no automated source download or hosted archive is activated.

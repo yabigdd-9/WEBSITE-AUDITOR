@@ -83,3 +83,11 @@ PRs, as confirmed by job inspection. No hosted database changes, production
 archive retrieval, remote owner authentication or production deployment were
 verified. Formal Security Diff Scan remains unavailable; a deployment-context
 security review still needs the actual chosen host/database/archive settings.
+
+## Encrypted report index: verification boundary
+
+The archive/index/download extension is not deployed. Tests use synthetic records
+and test-generated vault keys; no owner key, prospect archive, external send or
+new storage service is used. Local regression results and the focused PR are
+recorded in IMPLEMENTATION_PROGRESS.md. Hosted persistence between independent
+cloud runs and real owner archive recovery remain unverified.

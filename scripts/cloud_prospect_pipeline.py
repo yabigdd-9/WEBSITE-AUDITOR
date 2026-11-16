@@ -301,6 +301,7 @@ def metrics(state):
 
     report = dict(
         prospects_found=len(prospects),
+        encrypted_reports_indexed=len(state.get("report_artifacts", {})),
         audits_succeeded=sum(p["status"] == "complete" for p in prospects),
         audits_failed=sum(p["status"] == "failed" for p in prospects),
         retries_pending=sum(p["status"] == "retry" for p in prospects),

@@ -277,3 +277,36 @@ scan limitation remain as documented. The next owner information needed is the
 intended hosted storage/project mapping; no private key or paid activation is
 requested. Continue with provider-specific deployment/security planning only
 after that mapping is known.
+
+## Encrypted report custody extension — cloud/encrypted-report-index
+
+Built on integration commit `872bf62307d27a355f437946fbe56e431d19d917`.
+
+Completed:
+- Pipeline schema v4: unique report checksums, foreign-key audit associations,
+  immutable metadata/links, migration and paired database restore coverage.
+- Explicit owner-reviewed, offline ciphertext import into a dedicated private
+  local archive; original report vault cryptography unchanged.
+- Authenticated report index and bounded downloads in the existing owner portal;
+  missing/corrupt/expired files fail closed. No browser decryption or key input.
+- Backup, recovery, retention, cost and deployment documentation updated.
+- Added archive regression/lint coverage to the cloud test job; expanded existing
+  CI/CodeQL/Sonar PR base filters to focused `cloud/**` branches. Schedules and
+  production-worker guards are unchanged.
+
+Verified locally:
+- Archive/store/discovery/operational tests: **80 passed**.
+- Report portal/pipeline portal/release tests: **28 passed**.
+- Full canonical regression: **888 passed, 5 skipped, 14 subtests passed**, with
+  the same three previously reproduced baseline environment failures (two
+  supervisor process-reaping cases and the DNS-dependent integration audit).
+- Ruff passed across canonical code/tests and changed archive/store scripts;
+  diff whitespace check passed.
+
+Not deployed, merged or production-verified. No owner archive/key, external send,
+paid provider or new storage service was used. Hosted storage/project mapping,
+remote dashboard deployment and real archive recovery remain blocked on owner
+configuration and release review. The formal Security Diff Scan tool/preflight
+limitation recorded above remains unresolved. Next: inspect focused PR CI and
+resolve any regressions, then prepare provider-specific integration when the
+owner identifies the intended storage/project.

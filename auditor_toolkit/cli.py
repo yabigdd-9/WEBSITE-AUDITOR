@@ -118,6 +118,7 @@ def main(argv=None):
     dashboard.add_argument("--set-password", action="store_true")
     dashboard.add_argument("--port", type=int, default=8080)
     dashboard.add_argument("--pipeline-db", type=Path, help="Existing private pipeline SQLite database")
+    dashboard.add_argument("--report-archive-root", type=Path, help="Existing private ciphertext archive directory")
     remediate = sub.add_parser("remediate")
     remediate.add_argument("report", type=Path)
     remediate.add_argument("--output-dir", type=Path, required=True)
@@ -215,7 +216,7 @@ def main(argv=None):
             return 0
         import uvicorn
 
-        uvicorn.run(create_app(args.output_root, pipeline_db=args.pipeline_db), host="127.0.0.1", port=args.port)
+        uvicorn.run(create_app(args.output_root, pipeline_db=args.pipeline_db, report_archive_root=args.report_archive_root), host="127.0.0.1", port=args.port)
         return 0
     if args.command == "history":
         reports = History(args.output_root).list(args.query, 1000)

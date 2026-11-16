@@ -4,7 +4,7 @@ on:
   push:
     branches: [master]
   pull_request:
-    branches: [master]
+    branches: [master, 'cloud/**']
   schedule:
     # Weekly security refresh; scheduled runs can be delayed by GitHub.
     - cron: '25 4 * * 1'

@@ -50,3 +50,14 @@ separate evidence, not a substitute claim that this formal scan completed.
 A deployment-context security review remains required; this particular formal
 scan is unavailable, and an appropriate alternative review may be used. Skill source:
 `skill://Plugin_1e648473be9c8191a91ac3947151af55/security-diff-scan/SKILL.md`.
+
+## Optional encrypted report custody
+
+The local archive requires private directories outside Git and validates the
+existing envelope format, bounded size, exact fields, checksum and permissions.
+Downloads require existing owner sessions, use attachment responses and no-store
+headers, and enforce retention and a session rate limit. No browser decryption,
+key ingestion, server uploads or new provider credentials are implemented.
+Structure/checksum verification does not substitute for authenticated decryption
+or independent owner review of audit associations. Hosted exposure still needs
+the deployment-context security review and approved infrastructure.

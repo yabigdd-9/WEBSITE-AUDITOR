@@ -84,3 +84,11 @@ control event without processing pipeline stages or outcome imports. The SQLite
 CLI always wires the durable reservation check before robots/audit requests.
 Request reservations use actual UTC time even when a batch crosses midnight.
 Checkpoint-only Actions behavior and existing schedules remain intact.
+
+## Optional report custody deployment boundary
+
+The report archive feature is tested local software. Enable the optional portal
+archive flag only on an owner-controlled device with an existing private archive
+directory; see ENCRYPTED_REPORT_VAULT.md. No cloud archive or remote dashboard
+deployment has been activated or verified. Persistent hosted storage/project
+mapping, authorization controls and recovery verification remain release gates.
