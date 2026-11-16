@@ -100,6 +100,22 @@ jobs:
               | jq '{status: .projectStatus.status, failing_conditions: [.projectStatus.conditions[]? | select(.status != "OK") | {metricKey, status, actualValue, errorThreshold, comparator}]}'
           fi
 
+          # On a failed main quality gate, show the highest-impact source files.
+          # Paths and coverage counts only; no source, secrets or client evidence.
+          # This is diagnostic and never changes the blocking quality gate.
+          if [ "${GITHUB_EVENT_NAME}" != "pull_request" ]; then
+            echo "Website Auditor new-code coverage hotspots (max 12):"
+            curl --fail --silent --show-error --get \
+              --header "Authorization: Basic $(printf '%s:' "$SONAR_TOKEN" | base64 --wrap=0)" \
+              --data-urlencode "component=yabigdd-9_website-auditor" \
+              --data-urlencode "branch=master" \
+              --data-urlencode "metricKeys=new_uncovered_lines,new_lines_to_cover,new_coverage" \
+              --data-urlencode "qualifiers=FIL" \
+              --data-urlencode "ps=500" \
+              "https://sonarcloud.io/api/measures/component_tree" \
+              | jq -r '[.components[]? | {path: .path, measures: (.measures // [])} | . + {missed: (([.measures[]? | select(.metric == "new_uncovered_lines") | (.period.value // .value // "0")][0]) | tonumber? // 0), total: (([.measures[]? | select(.metric == "new_lines_to_cover") | (.period.value // .value // "0")][0]) | tonumber? // 0)}] | sort_by(-.missed) | .[:12][] | "\(.missed) uncovered / \(.total) new lines: \(.path)"'
+          fi
+
           # Diagnostics are limited to the audited PR. Never expose the token.
           # Keep this step non-blocking: the scan itself owns the quality gate.
           if [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && [ -n "${PR_NUMBER}" ]; then
