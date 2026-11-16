@@ -12,9 +12,11 @@ The existing shortlist reports only approved domains and counts. When explicitly
    python -m scripts.report_vault keygen --private-out "$HOME/mm-vault-private.key"
 3. Back up that private key securely. NEVER add it to GitHub, Actions secrets, a public issue, screenshots or chat messages. If it is lost, existing ciphertext is unreadable.
 4. Only the command's printed PUBLIC key goes into GitHub repository Settings > Secrets and variables > Actions > Variables as MM_REPORT_PUBLIC_KEY_B64.
-5. Trigger the MoneyMachine Free Real-Site Shortlist workflow manually or wait for its existing twice-weekly schedule. The workflow uses the public key to encrypt reports and uploads ONLY the encrypted bundle to an artifact.
+5. Once PR #77 is merged, trigger the Cloud Canonical Website Audits workflow manually or wait for its twice-daily best-effort schedule. The workflow uses the public key to encrypt reports and uploads ONLY the encrypted bundle to an artifact. The older MoneyMachine Free Real-Site Shortlist workflow is manual/PR-only.
 
 Without the variable, no reports are archived. The safe no-send scans continue as before.
+
+**Do not generate the private key in a chat, GitHub Actions runner, public repository, or other temporary environment.** Use a trusted device with a supported local Python environment and a secure backup destination. Only publish the public key after verifying the private key is backed up and recoverable.
 
 ## Decrypt an owner's archive
 
