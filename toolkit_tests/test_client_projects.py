@@ -9,6 +9,7 @@ from scripts.approval_controls import approve_proposal
 from scripts.client_projects import accept_proposal, complete
 from scripts.cloud_opportunities import digest
 from scripts.pipeline_store import PipelineStore
+from toolkit_tests.platform_helpers import commit_mutation
 
 NOW = 1767225600
 EVIDENCE = "a" * 64
@@ -16,29 +17,52 @@ EVIDENCE = "a" * 64
 
 @pytest.fixture
 def prospect():
-    body = dict(kind="INTERNAL_PROPOSAL_DRAFT", items=[dict(
-        finding_id="fixture-1", recommendation="Agreed synthetic task"
-    )])
+    body = dict(
+        kind="INTERNAL_PROPOSAL_DRAFT",
+        items=[dict(finding_id="fixture-1", recommendation="Agreed synthetic task")],
+    )
     version = digest(body)
-    return dict(domain="example.com", status="complete", draft="Internal scope",
-                proposal_version=version, proposal_versions=[{**body, "version_sha256": version}])
+    return dict(
+        domain="example.com",
+        status="complete",
+        draft="Internal scope",
+        proposal_version=version,
+        proposal_versions=[{**body, "version_sha256": version}],
+    )
 
 
 def accepted(prospect, **overrides):
     options = dict(
-        actor="fixture-owner", reason="Verified synthetic customer acceptance", now=NOW,
-        acceptance_evidence=EVIDENCE, owner_verified=True,
+        actor="fixture-owner",
+        reason="Verified synthetic customer acceptance",
+        now=NOW,
+        acceptance_evidence=EVIDENCE,
+        owner_verified=True,
     )
     return accept_proposal(prospect, prospect["proposal_version"], **{**options, **overrides})
 
 
 def finish(prospect, project, kind, item, proof=EVIDENCE):
-    return complete(prospect, project, kind=kind, item_id=item, completion_evidence=proof,
-                    actor="fixture-owner", reason="Verified synthetic completion", now=NOW)
+    return complete(
+        prospect,
+        project,
+        kind=kind,
+        item_id=item,
+        completion_evidence=proof,
+        actor="fixture-owner",
+        reason="Verified synthetic completion",
+        now=NOW,
+    )
 
 
 def approve(prospect):
-    approve_proposal(prospect, prospect["proposal_version"], actor="fixture-owner", reason="Scope approved", now=NOW)
+    approve_proposal(
+        prospect,
+        prospect["proposal_version"],
+        actor="fixture-owner",
+        reason="Scope approved",
+        now=NOW,
+    )
 
 
 def test_acceptance_requires_exact_approval_and_explicit_customer_evidence(prospect):
@@ -93,7 +117,9 @@ def test_project_scope_and_history_survive_reload_and_cannot_be_rewritten(prospe
         frozen = store.read()["prospects"][identity]["projects"][project]["frozen_proposal"]
         with store.transaction() as state:
             p = state["prospects"][identity]
-            p["proposal_version"] = None  # Later marketing/proposal changes do not change accepted work.
+            p["proposal_version"] = (
+                None  # Later marketing/proposal changes do not change accepted work.
+            )
             finish(p, project, "milestone", "scope")
         saved = store.read()["prospects"][identity]
         assert saved["projects"][project]["frozen_proposal"] == frozen
@@ -104,6 +130,9 @@ def test_project_scope_and_history_survive_reload_and_cannot_be_rewritten(prospe
             lambda p: p["projects"][project]["milestones"][0].update(status="pending"),
             lambda p: p["project_events"].clear(),
         ):
+
+            def change(state):
+                mutate(state["prospects"][identity])
+
             with pytest.raises(ValueError):
-                with store.transaction() as state:
-                    mutate(state["prospects"][identity])
+                commit_mutation(store, change)

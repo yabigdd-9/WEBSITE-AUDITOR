@@ -20,15 +20,26 @@ def policy():
 @pytest.fixture
 def entry():
     return dict(
-        domain="example.com", status="COMPLETE", run_id="canonical-1",
-        timestamp="2026-01-01T00:00:00Z", internal_scope_draft="INTERNAL SCOPE DRAFT - DO NOT SEND",
-        findings=[dict(
-            finding_id="fixture-1", defect_key="viewport", confidence="observed", severity="high",
-            observed="Viewport declaration absent in the inspected HTML.",
-            evidence_ref="html", evidence_check="html", evidence_check_status="ok",
-            source_url="https://example.com/", remediation_action="Review and add viewport metadata.",
-            independently_verified=False,
-        )],
+        domain="example.com",
+        status="COMPLETE",
+        run_id="canonical-1",
+        timestamp="2026-01-01T00:00:00Z",
+        internal_scope_draft="INTERNAL SCOPE DRAFT - DO NOT SEND",
+        findings=[
+            dict(
+                finding_id="fixture-1",
+                defect_key="viewport",
+                confidence="observed",
+                severity="high",
+                observed="Viewport declaration absent in the inspected HTML.",
+                evidence_ref="html",
+                evidence_check="html",
+                evidence_check_status="ok",
+                source_url="https://example.com/",
+                remediation_action="Review and add viewport metadata.",
+                independently_verified=False,
+            )
+        ],
     )
 
 
@@ -42,16 +53,26 @@ def test_scores_are_deterministic_explained_and_not_intent(entry, policy):
     assert set(first["missing_context"]) == {"delivery_feasibility", "business_service_fit"}
     assert first["evidence"][0]["finding_id"] == "fixture-1"
     assert first["evidence"][0]["audit_run_id"] == entry["run_id"]
-    configured = opportunities.score(entry, {"delivery_feasibility": 80, "business_service_fit": 60}, policy, now=NOW)
+    configured = opportunities.score(
+        entry, {"delivery_feasibility": 80, "business_service_fit": 60}, policy, now=NOW
+    )
     assert configured["score"] == 75
 
 
-@pytest.mark.parametrize("field,value", [
-    ("confidence", "heuristic"), ("evidence_check_status", "partial"),
-    ("evidence_ref", "missing"), ("source_url", ""), ("observed", ""),
-    ("finding_id", ""), ("remediation_action", ""), ("severity", "speculative"),
-    ("defect_key", "unsupported-rebuild"),
-])
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("confidence", "heuristic"),
+        ("evidence_check_status", "partial"),
+        ("evidence_ref", "missing"),
+        ("source_url", ""),
+        ("observed", ""),
+        ("finding_id", ""),
+        ("remediation_action", ""),
+        ("severity", "speculative"),
+        ("defect_key", "unsupported-rebuild"),
+    ],
+)
 def test_hard_evidence_service_gates(entry, policy, field, value):
     entry["findings"][0][field] = value
     result = opportunities.score(entry, {}, policy, now=NOW)
@@ -63,9 +84,16 @@ def test_hard_evidence_service_gates(entry, policy, field, value):
 
 def test_partial_empty_duplicate_and_suppressed_never_qualify(entry, policy):
     for status in ("partial", "ERROR", "INCOMPLETE"):
-        assert opportunities.score({**entry, "status": status}, {}, policy, now=NOW)["score"] is None
+        assert (
+            opportunities.score({**entry, "status": status}, {}, policy, now=NOW)["score"] is None
+        )
     assert opportunities.score({**entry, "findings": []}, {}, policy, now=NOW)["score"] is None
-    assert opportunities.score({**entry, "findings": entry["findings"] * 2}, {}, policy, now=NOW)["reason"] == "duplicate_finding"
+    assert (
+        opportunities.score({**entry, "findings": entry["findings"] * 2}, {}, policy, now=NOW)[
+            "reason"
+        ]
+        == "duplicate_finding"
+    )
     for flag in ("suppressed", "contact_prohibited"):
         assert opportunities.score(entry, {flag: True}, policy, now=NOW)["score"] is None
 
@@ -81,7 +109,10 @@ def test_missing_dates_reduce_score_and_unconfigured_prices_stay_unknown(entry, 
     assert draft["items"][0]["complexity"] == "Unestimated"
     assert draft["binding_quote"] is False
     assert draft["approval_status"] == "HUMAN_REVIEW_REQUIRED"
-    assert draft["version_sha256"] == opportunities.proposal(entry, {}, policy, now=NOW)["version_sha256"]
+    assert (
+        draft["version_sha256"]
+        == opportunities.proposal(entry, {}, policy, now=NOW)["version_sha256"]
+    )
 
 
 def test_existing_quote_rules_only_use_configured_rate_and_effort(entry, policy):
@@ -119,8 +150,16 @@ def test_pipeline_persists_exact_versions_and_owner_rejections(entry, policy):
             return [{"status": "COMPLETE"}]
 
         with store.transaction(bootstrap=True) as state:
-            pipeline.process(state, rows, now=NOW, run_id="first", workspace=root,
-                             audit=audit, robots=lambda _: True, opportunity_policy=policy)
+            pipeline.process(
+                state,
+                rows,
+                now=NOW,
+                run_id="first",
+                workspace=root,
+                audit=audit,
+                robots=lambda _: True,
+                opportunity_policy=policy,
+            )
         saved = store.read()["prospects"][identity]
         assert saved["opportunity"]["score"] == 59
         assert len(saved["proposal_versions"]) == 1
@@ -129,7 +168,10 @@ def test_pipeline_persists_exact_versions_and_owner_rejections(entry, policy):
         assert len(store.read()["prospects"][identity]["proposal_versions"]) == 1
         with store.transaction() as state:
             opportunities.reject_recommendation(
-                state["prospects"][identity], actor="fixture-owner", reason="Outside current capabilities", now=NOW
+                state["prospects"][identity],
+                actor="fixture-owner",
+                reason="Outside current capabilities",
+                now=NOW,
             )
         with store.transaction() as state:
             opportunities.enrich(state, policy, now=NOW)
@@ -142,11 +184,18 @@ def test_pipeline_persists_exact_versions_and_owner_rejections(entry, policy):
                 state["prospects"][identity]["proposal_versions"][0]["pricing_status"] = "tampered"
         with pytest.raises(ValueError):
             with store.transaction() as state:
-                state["prospects"][identity]["recommendation_reviews"].clear()
+                state["prospects"][identity]["recommendation_reviews"] = []
 
 
 def test_invalid_policy_rejects_before_any_request(policy):
     policy["weights"]["recency"] = 99
     with pytest.raises(ValueError):
-        pipeline.process(pipeline.empty_state(), [], now=NOW, run_id="blocked", workspace=Path("/tmp"),
-                         opportunity_policy=policy, robots=lambda _: pytest.fail("Network request"))
+        pipeline.process(
+            pipeline.empty_state(),
+            [],
+            now=NOW,
+            run_id="blocked",
+            workspace=Path("/tmp"),
+            opportunity_policy=policy,
+            robots=lambda _: pytest.fail("Network request"),
+        )

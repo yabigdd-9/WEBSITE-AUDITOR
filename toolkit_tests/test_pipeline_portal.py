@@ -24,18 +24,36 @@ def owner():
         identity = hashlib.sha256(b"example.com").hexdigest()
         with store.transaction(bootstrap=True) as state:
             state["prospects"][identity] = dict(
-                domain="example.com", status="complete", draft="INTERNAL SCOPE DRAFT - DO NOT SEND",
+                domain="example.com",
+                status="complete",
+                draft="INTERNAL SCOPE DRAFT - DO NOT SEND",
                 discovery={"business_name": "<script>fixture</script>"},
                 audit=dict(
-                    domain="example.com", status="COMPLETE", run_id="fixture-1",
-                    timestamp="2026-01-01T00:00:00Z", findings=[dict(
-                        finding_id="finding-1", defect_key="viewport", severity="medium", confidence="observed",
-                        observed="Observed fixture", remediation_action="Review viewport", source_url="https://example.com",
-                        evidence_ref="html", evidence_check="html", evidence_check_status="ok",
-                    )],
+                    domain="example.com",
+                    status="COMPLETE",
+                    run_id="fixture-1",
+                    timestamp="2026-01-01T00:00:00Z",
+                    findings=[
+                        dict(
+                            finding_id="finding-1",
+                            defect_key="viewport",
+                            severity="medium",
+                            confidence="observed",
+                            observed="Observed fixture",
+                            remediation_action="Review viewport",
+                            source_url="https://example.com",
+                            evidence_ref="html",
+                            evidence_check="html",
+                            evidence_check_status="ok",
+                        )
+                    ],
                 ),
             )
-            opportunities.enrich(state, opportunities.load_policy(Path(__file__).resolve().parents[1]), now=1767225600)
+            opportunities.enrich(
+                state,
+                opportunities.load_policy(Path(__file__).resolve().parents[1]),
+                now=1767225600,
+            )
         history = root / "history"
         setup_password(history, PASSWORD)
         with TestClient(create_app(history, pipeline_db=store.path)) as client:
@@ -52,8 +70,15 @@ def login(client):
 
 def test_pipeline_requires_owner_session_everywhere(owner):
     client, store, identity, _ = owner
-    for path in ("/pipeline", "/pipeline/prospects", f"/pipeline/prospects/{identity}",
-                 "/pipeline/discovery", "/pipeline/health", "/pipeline/outreach", "/pipeline/projects"):
+    for path in (
+        "/pipeline",
+        "/pipeline/prospects",
+        f"/pipeline/prospects/{identity}",
+        "/pipeline/discovery",
+        "/pipeline/health",
+        "/pipeline/outreach",
+        "/pipeline/projects",
+    ):
         response = client.get(path)
         assert response.status_code == 401
         assert "example.com" not in response.text
@@ -66,15 +91,22 @@ def test_owner_can_review_private_records_without_mutation_or_script_execution(o
     client, store, identity, _ = owner
     login(client)
     before = copy.deepcopy(store.read())
-    for path in ("/pipeline", "/pipeline/prospects", f"/pipeline/prospects/{identity}",
-                 "/pipeline/discovery", "/pipeline/health"):
+    for path in (
+        "/pipeline",
+        "/pipeline/prospects",
+        f"/pipeline/prospects/{identity}",
+        "/pipeline/discovery",
+        "/pipeline/health",
+    ):
         response = client.get(path)
         assert response.status_code == 200
         assert 'name="viewport"' in response.text
         assert response.headers["cache-control"] == "no-store"
         assert "script-src 'none'" in response.headers["content-security-policy"]
         assert "<script>fixture</script>" not in response.text
-    assert "&lt;script&gt;fixture&lt;/script&gt;" in client.get(f"/pipeline/prospects/{identity}").text
+    assert (
+        "&lt;script&gt;fixture&lt;/script&gt;" in client.get(f"/pipeline/prospects/{identity}").text
+    )
     assert "Pricing not configured" in client.get(f"/pipeline/prospects/{identity}").text
     assert "&lt;script&gt;" in client.get("/pipeline/prospects", params={"q": "<script>"}).text
     assert client.get("/pipeline/prospects?offset=-1").status_code == 400
@@ -93,7 +125,12 @@ def test_reject_requires_csrf_exact_version_and_origin(owner):
     data = {"version": version, "reason": "Outside supported capabilities"}
     assert client.post(path, json=data).status_code == 403
     assert client.post(path, json={**data, "csrf": "é"}).status_code == 403
-    assert client.post(path, json={**data, "csrf": token}, headers={"origin": "https://evil.example"}).status_code == 403
+    assert (
+        client.post(
+            path, json={**data, "csrf": token}, headers={"origin": "https://evil.example"}
+        ).status_code
+        == 403
+    )
     assert client.post(path, json={**data, "csrf": token, "version": "0" * 64}).status_code == 409
     assert client.post(path, json={**data, "csrf": token, "actor": "owner"}).status_code == 400
     assert client.post(path, json={**data, "csrf": token, "reason": ""}).status_code == 400
@@ -111,10 +148,23 @@ def test_review_size_rate_and_session_controls(owner):
     client, store, identity, history = owner
     token = login(client)
     path = f"/pipeline/prospects/{identity}/reject"
-    assert client.post(path, content=b"x" * 4097, headers={"content-type": "application/json"}).status_code == 413
+    assert (
+        client.post(
+            path, content=b"x" * 4097, headers={"content-type": "application/json"}
+        ).status_code
+        == 413
+    )
     for _ in range(20):
-        assert client.post(path, json={"version": "stale", "reason": "fixture", "csrf": token}).status_code == 409
-    assert client.post(path, json={"version": "stale", "reason": "fixture", "csrf": token}).status_code == 429
+        assert (
+            client.post(
+                path, json={"version": "stale", "reason": "fixture", "csrf": token}
+            ).status_code
+            == 409
+        )
+    assert (
+        client.post(path, json={"version": "stale", "reason": "fixture", "csrf": token}).status_code
+        == 429
+    )
     with TestClient(create_app(history, session_seconds=-1, pipeline_db=store.path)) as expired:
         expired.post("/login", data={"password": PASSWORD}, follow_redirects=False)
         assert expired.get("/pipeline").status_code == 401
@@ -140,29 +190,65 @@ def test_owner_records_acceptance_and_project_delivery_without_external_actions(
     version = store.read()["prospects"][identity]["proposal_version"]
     data = {"version": version, "reason": "Synthetic acceptance evidence", "csrf": token}
     accept = f"/pipeline/prospects/{identity}/accept"
-    assert client.post(accept, json={**data, "owner_verified": True, "acceptance_evidence": "a" * 64}).status_code == 400
-    assert client.post(f"/pipeline/prospects/{identity}/approve", json=data, follow_redirects=False).status_code == 303
-    assert client.post(accept, json={**data, "owner_verified": False, "acceptance_evidence": "a" * 64}).status_code == 400
-    result = client.post(accept, data={**data, "owner_verified": "true", "acceptance_evidence": "a" * 64}, follow_redirects=False)
+    assert (
+        client.post(
+            accept, json={**data, "owner_verified": True, "acceptance_evidence": "a" * 64}
+        ).status_code
+        == 400
+    )
+    assert (
+        client.post(
+            f"/pipeline/prospects/{identity}/approve", json=data, follow_redirects=False
+        ).status_code
+        == 303
+    )
+    assert (
+        client.post(
+            accept, json={**data, "owner_verified": False, "acceptance_evidence": "a" * 64}
+        ).status_code
+        == 400
+    )
+    result = client.post(
+        accept,
+        data={**data, "owner_verified": "true", "acceptance_evidence": "a" * 64},
+        follow_redirects=False,
+    )
     assert result.status_code == 303
     p = store.read()["prospects"][identity]
     project_id = next(iter(p["projects"]))
     assert client.get("/pipeline/projects").status_code == 200
     base = f"/pipeline/prospects/{identity}/projects/{project_id}"
-    proof = {"reason": "Verified synthetic completion", "completion_evidence": "b" * 64, "csrf": token}
+    proof = {
+        "reason": "Verified synthetic completion",
+        "completion_evidence": "b" * 64,
+        "csrf": token,
+    }
     assert client.post(base + "/milestone/handover/complete", json=proof).status_code == 400
-    for kind, item in (("milestone", "scope"), ("milestone", "access"), ("task", "1"),
-                       ("milestone", "implementation"), ("milestone", "quality"), ("milestone", "handover")):
-        assert client.post(base + f"/{kind}/{item}/complete", json=proof, follow_redirects=False).status_code == 303
+    for kind, item in (
+        ("milestone", "scope"),
+        ("milestone", "access"),
+        ("task", "1"),
+        ("milestone", "implementation"),
+        ("milestone", "quality"),
+        ("milestone", "handover"),
+    ):
+        assert (
+            client.post(
+                base + f"/{kind}/{item}/complete", json=proof, follow_redirects=False
+            ).status_code
+            == 303
+        )
     project = store.read()["prospects"][identity]["projects"][project_id]
     assert project["status"] == "closed"
-    assert project["automated_changes"] == 0 and project["automatic_invoicing"] is False
+    assert project["automated_changes"] == 0
+    assert project["automatic_invoicing"] is False
 
 
 def test_dashboard_refuses_missing_or_public_database(owner):
     _, store, _, history = owner
+    missing = store.path.with_name("missing.sqlite3")
     with pytest.raises(ValueError):
-        create_app(history, pipeline_db=store.path.with_name("missing.sqlite3"))
+        create_app(history, pipeline_db=missing)
     store.path.chmod(0o644)
     with pytest.raises(ValueError):
         create_app(history, pipeline_db=store.path)
@@ -172,6 +258,10 @@ def test_cli_pipeline_option_is_explicit():
     import subprocess
     import sys
 
-    result = subprocess.run([sys.executable, "-m", "auditor_toolkit.cli", "dashboard", "--help"],
-                            check=True, capture_output=True, text=True)
+    result = subprocess.run(
+        [sys.executable, "-m", "auditor_toolkit.cli", "dashboard", "--help"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
     assert "--pipeline-db" in result.stdout

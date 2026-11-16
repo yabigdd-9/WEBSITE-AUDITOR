@@ -225,3 +225,22 @@ The final integration draft targets master so master-only CI/CodeQL/Sonar can
 run over the accumulated changes before any future authorized merge. Earlier
 phase drafts retain their focused stacked reviews. No merge or activation occurs
 from opening this integration review. The formal scan remains blocked as noted.
+
+## Final integration review and CI correction
+
+- Integration draft PR #88 targets master:
+  https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/88. Initial integrated commit
+  142e75663a99f0f0c66e5f3c79f5fe9d9e9571f2 passed CI 43829568077, security
+  43829568043, CodeQL 43829568139, toolkit 43829568125, private-ledger tests
+  43829568115 and cloud regressions 43829568039 / 43829568072 / 43829568244.
+- SonarCloud 43829568040 failed its unchanged quality gate. Diagnostic issues
+  identified portal factory complexity, direct request-ID HTML interpolation,
+  repeated literals, and composite/ambiguous exception assertions in new tests.
+- Corrected by separating owner/session and pipeline view handlers into explicit
+  route controllers, splitting body parsing/decision dispatch/rendering helpers,
+  escaping request-derived form/history links, using shared literals and naming
+  transactional test operations. Input validation, auth/CSRF/version checks,
+  sandbox-only transport, workload caps and test assertions remain enforced.
+- Post-correction verification: 125 dedicated pipeline tests and 37 portal/
+  history/delivery tests passed; canonical/test Ruff and diff checks passed.
+  Full CI and the unchanged Sonar gate will rerun before reporting final status.

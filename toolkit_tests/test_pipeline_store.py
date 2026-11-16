@@ -14,6 +14,7 @@ import pytest
 
 from scripts import cloud_prospect_pipeline as pipeline
 from scripts.pipeline_store import PipelineStore
+from toolkit_tests.platform_helpers import commit_mutation
 
 
 @pytest.fixture
@@ -25,7 +26,9 @@ def store():
 def prospect():
     domain = "example.com"
     return hashlib.sha256(domain.encode()).hexdigest(), {
-        "domain": domain, "draft": None, "status": "queued"
+        "domain": domain,
+        "draft": None,
+        "status": "queued",
     }
 
 
@@ -34,7 +37,8 @@ def test_independent_process_restore_and_backup(store):
     with store.transaction(bootstrap=True) as state:
         state["prospects"][identity] = row
     command = [
-        sys.executable, "-c",
+        sys.executable,
+        "-c",
         "from scripts.pipeline_store import PipelineStore; from pathlib import Path; "
         "import sys,json; print(json.dumps(PipelineStore(Path(sys.argv[1])).read()))",
         str(store.path),
@@ -53,10 +57,14 @@ def test_transaction_rollback_and_foreign_key_failure(store):
     with store.transaction(bootstrap=True):
         pass
     before = store.read()
+    identity, row = prospect()
+
+    def interrupted(state):
+        state["prospects"][identity] = row
+        raise RuntimeError("interrupted")
+
     with pytest.raises(RuntimeError):
-        with store.transaction() as state:
-            state["prospects"][prospect()[0]] = prospect()[1]
-            raise RuntimeError("interrupted")
+        commit_mutation(store, interrupted)
     assert store.read() == before
     with pytest.raises(sqlite3.IntegrityError):
         with store.transaction() as state:
@@ -67,14 +75,19 @@ def test_transaction_rollback_and_foreign_key_failure(store):
 def test_crashed_process_preserves_previous_commit(store):
     with store.transaction(bootstrap=True):
         pass
-    command = [sys.executable, "-c", """
+    command = [
+        sys.executable,
+        "-c",
+        """
 import os,sys
 from pathlib import Path
 from scripts.pipeline_store import PipelineStore
 with PipelineStore(Path(sys.argv[1])).transaction() as state:
     state['events'].append({'interrupted': True})
     os._exit(19)
-""", str(store.path)]
+""",
+        str(store.path),
+    ]
     assert subprocess.run(command, check=False).returncode == 19
     assert store.read()["events"] == []
 
@@ -82,10 +95,10 @@ with PipelineStore(Path(sys.argv[1])).transaction() as state:
 def test_competing_worker_cannot_select_or_audit(store):
     with store.transaction(bootstrap=True):
         pass
+    competing = PipelineStore(store.path)
     with store.transaction():
         with pytest.raises(sqlite3.OperationalError):
-            with PipelineStore(store.path).transaction():
-                pytest.fail("Second worker entered processing")
+            commit_mutation(competing, lambda state: None)
 
 
 def test_reader_sees_last_committed_state_while_audit_writer_is_active(store):
@@ -122,8 +135,9 @@ def test_bootstrap_schema_and_path_controls(store):
     os.chmod(store.path, 0o644)
     with pytest.raises(ValueError):
         PipelineStore(store.path)
+    public_path = Path(__file__).resolve().parents[1] / "secret.sqlite3"
     with pytest.raises(ValueError):
-        PipelineStore(Path(__file__).resolve().parents[1] / "secret.sqlite3")
+        PipelineStore(public_path)
     link = store.path.with_name("symlink.sqlite3")
     link.symlink_to(store.path)
     with pytest.raises(ValueError):
@@ -138,17 +152,24 @@ def test_reject_existing_other_schema_and_noncanonical_identity(store):
         store.read()
     with tempfile.TemporaryDirectory() as directory:
         other = PipelineStore(Path(directory) / "other.sqlite3")
+        row = prospect()[1]
+
+        def invalid_identity(state):
+            state["prospects"]["wrong"] = row
+
         with pytest.raises(ValueError):
-            with other.transaction(bootstrap=True) as state:
-                state["prospects"]["wrong"] = prospect()[1]
+            commit_mutation(other, invalid_identity, bootstrap=True)
         assert other.read() is None
 
 
 def test_cli_database_roundtrip_without_checkpoint_secret(store):
     env = {
-        "MM_PAID_ALLOWED": "0", "MM_ALLOW_EXTERNAL_FREE_MODELS": "0",
-        "MM_EXTERNAL_SEND_ALLOWED": "0", "WA_OUTCOMES_ENCRYPTED": "",
-        "WA_RECOVERY_RUN": "", "WA_PIPELINE_STATE_KEY": "",
+        "MM_PAID_ALLOWED": "0",
+        "MM_ALLOW_EXTERNAL_FREE_MODELS": "0",
+        "MM_EXTERNAL_SEND_ALLOWED": "0",
+        "WA_OUTCOMES_ENCRYPTED": "",
+        "WA_RECOVERY_RUN": "",
+        "WA_PIPELINE_STATE_KEY": "",
     }
     output = io.StringIO()
     with (
@@ -177,8 +198,7 @@ def test_history_suppression_and_pagination(store):
         lambda s: s["prospects"][identity].update(status="queued"),
     ):
         with pytest.raises(ValueError):
-            with store.transaction() as state:
-                mutate(state)
+            commit_mutation(store, mutate)
         assert store.read() == before
     assert store.prospects(query="EXAMPLE", limit=1) == [row]
     assert store.prospects(offset=1) == []
@@ -198,8 +218,13 @@ def test_pipeline_history_quota_and_idempotency_across_database_runs(store):
     def run(bootstrap, now):
         with store.transaction(bootstrap=bootstrap) as state:
             pipeline.process(
-                state, rows, now=now, run_id=f"run-{now}", workspace=store.path.parent,
-                robots=lambda _: True, audit=audit,
+                state,
+                rows,
+                now=now,
+                run_id=f"run-{now}",
+                workspace=store.path.parent,
+                robots=lambda _: True,
+                audit=audit,
             )
 
     run(True, 0)
@@ -218,12 +243,19 @@ def test_pipeline_history_quota_and_idempotency_across_database_runs(store):
 
 
 def test_completed_evidence_and_source_survive_restart_without_duplicate_audit(store):
-    rows = [dict(
-        domain="example.com", url="https://example.com/", business_name="Fixture Business",
-        region="Christchurch", source="curated", source_url="https://example.com/about",
-    )]
+    rows = [
+        dict(
+            domain="example.com",
+            url="https://example.com/",
+            business_name="Fixture Business",
+            region="Christchurch",
+            source="curated",
+            source_url="https://example.com/about",
+        )
+    ]
     evidence = dict(
-        run_id="canonical-1", internal_scope_draft="INTERNAL SCOPE DRAFT - DO NOT SEND\nFixture",
+        run_id="canonical-1",
+        internal_scope_draft="INTERNAL SCOPE DRAFT - DO NOT SEND\nFixture",
         checks_completed=["fetch", "html"],
         findings=[dict(severity="medium", evidence_ref="html", finding_id="fixture-1")],
     )
@@ -234,12 +266,21 @@ def test_completed_evidence_and_source_survive_restart_without_duplicate_audit(s
 
     with store.transaction(bootstrap=True) as state:
         pipeline.process(
-            state, rows, now=0, run_id="first", workspace=store.path.parent,
-            audit=audit, robots=lambda _: True,
+            state,
+            rows,
+            now=0,
+            run_id="first",
+            workspace=store.path.parent,
+            audit=audit,
+            robots=lambda _: True,
         )
     with PipelineStore(store.path).transaction() as state:
         pipeline.process(
-            state, rows, now=86400, run_id="second", workspace=store.path.parent,
+            state,
+            rows,
+            now=86400,
+            run_id="second",
+            workspace=store.path.parent,
             audit=lambda *args: pytest.fail("Completed audit repeated"),
             robots=lambda _: pytest.fail("Completed site fetched"),
         )
@@ -262,12 +303,16 @@ def test_completed_evidence_and_source_survive_restart_without_duplicate_audit(s
 def test_daily_pause_and_invalid_budgets_never_request(store):
     with store.transaction(bootstrap=True) as state:
         kwargs = dict(
-            now=0, run_id="paused", workspace=store.path.parent,
+            now=0,
+            run_id="paused",
+            workspace=store.path.parent,
             robots=lambda _: pytest.fail("Paused queue fetched a URL"),
         )
         pipeline.process(
-            state, [dict(domain="example.com", url="https://example.com/")],
-            daily_limit=0, **kwargs,
+            state,
+            [dict(domain="example.com", url="https://example.com/")],
+            daily_limit=0,
+            **kwargs,
         )
         for settings in ({"daily_limit": 7}, {"daily_limit": True}, {"limit": True}):
             with pytest.raises(ValueError):

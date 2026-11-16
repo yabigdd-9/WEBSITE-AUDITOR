@@ -12,6 +12,7 @@ import pytest
 from scripts import cloud_prospect_pipeline as pipeline
 from scripts.operational_ledger import OperationalLedger
 from scripts.pipeline_store import PipelineStore
+from toolkit_tests.platform_helpers import interrupt_reserved_transaction
 
 
 def sha(value):
@@ -29,10 +30,9 @@ def store():
 
 def test_failed_queue_transactions_do_not_refund_request_reservations(store):
     for attempt in range(3):
+        prospect_id, audit_id = sha("prospect"), sha(str(attempt))
         with pytest.raises(RuntimeError):
-            with store.transaction():
-                assert store.reserve_attempt(sha("prospect"), sha(str(attempt)), now=0, daily_limit=6)
-                raise RuntimeError("Interrupted before queue commit")
+            interrupt_reserved_transaction(store, prospect_id, audit_id)
     with store.transaction():
         assert not store.reserve_attempt(sha("prospect"), sha("fourth"), now=0, daily_limit=6)
     summary = OperationalLedger(store.operations_path).summary()
@@ -49,12 +49,19 @@ def test_committed_queue_marker_repairs_interrupted_final_job_status(store):
     assert job["status"] == "running"
     with store.transaction():
         pass
-    repaired = next(j for j in OperationalLedger(store.operations_path).summary()["jobs"] if j["id"] == job["id"])
+    repaired = next(
+        j
+        for j in OperationalLedger(store.operations_path).summary()["jobs"]
+        if j["id"] == job["id"]
+    )
     assert repaired["status"] == "succeeded"
 
 
 def test_killed_process_reservation_survives_and_next_writer_records_interruption(store):
-    command = [sys.executable, "-c", """
+    command = [
+        sys.executable,
+        "-c",
+        """
 import os,sys,hashlib
 from pathlib import Path
 from scripts.pipeline_store import PipelineStore
@@ -63,7 +70,9 @@ with store.transaction() as state:
     assert store.reserve_attempt(hashlib.sha256(b'p').hexdigest(), hashlib.sha256(b'a').hexdigest(), now=0, daily_limit=6)
     state['events'].append({'uncommitted': True})
     os._exit(19)
-""", str(store.path)]
+""",
+        str(store.path),
+    ]
     assert subprocess.run(command, check=False).returncode == 19
     assert store.read()["events"] == []
     assert OperationalLedger(store.operations_path).summary()["jobs"][0]["status"] == "running"
@@ -79,14 +88,15 @@ def test_daily_and_per_run_caps_include_legacy_state_and_failed_jobs(store):
         for index in range(3):
             pipeline.event(state, 0, "legacy", sha(str(index)), "audit", "failed", "audit_failed")
     for attempt in range(3):
+        prospect_id, audit_id = sha("new" + str(attempt)), sha(str(attempt))
         with pytest.raises(RuntimeError):
-            with store.transaction():
-                assert store.reserve_attempt(sha("new" + str(attempt)), sha(str(attempt)), now=0, daily_limit=6)
-                raise RuntimeError("aborted")
+            interrupt_reserved_transaction(store, prospect_id, audit_id)
     with store.transaction():
         assert not store.reserve_attempt(sha("other"), sha("other"), now=0, daily_limit=6)
         for i in range(3):
-            assert store.reserve_attempt(sha("tomorrow" + str(i)), sha("tomorrow" + str(i)), now=86400, daily_limit=6)
+            assert store.reserve_attempt(
+                sha("tomorrow" + str(i)), sha("tomorrow" + str(i)), now=86400, daily_limit=6
+            )
         assert not store.reserve_attempt(sha("fourth"), sha("fourth"), now=86400, daily_limit=6)
 
 
@@ -112,8 +122,16 @@ def test_reservation_denial_prevents_robots_and_audit_requests(store):
         pytest.fail("Budget-blocked queue issued a request")
 
     with store.transaction() as state:
-        pipeline.process(state, rows, now=0, run_id="blocked", workspace=store.path.parent,
-                         attempt_reserver=lambda *args, **kwargs: False, robots=forbidden, audit=forbidden)
+        pipeline.process(
+            state,
+            rows,
+            now=0,
+            run_id="blocked",
+            workspace=store.path.parent,
+            attempt_reserver=lambda *args, **kwargs: False,
+            robots=forbidden,
+            audit=forbidden,
+        )
     saved = store.read()
     assert next(iter(saved["prospects"].values()))["attempts"] == 0
     assert saved["audit_runs"] == []
@@ -126,22 +144,35 @@ def test_cli_wires_reservations_before_mock_audit(store):
 
     def process(state, rows, **kwargs):
         assert callable(kwargs["attempt_reserver"])
-        return original(state, rows, **kwargs, robots=lambda _: True,
-                        audit=lambda *args: [{"status": "INCOMPLETE"}])
+        return original(
+            state,
+            rows,
+            **kwargs,
+            robots=lambda _: True,
+            audit=lambda *args: [{"status": "INCOMPLETE"}],
+        )
 
-    flags = {"MM_PAID_ALLOWED": "0", "MM_ALLOW_EXTERNAL_FREE_MODELS": "0", "MM_EXTERNAL_SEND_ALLOWED": "0",
-             "WA_RECOVERY_RUN": "", "WA_OUTCOMES_ENCRYPTED": ""}
-    with patch.dict(os.environ, flags), patch.object(pipeline, "policy_rows", return_value=rows), patch.object(pipeline, "process", process):
+    flags = {
+        "MM_PAID_ALLOWED": "0",
+        "MM_ALLOW_EXTERNAL_FREE_MODELS": "0",
+        "MM_EXTERNAL_SEND_ALLOWED": "0",
+        "WA_RECOVERY_RUN": "",
+        "WA_OUTCOMES_ENCRYPTED": "",
+    }
+    with (
+        patch.dict(os.environ, flags),
+        patch.object(pipeline, "policy_rows", return_value=rows),
+        patch.object(pipeline, "process", process),
+    ):
         assert pipeline.main(["--database", str(store.path)]) == 0
     assert OperationalLedger(store.operations_path).summary()["reservations"] == 1
 
 
 def test_first_bootstrap_failure_cannot_silently_recreate_lost_quota_history(store):
     fresh = PipelineStore(store.path.with_name("fresh.sqlite3"))
+    prospect_id, audit_id = sha("p"), sha("a")
     with pytest.raises(RuntimeError):
-        with fresh.transaction(bootstrap=True):
-            assert fresh.reserve_attempt(sha("p"), sha("a"), now=0, daily_limit=6)
-            raise RuntimeError("First run interrupted")
+        interrupt_reserved_transaction(fresh, prospect_id, audit_id, bootstrap=True)
     assert fresh.read() is None
     fresh.operations_path.unlink()
     with pytest.raises(ValueError, match="Operational ledger missing"):
@@ -152,11 +183,12 @@ def test_first_bootstrap_failure_cannot_silently_recreate_lost_quota_history(sto
 def test_legacy_prospect_attempts_still_count_after_rollback(store):
     identity = sha("example.com")
     with store.transaction() as state:
-        state["prospects"][identity] = dict(domain="example.com", attempts=2, status="retry", draft=None)
+        state["prospects"][identity] = dict(
+            domain="example.com", attempts=2, status="retry", draft=None
+        )
+    audit_id = sha("third")
     with pytest.raises(RuntimeError):
-        with store.transaction():
-            assert store.reserve_attempt(identity, sha("third"), now=0, daily_limit=6)
-            raise RuntimeError("Third attempt interrupted")
+        interrupt_reserved_transaction(store, identity, audit_id)
     with store.transaction():
         assert not store.reserve_attempt(identity, sha("fourth"), now=0, daily_limit=6)
 
@@ -172,8 +204,14 @@ def test_committed_attempts_are_not_double_charged(store):
     for now in (0, 1, 4000, 86400):
         with store.transaction() as state:
             pipeline.process(
-                state, rows, now=now, run_id=f"run-{now}", workspace=store.path.parent,
-                attempt_reserver=store.reserve_attempt, robots=lambda _: True, audit=audit,
+                state,
+                rows,
+                now=now,
+                run_id=f"run-{now}",
+                workspace=store.path.parent,
+                attempt_reserver=store.reserve_attempt,
+                robots=lambda _: True,
+                audit=audit,
             )
         assert len(calls) == (3 if now == 0 else 9 if now == 86400 else 6)
     assert OperationalLedger(store.operations_path).summary()["reservations"] == 9
@@ -195,14 +233,26 @@ def test_v2_migration_preserves_state_and_commits_required_ledger_marker(store):
     assert before == pipeline.empty_state()
     with sqlite3.connect(store.path) as db:
         assert db.execute("PRAGMA user_version").fetchone()[0] == 3
-        assert db.execute("SELECT json_extract(body,'$._store_operations_required') FROM metadata").fetchone()[0] == 1
+        assert (
+            db.execute(
+                "SELECT json_extract(body,'$._store_operations_required') FROM metadata"
+            ).fetchone()[0]
+            == 1
+        )
 
 
 def test_pause_skips_stages_and_cli_caps_fail_before_work(store):
-    flags = {"MM_PAID_ALLOWED": "0", "MM_ALLOW_EXTERNAL_FREE_MODELS": "0", "MM_EXTERNAL_SEND_ALLOWED": "0",
-             "WA_RECOVERY_RUN": "", "WA_OUTCOMES_ENCRYPTED": ""}
-    with patch.dict(os.environ, flags), patch.object(pipeline, "policy_rows", return_value=[]), patch.object(
-        pipeline, "process", side_effect=AssertionError("Paused job processed work")
+    flags = {
+        "MM_PAID_ALLOWED": "0",
+        "MM_ALLOW_EXTERNAL_FREE_MODELS": "0",
+        "MM_EXTERNAL_SEND_ALLOWED": "0",
+        "WA_RECOVERY_RUN": "",
+        "WA_OUTCOMES_ENCRYPTED": "",
+    }
+    with (
+        patch.dict(os.environ, flags),
+        patch.object(pipeline, "policy_rows", return_value=[]),
+        patch.object(pipeline, "process", side_effect=AssertionError("Paused job processed work")),
     ):
         assert pipeline.main(["--database", str(store.path), "--paused"]) == 0
         for options in (["--max-audits", "4"], ["--daily-limit", "7"], ["--daily-limit", "-1"]):
