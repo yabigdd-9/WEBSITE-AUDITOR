@@ -8,7 +8,7 @@ and an audit are not email consent.
 
 ## Deployment and configuration
 
-- Merge PR #79 after checks pass. Existing twice-daily canonical review jobs are
+- PR #79 is merged. Existing twice-daily canonical review jobs are
   preserved. The durable queue runs twice weekly, on Tuesday/Friday at 04:50 UTC;
   GitHub may delay schedules. No Mac or Oracle account is required.
 - Repository Actions secret `WA_PIPELINE_STATE_KEY`: a locally generated Fernet
@@ -17,9 +17,20 @@ and an audit are not email consent.
   Setting false is the kill switch; also cancel any worker already running.
 - First dispatch **Durable Cloud Draft Pipeline** on master with `bootstrap=true`.
   Subsequent dispatches must use false. A missing key or checkpoint blocks work.
+- **Select the `master` branch explicitly in the GitHub Actions Run workflow
+  dropdown.** A manual dispatch on a feature branch is not activation: the
+  worker is master-only, and branch dispatches now fail the configuration gate.
+  Passing tests or key-format checks without a completed worker and checkpoint
+  artifact does not count as successful activation.
+- A passing key-format test does **not** prove that `master` has completed
+  bootstrap. Do not rotate a previously used checkpoint key blindly; preserve
+  the matching recovery key and prior encrypted artifacts.
 - Validate an actual bootstrap run and a second restore run; inspect successful
   worker steps and the retained `pipeline-state` artifact, not just a green
-  workflow whose worker was skipped. Neither run contacts prospects.
+  workflow whose worker was skipped. Neither run contacts prospects. Manual
+  dispatches now fail with an explicit configuration error if activation is
+  disabled or the state key is missing. Disabled scheduled runs put a DISABLED
+  status in the summary and leave the worker skipped.
 
 `config/cloud-prospects.json` is curated discovery intake, with authorization and
 terms review per domain. Active domains must also be in `clients.txt`. Suppressed

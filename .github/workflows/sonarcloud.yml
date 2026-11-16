@@ -87,15 +87,60 @@ jobs:
             "https://sonarcloud.io/api/ce/task?id=${task_id}" \
             | jq '{task: (.task | {id, status, type, componentKey, analysisId, warningCount, errorMessage})}'
 
+          # Main-branch quality gate can fail after the quota issue is fixed.
+          # Print only public metric keys, actual values and thresholds.
+          # This step cannot change or bypass the quality gate.
+          if [ "${GITHUB_EVENT_NAME}" != "pull_request" ]; then
+            echo "Website Auditor SonarCloud master quality gate:"
+            curl --fail --silent --show-error --get \
+              --header "Authorization: Basic $(printf '%s:' "$SONAR_TOKEN" | base64 --wrap=0)" \
+              --data-urlencode "projectKey=yabigdd-9_website-auditor" \
+              --data-urlencode "branch=master" \
+              "https://sonarcloud.io/api/qualitygates/project_status" \
+              | jq '{status: .projectStatus.status, failing_conditions: [.projectStatus.conditions[]? | select(.status != "OK") | {metricKey, status, actualValue, errorThreshold, comparator}]}'
+          fi
+
+          # Show source file coverage without conflating new vs overall metrics.
+          # Sonar may omit file-level new-code measures; never mislabel zeroes.
+          # No source contents, secrets, or client evidence are printed.
+          if [ "${GITHUB_EVENT_NAME}" != "pull_request" ]; then
+            echo "Website Auditor coverage targets (new-code metrics when available):"
+            curl --fail --silent --show-error --get \
+              --header "Authorization: Basic $(printf '%s:' "$SONAR_TOKEN" | base64 --wrap=0)" \
+              --data-urlencode "component=yabigdd-9_website-auditor" \
+              --data-urlencode "branch=master" \
+              --data-urlencode "metricKeys=new_uncovered_lines,new_lines_to_cover,new_coverage,uncovered_lines,lines_to_cover,coverage" \
+              --data-urlencode "qualifiers=FIL" \
+              --data-urlencode "ps=500" \
+              "https://sonarcloud.io/api/measures/component_tree" \
+              | jq -r '
+                [.components[]? | {
+                  path: .path,
+                  new_missed: ([.measures[]? | select(.metric == "new_uncovered_lines") | (.period.value // .periods[0].value // .value // "0")][0] | tonumber? // 0),
+                  new_total: ([.measures[]? | select(.metric == "new_lines_to_cover") | (.period.value // .periods[0].value // .value // "0")][0] | tonumber? // 0),
+                  overall_missed: ([.measures[]? | select(.metric == "uncovered_lines") | (.value // "0")][0] | tonumber? // 0)
+                }] as $rows
+                | ([$rows[] | select(.new_total > 0)] | sort_by(-.new_missed) | .[:12]) as $new
+                | if ($new | length) > 0 then
+                    ($new[] | "\(.new_missed) uncovered / \(.new_total) NEW lines: \(.path)")
+                  else
+                    "No file-level NEW-code metrics returned by the API; showing OVERALL uncovered lines (not the cause of the 80% gate):",
+                    ([$rows[] | select(.overall_missed > 0)] | sort_by(-.overall_missed) | .[:12][] | "\(.overall_missed) overall uncovered lines: \(.path)")
+                  end'
+          fi
+
           # Diagnostics are limited to the audited PR. Never expose the token.
           # Keep this step non-blocking: the scan itself owns the quality gate.
           if [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && [ -n "${PR_NUMBER}" ]; then
-            echo "SonarCloud PR issue summary:"
-            curl --fail --silent --show-error --get \
-              --header "Authorization: Basic $(printf '%s:' "$SONAR_TOKEN" | base64 --wrap=0)" \
-              --data-urlencode "componentKeys=yabigdd-9_website-auditor" \
-              --data-urlencode "pullRequest=${PR_NUMBER}" \
-              --data-urlencode "ps=100" \
-              "https://sonarcloud.io/api/issues/search" \
-              | jq '{total, issues: [.issues[]? | {rule, severity, type, message, component, line, effort}]}'
+            # Both keys currently publish checks for this same repository.
+            for project in yabigdd-9_website-auditor yabigdd-9_HERMES_MONEY_ENGINE; do
+              echo "SonarCloud PR issue summary: $project"
+              curl --fail --silent --show-error --get \
+                --header "Authorization: Basic $(printf '%s:' "$SONAR_TOKEN" | base64 --wrap=0)" \
+                --data-urlencode "componentKeys=${project}" \
+                --data-urlencode "pullRequest=${PR_NUMBER}" \
+                --data-urlencode "ps=100" \
+                "https://sonarcloud.io/api/issues/search" \
+                | jq '{total, issues: [.issues[]? | {rule, severity, type, message, component, line, effort}]}'
+            done
           fi
