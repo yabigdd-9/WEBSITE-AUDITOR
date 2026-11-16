@@ -50,6 +50,23 @@ class TestReviewOnlyScope(unittest.TestCase):
             self.assertEqual((root / "demo/demo.json").is_file(), True)
             self.assertEqual((root / "remediation/remediation.json").is_file(), True)
 
+    def test_encrypted_review_has_page_level_provenance_and_no_auto_approval(self):
+        report = sample_report()
+        sites = [("example.com", "https://example.com")]
+        with tempfile.TemporaryDirectory() as temp:
+            encrypted = []
+            with patch("scripts.cloud_review_only_opportunities.run_audit", return_value=report):
+                rows = run_review_sites(sites, Path(temp), encrypted)
+            self.assertEqual(rows[0]["status"], "COMPLETE")
+            finding = encrypted[0]["findings"][0]
+            self.assertEqual(finding["source_url"], "https://example.com")
+            self.assertEqual(finding["evidence_check"], "page")
+            self.assertEqual(finding["evidence_check_status"], "ok")
+            self.assertEqual(finding["confidence"], "observed")
+            self.assertIs(finding["independently_verified"], False)
+            self.assertEqual(encrypted[0]["approval_status"], "HUMAN_REVIEW_REQUIRED")
+            self.assertEqual(encrypted[0]["outbound_sent"], 0)
+
     def test_partial_audit_never_generates_a_draft(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
