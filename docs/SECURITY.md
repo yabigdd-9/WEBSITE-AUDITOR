@@ -23,3 +23,14 @@ checkpoint contents. Backup/restore and key rotation guidance: RECOVERY.md.
 A full deployment security review, remote authorization tests, dependency audit,
 secret scanning and a restore drill on the selected host remain release gates.
 CI retains blocking gitleaks, strict pip-audit, CodeQL and existing checks.
+
+The optional pipeline portal reuses owner authentication, opaque expiring
+server sessions, same-site HttpOnly cookies, CSP, no-store responses and trusted
+hosts. All pipeline views require a session. Proposal rejection checks CSRF,
+origin, exact current content version, 4 KB body limit, bounded reason and
+20 writes/minute/session. Actor identity comes from the server, not form input.
+Reads show committed state while a worker holds a reserved writer lock. Missing
+or publicly accessible databases fail closed. Installed adapters additionally
+reject plaintext DBs in other recognizable Git checkouts (including worktrees).
+No raw DB exception is returned to pipeline users. Remote TLS/cookie/auth
+configuration remains unimplemented and unactivated.

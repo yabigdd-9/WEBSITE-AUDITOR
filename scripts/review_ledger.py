@@ -81,6 +81,17 @@ def _is_safe_db_location(path: Path) -> Path:
     project = Path(__file__).resolve().parents[1]
     if path == project or project in path.parents:
         raise ValueError("Database must be outside the public source checkout")
+    # The adapter can also be installed in a wheel. In that case __file__ is
+    # site-packages, so independently reject database locations in Git checkouts.
+    for parent in path.parents:
+        marker = parent / ".git"
+        if marker.is_file():
+            with marker.open("rb") as stream:
+                checkout = stream.read(7) == b"gitdir:"
+        else:
+            checkout = (marker / "HEAD").is_file() and (marker / "config").is_file()
+        if checkout:
+            raise ValueError("Private databases must remain outside Git checkouts")
     if path.exists() and (not path.is_file() or path.stat().st_mode & 0o077):
         raise ValueError("Existing private database must be a 0600 file")
     return path

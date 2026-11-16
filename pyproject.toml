@@ -24,7 +24,7 @@ dependencies = [
 wa = "auditor_toolkit.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["auditor_toolkit*", "website_auditor*"]
+include = ["auditor_toolkit*", "website_auditor*", "scripts*"]
 exclude = ["toolkit_tests*", "money-machine*", "deepseek-harness*"]
 
 [tool.setuptools.package-data]

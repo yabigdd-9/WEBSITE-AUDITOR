@@ -46,3 +46,26 @@ Discovered records remain unverified/pending policy review. To audit one, review
 business identity, terms and eligibility independently and use the existing
 tracked manifest plus clients.txt approval path. A pending discovery is never
 automatically placed on either list. No new source acquisition schedule exists.
+
+## Owner pipeline dashboard (local, opt-in)
+
+Use the existing portal password setup on a trusted host, then supply the
+existing private pipeline DB explicitly:
+
+```sh
+wa dashboard --output-root /private/owner/audit-history --set-password
+wa dashboard --output-root /private/owner/audit-history --pipeline-db /private/owner/pipeline.sqlite3
+```
+
+The server binds 127.0.0.1 as before. Visit `/pipeline` after login. New pages
+provide overview, searched/paginated prospects, provenance/evidence/proposal
+details, pending discovery and system health. An authenticated owner can reject
+the current exact proposal version with a reason. No action is triggered by a
+page view. Reports are not decrypted in the browser. The integration adapters
+are included in the wheel so this optional mode works outside a source checkout.
+Cloud worker configuration/manifest files still belong to the reviewed repo.
+
+This is not a remotely deployed mobile dashboard. Responsive markup is present,
+but remote HTTPS, secure-cookie deployment settings, external identity and
+real-device browser acceptance still require a reviewed deployment. Do not
+change the loopback bind or trusted hosts to expose it without that work.
