@@ -87,6 +87,19 @@ jobs:
             "https://sonarcloud.io/api/ce/task?id=${task_id}" \
             | jq '{task: (.task | {id, status, type, componentKey, analysisId, warningCount, errorMessage})}'
 
+          # Main-branch quality gate can fail after the quota issue is fixed.
+          # Print only public metric keys, actual values and thresholds.
+          # This step cannot change or bypass the quality gate.
+          if [ "${GITHUB_EVENT_NAME}" != "pull_request" ]; then
+            echo "Website Auditor SonarCloud master quality gate:"
+            curl --fail --silent --show-error --get \
+              --header "Authorization: Basic $(printf '%s:' "$SONAR_TOKEN" | base64 --wrap=0)" \
+              --data-urlencode "projectKey=yabigdd-9_website-auditor" \
+              --data-urlencode "branch=master" \
+              "https://sonarcloud.io/api/qualitygates/project_status" \
+              | jq '{status: .projectStatus.status, failing_conditions: [.projectStatus.conditions[]? | select(.status != "OK") | {metricKey, status, actualValue, errorThreshold, comparator}]}'
+          fi
+
           # Diagnostics are limited to the audited PR. Never expose the token.
           # Keep this step non-blocking: the scan itself owns the quality gate.
           if [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && [ -n "${PR_NUMBER}" ]; then
