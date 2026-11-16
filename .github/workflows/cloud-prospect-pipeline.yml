@@ -27,6 +27,7 @@ on:
       - 'toolkit_tests/test_cloud_pipeline_outcomes.py'
       - 'scripts/cloud_pipeline_checkpoint.py'
       - 'toolkit_tests/test_cloud_pipeline_checkpoint.py'
+      - 'toolkit_tests/test_cloud_activation_gate.py'
 
 permissions:
   contents: read
@@ -47,7 +48,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e '.[vault]'
-      - run: python -m unittest toolkit_tests.test_cloud_prospect_pipeline toolkit_tests.test_cloud_pipeline_outcomes toolkit_tests.test_cloud_pipeline_checkpoint -v
+      - run: python -m unittest toolkit_tests.test_cloud_prospect_pipeline toolkit_tests.test_cloud_pipeline_outcomes toolkit_tests.test_cloud_pipeline_checkpoint toolkit_tests.test_cloud_activation_gate -v
   configuration:
     name: Check durable worker activation
     needs: tests
