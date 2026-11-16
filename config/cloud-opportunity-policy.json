@@ -1,0 +1,17 @@
+{
+  "weights": {
+    "verified_technical_impact": 35,
+    "evidence_quality": 25,
+    "delivery_feasibility": 20,
+    "business_service_fit": 15,
+    "recency": 5
+  },
+  "supported_defect_keys": [
+    "viewport", "missing_title", "missing_meta_description", "missing_canonical_url",
+    "missing_open_graph_tags", "schema_missing", "robots-missing", "robots-no-sitemap",
+    "sitemap-missing", "broken-internal-link", "mixed-content", "image-alt",
+    "header-hsts", "consent_prechecked"
+  ],
+  "hourly_rate_nzd": null,
+  "effort_bands": {}
+}
