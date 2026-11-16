@@ -61,6 +61,14 @@ jobs:
       - name: Report actual activation separately from offline tests
         shell: bash
         run: |
+          # A feature-branch manual dispatch can pass offline tests while the
+          # actual worker is skipped by the master-only guard below. Fail
+          # explicitly rather than showing a misleading green workflow.
+          if [ "$GITHUB_REF" != 'refs/heads/master' ]; then
+            echo '## Durable worker: BLOCKED - wrong branch' >> "$GITHUB_STEP_SUMMARY"
+            echo '::error::Run this workflow on master; feature-branch checks never activate the worker.'
+            exit 1
+          fi
           if [ "$PIPELINE_ENABLED" != 'true' ]; then
             echo '## Durable worker: DISABLED' >> "$GITHUB_STEP_SUMMARY"
             echo 'Offline tests do not prove live queue execution. Set WA_PIPELINE_ENABLED=true and configure WA_PIPELINE_STATE_KEY before the first bootstrap dispatch.' >> "$GITHUB_STEP_SUMMARY"
