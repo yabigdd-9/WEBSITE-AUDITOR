@@ -180,6 +180,11 @@ def run_review_sites(sites: list[tuple[str, str]], workspace: Path,
                         "status": "COMPLETE",
                         "run_id": _safe_text(audit.get("run_id"), 120),
                         "timestamp": _safe_text(audit.get("timestamp"), 80),
+                        "checks_completed": sorted(
+                            name for name, check in (audit.get("checks") or {}).items()
+                            if isinstance(name, str) and isinstance(check, dict)
+                            and check.get("status") == "ok"
+                        ),
                         "findings": [
                             {
                                 "finding_id": _safe_text(item.get("finding_id"), 100),
