@@ -8,6 +8,7 @@ from unittest.mock import Mock
 
 import pytest
 
+from auditor_toolkit import vuln_js
 from auditor_toolkit.local_seo.adapters import authorized_gbp as gbp
 from auditor_toolkit.proof.render import package_builder as proof
 from auditor_toolkit.proof.schema import (
@@ -26,7 +27,6 @@ from auditor_toolkit.technology.schema import (
     VersionInfo,
     VulnerabilityAdvisory,
 )
-from auditor_toolkit import vuln_js
 
 
 @pytest.fixture(autouse=True)
