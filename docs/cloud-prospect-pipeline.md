@@ -17,6 +17,14 @@ and an audit are not email consent.
   Setting false is the kill switch; also cancel any worker already running.
 - First dispatch **Durable Cloud Draft Pipeline** on master with `bootstrap=true`.
   Subsequent dispatches must use false. A missing key or checkpoint blocks work.
+- **Select the `master` branch explicitly in the GitHub Actions Run workflow
+  dropdown.** A manual dispatch on a feature branch is not activation: the
+  worker is master-only, and branch dispatches now fail the configuration gate.
+  Passing tests or key-format checks without a completed worker and checkpoint
+  artifact does not count as successful activation.
+- A passing key-format test does **not** prove that `master` has completed
+  bootstrap. Do not rotate a previously used checkpoint key blindly; preserve
+  the matching recovery key and prior encrypted artifacts.
 - Validate an actual bootstrap run and a second restore run; inspect successful
   worker steps and the retained `pipeline-state` artifact, not just a green
   workflow whose worker was skipped. Neither run contacts prospects. Manual
