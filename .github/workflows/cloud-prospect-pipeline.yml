@@ -29,6 +29,8 @@ on:
       - 'scripts/cloud_opportunities.py'
       - 'toolkit_tests/test_cloud_opportunities.py'
       - 'config/cloud-opportunity-policy.json'
+      - 'scripts/approval_controls.py'
+      - 'toolkit_tests/test_approval_controls.py'
       - '.github/workflows/cloud-prospect-pipeline.yml'
       - 'config/cloud-prospects.json'
       - 'scripts/cloud_pipeline_outcomes.py'
@@ -55,8 +57,8 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e '.[dev,vault]'
-      - run: python -m pytest toolkit_tests/test_cloud_prospect_pipeline.py toolkit_tests/test_cloud_pipeline_outcomes.py toolkit_tests/test_cloud_pipeline_checkpoint.py toolkit_tests/test_pipeline_store.py toolkit_tests/test_cloud_discovery.py toolkit_tests/test_cloud_opportunities.py money-machine/test_discovery.py -q
-      - run: ruff check scripts/pipeline_store.py scripts/cloud_prospect_pipeline.py scripts/cloud_discovery.py scripts/cloud_opportunities.py toolkit_tests/test_pipeline_store.py toolkit_tests/test_cloud_discovery.py toolkit_tests/test_cloud_opportunities.py
+      - run: python -m pytest toolkit_tests/test_cloud_prospect_pipeline.py toolkit_tests/test_cloud_pipeline_outcomes.py toolkit_tests/test_cloud_pipeline_checkpoint.py toolkit_tests/test_pipeline_store.py toolkit_tests/test_cloud_discovery.py toolkit_tests/test_cloud_opportunities.py toolkit_tests/test_approval_controls.py money-machine/test_discovery.py -q
+      - run: ruff check scripts/pipeline_store.py scripts/cloud_prospect_pipeline.py scripts/cloud_discovery.py scripts/cloud_opportunities.py scripts/approval_controls.py toolkit_tests/test_pipeline_store.py toolkit_tests/test_cloud_discovery.py toolkit_tests/test_cloud_opportunities.py toolkit_tests/test_approval_controls.py
   draft-pipeline:
     permissions:
       contents: read

@@ -120,3 +120,28 @@ Continue independent synthetic implementation while these remain blocked.
 - Remote authentication/TLS deployment, mobile real-browser acceptance and review
   of real hosted records remain blocked by storage/deployment configuration. No
   production dashboard or Phase 4 hosted exit gate pass is claimed.
+
+## Continued execution — Phase 5 approval controls
+
+- Phase 4 commit 8fd5552eca2fe5e7fa7d691e5fcb0fb310beb70b; draft PR #85:
+  https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/85. Eligible stacked workflows
+  passed: cloud tests 43822857772, security 43822857826, toolkit 43822857830.
+- Separate branch cloud/approval-controls. Added proposal approval via the
+  existing authenticated, CSRF/rate/version-controlled review endpoint. Approval
+  applies to one exact internal proposal and never grants message sending.
+- Added separate immutable message versions/approvals, staged review/eligibility,
+  evidence-backed permission gates, immediate recheck, revocation/opt-out,
+  content-recipient idempotency and a bounded built-in sandbox transport.
+  No live transport, API send endpoint, automatic sending or paid service exists.
+- Added owner outreach-history view. Sandbox SENT records are explicitly
+  simulated with external_sends=0 and cannot inflate real contact metrics.
+- Local verification: 108 exact cloud CI tests passed; 35 connected portal/
+  approval/store tests passed before final additional permission/cap tests;
+  30 approval/store tests passed after those additions. Ruff/diff checks passed.
+  Coverage includes proposal-vs-message approval separation, stage/consent gates,
+  exact hashes, expiry, immediate suppression recheck, revocation, opt-outs,
+  transport injection rejection, duplicate simulations across store reload,
+  error redaction, per-prospect sandbox cap and history immutability.
+- Live outreach remains DISABLED pending separate owner activation and verified
+  sender/recipient/NZ compliance/provider/unsubscribe evidence. No send claimed.
+  Client acceptance and project tracking are next independent integration work.
