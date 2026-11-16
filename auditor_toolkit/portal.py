@@ -72,7 +72,20 @@ class OwnerPortal:
         return response
 
     def login_page(self):
-        return '<h1>Website Auditor</h1><form method="post" action="/login"><label>Password <input name="password" type="password" autocomplete="current-password" required></label><button>Log in</button></form>'
+        return (
+            '<!doctype html><html lang="en"><head><meta charset="utf-8">'
+            '<meta name="viewport" content="width=device-width,initial-scale=1">'
+            '<title>Owner login · Website Auditor</title><style>'
+            'body{font:16px system-ui;margin:0;background:#f6f7f9;color:#192737}'
+            'main{max-width:28rem;margin:auto;padding:24px}'
+            'label{display:block;margin:16px 0}'
+            'input,button{font:inherit;padding:12px;box-sizing:border-box;max-width:100%}'
+            'input{display:block;width:100%;margin-top:8px}'
+            '</style></head><body><main><h1>Website Auditor</h1>'
+            '<form method="post" action="/login"><label>Password '
+            '<input name="password" type="password" autocomplete="current-password" required>'
+            '</label><button>Log in</button></form></main></body></html>'
+        )
 
     async def login(self, request: Request):
         if request.headers.get("origin") not in (None, str(request.base_url).rstrip("/")):

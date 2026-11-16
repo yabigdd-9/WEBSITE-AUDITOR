@@ -331,3 +331,28 @@ The built wheel was installed outside the checkout and passed schema v4,
 ciphertext round-trip and authenticated report-page smoke checks. No deployment
 or production verification is implied by CI. This evidence-only update does not
 change tested source. Remaining owner/storage/security-release gates are unchanged.
+
+## Desktop/mobile owner workflow — cloud/dashboard-browser-verification
+
+Based on archive PR #90 evidence commit
+`cf983e070a7dbde6e17d8954e2cbccd4e8168910`, whose six workflows all passed:
+CI 43842126839, toolkit 43842126739, security 43842126802, CodeQL 43842126761,
+SonarCloud 43842126799 and cloud pipeline 43842126708.
+
+Completed:
+- Added real desktop/mobile Chromium acceptance covering synthetic private
+  pipeline review, search, ciphertext download, exact-version approval,
+  independently attested customer acceptance, project creation and logout.
+- Verified page loads preserve state, sessions protect records, downloads match
+  ciphertext, all screens fit the viewport, and browser requests remain loopback.
+- Fixed the reproduced mobile login viewport defect; clarified the proposal
+  review reason field for both approve/reject actions.
+- Added the suite to the existing required browser CI command.
+
+Local verification: **30 passed** across the new desktop/mobile workflows and
+existing pipeline/report portal/release tests. Ruff and whitespace checks passed.
+The first run reproduced mobile failure before the viewport fix; desktop passed.
+No owner key, actual customer acceptance, new storage service or send was used.
+Hosted persistence/project mapping remains unanswered. No merge, production
+activation or hosted mobile acceptance is claimed. Next: verify focused PR CI;
+connect storage only after the owner identifies its intended project/service.

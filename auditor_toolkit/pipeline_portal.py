@@ -129,7 +129,7 @@ class PipelineViews:
         identity = html.escape(identity, quote=True)
         form = ""
         if p.get("proposal_version"):
-            form = f'''<form method="post" action="/pipeline/prospects/{identity}/reject"><input type="hidden" name="csrf" value="{value["csrf"]}"><input type="hidden" name="version" value="{p["proposal_version"]}"><label>Reason for rejection<textarea name="reason" maxlength="1000" required></textarea></label><button formaction="/pipeline/prospects/{identity}/approve">Approve internal proposal</button> <button>Reject recommendation</button></form>'''
+            form = f'''<form method="post" action="/pipeline/prospects/{identity}/reject"><input type="hidden" name="csrf" value="{value["csrf"]}"><input type="hidden" name="version" value="{p["proposal_version"]}"><label>Review reason<textarea name="reason" maxlength="1000" required></textarea></label><button formaction="/pipeline/prospects/{identity}/approve">Approve internal proposal</button> <button>Reject recommendation</button></form>'''
             decisions = [a for a in p.get("approvals", []) if a["action_type"] == "proposal"]
             if (
                 decisions

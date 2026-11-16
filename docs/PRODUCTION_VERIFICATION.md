@@ -91,3 +91,26 @@ and test-generated vault keys; no owner key, prospect archive, external send or
 new storage service is used. Local regression results and the focused PR are
 recorded in IMPLEMENTATION_PROGRESS.md. Hosted persistence between independent
 cloud runs and real owner archive recovery remain unverified.
+
+## Desktop and mobile dashboard browser acceptance
+
+The dedicated `test_pipeline_browser_e2e.py` exercises a real Chromium browser
+at desktop 1440×1000 and mobile 390×844 viewports with touch/mobile emulation.
+It uses synthetic prospects, findings, proposals and ciphertext, plus a private
+throwaway database and loopback-only server. Browser requests outside that server
+are blocked and fail the test. No real prospect audit, owner key or send occurs.
+
+Coverage includes owner login/logout, denied unauthenticated access, every
+pipeline review screen, no page-load business mutations, prospect search,
+private ciphertext download with byte-for-byte verification, explicit proposal
+approval, separately attested synthetic customer acceptance and project creation
+without live changes or invoicing. Each pipeline screen is checked for horizontal
+viewport overflow, no-store headers and the existing script-blocking CSP.
+
+The first mobile run reproduced a missing login viewport declaration (980px
+layout at a 390px mobile width); the corrected responsive login passes both
+viewports. The review reason label applies to either approval or rejection.
+Local verification: 30 browser/portal/release tests passed, including the two real
+Chromium workflows. The toolkit CI browser job now explicitly runs this suite.
+This is local emulation, not proof of a remote HTTPS dashboard or real-device
+production acceptance. Those deployment gates remain open.
