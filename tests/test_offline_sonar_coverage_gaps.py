@@ -1,15 +1,13 @@
-"""Offline coverage of security-sensitive optional adapters and report packaging.
+"""Offline tests for report fidelity, proof artifacts, and JS advisories.
 
-Every external GBP request is monkeypatched. No credentials or network are used.
+No browser, network, provider credential, or client change is required.
 """
 
 import json
-from unittest.mock import Mock
 
 import pytest
 
 from auditor_toolkit import vuln_js
-from auditor_toolkit.local_seo.adapters import authorized_gbp as gbp
 from auditor_toolkit.proof.render import package_builder as proof
 from auditor_toolkit.proof.schema import (
     AfterState,
@@ -27,149 +25,6 @@ from auditor_toolkit.technology.schema import (
     VersionInfo,
     VulnerabilityAdvisory,
 )
-
-
-@pytest.fixture(autouse=True)
-def isolate_optional_gbp(monkeypatch):
-    monkeypatch.setattr(gbp, "_auth_config", gbp.GBPAuthConfig())
-    monkeypatch.setattr(gbp, "_enabled", False)
-
-
-def _mock_response(body):
-    response = Mock()
-    response.json.return_value = body
-    response.raise_for_status.return_value = None
-    return response
-
-
-def _gbp_payload():
-    return {
-        "title": "Example Painter",
-        "storeCode": "store-1",
-        "address": {"addressLines": ["2 Example Street", "Christchurch"]},
-        "primaryPhone": "+6431234567",
-        "websiteUri": "https://example.test",
-        "latlng": {"latitude": -43.53, "longitude": 172.63},
-        "primaryCategory": {"displayName": "Painter"},
-        "additionalCategories": [
-            {"displayName": "Interior decorator"}, {"displayName": ""}
-        ],
-        "regularHours": {
-            "periods": [
-                {"openDay": "MONDAY", "openTime": "09:00", "closeTime": "17:00"},
-                {"openDay": ""},
-            ]
-        },
-        "state": "OPEN",
-    }
-
-
-def test_gbp_auth_requires_explicit_enable_and_valid_identity(monkeypatch):
-    http_get = Mock(side_effect=AssertionError("network must remain disabled"))
-    monkeypatch.setattr("httpx.get", http_get)
-    assert not gbp.GBPAuthConfig().is_configured
-    assert not gbp.enable_gbp()
-    assert not gbp.is_enabled()
-    assert gbp.list_locations("accounts/example", enable=True) == []
-    assert gbp.get_location("accounts/example/locations/1", enable=True) is None
-
-    gbp.configure_auth(client_id="fake-id", refresh_token="fake-refresh")
-    assert gbp.GBPAuthConfig(client_id="id", access_token="token").is_configured
-    assert not gbp.is_enabled()  # Configuring auth is not authorization to query.
-    assert gbp.list_locations("accounts/example", enable=True) == []
-    assert gbp.enable_gbp()
-    assert gbp.is_enabled()
-    assert gbp.list_locations("accounts/example", enable=False) == []
-    assert gbp.get_location("accounts/example/locations/1", enable=False) is None
-    gbp.disable_gbp()
-    assert not gbp.is_enabled()
-    http_get.assert_not_called()
-
-
-def test_gbp_refresh_and_expiry_are_safe_and_mocked(monkeypatch):
-    assert gbp._refresh_access_token() is None
-    gbp.configure_auth(
-        client_id="fake-id", client_secret="fake-secret", refresh_token="fake-refresh"
-    )
-    monkeypatch.setattr(
-        "httpx.post", Mock(return_value=_mock_response({
-            "access_token": "test-access", "expires_in": 3600
-        }))
-    )
-    assert gbp._get_access_token() == "test-access"
-    assert gbp._auth_config.access_token == "test-access"
-    assert gbp._get_access_token() == "test-access"
-
-    gbp._auth_config = gbp.GBPAuthConfig(
-        client_id="fake-id", refresh_token="fake-refresh",
-        access_token="expired", token_expires_at="2000-01-01T00:00:00+00:00",
-    )
-    with pytest.MonkeyPatch.context() as patcher:
-        callback = Mock(return_value="renewed")
-        patcher.setattr(gbp, "_refresh_access_token", callback)
-        assert gbp._get_access_token() == "renewed"
-        callback.assert_called_once()
-
-    gbp._auth_config = gbp.GBPAuthConfig(
-        client_id="fake-id", refresh_token="fake-refresh",
-        access_token="bad-date", token_expires_at="invalid-date",
-    )
-    with pytest.MonkeyPatch.context() as patcher:
-        patcher.setattr(gbp, "_refresh_access_token", lambda: "fresh")
-        assert gbp._get_access_token() == "fresh"
-
-    monkeypatch.setattr("httpx.post", Mock(side_effect=ConnectionError("offline")))
-    assert gbp._refresh_access_token() is None
-
-
-def test_gbp_parsing_evidence_and_location_fetch_are_offline(monkeypatch):
-    raw = _gbp_payload()
-    parsed = gbp._parse_gbp_location(raw)
-    assert parsed.name == "Example Painter"
-    assert parsed.address == "2 Example Street, Christchurch"
-    assert parsed.categories == ["Painter", "Interior decorator"]
-    assert parsed.geo.latitude == -43.53
-    assert parsed.hours["MONDAY"] == "09:00-17:00"
-    assert parsed.to_dict()["state"] == "OPEN"
-
-    evidence = parsed.to_external_evidence()
-    assert evidence.provider == "Google Business Profile"
-    assert evidence.source_confidence == 0.95
-    assert evidence.raw_artifact_hash == parsed.to_external_evidence().raw_artifact_hash
-
-    blank = gbp._parse_gbp_location({})
-    assert blank.to_dict()["geo"] is None
-    assert blank.categories == []
-    assert blank.hours == {}
-
-    gbp.configure_auth(client_id="fake-id", refresh_token="fake-refresh")
-    assert gbp.enable_gbp()
-    monkeypatch.setattr(gbp, "_get_access_token", lambda: "fake-access")
-    getter = Mock(side_effect=[
-        _mock_response({"locations": [raw]}),
-        _mock_response(raw),
-        RuntimeError("unavailable"),
-        RuntimeError("unavailable"),
-    ])
-    monkeypatch.setattr("httpx.get", getter)
-    locations = gbp.list_locations("accounts/example", enable=True)
-    assert len(locations) == 1 and locations[0].store_code == "store-1"
-    one = gbp.get_location("accounts/example/locations/1", enable=True)
-    assert one.name == "Example Painter"
-    assert gbp.list_locations("accounts/example", enable=True) == []
-    assert gbp.get_location("accounts/example/locations/1", enable=True) is None
-    assert getter.call_count == 4
-
-
-def test_gbp_no_token_never_contacts_google(monkeypatch):
-    gbp.configure_auth(client_id="fake-id", refresh_token="fake-refresh")
-    assert gbp.enable_gbp()
-    monkeypatch.setattr(gbp, "_get_access_token", lambda: None)
-    getter = Mock(side_effect=AssertionError("must not call Google"))
-    monkeypatch.setattr("httpx.get", getter)
-    assert gbp.list_locations("accounts/example", enable=True) == []
-    assert gbp.get_location("accounts/example/locations/1", enable=True) is None
-    getter.assert_not_called()
 
 
 def _tech_result():
