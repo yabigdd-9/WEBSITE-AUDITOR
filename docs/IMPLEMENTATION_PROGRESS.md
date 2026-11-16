@@ -379,3 +379,22 @@ verified locally and in GitHub CI; the complete platform is still gated on an
 identified durable cloud store, reviewed remote deployment and real recovery /
 bounded production execution evidence. The owner's storage question remains
 pending; no project was assumed from account names.
+
+## Supabase proposal and account verification — cloud/supabase-free-tier-proposal
+
+The owner requested a separate free-tier setup proposal and explicitly selected
+`yabigdd-9's Org` (`luvtvzzhzutxizpfdsgb`). Read-only account inspection verified
+its Free plan, one active/two inactive projects, and a project quote of **$0 per
+month**. Official current docs confirm the two-free-project allowance, excluded
+paused projects, included quotas, inactivity pausing and Free backup limitations.
+A free slot appears available; it has not been reserved or creation-tested.
+
+Completed: concrete `moneymachine` / Sydney proposal in DEPLOYMENT.md, cost
+boundaries, proposed private schema/RLS/roles and ciphertext custody, backup /
+restore gates, and staged activation plan preserving existing integrations.
+No existing project contents were inspected. No project, schema, bucket, paid
+add-on, secret or production workload was created or changed. This is a docs-only
+proposal; no implementation tests or production verification are claimed.
+The changelog endpoint returned HTTP 403; current official docs were consulted
+through the connected plugin. Next owner action: approve creation of this exact
+$0/month project. Creation is separate from approval to deploy or enable sending.

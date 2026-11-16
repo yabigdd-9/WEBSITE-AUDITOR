@@ -92,3 +92,84 @@ archive flag only on an owner-controlled device with an existing private archive
 directory; see ENCRYPTED_REPORT_VAULT.md. No cloud archive or remote dashboard
 deployment has been activated or verified. Persistent hosted storage/project
 mapping, authorization controls and recovery verification remain release gates.
+
+## Supabase free-tier proposal — 2026-11-16
+
+Status: prepared for owner approval; **not created or connected**.
+The owner selected `yabigdd-9's Org` (`luvtvzzhzutxizpfdsgb`) for the proposal.
+The organization API reports `plan=free`, `tier=tier_free`. The project-cost
+quote for that organization returned `amount=0`, `recurrence=monthly`.
+
+| Setting | Proposed value |
+| --- | --- |
+| Project | `moneymachine` |
+| Organization | `yabigdd-9's Org` |
+| Region | Sydney, `ap-southeast-2` |
+| Plan / quoted project cost | Free / $0 per month |
+| Existing project changes | None; do not repurpose or resume another project |
+| Paid add-ons / upgrades | Disabled; require separate explicit owner authorization |
+| Current approval | Organization selection and proposal preparation only |
+
+Account inventory shows one `ACTIVE_HEALTHY` project (Catalyx Labs) and two
+`INACTIVE` projects. Official documentation allows two free projects across
+organizations where the account is an Owner/Administrator; paused projects do
+not count. Thus a slot appears available, but this is not a successful creation
+or reservation. If creation is denied, stop and report the reason; do not delete,
+pause, resume, transfer or upgrade an existing project to make room.
+
+### Cost and reliability limits
+
+Current official documentation lists 500 MB database capacity per free project,
+1 GB Storage and 5 GB egress allowances, with usage quotas shared at organization
+level except where specified per project. Existing organization consumption was
+not measured, so these are included limits, not remaining capacity. The existing
+application limits (100 prospects, 5 MB state, three audits/run, six/day, 50 MB
+ciphertext archive) remain in place; a Postgres adapter must preserve their
+transactional and durable quota semantics. Quota exhaustion must block work,
+never trigger a paid upgrade.
+
+Free projects can pause after low activity over seven days; this does not promise
+continuous availability. Do not add artificial keep-alive activity. Provider
+managed daily backups are not a Free-plan guarantee: encrypted off-site exports
+and restore testing are required before production collection. Database backups
+do not include Storage object bytes; ciphertext needs a separate backup.
+
+### Proposed access model and staged activation
+
+1. After explicit project-creation approval, create only this free project and
+   verify its returned reference, organization, Sydney region and healthy state.
+   No existing project or production workflow is changed by that approval.
+2. Prepare and test a Postgres adapter/migrations against the existing pipeline
+   contract. The current SQLite store cannot be pointed at a Supabase URL.
+   Preserve immutable evidence/history, exact-version approvals, deduplication,
+   durable quota reservations and atomic state changes rather than adding a
+   disconnected second pipeline.
+3. Use a private application schema and least-privilege server-side roles.
+   Revoke public/anon access. Enable RLS with explicit owner/worker policies;
+   authenticated status alone never grants all prospect data. Do not expose
+   private records through Data API defaults, public functions or views.
+4. If separately activated, use a private ciphertext-only Storage bucket with
+   the existing 50 MB application cap and envelope/checksum validation. Preserve
+   the existing vault cryptography and trusted-device decryption. Never store
+   the owner's private encryption key in Supabase, CI or the dashboard.
+5. Keep privileged credentials server-side in approved secret storage. No
+   service secret goes into browser bundles, source, chat or public logs. Owner
+   authentication and authorization must be reviewed before remote dashboard
+   exposure; project creation alone does not deploy it.
+6. Before cloud activation, test denied anonymous/non-owner access, missing
+   credentials, duplicate runs, quota/crash recovery, exact-version approvals,
+   paired data/ciphertext export and restore, and two independent bounded runs
+   using the same durable store. Record exact commits/run IDs and sanitized
+   persistence evidence. Live sends, payments and client changes remain disabled.
+
+Official sources checked via the connected documentation search:
+- https://supabase.com/docs/guides/platform/billing-on-supabase
+- https://supabase.com/docs/guides/platform/free-project-pausing
+- https://supabase.com/docs/guides/platform/backups
+- https://supabase.com/docs/guides/api/securing-your-api
+- https://supabase.com/docs/guides/storage/serving/downloads
+
+The skill-requested changelog URL returned HTTP 403 from this environment.
+Current billing/storage/security documentation was available through the plugin;
+recheck relevant breaking changes before implementing the adapter. No Supabase
+schema, Storage object, credential, deployment or billing setting was modified.
