@@ -185,6 +185,11 @@ def run_review_sites(sites: list[tuple[str, str]], workspace: Path,
                                 "finding_id": _safe_text(item.get("finding_id"), 100),
                                 "defect_key": _safe_text(item.get("defect_key"), 80),
                                 "severity": _safe_text(item.get("severity"), 24),
+                                "source_url": _safe_text(item.get("source_url"), 300),
+                                "evidence_check": _safe_text(item.get("evidence_ref"), 80),
+                                "evidence_check_status": _safe_text((audit.get("checks") or {}).get(item.get("evidence_ref"), {}).get("status"), 24),
+                                "confidence": _safe_text(item.get("confidence"), 24),
+                                "independently_verified": False,
                                 "observed": _safe_text(item.get("observed"), 500),
                                 "remediation_action": _safe_text(
                                     item.get("remediation_action"), 500
