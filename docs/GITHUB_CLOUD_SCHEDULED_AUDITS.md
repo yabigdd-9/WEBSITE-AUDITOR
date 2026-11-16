@@ -27,7 +27,7 @@ always-on cloud server.
 - Drafts are unpriced scope notes requiring review, not send-ready proposals.
 - Offline regression checks run before each batch and on relevant PRs. PRs do
   not scan websites or upload artifacts.
-- The former twice-weekly shortlist workflow is now manual/PR/push only; the
+- The former twice-weekly shortlist workflow is now manual/PR only; the
   twice-daily audit job owns recurring report-to-draft processing.
 - GitHub scheduling is **best effort**: not a guarantee of exact timing,
   continuous availability, or jobs executing at all times.
