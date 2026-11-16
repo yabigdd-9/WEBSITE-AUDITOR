@@ -95,6 +95,32 @@ class CheckpointTests(unittest.TestCase):
                 download=self.download,
             )
 
+    def test_push_checkpoint_is_selected_before_older_manual_checkpoint(self):
+        events = []
+
+        def query(args):
+            if args[0] == "run":
+                event = args[args.index("--event") + 1]
+                events.append(event)
+                return [{"databaseId": 10 if event == "push" else 9}]
+            if args[1].endswith("/jobs"):
+                return {"jobs": [{"name": "draft-pipeline", "conclusion": "success"}]}
+            return {"head_branch": "master", "event": "push", "path": c.WORKFLOW_PATH}
+
+        result = c.restore(
+            repo="owner/repo", current_id=11, state_path=self.root / "state.enc",
+            query=query, download=self.download,
+        )
+        self.assertEqual(set(events), {"schedule", "workflow_dispatch", "push"})
+        self.assertEqual(result["source_run"], 10)
+        self.assertEqual(self.downloaded, [10])
+
+    def test_push_requires_trusted_branch_and_workflow(self):
+        good = {"head_branch": "master", "event": "push", "path": c.WORKFLOW_PATH}
+        self.assertTrue(c.eligible_run(good))
+        self.assertFalse(c.eligible_run({**good, "head_branch": "feature"}))
+        self.assertFalse(c.eligible_run({**good, "path": ".github/workflows/other.yml"}))
+
 
 if __name__ == "__main__":
     unittest.main()

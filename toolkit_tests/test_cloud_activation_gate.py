@@ -87,6 +87,22 @@ class TestActivationBranchGate(unittest.TestCase):
         self.assertIn("verify worker steps and checkpoint upload", summary)
         self.assertNotIn("worker: ACTIVE", summary)
 
+    def test_master_push_requires_enabled_worker(self):
+        code, output, summary = self.check_gate(
+            ref="refs/heads/master", event="push", enabled="false", key="true",
+        )
+        self.assertNotEqual(code, 0)
+        self.assertIn("WA_PIPELINE_ENABLED is not true", output)
+        self.assertIn("DISABLED", summary)
+
+    def test_master_configured_push_can_continue_checkpoint(self):
+        code, output, summary = self.check_gate(
+            ref="refs/heads/master", event="push", enabled="true", key="true",
+        )
+        self.assertEqual(code, 0)
+        self.assertEqual(output, "")
+        self.assertIn("verify worker steps and checkpoint upload", summary)
+
 
 if __name__ == "__main__":
     unittest.main()

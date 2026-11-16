@@ -174,3 +174,13 @@ See [schema](DATABASE_SCHEMA.md), [deployment](DEPLOYMENT.md), and
 [recovery](RECOVERY.md). The queue now retains attempt metadata and reviewed
 source fields and limits committed attempts to six per UTC day across runs.
 This does not activate a hosted database or extend artifact expiry.
+
+## Verification after platform merges
+
+Relevant master pushes also continue the existing enabled worker, using the
+same activation check, concurrency lock and bounded queue. They never request
+bootstrap or implicit recovery. Trusted checkpoint history includes master
+pushes as well as schedules and manual runs, so subsequent runs restore the
+latest worker checkpoint across all three events. A failed prior worker still
+blocks continuation rather than silently falling back. Disabled activation
+makes an explicitly requested merge verification fail visibly.

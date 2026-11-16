@@ -1,6 +1,18 @@
 name: Durable Cloud Draft Pipeline
 
 on:
+  # Verify the existing enabled worker after platform integrations. Pushes
+  # always continue encrypted state; bootstrap remains an explicit input.
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/cloud-prospect-pipeline.yml'
+      - 'scripts/**'
+      - 'auditor_toolkit/**'
+      - 'website_auditor/**'
+      - 'money-machine/mm_discovery.py'
+      - 'config/cloud-*.json'
+      - 'pyproject.toml'
   schedule:
     - cron: '50 4 * * 2,5'
   workflow_dispatch:
@@ -76,8 +88,8 @@ jobs:
           if [ "$PIPELINE_ENABLED" != 'true' ]; then
             echo '## Durable worker: DISABLED' >> "$GITHUB_STEP_SUMMARY"
             echo 'Offline tests do not prove live queue execution. Set WA_PIPELINE_ENABLED=true and configure WA_PIPELINE_STATE_KEY before the first bootstrap dispatch.' >> "$GITHUB_STEP_SUMMARY"
-            if [ "$GITHUB_EVENT_NAME" = 'workflow_dispatch' ]; then
-              echo '::error::Manual dispatch did not execute the worker: WA_PIPELINE_ENABLED is not true.'
+            if [ "$GITHUB_EVENT_NAME" = 'workflow_dispatch' ] || [ "$GITHUB_EVENT_NAME" = 'push' ]; then
+              echo '::error::Requested verification did not execute the worker: WA_PIPELINE_ENABLED is not true.'
               exit 1
             fi
           elif [ "$STATE_KEY_CONFIGURED" != 'true' ]; then
@@ -92,7 +104,7 @@ jobs:
       contents: read
       actions: read
     needs: [tests, configuration]
-    # Owner configuration required; merging never activates prospect requests.
+    # Existing owner activation is required for scheduled and post-merge runs.
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && vars.WA_PIPELINE_ENABLED == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 25
