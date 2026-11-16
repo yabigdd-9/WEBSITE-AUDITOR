@@ -54,9 +54,12 @@ jobs:
             --cov-report=term-missing
 
       - name: Run SonarCloud scan
-        uses: SonarSource/sonarcloud-github-action@383f7e52eae3ab0510c3cb0e7d9d150bbaeab838
+        # Run on the maintained host runtime, avoiding the retired Docker
+        # action's missing libatomic and unsupported Node.js fallback.
+        uses: SonarSource/sonarqube-scan-action@59202af334b4ba7b5db01b701b8e79f8b3bef0f4 # v8
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
         with:
           args: >
             -Dsonar.qualitygate.wait=true
