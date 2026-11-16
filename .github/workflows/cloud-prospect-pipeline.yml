@@ -1,0 +1,95 @@
+name: Durable Cloud Draft Pipeline
+
+on:
+  schedule:
+    - cron: '50 4 * * 2,5'
+  workflow_dispatch:
+    inputs:
+      bootstrap:
+        description: 'Create first checkpoint only (requires no previous runs)'
+        type: boolean
+        default: false
+      recovery_run:
+        description: 'Explicit owner recovery from a trusted older checkpoint run ID'
+        type: string
+        required: false
+      outcomes:
+        description: 'Optional encrypted owner-verified outcome bundle; never plaintext'
+        type: string
+        required: false
+  pull_request:
+    paths:
+      - 'scripts/cloud_prospect_pipeline.py'
+      - 'toolkit_tests/test_cloud_prospect_pipeline.py'
+      - '.github/workflows/cloud-prospect-pipeline.yml'
+      - 'config/cloud-prospects.json'
+      - 'scripts/cloud_pipeline_outcomes.py'
+      - 'toolkit_tests/test_cloud_pipeline_outcomes.py'
+      - 'scripts/cloud_pipeline_checkpoint.py'
+      - 'toolkit_tests/test_cloud_pipeline_checkpoint.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: durable-cloud-draft-pipeline
+  cancel-in-progress: false
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[vault]'
+      - run: python -m unittest toolkit_tests.test_cloud_prospect_pipeline toolkit_tests.test_cloud_pipeline_outcomes toolkit_tests.test_cloud_pipeline_checkpoint -v
+  draft-pipeline:
+    permissions:
+      contents: read
+      actions: read
+    needs: tests
+    # Owner configuration required; merging never activates prospect requests.
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && vars.WA_PIPELINE_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      WA_PIPELINE_STATE_KEY: ${{ secrets.WA_PIPELINE_STATE_KEY }}
+      MM_PAID_ALLOWED: '0'
+      MM_ALLOW_EXTERNAL_FREE_MODELS: '0'
+      MM_EXTERNAL_SEND_ALLOWED: '0'
+      BOOTSTRAP: ${{ inputs.bootstrap || false }}
+      WA_RECOVERY_RUN: ${{ inputs.recovery_run || '' }}
+      WA_OUTCOMES_ENCRYPTED: ${{ inputs.outcomes || '' }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[vault]'
+      - name: Restore immediately preceding checkpoint or fail closed
+        shell: bash
+        run: python -m scripts.cloud_pipeline_checkpoint
+      - name: Audit eligible queue and checkpoint without sending
+        shell: bash
+        run: |
+          STATE_FILE="$RUNNER_TEMP/pipeline-state.enc"
+          args=()
+          if [ "$BOOTSTRAP" = 'true' ]; then args+=(--bootstrap); fi
+          python -m scripts.cloud_prospect_pipeline --state "$STATE_FILE" "${args[@]}"
+      # A failed/cancelled prior run without a checkpoint blocks the next run.
+      - name: Preserve encrypted checkpoint
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: pipeline-state
+          path: ${{ runner.temp }}/pipeline-state.enc
+          retention-days: 30
+          if-no-files-found: error

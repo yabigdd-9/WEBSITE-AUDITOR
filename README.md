@@ -13,6 +13,9 @@ The canonical stack is local-first and zero-paid-token:
 - **Paid model/API policy:** disabled; maximum paid model cost is **$0**
 - **Outreach:** draft/review only by default; no approved live transport exists in v32
 
+Cloud audit-to-draft queue (owner configuration required):
+[setup, persistence, review and limitations](docs/cloud-prospect-pipeline.md).
+
 ## Quick start
 
 Python 3.11 is the supported runtime.
