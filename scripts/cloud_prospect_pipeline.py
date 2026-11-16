@@ -53,19 +53,14 @@ def event(state, now, run_id, entity_id, action, status, error="none"):
     )
 
 
-def policy_rows(path: Path, allowlist: Path) -> list[dict]:
-    root = Path(__file__).resolve().parents[1]
-    for candidate in (path, allowlist):
-        resolved = candidate.resolve()
-        if (
-            candidate.is_symlink()
-            or ".." in candidate.parts
-            or not any(
-                resolved.is_relative_to(base)
-                for base in (root, Path(tempfile.gettempdir()).resolve())
-            )
-        ):
-            raise ValueError("Source must be in the checkout or private temporary directory")
+def policy_rows(repo: Path) -> list[dict]:
+    # Production passes the source checkout root, never a CLI-supplied filename.
+    path = repo / "config" / "cloud-prospects.json"
+    allowlist = repo / "clients.txt"
+    if path.is_symlink() or allowlist.is_symlink() or path.parent.is_symlink():
+        raise ValueError("Tracked intake files must not be symlinks")
+    if path.stat().st_size > 100_000:
+        raise ValueError("Oversized prospect source")
     allowed = dict(load_sites(allowlist))
     rows = json.loads(path.read_text())
     if not isinstance(rows, list) or len(rows) > MAX_PROSPECTS:
@@ -259,7 +254,6 @@ def unseal(path: Path, key: str) -> dict:
 def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("--state", type=Path, required=True)
-    parser.add_argument("--source", type=Path, default=Path("config/cloud-prospects.json"))
     parser.add_argument("--bootstrap", action="store_true")
     args = parser.parse_args(argv)
     try:
@@ -272,7 +266,7 @@ def main(argv=None):
         if args.bootstrap and args.state.exists():
             raise ValueError("Refusing to replace an existing checkpoint")
         state = empty_state() if args.bootstrap else unseal(args.state, key)
-        rows = policy_rows(args.source, Path("clients.txt"))
+        rows = policy_rows(Path(__file__).resolve().parents[1])
         with tempfile.TemporaryDirectory(prefix="wa-pipeline-") as temporary:
             report = process(
                 state,

@@ -181,16 +181,15 @@ class PipelineTests(unittest.TestCase):
             p.private_state_path(link)
         with self.assertRaises(ValueError):
             p.private_state_path(Path("/workspace/escape.enc"))
-        with self.assertRaises(ValueError):
-            p.policy_rows(Path("/etc/passwd"), self.root / "allowlist.txt")
 
     def test_source_requires_owner_policy_review(self):
         allowlist = self.root / "clients.txt"
         allowlist.write_text("https://example.com/\n")
-        source = self.root / "source.json"
+        (self.root / "config").mkdir()
+        source = self.root / "config" / "cloud-prospects.json"
         source.write_text(json.dumps([{"domain": "example.com"}]))
         with self.assertRaises(ValueError):
-            p.policy_rows(source, allowlist)
+            p.policy_rows(self.root)
         source.write_text(
             json.dumps(
                 [
@@ -203,7 +202,7 @@ class PipelineTests(unittest.TestCase):
                 ]
             )
         )
-        self.assertEqual(p.policy_rows(source, allowlist)[0]["url"], "https://example.com/")
+        self.assertEqual(p.policy_rows(self.root)[0]["url"], "https://example.com/")
 
 
 if __name__ == "__main__":
