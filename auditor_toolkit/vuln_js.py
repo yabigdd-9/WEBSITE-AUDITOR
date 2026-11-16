@@ -70,6 +70,16 @@ def detect_js_vulnerabilities(html: str, url: str) -> List[Finding]:
                     findings.append(
                         Finding(
                             defect_key=f"js_vulnerability_{lib.lower()}_{version.replace('.', '_')}",
+                            defect=f"Potentially vulnerable JavaScript library: {lib} {version}",
+                            impact="An outdated client-side dependency may expose site visitors to security risks.",
+                            severity="medium",
+                            source_url=url,
+                            evidence_source=src,
+                            observed=f"Script URL indicates {lib} version {version}.",
+                            confidence="heuristic",
+                            review_required=True,
+                            business_impact="Possible client-side dependency vulnerability; confirmation required.",
+                            remediation_action="Confirm the deployed library version and update after compatibility review.",
                         )
                     )
                     break
