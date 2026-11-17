@@ -3,13 +3,18 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import importlib.util
 import json
-import os
 import tempfile
 import unittest
 from pathlib import Path
 
-from cryptography.fernet import Fernet
+if importlib.util.find_spec("cryptography") is not None:
+    from cryptography.fernet import Fernet
+else:
+    Fernet = None
+
+HAS_PSYCOPG = importlib.util.find_spec("psycopg") is not None
 
 from scripts.supabase_checkpoint_store import (
     MAX_BLOB_BYTES,
@@ -110,6 +115,7 @@ class FakeDatabase:
         return FakeConnection(self)
 
 
+@unittest.skipUnless(Fernet is not None, "optional cryptography dependency not installed")
 class TestCheckpointStore(unittest.TestCase):
     def setUp(self):
         self.key = Fernet.generate_key()
@@ -177,6 +183,7 @@ class TestCheckpointStore(unittest.TestCase):
                 _private_output(path, data)
 
 
+@unittest.skipUnless(HAS_PSYCOPG, "optional psycopg dependency not installed")
 class TestConnectionPolicy(unittest.TestCase):
     REF = "srymerkhraklwuttzexi"
 
@@ -206,6 +213,9 @@ class TestConnectionPolicy(unittest.TestCase):
                 valid.replace(self.REF, "wrongprojectref0000"), expected_ref=self.REF
             )
 
+
+
+class TestMigrationPolicy(unittest.TestCase):
     def test_schema_is_private_and_no_plaintext_columns(self):
         root = Path(__file__).resolve().parents[1]
         schema = (root / "deploy/postgres/001_encrypted_checkpoints.sql").read_text()
