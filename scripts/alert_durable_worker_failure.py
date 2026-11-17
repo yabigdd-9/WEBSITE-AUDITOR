@@ -22,7 +22,7 @@ REPO_PATTERN = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\Z")
 
 def trusted_failure(event: dict, repo: str) -> dict | None:
     """Ignore successful, forked, PR, or unrelated runs; fail closed on bad IDs."""
-    if not REPO_PATTERN.fullmatch(repo):
+    if not REPO_PATTERN.fullmatch(repo) or any(part in {".", ".."} for part in repo.split("/")):
         raise ValueError("Invalid repository")
     run = event.get("workflow_run", {})
     if (
