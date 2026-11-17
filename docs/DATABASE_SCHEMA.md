@@ -51,3 +51,9 @@ adds HTTPS/domain guards before URL normalization. Existing www alias identity
 merges discovery duplicates, while reviewed audit URLs and prior queue IDs stay
 unchanged. A candidate links only to an independently reviewed allowlist prospect;
 ambiguous links fail. Sources/first-seen and history cannot be discarded.
+
+Structured opportunities, proposal_versions, current proposal_version and
+recommendation_reviews now persist within each prospect's JSON record, in the
+same transaction as the audit state. Old proposal bodies and review decisions
+are append-only. Separate normalized tables for those records remain backlog
+work; do not confuse the logical records with already-migrated SQL tables.

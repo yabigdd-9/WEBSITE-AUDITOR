@@ -110,3 +110,41 @@ reviewed-queue links. See IMPLEMENTATION_PROGRESS.md for exact evidence/status.
 These additions do not establish live source acquisition, remote dashboard or
 production readiness. Supabase account discovery found existing projects but no
 repo-to-project mapping; the owner mapping question is pending.
+
+## Internal evidence-to-proposal adapter
+
+`scripts.cloud_opportunities` connects the existing canonical review entries to
+configurable five-dimension review priorities and structured proposal versions.
+This is distinct from MoneyMachine's existing six-component campaign scorer,
+whose local DB/context is not the cloud queue. The new adapter does not replace
+that scorer or the auditor. It reuses toolkit remediation classes and the quote
+engine; no competing scan, paid model or automatic recommendation promotion exists.
+
+`config/cloud-opportunity-policy.json` carries the requested 35/25/20/15/5 initial
+weights, existing supported remediation catalog, null rate and empty effort bands.
+These are heuristics, not validated sales predictions. Identical explicit input
+and evaluation time produce the same breakdown and evidence references. Technical
+impact uses observed severity; observed-but-not-independently-verified evidence
+gets 75/100 evidence quality; unknown service fit/feasibility contribute zero.
+Reviewed per-domain delivery_feasibility/business_service_fit may be supplied in
+the tracked intake; these are explicit owner context, never inferred buying intent.
+Recency is scored against the explicit evaluation timestamp; missing/future dates
+contribute zero. Buyer intent stays unknown and contact_eligible stays false.
+
+Incomplete/missing/speculative/unsupported/duplicate evidence or suppression /
+contact prohibition quarantines a record rather than inventing scope. Every
+scored finding links to its canonical run/check/page. A qualified internal
+proposal includes problem, remediation, dependencies, complexity status, tests,
+limitations, assumptions, exclusions and acceptance criteria. It is not a binding
+quote or an approved send. Existing scope-only drafts remain separate from this
+structured proposal.
+
+Pricing remains **Pricing not configured** until both a rate and explicit effort
+bands for all included defect types are configured. Only then does the existing
+versioned calculate_quote engine generate an indicative NZD band, including its
+existing contingency rules. No default cloud price or site-specific effort is
+invented. The proposal body is content-hashed and old versions stay immutable in
+private prospect records. A review helper records an owner rejection/reason and
+prevents automatic requalification of that audit. Remote owner authentication /
+approval UX remain subsequent work; helper actor input is for trusted callers,
+not an authorization token.

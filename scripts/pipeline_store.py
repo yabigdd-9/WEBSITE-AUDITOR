@@ -178,6 +178,10 @@ class PipelineStore:
                     raise ValueError("Prospect deletion/identity change requires a retention migration")
                 if prospect.get("status") == "suppressed" and current.get("status") != "suppressed":
                     raise ValueError("Suppression cannot be cleared by a worker")
+                for key in ("proposal_versions", "recommendation_reviews"):
+                    prior = prospect.get(key, [])
+                    if current.get(key, [])[:len(prior)] != prior:
+                        raise ValueError("Proposal and review history is append-only")
             for identity, candidate in previous.get("discovery_candidates", {}).items():
                 current = state.get("discovery_candidates", {}).get(identity)
                 if (

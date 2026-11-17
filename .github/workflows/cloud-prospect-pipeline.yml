@@ -45,6 +45,9 @@ on:
       - 'scripts/cloud_discovery.py'
       - 'toolkit_tests/test_cloud_discovery.py'
       - 'money-machine/mm_discovery.py'
+      - 'scripts/cloud_opportunities.py'
+      - 'toolkit_tests/test_cloud_opportunities.py'
+      - 'config/cloud-opportunity-policy.json'
 
 permissions:
   contents: read
@@ -65,8 +68,8 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e '.[dev,vault]'
-      - run: python -m pytest toolkit_tests/test_cloud_prospect_pipeline.py toolkit_tests/test_cloud_pipeline_outcomes.py toolkit_tests/test_cloud_pipeline_checkpoint.py toolkit_tests/test_pipeline_store.py toolkit_tests/test_cloud_activation_gate.py -q toolkit_tests/test_cloud_discovery.py money-machine/test_discovery.py
-      - run: ruff check scripts/pipeline_store.py scripts/cloud_prospect_pipeline.py toolkit_tests/test_pipeline_store.py scripts/cloud_discovery.py toolkit_tests/test_cloud_discovery.py
+      - run: python -m pytest toolkit_tests/test_cloud_prospect_pipeline.py toolkit_tests/test_cloud_pipeline_outcomes.py toolkit_tests/test_cloud_pipeline_checkpoint.py toolkit_tests/test_pipeline_store.py toolkit_tests/test_cloud_activation_gate.py -q toolkit_tests/test_cloud_discovery.py money-machine/test_discovery.py toolkit_tests/test_cloud_opportunities.py
+      - run: ruff check scripts/pipeline_store.py scripts/cloud_prospect_pipeline.py toolkit_tests/test_pipeline_store.py scripts/cloud_discovery.py toolkit_tests/test_cloud_discovery.py scripts/cloud_opportunities.py toolkit_tests/test_cloud_opportunities.py
   configuration:
     name: Check durable worker activation
     needs: tests

@@ -115,11 +115,16 @@ def robots_allowed(url: str) -> bool:
 def process(
     state, rows, *, now, run_id, workspace, audit=run_review_sites, robots=robots_allowed, limit=3,
     daily_limit=6,
+    opportunity_policy=None,
 ):
     if type(limit) is not int or not 1 <= limit <= 3:
         raise ValueError("Maximum three audits per run")
     if type(daily_limit) is not int or not 0 <= daily_limit <= 6:
         raise ValueError("Maximum six audits per UTC day")
+    if opportunity_policy is not None:
+        from scripts.cloud_opportunities import validate_policy
+
+        validate_policy(opportunity_policy)
     # Reserve enough room before any requests; never silently discard history.
     if len(state["events"]) + len(rows) * 3 + limit * 3 + 1 > MAX_EVENTS:
         raise ValueError("Archive state before continuing")
@@ -161,6 +166,11 @@ def process(
         }
         p["discovery"].setdefault("source", "owner_reviewed_manifest")
         p["verification_status"] = "policy_reviewed_identity_unverified"
+        p["service_context"] = {
+            key: row[key] for key in (
+                "delivery_feasibility", "business_service_fit", "contact_prohibited"
+            ) if key in row
+        }
         if row.get("suppressed") and p["status"] != "suppressed":
             p["status"] = "suppressed"
             p["draft"] = None
@@ -262,6 +272,10 @@ def process(
     for candidate in state.get("discovery_candidates", {}).values():
         if candidate.get("prospect_id") in state["prospects"]:
             candidate["audit_status"] = state["prospects"][candidate["prospect_id"]]["status"]
+    if opportunity_policy is not None:
+        from scripts.cloud_opportunities import enrich
+
+        enrich(state, opportunity_policy, now=now)
     return metrics(state)
 
 
@@ -274,6 +288,10 @@ def metrics(state):
         audits_failed=sum(p["status"] == "failed" for p in prospects),
         retries_pending=sum(p["status"] == "retry" for p in prospects),
         drafts_ready=ready,
+        qualified_opportunities=sum(
+            p.get("opportunity", {}).get("status") == "qualified_for_internal_review" for p in prospects
+        ),
+        proposal_drafts_ready=sum(bool(p.get("proposal_version")) for p in prospects),
         approvals_pending=ready,
         contacts_sent=0,
         provider_accepted=0,
@@ -360,6 +378,9 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         _verify_safety(Path(__file__).resolve().parents[1])
+        from scripts.cloud_opportunities import load_policy
+
+        opportunity_policy = load_policy(Path(__file__).resolve().parents[1])
         key = os.environ.get("WA_PIPELINE_STATE_KEY", "")
         if args.state or os.environ.get("WA_OUTCOMES_ENCRYPTED"):
             from cryptography.fernet import Fernet
@@ -410,6 +431,7 @@ def main(argv=None):
                     now=int(datetime.now(timezone.utc).timestamp()),
                     run_id=os.environ.get("GITHUB_RUN_ID", "local"),
                     workspace=Path(temporary),
+                    opportunity_policy=opportunity_policy,
                 )
             if args.state:
                 seal(state, args.state, key)

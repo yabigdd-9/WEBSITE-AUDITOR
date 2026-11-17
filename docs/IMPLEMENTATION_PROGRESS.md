@@ -70,3 +70,29 @@ Continue independent synthetic implementation while these remain blocked.
 - Phase 2 export integration is locally tested, not live acquisition or production
   verification. Phase 3 evidence/scoring/proposal integration is next independent
   implementation work; durable hosted phase acceptance still pending.
+
+## Continued execution — Phase 3 internal evidence pipeline
+
+- Phase 2 commit 129bb54eb30846e1c97aec211dc618fa8463f1e7; draft PR #83:
+  https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/83 (base PR #82). Its eligible
+  stacked-PR workflows succeeded: security 43820510604, cloud tests 43820510666,
+  toolkit 43820510661. Master-only checks must run again after retargeting;
+  stacked CI is not permission to merge. All reported Phase 1 workflows, including
+  SonarCloud 43819284842, succeeded. Production workers remain skipped on PRs.
+- Separate branch cloud/evidence-proposals. Adds explicit-config five-dimension
+  scoring, hard evidence/suppression/service gates, canonical run/page/check links,
+  structured immutable proposal versions and recorded owner rejection reasons.
+- Reuses toolkit remediation classification and calculate_quote. Cloud rates and
+  effort bands remain unset; missing context contributes zero, buyer intent is
+  unknown, contact eligibility stays false, prices remain unconfigured by default.
+- Existing queue CLI now preflights the policy before requests and enriches
+  complete audit records in the same private-store/checkpoint transaction.
+- Local verification: 89 cloud/discovery/store/MoneyMachine discovery tests passed;
+  Ruff on changed code passed. New coverage: deterministic scoring, all hard
+  evidence/service gates, missing context, pricing configuration, exact content
+  hashes, existing NZD quote rules, version persistence, rejection persistence,
+  immutable version/review records and preflight failure before requests.
+- No customer communication, live-site change, paid call, production merge or
+  service activation performed. Phase 3 is synthetic/local until hosted state
+  and a bounded reviewed run can be verified. Secure dashboard integration is
+  the next independent task. Storage mapping question remains pending.
