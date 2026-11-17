@@ -146,6 +146,28 @@ def test_owner_proposal_approval_is_version_bound_and_does_not_approve_sending(o
     assert not record.get("outreach_drafts")
 
 
+def test_outreach_review_requires_session_and_never_mutates_or_sends(owner):
+    from scripts.approval_controls import prepare_outreach
+
+    client, store, identity, _ = owner
+    assert client.get("/pipeline/outreach").status_code == 401
+    with store.transaction() as document:
+        prepare_outreach(
+            document["prospects"][identity], recipient_hash="a" * 64,
+            body="Synthetic <script>draft</script>", now=1767225600,
+        )
+    login(client)
+    before = copy.deepcopy(store.read())
+    response = client.get("/pipeline/outreach")
+    assert response.status_code == 200
+    assert "Sandbox results are simulated" in response.text
+    assert "&lt;script&gt;draft&lt;/script&gt;" in response.text
+    assert "<script>draft</script>" not in response.text
+    assert response.headers["cache-control"] == "no-store"
+    assert store.read() == before
+    assert before["prospects"][identity]["outreach_events"][-1]["status"] == "DRAFT"
+
+
 def test_dashboard_refuses_missing_or_public_database(owner):
     _, store, _, history = owner
     with pytest.raises(ValueError):
