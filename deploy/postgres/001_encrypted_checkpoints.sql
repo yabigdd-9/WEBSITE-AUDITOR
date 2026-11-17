@@ -24,12 +24,34 @@ CREATE TABLE IF NOT EXISTS mm_internal.encrypted_checkpoint_history (
     saved_at timestamptz NOT NULL DEFAULT clock_timestamp()
 );
 
--- Defense in depth. API roles receive no USAGE on the private schema, no
--- table grants and no RLS policies. A future private database login must be
--- separately reviewed and granted only the minimum required privileges.
+-- A NOLOGIN group role allows the owner to grant just these privileges to a
+-- separately provisioned login, without putting any password in migrations.
+-- Nothing runs automatically and no admin/service_role bypass is needed.
+DO $role$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'mm_checkpoint_writer') THEN
+        CREATE ROLE mm_checkpoint_writer NOLOGIN;
+    END IF;
+END
+$role$;
+GRANT USAGE ON SCHEMA mm_internal TO mm_checkpoint_writer;
+GRANT SELECT, INSERT, UPDATE
+    ON mm_internal.encrypted_checkpoints TO mm_checkpoint_writer;
+GRANT SELECT, INSERT
+    ON mm_internal.encrypted_checkpoint_history TO mm_checkpoint_writer;
+
+-- Defense in depth. API roles receive no USAGE on the private schema and no
+-- table grants; only the dedicated writer group can access sealed checkpoints.
 ALTER TABLE mm_internal.encrypted_checkpoints ENABLE ROW LEVEL SECURITY;
 ALTER TABLE mm_internal.encrypted_checkpoint_history ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON ALL TABLES IN SCHEMA mm_internal FROM PUBLIC;
 REVOKE ALL ON ALL TABLES IN SCHEMA mm_internal FROM anon, authenticated, service_role;
+
+CREATE POLICY mm_checkpoints_writer_policy
+    ON mm_internal.encrypted_checkpoints FOR ALL TO mm_checkpoint_writer
+    USING (true) WITH CHECK (true);
+CREATE POLICY mm_checkpoint_history_writer_policy
+    ON mm_internal.encrypted_checkpoint_history FOR ALL TO mm_checkpoint_writer
+    USING (true) WITH CHECK (true);
 
 COMMIT;
