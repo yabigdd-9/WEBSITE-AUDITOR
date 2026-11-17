@@ -17,7 +17,7 @@ from urllib.request import Request, urlopen
 WORKFLOWS = frozenset({"Durable Cloud Draft Pipeline", "Durable Worker Schedule Health"})
 FAILED = frozenset({"failure", "timed_out", "cancelled", "action_required", "startup_failure"})
 ISSUE_TITLE = "[ops] Durable cloud worker or schedule monitor failed"
-REPO_PATTERN = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\\Z")
+REPO_PATTERN = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\Z")
 
 
 def trusted_failure(event: dict, repo: str) -> dict | None:
@@ -67,10 +67,10 @@ def alert(event: dict, repo: str, get_json, post_json) -> dict:
     body = (
         "A trusted master-branch cloud workflow did not finish successfully. "
         "This alert contains GitHub run metadata only; no private audit or "
-        "checkpoint contents were read.\\n\\n"
-        f"- Workflow: {failure['workflow']}\\n"
-        f"- Conclusion: {failure['conclusion']}\\n"
-        f"- Run: {failure['run_url']}\\n\\n"
+        "checkpoint contents were read.\n\n"
+        f"- Workflow: {failure['workflow']}\n"
+        f"- Conclusion: {failure['conclusion']}\n"
+        f"- Run: {failure['run_url']}\n\n"
         "Investigate the failed job, the latest trusted encrypted checkpoint, "
         "and the scheduled-worker health monitor. Do not silently bootstrap, "
         "discard state, enable client outreach, or enable paid calls. "
