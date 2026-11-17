@@ -48,6 +48,7 @@ class FakeCursor:
     def __init__(self, connection):
         self.connection = connection
         self._row = None
+        self.rowcount = -1
 
     def __enter__(self):
         return self
@@ -59,20 +60,20 @@ class FakeCursor:
         state = self.connection.working
         if sql.startswith("SELECT pg_advisory_xact_lock"):
             self._row = (None,)
-        elif sql.startswith("SELECT revision FROM mm_internal.encrypted_checkpoints"):
-            self._row = (state["current"][0],) if state["current"] else None
-        elif sql.startswith("SELECT revision,ciphertext,sha256"):
+        elsql.startswith("SELECT revision,ciphertext,sha256"):
             self._row = state["current"]
         elif sql.startswith("INSERT INTO mm_internal.encrypted_checkpoint_history"):
             revision, blob, digest = parameters
             if revision in state["history"]:
                 raise ValueError("Duplicate revision")
             state["history"][revision] = (blob, digest)
+            self.rowcount = 1
         elif sql.startswith("INSERT INTO mm_internal.encrypted_checkpoints"):
             _, revision, blob, digest = parameters
             if state["current"] is not None:
                 raise ValueError("Current checkpoint already exists")
             state["current"] = (revision, blob, digest)
+            self.rowcount = 1
         elif sql.startswith("UPDATE mm_internal.encrypted_checkpoints"):
             if self.connection.fail_update:
                 raise OSError("Simulated failure after history insertion")
@@ -80,6 +81,7 @@ class FakeCursor:
             if state["current"][0] != old:
                 raise ValueError("CAS mismatch")
             state["current"] = (revision, blob, digest)
+            self.rowcount = 1
         else:
             raise AssertionError(f"Unexpected SQL: {sql!r}")
 
@@ -150,6 +152,14 @@ class TestCheckpointStore(unittest.TestCase):
             self.store.put(sealed(self.key, event_count=2), self.key.decode(), expected_revision=1)
         self.assertEqual(self.db.state, before)
 
+    def test_wrong_key_cannot_replace_existing_history(self):
+        self.store.put(sealed(self.key), self.key.decode(), expected_revision=0)
+        before = copy.deepcopy(self.db.state)
+        other = Fernet.generate_key()
+        with self.assertRaises(Exception):
+            self.store.put(sealed(other), other.decode(), expected_revision=1)
+        self.assertEqual(self.db.state, before)
+
     def test_no_checkpoint_is_not_implicit_bootstrap(self):
         with self.assertRaisesRegex(ValueError, "No saved checkpoint"):
             self.store.read(self.key.decode())
@@ -168,7 +178,7 @@ class TestCheckpointStore(unittest.TestCase):
             with self.assertRaises(Exception):
                 self.store.put(blob, self.key.decode(), expected_revision=0)
         self.assertIsNone(self.db.state["current"])
-        for version in (-1, True, 200):
+        for version in (-1, True, 24):
             with self.assertRaises(ValueError):
                 self.store.put(sealed(self.key), self.key.decode(), expected_revision=version)
 
