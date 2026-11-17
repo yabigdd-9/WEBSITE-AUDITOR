@@ -311,3 +311,17 @@ def test_project_versions_artifact_relations_and_audit_order_survive_reload(stor
     with pytest.raises(ValueError):
         commit_mutation(store, mutation)
     assert store.read() == restored
+
+
+@pytest.mark.parametrize("pooled", [False, True])
+def test_selected_direct_and_session_connections_are_accepted(pooled):
+    from psycopg.conninfo import make_conninfo
+    host = "aws-1-ap-southeast-2.pooler.supabase.com" if pooled else f"db.{PROJECT_REF}.supabase.co"
+    user = "moneymachine_runner." + PROJECT_REF if pooled else "moneymachine_runner"
+    dsn = make_conninfo(host=host, port="5432", dbname="postgres", user=user,
+                       password="synthetic-only", sslmode="verify-full")
+    options = connection_options(dsn)
+    assert options["host"] == host
+    assert options["user"] == user
+    assert options["sslrootcert"] == "system"
+    assert options["connect_timeout"] == 10

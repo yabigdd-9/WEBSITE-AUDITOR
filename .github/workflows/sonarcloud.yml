@@ -41,8 +41,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e '.[portal,dev]'
-          python -m pip install pytest-cov
+          python -m pip install -e '.[portal,dev,postgres]'
+          python -m pip install pytest-cov 'pgserver==0.1.4'
 
       - name: Run tests with coverage
         run: |
@@ -90,6 +90,13 @@ jobs:
           # Diagnostics are limited to the audited PR. Never expose the token.
           # Keep this step non-blocking: the scan itself owns the quality gate.
           if [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && [ -n "${PR_NUMBER}" ]; then
+            echo "SonarCloud PR quality-gate conditions:"
+            curl --fail --silent --show-error --get \
+              --header "Authorization: Basic $(printf '%s:' "$SONAR_TOKEN" | base64 --wrap=0)" \
+              --data-urlencode "projectKey=yabigdd-9_website-auditor" \
+              --data-urlencode "pullRequest=${PR_NUMBER}" \
+              "https://sonarcloud.io/api/qualitygates/project_status" \
+              | jq '{projectStatus: (.projectStatus | {status, conditions})}'
             echo "SonarCloud PR issue summary:"
             curl --fail --silent --show-error --get \
               --header "Authorization: Basic $(printf '%s:' "$SONAR_TOKEN" | base64 --wrap=0)" \

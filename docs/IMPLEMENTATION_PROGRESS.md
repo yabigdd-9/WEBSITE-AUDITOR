@@ -452,3 +452,26 @@ restore, remote dashboard and formal security scan remain unverified. Next:
 publish focused PR, inspect CI, then configure the runtime secret securely before
 an owner-authorized manual persistence run. No sending, paid upgrade or live-site
 change is enabled by these additions.
+
+### Focused PR #107 and first integrated checks
+
+Published source `25c5af7de8b4f6c608a7af62a46a2e2aa7a0f8ba` in draft
+[PR #107](https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/107), targeting #99.
+Initial cloud/database CI 44075115686, CI 44075115675, toolkit 44075115876,
+CodeQL 44075115617 and secret scanning passed. Security audit failed because
+pip-audit treats `.[postgres]` as a project path rather than a selectable extra.
+Corrected by retaining the original root/email audits and separately auditing a
+requirements file derived from the declared optional Postgres dependency.
+The local optional-driver audit found no known vulnerabilities.
+
+Initial SonarCloud 44075115623 failed its unchanged quality gate with zero code
+issues in its issue summary. Its coverage environment lacked the new optional
+Postgres driver/server, skipping the portal's new Postgres path. Added those
+pinned test dependencies to coverage and added non-blocking gate-metric
+diagnostics without changing quality conditions, exclusions or scan results.
+
+Full local regression on that source: **909 passed, 7 optional skips, 14 passing
+subtests**, with the same three baseline supervisor/DNS environment failures.
+Added two positive direct/session verified-TLS configuration cases; the dedicated
+real Postgres suite now passes **23 tests**. Workflow YAML and embedded Python
+compile checks passed. Corrected CI is pending; no merge/deployment performed.
