@@ -155,3 +155,18 @@ separate-process reads, writer exclusion, rollback/crash quota durability,
 limits, immutable histories, project/artifact relations, private paired restore,
 authenticated portal behavior and missing credentials. The runtime credential
 and future manual independent-runner workflow remain unverified.
+
+### Corrected adapter integration CI verified
+
+Draft PR #107 source `e72f50eea8b14a59d68b466724a58b10872a9005` passed
+CI 44075718056, toolkit 44075718136, security 44075718028, CodeQL 44075718046,
+SonarCloud 44075718196 and cloud/database tests 44075718150. Expanded Sonar
+coverage exercised the Postgres portal path; unchanged gate passed with 88.2%
+new-code coverage and 0% duplication. Local disposable Postgres suite passed
+23 tests; installed-wheel persistence/private export smoke passed.
+
+These checks verify implementation and synthetic database persistence, not an
+unattended hosted application release. Runtime secret availability could not be
+confirmed through GitHub (secrets-name lookup returned Forbidden); no runtime
+database credential was present locally. No master merge, workflow dispatch,
+external send, paid upgrade, hosted dashboard or client-site change occurred.

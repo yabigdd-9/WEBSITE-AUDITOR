@@ -475,3 +475,33 @@ subtests**, with the same three baseline supervisor/DNS environment failures.
 Added two positive direct/session verified-TLS configuration cases; the dedicated
 real Postgres suite now passes **23 tests**. Workflow YAML and embedded Python
 compile checks passed. Corrected CI is pending; no merge/deployment performed.
+
+### Verified corrected integration — PR #107
+
+Exact source: `e72f50eea8b14a59d68b466724a58b10872a9005`.
+All six triggered workflows passed after the audit/coverage corrections:
+
+| Workflow | Run ID | Result |
+| --- | --- | --- |
+| CI | 44075718056 | success |
+| Local toolkit tests | 44075718136 | success |
+| security | 44075718028 | success; existing root/email plus optional Postgres audit |
+| CodeQL | 44075718046 | success |
+| SonarCloud | 44075718196 | success; new-code coverage 88.2%, duplication 0%, unchanged quality gate |
+| Durable Cloud Draft Pipeline | 44075718150 | success, including real Postgres tests; production worker skipped |
+
+Dedicated local real Postgres suite: **23 passed**. Sonar's expanded full
+coverage job: **904 passed, 17 optional skips**. A built wheel installed outside
+the checkout passed real Postgres persistence, operational-summary and private
+export smoke checks. Workflow YAML and embedded Python were validated. Full
+local regression evidence and its three baseline environment failures are
+recorded above; no failures were hidden or tests disabled.
+
+Credential inspection checked presence only: no WA_POSTGRES_DSN, database URL or
+password was available in this workspace, and no local .env exists. A read-only
+GitHub check for the secret's name returned Forbidden, so its repository presence
+could not be verified. Never request or paste credentials in chat. The smallest
+remaining owner action is secure dedicated LOGIN provisioning and server/GitHub
+secret configuration according to DEPLOYMENT.md. Then the reviewed manual-only
+workflow can verify independent runner connectivity. No merge or dispatch was
+performed. This evidence-only follow-up changes no tested source.
