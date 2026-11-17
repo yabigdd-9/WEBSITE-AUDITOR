@@ -11,15 +11,15 @@ REVOKE ALL ON SCHEMA mm_internal FROM anon, authenticated, service_role;
 
 CREATE TABLE IF NOT EXISTS mm_internal.encrypted_checkpoints (
     id text PRIMARY KEY CHECK (id = 'money_machine'),
-    revision bigint NOT NULL CHECK (revision BETWEEN 1 AND 200),
-    ciphertext bytea NOT NULL CHECK (octet_length(ciphertext) BETWEEN 100 AND 10000000),
+    revision bigint NOT NULL CHECK (revision BETWEEN 1 AND 24),
+    ciphertext bytea NOT NULL CHECK (octet_length(ciphertext) BETWEEN 100 AND 8000000),
     sha256 text NOT NULL CHECK (sha256 ~ '^[0-9a-f]{64}$'),
     saved_at timestamptz NOT NULL DEFAULT clock_timestamp()
 );
 
 CREATE TABLE IF NOT EXISTS mm_internal.encrypted_checkpoint_history (
-    revision bigint PRIMARY KEY CHECK (revision BETWEEN 1 AND 200),
-    ciphertext bytea NOT NULL CHECK (octet_length(ciphertext) BETWEEN 100 AND 10000000),
+    revision bigint PRIMARY KEY CHECK (revision BETWEEN 1 AND 24),
+    ciphertext bytea NOT NULL CHECK (octet_length(ciphertext) BETWEEN 100 AND 8000000),
     sha256 text NOT NULL CHECK (sha256 ~ '^[0-9a-f]{64}$'),
     saved_at timestamptz NOT NULL DEFAULT clock_timestamp()
 );
