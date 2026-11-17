@@ -13,6 +13,7 @@ def attach_pipeline(app, store, session, csrf):
     from fastapi import HTTPException, Request
     from fastapi.responses import HTMLResponse, RedirectResponse
 
+    from scripts.approval_controls import approve_proposal
     from scripts.cloud_opportunities import reject_recommendation
     from scripts.cloud_prospect_pipeline import metrics
 
@@ -51,6 +52,7 @@ def attach_pipeline(app, store, session, csrf):
             'label{display:block;margin:12px 0}textarea{width:100%}button{cursor:pointer}'
             '</style><main><nav><a href="/pipeline">Overview</a>'
             '<a href="/pipeline/prospects">Prospects</a><a href="/pipeline/discovery">Discovery</a>'
+            '<a href="/pipeline/outreach">Outreach review</a>'
             '<a href="/pipeline/health">System health</a><a href="/">Audit history</a></nav>'
             f'<h1>{escaped(title)}</h1>{body}</main></html>'
         )
@@ -63,7 +65,7 @@ def attach_pipeline(app, store, session, csrf):
         labels = {
             "prospects_found": "Reviewed prospects", "audits_succeeded": "Completed audits",
             "audits_failed": "Failed audits", "qualified_opportunities": "Internal opportunities",
-            "proposal_drafts_ready": "Proposal drafts", "approvals_pending": "Scope reviews pending",
+            "proposal_reviews_pending": "Proposals awaiting review", "approvals_pending": "Scope reviews pending",
             "contacts_sent": "Owner-recorded provider acceptances",
         }
         cards = "".join(
@@ -113,6 +115,7 @@ def attach_pipeline(app, store, session, csrf):
                 f'<input type="hidden" name="csrf" value="{escaped(value["csrf"])}">'
                 f'<input type="hidden" name="version" value="{escaped(p["proposal_version"])}">'
                 '<label>Reason for rejection<textarea name="reason" maxlength="1000" required></textarea></label>'
+                f'<button formaction="/pipeline/prospects/{escaped(identity)}/approve">Approve internal proposal</button> '
                 '<button>Reject recommendation</button></form>'
             )
         return page(p["domain"], '<p>Internal review only. Detailed encrypted report archives are not decrypted here.</p>'
@@ -144,7 +147,18 @@ def attach_pipeline(app, store, session, csrf):
         )
         return page("System health", '<pre>' + escaped(json.dumps(report, indent=2)) + '</pre>')
 
+    @app.get("/pipeline/outreach", response_class=HTMLResponse)
+    def outreach(request: Request):
+        session(request)
+        records = [dict(domain=p["domain"], drafts=p.get("outreach_drafts", []),
+                        approvals=p.get("approvals", []), events=p.get("outreach_events", []),
+                        suppressed=p["status"] == "suppressed")
+                   for p in state()["prospects"].values() if p.get("outreach_drafts")]
+        return page("Outreach review", '<p>Live sending is disabled. Sandbox results are simulated and send no messages.</p>'
+                    '<pre>' + escaped(json.dumps(records, indent=2)) + '</pre>')
+
     @app.post("/pipeline/prospects/{identity}/reject")
+    @app.post("/pipeline/prospects/{identity}/approve")
     async def reject(identity: str, request: Request):
         key, value = session(request)
         raw = bytearray()
@@ -174,7 +188,10 @@ def attach_pipeline(app, store, session, csrf):
                 p = prospect(identity, document)
                 if not p.get("proposal_version") or p["proposal_version"] != data.get("version"):
                     raise HTTPException(409, "Proposal version changed; review again")
-                reject_recommendation(p, actor="authenticated-owner", reason=data.get("reason"), now=now)
+                if request.url.path.endswith("/approve"):
+                    approve_proposal(p, data["version"], actor="authenticated-owner", reason=data.get("reason"), now=now)
+                else:
+                    reject_recommendation(p, actor="authenticated-owner", reason=data.get("reason"), now=now)
         except ValueError:
             raise HTTPException(400, "A valid review reason is required") from None
         except (sqlite3.Error, OSError):

@@ -53,11 +53,12 @@ def login(client):
 def test_pipeline_requires_owner_session_everywhere(owner):
     client, store, identity, _ = owner
     for path in ("/pipeline", "/pipeline/prospects", f"/pipeline/prospects/{identity}",
-                 "/pipeline/discovery", "/pipeline/health"):
+                 "/pipeline/discovery", "/pipeline/health", "/pipeline/outreach"):
         response = client.get(path)
         assert response.status_code == 401
         assert "example.com" not in response.text
     assert client.post(f"/pipeline/prospects/{identity}/reject", json={}).status_code == 401
+    assert client.post(f"/pipeline/prospects/{identity}/approve", json={}).status_code == 401
     assert store.read()["prospects"][identity]["proposal_version"]
 
 
@@ -129,6 +130,42 @@ def test_review_size_rate_and_session_controls(owner):
     with TestClient(create_app(history, session_seconds=-1, pipeline_db=store.path)) as expired:
         expired.post("/login", data={"password": PASSWORD}, follow_redirects=False)
         assert expired.get("/pipeline").status_code == 401
+
+
+def test_owner_proposal_approval_is_version_bound_and_does_not_approve_sending(owner):
+    client, store, identity, _ = owner
+    token = login(client)
+    version = store.read()["prospects"][identity]["proposal_version"]
+    path = f"/pipeline/prospects/{identity}/approve"
+    data = {"version": version, "reason": "Internal scope checked", "csrf": token}
+    assert client.post(path, json={**data, "version": "stale"}).status_code == 409
+    assert client.post(path, json=data, follow_redirects=False).status_code == 303
+    record = store.read()["prospects"][identity]
+    assert record["approvals"][0]["version_sha256"] == version
+    assert record["approvals"][0]["action_type"] == "proposal"
+    assert not record.get("outreach_drafts")
+
+
+def test_outreach_review_requires_session_and_never_mutates_or_sends(owner):
+    from scripts.approval_controls import prepare_outreach
+
+    client, store, identity, _ = owner
+    assert client.get("/pipeline/outreach").status_code == 401
+    with store.transaction() as document:
+        prepare_outreach(
+            document["prospects"][identity], recipient_hash="a" * 64,
+            body="Synthetic <script>draft</script>", now=1767225600,
+        )
+    login(client)
+    before = copy.deepcopy(store.read())
+    response = client.get("/pipeline/outreach")
+    assert response.status_code == 200
+    assert "Sandbox results are simulated" in response.text
+    assert "&lt;script&gt;draft&lt;/script&gt;" in response.text
+    assert "<script>draft</script>" not in response.text
+    assert response.headers["cache-control"] == "no-store"
+    assert store.read() == before
+    assert before["prospects"][identity]["outreach_events"][-1]["status"] == "DRAFT"
 
 
 def test_dashboard_refuses_missing_or_public_database(owner):

@@ -57,3 +57,9 @@ recommendation_reviews now persist within each prospect's JSON record, in the
 same transaction as the audit state. Old proposal bodies and review decisions
 are append-only. Separate normalized tables for those records remain backlog
 work; do not confuse the logical records with already-migrated SQL tables.
+
+Version-bound proposal/message approvals, outreach_drafts/outreach_events and
+suppression_events persist as append-only prospect JSON histories. Message
+permission checks are owner-attested inputs; no report private key or raw
+recipient address is needed by the sandbox. SQL-normalized approval/outreach
+tables remain a possible migration, not a claim about the current schema.

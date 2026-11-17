@@ -282,6 +282,14 @@ def process(
 def metrics(state):
     prospects = list(state["prospects"].values())
     ready = sum(bool(p["draft"]) for p in prospects)
+    def proposal_pending(prospect):
+        version = prospect.get("proposal_version")
+        decisions = [a for a in prospect.get("approvals", []) if a["action_type"] == "proposal"]
+        return bool(version) and not (
+            decisions and decisions[-1]["decision"] == "approved"
+            and decisions[-1]["version_sha256"] == version
+        )
+
     report = dict(
         prospects_found=len(prospects),
         audits_succeeded=sum(p["status"] == "complete" for p in prospects),
@@ -292,6 +300,7 @@ def metrics(state):
             p.get("opportunity", {}).get("status") == "qualified_for_internal_review" for p in prospects
         ),
         proposal_drafts_ready=sum(bool(p.get("proposal_version")) for p in prospects),
+        proposal_reviews_pending=sum(proposal_pending(p) for p in prospects),
         approvals_pending=ready,
         contacts_sent=0,
         provider_accepted=0,

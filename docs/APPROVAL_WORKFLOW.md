@@ -4,9 +4,10 @@ The queue retains internal scope drafts and content-hashed structured proposal v
 Default cloud pricing is unconfigured; no binding quote is generated. Existing outcomes
 module records exact current draft SHA-256 at approval import, owner-attested
 business events, revocation and suppression. It does not execute any send.
-Canonical transport remains disabled with daily cap zero. Full content-versioned
-DRAFT -> REVIEW -> APPROVED -> SEND_ELIGIBLE -> SENT infrastructure is not yet
-integrated; outcome history is not an authorization to send.
+Canonical transport remains disabled with daily cap zero. Version-bound
+DRAFT -> REVIEW -> APPROVED -> SEND_ELIGIBLE -> SENT infrastructure now exists
+for the built-in sandbox transport only; outcome history is not an authorization
+to send real messages.
 
 Live activation remains prohibited until separately approved. Required: recipient
 eligibility and consent evidence under NZ Unsolicited Electronic Messages Act
@@ -24,3 +25,32 @@ bounded reason and records the trusted caller's actor hash/audit identity. It
 does not authenticate a remote user or approve sending. A rejected audit stays
 rejected on enrichment. Exact proposal approval/send-eligibility integration is
 still a separate phase; existing outcome approvals bind only to the scope text.
+
+## Sandbox-only outreach infrastructure
+
+`approval_controls` keeps proposal and message approvals separate. Message
+approval binds body, recipient hash and proposal version; edited content or a
+changed proposal requires fresh review. The built-in sandbox transport is the
+only accepted transport type and performs no network operation. SENT sandbox
+events always have sandbox_only=true, sandbox=true and external_sends=0; they
+never increase real contacts_sent metrics. There is no live-send API route.
+
+The owner portal can approve the exact internal proposal version, but this grants
+no message approval. `/pipeline/outreach` shows drafts, decisions, suppression and
+sandbox history. Draft/review/message-approval helpers currently serve trusted
+internal callers and synthetic tests; the portal does not activate them by page
+load or infer recipient evidence.
+
+Eligibility requires a current exact-message approval, verified-recipient hash,
+owner-attested consent with evidence SHA-256, identified sender, functional
+unsubscribe attestation, non-opt-out status and a <=7-day permission check. These
+are recorded evidence assertions, not independent legal/provider validation.
+Public business contact details do not satisfy these gates. Eligibility is
+rechecked immediately before simulation. Revocation, suppression and changed
+content block processing. Recipient/content idempotency prevents replay; sandbox
+cap is three per prospect per UTC day. Live transport cap remains zero.
+
+Failures retain codes only, not raw provider errors. State history for approvals,
+drafts, transitions and opt-outs is append-only. NZ compliance, actual mailbox/
+sender/unsubscribe behavior, a live provider and owner activation approval remain
+mandatory separate release gates. No production outreach has been activated.
