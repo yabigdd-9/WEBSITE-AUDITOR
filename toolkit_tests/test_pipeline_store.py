@@ -88,6 +88,24 @@ def test_competing_worker_cannot_select_or_audit(store):
                 pytest.fail("Second worker entered processing")
 
 
+def test_reader_sees_last_committed_state_while_audit_writer_is_active(store):
+    with store.transaction(bootstrap=True):
+        pass
+    before = store.read()
+    with store.transaction() as state:
+        state["prospects"][prospect()[0]] = prospect()[1]
+        assert PipelineStore(store.path).read() == before
+    assert len(store.read()["prospects"]) == 1
+
+
+def test_installed_adapter_rejects_other_git_checkouts(store):
+    checkout = store.path.parent / "other-checkout"
+    checkout.mkdir()
+    (checkout / ".git").write_text("gitdir: /private/git/metadata")
+    with pytest.raises(ValueError):
+        PipelineStore(checkout / "records.sqlite3")
+
+
 def test_bootstrap_schema_and_path_controls(store):
     with pytest.raises(ValueError):
         with store.transaction():

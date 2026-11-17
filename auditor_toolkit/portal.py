@@ -22,7 +22,7 @@ def setup_password(root, password):
     return path
 
 
-def create_app(root, session_seconds=3600):
+def create_app(root, session_seconds=3600, pipeline_db=None):
     from argon2 import PasswordHasher
     from argon2.exceptions import VerificationError
     from fastapi import FastAPI, HTTPException, Request
@@ -52,11 +52,15 @@ def create_app(root, session_seconds=3600):
             raise HTTPException(401, "Login required")
         return key, value
 
-    def csrf(request, value):
+    def csrf(request, value, submitted=None):
         expected_origin = str(request.base_url).rstrip("/")
         if request.headers.get("origin") not in (None, expected_origin):
             raise HTTPException(403, "Origin rejected")
-        if not secrets.compare_digest(request.headers.get("x-csrf-token", ""), value["csrf"]):
+        if not isinstance(submitted, (str, type(None))):
+            raise HTTPException(403, "CSRF token required")
+        if not secrets.compare_digest(
+            (submitted or request.headers.get("x-csrf-token", "")).encode(), value["csrf"].encode()
+        ):
             raise HTTPException(403, "CSRF token required")
 
     @app.middleware("http")
@@ -136,7 +140,9 @@ def create_app(root, session_seconds=3600):
             for r in history.list(q)
         )
         return (
-            '<h1>Website Auditor</h1><p><a href="/monthly">Monthly report drafts</a></p><form><label>Search sites <input name="q" value="'
+            '<h1>Website Auditor</h1><p>'
+            + ('<a href="/pipeline">Business pipeline</a> · ' if pipeline_db is not None else '')
+            + '<a href="/monthly">Monthly report drafts</a></p><form><label>Search sites <input name="q" value="'
             + html.escape(q, quote=True)
             + '"></label><button>Search</button></form><table><thead><tr>'
             "<th>Site</th><th>Status</th><th>Health</th><th>Report</th></tr></thead><tbody>"
@@ -254,5 +260,17 @@ def create_app(root, session_seconds=3600):
             return {"status": "ok"}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
+
+    if pipeline_db is not None:
+        from scripts.pipeline_store import PipelineStore
+
+        from .pipeline_portal import attach_pipeline
+
+        if not Path(pipeline_db).is_file():
+            raise ValueError("Initialize the private pipeline database before serving")
+        store = PipelineStore(Path(pipeline_db))
+        if store.read() is None:
+            raise ValueError("Initialize the private pipeline database before serving")
+        attach_pipeline(app, store, session, csrf)
 
     return app

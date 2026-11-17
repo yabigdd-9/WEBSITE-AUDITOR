@@ -96,3 +96,27 @@ Continue independent synthetic implementation while these remain blocked.
   service activation performed. Phase 3 is synthetic/local until hosted state
   and a bounded reviewed run can be verified. Secure dashboard integration is
   the next independent task. Storage mapping question remains pending.
+
+## Continued execution — Phase 4 owner views
+
+- Phase 3 commit 49dd1e14ed09bfc418ff9bcf6b39e0e14ab609a4; draft PR #84:
+  https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/84. Eligible stacked workflows
+  passed: cloud tests 43821541191, security 43821541306, toolkit 43821541259.
+- Separate branch cloud/owner-pipeline-dashboard. Extends the existing loopback
+  authenticated portal with opt-in --pipeline-db, responsive overview, prospect
+  search/pagination/detail, discovery, health and exact-version owner rejection.
+  No browser decryption, remote bind, send or production change is added.
+- Reuses server-side sessions/CSRF; adds bounded review bodies/reasons, write
+  rate limit, stale-version protection, safe HTML escaping and private DB errors.
+  Store reads no longer need a writer lock after migration, so audit selection
+  remains serialized while owner views see the last committed state.
+- Local verification: 99 connected portal/store/evidence/discovery/release tests
+  passed, then 24 store/ledger tests after installed-path hardening. Ruff and diff
+  checks passed. Wheel build includes integration dependencies; an installed-wheel
+  smoke test mounted the dashboard outside the source checkout. New tests cover
+  unauthorized pages/actions, CSRF/origin, stale/repeated rejection, input/rate
+  limits, expiry, HTML escaping, no page-view mutation, read-during-write, missing/
+  public DB paths and Git-worktree detection.
+- Remote authentication/TLS deployment, mobile real-browser acceptance and review
+  of real hosted records remain blocked by storage/deployment configuration. No
+  production dashboard or Phase 4 hosted exit gate pass is claimed.

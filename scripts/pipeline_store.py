@@ -98,8 +98,10 @@ class PipelineStore:
         db.execute("PRAGMA foreign_keys=ON")
         db.execute("PRAGMA synchronous=FULL")
         try:
-            db.execute("BEGIN IMMEDIATE")
             version = db.execute("PRAGMA user_version").fetchone()[0]
+            if version != VERSION:
+                db.execute("BEGIN IMMEDIATE")
+                version = db.execute("PRAGMA user_version").fetchone()[0]
             if version == 0:
                 # Refuse a legacy MoneyMachine/History/review ledger DB.
                 if db.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchone():
