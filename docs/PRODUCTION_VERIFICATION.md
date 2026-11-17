@@ -130,3 +130,28 @@ application migrations, prospect records, bucket, credentials, worker, hosted
 dashboard or independent-run persistence test was activated or verified. Existing
 projects were untouched. Exact reviewed code/run/restore evidence is still
 required for a future authorized application release.
+
+## Private schema and synthetic persistence verification
+
+Applied migration: `private_pipeline_store`, recorded by Supabase as
+`20261116105816`, in project `srymerkhraklwuttzexi`. A later independent inspection
+confirmed 12 private tables and an initially empty state. Privilege checks
+confirmed forced RLS, denied anonymous/generic authenticated access, and no
+worker DELETE privilege on reservations. The security advisor returned no lints
+after initial migration application.
+
+The first attempted synthetic write was not executed because automatic approval
+review failed at a usage limit; it was not a finding that the SQL was unsafe.
+On continuation, normal approval review accepted the same bounded action.
+A restricted worker-group transaction committed one empty-prospect state, one
+synthetic storage-verification event and one completed verification job. A
+separate reader-group connection confirmed one state, one synthetic event,
+zero prospects and zero request reservations. No audit, outreach or customer
+record was involved. This is management-connection persistence evidence, not
+proof of the Python adapter connecting from a GitHub runner.
+
+The Python adapter is tested against a real disposable PostgreSQL server for
+separate-process reads, writer exclusion, rollback/crash quota durability,
+limits, immutable histories, project/artifact relations, private paired restore,
+authenticated portal behavior and missing credentials. The runtime credential
+and future manual independent-runner workflow remain unverified.

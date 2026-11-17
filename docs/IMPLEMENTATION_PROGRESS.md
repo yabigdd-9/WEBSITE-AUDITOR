@@ -420,3 +420,35 @@ Next: implement/test the Postgres adapter against existing store/quota contracts
 configure least-privilege server credentials securely, and prepare migrations and
 access/restore verification before production activation. Storage destination
 selection is resolved; the integration and production release gates remain open.
+
+## Supabase pipeline adapter — cloud/supabase-pipeline-adapter
+
+Recovered the published base `ca020ac` in the replacement workspace; the prior
+uncommitted adapter files and temporary environment were not retained. Recovered
+the exact already-applied migration SQL from Supabase migration history and
+reimplemented/retested the adapter before publishing. No existing schedules or
+production workloads were switched or deployed.
+
+Completed: private normalized Postgres store, shared immutable transition rules,
+CLI/portal integration, separately committed crash-durable job/request ledger,
+verified-TLS selected-project/dedicated-role checks, bounded private paired
+export/restore, pinned optional driver/lockfile, database CI job and manual-only
+independent-runner verification workflow. Documentation records secure credential
+configuration and the actual deployment boundary.
+
+Verified locally: **59 passed** across real Postgres, SQLite store, operational
+ledger and pipeline/report portal tests; Ruff and diff whitespace checks passed.
+Verified remotely: project healthy, migration `20261116105816` present, 12 private
+RLS-forced tables, denied anonymous/authenticated access and no quota-deletion
+privilege. After a prior automatic-review usage-limit failure (no execution),
+the normal continuation write succeeded. A separate restricted-reader connection
+confirmed one durable state/event with zero prospects and zero reservations.
+
+Blocked: dedicated runtime LOGIN/`WA_POSTGRES_DSN` must be provisioned through
+trusted configuration; available connectors do not provide or securely install
+this server credential in GitHub secrets. No password/key is requested in chat.
+Python-to-hosted worker connectivity, independent cloud-runner workflow, hosted
+restore, remote dashboard and formal security scan remain unverified. Next:
+publish focused PR, inspect CI, then configure the runtime secret securely before
+an owner-authorized manual persistence run. No sending, paid upgrade or live-site
+change is enabled by these additions.

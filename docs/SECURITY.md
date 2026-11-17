@@ -61,3 +61,18 @@ key ingestion, server uploads or new provider credentials are implemented.
 Structure/checksum verification does not substitute for authenticated decryption
 or independent owner review of audit associations. Hosted exposure still needs
 the deployment-context security review and approved infrastructure.
+
+## Postgres integration access boundary
+
+The selected project uses a private schema with forced RLS and no anonymous,
+generic authenticated, or service-role schema access. Explicit private groups
+have least-privilege table grants; workers cannot delete prospect records,
+quota reservations or immutable histories. Application-level transition checks
+remain shared with the SQLite implementation. Runtime accepts only the selected
+project's direct/session endpoint, dedicated runner identity and verified TLS.
+Connection errors are sanitized; server credentials never enter HTML or logs.
+
+Live schema/privilege checks and synthetic management-connection persistence
+succeeded. This does not verify credentials on a GitHub runner, hosted restore,
+remote dashboard authorization, or the still-unavailable formal diff-scan tool.
+No private report key is stored or requested by this integration.

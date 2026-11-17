@@ -40,5 +40,5 @@ jobs:
         run: python -m pip install --upgrade pip "setuptools>=83" pip-audit
       - name: Audit declared dependencies
         run: |
-          pip-audit --strict .
+          pip-audit --strict '.[postgres]'
           pip-audit --strict -r money-machine/requirements-email.txt

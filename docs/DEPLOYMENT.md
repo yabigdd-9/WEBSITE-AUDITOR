@@ -208,3 +208,49 @@ through secure configuration, then complete the documented access/backup/recover
 and independent-run checks before authorized production activation. Existing
 SQLite code is not yet connected to this database. Project creation does not
 complete cloud persistence, remote dashboard deployment or durable report custody.
+
+## Postgres adapter and selected project connection
+
+The approved private schema is deployed to `srymerkhraklwuttzexi` (migration
+history version `20261116105816`, name `private_pipeline_store`). Its exact SQL
+was recovered into the original CLI-generated migration file after workspace
+replacement; do not reapply it to this project. All 12 tables force RLS. Public,
+anonymous, generic authenticated and generic service roles lack schema access.
+The worker group has append-only history privileges and cannot delete quotas.
+
+Install the optional pinned driver with `pip install -e '.[postgres,portal]'`.
+The existing CLI supports `python -m scripts.cloud_prospect_pipeline --postgres
+--paused`; the existing loopback dashboard supports `wa dashboard --output-root
+/private/history --pipeline-postgres`. Preserve its trusted-device password
+setup. The Postgres flag changes persistence, not audit/approval business rules.
+It never migrates automatically or opens the dashboard to remote traffic.
+
+Runtime credentials are **not configured**. Through a trusted administrator
+connection, provision a dedicated LOGIN role named `moneymachine_runner` with a
+new locally generated password, no superuser/database/role creation/BYPASSRLS
+privileges, and membership in the existing `moneymachine_worker` NOLOGIN group.
+Do not use `postgres`, `service_role`, or an application API key as the runtime
+identity. The adapter explicitly switches into the restricted worker group.
+
+Store its direct or session-pooler connection string as the private server
+variable / GitHub Actions secret `WA_POSTGRES_DSN`. Use the project's Connect
+panel for the session endpoint; do not guess the pooler hostname. Requirements:
+- Database `postgres`, port `5432`; transaction-pooler port `6543` is rejected.
+- Direct host `db.srymerkhraklwuttzexi.supabase.co`, user `moneymachine_runner`;
+  session pooler host ending `.pooler.supabase.com`, user
+  `moneymachine_runner.srymerkhraklwuttzexi`.
+- `sslmode=verify-full`, `sslrootcert=system`; host/IP overrides are rejected.
+- Pass the secret through secure server configuration, never command arguments,
+  source, client bundles, chat, screenshots, public logs or public artifacts.
+
+The cloud database is initialized with an empty prospect collection and one
+explicit synthetic storage-verification event; use **no `--bootstrap`** against
+this project. A second management connection verified the committed state.
+No real audits or sends were performed. Existing checkpoint schedules remain
+unchanged; no workflow has been switched to Postgres or dispatched.
+
+A manual-only `postgres-persistence-verification.yml` is provided for an
+owner-authorized future master release. Its two independent runners persist and
+read pause events, verify unchanged request reservations, and perform no audits
+or sends. It requires `WA_POSTGRES_DSN`. Do not claim the worker integration is
+production-verified until that workflow completes on the reviewed commit.

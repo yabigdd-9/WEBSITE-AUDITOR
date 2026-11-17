@@ -247,21 +247,29 @@ class OwnerPortal:
             raise HTTPException(status_code=500, detail=str(e))
 
 
-def _attach_private_pipeline(app, owner, pipeline_db, report_archive_root=None):
-    from scripts.pipeline_store import PipelineStore
+def _attach_private_pipeline(app, owner, pipeline_db, report_archive_root=None, pipeline_postgres=False):
 
     from .pipeline_portal import attach_pipeline
 
-    if not Path(pipeline_db).is_file():
-        raise ValueError("Initialize the private pipeline database before serving")
-    store = PipelineStore(Path(pipeline_db))
+    if pipeline_postgres:
+        from scripts.postgres_store import PostgresPipelineStore
+
+        store = PostgresPipelineStore()
+    else:
+        from scripts.pipeline_store import PipelineStore
+
+        if not Path(pipeline_db).is_file():
+            raise ValueError("Initialize the private pipeline database before serving")
+        store = PipelineStore(Path(pipeline_db))
     if store.read() is None:
         raise ValueError("Initialize the private pipeline database before serving")
     attach_pipeline(app, store, owner.session, owner.csrf, archive_root=report_archive_root)
 
 
-def create_app(root, session_seconds=3600, pipeline_db=None, report_archive_root=None):
-    if report_archive_root is not None and pipeline_db is None:
+def create_app(root, session_seconds=3600, pipeline_db=None, report_archive_root=None, pipeline_postgres=False):
+    if pipeline_db is not None and pipeline_postgres:
+        raise ValueError("Select one private pipeline store")
+    if report_archive_root is not None and pipeline_db is None and not pipeline_postgres:
         raise ValueError("Encrypted archive requires a configured private pipeline database")
     history = History(root)
     auth_file = Path(root) / "portal-auth.json"
@@ -275,7 +283,7 @@ def create_app(root, session_seconds=3600, pipeline_db=None, report_archive_root
     app.state.sessions = {}
     app.state.history = history
     app.state.root = root
-    owner = OwnerPortal(app, history, root, password_hash, session_seconds, pipeline_db)
+    owner = OwnerPortal(app, history, root, password_hash, session_seconds, pipeline_db or pipeline_postgres)
     app.middleware("http")(owner.headers)
     routes = [
         (LOGIN_PATH, owner.login_page, ["GET"], HTMLResponse),
@@ -293,6 +301,6 @@ def create_app(root, session_seconds=3600, pipeline_db=None, report_archive_root
     for route, endpoint, methods, response_class in routes:
         options = {"response_class": response_class} if response_class else {}
         app.add_api_route(route, endpoint, methods=methods, **options)
-    if pipeline_db is not None:
-        _attach_private_pipeline(app, owner, pipeline_db, report_archive_root)
+    if pipeline_db is not None or pipeline_postgres:
+        _attach_private_pipeline(app, owner, pipeline_db, report_archive_root, pipeline_postgres)
     return app
