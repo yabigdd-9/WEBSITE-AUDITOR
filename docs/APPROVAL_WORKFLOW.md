@@ -54,3 +54,23 @@ Failures retain codes only, not raw provider errors. State history for approvals
 drafts, transitions and opt-outs is append-only. NZ compliance, actual mailbox/
 sender/unsubscribe behavior, a live provider and owner activation approval remain
 mandatory separate release gates. No production outreach has been activated.
+
+## Customer acceptance and delivery tracking
+
+The owner can record customer acceptance only against the current exact proposal
+with a matching owner proposal approval, a source-evidence SHA-256 and explicit
+owner-verification attestation. This records the owner's verification; it is not
+an independent customer signature verification service. Duplicate identical
+acceptance is idempotent, while conflicting source evidence is rejected.
+
+Acceptance freezes a copy of that proposal in a deterministic project record,
+creates agreed tasks, access/asset dependencies and ordered scope/access/
+implementation/quality/handover milestones. Later proposal changes do not change
+accepted project scope. Task/milestone completion requires evidence and preceding
+dependencies. Completed evidence, frozen scope/acceptance and event history cannot
+be rewritten. Handover completion closes tracking; it does not send a handover.
+
+The authenticated portal provides acceptance/completion forms with the same
+CSRF/origin/version/body/rate controls and a projects view. These actions only
+record work and evidence. They do not authorize or execute production changes,
+request credentials through the portal, invoice, charge or contact customers.

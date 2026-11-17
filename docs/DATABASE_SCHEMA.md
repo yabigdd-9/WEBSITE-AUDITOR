@@ -63,3 +63,9 @@ suppression_events persist as append-only prospect JSON histories. Message
 permission checks are owner-attested inputs; no report private key or raw
 recipient address is needed by the sandbox. SQL-normalized approval/outreach
 tables remain a possible migration, not a claim about the current schema.
+
+Client projects and their immutable acceptance/frozen proposal, tasks, milestones
+and append-only project_events also persist in prospect JSON. Completed evidence
+and accepted task scope cannot be changed by the adapter. No invoices, payments
+or client credentials are created by project tracking. Separate client_projects
+SQL normalization remains a future migration.
