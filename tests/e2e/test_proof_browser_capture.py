@@ -163,3 +163,32 @@ def test_route_block_external_allows_local():
     route_data = MockRoute("data:text/html,<h1>test</h1>")
     route_block_external(route_data)
     assert route_data._continued is True
+
+
+@pytest.mark.parametrize("fail_context", [False, True])
+def test_failed_browser_setup_cleans_up_before_retry(monkeypatch, fail_context):
+    from types import SimpleNamespace
+    from unittest.mock import Mock
+
+    import auditor_toolkit.proof.adapters.playwright as adapter
+
+    browser = Mock()
+    runtime = Mock()
+    runtime.chromium.launch.return_value = browser
+    failure = RuntimeError("browser setup failed")
+    if fail_context:
+        browser.new_context.side_effect = failure
+    else:
+        runtime.chromium.launch.side_effect = failure
+    monkeypatch.setattr(adapter, "HAS_PLAYWRIGHT", True)
+    monkeypatch.setattr(adapter, "sync_playwright", lambda: SimpleNamespace(start=lambda: runtime), raising=False)
+    with pytest.raises(RuntimeError, match="browser setup failed"):
+        adapter.create_proof_browser_context(ProofEnvironment())
+    runtime.stop.assert_called_once()
+    assert browser.close.call_count == int(fail_context)
+
+    runtime.chromium.launch.side_effect = None
+    browser.new_context.side_effect = None
+    pw, launched, context = adapter.create_proof_browser_context(ProofEnvironment())
+    assert (pw, launched, context) == (runtime, browser, browser.new_context.return_value)
+    runtime.stop.assert_called_once()  # Successful setup transfers cleanup to the caller.

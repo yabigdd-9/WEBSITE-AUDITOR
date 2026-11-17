@@ -65,15 +65,23 @@ def probe_environment() -> ProofEnvironment:
     playwright_version = ""
 
     try:
+        from playwright.sync_api import Error as PlaywrightError
         from playwright.sync_api import sync_playwright
     except ImportError:
         pass
     else:
-        with sync_playwright() as pw:
-            browser = pw.chromium.launch(headless=True)
-            browser_version = browser.version
-            playwright_version = getattr(pw, "version", "")
-            browser.close()
+        try:
+            with sync_playwright() as pw:
+                browser = pw.chromium.launch(headless=True)
+                browser_version = browser.version
+                playwright_version = getattr(pw, "version", "")
+                browser.close()
+        except PlaywrightError:
+            # The optional package may be present without a usable browser.
+            # Environment probing is descriptive; capture itself still fails
+            # explicitly when a real browser is required.
+            pass
+
 
     ts = datetime.now(timezone.utc).isoformat()
     snapshot_id = hashlib.sha256(
