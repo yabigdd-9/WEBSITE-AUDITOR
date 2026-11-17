@@ -1,7 +1,7 @@
 """Deterministic, network-free checks for the independent schedule monitor."""
 
 import unittest
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 
 from scripts import check_durable_schedule_health as health
 
