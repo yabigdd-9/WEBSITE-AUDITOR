@@ -98,6 +98,15 @@ def check(p):
     if claim == "NONE":
         reasons.append("NO_CONSENT_CLAIMED")
     if claim == "INFERRED":
+        # Ratification does not verify a guessed recipient. Require literal publication evidence.
+        context = str(p.get("surrounding_wording", "")).lower()
+        provenance = " ".join(str(p.get(k, "")) for k in
+                              ("address_found_where", "why_consent_believed")).lower()
+        if p.get("address_verified") is not True or not addr or addr not in context:
+            reasons.append("INFERENCE_UNSUPPORTED:recipient_not_directly_confirmed")
+        if any(marker in provenance for marker in
+               ("email inferred", "not directly confirmed", "not directly verified", "domain-pattern", "email not directly")):
+            reasons.append("INFERENCE_UNSUPPORTED:contradictory_recipient_provenance")
         # publication alone is explicitly insufficient
         invites = str(p.get("invites_contact")).strip().lower() in ("true", "yes", "1")
         if not invites:
@@ -180,7 +189,8 @@ def selftest():
         "business_name": "D Decorators", "address": "office@d.co.nz",
         "address_source_url": "https://d.co.nz/contact-us",
         "address_provenance": "own_website", "address_found_where": "contact page 'Get a quote' block",
-        "surrounding_wording": "Get a quote — email our office and we'll come back to you.",
+        "surrounding_wording": "Get a quote — email office@d.co.nz and we'll come back to you.",
+        "address_verified": True,
         "invites_contact": True, "refusal_statement_present": False,
         "role_or_personal": "role",
         "relevance_to_role": "office address handles inbound work enquiries; message concerns their own site's broken enquiry path",
