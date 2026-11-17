@@ -34,7 +34,7 @@ class FailureAlertTests(unittest.TestCase):
         self.assertEqual(payload["title"], ISSUE_TITLE)
         self.assertIn("https://github.com/yabigdd-9/WEBSITE-AUDITOR/actions/runs/123456",
                       payload["body"])
-        self.assertIn("\\n- Conclusion: failure\\n", payload["body"])
+        self.assertIn("\n- Conclusion: failure\n", payload["body"])
         self.assertNotIn("password", payload["body"].lower())
 
     def test_open_issue_is_reused_without_posting(self):
