@@ -12,7 +12,7 @@ import os
 import re
 import secrets
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from urllib.parse import parse_qs, urlsplit
 
 from argon2 import PasswordHasher, extract_parameters
@@ -31,8 +31,8 @@ HOSTED_COOKIE = "__Host-wa_session"
 @dataclass(frozen=True)
 class HostedConfig:
     origin: str
-    password_hash: str
-    pepper: bytes
+    password_hash: str = field(repr=False)
+    pepper: bytes = field(repr=False)
     session_seconds: int = 3600
 
     def validate(self):

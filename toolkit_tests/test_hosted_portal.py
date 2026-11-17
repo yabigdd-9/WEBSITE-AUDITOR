@@ -104,6 +104,8 @@ def test_environment_configuration_is_private_and_strict(config, monkeypatch):
     monkeypatch.setenv("WA_PORTAL_PASSWORD_HASH", config.password_hash)
     monkeypatch.setenv("WA_PORTAL_AUTH_PEPPER_B64", base64.b64encode(config.pepper).decode())
     assert HostedConfig.from_environment() == config
+    assert config.password_hash not in repr(config)
+    assert repr(config.pepper) not in repr(config)
     for origin in ("http://owner.example.com", "https://owner.example.com/path", "https://*.example.com", "https://localhost"):
         with pytest.raises(ValueError):
             HostedConfig(origin, config.password_hash, config.pepper).validate()
@@ -240,3 +242,49 @@ def test_portal_auth_tables_deny_unprivileged_reads(private_portal, postgres):
             db.execute(psycopg.sql.SQL("SET ROLE {}").format(psycopg.sql.Identifier(role)))
             with pytest.raises(psycopg.errors.InsufficientPrivilege):
                 db.execute("SELECT token_hash FROM moneymachine.portal_sessions").fetchall()
+
+
+def test_hosted_error_paths_redact_storage_failures_and_reject_bad_forms(private_portal, monkeypatch):
+    store, _, config = private_portal
+    with client_for(store, config) as client:
+        headers = {"origin": ORIGIN}
+        assert client.post("/login", json={"password": PASSWORD}, headers=headers).status_code == 415
+        assert client.post("/login", data={"unexpected": "field"}, headers=headers).status_code == 400
+        assert client.post("/login", content="password=x&password=y", headers={
+            **headers, "content-type": "application/x-www-form-urlencoded",
+        }).status_code == 400
+        assert client.post("/login", data={"password": "x" * 5000}, headers=headers).status_code == 413
+        login(client)
+
+        def private_failure(*args, **kwargs):
+            raise ValueError("password=synthetic-private-value")
+
+        monkeypatch.setattr(PostgresPortalAuth, "get", private_failure)
+        result = client.get("/pipeline")
+        assert result.status_code == 503
+        assert "synthetic-private-value" not in result.text
+        monkeypatch.setattr(store, "read", private_failure)
+        result = client.get("/health")
+        assert result.status_code == 503
+        assert "synthetic-private-value" not in result.text
+
+
+def test_shared_write_limit_blocks_owner_changes_after_restart(private_portal, monkeypatch):
+    monkeypatch.setattr("scripts.portal_auth_store.time.time", lambda: NOW)
+    store, identity, config = private_portal
+    with client_for(store, config) as client:
+        csrf = login(client)
+        token = client.cookies.get(HOSTED_COOKIE)
+    auth = PostgresPortalAuth(store, pepper=config.pepper, password_hash=config.password_hash)
+    key = hashlib.sha256(token.encode()).hexdigest()
+    for _ in range(20):
+        assert auth.write_attempt(key)
+    before = copy.deepcopy(store.read())
+    with client_for(store, config) as restarted:
+        restarted.cookies.set(HOSTED_COOKIE, token)
+        version = before["prospects"][identity]["proposal_version"]
+        result = restarted.post(f"/pipeline/prospects/{identity}/approve", data={
+            "version": version, "reason": "Synthetic over-limit review", "csrf": csrf,
+        }, headers={"origin": ORIGIN})
+        assert result.status_code == 429
+    assert store.read() == before
