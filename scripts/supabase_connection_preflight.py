@@ -18,12 +18,17 @@ SELECT current_user,
        rolreplication, rolbypassrls,
        pg_has_role(current_user, 'mm_checkpoint_writer', 'USAGE'),
        has_schema_privilege(current_user, 'mm_internal', 'USAGE'),
-       has_table_privilege(current_user, 'mm_internal.encrypted_checkpoints',
-                           'SELECT,INSERT,UPDATE'),
+       has_table_privilege(current_user, 'mm_internal.encrypted_checkpoints', 'SELECT')
+         AND has_table_privilege(current_user, 'mm_internal.encrypted_checkpoints', 'INSERT')
+         AND has_table_privilege(current_user, 'mm_internal.encrypted_checkpoints', 'UPDATE'),
+       has_table_privilege(current_user, 'mm_internal.encrypted_checkpoint_history', 'SELECT')
+         AND has_table_privilege(current_user, 'mm_internal.encrypted_checkpoint_history',
+                                 'INSERT'),
        has_table_privilege(current_user, 'mm_internal.encrypted_checkpoint_history',
-                           'SELECT,INSERT'),
-       has_table_privilege(current_user, 'mm_internal.encrypted_checkpoint_history',
-                           'DELETE')
+                           'DELETE'),
+       (SELECT bool_and(c.relrowsecurity)
+          FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+         WHERE n.nspname='mm_internal' AND c.relkind='r')
   FROM pg_roles WHERE rolname=current_user
 """
 READ_ONLY_COUNTS_QUERY = """
@@ -34,16 +39,16 @@ SELECT (SELECT count(*) FROM mm_internal.encrypted_checkpoints),
 
 def verify_status(status: tuple, counts: tuple) -> dict:
     """Refuse admin sessions, unexpected grants or existing state changes."""
-    if len(status) != 12 or len(counts) != 2:
+    if len(status) != 13 or len(counts) != 2:
         raise ValueError("Unexpected connector preflight metadata")
     (user, can_login, superuser, create_db, create_role, replicate, bypass_rls,
-     has_writer, schema_access, checkpoint_rw, history_rw, history_delete) = status
+     has_writer, schema_access, checkpoint_rw, history_rw, history_delete, rls_enabled) = status
     if (user != USERNAME
             or can_login is not True
             or any(value is not False for value in
                    (superuser, create_db, create_role, replicate, bypass_rls, history_delete))
             or any(value is not True for value in
-                   (has_writer, schema_access, checkpoint_rw, history_rw))):
+                   (has_writer, schema_access, checkpoint_rw, history_rw, rls_enabled))):
         raise ValueError("Database role is not the expected least-privilege connector")
     if (any(type(n) is not int or n < 0 for n in counts)
             or counts[0] not in (0, 1) or counts[1] > 24):
