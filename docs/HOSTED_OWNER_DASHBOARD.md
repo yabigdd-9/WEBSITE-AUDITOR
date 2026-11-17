@@ -18,6 +18,14 @@ internet-reachable process. Requests whose ASGI scheme is not HTTPS or whose
 Host differs from the configured origin are rejected, including spoofed
 forwarded-proto headers from an untrusted caller.
 
+Third-party runtime/build/test dependencies are fully resolved and hash-pinned
+in `requirements-hosted-runtime.txt` and `requirements-hosted-ci.txt`. Installs
+require hashes and binary distributions. The package installer builds only the
+reviewed checkout without network build isolation, then verifies that owned
+wheel's hash during an offline, dependency-free install. Security CI audits both
+lockfiles. Refresh commands are recorded in the generated headers; commit and
+review changed hashes before publishing another release.
+
 Required private runtime settings:
 
 | Setting | Purpose |

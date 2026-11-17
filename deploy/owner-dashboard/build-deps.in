@@ -1,0 +1,4 @@
+# Lock refresh inputs only. Runtime installs the generated hash-pinned file.
+build>=1,<2
+setuptools>=77
+wheel>=0.45

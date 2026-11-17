@@ -13,15 +13,11 @@ from scripts.cloud_pipeline_checkpoint import WORKFLOW, WORKFLOW_PATH, gh_json
 from scripts.cloud_prospect_pipeline import private_state_path
 
 
-def fetch_latest(*, repo, source_run, current_run, destination, query=gh_json, download=None):
-    if not 0 < source_run < current_run:
-        raise ValueError("An older verified source is required")
-    destination = private_state_path(destination)
+def latest_worker(repo, current_run, query):
     runs = query(["run", "list", "--workflow", WORKFLOW, "--branch", "master",
                   "--limit", "100", "--json", "databaseId"])
     ids = sorted({int(run["databaseId"]) for run in runs
                   if int(run["databaseId"]) < current_run}, reverse=True)
-    selected = None
     for identity in ids:
         info = query(["api", f"repos/{repo}/actions/runs/{identity}"])
         if (info.get("head_branch") != "master" or info.get("event") not in {"push", "schedule", "workflow_dispatch"}
@@ -36,8 +32,15 @@ def fetch_latest(*, repo, source_run, current_run, destination, query=gh_json, d
         if (info.get("status") != "completed" or info.get("conclusion") != "success"
                 or workers[0].get("conclusion") != "success"):
             raise ValueError("Latest worker is not successful; no stale fallback is permitted")
-        selected = identity
-        break
+        return identity
+    return None
+
+
+def fetch_latest(*, repo, source_run, current_run, destination, query=gh_json, download=None):
+    if not 0 < source_run < current_run:
+        raise ValueError("An older verified source is required")
+    destination = private_state_path(destination)
+    selected = latest_worker(repo, current_run, query)
     if selected != source_run:
         raise ValueError("Review the latest worker before migration")
     artifacts = query(["api", f"repos/{repo}/actions/runs/{selected}/artifacts"])["artifacts"]

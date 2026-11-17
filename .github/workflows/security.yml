@@ -48,4 +48,6 @@ jobs:
           PYCODE
           pip-audit --strict .
           pip-audit --strict -r /tmp/wa-postgres-requirements.txt
+          pip-audit --strict -r requirements-hosted-runtime.txt
+          pip-audit --strict -r requirements-hosted-ci.txt
           pip-audit --strict -r money-machine/requirements-email.txt
