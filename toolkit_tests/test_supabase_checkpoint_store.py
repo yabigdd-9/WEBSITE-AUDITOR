@@ -9,13 +9,6 @@ import tempfile
 import unittest
 from pathlib import Path
 
-if importlib.util.find_spec("cryptography") is not None:
-    from cryptography.fernet import Fernet
-else:
-    Fernet = None
-
-HAS_PSYCOPG = importlib.util.find_spec("psycopg") is not None
-
 from scripts.supabase_checkpoint_store import (
     MAX_BLOB_BYTES,
     SealedCheckpointStore,
@@ -23,6 +16,13 @@ from scripts.supabase_checkpoint_store import (
     validate_supabase_dsn,
     verify_encrypted_checkpoint,
 )
+
+if importlib.util.find_spec("cryptography") is not None:
+    from cryptography.fernet import Fernet
+else:
+    Fernet = None
+
+HAS_PSYCOPG = importlib.util.find_spec("psycopg") is not None
 
 
 def sealed(key: bytes, *, event_count: int = 0) -> bytes:
@@ -212,7 +212,6 @@ class TestConnectionPolicy(unittest.TestCase):
             validate_supabase_dsn(
                 valid.replace(self.REF, "wrongprojectref0000"), expected_ref=self.REF
             )
-
 
 
 class TestMigrationPolicy(unittest.TestCase):
