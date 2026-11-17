@@ -33,7 +33,8 @@ functions.
 - Revision **0** is the initial, explicit import. Each subsequent write
   requires the exact observed revision. A transaction-level advisory lock,
   compare-and-swap check and version history prevent silent lost updates.
-- Up to 200 revisions and 10 MB sealed state per revision. No automatic
+- Up to 24 revisions and 8 MB sealed state per revision (worst-case ~192 MB
+  of ciphertext before database overhead, pending actual free-tier limits). No automatic
   deletion/pruning. Exhaustion blocks writes pending an owner-approved
   retention/backup plan.
 - A read verifies the SHA-256 digest and authenticates the encrypted token
