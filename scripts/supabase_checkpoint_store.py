@@ -13,8 +13,8 @@ import os
 from pathlib import Path
 
 MIN_BLOB_BYTES = 100
-MAX_BLOB_BYTES = 10_000_000
-MAX_REVISIONS = 200
+MAX_BLOB_BYTES = 8_000_000
+MAX_REVISIONS = 24
 CHECKPOINT_ID = "money_machine"
 LOCK_CLASS = 20261118
 LOCK_ID = 1
@@ -91,19 +91,26 @@ class SealedCheckpointStore:
     def put(self, blob: bytes, key: str, *, expected_revision: int) -> int:
         verify_encrypted_checkpoint(blob, key)
         if type(expected_revision) is not int or not 0 <= expected_revision < MAX_REVISIONS:
-            raise ValueError("Expected revision must be an integer between 0 and 199")
+            raise ValueError("Expected revision must be an integer between 0 and 23")
         checksum = hashlib.sha256(blob).hexdigest()
         with self.connect() as db:
             with db.cursor() as cur:
                 cur.execute("SELECT pg_advisory_xact_lock(%s,%s)", (LOCK_CLASS, LOCK_ID))
                 cur.execute(
-                    "SELECT revision FROM mm_internal.encrypted_checkpoints "
+                    "SELECT revision,ciphertext,sha256 FROM mm_internal.encrypted_checkpoints "
                     "WHERE id=%s FOR UPDATE", (CHECKPOINT_ID,),
                 )
                 existing = cur.fetchone()
                 actual = existing[0] if existing else 0
                 if actual != expected_revision:
                     raise ValueError("Checkpoint revision conflict; owner recovery required")
+                if existing:
+                    old_blob = bytes(existing[1])
+                    if hashlib.sha256(old_blob).hexdigest() != existing[2]:
+                        raise ValueError("Existing checkpoint checksum invalid")
+                    # Never overwrite history encrypted under a different/lost
+                    # key. Key rotation needs explicit decrypt/re-encrypt plan.
+                    verify_encrypted_checkpoint(old_blob, key)
                 next_revision = actual + 1
                 if next_revision > MAX_REVISIONS:
                     raise ValueError("Revision limit reached; archive and review retention")
@@ -125,6 +132,8 @@ class SealedCheckpointStore:
                         "(id,revision,ciphertext,sha256) VALUES (%s,%s,%s,%s)",
                         (CHECKPOINT_ID, next_revision, blob, checksum),
                     )
+                if cur.rowcount != 1:
+                    raise ValueError("Checkpoint write conflict; state left unchanged")
         return next_revision
 
     def read(self, key: str) -> tuple[int, bytes]:
