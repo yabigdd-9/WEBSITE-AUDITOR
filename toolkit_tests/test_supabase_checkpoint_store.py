@@ -60,7 +60,7 @@ class FakeCursor:
         state = self.connection.working
         if sql.startswith("SELECT pg_advisory_xact_lock"):
             self._row = (None,)
-        elsql.startswith("SELECT revision,ciphertext,sha256"):
+        elif sql.startswith("SELECT revision,ciphertext,sha256"):
             self._row = state["current"]
         elif sql.startswith("INSERT INTO mm_internal.encrypted_checkpoint_history"):
             revision, blob, digest = parameters
