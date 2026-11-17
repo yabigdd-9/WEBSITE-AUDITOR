@@ -5,16 +5,22 @@ on:
     branches: [master]
     paths:
       - 'deploy/postgres/001_encrypted_checkpoints.sql'
+      - 'deploy/postgres/002_locked_connector_role.sql'
       - 'scripts/supabase_checkpoint_store.py'
+      - 'scripts/supabase_connection_preflight.py'
       - 'toolkit_tests/test_supabase_checkpoint_store.py'
+      - 'toolkit_tests/test_supabase_connection_preflight.py'
       - 'pyproject.toml'
       - '.github/workflows/supabase-checkpoint-tests.yml'
   push:
     branches: [master]
     paths:
       - 'deploy/postgres/001_encrypted_checkpoints.sql'
+      - 'deploy/postgres/002_locked_connector_role.sql'
       - 'scripts/supabase_checkpoint_store.py'
+      - 'scripts/supabase_connection_preflight.py'
       - 'toolkit_tests/test_supabase_checkpoint_store.py'
+      - 'toolkit_tests/test_supabase_connection_preflight.py'
       - 'pyproject.toml'
       - '.github/workflows/supabase-checkpoint-tests.yml'
   workflow_dispatch:
@@ -42,4 +48,6 @@ jobs:
       - name: Install only bounded local test dependencies
         run: python -m pip install -e '.[vault,postgres]'
       - name: Validate encrypted checkpoint transactions without contacting Supabase
-        run: python -m unittest discover -s toolkit_tests -p 'test_supabase_checkpoint_store.py' -v
+        run: |
+          python -m unittest discover -s toolkit_tests -p 'test_supabase_checkpoint_store.py' -v
+          python -m unittest discover -s toolkit_tests -p 'test_supabase_connection_preflight.py' -v
