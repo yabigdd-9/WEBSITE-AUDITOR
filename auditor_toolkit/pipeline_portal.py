@@ -129,14 +129,14 @@ class PipelineViews:
         identity = html.escape(identity, quote=True)
         form = ""
         if p.get("proposal_version"):
-            form = f'''<form method="post" action="/pipeline/prospects/{identity}/reject"><input type="hidden" name="csrf" value="{value["csrf"]}"><input type="hidden" name="version" value="{p["proposal_version"]}"><label>Review reason<textarea name="reason" maxlength="1000" required></textarea></label><button formaction="/pipeline/prospects/{identity}/approve">Approve internal proposal</button> <button>Reject recommendation</button></form>'''
+            form = f'''<form method="post" action="/pipeline/prospects/{identity}/reject"><input type="hidden" name="csrf" value="{self.escaped(value["csrf"])}"><input type="hidden" name="version" value="{self.escaped(p["proposal_version"])}"><label>Reason for rejection<textarea name="reason" maxlength="1000" required></textarea></label><button formaction="/pipeline/prospects/{identity}/approve">Approve internal proposal</button> <button>Reject recommendation</button></form>'''
             decisions = [a for a in p.get("approvals", []) if a["action_type"] == "proposal"]
             if (
                 decisions
                 and decisions[-1]["decision"] == "approved"
                 and (decisions[-1]["version_sha256"] == p["proposal_version"])
             ):
-                form += f'''<form method="post" action="/pipeline/prospects/{identity}/accept"><input type="hidden" name="csrf" value="{value["csrf"]}"><input type="hidden" name="version" value="{p["proposal_version"]}"><h2>Record customer acceptance</h2><label>Acceptance evidence SHA-256 <input name="acceptance_evidence" pattern="[0-9a-f]{{64}}" required></label><label>Acceptance note<textarea name="reason" maxlength="1000" required></textarea></label><label><input type="checkbox" name="owner_verified" value="true" required> I verified the customer accepted this exact proposal version.</label><button>Create project record</button></form>'''
+                form += f'''<form method="post" action="/pipeline/prospects/{identity}/accept"><input type="hidden" name="csrf" value="{self.escaped(value["csrf"])}"><input type="hidden" name="version" value="{self.escaped(p["proposal_version"])}"><h2>Record customer acceptance</h2><label>Acceptance evidence SHA-256 <input name="acceptance_evidence" pattern="[0-9a-f]{{64}}" required></label><label>Acceptance note<textarea name="reason" maxlength="1000" required></textarea></label><label><input type="checkbox" name="owner_verified" value="true" required> I verified the customer accepted this exact proposal version.</label><button>Create project record</button></form>'''
         return self.page(
             p["domain"],
             "<p>Internal review only. Detailed encrypted report archives are not decrypted here.</p>"

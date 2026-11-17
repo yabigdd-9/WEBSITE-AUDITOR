@@ -1,6 +1,18 @@
 name: Durable Cloud Draft Pipeline
 
 on:
+  # Verify the existing enabled worker after platform integrations. Pushes
+  # always continue encrypted state; bootstrap remains an explicit input.
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/cloud-prospect-pipeline.yml'
+      - 'scripts/**'
+      - 'auditor_toolkit/**'
+      - 'website_auditor/**'
+      - 'money-machine/mm_discovery.py'
+      - 'config/cloud-*.json'
+      - 'pyproject.toml'
   schedule:
     - cron: '50 4 * * 2,5'
   workflow_dispatch:
@@ -29,6 +41,13 @@ on:
       - 'supabase/migrations/**'
       - 'scripts/pipeline_store.py'
       - 'toolkit_tests/test_pipeline_store.py'
+      - '.github/workflows/cloud-prospect-pipeline.yml'
+      - 'config/cloud-prospects.json'
+      - 'scripts/cloud_pipeline_outcomes.py'
+      - 'toolkit_tests/test_cloud_pipeline_outcomes.py'
+      - 'scripts/cloud_pipeline_checkpoint.py'
+      - 'toolkit_tests/test_cloud_pipeline_checkpoint.py'
+      - 'toolkit_tests/test_cloud_activation_gate.py'
       - 'scripts/cloud_discovery.py'
       - 'toolkit_tests/test_cloud_discovery.py'
       - 'money-machine/mm_discovery.py'
@@ -42,12 +61,6 @@ on:
       - 'scripts/operational_ledger.py'
       - 'toolkit_tests/test_operational_ledger.py'
       - 'toolkit_tests/test_platform_internal_e2e.py'
-      - '.github/workflows/cloud-prospect-pipeline.yml'
-      - 'config/cloud-prospects.json'
-      - 'scripts/cloud_pipeline_outcomes.py'
-      - 'toolkit_tests/test_cloud_pipeline_outcomes.py'
-      - 'scripts/cloud_pipeline_checkpoint.py'
-      - 'toolkit_tests/test_cloud_pipeline_checkpoint.py'
 
 permissions:
   contents: read
@@ -68,8 +81,43 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e '.[dev,vault]'
-      - run: python -m pytest toolkit_tests/test_cloud_prospect_pipeline.py toolkit_tests/test_cloud_pipeline_outcomes.py toolkit_tests/test_cloud_pipeline_checkpoint.py toolkit_tests/test_pipeline_store.py toolkit_tests/test_report_archive.py toolkit_tests/test_cloud_discovery.py toolkit_tests/test_cloud_opportunities.py toolkit_tests/test_approval_controls.py toolkit_tests/test_client_projects.py toolkit_tests/test_operational_ledger.py toolkit_tests/test_platform_internal_e2e.py money-machine/test_discovery.py -q
-      - run: ruff check scripts/report_archive.py scripts/pipeline_store.py scripts/cloud_prospect_pipeline.py scripts/cloud_discovery.py scripts/cloud_opportunities.py scripts/approval_controls.py scripts/client_projects.py scripts/operational_ledger.py toolkit_tests/test_pipeline_store.py toolkit_tests/test_report_archive.py toolkit_tests/test_cloud_discovery.py toolkit_tests/test_cloud_opportunities.py toolkit_tests/test_approval_controls.py toolkit_tests/test_client_projects.py toolkit_tests/test_operational_ledger.py
+      - run: python -m pytest toolkit_tests/test_cloud_prospect_pipeline.py toolkit_tests/test_cloud_pipeline_outcomes.py toolkit_tests/test_cloud_pipeline_checkpoint.py toolkit_tests/test_pipeline_store.py toolkit_tests/test_cloud_activation_gate.py toolkit_tests/test_report_archive.py -q toolkit_tests/test_cloud_discovery.py money-machine/test_discovery.py toolkit_tests/test_cloud_opportunities.py toolkit_tests/test_approval_controls.py toolkit_tests/test_client_projects.py toolkit_tests/test_operational_ledger.py toolkit_tests/test_platform_internal_e2e.py
+      - run: ruff check scripts/pipeline_store.py scripts/cloud_prospect_pipeline.py toolkit_tests/test_pipeline_store.py scripts/cloud_discovery.py toolkit_tests/test_cloud_discovery.py scripts/cloud_opportunities.py toolkit_tests/test_cloud_opportunities.py scripts/approval_controls.py toolkit_tests/test_approval_controls.py scripts/client_projects.py toolkit_tests/test_client_projects.py scripts/operational_ledger.py toolkit_tests/test_operational_ledger.py
+  configuration:
+    name: Check durable worker activation
+    needs: tests
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    env:
+      PIPELINE_ENABLED: ${{ vars.WA_PIPELINE_ENABLED }}
+      STATE_KEY_CONFIGURED: ${{ secrets.WA_PIPELINE_STATE_KEY != '' }}
+    steps:
+      - name: Report actual activation separately from offline tests
+        shell: bash
+        run: |
+          # A feature-branch manual dispatch can pass offline tests while the
+          # actual worker is skipped by the master-only guard below. Fail
+          # explicitly rather than showing a misleading green workflow.
+          if [ "$GITHUB_REF" != 'refs/heads/master' ]; then
+            echo '## Durable worker: BLOCKED - wrong branch' >> "$GITHUB_STEP_SUMMARY"
+            echo '::error::Run this workflow on master; feature-branch checks never activate the worker.'
+            exit 1
+          fi
+          if [ "$PIPELINE_ENABLED" != 'true' ]; then
+            echo '## Durable worker: DISABLED' >> "$GITHUB_STEP_SUMMARY"
+            echo 'Offline tests do not prove live queue execution. Set WA_PIPELINE_ENABLED=true and configure WA_PIPELINE_STATE_KEY before the first bootstrap dispatch.' >> "$GITHUB_STEP_SUMMARY"
+            if [ "$GITHUB_EVENT_NAME" = 'workflow_dispatch' ] || [ "$GITHUB_EVENT_NAME" = 'push' ]; then
+              echo '::error::Requested verification did not execute the worker: WA_PIPELINE_ENABLED is not true.'
+              exit 1
+            fi
+          elif [ "$STATE_KEY_CONFIGURED" != 'true' ]; then
+            echo '## Durable worker: BLOCKED - state key missing' >> "$GITHUB_STEP_SUMMARY"
+            echo '::error::WA_PIPELINE_STATE_KEY must be configured before activation.'
+            exit 1
+          else
+            echo '## Durable worker: configured; verify worker steps and checkpoint upload below' >> "$GITHUB_STEP_SUMMARY"
+          fi
   postgres-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -87,8 +135,8 @@ jobs:
     permissions:
       contents: read
       actions: read
-    needs: [tests, postgres-tests]
-    # Owner configuration required; merging never activates prospect requests.
+    needs: [tests, postgres-tests, configuration]
+    # Existing owner activation is required for scheduled and post-merge runs.
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && vars.WA_PIPELINE_ENABLED == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 25

@@ -31,6 +31,13 @@ PASSWORD = "synthetic-hosted-owner-password"
 NOW = 1767225600
 
 
+@pytest.fixture(autouse=True)
+def private_runner_directory(tmp_path, monkeypatch):
+    monkeypatch.setenv("RUNNER_TEMP", str(tmp_path))
+    for name in ("MM_PAID_ALLOWED", "MM_ALLOW_EXTERNAL_FREE_MODELS", "MM_EXTERNAL_SEND_ALLOWED"):
+        monkeypatch.setenv(name, "0")
+
+
 @pytest.fixture(scope="module")
 def config():
     return HostedConfig(ORIGIN, PasswordHasher().hash(PASSWORD), b"x" * 32)

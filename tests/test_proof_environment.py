@@ -82,3 +82,29 @@ def test_probe_environment_returns_instance():
     assert env.capture_timestamp != ""
     assert env.page_snapshot_id != ""
     assert env.browser_name == "chromium"
+
+
+def test_probe_defaults_when_optional_browser_cannot_launch(monkeypatch):
+    import sys
+    from types import SimpleNamespace
+
+    class BrowserUnavailableError(Exception):
+        pass
+
+    class Runtime:
+        chromium = SimpleNamespace(launch=lambda **kwargs: (_ for _ in ()).throw(BrowserUnavailableError()))
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            closed.append(True)
+
+    closed = []
+    monkeypatch.setitem(sys.modules, "playwright.sync_api", SimpleNamespace(
+        Error=BrowserUnavailableError, sync_playwright=Runtime,
+    ))
+    env = probe_environment()
+    assert env.browser_version == ""
+    assert env.capture_timestamp
+    assert closed == [True]

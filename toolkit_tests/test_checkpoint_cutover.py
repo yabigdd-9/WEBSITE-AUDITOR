@@ -10,6 +10,11 @@ from scripts.fetch_migration_checkpoint import WORKFLOW_PATH, fetch_latest
 from scripts.pipeline_store import PipelineStore
 
 
+@pytest.fixture(autouse=True)
+def private_runner_directory(tmp_path, monkeypatch):
+    monkeypatch.setenv("RUNNER_TEMP", str(tmp_path))
+
+
 def target(tmp_path):
     store = PipelineStore(tmp_path / "private.sqlite3")
     with store.transaction(bootstrap=True) as state:
@@ -123,10 +128,10 @@ def test_checkpoint_default_and_unknown_backend_never_fall_back(tmp_path, monkey
 
 
 def test_postgres_bootstrap_is_refused_before_connecting(tmp_path, monkeypatch):
-    from cryptography.fernet import Fernet
+    fernet_module = pytest.importorskip("cryptography.fernet")
 
     from scripts.cloud_storage_runner import run_postgres
 
     monkeypatch.setenv("BOOTSTRAP", "true")
     with pytest.raises(ValueError, match="migration"):
-        run_postgres(tmp_path / "state.enc", Fernet.generate_key().decode())
+        run_postgres(tmp_path / "state.enc", fernet_module.Fernet.generate_key().decode())

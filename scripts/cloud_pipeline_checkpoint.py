@@ -10,6 +10,7 @@ from pathlib import Path
 
 WORKFLOW = "cloud-prospect-pipeline.yml"
 WORKFLOW_PATH = ".github/workflows/" + WORKFLOW
+TRUSTED_EVENTS = ("schedule", "workflow_dispatch", "push")
 
 
 def gh_json(args):
@@ -20,7 +21,7 @@ def gh_json(args):
 def eligible_run(run):
     return (
         run.get("head_branch") == "master"
-        and run.get("event") in {"schedule", "workflow_dispatch"}
+        and run.get("event") in TRUSTED_EVENTS
         and run.get("path", "").split("@")[0] == WORKFLOW_PATH
     )
 
@@ -32,7 +33,7 @@ def restore(
 
     state_path = private_state_path(state_path)
     candidates = []
-    for kind in ("schedule", "workflow_dispatch"):
+    for kind in TRUSTED_EVENTS:
         candidates.extend(
             query(
                 [
