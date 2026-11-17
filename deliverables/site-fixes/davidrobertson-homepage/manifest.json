@@ -1,0 +1,14 @@
+{
+  "site": "https://davidrobertson.co.nz/",
+  "scope": "homepage_only",
+  "finding": "missing_meta_description",
+  "evidence_record": "docs/verification/2026-11-16-meta-description.json",
+  "evidence_observed_at": "2026-11-16T06:38:21.171080+00:00",
+  "evidence_html_sha256": "22feb846fd4e3877d9a8052dd64c2922c2f41f16f21672f6fc3391cebd7df707",
+  "proposed_description_characters": 142,
+  "production_applied": false,
+  "verified_fixed": false,
+  "requires_site_owner_access": true,
+  "changes_service_pages": false,
+  "claims_rank_or_revenue_improvement": false
+}

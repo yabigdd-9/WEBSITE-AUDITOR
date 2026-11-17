@@ -3,7 +3,14 @@
 _Generated 2026-08-26. Source gate: outreach/consent_gate.py · refs APR-001/005/007._
 _Evidence file: outreach/CONSENT_EVIDENCE_TASK001.json._
 
-## Status: 0 of 9 RATIFIED — all correctly BLOCKED by the gate
+> Current status (2026-11-16): the JSON now contains owner ratification for all
+> nine legacy records. The historical table below predates that change. All nine
+> are still blocked by the current direct-recipient-evidence and outreach
+> preflight checks. See `docs/website-fixes-and-outreach.md`; ratification alone
+> does not verify a guessed address or update old findings. No sending is enabled.
+
+
+## Historical status at collection: 0 of 9 ratified
 
 The consent gate (`consent_gate.py --check`) was run against collected published-context
 evidence for all 9 prospects. Every one returned **BLOCKED — INFERENCE_NOT_HUMAN_RATIFIED**,

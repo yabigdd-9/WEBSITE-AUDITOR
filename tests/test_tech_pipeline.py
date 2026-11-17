@@ -1,5 +1,7 @@
 """Tests for technology enrichment pipeline."""
 
+import pytest
+
 from auditor_toolkit.tech import analyse_html as analyse_technology_html
 from auditor_toolkit.tech import detect_technology
 from auditor_toolkit.technology.pipeline import enrich_technology
@@ -71,3 +73,47 @@ def test_legacy_technology_analysis_empty_html_remains_valid():
     findings, evidence = analyse_technology_html("<html></html>", "https://example.com", {})
     assert findings == []
     assert evidence == {"technologies": []}
+
+
+@pytest.mark.parametrize(
+    ("html", "headers", "name", "category"),
+    [
+        ("", {"Set-Cookie": "woocommerce_cart_hash=abc"}, "WooCommerce", "Ecommerce"),
+        ("", {"X-Shopify-Stage": "production"}, "Shopify", "Ecommerce"),
+        ('<meta name="generator" content="Wix.com Website Builder">', {}, "Wix", "CMS"),
+        ('<meta name="generator" content="Squarespace">', {}, "Squarespace", "CMS"),
+        ('<div data-reactroot></div>', {}, "React", "JavaScript Framework"),
+        ('<script src="react.js"></script>', {}, "React", "JavaScript Framework"),
+        ('<link href="bootstrap.css" rel="stylesheet">', {}, "Bootstrap", "CSS Framework"),
+        ('<script src="bootstrap.js"></script>', {}, "Bootstrap", "CSS Framework"),
+        ('<script src="jquery.js"></script>', {}, "jQuery", "JavaScript Library"),
+        ('<script src="google-analytics.js"></script>', {}, "Google Analytics", "Analytics"),
+        ("<script>ga('send', 'pageview')</script>", {}, "Google Analytics", "Analytics"),
+    ],
+)
+def test_passive_fingerprints_preserve_evidence_without_claiming_defects(
+    html, headers, name, category
+):
+    findings, evidence = analyse_technology_html(html, "https://example.com/page", headers)
+    assert findings == []
+    assert len(evidence["technologies"]) == 1
+    detected = evidence["technologies"][0]
+    assert detected["technology"] == name
+    assert detected["category"] == category
+    assert detected["source_url"] == "https://example.com/page"
+    assert detected["evidence"]
+    assert 0 < detected["confidence"] <= 1
+    assert detected["version"] is None
+
+
+def test_unversioned_wordpress_does_not_invent_a_version():
+    detected, = detect_technology('<meta name="generator" content="WordPress">', {})
+    assert detected.technology == "WordPress"
+    assert detected.version is None
+    assert detected.confidence == 0.7
+    assert detected.version_confidence == 0.7
+
+
+@pytest.mark.parametrize("html", ['<meta name="generator">', '<meta name="generator" content="Other CMS">'])
+def test_unrecognized_generator_does_not_create_a_fingerprint(html):
+    assert detect_technology(html, {}) == []
