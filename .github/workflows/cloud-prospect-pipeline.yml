@@ -95,6 +95,8 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
+      WA_PIPELINE_STORAGE: ${{ vars.WA_PIPELINE_STORAGE || 'checkpoint' }}
+      WA_POSTGRES_DSN: ${{ secrets.WA_POSTGRES_DSN }}
       WA_PIPELINE_STATE_KEY: ${{ secrets.WA_PIPELINE_STATE_KEY }}
       MM_PAID_ALLOWED: '0'
       MM_ALLOW_EXTERNAL_FREE_MODELS: '0'
@@ -109,22 +111,22 @@ jobs:
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: '3.11'
-      - run: python -m pip install -e '.[vault]'
-      - name: Restore immediately preceding checkpoint or fail closed
-        shell: bash
-        run: python -m scripts.cloud_pipeline_checkpoint
-      - name: Audit eligible queue and checkpoint without sending
-        shell: bash
-        run: |
-          STATE_FILE="$RUNNER_TEMP/pipeline-state.enc"
-          args=()
-          if [ "$BOOTSTRAP" = 'true' ]; then args+=(--bootstrap); fi
-          python -m scripts.cloud_prospect_pipeline --state "$STATE_FILE" "${args[@]}"
+      - run: python -m pip install -e '.[vault,postgres]'
+      - name: Run the explicitly selected private storage authority
+        run: python -m scripts.cloud_storage_runner
       # A failed/cancelled prior run without a checkpoint blocks the next run.
       - name: Preserve encrypted checkpoint
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: pipeline-state
           path: ${{ runner.temp }}/pipeline-state.enc
+          retention-days: 30
+          if-no-files-found: error
+      - name: Preserve encrypted paired Postgres recovery archive
+        if: env.WA_PIPELINE_STORAGE == 'postgres'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: pipeline-postgres-backup
+          path: ${{ runner.temp }}/pipeline-postgres-backup.enc
           retention-days: 30
           if-no-files-found: error

@@ -1,0 +1,51 @@
+name: Import verified checkpoint into private Postgres
+on:
+  workflow_dispatch:
+    inputs:
+      source_run:
+        description: 'Latest successful durable worker run containing the reviewed checkpoint'
+        type: string
+        required: true
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: durable-cloud-draft-pipeline
+  cancel-in-progress: false
+jobs:
+  import-state:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      SOURCE_RUN: ${{ inputs.source_run }}
+      WA_PIPELINE_STATE_KEY: ${{ secrets.WA_PIPELINE_STATE_KEY }}
+      WA_POSTGRES_DSN: ${{ secrets.WA_POSTGRES_DSN }}
+      MM_PAID_ALLOWED: '0'
+      MM_ALLOW_EXTERNAL_FREE_MODELS: '0'
+      MM_EXTERNAL_SEND_ALLOWED: '0'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[postgres,vault]'
+      - name: Require an actual private configuration before reading ciphertext
+        run: |
+          python - <<'PY'
+          import os
+          from cryptography.fernet import Fernet
+          from scripts.postgres_store import PostgresPipelineStore
+          Fernet(os.environ['WA_PIPELINE_STATE_KEY'].encode())
+          PostgresPipelineStore().read()
+          assert os.environ['SOURCE_RUN'].isdecimal()
+          print('Private configuration validated; no secret values logged.')
+          PY
+      - name: Fetch only the latest trusted completed worker checkpoint
+        run: python -m scripts.fetch_migration_checkpoint --source-run "$SOURCE_RUN"
+      - name: Import state atomically without audits or sending
+        run: python -m scripts.checkpoint_to_postgres --checkpoint "$RUNNER_TEMP/pipeline-state.enc" --source-run "$SOURCE_RUN"

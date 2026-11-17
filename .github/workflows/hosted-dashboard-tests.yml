@@ -1,0 +1,22 @@
+name: Hosted owner dashboard and checkpoint cutover tests
+on:
+  pull_request:
+    branches: [master, 'cloud/**']
+  push:
+    branches: [cloud/hosted-owner-dashboard-20261118]
+permissions:
+  contents: read
+jobs:
+  hosted-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev,portal,postgres,vault]' 'pgserver==0.1.4' pytest-cov
+      - run: python -m pytest toolkit_tests/test_hosted_portal.py toolkit_tests/test_checkpoint_cutover.py toolkit_tests/test_postgres_store.py toolkit_tests/test_approval_controls.py -q --cov=auditor_toolkit.hosted_portal --cov=scripts.portal_auth_store --cov=scripts.checkpoint_to_postgres --cov=scripts.fetch_migration_checkpoint --cov=scripts.cloud_storage_runner --cov-report=term-missing
+      - run: ruff check auditor_toolkit/hosted_portal.py scripts/portal_auth_store.py scripts/checkpoint_to_postgres.py scripts/fetch_migration_checkpoint.py scripts/cloud_storage_runner.py toolkit_tests/test_hosted_portal.py toolkit_tests/test_checkpoint_cutover.py
