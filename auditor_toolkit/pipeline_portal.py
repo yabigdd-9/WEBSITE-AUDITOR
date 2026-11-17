@@ -109,9 +109,9 @@ def attach_pipeline(app, store, session, csrf):
         form = ""
         if p.get("proposal_version"):
             form = (
-                f'<form method="post" action="/pipeline/prospects/{identity}/reject">'
-                f'<input type="hidden" name="csrf" value="{value["csrf"]}">'
-                f'<input type="hidden" name="version" value="{p["proposal_version"]}">'
+                f'<form method="post" action="/pipeline/prospects/{escaped(identity)}/reject">'
+                f'<input type="hidden" name="csrf" value="{escaped(value["csrf"])}">'
+                f'<input type="hidden" name="version" value="{escaped(p["proposal_version"])}">'
                 '<label>Reason for rejection<textarea name="reason" maxlength="1000" required></textarea></label>'
                 '<button>Reject recommendation</button></form>'
             )

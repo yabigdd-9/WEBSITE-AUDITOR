@@ -106,6 +106,18 @@ def test_reject_requires_csrf_exact_version_and_origin(owner):
     assert client.post(path, json={**data, "csrf": token}).status_code == 409
 
 
+def test_review_form_escapes_attributes_from_private_state(owner):
+    client, store, identity, _ = owner
+    login(client)
+    hostile = '\"><script>alert(1)</script><input value="'
+    with store.transaction() as document:
+        document["prospects"][identity]["proposal_version"] = hostile
+    response = client.get(f"/pipeline/prospects/{identity}")
+    assert response.status_code == 200
+    assert '<script>alert(1)</script>' not in response.text
+    assert '&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;' in response.text
+
+
 def test_review_size_rate_and_session_controls(owner):
     client, store, identity, history = owner
     token = login(client)
