@@ -1,7 +1,7 @@
 # Cloud platform architecture and Phase 0 inventory
 
 Inspection: 2026-11-16, base `e8da967379e38508fe3fee43ac6b49f202e35bbd`.
-Fetched origin/master before changes. MIT repository; optional services retain
+Fetched origin/master before changes. MIT is declared in README/pyproject; no standalone LICENSE file was found. Optional services retain
 separate terms. No production deployment is authorized by this implementation.
 
 ## Dependency map
@@ -148,3 +148,23 @@ private prospect records. A review helper records an owner rejection/reason and
 prevents automatic requalification of that audit. Remote owner authentication /
 approval UX remain subsequent work; helper actor input is for trusted callers,
 not an authorization token.
+
+## Current release-gate status after incremental implementation
+
+| Phase | Implemented scope | Gate still open |
+| --- | --- | --- |
+| 0 | Source inventory, dependency map, gaps/backlog | Runtime evidence remains separately tracked |
+| 1 | Private transactional SQLite queue + migrations + backups | Durable hosted destination, independent hosted runs |
+| 2 | Existing permitted-export adapters, canonical dedupe, provenance, review gate | Source-specific live acquisition/identity review |
+| 3 | Canonical evidence -> deterministic score -> versioned proposal, configured quote rules | Real bounded hosted run and configured owner rates/context |
+| 4 | Authenticated loopback owner views and review controls | Remote HTTPS/auth deployment, real mobile browser acceptance |
+| 5 | Exact proposal/message approvals, suppression and sandbox-only transport | Live outreach remains disabled; legal/provider/owner activation gates |
+| 6 | Owner-attested acceptance -> frozen project -> evidence-backed closure | Real accepted customer project and authorized delivery |
+| 7 | Private job history, crash-durable quotas, pause controls, paired restore tests | Deployment security review (formal scan unavailable), durable archive, hosted recovery and production verification |
+
+The logical operational ledger supplements the existing SQLite writer lock; it
+does not replace the local supervisor or introduce a paid always-on service.
+No report private key leaves the owner device and no new storage is activated.
+Independent Supabase/hosting mappings, current quotas and licensing/terms checks
+remain required before provisioning or activation. This is implemented/tested
+software on draft PRs, not a completed production platform.

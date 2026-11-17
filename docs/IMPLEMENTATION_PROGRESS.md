@@ -167,3 +167,113 @@ Continue independent synthetic implementation while these remain blocked.
   work includes interrupted-work quota durability, operational recovery evidence
   and final integration checks. Hosted activation remains blocked on destination
   mapping, quota/access review and explicit deployment approval.
+
+## Continued execution — Phase 7 bounded operational hardening
+
+- Phase 6 commit c5f56f67bc72041fc2940658f097906d0725200c; draft PR #87:
+  https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/87. Eligible stacked workflows
+  passed: cloud 43825129749, security 43825129902, toolkit 43825129798.
+- Separate branch cloud/operational-recovery. Schema v3 requires a private paired
+  operational ledger before requests, including first bootstrap. It records
+  jobs and durable quota reservations independently of queue rollback. Existing
+  SQLite writer locking still prevents overlapping work; readers remain available.
+- Quotas include legacy committed events and interrupted reservations, avoid
+  double counting committed IDs, and enforce per-job/daily/per-prospect caps.
+  An atomic last-committed-job marker repairs interrupted status finalization.
+- Backups preserve state + operations with private permissions/integrity checks.
+  Missing ledger, corrupt/mismatched schema or history caps fail closed. Added
+  explicit CLI pause/lower-budget controls and operational health summaries.
+- Local tests cover actual killed subprocess, rollback quota durability, failed
+  bootstrap ledger loss, legacy attempts, day/per-job caps, no double charging,
+  paired restore, missing-ledger rejection, schema v2 -> v3, pause/caps before
+  work and no requests after denial. Current hardening/migration set: 63 passed.
+- Earlier integrated full run: 849 passed, 5 skipped, 3 failures, 14 subtests.
+  The three failures are the same supervisor/DNS failures reproduced on untouched
+  master. Final v3 run: 855 passed, 5 skipped, the same 3 baseline/environment failures,
+  14 subtests passed. The exact final cloud CI command passed 124 tests.
+  116 portable MoneyMachine tests + 45 subtests passed; canonical/new-code
+  Ruff and pip check passed.
+- Formal Security Diff Scan is BLOCKED: required config-preflight resource is
+  unavailable and its helper is not exposed. SKILL.md says to run that preflight
+  before scan review/goal creation. See SECURITY.md for the exact skill source.
+  No formal scan success is claimed. Other security CI checks remain enforced.
+- Existing README/pyproject declare MIT; no standalone LICENSE was found. Source
+  export/provider licensing and current free quotas still require owner review.
+
+## Remaining owner/external gates
+
+No merges, cloud provisioning, deployment dispatch, customer sends, charges,
+paid activation or client-site changes were performed. The intended Supabase/
+hosted-storage mapping question remains pending. Next owner information needed:
+identify the intended existing project, or request a separate free-tier project
+proposal. Before activation: verify quotas/access, remote TLS/auth, durable
+encrypted archive/retention, formal security review, paired hosted restore and
+two independent bounded hosted runs. Stacked PRs must be reviewed and retargeted
+with required checks before any authorized merge. Release authorization and
+production activation remain unconfirmed; no merges have been performed.
+
+Final synthetic internal E2E also passed: existing discovery adapter -> real
+canonical auditor with mocked public-site HTTP/TLS fixtures and real SSRF URL
+validation -> evidence/score/proposal -> separate owner/message approvals ->
+sandbox result (zero external sends) -> explicit acceptance -> tasks/QA/handover
+closure -> paired backup/restore with preserved quotas. No real network or
+customer message is used by this test. The dedicated CI command now includes
+this test. Latest wheel build/installed-package smoke also passed for schema v3,
+paired quotas, restore and the owner project portal outside a source checkout.
+
+The final integration draft targets master so master-only CI/CodeQL/Sonar can
+run over the accumulated changes before any future authorized merge. Earlier
+phase drafts retain their focused stacked reviews. No merge or activation occurs
+from opening this integration review. The formal scan remains blocked as noted.
+
+## Final integration review and CI correction
+
+- Integration draft PR #88 targets master:
+  https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/88. Initial integrated commit
+  142e75663a99f0f0c66e5f3c79f5fe9d9e9571f2 passed CI 43829568077, security
+  43829568043, CodeQL 43829568139, toolkit 43829568125, private-ledger tests
+  43829568115 and cloud regressions 43829568039 / 43829568072 / 43829568244.
+- SonarCloud 43829568040 failed its unchanged quality gate. Diagnostic issues
+  identified portal factory complexity, direct request-ID HTML interpolation,
+  repeated literals, and composite/ambiguous exception assertions in new tests.
+- Corrected by separating owner/session and pipeline view handlers into explicit
+  route controllers, splitting body parsing/decision dispatch/rendering helpers,
+  escaping request-derived form/history links, using shared literals and naming
+  transactional test operations. Input validation, auth/CSRF/version checks,
+  sandbox-only transport, workload caps and test assertions remain enforced.
+- Post-correction verification: 125 dedicated pipeline tests and 37 portal/
+  history/delivery tests passed; canonical/test Ruff and diff checks passed.
+  Full CI and the unchanged Sonar gate will rerun before reporting final status.
+
+## Verified integrated implementation — final source evidence
+
+Source commit **7339e4c1c560354976a9ea40f32243359197ec2c**, integration draft
+[PR #88](https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/88): all nine workflows
+completed successfully after the quality corrections:
+
+| Workflow | Run ID | Result |
+| --- | --- | --- |
+| CI | 43832640119 | success; canonical 850 passed / 14 optional skips / 14 subtests; portable 113 passed / 45 subtests |
+| Local toolkit tests | 43832640298 | success; lint, dependency check, wheel and existing real-browser E2E steps passed |
+| security | 43832640193 | success; existing secret/dependency gates |
+| CodeQL | 43832640256 | success |
+| SonarCloud | 43832640042 | success; unchanged quality gate passed |
+| Durable cloud pipeline tests | 43832640084 | success; worker explicitly skipped on PR |
+| Scheduled canonical regression | 43832640097 | success; no production worker execution on PR |
+| Review shortlist regression | 43832640161 | success |
+| Private ledger tests | 43832640493 | success |
+
+The dedicated cloud/vault suite and local command cover 125 passing tests.
+Optional vault tests skipped in the generic CI job are exercised by the separate
+vault-enabled regression jobs. Local post-correction portal/history/delivery
+coverage passed 37 tests. Existing real-browser checks are not a claim that the
+new dashboard has passed remote/mobile acceptance.
+
+Implementation is committed/published in seven focused phase branches and
+reviewable through drafts #82-#88. PR #88 contains the integration and fixes;
+no merge has occurred. Current docs-only evidence updates do not change the
+implementation above. Production gates, external configuration and the formal
+scan limitation remain as documented. The next owner information needed is the
+intended hosted storage/project mapping; no private key or paid activation is
+requested. Continue with provider-specific deployment/security planning only
+after that mapping is known.

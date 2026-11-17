@@ -4,7 +4,7 @@ The existing local MoneyMachine DB, toolkit History and offline review ledger ar
 preserved. `scripts.pipeline_store.PipelineStore` adds a **separate private SQLite
 DB** for the existing cloud queue. It is opt-in, not a hosted deployment.
 
-Schema migrations 0 -> 2 and 1 -> 2 are transactional (`PRAGMA user_version=2`). Unknown
+Schema migrations 0/1/2 -> 3 are transactional (`PRAGMA user_version=3`). Unknown
 versions and existing unrelated schemas are refused rather than overwritten.
 
 | Table | Identity / purpose |
@@ -69,3 +69,30 @@ and append-only project_events also persist in prospect JSON. Completed evidence
 and accepted task scope cannot be changed by the adapter. No invoices, payments
 or client credentials are created by project tracking. Separate client_projects
 SQL normalization remains a future migration.
+
+## Operational ledger and schema v3
+
+The main DB now requires its adjacent `<stem>.operations.sqlite3` ledger. Its
+separate schema v1 contains `jobs` (running/succeeded/failed/interrupted) and
+`reservations` (job/audit/prospect hash, UTC day, unique job+audit). Reservations
+commit before HTTP and survive a queue rollback or process death. No domains,
+contacts, draft text, credentials or encryption keys are copied into that ledger.
+
+The main metadata records that the ledger is required before first bootstrap
+requests, and records the last committed job. Missing ledger files block reads/
+processing rather than recreating a zero budget. A subsequent writer, after
+acquiring the existing main writer lock, classifies prior running jobs using the
+committed-job marker. Readers still see the last committed queue state. Job
+completion interrupted after commit is repaired as succeeded rather than falsely
+reported as a lost queue commit.
+
+Caps include legacy committed attempts plus reservations, without double counting
+committed audit IDs: <=3 per job, <=6 per UTC day and <=3 per prospect in this
+queue generation. Failed/interrupted reservations are not refunded. Both jobs
+and reservations have 10,000-row caps requiring owner archival. Lower budgets
+are supported; a run paused via CLI records only the control event.
+
+The backup API now creates a pair with matching stems. Keep/restore both files.
+Older binaries refuse schema v3; do not roll back the schema or delete the quota
+ledger to resume work. Private parent directories must not be group/other
+writable, preventing replacement of private files by another account.

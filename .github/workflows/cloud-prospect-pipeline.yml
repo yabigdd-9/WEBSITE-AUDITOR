@@ -52,6 +52,9 @@ on:
       - 'toolkit_tests/test_approval_controls.py'
       - 'scripts/client_projects.py'
       - 'toolkit_tests/test_client_projects.py'
+      - 'scripts/operational_ledger.py'
+      - 'toolkit_tests/test_operational_ledger.py'
+      - 'toolkit_tests/test_platform_internal_e2e.py'
 
 permissions:
   contents: read
@@ -72,8 +75,8 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e '.[dev,vault]'
-      - run: python -m pytest toolkit_tests/test_cloud_prospect_pipeline.py toolkit_tests/test_cloud_pipeline_outcomes.py toolkit_tests/test_cloud_pipeline_checkpoint.py toolkit_tests/test_pipeline_store.py toolkit_tests/test_cloud_activation_gate.py -q toolkit_tests/test_cloud_discovery.py money-machine/test_discovery.py toolkit_tests/test_cloud_opportunities.py toolkit_tests/test_approval_controls.py toolkit_tests/test_client_projects.py
-      - run: ruff check scripts/pipeline_store.py scripts/cloud_prospect_pipeline.py toolkit_tests/test_pipeline_store.py scripts/cloud_discovery.py toolkit_tests/test_cloud_discovery.py scripts/cloud_opportunities.py toolkit_tests/test_cloud_opportunities.py scripts/approval_controls.py toolkit_tests/test_approval_controls.py scripts/client_projects.py toolkit_tests/test_client_projects.py
+      - run: python -m pytest toolkit_tests/test_cloud_prospect_pipeline.py toolkit_tests/test_cloud_pipeline_outcomes.py toolkit_tests/test_cloud_pipeline_checkpoint.py toolkit_tests/test_pipeline_store.py toolkit_tests/test_cloud_activation_gate.py -q toolkit_tests/test_cloud_discovery.py money-machine/test_discovery.py toolkit_tests/test_cloud_opportunities.py toolkit_tests/test_approval_controls.py toolkit_tests/test_client_projects.py toolkit_tests/test_operational_ledger.py toolkit_tests/test_platform_internal_e2e.py
+      - run: ruff check scripts/pipeline_store.py scripts/cloud_prospect_pipeline.py toolkit_tests/test_pipeline_store.py scripts/cloud_discovery.py toolkit_tests/test_cloud_discovery.py scripts/cloud_opportunities.py toolkit_tests/test_cloud_opportunities.py scripts/approval_controls.py toolkit_tests/test_approval_controls.py scripts/client_projects.py toolkit_tests/test_client_projects.py scripts/operational_ledger.py toolkit_tests/test_operational_ledger.py
   configuration:
     name: Check durable worker activation
     needs: tests

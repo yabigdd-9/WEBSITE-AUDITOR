@@ -21,8 +21,8 @@ from scripts.cloud_scheduled_audits import HOST, load_sites
 MAX_PROSPECTS = 100
 MAX_EVENTS = 10000
 MAX_STATE_BYTES = 5_000_000
-ERRORS = {"none", "audit_incomplete", "audit_failed", "robots_blocked", "policy_blocked"}
-ACTIONS = {"discovery", "audit", "draft", "suppression", "approval_config", "recovery"}
+ERRORS = {"none", "audit_incomplete", "audit_failed", "robots_blocked", "policy_blocked", "quota_exhausted"}
+ACTIONS = {"discovery", "audit", "draft", "suppression", "approval_config", "recovery", "budget", "pause"}
 STATUSES = {"queued", "succeeded", "retry", "failed", "pending", "blocked", "disabled", "approved"}
 
 
@@ -116,6 +116,7 @@ def process(
     state, rows, *, now, run_id, workspace, audit=run_review_sites, robots=robots_allowed, limit=3,
     daily_limit=6,
     opportunity_policy=None,
+    attempt_reserver=None,
 ):
     if type(limit) is not int or not 1 <= limit <= 3:
         raise ValueError("Maximum three audits per run")
@@ -216,11 +217,19 @@ def process(
     for identity, p in state["prospects"].items():
         if used >= budget or p["status"] not in {"queued", "retry"} or p["next_attempt"] > now:
             continue
+        audit_id = hashlib.sha256(f"{identity}:{run_id}:{p['attempts'] + 1}".encode()).hexdigest()
+        if attempt_reserver is not None and not attempt_reserver(
+            identity, audit_id, now=now, daily_limit=daily_limit
+        ):
+            p["operational_status"] = "quota_blocked"
+            event(state, now, run_id, identity, "budget", "blocked", "quota_exhausted")
+            continue
+        p.pop("operational_status", None)
         used += 1
         p["attempts"] += 1
         p["last_attempt"] = timestamp(now)
         attempt = dict(
-            audit_id=hashlib.sha256(f"{identity}:{run_id}:{p['attempts']}".encode()).hexdigest(),
+            audit_id=audit_id,
             prospect_id=identity, domain=p["domain"], execution_timestamp=timestamp(now),
             pipeline_run_id=run_id,
             auditor_version=version("website-auditor"), status="failed",
@@ -387,8 +396,15 @@ def main(argv=None):
     storage.add_argument("--state", type=Path)
     storage.add_argument("--database", type=Path, help="Private durable SQLite; never an Actions artifact")
     parser.add_argument("--bootstrap", action="store_true")
+    parser.add_argument("--max-audits", type=int, default=3)
+    parser.add_argument("--daily-limit", type=int, default=6)
+    parser.add_argument("--paused", action="store_true", help="Record a paused run without processing stages")
     args = parser.parse_args(argv)
     try:
+        if not 1 <= args.max_audits <= 3 or not 0 <= args.daily_limit <= 6:
+            raise ValueError("Workload limits exceed hard caps")
+        if args.paused and os.environ.get("WA_OUTCOMES_ENCRYPTED", "").strip():
+            raise ValueError("Paused runs cannot import outcome changes")
         _verify_safety(Path(__file__).resolve().parents[1])
         from scripts.cloud_opportunities import load_policy
 
@@ -399,14 +415,21 @@ def main(argv=None):
 
             Fernet(key.encode())  # Validate before requests.
         with ExitStack() as stack:
+            attempt_reserver = None
             if args.database:
                 from scripts.pipeline_store import PipelineStore
 
                 if os.environ.get("WA_RECOVERY_RUN"):
                     raise ValueError("Artifact recovery does not apply to SQLite")
-                state = stack.enter_context(
-                    PipelineStore(args.database).transaction(bootstrap=args.bootstrap)
-                )
+                store = PipelineStore(args.database)
+                state = stack.enter_context(store.transaction(bootstrap=args.bootstrap))
+                def attempt_reserver(prospect_id, audit_id, *, now, daily_limit):
+                    # Use the actual request-reservation day if a batch crosses
+                    # midnight; processing's explicit clock still drives scoring.
+                    return store.reserve_attempt(
+                        prospect_id, audit_id,
+                        now=int(datetime.now(timezone.utc).timestamp()), daily_limit=daily_limit,
+                    )
             else:
                 if args.bootstrap and args.state.exists():
                     raise ValueError("Refusing to replace an existing checkpoint")
@@ -437,14 +460,21 @@ def main(argv=None):
                 )
             rows = policy_rows(Path(__file__).resolve().parents[1])
             with tempfile.TemporaryDirectory(prefix="wa-pipeline-") as temporary:
-                report = process(
-                    state,
-                    rows,
-                    now=int(datetime.now(timezone.utc).timestamp()),
-                    run_id=os.environ.get("GITHUB_RUN_ID", "local"),
-                    workspace=Path(temporary),
-                    opportunity_policy=opportunity_policy,
-                )
+                if args.paused:
+                    event(state, int(datetime.now(timezone.utc).timestamp()),
+                          os.environ.get("GITHUB_RUN_ID", "local"), "0" * 64, "pause", "disabled")
+                    report = metrics(state)
+                else:
+                    report = process(
+                        state,
+                        rows,
+                        now=int(datetime.now(timezone.utc).timestamp()),
+                        run_id=os.environ.get("GITHUB_RUN_ID", "local"),
+                        workspace=Path(temporary),
+                        opportunity_policy=opportunity_policy,
+                        attempt_reserver=attempt_reserver,
+                        limit=args.max_audits, daily_limit=args.daily_limit,
+                    )
             if args.state:
                 seal(state, args.state, key)
         summary = json.dumps(report, sort_keys=True, indent=2)

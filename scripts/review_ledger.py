@@ -78,6 +78,8 @@ def _is_safe_db_location(path: Path) -> Path:
         raise ValueError("Create the private destination directory first")
     # Follow and check every ancestor to block a symlink redirect into source.
     path = path.parent.resolve() / path.name
+    if path.parent.stat().st_mode & 0o022:
+        raise ValueError("Private database directory must not be writable by group or others")
     project = Path(__file__).resolve().parents[1]
     if path == project or project in path.parents:
         raise ValueError("Database must be outside the public source checkout")

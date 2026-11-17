@@ -6,6 +6,7 @@ filesystem is required; this module does not provision a cloud service.
 
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import os
@@ -16,7 +17,7 @@ from pathlib import Path
 
 from scripts.review_ledger import _is_safe_db_location
 
-VERSION = 2
+VERSION = 3
 MAX_BYTES = 5_000_000
 SCHEMA = (
     "CREATE TABLE metadata (singleton INTEGER PRIMARY KEY CHECK(singleton=1), "
@@ -84,6 +85,8 @@ def validate(state):
 class PipelineStore:
     def __init__(self, path: Path):
         self.path = _is_safe_db_location(path)
+        self.operations_path = self.path.with_name(self.path.stem + ".operations.sqlite3")
+        self._active_job = None
 
     def _connect(self):
         # Repeat validation for every access, including backups and reopen.
@@ -116,10 +119,33 @@ class PipelineStore:
                 for statement in DISCOVERY_SCHEMA:
                     db.execute(statement)
                 db.execute(f"PRAGMA user_version={VERSION}")
+            elif version == 2:
+                tables = {r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+                if not {"metadata", "prospects", "audit_runs", "system_events", "business_events",
+                        "discovery_candidates", "discovery_events"} <= tables:
+                    raise ValueError("Unrecognized version 2 database")
+                db.execute(f"PRAGMA user_version={VERSION}")
             elif version != VERSION:
                 raise ValueError("Unsupported pipeline schema; migration required")
             if db.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
                 raise ValueError("Database integrity check failed")
+            row = db.execute("SELECT body FROM metadata WHERE singleton=1").fetchone()
+            if row is None or not json.loads(row[0]).get("_store_operations_required"):
+                if not db.in_transaction:
+                    db.execute("BEGIN IMMEDIATE")
+                # Re-read under the lock: another initializer may have finished.
+                row = db.execute("SELECT body FROM metadata WHERE singleton=1").fetchone()
+                metadata = json.loads(row[0]) if row else {"schema_version": 1, "_store_initialized": False}
+                if not metadata.get("_store_operations_required"):
+                    from scripts.operational_ledger import OperationalLedger
+
+                    with OperationalLedger(self.operations_path, allow_create=True).connect():
+                        pass
+                    metadata["_store_operations_required"] = True
+                    db.execute("INSERT OR REPLACE INTO metadata VALUES(1,?)", (json.dumps(metadata),))
+            if not self.operations_path.is_file():
+                raise ValueError("Operational ledger missing; explicit paired recovery required")
+            _is_safe_db_location(self.operations_path)
             db.commit()
             return db
         except BaseException:
@@ -133,6 +159,10 @@ class PipelineStore:
         if row is None:
             return None
         state = json.loads(row[0])
+        if state.pop("_store_initialized", True) is False:
+            return None
+        state.pop("_store_operations_required", None)
+        state.pop("_store_last_committed_job", None)
         state["prospects"] = {
             identity: json.loads(body)
             for identity, body in db.execute("SELECT id,body FROM prospects ORDER BY rowid")
@@ -166,7 +196,7 @@ class PipelineStore:
         return state
 
     @staticmethod
-    def _save(db, state):
+    def _save(db, state, job_id=None):
         validate(state)
         previous = PipelineStore._load(db)
         if previous is not None:
@@ -217,6 +247,9 @@ class PipelineStore:
         metadata["_store_has_business_events"] = "business_events" in state
         metadata["_store_has_audit_runs"] = "audit_runs" in state
         metadata["_store_has_discovery"] = "discovery_candidates" in state
+        metadata["_store_operations_required"] = True
+        metadata["_store_initialized"] = True
+        metadata["_store_last_committed_job"] = job_id
         # All replacement writes share the caller's transaction. A failed FK,
         # constraint or process interruption preserves the previous full state.
         for table in ("discovery_events", "discovery_candidates", "business_events", "audit_runs",
@@ -261,7 +294,12 @@ class PipelineStore:
         transaction; no claim of exactly-once HTTP fetching is made.
         """
         db = self._connect()
+        job_id = None
+        from scripts.operational_ledger import OperationalLedger
+
+        operations = None
         try:
+            operations = OperationalLedger(self.operations_path)
             db.execute("BEGIN IMMEDIATE")
             state = self._load(db)
             if bootstrap:
@@ -272,14 +310,34 @@ class PipelineStore:
                 state = empty_state()
             elif state is None:
                 raise ValueError("First run requires explicit bootstrap")
+            committed = db.execute(
+                "SELECT json_extract(body,'$._store_last_committed_job') FROM metadata WHERE singleton=1"
+            ).fetchone()
+            job_id = operations.start(committed[0] if committed else None)
+            self._active_job = (job_id, copy.deepcopy(state))
             yield state
-            self._save(db, state)
+            self._save(db, state, job_id=job_id)
             db.commit()
+            operations.finish(job_id, "succeeded")
         except BaseException:
             db.rollback()
+            if job_id is not None:
+                operations.finish(job_id, "failed")
             raise
         finally:
+            self._active_job = None
             db.close()
+
+    def reserve_attempt(self, prospect_id, audit_id, *, now, daily_limit):
+        """Commit quota reservation before HTTP, even if queue state rolls back."""
+        if self._active_job is None:
+            raise ValueError("A serialized queue transaction is required")
+        from scripts.operational_ledger import OperationalLedger
+
+        job_id, baseline = self._active_job
+        return OperationalLedger(self.operations_path).reserve(
+            job_id, prospect_id, audit_id, now=now, daily_limit=daily_limit, baseline=baseline,
+        )
 
     def read(self):
         db = self._connect()
@@ -315,6 +373,9 @@ class PipelineStore:
         target = _is_safe_db_location(destination)
         if target == self.path:
             raise ValueError("Backup must use a separate new file")
+        operational_target = target.with_name(target.stem + ".operations.sqlite3")
+        if operational_target.exists():
+            raise FileExistsError("Use a new backup pair")
         fd = os.open(target, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
         os.close(fd)
         source = None
@@ -325,6 +386,10 @@ class PipelineStore:
             source.backup(output)
             if output.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
                 raise ValueError("Backup failed integrity validation")
+            if self.operations_path.exists():
+                from scripts.operational_ledger import OperationalLedger
+
+                OperationalLedger(self.operations_path).backup(operational_target)
         except BaseException:
             target.unlink(missing_ok=True)
             raise

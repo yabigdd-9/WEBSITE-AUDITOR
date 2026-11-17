@@ -69,3 +69,18 @@ This is not a remotely deployed mobile dashboard. Responsive markup is present,
 but remote HTTPS, secure-cookie deployment settings, external identity and
 real-device browser acceptance still require a reviewed deployment. Do not
 change the loopback bind or trusted hosts to expose it without that work.
+
+## Operational persistence and controls
+
+Schema v3 stores state in a private pair: pipeline.sqlite3 and
+pipeline.operations.sqlite3. Mount and back up both on the trusted persistent
+filesystem. The second file preserves job history and quota reservations across
+queue rollback/crashes; missing history blocks processing. The backup API creates
+a corresponding pair automatically. No ephemeral Actions disk or temporary test
+directory constitutes a durable host.
+
+`--max-audits` accepts 1-3, `--daily-limit` accepts 0-6, and `--paused` records a
+control event without processing pipeline stages or outcome imports. The SQLite
+CLI always wires the durable reservation check before robots/audit requests.
+Request reservations use actual UTC time even when a batch crosses midnight.
+Checkpoint-only Actions behavior and existing schedules remain intact.

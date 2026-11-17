@@ -26,23 +26,38 @@ def bundle(workspace, rows):
 
 def ingest(state, path, source="curated", now=0, **kwargs):
     return discovery.import_export(
-        state, path, source=source, source_url="https://source.example.com/export",
-        terms_reviewed=kwargs.pop("terms_reviewed", True), now=now, run_id="fixture-import",
+        state,
+        path,
+        source=source,
+        source_url="https://source.example.com/export",
+        terms_reviewed=kwargs.pop("terms_reviewed", True),
+        now=now,
+        run_id="fixture-import",
         **kwargs,
     )
 
 
 def test_existing_adapter_normalizes_merges_and_minimizes(workspace):
-    path = bundle(workspace, [
-        {"name": "Fixture Business", "website": "https://WWW.Example.COM/about",
-         "city": "Christchurch", "category": "plumber", "email": "not-retained@example.com"},
-        {"name": "Fixture Business", "website": "https://example.com/"},
-        {"name": "Blocked", "website": "https://127.0.0.1"},
-    ])
+    path = bundle(
+        workspace,
+        [
+            {
+                "name": "Fixture Business",
+                "website": "https://WWW.Example.COM/about",
+                "city": "Christchurch",
+                "category": "plumber",
+                "email": "not-retained@example.com",
+            },
+            {"name": "Fixture Business", "website": "https://example.com/"},
+            {"name": "Blocked", "website": "https://127.0.0.1"},
+        ],
+    )
     store = PipelineStore(workspace / "discovery.sqlite3")
     with store.transaction(bootstrap=True) as state:
         result = ingest(state, path)
-        assert result == dict(new_candidates=1, merged_candidates=0, rejected_rows=1, total_candidates=1)
+        assert result == dict(
+            new_candidates=1, merged_candidates=0, rejected_rows=1, total_candidates=1
+        )
     with store.transaction() as state:
         assert ingest(state, path, now=10)["new_candidates"] == 0
     saved = store.read()
@@ -58,15 +73,41 @@ def test_existing_adapter_normalizes_merges_and_minimizes(workspace):
     assert saved["prospects"] == {}
 
 
-@pytest.mark.parametrize("source,document,category", [
-    ("osm", {"elements": [{"id": 42, "tags": {
-        "name": "Fixture", "website": "https://example.com", "addr:city": "Christchurch",
-        "craft": "electrician",
-    }}]}, "electrician"),
-    ("nzbn", [{"nzbn": "9429000000000", "entityName": "Fixture",
-               "websiteUrl": "https://example.com", "city": "Christchurch",
-               "category": "builder"}], "builder"),
-])
+@pytest.mark.parametrize(
+    "source,document,category",
+    [
+        (
+            "osm",
+            {
+                "elements": [
+                    {
+                        "id": 42,
+                        "tags": {
+                            "name": "Fixture",
+                            "website": "https://example.com",
+                            "addr:city": "Christchurch",
+                            "craft": "electrician",
+                        },
+                    }
+                ]
+            },
+            "electrician",
+        ),
+        (
+            "nzbn",
+            [
+                {
+                    "nzbn": "9429000000000",
+                    "entityName": "Fixture",
+                    "websiteUrl": "https://example.com",
+                    "city": "Christchurch",
+                    "category": "builder",
+                }
+            ],
+            "builder",
+        ),
+    ],
+)
 def test_existing_source_specific_export_adapters(workspace, source, document, category):
     state = pipeline.empty_state()
     assert ingest(state, bundle(workspace, document), source)["new_candidates"] == 1
@@ -76,14 +117,29 @@ def test_existing_source_specific_export_adapters(workspace, source, document, c
     assert candidate["verification_status"] == "unverified"
 
 
-@pytest.mark.parametrize("url", [
-    "http://example.com", "https://user:secret@example.com", "https://localhost",
-    "https://127.0.0.1", "https://[::1]", "https://169.254.169.254", "https://2130706433",
-    "https://0x7f.0.0.1", "https://localhost.example.com", "https://foo.internal",
-    "https://foo.localhost", "https://example.com:8080", "https://bad..example.com",
-    "https://-bad.example.com", "https://example.com/?token=secret", "https://foo.invalid",
-    "https://exa\nmple.com", "file:///etc/passwd",
-])
+@pytest.mark.parametrize(
+    "url",
+    [
+        "http://example.com",
+        "https://user:secret@example.com",
+        "https://localhost",
+        "https://127.0.0.1",
+        "https://[::1]",
+        "https://169.254.169.254",
+        "https://2130706433",
+        "https://0x7f.0.0.1",
+        "https://localhost.example.com",
+        "https://foo.internal",
+        "https://foo.localhost",
+        "https://example.com:8080",
+        "https://bad..example.com",
+        "https://-bad.example.com",
+        "https://example.com/?token=secret",
+        "https://foo.invalid",
+        "https://exa\nmple.com",
+        "file:///etc/passwd",
+    ],
+)
 def test_unsafe_urls_rejected(url):
     with pytest.raises(ValueError):
         discovery.canonical_domain(url)
@@ -91,12 +147,15 @@ def test_unsafe_urls_rejected(url):
 
 def test_cloud_guard_runs_before_legacy_root_url_normalization(workspace):
     state = pipeline.empty_state()
-    path = bundle(workspace, [
-        {"website": "https://exa\nmple.com"},
-        {"website": "https://example.com/?token=secret"},
-        {"website": "http://example.com"},
-        {"website": "https://example.com"},
-    ])
+    path = bundle(
+        workspace,
+        [
+            {"website": "https://exa\nmple.com"},
+            {"website": "https://example.com/?token=secret"},
+            {"website": "http://example.com"},
+            {"website": "https://example.com"},
+        ],
+    )
     result = ingest(state, path)
     assert result["rejected_rows"] == 3
     assert result["new_candidates"] == 1
@@ -106,14 +165,31 @@ def test_cloud_guard_runs_before_legacy_root_url_normalization(workspace):
 def test_discovery_cannot_queue_audit_until_independent_policy_review(workspace):
     state = pipeline.empty_state()
     ingest(state, bundle(workspace, [{"name": "Fixture", "website": "https://example.com"}]))
+
     def forbidden(*args):
         pytest.fail("Unreviewed discovery caused a request")
-    pipeline.process(state, [], now=0, run_id="unreviewed", workspace=workspace,
-                     audit=forbidden, robots=forbidden)
+
+    pipeline.process(
+        state,
+        [],
+        now=0,
+        run_id="unreviewed",
+        workspace=workspace,
+        audit=forbidden,
+        robots=forbidden,
+    )
     assert state["prospects"] == {}
     rows = [{"domain": "www.example.com", "url": "https://www.example.com"}]
-    pipeline.process(state, rows, now=1, run_id="reviewed", workspace=workspace,
-                     daily_limit=0, audit=forbidden, robots=forbidden)
+    pipeline.process(
+        state,
+        rows,
+        now=1,
+        run_id="reviewed",
+        workspace=workspace,
+        daily_limit=0,
+        audit=forbidden,
+        robots=forbidden,
+    )
     prospect = next(iter(state["prospects"].values()))
     candidate = next(iter(state["discovery_candidates"].values()))
     assert prospect["domain"] == "www.example.com"
@@ -121,8 +197,15 @@ def test_discovery_cannot_queue_audit_until_independent_policy_review(workspace)
     assert candidate["prospect_id"] == hashlib.sha256(b"www.example.com").hexdigest()
     assert candidate["eligibility_status"] == "reviewed_allowlist"
     rows[0]["suppressed"] = True
-    pipeline.process(state, rows, now=2, run_id="suppressed", workspace=workspace,
-                     audit=forbidden, robots=forbidden)
+    pipeline.process(
+        state,
+        rows,
+        now=2,
+        run_id="suppressed",
+        workspace=workspace,
+        audit=forbidden,
+        robots=forbidden,
+    )
     assert candidate["eligibility_status"] == "blocked"
 
 
@@ -154,8 +237,15 @@ def test_cli_import_is_offline_and_prints_counts_only(workspace, monkeypatch, ca
     path = bundle(workspace, [{"name": "Private fixture name", "website": "https://example.com"}])
     db = workspace / "queue.sqlite3"
     args = [
-        "--database", str(db), "--input", str(path), "--source", "curated",
-        "--source-url", "https://source.example.com/export", "--terms-reviewed",
+        "--database",
+        str(db),
+        "--input",
+        str(path),
+        "--source",
+        "curated",
+        "--source-url",
+        "https://source.example.com/export",
+        "--terms-reviewed",
     ]
     assert discovery.main([*args, "--bootstrap"]) == 0
     assert discovery.main(args) == 0
@@ -181,7 +271,7 @@ def test_v1_database_migration_preserves_original_history_and_restores_backup(wo
     store.backup(backup)
     assert PipelineStore(backup).read() == store.read()
     with sqlite3.connect(path) as db:
-        assert db.execute("PRAGMA user_version").fetchone()[0] == 2
+        assert db.execute("PRAGMA user_version").fetchone()[0] == 3
     with pytest.raises(ValueError):
         with store.transaction() as state:
-            state["discovery_events"].clear()
+            state["discovery_events"] = []
