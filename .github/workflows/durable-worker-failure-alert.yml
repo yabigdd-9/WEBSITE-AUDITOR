@@ -1,0 +1,46 @@
+name: Cloud Worker Failure Issue Alert
+
+on:
+  # Runs from the default branch, never from the failing workflow's source.
+  # Covers a failed scheduled worker, a failed push/manual worker, or a
+  # monitor that detected a missing scheduled run or checkpoint.
+  workflow_run:
+    workflows:
+      - Durable Cloud Draft Pipeline
+      - Durable Worker Schedule Health
+    types: [completed]
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloud-worker-failure-issue-alert
+  cancel-in-progress: false
+
+jobs:
+  create-deduplicated-incident:
+    if: >-
+      github.event.workflow_run.head_branch == 'master' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      contains(fromJSON('["failure","timed_out","cancelled","action_required","startup_failure"]'), github.event.workflow_run.conclusion)
+    permissions:
+      contents: read
+      issues: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out reviewed default-branch alert logic
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Python 3.11
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+      - name: Test fail-closed alert logic without GitHub API access
+        run: python -m unittest toolkit_tests.test_alert_durable_worker_failure -v
+      - name: Open one issue for a failed trusted workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python -m scripts.alert_durable_worker_failure
