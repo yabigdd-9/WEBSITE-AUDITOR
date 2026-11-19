@@ -95,6 +95,43 @@ def login(client):
     return client.get("/api/session").json()["csrf"]
 
 
+def test_encrypted_checkpoint_cli_import_is_replay_safe(store, tmp_path, monkeypatch, capsys):
+    from cryptography.fernet import Fernet
+
+    from scripts import checkpoint_to_postgres, postgres_store
+    from scripts.cloud_prospect_pipeline import seal
+
+    with store.transaction(bootstrap=True) as state:
+        event(state, 0, "setup", "0" * 64, "pause", "disabled")
+    original = store.read()
+    incoming, identity = snapshot()
+    key = Fernet.generate_key().decode()
+    checkpoint = tmp_path / "pipeline-state.enc"
+    seal(incoming, checkpoint, key)
+    monkeypatch.setattr(postgres_store, "PostgresPipelineStore", lambda: store)
+    args = ["--checkpoint", str(checkpoint), "--source-run", "123"]
+
+    monkeypatch.setenv("WA_PIPELINE_STATE_KEY", Fernet.generate_key().decode())
+    assert checkpoint_to_postgres.main(args) == 2
+    assert "Private checkpoint import blocked" in capsys.readouterr().out
+    assert store.read() == original
+    assert store.operational_summary()["reservations"] == 0
+
+    monkeypatch.setenv("WA_PIPELINE_STATE_KEY", key)
+    assert checkpoint_to_postgres.main(args) == 0
+    assert json.loads(capsys.readouterr().out)["already_imported"] is False
+    saved = store.read()
+    assert saved["prospects"][identity]["proposal_version"] == incoming["prospects"][identity]["proposal_version"]
+    assert saved["storage_authority"] == "postgres"
+    assert saved["audit_runs"] == incoming["audit_runs"]
+
+    assert checkpoint_to_postgres.main(args) == 0
+    assert json.loads(capsys.readouterr().out)["already_imported"] is True
+    assert store.read() == saved
+    assert store.operational_summary()["reservations"] == 0
+    assert metrics(saved)["contacts_sent"] == 0
+
+
 def test_environment_configuration_is_private_and_strict(config, monkeypatch):
     for key in ("WA_PORTAL_ORIGIN", "WA_PORTAL_PASSWORD_HASH", "WA_PORTAL_AUTH_PEPPER_B64"):
         monkeypatch.delenv(key, raising=False)
