@@ -5,6 +5,7 @@ import json
 import subprocess
 import sys
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 from unittest.mock import patch
 
@@ -23,8 +24,8 @@ def sha(value):
     return hashlib.sha256(value.encode()).hexdigest()
 
 
-@pytest.fixture(scope="module")
-def postgres():
+@contextmanager
+def local_postgres():
     with tempfile.TemporaryDirectory(prefix="mmdb-") as directory:
         server = pgserver.get_server(Path(directory) / "pg", cleanup_mode="delete")
         try:
@@ -37,6 +38,12 @@ def postgres():
             yield uri
         finally:
             server.cleanup()
+
+
+@pytest.fixture(scope="module")
+def postgres():
+    with local_postgres() as uri:
+        yield uri
 
 
 def reset_local(uri):
@@ -202,7 +209,7 @@ def test_pipeline_runs_on_existing_postgres_contract_without_sends(store):
         assert store.operational_summary()["reservations"] == 1
 
 
-def test_private_export_restores_failed_quota_and_rejects_reset(store, postgres):
+def test_private_export_restores_failed_quota_on_independent_postgres(store):
     initialize(store)
     prospect_id, audit_id = sha("p"), sha("a")
     with pytest.raises(RuntimeError):
@@ -216,13 +223,25 @@ def test_private_export_restores_failed_quota_and_rejects_reset(store, postgres)
             store.backup(target)
         with pytest.raises(ValueError, match="empty migrated"):
             store.restore_empty(target)
-        reset_local(postgres)
-        store.restore_empty(target)
+        with local_postgres() as recovery_uri:
+            recovered = PostgresPipelineStore(
+                connect=lambda: psycopg.connect(recovery_uri, autocommit=True)
+            )
+            recovered.restore_empty(target)
+            assert recovered.read() == before
+            assert recovered.operational_summary()["reservations"] == 1
+            with recovered.transaction():
+                assert not recovered.reserve_attempt(
+                    prospect_id, sha("later-audit"), now=0, daily_limit=1
+                )
+            assert recovered.operational_summary()["reservations"] == 1
+            target.write_bytes(
+                target.read_bytes().replace(b'"schema_version": 1', b'"schema_version": 2')
+            )
+            with pytest.raises(ValueError, match="checksum"):
+                recovered.restore_empty(target)
         assert store.read() == before
         assert store.operational_summary()["reservations"] == 1
-        target.write_bytes(target.read_bytes().replace(b'"schema_version": 1', b'"schema_version": 2'))
-        with pytest.raises(ValueError, match="checksum"):
-            store.restore_empty(target)
 
 
 def test_paused_cli_and_authenticated_portal_use_postgres(store, monkeypatch, capsys):
