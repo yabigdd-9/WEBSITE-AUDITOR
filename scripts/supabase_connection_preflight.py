@@ -66,6 +66,20 @@ def verify_status(status: tuple, counts: tuple) -> dict:
     }
 
 
+def safe_failure_category(exc: Exception) -> str:
+    """Emit only fixed diagnostic labels; never include exception text or DSNs."""
+
+    if isinstance(exc, KeyError):
+        return "MISSING_CONFIGURATION"
+    if isinstance(exc, (ValueError, TypeError)):
+        return "CONFIGURATION_OR_POLICY"
+    if any(cls.__module__.startswith("psycopg") and cls.__name__ == "OperationalError" for cls in type(exc).__mro__):
+        # Connection errors may contain credentials, hostnames or certificates.
+        # Do not print their text, repr, cause, or SQLSTATE.
+        return "DATABASE_CONNECTION"
+    return "UNCLASSIFIED"
+
+
 def main() -> int:
     try:
         from psycopg import connect
@@ -93,9 +107,10 @@ def main() -> int:
 
         print(json.dumps(result, sort_keys=True))
         return 0
-    except Exception:
-        # psycopg errors may include parts of a connection string. Never echo.
-        print("SUPABASE_PREFLIGHT_BLOCKED: no writes or worker activation")
+    except Exception as exc:
+        # Never echo exceptions: psycopg errors can contain credential material.
+        print("SUPABASE_PREFLIGHT_BLOCKED: " + safe_failure_category(exc)
+              + "; no writes or worker activation")
         return 2
 
 
