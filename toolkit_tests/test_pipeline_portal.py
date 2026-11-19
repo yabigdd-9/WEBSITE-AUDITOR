@@ -108,6 +108,10 @@ def test_owner_can_review_private_records_without_mutation_or_script_execution(o
         "&lt;script&gt;fixture&lt;/script&gt;" in client.get(f"/pipeline/prospects/{identity}").text
     )
     assert "Pricing not configured" in client.get(f"/pipeline/prospects/{identity}").text
+    detail = client.get(f"/pipeline/prospects/{identity}").text
+    assert '<label>Review reason<textarea name="reason"' in detail
+    assert "Approve internal proposal" in detail
+    assert "Reject recommendation" in detail
     assert "&lt;script&gt;" in client.get("/pipeline/prospects", params={"q": "<script>"}).text
     assert client.get("/pipeline/prospects?offset=-1").status_code == 400
     assert client.get("/pipeline/prospects/not-a-hash").status_code == 404
