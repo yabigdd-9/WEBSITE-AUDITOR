@@ -14,7 +14,7 @@ def permitted():
 
 class TestConnectorPreflight(unittest.TestCase):
     def test_secret_safe_failure_categories(self):
-        from psycopg import OperationalError
+        OperationalError = type("OperationalError", (Exception,), {"__module__": "psycopg.errors"})
         self.assertEqual(safe_failure_category(KeyError("SECRET_VALUE")), "MISSING_CONFIGURATION")
         self.assertEqual(safe_failure_category(ValueError("postgresql://secret")), "CONFIGURATION_OR_POLICY")
         self.assertEqual(safe_failure_category(OperationalError("password=secret")), "DATABASE_CONNECTION")
