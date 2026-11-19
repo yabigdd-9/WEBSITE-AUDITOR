@@ -2,7 +2,11 @@
 import unittest
 from pathlib import Path
 
-from scripts.supabase_connection_preflight import safe_failure_category, validate_session_pooler, verify_status
+from scripts.supabase_connection_preflight import (
+    safe_failure_category,
+    validate_session_pooler,
+    verify_status,
+)
 
 
 def permitted():
