@@ -13,6 +13,7 @@ import pytest
 psycopg = pytest.importorskip("psycopg")
 pgserver = pytest.importorskip("pgserver")
 from scripts import cloud_prospect_pipeline as pipeline  # noqa: E402
+from scripts import postgres_runtime_preflight as preflight  # noqa: E402
 from scripts.postgres_store import PROJECT_REF, PostgresPipelineStore, connection_options  # noqa: E402
 from toolkit_tests.platform_helpers import commit_mutation, interrupt_reserved_transaction  # noqa: E402
 
@@ -57,6 +58,32 @@ def store(postgres):
 def initialize(store):
     with store.transaction(bootstrap=True):
         pass
+
+
+def test_runtime_preflight_requires_restricted_login_and_active_rls(postgres, monkeypatch, capsys):
+    with psycopg.connect(postgres, autocommit=True) as admin:
+        admin.execute("CREATE ROLE moneymachine_runner LOGIN NOINHERIT")
+        admin.execute("GRANT moneymachine_worker TO moneymachine_runner")
+        try:
+            store = PostgresPipelineStore(
+                connect=lambda: psycopg.connect(
+                    postgres, user="moneymachine_runner", autocommit=True
+                )
+            )
+            monkeypatch.setattr(preflight, "PostgresPipelineStore", lambda: store)
+            assert preflight.main() == 0
+            assert "passed with zero writes" in capsys.readouterr().out
+
+            admin.execute("ALTER TABLE moneymachine.events DISABLE ROW LEVEL SECURITY")
+            assert preflight.main() == 2
+            assert capsys.readouterr().out == "POSTGRES_RUNTIME_PREFLIGHT_BLOCKED\n"
+        finally:
+            admin.execute("ALTER TABLE moneymachine.events ENABLE ROW LEVEL SECURITY")
+            admin.execute("DROP ROLE moneymachine_runner")
+
+    store = PostgresPipelineStore(connect=lambda: psycopg.connect(postgres, autocommit=True))
+    assert preflight.main() == 2
+    assert capsys.readouterr().out == "POSTGRES_RUNTIME_PREFLIGHT_BLOCKED\n"
 
 
 def test_independent_process_persistence_and_consistent_reader(store, postgres):

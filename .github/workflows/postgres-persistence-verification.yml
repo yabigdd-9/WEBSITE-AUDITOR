@@ -19,7 +19,6 @@ env:
   MM_PAID_ALLOWED: '0'
   MM_ALLOW_EXTERNAL_FREE_MODELS: '0'
   MM_EXTERNAL_SEND_ALLOWED: '0'
-  WA_POSTGRES_DSN: ${{ secrets.WA_POSTGRES_DSN }}
 
 jobs:
   read-only-preflight:
@@ -37,28 +36,9 @@ jobs:
           python-version: '3.11'
       - run: python -m pip install -e '.[postgres]'
       - name: Verify the restricted runtime role without changing state
-        shell: bash
-        run: |
-          python - <<'PYCODE'
-          from scripts.postgres_store import PostgresPipelineStore
-
-          try:
-              with PostgresPipelineStore().connection() as db, db.transaction():
-                  db.execute("SET TRANSACTION READ ONLY")
-                  result = db.execute("""
-                      SELECT session_user, current_user,
-                             count(*) > 0 AND bool_and(row_security_active(c.oid))
-                        FROM pg_class AS c
-                        JOIN pg_namespace AS n ON n.oid = c.relnamespace
-                       WHERE n.nspname = 'moneymachine' AND c.relkind = 'r'
-                  """).fetchone()
-                  if result != ("moneymachine_runner", "moneymachine_worker", True):
-                      raise ValueError("Unexpected role or row security")
-          except Exception:
-              print("POSTGRES_RUNTIME_PREFLIGHT_BLOCKED")
-              raise SystemExit(2) from None
-          print("Restricted Postgres runtime preflight passed with zero writes.")
-          PYCODE
+        env:
+          WA_POSTGRES_DSN: ${{ secrets.WA_POSTGRES_DSN }}
+        run: python -m scripts.postgres_runtime_preflight
   first-runner:
     needs: read-only-preflight
     if: github.ref == 'refs/heads/master' && inputs.verify_persistence
@@ -78,6 +58,8 @@ jobs:
       - run: python -m pip install -e '.[postgres]'
       - id: verify
         name: Persist a pause event without auditing or sending
+        env:
+          WA_POSTGRES_DSN: ${{ secrets.WA_POSTGRES_DSN }}
         shell: bash
         run: |
           python - <<'PY'
@@ -110,6 +92,8 @@ jobs:
           python-version: '3.11'
       - run: python -m pip install -e '.[postgres]'
       - name: Verify persistence on a separate runner
+        env:
+          WA_POSTGRES_DSN: ${{ secrets.WA_POSTGRES_DSN }}
         shell: bash
         run: |
           python - <<'PY'
