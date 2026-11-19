@@ -1,5 +1,24 @@
 # Cloud platform implementation progress
 
+## Hosted owner dashboard and checkpoint cutover — 2026-11-18
+
+- Work is isolated on `cloud/hosted-owner-dashboard-20261118`, based on the
+  existing Postgres adapter PR #107. Added an HTTPS-only deployment factory,
+  private database-backed sessions and shared login/write limits, exact-origin
+  CSRF checks, host-only Secure cookies and cross-replica logout/rotation.
+- Added one-time trusted latest-checkpoint import, transactional preservation
+  of evidence/decisions/suppression and legacy audit budgets, explicit storage
+  selection with no fallback, and encrypted paired Postgres exports. Source
+  import cannot overwrite an occupied business database or charged reservations.
+- Local non-database configuration/import/source-selection checks: 15 passed.
+  Real local Postgres is blocked by the shell's socket policy; dedicated CI
+  covers real Postgres and restart/worker continuity before any readiness claim.
+- Native selected-project checks found zero prospects, one setup event and zero
+  reservations. No runner LOGIN exists. No production import, secret provisioning,
+  storage authority switch, hosted deployment, send or paid activation performed.
+- See `HOSTED_OWNER_DASHBOARD.md` for concrete deployment/cutover/recovery steps.
+  Runtime DSN and an eligible Python host remain external configuration gates.
+
 ## Session 2026-11-16
 
 - Fetched master; base e8da967379e38508fe3fee43ac6b49f202e35bbd; focused branch

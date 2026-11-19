@@ -44,6 +44,12 @@ def append(prospect, key, record):
 def approve_proposal(prospect, version, *, actor, reason, now):
     current_proposal(prospect, version)
     record = actor_record(actor, reason, now)
+    previous = [a for a in prospect.get("approvals", []) if a["action_type"] == "proposal"]
+    if previous and all(previous[-1].get(key) == value for key, value in {
+        "decision": "approved", "version_sha256": version,
+        "actor_sha256": record["actor_sha256"], "reason": record["reason"],
+    }.items()):
+        return
     append(prospect, "approvals", dict(
         **record, action_type="proposal", decision="approved", version_sha256=version,
     ))

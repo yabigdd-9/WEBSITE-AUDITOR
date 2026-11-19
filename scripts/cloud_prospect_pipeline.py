@@ -441,6 +441,8 @@ def main(argv=None):
                 if args.bootstrap and args.state.exists():
                     raise ValueError("Refusing to replace an existing checkpoint")
                 state = empty_state() if args.bootstrap else unseal(args.state, key)
+                if state.get("storage_authority") == "postgres":
+                    raise ValueError("Use paired Postgres recovery; a snapshot cannot replace its quota ledger")
             recovery = os.environ.get("WA_RECOVERY_RUN", "").strip()
             if recovery:
                 if not recovery.isdecimal() or args.bootstrap:
