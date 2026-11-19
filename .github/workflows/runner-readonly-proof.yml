@@ -27,6 +27,7 @@ jobs:
           "$RUNNER_TEMP/db-client/bin/pip" install --only-binary=:all: 'psycopg[binary]==3.2.13'
       - name: Verify identity and schema in a read-only transaction
         env:
+          SSL_CERT_FILE: /etc/ssl/certs/ca-certificates.crt
           WA_POSTGRES_DSN: ${{ secrets.WA_POSTGRES_DSN }}
         run: |
           "$RUNNER_TEMP/db-client/bin/python" - <<'PY'
@@ -49,7 +50,11 @@ jobs:
                       FROM moneymachine.schema_version WHERE singleton=1""").fetchone()
                   assert row == ("moneymachine_runner", "moneymachine_worker", "on", 1)
                   db.rollback()
-          except psycopg.Error:
+          except psycopg.Error as error:
+              for category in ("certificate verify failed", "permission denied", "password authentication failed",
+                               "does not exist", "unsupported", "invalid", "timeout"):
+                  if category in str(error).lower():
+                      raise SystemExit(category) from None
               raise SystemExit("Read-only database verification failed") from None
           print("Verified TLS, runner identity, read-only mode, and schema version 1.")
           PY
