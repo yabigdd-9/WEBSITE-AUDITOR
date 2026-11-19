@@ -68,13 +68,12 @@ def verify_status(status: tuple, counts: tuple) -> dict:
 
 def safe_failure_category(exc: Exception) -> str:
     """Emit only fixed diagnostic labels; never include exception text or DSNs."""
-    from psycopg import OperationalError
 
     if isinstance(exc, KeyError):
         return "MISSING_CONFIGURATION"
     if isinstance(exc, (ValueError, TypeError)):
         return "CONFIGURATION_OR_POLICY"
-    if isinstance(exc, OperationalError):
+    if any(cls.__module__.startswith("psycopg") and cls.__name__ == "OperationalError" for cls in type(exc).__mro__):
         # Connection errors may contain credentials, hostnames or certificates.
         # Do not print their text, repr, cause, or SQLSTATE.
         return "DATABASE_CONNECTION"
