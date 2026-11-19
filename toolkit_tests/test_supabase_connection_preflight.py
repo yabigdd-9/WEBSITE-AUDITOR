@@ -1,7 +1,12 @@
 """Offline tests: locked connector metadata and read-only live-preflight guard."""
+import io
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
+from types import ModuleType
+from unittest.mock import Mock, patch
 
+from scripts import supabase_connection_preflight as preflight
 from scripts.supabase_connection_preflight import verify_status
 
 
@@ -41,6 +46,39 @@ class TestConnectorPreflight(unittest.TestCase):
         for counts in ((2, 0), (0, 25), (-1, 0), (0, 1.0), ("1", 0)):
             with self.subTest(counts=counts), self.assertRaises(ValueError):
                 verify_status(permitted(), counts)
+
+    def test_failure_stage_never_echoes_driver_error_or_connection_string(self):
+        sensitive = "synthetic-secret-that-must-not-appear"
+        driver = ModuleType("psycopg")
+        driver.connect = Mock(side_effect=RuntimeError(sensitive))
+        connection_info = ModuleType("psycopg.conninfo")
+        connection_info.conninfo_to_dict = Mock(return_value={"user": preflight.USERNAME})
+        modules = {"psycopg": driver, "psycopg.conninfo": connection_info}
+        with (
+            patch.dict("sys.modules", modules),
+            patch("scripts.supabase_checkpoint_store.validate_supabase_dsn"),
+        ):
+            for project, stage in (
+                ("unexpected-project", "configuration"),
+                (preflight.PROJECT_REF, "connection"),
+            ):
+                with self.subTest(stage=stage):
+                    output = io.StringIO()
+                    with (
+                        patch.dict("os.environ", {
+                            "WA_SUPABASE_PROJECT_REF": project,
+                            "WA_PG_DATABASE_URL": sensitive,
+                        }),
+                        redirect_stdout(output),
+                    ):
+                        self.assertEqual(preflight.main(), 2)
+                    self.assertEqual(
+                        output.getvalue(),
+                        f"SUPABASE_PREFLIGHT_BLOCKED: stage={stage}; no writes or worker activation\n",
+                    )
+                    if stage == "configuration":
+                        driver.connect.assert_not_called()
+            driver.connect.assert_called_once()
 
     def test_migration_does_not_install_password_or_enable_login(self):
         sql = (Path(__file__).resolve().parents[1] /
