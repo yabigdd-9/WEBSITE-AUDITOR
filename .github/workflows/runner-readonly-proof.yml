@@ -21,37 +21,35 @@ jobs:
           openssl x509 -in "$RUNNER_TEMP/supabase.crt" -noout -checkend 0
           sudo install -m 0644 "$RUNNER_TEMP/supabase.crt" /usr/local/share/ca-certificates/supabase.crt
           sudo update-ca-certificates
+      - name: Install the PostgreSQL client library
+        run: |
+          python3 -m venv "$RUNNER_TEMP/db-client"
+          "$RUNNER_TEMP/db-client/bin/pip" install --only-binary=:all: 'psycopg[binary]==3.2.13'
       - name: Verify identity and schema in a read-only transaction
         env:
           WA_POSTGRES_DSN: ${{ secrets.WA_POSTGRES_DSN }}
         run: |
-          python3 - <<'PY'
+          "$RUNNER_TEMP/db-client/bin/python" - <<'PY'
           import os
-          import subprocess
+          import psycopg
           from urllib.parse import parse_qs, urlsplit
 
-          url = urlsplit(os.environ.pop("WA_POSTGRES_DSN"))
+          dsn = os.environ.pop("WA_POSTGRES_DSN")
+          url = urlsplit(dsn)
           assert url.hostname == "aws-1-ap-southeast-2.pooler.supabase.com"
           assert url.port == 5432 and url.path == "/postgres"
           assert url.username == "moneymachine_runner.srymerkhraklwuttzexi"
           assert parse_qs(url.query) == {"sslmode": ["verify-full"], "sslrootcert": ["system"]}
-          env = dict(os.environ, PGHOST=url.hostname, PGPORT="5432", PGDATABASE="postgres",
-                     PGUSER=url.username, PGPASSWORD=url.password, PGSSLMODE="verify-full",
-                     PGSSLROOTCERT="/etc/ssl/certs/ca-certificates.crt", PGCONNECT_TIMEOUT="10")
-          sql = """BEGIN READ ONLY;
-          SET LOCAL ROLE moneymachine_worker;
-          SELECT session_user, current_user, current_setting('transaction_read_only'), version
-          FROM moneymachine.schema_version WHERE singleton=1;
-          ROLLBACK;"""
-          result = subprocess.run(["psql", "-XqAt", "-v", "ON_ERROR_STOP=1"],
-                                  input=sql, text=True, capture_output=True, env=env)
-          if result.returncode:
-              for label in ("certificate verify failed", "password authentication failed",
-                            "Tenant or user not found", "permission denied", "timed out"):
-                  if label.lower() in result.stderr.lower():
-                      raise SystemExit(label)
-              raise SystemExit("Database check failed")
-          if result.stdout.strip() != "moneymachine_runner|moneymachine_worker|on|1":
-              raise SystemExit("Unexpected identity, transaction mode, or schema version")
+          try:
+              with psycopg.connect(dsn, connect_timeout=10) as db:
+                  db.execute("SET TRANSACTION READ ONLY")
+                  db.execute("SET LOCAL ROLE moneymachine_worker")
+                  row = db.execute("""SELECT session_user, current_user,
+                      current_setting('transaction_read_only'), version
+                      FROM moneymachine.schema_version WHERE singleton=1""").fetchone()
+                  assert row == ("moneymachine_runner", "moneymachine_worker", "on", 1)
+                  db.rollback()
+          except psycopg.Error:
+              raise SystemExit("Read-only database verification failed") from None
           print("Verified TLS, runner identity, read-only mode, and schema version 1.")
           PY
