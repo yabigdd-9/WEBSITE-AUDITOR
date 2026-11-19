@@ -2,7 +2,7 @@
 import unittest
 from pathlib import Path
 
-from scripts.supabase_connection_preflight import safe_failure_category, verify_status
+from scripts.supabase_connection_preflight import safe_failure_category, validate_session_pooler, verify_status
 
 
 def permitted():
@@ -13,6 +13,15 @@ def permitted():
 
 
 class TestConnectorPreflight(unittest.TestCase):
+    def test_session_pooler_configuration(self):
+        options = dict(user="mm_pipeline_connector.srymerkhraklwuttzexi",
+                       host="example.pooler.supabase.com", port="5432", sslrootcert="system")
+        validate_session_pooler(options)
+        for field, value in (("user", "postgres"), ("host", "db.example.supabase.co"),
+                             ("port", "6543"), ("port", ""), ("sslrootcert", "")):
+            with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                validate_session_pooler({**options, field: value})
+
     def test_secret_safe_failure_categories(self):
         operational_error = type("OperationalError", (Exception,), {"__module__": "psycopg.errors"})
         self.assertEqual(safe_failure_category(KeyError("SECRET_VALUE")), "MISSING_CONFIGURATION")
