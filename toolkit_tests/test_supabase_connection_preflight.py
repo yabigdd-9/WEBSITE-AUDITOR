@@ -2,7 +2,7 @@
 import unittest
 from pathlib import Path
 
-from scripts.supabase_connection_preflight import verify_status
+from scripts.supabase_connection_preflight import verify_status, safe_failure_category
 
 
 def permitted():
@@ -13,6 +13,13 @@ def permitted():
 
 
 class TestConnectorPreflight(unittest.TestCase):
+    def test_secret_safe_failure_categories(self):
+        from psycopg import OperationalError
+        self.assertEqual(safe_failure_category(KeyError("SECRET_VALUE")), "MISSING_CONFIGURATION")
+        self.assertEqual(safe_failure_category(ValueError("postgresql://secret")), "CONFIGURATION_OR_POLICY")
+        self.assertEqual(safe_failure_category(OperationalError("password=secret")), "DATABASE_CONNECTION")
+        self.assertEqual(safe_failure_category(RuntimeError("token=secret")), "UNCLASSIFIED")
+
     def test_minimum_privileges_with_rls_are_accepted(self):
         result = verify_status(permitted(), (0, 0))
         self.assertEqual(result["read_only_preflight"], "PASS")
