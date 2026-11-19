@@ -35,6 +35,12 @@ Reconciled 19 November 2026 against [master snapshot](https://github.com/yabigdd
 - [PR #114's SonarCloud run](https://github.com/yabigdd-9/WEBSITE-AUDITOR/actions/runs/44497637967) returned HTTP 403 on the first attempt and passed on retry. Linux CI, toolkit, security and CodeQL passed for the same PR head. Private security alerts still need an owner-side check.
 - Review activity used zero customer sends, paid operations, customer site changes, migrations or cutovers.
 
+## Combined candidate verification
+
+A local merge of master, #107, the #113/#115 hosted review stack and #114/#116/#117/#118 produced candidate `ee88ee3` without conflicts. On macOS, the broad toolkit run passed 995 tests and 57 subtests. Dedicated runs passed 80 PostgreSQL, hosted review, recovery, browser and monitoring tests, 34 loopback and Chromium tests, and 205 MoneyMachine tests. These counts overlap. The PostgreSQL tests used disposable local databases and exercised independent process recovery, crash-safe request budgets, duplicate writer exclusion, restricted permissions and encrypted backup. [#119](https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/119) adds a verified regression for wrong-key rejection and idempotent replay through the encrypted checkpoint import CLI.
+
+The live Supabase catalog shows an enabled restricted `mm_pipeline_connector` login. The separate `moneymachine_runner` login required by the structured pipeline adapter is absent. Verify the checkpoint connector's `WA_PG_DATABASE_URL` privately and rerun the read-only preflight. Provision the separate restricted runner and `WA_POSTGRES_DSN` through the owner-authorized steps in the [adapter deployment guide](https://github.com/yabigdd-9/WEBSITE-AUDITOR/blob/37808ac98843890a52c4202f046ad5770fe2646d/docs/DEPLOYMENT.md) before the two-runner persistence check. The local candidate used synthetic records, with zero customer messages and zero paid operations.
+
 ## Release decision
 
 Keep the current encrypted artifact recovery path. Before accepting the Postgres candidate, capture a successful authenticated read-only preflight, record the two synthetic runner IDs and their checkpoint revisions, then record the outcomes for a stale writer, invalid key, forced interruption, duplicate attempt and controlled alert. Record rollback evidence before requesting a production cutover. Keep customer sending and paid operations disabled throughout this release verification.
