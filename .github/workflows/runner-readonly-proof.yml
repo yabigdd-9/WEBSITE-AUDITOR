@@ -13,6 +13,14 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 3
     steps:
+      - name: Install the project dashboard's Supabase CA on this runner
+        run: |
+          curl --fail --silent --show-error --proto '=https' \
+            https://supabase-downloads.s3-ap-southeast-1.amazonaws.com/prod/ssl/prod-ca-2021.crt \
+            -o "$RUNNER_TEMP/supabase.crt"
+          openssl x509 -in "$RUNNER_TEMP/supabase.crt" -noout -checkend 0
+          sudo install -m 0644 "$RUNNER_TEMP/supabase.crt" /usr/local/share/ca-certificates/supabase.crt
+          sudo update-ca-certificates
       - name: Verify identity and schema in a read-only transaction
         env:
           WA_POSTGRES_DSN: ${{ secrets.WA_POSTGRES_DSN }}
