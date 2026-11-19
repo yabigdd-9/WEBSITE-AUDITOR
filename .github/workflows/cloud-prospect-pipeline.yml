@@ -33,6 +33,12 @@ on:
     paths:
       - 'scripts/cloud_prospect_pipeline.py'
       - 'toolkit_tests/test_cloud_prospect_pipeline.py'
+      - 'scripts/report_archive.py'
+      - 'toolkit_tests/test_report_archive.py'
+      - 'scripts/postgres_store.py'
+      - 'scripts/postgres_backup.py'
+      - 'toolkit_tests/test_postgres_store.py'
+      - 'supabase/migrations/**'
       - 'scripts/pipeline_store.py'
       - 'toolkit_tests/test_pipeline_store.py'
       - '.github/workflows/cloud-prospect-pipeline.yml'
@@ -75,7 +81,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e '.[dev,vault]'
-      - run: python -m pytest toolkit_tests/test_cloud_prospect_pipeline.py toolkit_tests/test_cloud_pipeline_outcomes.py toolkit_tests/test_cloud_pipeline_checkpoint.py toolkit_tests/test_pipeline_store.py toolkit_tests/test_cloud_activation_gate.py -q toolkit_tests/test_cloud_discovery.py money-machine/test_discovery.py toolkit_tests/test_cloud_opportunities.py toolkit_tests/test_approval_controls.py toolkit_tests/test_client_projects.py toolkit_tests/test_operational_ledger.py toolkit_tests/test_platform_internal_e2e.py
+      - run: python -m pytest toolkit_tests/test_cloud_prospect_pipeline.py toolkit_tests/test_cloud_pipeline_outcomes.py toolkit_tests/test_cloud_pipeline_checkpoint.py toolkit_tests/test_pipeline_store.py toolkit_tests/test_cloud_activation_gate.py toolkit_tests/test_report_archive.py -q toolkit_tests/test_cloud_discovery.py money-machine/test_discovery.py toolkit_tests/test_cloud_opportunities.py toolkit_tests/test_approval_controls.py toolkit_tests/test_client_projects.py toolkit_tests/test_operational_ledger.py toolkit_tests/test_platform_internal_e2e.py
       - run: ruff check scripts/pipeline_store.py scripts/cloud_prospect_pipeline.py toolkit_tests/test_pipeline_store.py scripts/cloud_discovery.py toolkit_tests/test_cloud_discovery.py scripts/cloud_opportunities.py toolkit_tests/test_cloud_opportunities.py scripts/approval_controls.py toolkit_tests/test_approval_controls.py scripts/client_projects.py toolkit_tests/test_client_projects.py scripts/operational_ledger.py toolkit_tests/test_operational_ledger.py
   configuration:
     name: Check durable worker activation
@@ -112,11 +118,24 @@ jobs:
           else
             echo '## Durable worker: configured; verify worker steps and checkpoint upload below' >> "$GITHUB_STEP_SUMMARY"
           fi
+  postgres-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev,portal,postgres,vault]' 'pgserver==0.1.4'
+      - run: python -m pytest toolkit_tests/test_postgres_store.py -q
+      - run: ruff check scripts/postgres_store.py scripts/postgres_backup.py toolkit_tests/test_postgres_store.py
   draft-pipeline:
     permissions:
       contents: read
       actions: read
-    needs: [tests, configuration]
+    needs: [tests, postgres-tests, configuration]
     # Existing owner activation is required for scheduled and post-merge runs.
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && vars.WA_PIPELINE_ENABLED == 'true'
     runs-on: ubuntu-latest

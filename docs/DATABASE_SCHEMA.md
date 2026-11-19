@@ -96,3 +96,36 @@ The backup API now creates a pair with matching stems. Keep/restore both files.
 Older binaries refuse schema v3; do not roll back the schema or delete the quota
 ledger to resume work. Private parent directories must not be group/other
 writable, preventing replacement of private files by another account.
+
+## Schema v4: encrypted report references
+
+`report_artifacts` stores a unique ciphertext SHA-256, bounded byte count, existing
+vault format, recorded GitHub run/artifact IDs, creation/source expiry/local
+retention timestamps and envelope-only verification status. `audit_artifact_links`
+uses a composite primary key with foreign keys to reports and audit runs. Links
+preserve the audit's original status/canonical run ID and owner review record.
+Existing immutable audit snapshots are not rewritten. Index metadata and links
+are append-only through the store. Migrations from v1-v3 preserve earlier records.
+No key or decrypted report is stored. Ciphertext remains outside the database.
+
+## Private PostgreSQL schema v1
+
+The opt-in Postgres adapter uses the same validated business document and
+immutable transition rules as SQLite v4. Schema `moneymachine` contains
+`schema_version`, `metadata`, `prospects`, `audit_runs`, `events`, `business_events`,
+`discovery_candidates`, `discovery_events`, `report_artifacts`,
+`audit_artifact_links`, `jobs`, and `reservations`. Canonical domains/checksums
+are unique; relational records retain foreign keys; explicit audit sequence
+preserves append order. Bodies remain JSONB to reuse canonical evidence,
+proposal, approval and project records without competing implementations.
+
+A session advisory lock covers selection through state commit. Operational jobs
+and request reservations commit on a separate connection, so interrupted work
+cannot refund request limits. Reservations intentionally do not reference the
+uncommitted prospect/audit rows; job references remain enforced. Committed-job
+markers repair interrupted job finalization. Limits remain 3 requests/run,
+6/day, 3/prospect and 10,000 operational/history records.
+
+RLS is enabled and forced on every table, with policies for explicit private
+worker/reader groups. These groups are NOLOGIN. No public Data API schema or RPC
+was added. Runtime login provisioning is a separate secure configuration step.

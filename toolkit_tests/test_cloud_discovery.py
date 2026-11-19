@@ -9,7 +9,7 @@ import pytest
 
 from scripts import cloud_discovery as discovery
 from scripts import cloud_prospect_pipeline as pipeline
-from scripts.pipeline_store import SCHEMA, PipelineStore
+from scripts.pipeline_store import SCHEMA, VERSION, PipelineStore
 
 
 @pytest.fixture
@@ -271,7 +271,7 @@ def test_v1_database_migration_preserves_original_history_and_restores_backup(wo
     store.backup(backup)
     assert PipelineStore(backup).read() == store.read()
     with sqlite3.connect(path) as db:
-        assert db.execute("PRAGMA user_version").fetchone()[0] == 3
+        assert db.execute("PRAGMA user_version").fetchone()[0] == VERSION
     with pytest.raises(ValueError):
         with store.transaction() as state:
             state["discovery_events"] = []

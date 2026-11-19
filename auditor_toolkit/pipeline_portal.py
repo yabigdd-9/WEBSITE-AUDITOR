@@ -34,6 +34,7 @@ class PipelineViews:
         self.session = session
         self.csrf = csrf
         self.writes = {}
+        self.report_archive = None
 
     def state(self):
         try:
@@ -53,7 +54,7 @@ class PipelineViews:
         return html.escape(str(value), quote=True)
 
     def page(self, title, body):
-        return f'<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{self.escaped(title)} · MoneyMachine</title><style>body{{font:16px system-ui;margin:0;background:#f6f7f9;color:#192737}}main{{max-width:1100px;margin:auto;padding:24px}}nav{{display:flex;gap:20px;flex-wrap:wrap}}a{{color:#125c87}}table{{width:100%;border-collapse:collapse;background:white}}td,th{{text-align:left;padding:12px;border-bottom:1px solid #ddd}}.scroll{{overflow:auto}}.cards{{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px}}article{{padding:16px;background:white;border:1px solid #ddd;border-radius:8px}}pre{{white-space:pre-wrap;overflow-wrap:anywhere;background:white;padding:16px}}input,textarea,button{{font:inherit;padding:8px;max-width:100%;box-sizing:border-box}}label{{display:block;margin:12px 0}}textarea{{width:100%}}button{{cursor:pointer}}</style><main><nav><a href="/pipeline">Overview</a><a href="/pipeline/prospects">Prospects</a><a href="/pipeline/discovery">Discovery</a><a href="/pipeline/outreach">Outreach review</a><a href="/pipeline/projects">Projects</a><a href="/pipeline/health">System health</a><a href="/">Audit history</a></nav><h1>{self.escaped(title)}</h1>{body}</main></html>'
+        return f'<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{self.escaped(title)} · MoneyMachine</title><style>body{{font:16px system-ui;margin:0;background:#f6f7f9;color:#192737}}main{{max-width:1100px;margin:auto;padding:24px}}nav{{display:flex;gap:20px;flex-wrap:wrap}}a{{color:#125c87}}table{{width:100%;border-collapse:collapse;background:white}}td,th{{text-align:left;padding:12px;border-bottom:1px solid #ddd}}.scroll{{overflow:auto}}.cards{{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px}}article{{padding:16px;background:white;border:1px solid #ddd;border-radius:8px}}pre{{white-space:pre-wrap;overflow-wrap:anywhere;background:white;padding:16px}}input,textarea,button{{font:inherit;padding:8px;max-width:100%;box-sizing:border-box}}label{{display:block;margin:12px 0}}textarea{{width:100%}}button{{cursor:pointer}}</style><main><nav><a href="/pipeline">Overview</a><a href="/pipeline/prospects">Prospects</a><a href="/pipeline/discovery">Discovery</a><a href="/pipeline/reports">Audit reports</a><a href="/pipeline/outreach">Outreach review</a><a href="/pipeline/projects">Projects</a><a href="/pipeline/health">System health</a><a href="/">Audit history</a></nav><h1>{self.escaped(title)}</h1>{body}</main></html>'
 
     def overview(self, request: Request):
         self.session(request)
@@ -68,6 +69,7 @@ class PipelineViews:
             "approvals_pending": "Scope reviews pending",
             "contacts_sent": "Owner-recorded provider acceptances",
             "active_projects": "Active projects",
+            "encrypted_reports_indexed": "Encrypted reports indexed",
         }
         cards = "".join(
             (
@@ -127,7 +129,7 @@ class PipelineViews:
         identity = html.escape(identity, quote=True)
         form = ""
         if p.get("proposal_version"):
-            form = f'''<form method="post" action="/pipeline/prospects/{identity}/reject"><input type="hidden" name="csrf" value="{self.escaped(value["csrf"])}"><input type="hidden" name="version" value="{self.escaped(p["proposal_version"])}"><label>Reason for rejection<textarea name="reason" maxlength="1000" required></textarea></label><button formaction="/pipeline/prospects/{identity}/approve">Approve internal proposal</button> <button>Reject recommendation</button></form>'''
+            form = f'''<form method="post" action="/pipeline/prospects/{identity}/reject"><input type="hidden" name="csrf" value="{self.escaped(value["csrf"])}"><input type="hidden" name="version" value="{self.escaped(p["proposal_version"])}"><label>Review reason<textarea name="reason" maxlength="1000" required></textarea></label><button formaction="/pipeline/prospects/{identity}/approve">Approve internal proposal</button> <button>Reject recommendation</button></form>'''
             decisions = [a for a in p.get("approvals", []) if a["action_type"] == "proposal"]
             if (
                 decisions
@@ -137,7 +139,8 @@ class PipelineViews:
                 form += f'''<form method="post" action="/pipeline/prospects/{identity}/accept"><input type="hidden" name="csrf" value="{self.escaped(value["csrf"])}"><input type="hidden" name="version" value="{self.escaped(p["proposal_version"])}"><h2>Record customer acceptance</h2><label>Acceptance evidence SHA-256 <input name="acceptance_evidence" pattern="[0-9a-f]{{64}}" required></label><label>Acceptance note<textarea name="reason" maxlength="1000" required></textarea></label><label><input type="checkbox" name="owner_verified" value="true" required> I verified the customer accepted this exact proposal version.</label><button>Create project record</button></form>'''
         return self.page(
             p["domain"],
-            "<p>Internal review only. Detailed encrypted report archives are not decrypted here.</p><p>Archive retrieval is available only after an artifact reference is registered.</p>"
+            "<p>Internal review only. Detailed encrypted report archives are not decrypted here.</p>"
+            + f'<p><a href="/pipeline/reports?prospect={identity}">Review linked encrypted audit reports</a></p>'
             + form
             + PRE_OPEN
             + self.escaped(json.dumps(p, indent=2))
@@ -173,21 +176,17 @@ class PipelineViews:
             ),
             "paid_api_calls": 0,
             "automatic_sending": "disabled",
-            "storage": "private SQLite",
+            "storage": self.store.storage_kind,
             "hosted_storage": "not verified",
             "free_tier_remaining": "unknown; provider accounting required",
-            "durable_encrypted_archive": "not configured",
+            "encrypted_report_archive": "owner-controlled local ciphertext" if self.report_archive else "not configured",
+            "hosted_archive": "not verified",
             "recent_events": document["events"][-25:],
         }
-        if self.store.operations_path.exists():
-            from scripts.operational_ledger import OperationalLedger
-
-            try:
-                report["operational_ledger"] = OperationalLedger(
-                    self.store.operations_path
-                ).summary(document)
-            except (ValueError, sqlite3.Error, OSError):
-                report["operational_ledger"] = "unavailable; processing must remain blocked"
+        try:
+            report["operational_ledger"] = self.store.operational_summary(document)
+        except (ValueError, sqlite3.Error, OSError):
+            report["operational_ledger"] = "unavailable; processing must remain blocked"
         return self.page(
             "System health", PRE_OPEN + self.escaped(json.dumps(report, indent=2)) + PRE_CLOSE
         )
@@ -378,8 +377,11 @@ class PipelineViews:
         return RedirectResponse(destination, status_code=303)
 
 
-def attach_pipeline(app, store, session, csrf):
+def attach_pipeline(app, store, session, csrf, archive_root=None):
+    from .report_portal import attach_reports
+
     views = PipelineViews(store, session, csrf)
+    attach_reports(app, views, archive_root)
     pages = [
         ("/pipeline", views.overview),
         ("/pipeline/prospects", views.prospects),

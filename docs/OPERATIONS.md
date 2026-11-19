@@ -30,3 +30,28 @@ from the operational ledger. These are bounded scheduled/transactional jobs,
 not an always-on process. Use CLI --paused, --max-audits (1-3), --daily-limit
 (0-6) for explicit controls; invalid budgets fail before work. Existing Actions
 activation is unchanged, and no DB-backed workflow is enabled by this code.
+
+## Encrypted report index operations
+
+Use the explicit trusted-device import in ENCRYPTED_REPORT_VAULT.md. The portal's
+Audit reports view distinguishes available, expired, missing, corrupt and
+unconfigured local custody; its source link does not check GitHub availability.
+No import runs on page load. Health identifies local custody separately from
+unverified hosted storage. Database backups require a separate ciphertext
+directory backup. Monitor the 50 MB/1,000-file local cap and act before GitHub's
+30-day expiry; no automated source download or hosted archive is activated.
+
+## Optional private Postgres operation
+
+Use the server-only `WA_POSTGRES_DSN` and `--postgres` for queue operations, or
+`--pipeline-postgres` for the existing owner portal. Missing/malformed credentials
+fail closed. Pause the queue for export/restore; competing writers are rejected
+before selection. Read-only dashboards see the last committed state. Failed
+reservations stay charged. The health view uses the same operational-summary
+interface on SQLite and Postgres and does not expose connection parameters.
+
+The selected hosted store is initialized by a synthetic storage event only;
+start with `--postgres --paused` and never bootstrap over it. The owner must
+securely configure the dedicated runtime login and secret before the manual
+independent-runner verification can run. Existing schedules, sending and paid
+service settings were not activated or changed.

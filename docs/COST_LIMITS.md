@@ -22,3 +22,11 @@ The operational ledger has 10,000 jobs and reservations maximum. Removing it
 blocks work rather than resetting the budget. Retain its private backup with
 the main state file. These are request/workload caps, not a claim about remaining
 GitHub account minutes, paid billing, storage quota or all legacy workflows.
+
+## Optional local ciphertext cap
+
+The owner-controlled report archive caps total directory contents at 50 MB and
+1,000 files, with the existing per-envelope size limit. Imports fail closed at
+capacity; retries of an identical existing envelope remain idempotent. This is
+local custody software, not provisioned hosted storage. Any hosted destination
+still requires quota/pricing/access review and owner authorization.

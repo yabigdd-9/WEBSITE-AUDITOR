@@ -83,3 +83,90 @@ PRs, as confirmed by job inspection. No hosted database changes, production
 archive retrieval, remote owner authentication or production deployment were
 verified. Formal Security Diff Scan remains unavailable; a deployment-context
 security review still needs the actual chosen host/database/archive settings.
+
+## Encrypted report index: verification boundary
+
+The archive/index/download extension is not deployed. Tests use synthetic records
+and test-generated vault keys; no owner key, prospect archive, external send or
+new storage service is used. Local regression results and the focused PR are
+recorded in IMPLEMENTATION_PROGRESS.md. Hosted persistence between independent
+cloud runs and real owner archive recovery remain unverified.
+
+## Desktop and mobile dashboard browser acceptance
+
+The dedicated `test_pipeline_browser_e2e.py` exercises a real Chromium browser
+at desktop 1440×1000 and mobile 390×844 viewports with touch/mobile emulation.
+It uses synthetic prospects, findings, proposals and ciphertext, plus a private
+throwaway database and loopback-only server. Browser requests outside that server
+are blocked and fail the test. No real prospect audit, owner key or send occurs.
+
+Coverage includes owner login/logout, denied unauthenticated access, every
+pipeline review screen, no page-load business mutations, prospect search,
+private ciphertext download with byte-for-byte verification, explicit proposal
+approval, separately attested synthetic customer acceptance and project creation
+without live changes or invoicing. Each pipeline screen is checked for horizontal
+viewport overflow, no-store headers and the existing script-blocking CSP.
+
+The first mobile run reproduced a missing login viewport declaration (980px
+layout at a 390px mobile width); the corrected responsive login passes both
+viewports. The review reason label applies to either approval or rejection.
+Local verification: 30 browser/portal/release tests passed, including the two real
+Chromium workflows. The toolkit CI browser job now explicitly runs this suite.
+This is local emulation, not proof of a remote HTTPS dashboard or real-device
+production acceptance. Those deployment gates remain open.
+
+## Supabase provisioning verification — 2026-11-16
+
+Following explicit owner approval of the $0/month project proposal, a separate
+Supabase project was created: `moneymachine`, reference `srymerkhraklwuttzexi`,
+Sydney `ap-southeast-2`, organization `luvtvzzhzutxizpfdsgb`. The quote remained
+zero immediately before creation. Separate post-create lookups verified
+`ACTIVE_HEALTHY` and organization plan `free` / `tier_free`.
+
+A read-only query verified a responsive PostgreSQL 17.11 database, zero public
+base tables and zero Storage buckets. Security advisor returned `lints: []` for
+the empty project. These are provisioning checks only: no pipeline adapter,
+application migrations, prospect records, bucket, credentials, worker, hosted
+dashboard or independent-run persistence test was activated or verified. Existing
+projects were untouched. Exact reviewed code/run/restore evidence is still
+required for a future authorized application release.
+
+## Private schema and synthetic persistence verification
+
+Applied migration: `private_pipeline_store`, recorded by Supabase as
+`20261116105816`, in project `srymerkhraklwuttzexi`. A later independent inspection
+confirmed 12 private tables and an initially empty state. Privilege checks
+confirmed forced RLS, denied anonymous/generic authenticated access, and no
+worker DELETE privilege on reservations. The security advisor returned no lints
+after initial migration application.
+
+The first attempted synthetic write was not executed because automatic approval
+review failed at a usage limit; it was not a finding that the SQL was unsafe.
+On continuation, normal approval review accepted the same bounded action.
+A restricted worker-group transaction committed one empty-prospect state, one
+synthetic storage-verification event and one completed verification job. A
+separate reader-group connection confirmed one state, one synthetic event,
+zero prospects and zero request reservations. No audit, outreach or customer
+record was involved. This is management-connection persistence evidence, not
+proof of the Python adapter connecting from a GitHub runner.
+
+The Python adapter is tested against a real disposable PostgreSQL server for
+separate-process reads, writer exclusion, rollback/crash quota durability,
+limits, immutable histories, project/artifact relations, private paired restore,
+authenticated portal behavior and missing credentials. The runtime credential
+and future manual independent-runner workflow remain unverified.
+
+### Corrected adapter integration CI verified
+
+Draft PR #107 source `e72f50eea8b14a59d68b466724a58b10872a9005` passed
+CI 44075718056, toolkit 44075718136, security 44075718028, CodeQL 44075718046,
+SonarCloud 44075718196 and cloud/database tests 44075718150. Expanded Sonar
+coverage exercised the Postgres portal path; unchanged gate passed with 88.2%
+new-code coverage and 0% duplication. Local disposable Postgres suite passed
+23 tests; installed-wheel persistence/private export smoke passed.
+
+These checks verify implementation and synthetic database persistence, not an
+unattended hosted application release. Runtime secret availability could not be
+confirmed through GitHub (secrets-name lookup returned Forbidden); no runtime
+database credential was present locally. No master merge, workflow dispatch,
+external send, paid upgrade, hosted dashboard or client-site change occurred.

@@ -11,7 +11,7 @@ import pytest
 
 from scripts import cloud_prospect_pipeline as pipeline
 from scripts.operational_ledger import OperationalLedger
-from scripts.pipeline_store import PipelineStore
+from scripts.pipeline_store import VERSION, PipelineStore
 from toolkit_tests.platform_helpers import interrupt_reserved_transaction
 
 
@@ -227,12 +227,14 @@ def test_private_database_rejects_replaceable_parent_directory(store):
 
 def test_v2_migration_preserves_state_and_commits_required_ledger_marker(store):
     with sqlite3.connect(store.path) as db:
+        db.execute("DROP TABLE audit_artifact_links")
+        db.execute("DROP TABLE report_artifacts")
         db.execute("PRAGMA user_version=2")
         db.execute("UPDATE metadata SET body=json_remove(body,'$._store_operations_required')")
     before = store.read()
     assert before == pipeline.empty_state()
     with sqlite3.connect(store.path) as db:
-        assert db.execute("PRAGMA user_version").fetchone()[0] == 3
+        assert db.execute("PRAGMA user_version").fetchone()[0] == VERSION
         assert (
             db.execute(
                 "SELECT json_extract(body,'$._store_operations_required') FROM metadata"

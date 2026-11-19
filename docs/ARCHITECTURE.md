@@ -168,3 +168,12 @@ No report private key leaves the owner device and no new storage is activated.
 Independent Supabase/hosting mappings, current quotas and licensing/terms checks
 remain required before provisioning or activation. This is implemented/tested
 software on draft PRs, not a completed production platform.
+
+## Ciphertext index integration
+
+The existing vault remains the canonical encryption/decryption implementation.
+`scripts.report_archive` validates and copies owner-reviewed ciphertext into an
+explicit local archive, then transactionally indexes metadata and immutable audit
+associations through PipelineStore v4. `auditor_toolkit.report_portal` uses the
+existing owner session and pipeline views for ciphertext-only retrieval. It does
+not decrypt, crawl, send, provision storage or change audit qualification.

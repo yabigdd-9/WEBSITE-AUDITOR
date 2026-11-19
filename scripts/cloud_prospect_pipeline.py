@@ -301,6 +301,7 @@ def metrics(state):
 
     report = dict(
         prospects_found=len(prospects),
+        encrypted_reports_indexed=len(state.get("report_artifacts", {})),
         audits_succeeded=sum(p["status"] == "complete" for p in prospects),
         audits_failed=sum(p["status"] == "failed" for p in prospects),
         retries_pending=sum(p["status"] == "retry" for p in prospects),
@@ -395,6 +396,7 @@ def main(argv=None):
     storage = parser.add_mutually_exclusive_group(required=True)
     storage.add_argument("--state", type=Path)
     storage.add_argument("--database", type=Path, help="Private durable SQLite; never an Actions artifact")
+    storage.add_argument("--postgres", action="store_true", help="Private Postgres via server-only WA_POSTGRES_DSN")
     parser.add_argument("--bootstrap", action="store_true")
     parser.add_argument("--max-audits", type=int, default=3)
     parser.add_argument("--daily-limit", type=int, default=6)
@@ -416,12 +418,17 @@ def main(argv=None):
             Fernet(key.encode())  # Validate before requests.
         with ExitStack() as stack:
             attempt_reserver = None
-            if args.database:
-                from scripts.pipeline_store import PipelineStore
-
+            if args.database or args.postgres:
                 if os.environ.get("WA_RECOVERY_RUN"):
-                    raise ValueError("Artifact recovery does not apply to SQLite")
-                store = PipelineStore(args.database)
+                    raise ValueError("Artifact recovery does not apply to a database")
+                if args.postgres:
+                    from scripts.postgres_store import PostgresPipelineStore
+
+                    store = PostgresPipelineStore()
+                else:
+                    from scripts.pipeline_store import PipelineStore
+
+                    store = PipelineStore(args.database)
                 state = stack.enter_context(store.transaction(bootstrap=args.bootstrap))
                 def attempt_reserver(prospect_id, audit_id, *, now, daily_limit):
                     # Use the actual request-reservation day if a batch crosses

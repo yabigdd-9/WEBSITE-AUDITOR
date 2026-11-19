@@ -63,3 +63,38 @@ appropriate. Paused runs cannot import outcome changes. To stop an already
 running job, stop/cancel its process; changing a future schedule does not cancel
 current execution. The Actions emergency switch/cancellation procedure remains
 unchanged. No new scheduler has been installed.
+
+## Indexed encrypted reports
+
+Schema v4 database backups preserve the report index and immutable audit links,
+not ciphertext files. Back up the dedicated private archive directory separately
+with its 0700 directory and 0600 file permissions. Preserve the existing paired
+pipeline/operations database backup procedure. Test restored ciphertext checksums
+and owner-side authenticated decryption on the trusted device before relying on
+a backup. Synthetic tests verify index restore and a real vault round trip; no
+owner archive recovery has been production-verified.
+
+A failed database commit after ciphertext publication can leave an unindexed
+file. Repeating the same import safely reuses its checksum; inspect unmatched
+files privately before any owner-directed cleanup. Missing/altered files block
+download. Expiry does not erase data: follow the owner's retention decision for
+secure deletion and backup removal; there is no automatic deletion or retention
+extension service. Lost private keys cannot be recovered from this index; use
+the owner's separate trusted key backup. Do not upload keys to recover service.
+
+## Postgres paired export and empty-target restore
+
+`PostgresPipelineStore.backup(private_path)` writes a new 0600 trusted-device
+JSON export outside Git, capped at 20 MB. It acquires the writer lock and reads
+state, committed-job marker, jobs and reservations in one consistent snapshot.
+A SHA-256 checksum detects changes; it is not authenticated encryption. This
+local file contains private plaintext: never upload it as an Actions artifact.
+Apply an approved encrypted off-site backup procedure before collecting real
+prospect data. Ciphertext report files still require separate custody/backups.
+
+`restore_empty(private_path)` checks format, checksum, size, private location and
+state validation, then restores state and operational history transactionally.
+It refuses an initialized destination or existing jobs/reservations, preserves
+failed charges, and cannot reset a live queue. Disposable local PostgreSQL tests
+verify recovery and tamper rejection; no hosted disaster restore was performed.
+Free Supabase managed backups remain insufficient for the release gate.

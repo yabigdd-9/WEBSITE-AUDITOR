@@ -41,3 +41,42 @@ The workflow sets artifact retention to 30 days. GitHub public-repository artifa
 GitHub Actions artifact storage is subject to platform allowances and possible charges if usage grows. Keep report archives small and do not change to paid services without explicit approval.
 
 An audit finding or scope draft is not proof of customer interest, conversion, revenue or an approved build. All proposals still require human approval.
+
+## Owner-controlled ciphertext archive and index
+
+The optional local archive preserves the existing vault envelope unchanged. It
+never accepts private keys or decrypts reports. No hosted archive is configured
+by this feature. The owner explicitly creates a dedicated 0700 directory outside
+Git checkouts on a trusted device. Existing private pipeline records must already
+contain the audit IDs being linked. Download the encrypted GitHub artifact before
+its recorded 30-day expiry, extract the envelope, and independently verify its
+SHA-256 and association with the recorded audits. Then run:
+
+```sh
+python -m scripts.report_archive --database /private/pipeline.sqlite3 \
+  --archive-dir /private/sealed --input /private/download.enc.json \
+  --expected-sha256 EXPECTED_SHA256 --audit-id RECORDED_AUDIT_ID \
+  --source-run-id RUN_ID --source-artifact-id ARTIFACT_ID \
+  --created-at CREATION_UTC --source-expires-at SOURCE_EXPIRY_UTC \
+  --retain-until LOCAL_EXPIRY_UTC --owner-reviewed --reason 'Verified local association'
+```
+
+Use explicit ISO UTC timestamps. Local retention must be in the future and no
+more than 365 days from import. Metadata and links are immutable; reimport is
+idempotent. The archive permits 1,000 files and 50 MB total, including staging
+files. Each envelope is bounded by the existing vault size limit. Publication
+uses private files and exclusive content-addressed names; it never overwrites
+a different report. No requests or storage provisioning occur.
+
+Launch the existing loopback owner portal with its usual options plus
+`--pipeline-db /private/pipeline.sqlite3 --report-archive-root /private/sealed`.
+The authenticated Audit reports screen shows availability, recorded source
+expiry and audit links, with paginated ciphertext downloads limited to ten per
+minute per session. Local expiry blocks download; it does not automatically
+delete files. Source URLs are owner-recorded references, not online availability
+verification. Partial audit links remain partial and do not qualify findings.
+
+Envelope structure and SHA-256 checks detect malformed or changed copies. They
+do not authenticate decrypted content or prove the audit association. Use the
+existing trusted-device decryption command above to authenticate/review content.
+Never enter the private key in the portal, server configuration or CI.
