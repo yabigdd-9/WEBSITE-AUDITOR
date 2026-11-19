@@ -123,6 +123,7 @@ def test_encrypted_checkpoint_cli_import_is_replay_safe(store, tmp_path, monkeyp
     saved = store.read()
     assert saved["prospects"][identity]["proposal_version"] == incoming["prospects"][identity]["proposal_version"]
     assert saved["storage_authority"] == "postgres"
+    assert saved["audit_runs"] == incoming["audit_runs"]
 
     assert checkpoint_to_postgres.main(args) == 0
     assert json.loads(capsys.readouterr().out)["already_imported"] is True
