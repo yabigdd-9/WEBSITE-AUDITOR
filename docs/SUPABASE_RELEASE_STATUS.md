@@ -31,9 +31,14 @@ Read-only management queries confirmed:
 
 - Twelve structured tables have RLS enabled and forced.
 - Two encrypted-mirror tables have RLS enabled.
-- `moneymachine_worker`, `moneymachine_reader`, `mm_checkpoint_writer` and
-  `mm_pipeline_connector` have no login, superuser, create-database,
-  create-role or bypass-RLS privileges.
+- `moneymachine_worker`, `moneymachine_reader` and
+  `mm_checkpoint_writer` are NOLOGIN group roles.
+- **Updated 19 November 2026:** independent read-only Supabase inspection found
+  `mm_pipeline_connector` is now **LOGIN-enabled**, while it still has no
+  superuser, create-role or bypass-RLS privileges. This differs from the
+  18 November NOLOGIN snapshot; the source of the intervening change was not
+  established in this review. Do not assume GitHub's DSN secret exists or that
+  TLS/authentication has been successfully tested.
 - The connector belongs only to the checkpoint-writer group among the inspected
   application roles. `moneymachine_runner` has not yet been provisioned.
 - The structured store contains one state, one event and one job, with zero
@@ -67,10 +72,14 @@ on the integrated revision before merging.
    master revision. The first and second jobs use separate runners, preserve
    request-reservation counts and add only pause/control events. The selected
    database is already initialized; do not pass `--bootstrap`.
-3. If using the optional mirror, separately activate its existing locked login,
-   configure `WA_PG_DATABASE_URL`, and run **Supabase Connector Read-Only
-   Preflight**. A known-good encrypted checkpoint and a full operational backup
-   must be retained before any mirror import or authority change.
+3. If using the optional mirror, the account is **already LOGIN-enabled**
+   as observed on 19 November. Do **not** rotate or reveal a password merely to
+   re-enable it. Verify the dedicated credential was established through a
+   trusted channel, configure `WA_PG_DATABASE_URL` in Actions secrets if not
+   present, and pass **Supabase Connector Read-Only Preflight** on `master`.
+   This review could not independently list GitHub secrets. Keep a known-good
+   encrypted checkpoint and a full operational backup before any import or
+   authority change.
 4. Verify backups, restored quota accounting and actual hosted connectivity
    before choosing one authoritative production store. Keep existing schedules
    working until a deliberate cutover is verified.
