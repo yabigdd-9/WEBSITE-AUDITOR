@@ -38,6 +38,9 @@ jobs:
       - name: Install optional Postgres driver
         run: python -m pip install -e '.[postgres]'
 
+      - name: Install the Supabase CA for connector verification
+        uses: ./.github/actions/supabase-tls
+
       - name: Verify only the dedicated role and private checkpoint metadata
         env:
           WA_PG_DATABASE_URL: ${{ secrets.WA_PG_DATABASE_URL }}
