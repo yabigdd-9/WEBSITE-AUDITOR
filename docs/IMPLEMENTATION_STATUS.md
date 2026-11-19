@@ -6,6 +6,26 @@ record. [Architecture](ARCHITECTURE.md), [operations](OPERATIONS.md),
 [recovery](RECOVERY.md), [security](SECURITY.md), and [cost limits](COST_LIMITS.md)
 describe the existing controls.
 
+## Follow-up on master `513dd960`
+
+[PR #125](https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/125) merged the
+shared Supabase TLS setup. Two Actions runs passed the encrypted checkpoint
+connector's read-only preflight. These runs validate the mirror connection.
+The separate structured Postgres connection and independent hosted restore
+still require verification under #112.
+[First preflight](https://github.com/yabigdd-9/WEBSITE-AUDITOR/actions/runs/44603650611)
+and [second preflight](https://github.com/yabigdd-9/WEBSITE-AUDITOR/actions/runs/44603761401).
+
+The [master worker run](https://github.com/yabigdd-9/WEBSITE-AUDITOR/actions/runs/44603571552)
+succeeded and published an encrypted checkpoint artifact.
+[PR #126](https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/126) prepares a
+read-only structured runtime verification and requires explicit selection
+for the subsequent pause-event write test. Its disposable PostgreSQL suite
+passed 24 tests. No hosted write was requested in this review.
+
+The latest [master SonarCloud scan](https://github.com/yabigdd-9/WEBSITE-AUDITOR/actions/runs/44603571612)
+again failed processing at 50,030 lines against the 50,000 line allowance.
+
 ## Authority and current evidence
 
 The Durable Cloud Draft Pipeline uses GitHub Actions encrypted artifacts as its
