@@ -67,12 +67,14 @@ def verify_status(status: tuple, counts: tuple) -> dict:
 
 
 def main() -> int:
+    stage = "driver"
     try:
         from psycopg import connect
         from psycopg.conninfo import conninfo_to_dict
 
         from scripts.supabase_checkpoint_store import validate_supabase_dsn
 
+        stage = "configuration"
         dsn = os.environ["WA_PG_DATABASE_URL"]
         project = os.environ["WA_SUPABASE_PROJECT_REF"]
         if project != PROJECT_REF:
@@ -82,7 +84,9 @@ def main() -> int:
         if supplied_user != USERNAME:
             raise ValueError("This preflight accepts only the dedicated connector role")
 
+        stage = "connection"
         with connect(dsn, connect_timeout=8, application_name="mm-preflight-only") as db:
+            stage = "read_only_verification"
             with db.cursor() as cur:
                 cur.execute("SET TRANSACTION READ ONLY")
                 cur.execute(READ_ONLY_STATUS_QUERY)
@@ -95,7 +99,7 @@ def main() -> int:
         return 0
     except Exception:
         # psycopg errors may include parts of a connection string. Never echo.
-        print("SUPABASE_PREFLIGHT_BLOCKED: no writes or worker activation")
+        print(f"SUPABASE_PREFLIGHT_BLOCKED: stage={stage}; no writes or worker activation")
         return 2
 
 
