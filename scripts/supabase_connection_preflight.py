@@ -69,7 +69,6 @@ def verify_status(status: tuple, counts: tuple) -> dict:
 def safe_failure_category(exc: Exception) -> str:
     """Emit only fixed diagnostic labels; never include exception text or DSNs."""
     from psycopg import OperationalError
-    from psycopg.conninfo import conninfo_to_dict  # noqa: F401
 
     if isinstance(exc, KeyError):
         return "MISSING_CONFIGURATION"
