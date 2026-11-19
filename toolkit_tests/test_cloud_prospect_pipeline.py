@@ -14,7 +14,8 @@ class PipelineTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
+        # macOS can return a temporary path under a symlinked system directory.
+        self.root = Path(self.temp.name).resolve()
         runner_env = patch.dict("os.environ", {"RUNNER_TEMP": str(self.root)})
         runner_env.start()
         self.addCleanup(runner_env.stop)
