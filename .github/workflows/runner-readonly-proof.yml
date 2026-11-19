@@ -1,0 +1,48 @@
+name: Runner read-only TLS proof
+on:
+  push:
+    branches: [verify/runner-readonly-20261120]
+    paths: [.github/workflows/runner-readonly-proof.yml]
+permissions: {}
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [1, 2]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - name: Verify identity and schema in a read-only transaction
+        env:
+          WA_POSTGRES_DSN: ${{ secrets.WA_POSTGRES_DSN }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import subprocess
+          from urllib.parse import parse_qs, urlsplit
+
+          url = urlsplit(os.environ.pop("WA_POSTGRES_DSN"))
+          assert url.hostname == "aws-1-ap-southeast-2.pooler.supabase.com"
+          assert url.port == 5432 and url.path == "/postgres"
+          assert url.username == "moneymachine_runner.srymerkhraklwuttzexi"
+          assert parse_qs(url.query) == {"sslmode": ["verify-full"], "sslrootcert": ["system"]}
+          env = dict(os.environ, PGHOST=url.hostname, PGPORT="5432", PGDATABASE="postgres",
+                     PGUSER=url.username, PGPASSWORD=url.password, PGSSLMODE="verify-full",
+                     PGSSLROOTCERT="/etc/ssl/certs/ca-certificates.crt", PGCONNECT_TIMEOUT="10")
+          sql = """BEGIN READ ONLY;
+          SELECT current_user, current_setting('transaction_read_only'), version
+          FROM moneymachine.schema_version WHERE singleton=1;
+          ROLLBACK;"""
+          result = subprocess.run(["psql", "-XqAt", "-v", "ON_ERROR_STOP=1"],
+                                  input=sql, text=True, capture_output=True, env=env)
+          if result.returncode:
+              for label in ("certificate verify failed", "password authentication failed",
+                            "Tenant or user not found", "permission denied", "timed out"):
+                  if label.lower() in result.stderr.lower():
+                      raise SystemExit(label)
+              raise SystemExit("Database check failed")
+          if result.stdout.strip() != "moneymachine_runner|on|1":
+              raise SystemExit("Unexpected identity, transaction mode, or schema version")
+          print("Verified TLS, runner identity, read-only mode, and schema version 1.")
+          PY
