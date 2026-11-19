@@ -39,7 +39,8 @@ jobs:
                      PGUSER=url.username, PGPASSWORD=url.password, PGSSLMODE="verify-full",
                      PGSSLROOTCERT="/etc/ssl/certs/ca-certificates.crt", PGCONNECT_TIMEOUT="10")
           sql = """BEGIN READ ONLY;
-          SELECT current_user, current_setting('transaction_read_only'), version
+          SET LOCAL ROLE moneymachine_worker;
+          SELECT session_user, current_user, current_setting('transaction_read_only'), version
           FROM moneymachine.schema_version WHERE singleton=1;
           ROLLBACK;"""
           result = subprocess.run(["psql", "-XqAt", "-v", "ON_ERROR_STOP=1"],
@@ -50,7 +51,7 @@ jobs:
                   if label.lower() in result.stderr.lower():
                       raise SystemExit(label)
               raise SystemExit("Database check failed")
-          if result.stdout.strip() != "moneymachine_runner|on|1":
+          if result.stdout.strip() != "moneymachine_runner|moneymachine_worker|on|1":
               raise SystemExit("Unexpected identity, transaction mode, or schema version")
           print("Verified TLS, runner identity, read-only mode, and schema version 1.")
           PY
