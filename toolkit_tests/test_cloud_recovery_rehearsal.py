@@ -56,7 +56,9 @@ def test_paired_recovery_across_runners(store, tmp_path):
     assert saved["events"][0]["run_id"] == "synthetic-source"
     assert len(saved["events"]) == 1
     with store.transaction():
-        assert not store.reserve_attempt(prospect_id, sha("synthetic-retry"), now=0, daily_limit=1)
+        assert not store.reserve_attempt(
+            sha("different-synthetic-prospect"), sha("synthetic-retry"), now=0, daily_limit=1
+        )
     assert store.operational_summary()["reservations"] == 1
     with pytest.raises(ValueError, match="empty migrated destination"):
         store.restore_empty(checkpoint)
