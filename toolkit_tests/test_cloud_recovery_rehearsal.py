@@ -1,4 +1,4 @@
-"""Synthetic paired backup transfer between isolated CI jobs."""
+"""Two-runner recovery with disposable Postgres and synthetic ciphertext only."""
 
 import base64
 import hashlib
@@ -7,59 +7,84 @@ from pathlib import Path
 
 import pytest
 
-stage = os.environ.get("WA_SYNTHETIC_RECOVERY_STAGE")
-if not stage:
-    pytest.skip("Requires the synthetic recovery rehearsal workflow", allow_module_level=True)
+from scripts import cloud_prospect_pipeline as pipeline
+from scripts import postgres_store
+from scripts.checkpoint_to_postgres import import_checkpoint
+from scripts.cloud_storage_runner import run_postgres
+from toolkit_tests.platform_helpers import assert_replay_sends_no_requests
+from toolkit_tests.test_postgres_store import crash_postgres_writer
+from toolkit_tests.test_postgres_store import postgres as postgres
+from toolkit_tests.test_postgres_store import store as store
 
-from cryptography.fernet import Fernet, InvalidToken  # noqa: E402
+STATE_FILE = "pipeline-state.enc"
+PAIRED_FILE = "pipeline-postgres-backup.enc"
 
-from scripts.cloud_prospect_pipeline import event  # noqa: E402
-from toolkit_tests.platform_helpers import interrupt_reserved_transaction  # noqa: E402
-from toolkit_tests.test_postgres_store import postgres as postgres  # noqa: E402
-from toolkit_tests.test_postgres_store import sha  # noqa: E402
-from toolkit_tests.test_postgres_store import store as store  # noqa: E402
+pytestmark = pytest.mark.skipif(
+    not os.environ.get("WA_SYNTHETIC_RECOVERY_DIR"),
+    reason="Run using the synthetic two-runner recovery workflow",
+)
 
 
-def fixture_cipher(run_id):
-    # Public inputs are intentional. Only generated fixture data can be exported.
+def fixture_key(run_id):
+    # Public input is intentional. Only generated fixture data can be exported.
     digest = hashlib.sha256(f"website-auditor-synthetic-recovery:{run_id}".encode()).digest()
-    return Fernet(base64.urlsafe_b64encode(digest))
+    return base64.urlsafe_b64encode(digest)
 
 
-def test_paired_recovery_across_runners(store, tmp_path):
-    artifact = Path(os.environ["WA_SYNTHETIC_RECOVERY_ARTIFACT"])
-    cipher = fixture_cipher(os.environ["GITHUB_RUN_ID"])
-    prospect_id = sha("synthetic-prospect")
-    checkpoint = tmp_path / "private-paired.json"
+def test_export_after_crash(store, postgres, monkeypatch):
+    root = Path(os.environ["WA_SYNTHETIC_RECOVERY_DIR"]).resolve()
+    root.mkdir(mode=0o700)
+    monkeypatch.setenv("RUNNER_TEMP", str(root.parent))
+    monkeypatch.delenv("WA_RECOVERY_RUN", raising=False)
+    monkeypatch.delenv("BOOTSTRAP", raising=False)
+    for name in ("MM_PAID_ALLOWED", "MM_ALLOW_EXTERNAL_FREE_MODELS", "MM_EXTERNAL_SEND_ALLOWED"):
+        monkeypatch.setenv(name, "0")
 
-    if stage == "prepare":
-        with store.transaction(bootstrap=True) as state:
-            event(state, 0, "synthetic-source", prospect_id, "pause", "disabled")
-        with pytest.raises(RuntimeError, match="Synthetic interruption"):
-            interrupt_reserved_transaction(store, prospect_id, sha("synthetic-interrupted-audit"))
-        assert store.operational_summary()["reservations"] == 1
-        store.backup(checkpoint)
-        artifact.write_bytes(cipher.encrypt(checkpoint.read_bytes()))
-        return
-
-    assert stage == "restore"
-    ciphertext = artifact.read_bytes()
-    with pytest.raises(InvalidToken):
-        fixture_cipher("wrong-key-fixture").decrypt(ciphertext)
-    assert store.read() is None
-    fd = os.open(checkpoint, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
-    with os.fdopen(fd, "wb") as stream:
-        stream.write(cipher.decrypt(ciphertext))
-    store.restore_empty(checkpoint)
-
-    saved = store.read()
-    assert saved["events"][0]["run_id"] == "synthetic-source"
-    assert len(saved["events"]) == 1
-    with store.transaction():
-        assert not store.reserve_attempt(
-            sha("different-synthetic-prospect"), sha("synthetic-retry"), now=0, daily_limit=1
-        )
+    with store.transaction(bootstrap=True):
+        pass
+    import_checkpoint(store, pipeline.empty_state(), source_run="1", actor="synthetic-owner", now=0)
+    crash_postgres_writer(postgres)
     assert store.operational_summary()["reservations"] == 1
+    assert len(store.read()["events"]) == 1
+
+    actual_main = pipeline.main
+    monkeypatch.setattr(postgres_store, "PostgresPipelineStore", lambda: store)
+    monkeypatch.setattr(pipeline, "main", lambda args: actual_main(["--postgres", "--paused"]))
+    run_postgres(root / STATE_FILE, fixture_key(os.environ["GITHUB_RUN_ID"]).decode())
+    assert {file.name for file in root.iterdir()} == {STATE_FILE, PAIRED_FILE}
+
+
+def test_restore_on_fresh_runner(store, tmp_path, monkeypatch):
+    from cryptography.fernet import Fernet, InvalidToken
+
+    root = Path(os.environ["WA_SYNTHETIC_RECOVERY_DIR"]).resolve()
+    monkeypatch.setenv("RUNNER_TEMP", str(root.parent))
+    key = fixture_key(os.environ["GITHUB_RUN_ID"])
+    cipher = Fernet(key)
+    ciphertext = (root / PAIRED_FILE).read_bytes()
+    with pytest.raises(InvalidToken):
+        Fernet(fixture_key("wrong-key-fixture")).decrypt(ciphertext)
+    decoded = bytearray(base64.urlsafe_b64decode(ciphertext))
+    decoded[-1] ^= 1
+    with pytest.raises(InvalidToken):
+        cipher.decrypt(base64.urlsafe_b64encode(decoded))
+
+    checkpoint = pipeline.unseal(root / STATE_FILE, key.decode())
+    backup = tmp_path / "paired.json"
+    backup.touch(mode=0o600, exist_ok=False)
+    backup.write_bytes(cipher.decrypt(ciphertext))
+    assert store.read() is None
+    store.restore_empty(backup)
+    assert store.read() == checkpoint
+    assert checkpoint["checkpoint_import"]["source_run"] == "1"
+    assert store.operational_summary()["reservations"] == 1
+    with store.connection() as db:
+        assert store.daily_usage(db, "1970-01-01", checkpoint) == 1
+
     with pytest.raises(ValueError, match="empty migrated destination"):
-        store.restore_empty(checkpoint)
-    assert store.read() == saved
+        store.restore_empty(backup)
+    assert store.read() == checkpoint
+
+    assert_replay_sends_no_requests(store, tmp_path)
+    assert store.operational_summary()["reservations"] == 1
+    assert pipeline.metrics(store.read())["contacts_sent"] == 0

@@ -155,8 +155,7 @@ def test_legacy_daily_per_run_and_idempotent_limits(store):
         assert not store.reserve_attempt(sha("fourth"), sha("fourth"), now=86400, daily_limit=6)
 
 
-def test_process_crash_preserves_quotas_and_recovers_lock(store, postgres, tmp_path):
-    initialize(store)
+def crash_postgres_writer(postgres):
     command = [sys.executable, "-c", """
 import os,sys,hashlib,psycopg
 from scripts.postgres_store import PostgresPipelineStore
@@ -167,6 +166,11 @@ with store.transaction() as state:
  os._exit(19)
 """, postgres]
     assert subprocess.run(command, check=False).returncode == 19
+
+
+def test_process_crash_preserves_quotas_and_recovers_lock(store, postgres, tmp_path):
+    initialize(store)
+    crash_postgres_writer(postgres)
     assert store.read()["events"] == []
     with store.transaction():
         assert not store.reserve_attempt(sha("example.com"), sha("a"), now=0, daily_limit=6)
