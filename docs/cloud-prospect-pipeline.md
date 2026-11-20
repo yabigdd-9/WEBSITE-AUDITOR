@@ -50,6 +50,23 @@ clears its draft. Robots failures retry within the same cap. Findings require
 observed confidence and successful evidence checks. Drafts are unpriced,
 internal, evidence-backed scopes requiring human verification.
 
+## Temporary checkpoint-mode audit safety lock (issue #139)
+
+The live GitHub worker still uses encrypted checkpoint artifacts as its single
+state authority. Artifacts are uploaded only after the worker exits. If an
+HTTP audit succeeds and the runner crashes before that upload, the restored
+checkpoint may have no durable reservation for the completed request.
+
+Until a separately reviewed pre-HTTP durability mechanism is proven, the
+GitHub checkpoint-mode worker passes `--daily-limit 0` to its existing pipeline.
+It can restore and save encrypted state, reconcile approved intake and existing
+review drafts, but it cannot initiate any new website audit HTTP requests.
+This is a deliberate fail-closed availability trade-off, not a confirmed
+crash-safe deduplication repair. Database-backed mode retains its reviewed
+reservation-ledger behavior; no database cutover or second writer is enabled.
+Re-enable live checkpoint-mode audits only after issue #139 is resolved with
+cross-runner forced-crash evidence or an explicitly authorized authority change.
+
 ## Persistent state and recovery
 
 The checkpoint contains prospects, observed findings/evidence references,
