@@ -237,6 +237,18 @@ class PostgresPipelineStore:
             db.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
             return self.load(db)
 
+    def verify_runtime_identity(self):
+        """Check the authenticated login, rather than only the switched role."""
+        with self.connection() as db:
+            row = db.execute(
+                "SELECT session_user,rolcanlogin,rolsuper,rolcreatedb,rolcreaterole,"
+                "rolreplication,rolbypassrls,rolinherit,"
+                "pg_has_role(session_user,'moneymachine_worker','MEMBER') "
+                "FROM pg_roles WHERE rolname=session_user"
+            ).fetchone()
+        if row != ("moneymachine_runner", True, False, False, False, False, False, False, True):
+            raise ValueError("Runtime login is not the expected restricted principal")
+
     def prospects(self, *, query="", limit=25, offset=0):
         if (not isinstance(query, str) or len(query) > 253 or type(limit) is not int
                 or not 1 <= limit <= 100 or type(offset) is not int or offset < 0):

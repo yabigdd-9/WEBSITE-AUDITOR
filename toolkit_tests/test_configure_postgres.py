@@ -29,6 +29,7 @@ def test_default_only_checks_database_and_never_mutates(private_terminal, capsys
     store, factory, transport = private_terminal
     assert setup.main([]) == 0
     factory.assert_called_once_with(SYNTHETIC_SECRET)
+    store.verify_runtime_identity.assert_called_once_with()
     store.read.assert_called_once_with()
     store.operational_summary.assert_called_once_with()
     store.transaction.assert_not_called()
@@ -39,6 +40,7 @@ def test_default_only_checks_database_and_never_mutates(private_terminal, capsys
 def test_secret_install_uses_stdin_only_after_database_checks(private_terminal, capsys):
     store, _, transport = private_terminal
     order = []
+    store.verify_runtime_identity.side_effect = lambda: order.append("identity")
     store.read.side_effect = lambda: order.append("database") or {"schema_version": 1}
     store.operational_summary.side_effect = lambda: order.append("ledger") or {}
 
@@ -58,7 +60,7 @@ def test_secret_install_uses_stdin_only_after_database_checks(private_terminal, 
 
     transport.side_effect = run
     assert setup.main(["--install-github-secret"]) == 0
-    assert order == ["authentication", "database", "ledger", "install"]
+    assert order == ["authentication", "identity", "database", "ledger", "install"]
     store.transaction.assert_not_called()
     assert SYNTHETIC_SECRET not in capsys.readouterr().out
 
@@ -87,7 +89,7 @@ def test_echoing_fallback_is_rejected_before_reading_secret(private_terminal, mo
     transport.assert_not_called()
 
 
-@pytest.mark.parametrize("stage", ["authentication", "connection", "uninitialized", "ledger", "install"])
+@pytest.mark.parametrize("stage", ["authentication", "connection", "identity", "uninitialized", "ledger", "install"])
 def test_failures_are_redacted_and_do_not_bypass_verification(private_terminal, stage, capsys):
     store, factory, transport = private_terminal
     secret_error = RuntimeError(SYNTHETIC_SECRET)
@@ -95,6 +97,8 @@ def test_failures_are_redacted_and_do_not_bypass_verification(private_terminal, 
         transport.side_effect = secret_error
     elif stage == "connection":
         factory.side_effect = secret_error
+    elif stage == "identity":
+        store.verify_runtime_identity.side_effect = secret_error
     elif stage == "uninitialized":
         store.read.return_value = None
     elif stage == "ledger":

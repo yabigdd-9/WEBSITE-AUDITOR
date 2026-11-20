@@ -277,6 +277,9 @@ encryption key is unrelated and must never be entered into this command.
 
 The helper first verifies GitHub authentication, then validates the selected
 project/TLS/runner identity and reads initialized state plus operational history.
+It checks the authenticated session login is the dedicated NOINHERIT runner with
+worker membership and no superuser, create-DB/create-role, replication or bypass-
+RLS privileges; merely switching an administrator into the worker role fails.
 Only after those checks does it create/replace `WA_POSTGRES_DSN` in the fixed
 `github.com/yabigdd-9/WEBSITE-AUDITOR` repository. The value travels over standard
 input to `gh secret set`, which encrypts repository secrets before upload; the

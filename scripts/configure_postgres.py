@@ -44,6 +44,7 @@ def configure(*, install_github_secret=False):
     if not dsn.strip():
         raise ValueError("A dedicated runtime connection is required")
     store = PostgresPipelineStore(dsn)
+    store.verify_runtime_identity()
     if store.read() is None:
         raise ValueError("Initialize the reviewed private pipeline before credential setup")
     store.operational_summary()  # Verify the durable quota schema too, read-only.

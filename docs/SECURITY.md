@@ -90,3 +90,9 @@ write a plaintext file, export an environment variable, print connection values,
 rotate roles or dispatch workflows. It captures subprocess output and redacts
 provider errors and unknown arguments. Tests use synthetic credentials/mocks;
 real owner credentials were not entered or uploaded in this session.
+
+The helper also queries `session_user` privilege flags, independently of the
+adapter's `SET ROLE`. It refuses an administrator, unexpected authenticated
+identity, inherited broad roles, missing worker membership, replication,
+CREATEDB/CREATEROLE or BYPASSRLS capability before secret installation. A real
+local Postgres test verifies safe runner access and refusal after privilege drift.

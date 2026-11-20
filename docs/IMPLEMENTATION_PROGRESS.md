@@ -549,3 +549,16 @@ Post-merge targeted regression: **57 passed, 22 passing subtests**, including
 all 11 credential boundary cases, real Postgres transactions/recovery, activation
 checks and both separate checkpoint/preflight contracts. The helper-plus-real
 Postgres suite alone passed **34 tests**. CI is rerunning on the integrated source.
+
+### Authenticated principal checked before secret installation
+
+Added an explicit read-only `session_user` check to distinguish the authenticated
+LOGIN from the adapter's switched worker group. Installation now rejects admin
+sessions or unsafe runner privilege drift before passing any value to GitHub.
+Real disposable Postgres tests verify the dedicated NOINHERIT runner succeeds,
+a fixture administrator fails, and a later CREATEDB grant is rejected. All DDL
+for this test remains inside the disposable local server; no hosted role changed.
+Combined helper/database suite: **36 passed** (12 credential cases, 24 database
+cases); Ruff/diff checks passed. Built-wheel installation outside the checkout
+verified command availability and argument redaction. No owner credential or
+real secret installation was used. CI will verify this final source revision.
