@@ -136,11 +136,10 @@ def test_checkpoint_runner_lost_upload_resume_cannot_reaudit(tmp_path, monkeypat
     """
     import shutil
 
-    from cryptography.fernet import Fernet
+    Fernet = pytest.importorskip("cryptography.fernet").Fernet
 
-    from scripts import cloud_opportunities, cloud_pipeline_checkpoint
+    from scripts import cloud_opportunities, cloud_pipeline_checkpoint, cloud_storage_runner
     from scripts import cloud_prospect_pipeline as pipeline
-    from scripts import cloud_storage_runner
 
     key = Fernet.generate_key().decode()
     source = tmp_path / "last-trusted.enc"
