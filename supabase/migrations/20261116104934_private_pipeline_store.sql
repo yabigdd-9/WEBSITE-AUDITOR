@@ -91,4 +91,3 @@ BEGIN
 END $$;
 ALTER DEFAULT PRIVILEGES IN SCHEMA moneymachine REVOKE ALL ON TABLES FROM PUBLIC, anon, authenticated, service_role;
 ALTER DEFAULT PRIVILEGES IN SCHEMA moneymachine REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC, anon, authenticated, service_role;
-

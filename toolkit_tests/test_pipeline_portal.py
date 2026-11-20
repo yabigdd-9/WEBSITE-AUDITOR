@@ -108,6 +108,10 @@ def test_owner_can_review_private_records_without_mutation_or_script_execution(o
         "&lt;script&gt;fixture&lt;/script&gt;" in client.get(f"/pipeline/prospects/{identity}").text
     )
     assert "Pricing not configured" in client.get(f"/pipeline/prospects/{identity}").text
+    detail = client.get(f"/pipeline/prospects/{identity}").text
+    assert '<label>Review reason<textarea name="reason"' in detail
+    assert "Approve internal proposal" in detail
+    assert "Reject recommendation" in detail
     assert "&lt;script&gt;" in client.get("/pipeline/prospects", params={"q": "<script>"}).text
     assert client.get("/pipeline/prospects?offset=-1").status_code == 400
     assert client.get("/pipeline/prospects/not-a-hash").status_code == 404
@@ -142,6 +146,18 @@ def test_reject_requires_csrf_exact_version_and_origin(owner):
     assert saved["opportunity"]["status"] == "owner_rejected"
     assert saved["recommendation_reviews"][0]["reason"] == data["reason"]
     assert client.post(path, json={**data, "csrf": token}).status_code == 409
+
+
+def test_review_form_escapes_attributes_from_private_state(owner):
+    client, store, identity, _ = owner
+    login(client)
+    hostile = '\"><script>alert(1)</script><input value="'
+    with store.transaction() as document:
+        document["prospects"][identity]["proposal_version"] = hostile
+    response = client.get(f"/pipeline/prospects/{identity}")
+    assert response.status_code == 200
+    assert '<script>alert(1)</script>' not in response.text
+    assert '&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;' in response.text
 
 
 def test_review_size_rate_and_session_controls(owner):
@@ -242,6 +258,28 @@ def test_owner_records_acceptance_and_project_delivery_without_external_actions(
     assert project["status"] == "closed"
     assert project["automated_changes"] == 0
     assert project["automatic_invoicing"] is False
+
+
+def test_outreach_review_requires_session_and_never_mutates_or_sends(owner):
+    from scripts.approval_controls import prepare_outreach
+
+    client, store, identity, _ = owner
+    assert client.get("/pipeline/outreach").status_code == 401
+    with store.transaction() as document:
+        prepare_outreach(
+            document["prospects"][identity], recipient_hash="a" * 64,
+            body="Synthetic <script>draft</script>", now=1767225600,
+        )
+    login(client)
+    before = copy.deepcopy(store.read())
+    response = client.get("/pipeline/outreach")
+    assert response.status_code == 200
+    assert "Sandbox results are simulated" in response.text
+    assert "&lt;script&gt;draft&lt;/script&gt;" in response.text
+    assert "<script>draft</script>" not in response.text
+    assert response.headers["cache-control"] == "no-store"
+    assert store.read() == before
+    assert before["prospects"][identity]["outreach_events"][-1]["status"] == "DRAFT"
 
 
 def test_dashboard_refuses_missing_or_public_database(owner):
