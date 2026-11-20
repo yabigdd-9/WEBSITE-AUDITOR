@@ -23,8 +23,8 @@ import mm_intelligence as i
 import mm_operator as o
 import mm_email as email_engine
 import mm_email_store as email_store
-SOURCE=Path(os.environ.get('MM_TEST_SOURCE',str(Path(__file__).resolve().parents[1]/'database/money_machine.db')))
 PACKAGE=Path(__file__).resolve().parents[1]
+SCHEMA=PACKAGE/'money-machine/database/schema.sql'
 OPERATOR=PACKAGE/'money-machine/mm_operator.py'
 BODY='Subject: A verified narrow improvement\n\nHello team, this is a local fixture describing a verified issue with explicit limitations. Dion, verified fixture identity. Please reply if useful, or reply no thanks to opt out.'
 DEMO='''<!doctype html><html lang="en"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="connect-src 'none'; form-action 'none'"><style>:focus-visible{outline:2px solid blue}</style><p>Local demonstration. Nothing is sent.</p><label for="email">Email</label><input id="email" type="email"><button type="button">Preview only</button></html>'''
@@ -32,7 +32,18 @@ DEMO='''<!doctype html><html lang="en"><meta name="viewport" content="width=devi
 class Acceptance(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory(prefix='mm-acceptance-');self.r=Path(self.temp.name);(self.r/'database').mkdir();self.path=self.r/'database/money_machine.db'
-        with sqlite3.connect('file:'+str(SOURCE)+'?mode=ro',uri=True) as src,sqlite3.connect(self.path) as dst:src.backup(dst)
+        # Initialize an empty legacy schema. All business records below are synthetic.
+        with contextlib.closing(sqlite3.connect(self.path)) as fixture_db:
+            tables, separator, triggers = SCHEMA.read_text(encoding='utf-8').partition('-- Triggers')
+            if not separator:
+                raise ValueError('Legacy fixture schema is missing its trigger section')
+            fixture_db.executescript(tables)
+            # Historical claims predate send guards and have no provider receipts.
+            fixture_db.executemany(
+                "INSERT INTO outreach(draft, sent_at) VALUES(?,?)",
+                [(f"Synthetic legacy claim {index}", c.now()) for index in range(3)],
+            )
+            fixture_db.executescript(triggers)
         self.env=patch.dict(os.environ,{'MM_ROOT':str(self.r)});self.env.start()
         self.backup=c.backup(self.r);self.d=c.connect(self.path);c.migrate(self.d,self.backup)
         email_store.migrate_email(self.d,self.backup)
@@ -48,7 +59,7 @@ class Acceptance(unittest.TestCase):
             bid=self.d.execute("INSERT INTO businesses(name,source,discovered_at,current_status) VALUES(?,?,?,?)", (f'Fixture suppressed {index + 1}', 'fixture', c.now(), 'discovered')).lastrowid
             self.suppressed_ids.append(bid)
             self.d.execute("INSERT INTO mm_deals(business_id,stage,updated_at) VALUES(?,?,?)", (bid, 'DISCOVERED', c.now()))
-            self.d.execute("INSERT INTO mm_holds(business_id, reason, created_at) VALUES(?,?,?)", (bid, 'fixture hold', c.now()))
+            self.d.execute("INSERT INTO mm_holds(business_id, reason) VALUES(?,?)", (bid, 'fixture hold'))
         self.capture=self.r/'capture.txt';self.capture.write_text('<html><title>Acceptance Fixture</title><h1>Acceptance Fixture</h1><p>Fixturetown</p><p>Contact email: '+self.address+'</p><p>Verified local fixture observation, not a real business.</p></html>');self.demo=self.r/'demo.html';self.demo.write_text(DEMO)
         meta={'url':'https://fixture.example.co.nz','captured_at':c.now(),'sha256':c.sha(self.capture.read_bytes()),'path':str(self.capture)}
         page=email_engine.parse_page(meta,self.capture.read_bytes())
@@ -84,7 +95,9 @@ class Acceptance(unittest.TestCase):
         with self.assertRaises(sqlite3.IntegrityError):c.cash(self.d,self.bid,75000,rid)
         self.assertEqual(o.metrics(self.d)['net_received_nzd'],750)
     def test_05_historical_unverified_sends_excluded(self):
-        self.assertEqual(o.metrics(self.d)['verified_sends'],0);self.assertEqual(o.metrics(self.d)['legacy_claimed_sends_unverified'],3)
+        metrics = o.metrics(self.d)
+        self.assertEqual(metrics['verified_sends'], 0)
+        self.assertEqual(metrics['legacy_claimed_sends_unverified'], 3)
     def test_06_failed_receipt_recording_does_not_become_sent(self):
         self.approve()
         with self.assertRaises(ValueError):c.record_sent(self.d,self.mid,999999)
