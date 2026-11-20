@@ -57,13 +57,24 @@ def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--source-run", required=True)
+    parser.add_argument("--verify-only", action="store_true")
     args = parser.parse_args(argv)
     try:
         from scripts.cloud_review_only_opportunities import _verify_safety
-        from scripts.postgres_store import PostgresPipelineStore
 
         _verify_safety(Path(__file__).resolve().parents[1])
         incoming = unseal(args.checkpoint, os.environ.get("WA_PIPELINE_STATE_KEY", ""))
+        if args.verify_only:
+            if not re.fullmatch(r"[1-9][0-9]{0,19}", args.source_run):
+                raise ValueError("A reviewed legacy source is required")
+            if "checkpoint_import" in incoming or "storage_authority" in incoming:
+                raise ValueError("Expected a checkpoint from the legacy authority")
+            validate(incoming)
+            print("Trusted encrypted checkpoint verified in memory.")
+            return 0
+
+        from scripts.postgres_store import PostgresPipelineStore
+
         report = import_checkpoint(
             PostgresPipelineStore(), incoming, source_run=args.source_run,
             actor=os.environ.get("GITHUB_ACTOR", "local-owner"),
