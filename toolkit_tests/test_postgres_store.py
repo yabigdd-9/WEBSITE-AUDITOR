@@ -14,8 +14,13 @@ psycopg = pytest.importorskip("psycopg")
 pgserver = pytest.importorskip("pgserver")
 from scripts import cloud_prospect_pipeline as pipeline  # noqa: E402
 from scripts import postgres_runtime_preflight as preflight  # noqa: E402
-from scripts.postgres_store import PROJECT_REF, PostgresPipelineStore, connection_options  # noqa: E402
+from scripts.postgres_store import (  # noqa: E402
+    PROJECT_REF,
+    PostgresPipelineStore,
+    connection_options,
+)
 from toolkit_tests.platform_helpers import (  # noqa: E402
+    assert_committed_attempt_allows_retry,
     assert_replay_sends_no_requests,
     commit_mutation,
     interrupt_reserved_transaction,
@@ -169,6 +174,11 @@ with store.transaction() as state:
     summary = store.operational_summary()
     assert summary["reservations"] == 1
     assert any(j["status"] == "interrupted" for j in summary["jobs"])
+
+
+def test_committed_attempt_allows_retry_after_backoff(store, tmp_path):
+    initialize(store)
+    assert_committed_attempt_allows_retry(store, tmp_path)
 
 
 def test_committed_job_marker_repairs_interrupted_status(store):
