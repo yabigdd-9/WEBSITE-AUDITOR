@@ -1,0 +1,73 @@
+name: Synthetic Postgres recovery rehearsal
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - '.github/workflows/synthetic-recovery-rehearsal.yml'
+      - 'toolkit_tests/test_cloud_recovery_rehearsal.py'
+      - 'scripts/postgres_backup.py'
+      - 'scripts/postgres_store.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  MM_PAID_ALLOWED: '0'
+  MM_ALLOW_EXTERNAL_FREE_MODELS: '0'
+  MM_EXTERNAL_SEND_ALLOWED: '0'
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+      - run: 'python -m pip install --only-binary=:all: --require-hashes -r requirements-hosted-ci.txt'
+      - run: python -m scripts.install_reviewed_package
+      - name: Export synthetic state after an interrupted reservation
+        env:
+          WA_SYNTHETIC_RECOVERY_STAGE: prepare
+          WA_SYNTHETIC_RECOVERY_ARTIFACT: ${{ runner.temp }}/synthetic-recovery.enc
+        run: python -m pytest -q toolkit_tests/test_cloud_recovery_rehearsal.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: synthetic-postgres-recovery
+          path: ${{ runner.temp }}/synthetic-recovery.enc
+          if-no-files-found: error
+          retention-days: 3
+
+  restore:
+    needs: prepare
+    permissions:
+      actions: read
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+      - run: 'python -m pip install --only-binary=:all: --require-hashes -r requirements-hosted-ci.txt'
+      - run: python -m scripts.install_reviewed_package
+      - name: Retrieve this run's synthetic backup
+        working-directory: ${{ runner.temp }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name synthetic-postgres-recovery
+      - name: Verify restored state, request limit and replay rejection
+        env:
+          WA_SYNTHETIC_RECOVERY_STAGE: restore
+          WA_SYNTHETIC_RECOVERY_ARTIFACT: ${{ runner.temp }}/synthetic-recovery.enc
+        run: python -m pytest -q toolkit_tests/test_cloud_recovery_rehearsal.py
+      - name: Verify controlled failure alert behavior with a mock issue API
+        run: python -m unittest toolkit_tests.test_alert_durable_worker_failure -q
