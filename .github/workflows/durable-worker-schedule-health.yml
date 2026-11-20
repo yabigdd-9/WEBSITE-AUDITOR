@@ -6,6 +6,12 @@ on:
   # Schedule events are best-effort on GitHub; this job only reports drift.
   schedule:
     - cron: '15 11 * * 2,3,5,6'
+  # Independent daily audit workflow provides an additional wake-up signal
+  # if this monitor's own scheduled event is omitted by GitHub.
+  workflow_run:
+    workflows: ['Cloud Canonical Website Audits']
+    types: [completed]
+    branches: [master]
   workflow_dispatch:
   pull_request:
     branches: [master]
@@ -30,6 +36,10 @@ concurrency:
 
 jobs:
   verify-schedule:
+    # A workflow_run payload is not trusted as worker evidence: verify only
+    # when the upstream run really was a scheduled master run. GitHub metadata
+    # from the independent API query remains the authority for worker health.
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.event == 'schedule' && github.event.workflow_run.head_branch == 'master')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -42,7 +52,7 @@ jobs:
       - name: Test missed, skipped, and artifactless runs without network
         run: python -m unittest toolkit_tests.test_durable_schedule_health -v
       - name: Verify scheduled worker and encrypted checkpoint via GitHub metadata
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_run'
         env:
           GH_TOKEN: ${{ github.token }}
         run: python -m scripts.check_durable_schedule_health
