@@ -2,6 +2,7 @@
 
 import unittest
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 from scripts import check_durable_schedule_health as health
 
@@ -46,6 +47,18 @@ def sample(run=None, *, jobs=None, artifacts=None):
 
 
 class DurableScheduleHealthTests(unittest.TestCase):
+    def test_workflow_run_fallback_is_read_only_and_schedule_scoped(self):
+        workflow = (Path(__file__).resolve().parents[1]
+                    / '.github/workflows/durable-worker-schedule-health.yml').read_text()
+        self.assertIn("workflows: ['Cloud Canonical Website Audits']", workflow)
+        self.assertIn('types: [completed]', workflow)
+        self.assertIn('branches: [master]', workflow)
+        self.assertIn("github.event.workflow_run.event == 'schedule'", workflow)
+        self.assertIn("github.event.workflow_run.head_branch == 'master'", workflow)
+        self.assertIn("github.event_name == 'workflow_run'", workflow)
+        self.assertIn('  actions: read', workflow)
+        self.assertNotIn('  actions: write', workflow)
+
     def test_due_slot_has_six_hour_grace(self):
         self.assertEqual(health.latest_expected_slot(TUESDAY), DUE)
         just_before_grace = datetime(2026, 11, 17, 10, 49, tzinfo=timezone.utc)
