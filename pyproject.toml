@@ -29,6 +29,7 @@ include = ["auditor_toolkit*", "website_auditor*", "scripts*"]
 exclude = ["toolkit_tests*", "money-machine*", "deepseek-harness*"]
 
 [tool.setuptools.package-data]
+"website_auditor.revenue" = ["defect_values.csv"]
 auditor_toolkit = ["assets/*.js", "assets/*.txt"]
 
 [project.optional-dependencies]
