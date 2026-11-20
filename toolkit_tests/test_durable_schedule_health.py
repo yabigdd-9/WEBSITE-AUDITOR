@@ -151,6 +151,24 @@ class DurableScheduleHealthTests(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError, "checkpoint"):
                     health.verify_health(TUESDAY, fetch, REPO)
 
+    def test_artifact_metadata_requires_boolean_expiry_and_integer_size(self):
+        for field, value in (
+            ("expired", None),
+            ("expired", 0),
+            ("size_in_bytes", True),
+            ("size_in_bytes", "1024"),
+            ("size_in_bytes", 1.5),
+        ):
+            with self.subTest(field=field, value=value):
+                artifact = checkpoint()
+                if value is None:
+                    del artifact[field]
+                else:
+                    artifact[field] = value
+                fetch, _ = sample(artifacts=[artifact])
+                with self.assertRaisesRegex(RuntimeError, "checkpoint"):
+                    health.verify_health(TUESDAY, fetch, REPO)
+
 
 if __name__ == "__main__":
     unittest.main()

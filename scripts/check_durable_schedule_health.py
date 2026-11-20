@@ -85,8 +85,9 @@ def verify_health(now: datetime, fetch_json, repo: str) -> dict:
     checkpoint = [
         item for item in artifacts
         if item.get("name") == "pipeline-state"
-        and not item.get("expired", False)
-        and int(item.get("size_in_bytes") or 0) > 0
+        and item.get("expired") is False
+        and type(item.get("size_in_bytes")) is int
+        and item["size_in_bytes"] > 0
     ]
     if len(checkpoint) != 1:
         raise RuntimeError("Scheduled worker did not retain one nonempty encrypted checkpoint")
