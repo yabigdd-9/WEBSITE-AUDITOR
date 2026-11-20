@@ -32,6 +32,16 @@ class PipelineTests(unittest.TestCase):
             **kwargs,
         )
 
+    def test_zero_audit_budget_keeps_queue_without_external_requests(self):
+        def forbidden(*_args, **_kwargs):
+            self.fail("Checkpoint-only mode must not call robots or audit HTTP")
+
+        report = self.run_queue(daily_limit=0, robots=forbidden, audit=forbidden)
+        self.assertEqual(report["prospects_found"], 1)
+        self.assertEqual(self.state["audit_runs"], [])
+        self.assertEqual(next(iter(self.state["prospects"].values()))["attempts"], 0)
+        self.assertEqual(report["contacts_sent"], 0)
+
     def complete(self, sites, workspace, entries):
         entries.append(dict(run_id="audit-1", findings=[], internal_scope_draft="review"))
         return [dict(status="COMPLETE")]
