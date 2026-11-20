@@ -1,9 +1,9 @@
-name: Synthetic Postgres recovery drill
+name: Synthetic Postgres recovery rehearsal
 
 on:
   pull_request:
     paths:
-      - '.github/workflows/synthetic-postgres-recovery.yml'
+      - '.github/workflows/synthetic-recovery-rehearsal.yml'
       - 'requirements-hosted-ci.txt'
       - 'scripts/checkpoint_to_postgres.py'
       - 'scripts/cloud_prospect_pipeline.py'
@@ -11,8 +11,9 @@ on:
       - 'scripts/postgres_*.py'
       - 'supabase/migrations/**'
       - 'toolkit_tests/platform_helpers.py'
-      - 'toolkit_tests/test_postgres_recovery_drill.py'
+      - 'toolkit_tests/test_cloud_recovery_rehearsal.py'
       - 'toolkit_tests/test_postgres_store.py'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -39,7 +40,7 @@ jobs:
       - name: Crash the writer and export the synthetic encrypted pair
         env:
           WA_SYNTHETIC_RECOVERY_DIR: ${{ runner.temp }}/synthetic-recovery
-        run: python -m pytest -q toolkit_tests/test_postgres_recovery_drill.py::test_export_after_crash
+        run: python -m pytest -q toolkit_tests/test_cloud_recovery_rehearsal.py::test_export_after_crash
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: synthetic-recovery-ciphertext
@@ -70,4 +71,6 @@ jobs:
       - name: Restore into a fresh database and reject replay before HTTP
         env:
           WA_SYNTHETIC_RECOVERY_DIR: ${{ runner.temp }}/synthetic-recovery
-        run: python -m pytest -q toolkit_tests/test_postgres_recovery_drill.py::test_restore_on_fresh_runner
+        run: python -m pytest -q toolkit_tests/test_cloud_recovery_rehearsal.py::test_restore_on_fresh_runner
+      - name: Verify controlled failure alert behavior with a mock issue API
+        run: python -m unittest toolkit_tests.test_alert_durable_worker_failure -q

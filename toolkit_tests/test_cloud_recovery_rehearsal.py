@@ -16,8 +16,6 @@ from toolkit_tests.test_postgres_store import crash_postgres_writer
 from toolkit_tests.test_postgres_store import postgres as postgres
 from toolkit_tests.test_postgres_store import store as store
 
-# Public fixture seed shared by two independent test jobs.
-FIXTURE_KEY = base64.urlsafe_b64encode(hashlib.sha256(b"website-auditor synthetic recovery drill").digest())
 STATE_FILE = "pipeline-state.enc"
 PAIRED_FILE = "pipeline-postgres-backup.enc"
 
@@ -25,6 +23,12 @@ pytestmark = pytest.mark.skipif(
     not os.environ.get("WA_SYNTHETIC_RECOVERY_DIR"),
     reason="Run using the synthetic two-runner recovery workflow",
 )
+
+
+def fixture_key(run_id):
+    # Public input is intentional. Only generated fixture data can be exported.
+    digest = hashlib.sha256(f"website-auditor-synthetic-recovery:{run_id}".encode()).digest()
+    return base64.urlsafe_b64encode(digest)
 
 
 def test_export_after_crash(store, postgres, monkeypatch):
@@ -46,7 +50,7 @@ def test_export_after_crash(store, postgres, monkeypatch):
     actual_main = pipeline.main
     monkeypatch.setattr(postgres_store, "PostgresPipelineStore", lambda: store)
     monkeypatch.setattr(pipeline, "main", lambda args: actual_main(["--postgres", "--paused"]))
-    run_postgres(root / STATE_FILE, FIXTURE_KEY.decode())
+    run_postgres(root / STATE_FILE, fixture_key(os.environ["GITHUB_RUN_ID"]).decode())
     assert {file.name for file in root.iterdir()} == {STATE_FILE, PAIRED_FILE}
 
 
@@ -55,14 +59,17 @@ def test_restore_on_fresh_runner(store, tmp_path, monkeypatch):
 
     root = Path(os.environ["WA_SYNTHETIC_RECOVERY_DIR"]).resolve()
     monkeypatch.setenv("RUNNER_TEMP", str(root.parent))
-    cipher = Fernet(FIXTURE_KEY)
+    key = fixture_key(os.environ["GITHUB_RUN_ID"])
+    cipher = Fernet(key)
     ciphertext = (root / PAIRED_FILE).read_bytes()
+    with pytest.raises(InvalidToken):
+        Fernet(fixture_key("wrong-key-fixture")).decrypt(ciphertext)
     decoded = bytearray(base64.urlsafe_b64decode(ciphertext))
     decoded[-1] ^= 1
     with pytest.raises(InvalidToken):
         cipher.decrypt(base64.urlsafe_b64encode(decoded))
 
-    checkpoint = pipeline.unseal(root / STATE_FILE, FIXTURE_KEY.decode())
+    checkpoint = pipeline.unseal(root / STATE_FILE, key.decode())
     backup = tmp_path / "paired.json"
     backup.touch(mode=0o600, exist_ok=False)
     backup.write_bytes(cipher.decrypt(ciphertext))
@@ -73,6 +80,10 @@ def test_restore_on_fresh_runner(store, tmp_path, monkeypatch):
     assert store.operational_summary()["reservations"] == 1
     with store.connection() as db:
         assert store.daily_usage(db, "1970-01-01", checkpoint) == 1
+
+    with pytest.raises(ValueError, match="empty migrated destination"):
+        store.restore_empty(backup)
+    assert store.read() == checkpoint
 
     assert_replay_sends_no_requests(store, tmp_path)
     assert store.operational_summary()["reservations"] == 1
