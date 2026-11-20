@@ -13,6 +13,7 @@ from scripts import cloud_prospect_pipeline as pipeline
 from scripts.operational_ledger import OperationalLedger
 from scripts.pipeline_store import VERSION, PipelineStore
 from toolkit_tests.platform_helpers import (
+    assert_committed_attempt_allows_retry,
     assert_replay_sends_no_requests,
     interrupt_reserved_transaction,
 )
@@ -85,6 +86,10 @@ with store.transaction() as state:
     report = OperationalLedger(store.operations_path).summary()
     assert report["reservations"] == 1
     assert any(j["status"] == "interrupted" for j in report["jobs"])
+
+
+def test_committed_attempt_allows_retry_after_backoff(store):
+    assert_committed_attempt_allows_retry(store, store.path.parent)
 
 
 def test_daily_and_per_run_caps_include_legacy_state_and_failed_jobs(store):
