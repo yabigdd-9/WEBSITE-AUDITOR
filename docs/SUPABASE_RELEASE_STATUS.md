@@ -40,7 +40,10 @@ Read-only management queries confirmed:
   established in this review. Do not assume GitHub's DSN secret exists or that
   TLS/authentication has been successfully tested.
 - The connector belongs only to the checkpoint-writer group among the inspected
-  application roles. `moneymachine_runner` has not yet been provisioned.
+  application roles. A later read-only continuation check also confirmed
+  `moneymachine_runner` now exists with LOGIN, NOINHERIT, no superuser/create-DB/
+  create-role/bypass-RLS privileges, and `moneymachine_worker` membership.
+  Neither role's password or actual unattended authentication was verified.
 - The structured store contains one state, one event and one job, with zero
   prospects and zero request reservations. Existing records were left intact.
 - The hosted security advisor returned no findings.
@@ -64,8 +67,11 @@ on the integrated revision before merging.
 
 ## Remaining activation sequence
 
-1. Configure a dedicated runner login and `WA_POSTGRES_DSN` through trusted
-   administrator and GitHub secret settings. Preserve TLS `verify-full`, the
+1. Verify the existing dedicated runner credential and configure `WA_POSTGRES_DSN`
+   through trusted GitHub secret settings. The private interactive helper in
+   DEPLOYMENT.md can verify and install it via stdin without printing a value,
+   writing a plaintext file or dispatching a workflow. Do not recreate or rotate
+   the now-existing runner merely to repeat setup. Preserve TLS `verify-full`, the
    selected project, port 5432 and the restricted worker group. Do not expose
    database passwords or the owner's report-decryption key in chat or logs.
 2. Run **Private Postgres persistence verification** manually on the reviewed
@@ -89,3 +95,14 @@ on the integrated revision before merging.
 
 No production cutover, new database login, secret write, client outreach, paid
 API call, paid upgrade or client website edit is included in this release.
+
+## Private owner setup continuation
+
+Draft PR #130 adds `scripts.configure_postgres` specifically for the structured
+store's `WA_POSTGRES_DSN`; it does not accept the mirror connector's credentials
+or configure `WA_PG_DATABASE_URL`. Read-only verification is the default. GitHub
+installation requires an explicit flag and a trusted interactive terminal.
+Echo fallback, leaked provider errors and secret command arguments are blocked.
+All test credentials/transports are synthetic mocks. Actual owner installation
+remains unverified, and the session's secret-name-only API lookup still returned
+Forbidden. Existing schedules and both stores' cutover gates remain intact.

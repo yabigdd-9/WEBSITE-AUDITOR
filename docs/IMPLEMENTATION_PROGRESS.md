@@ -534,3 +534,18 @@ setup command using the existing runner credential, never a chat upload.
 Previous PR #107 evidence commit `232c274` was independently rechecked: all six
 workflows succeeded (CI44076207070, toolkit44076207009, security44076207152,
 CodeQL44076207077, Sonar44076207066, cloud/database44076206985).
+
+### Current integration base preserved
+
+When PR #130 opened, its remote base had advanced to `37808ac`. Fetched and
+merged that base into this feature branch, preserving current master activation
+guards, separate encrypted-checkpoint mirror/preflight work and owner-form fixes.
+The PR diff remains focused on private structured-store setup. No master merge
+or production dispatch occurred. Reconciled SUPABASE_RELEASE_STATUS.md with the
+new independent observation that `moneymachine_runner` is LOGIN-enabled; its
+credential remains unavailable, and this helper never creates/rotates it.
+
+Post-merge targeted regression: **57 passed, 22 passing subtests**, including
+all 11 credential boundary cases, real Postgres transactions/recovery, activation
+checks and both separate checkpoint/preflight contracts. The helper-plus-real
+Postgres suite alone passed **34 tests**. CI is rerunning on the integrated source.
