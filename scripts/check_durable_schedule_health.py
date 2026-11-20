@@ -40,13 +40,21 @@ def latest_expected_slot(now: datetime) -> datetime:
     return max(eligible)
 
 
+def utc_timestamp(value: str | None) -> datetime:
+    if not isinstance(value, str):
+        raise ValueError("GitHub metadata timestamp missing")
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        raise ValueError("GitHub metadata timestamp must include a timezone")
+    return parsed.astimezone(timezone.utc)
+
+
 def created_utc(run: dict) -> datetime:
-    value = run.get("created_at", "")
-    return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(timezone.utc)
+    return utc_timestamp(run.get("created_at"))
 
 
 def verify_health(now: datetime, fetch_json, repo: str) -> dict:
-    """Check a scheduled event ran on master, its worker passed and artifact exists."""
+    """Check worker success and checkpoint retention through the next slot."""
     if not REPO_PATTERN.fullmatch(repo):
         raise ValueError("Invalid repository identifier")
     due = latest_expected_slot(now)
@@ -82,7 +90,22 @@ def verify_health(now: datetime, fetch_json, repo: str) -> dict:
     ]
     if len(checkpoint) != 1:
         raise RuntimeError("Scheduled worker did not retain one nonempty encrypted checkpoint")
-    return {"due_utc": due.isoformat(), "run_id": run_id, "checkpoint_present": True}
+    next_slot = min(
+        due + timedelta(days=offset)
+        for offset in range(1, 8)
+        if (due.weekday() + offset) % 7 in CRON_WEEKDAYS
+    )
+    required_until = next_slot + GRACE
+    expires = utc_timestamp(checkpoint[0].get("expires_at"))
+    if expires <= required_until:
+        raise RuntimeError("Encrypted checkpoint expires before the next schedule grace window closes")
+    return {
+        "due_utc": due.isoformat(),
+        "run_id": run_id,
+        "checkpoint_present": True,
+        "checkpoint_expires_utc": expires.isoformat(),
+        "retention_required_until_utc": required_until.isoformat(),
+    }
 
 
 def github_json(path: str) -> dict:
@@ -111,7 +134,7 @@ def main() -> int:
     except (KeyError, ValueError, RuntimeError, HTTPError, URLError, TimeoutError):
         # Don't print HTTP response bodies, tokens, artifacts or internal customer data.
         print("::error::Scheduled durable worker health unverified: inspect Actions runs, "
-              "worker job and encrypted checkpoint. A green audit job does not verify it.")
+              "worker job, and encrypted checkpoint retention.")
         return 1
 
 

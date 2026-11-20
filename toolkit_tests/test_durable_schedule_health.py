@@ -10,6 +10,15 @@ TUESDAY = datetime(2026, 11, 17, 11, 0, tzinfo=timezone.utc)
 DUE = datetime(2026, 11, 17, 4, 50, tzinfo=timezone.utc)
 
 
+def checkpoint(expires_at="2026-12-17T13:55:00Z"):
+    return {
+        "name": "pipeline-state",
+        "size_in_bytes": 1024,
+        "expired": False,
+        "expires_at": expires_at,
+    }
+
+
 def sample(run=None, *, jobs=None, artifacts=None):
     run = run or {
         "id": 77,
@@ -20,9 +29,7 @@ def sample(run=None, *, jobs=None, artifacts=None):
         "created_at": "2026-11-17T05:15:00Z",
     }
     jobs = [{"name": "draft-pipeline", "conclusion": "success"}] if jobs is None else jobs
-    artifacts = [
-        {"name": "pipeline-state", "size_in_bytes": 1024, "expired": False}
-    ] if artifacts is None else artifacts
+    artifacts = [checkpoint()] if artifacts is None else artifacts
     seen = []
 
     def fetch(path):
@@ -58,6 +65,8 @@ class DurableScheduleHealthTests(unittest.TestCase):
         self.assertEqual(result["due_utc"], DUE.isoformat())
         self.assertEqual(result["run_id"], 77)
         self.assertTrue(result["checkpoint_present"])
+        self.assertEqual(result["checkpoint_expires_utc"], "2026-12-17T13:55:00+00:00")
+        self.assertEqual(result["retention_required_until_utc"], "2026-11-20T10:50:00+00:00")
         self.assertEqual(len(calls), 3)
         self.assertIn("event=schedule", calls[0])
 
@@ -100,6 +109,36 @@ class DurableScheduleHealthTests(unittest.TestCase):
                 fetch, _ = sample(run=run, jobs=jobs)
                 with self.assertRaises(RuntimeError):
                     health.verify_health(TUESDAY, fetch, REPO)
+
+    def test_checkpoint_must_survive_next_slot_and_grace(self):
+        for expires_at in ("2026-11-20T04:51:00Z", "2026-11-20T10:50:00Z"):
+            with self.subTest(expires_at=expires_at):
+                fetch, _ = sample(artifacts=[checkpoint(expires_at)])
+                with self.assertRaisesRegex(RuntimeError, "expires before"):
+                    health.verify_health(TUESDAY, fetch, REPO)
+        fetch, _ = sample(artifacts=[checkpoint("2026-11-20T10:50:01Z")])
+        self.assertTrue(health.verify_health(TUESDAY, fetch, REPO)["checkpoint_present"])
+
+    def test_missing_or_invalid_expiry_is_unverified(self):
+        for expires_at in (None, "invalid", "2026-12-17T13:55:00"):
+            with self.subTest(expires_at=expires_at):
+                fetch, _ = sample(artifacts=[checkpoint(expires_at)])
+                with self.assertRaises(ValueError):
+                    health.verify_health(TUESDAY, fetch, REPO)
+
+    def test_friday_checkpoint_covers_the_weekend(self):
+        friday = TUESDAY + timedelta(days=3)
+        run = {
+            "id": 78, "event": "schedule", "head_branch": "master",
+            "status": "completed", "conclusion": "success",
+            "created_at": "2026-11-20T05:15:00Z",
+        }
+        fetch, _ = sample(run, artifacts=[checkpoint("2026-11-23T10:50:01Z")])
+        with self.assertRaisesRegex(RuntimeError, "expires before"):
+            health.verify_health(friday, fetch, REPO)
+        fetch, _ = sample(run, artifacts=[checkpoint("2026-11-24T10:50:01Z")])
+        result = health.verify_health(friday, fetch, REPO)
+        self.assertEqual(result["retention_required_until_utc"], "2026-11-24T10:50:00+00:00")
 
     def test_missing_empty_or_expired_checkpoint_fails(self):
         for artifacts in [
