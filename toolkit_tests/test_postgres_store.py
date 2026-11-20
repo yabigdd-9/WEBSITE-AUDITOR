@@ -14,8 +14,15 @@ psycopg = pytest.importorskip("psycopg")
 pgserver = pytest.importorskip("pgserver")
 from scripts import cloud_prospect_pipeline as pipeline  # noqa: E402
 from scripts import postgres_runtime_preflight as preflight  # noqa: E402
-from scripts.postgres_store import PROJECT_REF, PostgresPipelineStore, connection_options  # noqa: E402
-from toolkit_tests.platform_helpers import commit_mutation, interrupt_reserved_transaction  # noqa: E402
+from scripts.postgres_store import (  # noqa: E402
+    PROJECT_REF,
+    PostgresPipelineStore,
+    connection_options,
+)
+from toolkit_tests.platform_helpers import (  # noqa: E402
+    commit_mutation,
+    interrupt_reserved_transaction,
+)
 
 MIGRATION = next((Path(__file__).resolve().parents[1] / "supabase/migrations").glob("*private_pipeline_store.sql"))
 
