@@ -2,7 +2,7 @@
 name = "website-auditor"
 version = "4.0.0"
 description = "Evidence-first website auditing for NZ businesses — free, local, zero-paid-inference"
-requires-python = ">=3.11"
+requires-python = ">=3.11.5"
 readme = "README.md"
 license = {text = "MIT"}
 
@@ -11,6 +11,7 @@ dependencies = [
   "httpx>=0.28,<1",
   "aiohttp>=3.10",
   "beautifulsoup4>=4.15",
+  "soupsieve>=4,<5",
   "lxml>=6",
   "trafilatura>=2",
   "yarl>=1.25",
@@ -31,8 +32,8 @@ exclude = ["toolkit_tests*", "money-machine*", "deepseek-harness*"]
 auditor_toolkit = ["assets/*.js", "assets/*.txt"]
 
 [project.optional-dependencies]
-vault = ["cryptography>=45,<47"]
-postgres = ["psycopg[binary]>=3.2,<4"]
+postgres = ["psycopg[binary]==3.3.3"]
+vault = ["cryptography>=50.0.2,<51"]
 browser = ["playwright>=1.51,<2", "pillow>=12,<14"]
 portal = ["fastapi>=0.115,<1", "uvicorn>=0.30,<1", "argon2-cffi>=23,<26", "python-multipart>=0.0.18"]
 ai = ["llama-cpp-python>=0.3,<1"]

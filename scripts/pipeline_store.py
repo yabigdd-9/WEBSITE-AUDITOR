@@ -115,7 +115,56 @@ def validate(state):
     return raw
 
 
+def validate_transition(previous, state):
+    validate(state)
+    if previous is not None:
+        for key in ("events", "business_events", "audit_runs", "discovery_events", "audit_artifact_links"):
+            prior = previous.get(key, [])
+            if state.get(key, [])[:len(prior)] != prior:
+                raise ValueError("Persisted history is append-only; use explicit backup recovery")
+        for identity, artifact in previous.get("report_artifacts", {}).items():
+            if state.get("report_artifacts", {}).get(identity) != artifact:
+                raise ValueError("Registered ciphertext metadata is immutable")
+        for identity, prospect in previous["prospects"].items():
+            current = state["prospects"].get(identity)
+            if current is None or current["domain"] != prospect["domain"]:
+                raise ValueError("Prospect deletion/identity change requires a retention migration")
+            if prospect.get("status") == "suppressed" and current.get("status") != "suppressed":
+                raise ValueError("Suppression cannot be cleared by a worker")
+            for key in ("proposal_versions", "recommendation_reviews", "approvals",
+                        "outreach_drafts", "outreach_events", "suppression_events", "project_events"):
+                prior = prospect.get(key, [])
+                if current.get(key, [])[:len(prior)] != prior:
+                    raise ValueError("Proposal and review history is append-only")
+            for project_id, project in prospect.get("projects", {}).items():
+                latest = current.get("projects", {}).get(project_id)
+                if latest is None or any(
+                    latest[key] != project[key] for key in ("frozen_proposal", "proposal_version", "acceptance")
+                ):
+                    raise ValueError("Accepted proposal and project acceptance are immutable")
+                for key in ("tasks", "milestones"):
+                    if len(latest[key]) != len(project[key]):
+                        raise ValueError("Accepted project scope is immutable")
+                    for old, new in zip(project[key], latest[key], strict=True):
+                        if (
+                            {k: v for k, v in old.items() if k not in {"status", "evidence_sha256"}}
+                            != {k: v for k, v in new.items() if k not in {"status", "evidence_sha256"}}
+                            or old["status"] == "complete" and old != new
+                        ):
+                            raise ValueError("Project scope and completed evidence are immutable")
+        for identity, candidate in previous.get("discovery_candidates", {}).items():
+            current = state.get("discovery_candidates", {}).get(identity)
+            if (
+                current is None or current["domain"] != candidate["domain"]
+                or current["first_seen"] != candidate["first_seen"]
+                or any(s not in current["sources"] for s in candidate["sources"])
+            ):
+                raise ValueError("Discovery provenance cannot be discarded by a worker")
+
+
 class PipelineStore:
+    storage_kind = "private SQLite"
+
     def __init__(self, path: Path):
         self.path = _is_safe_db_location(path)
         self.operations_path = self.path.with_name(self.path.stem + ".operations.sqlite3")
@@ -247,49 +296,7 @@ class PipelineStore:
     def _save(db, state, job_id=None):
         validate(state)
         previous = PipelineStore._load(db)
-        if previous is not None:
-            for key in ("events", "business_events", "audit_runs", "discovery_events", "audit_artifact_links"):
-                prior = previous.get(key, [])
-                if state.get(key, [])[:len(prior)] != prior:
-                    raise ValueError("Persisted history is append-only; use explicit backup recovery")
-            for identity, artifact in previous.get("report_artifacts", {}).items():
-                if state.get("report_artifacts", {}).get(identity) != artifact:
-                    raise ValueError("Registered ciphertext metadata is immutable")
-            for identity, prospect in previous["prospects"].items():
-                current = state["prospects"].get(identity)
-                if current is None or current["domain"] != prospect["domain"]:
-                    raise ValueError("Prospect deletion/identity change requires a retention migration")
-                if prospect.get("status") == "suppressed" and current.get("status") != "suppressed":
-                    raise ValueError("Suppression cannot be cleared by a worker")
-                for key in ("proposal_versions", "recommendation_reviews", "approvals",
-                            "outreach_drafts", "outreach_events", "suppression_events", "project_events"):
-                    prior = prospect.get(key, [])
-                    if current.get(key, [])[:len(prior)] != prior:
-                        raise ValueError("Proposal and review history is append-only")
-                for project_id, project in prospect.get("projects", {}).items():
-                    latest = current.get("projects", {}).get(project_id)
-                    if latest is None or any(
-                        latest[key] != project[key] for key in ("frozen_proposal", "proposal_version", "acceptance")
-                    ):
-                        raise ValueError("Accepted proposal and project acceptance are immutable")
-                    for key in ("tasks", "milestones"):
-                        if len(latest[key]) != len(project[key]):
-                            raise ValueError("Accepted project scope is immutable")
-                        for old, new in zip(project[key], latest[key], strict=True):
-                            if (
-                                {k: v for k, v in old.items() if k not in {"status", "evidence_sha256"}}
-                                != {k: v for k, v in new.items() if k not in {"status", "evidence_sha256"}}
-                                or old["status"] == "complete" and old != new
-                            ):
-                                raise ValueError("Project scope and completed evidence are immutable")
-            for identity, candidate in previous.get("discovery_candidates", {}).items():
-                current = state.get("discovery_candidates", {}).get(identity)
-                if (
-                    current is None or current["domain"] != candidate["domain"]
-                    or current["first_seen"] != candidate["first_seen"]
-                    or any(s not in current["sources"] for s in candidate["sources"])
-                ):
-                    raise ValueError("Discovery provenance cannot be discarded by a worker")
+        validate_transition(previous, state)
         metadata = {
             k: v for k, v in state.items()
             if k not in {"prospects", "events", "business_events", "audit_runs",
@@ -428,6 +435,11 @@ class PipelineStore:
             ]
         finally:
             db.close()
+
+    def operational_summary(self, baseline=None):
+        from scripts.operational_ledger import OperationalLedger
+
+        return OperationalLedger(self.operations_path).summary(baseline)
 
     def backup(self, destination: Path):
         """SQLite online backup, private new file only; no remote upload."""

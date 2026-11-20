@@ -22,8 +22,6 @@ LOGIN_PATH = "/login"
 
 
 def setup_password(root, password):
-    from argon2 import PasswordHasher
-
     if len(password) < 12:
         raise ValueError("Use at least 12 characters")
     path = Path(root) / "portal-auth.json"
@@ -72,7 +70,20 @@ class OwnerPortal:
         return response
 
     def login_page(self):
-        return '<h1>Website Auditor</h1><form method="post" action="/login"><label>Password <input name="password" type="password" autocomplete="current-password" required></label><button>Log in</button></form>'
+        return (
+            '<!doctype html><html lang="en"><head><meta charset="utf-8">'
+            '<meta name="viewport" content="width=device-width,initial-scale=1">'
+            '<title>Owner login · Website Auditor</title><style>'
+            'body{font:16px system-ui;margin:0;background:#f6f7f9;color:#192737}'
+            'main{max-width:28rem;margin:auto;padding:24px}'
+            'label{display:block;margin:16px 0}'
+            'input,button{font:inherit;padding:12px;box-sizing:border-box;max-width:100%}'
+            'input{display:block;width:100%;margin-top:8px}'
+            '</style></head><body><main><h1>Website Auditor</h1>'
+            '<form method="post" action="/login"><label>Password '
+            '<input name="password" type="password" autocomplete="current-password" required>'
+            '</label><button>Log in</button></form></main></body></html>'
+        )
 
     async def login(self, request: Request):
         if request.headers.get("origin") not in (None, str(request.base_url).rstrip("/")):
@@ -123,33 +134,18 @@ class OwnerPortal:
         except HTTPException:
             return RedirectResponse(LOGIN_PATH, status_code=303)
         rows = "".join(
-            (
-                "<tr><td>"
-                + html.escape(r["url"])
-                + "</td><td>"
-                + html.escape(r["status"])
-                + "</td><td>"
-                + str(r["health_score"])
-                + '</td><td><a href="/runs/'
-                + r["run_id"]
-                + '">View evidence</a></td></tr>'
-                for r in self.history.list(q)
-            )
+            f'<tr><td>{html.escape(r["url"])}</td><td>{html.escape(r["status"])}</td>'
+            f'<td>{html.escape(str(r["health_score"]))}</td>'
+            f'<td><a href="/runs/{html.escape(r["run_id"], quote=True)}">View evidence</a></td></tr>'
+            for r in self.history.list(q)
         )
+        pipeline_link = '<a href="/pipeline">Business pipeline</a> · ' if self.pipeline_db is not None else ""
         return (
-            "<h1>Website Auditor</h1><p>"
-            + (
-                '<a href="/pipeline">Business pipeline</a> · '
-                if self.pipeline_db is not None
-                else ""
-            )
-            + '<a href="/monthly">Monthly report drafts</a></p><form><label>Search sites <input name="q" value="'
-            + html.escape(q, quote=True)
-            + '"></label><button>Search</button></form><table><thead><tr><th>Site</th><th>Status</th><th>Health</th><th>Report</th></tr></thead><tbody>'
-            + rows
-            + '</tbody></table><form method="post" action="/logout"><input type="hidden" name="csrf" value="'
-            + value["csrf"]
-            + '"><button>Log out</button></form>'
+            f'<h1>Website Auditor</h1><p>{pipeline_link}<a href="/monthly">Monthly report drafts</a></p>'
+            f'<form><label>Search sites <input name="q" value="{html.escape(q, quote=True)}"></label><button>Search</button></form>'
+            '<table><thead><tr><th>Site</th><th>Status</th><th>Health</th><th>Report</th></tr></thead>'
+            f'<tbody>{rows}</tbody></table><form method="post" action="/logout">'
+            f'<input type="hidden" name="csrf" value="{html.escape(value["csrf"], quote=True)}"><button>Log out</button></form>'
         )
 
     def monthly_reports(self, request: Request):
@@ -175,14 +171,10 @@ class OwnerPortal:
         return f'<h1>Monthly report drafts</h1><p><a href="/">Back to dashboard</a></p><table><thead><tr><th>Client</th><th>Month</th><th>Status</th><th>Artifacts</th></tr></thead><tbody>{body}</tbody></table>'
 
     def monthly_artifact(self, identity: str, kind: str, request: Request):
-        self.session(request)
         from .monthly import MonthlyStore
 
-        try:
-            path = MonthlyStore(self.root).artifact(identity, kind)
-        except (KeyError, ValueError, OSError):
-            raise HTTPException(404, "Monthly artifact unavailable") from None
-        return FileResponse(path, filename=path.name, media_type=BINARY_TYPE)
+        return self.download(request, lambda: MonthlyStore(self.root).artifact(identity, kind),
+                             "Monthly artifact unavailable")
 
     def run_view(self, run_id: str, request: Request):
         self.session(request)
@@ -197,20 +189,18 @@ class OwnerPortal:
                 for k in report["artifacts"]
             )
         )
-        return (
-            "<h1>Audit evidence</h1>"
-            + links
-            + "<pre>"
-            + html.escape(json.dumps(report, indent=2))
-            + "</pre>"
-        )
+        return f'<h1>Audit evidence</h1>{links}<pre>{html.escape(json.dumps(report, indent=2))}</pre>'
 
     def artifact(self, run_id: str, kind: str, request: Request):
+        return self.download(request, lambda: self.history.artifact(run_id, kind),
+                             "Artifact unavailable")
+
+    def download(self, request, resolve, unavailable):
         self.session(request)
         try:
-            path = self.history.artifact(run_id, kind)
-        except (KeyError, ValueError):
-            raise HTTPException(404, "Artifact unavailable") from None
+            path = resolve()
+        except (KeyError, ValueError, OSError):
+            raise HTTPException(404, unavailable) from None
         return FileResponse(path, filename=path.name, media_type=BINARY_TYPE)
 
     async def remediation(self, identity: str, request: Request):
@@ -225,8 +215,6 @@ class OwnerPortal:
 
     def health_check(self):
         try:
-            from pathlib import Path
-
             if not Path(self.app.state.root).exists():
                 raise RuntimeError("Root directory does not exist")
             return {"status": "ok"}
@@ -234,21 +222,29 @@ class OwnerPortal:
             raise HTTPException(status_code=500, detail=str(e))
 
 
-def _attach_private_pipeline(app, owner, pipeline_db, report_archive_root=None):
-    from scripts.pipeline_store import PipelineStore
+def _attach_private_pipeline(app, owner, pipeline_db, report_archive_root=None, pipeline_postgres=False):
 
     from .pipeline_portal import attach_pipeline
 
-    if not Path(pipeline_db).is_file():
-        raise ValueError("Initialize the private pipeline database before serving")
-    store = PipelineStore(Path(pipeline_db))
+    if pipeline_postgres:
+        from scripts.postgres_store import PostgresPipelineStore
+
+        store = PostgresPipelineStore()
+    else:
+        from scripts.pipeline_store import PipelineStore
+
+        if not Path(pipeline_db).is_file():
+            raise ValueError("Initialize the private pipeline database before serving")
+        store = PipelineStore(Path(pipeline_db))
     if store.read() is None:
         raise ValueError("Initialize the private pipeline database before serving")
     attach_pipeline(app, store, owner.session, owner.csrf, archive_root=report_archive_root)
 
 
-def create_app(root, session_seconds=3600, pipeline_db=None, report_archive_root=None):
-    if report_archive_root is not None and pipeline_db is None:
+def create_app(root, session_seconds=3600, pipeline_db=None, report_archive_root=None, pipeline_postgres=False):
+    if pipeline_db is not None and pipeline_postgres:
+        raise ValueError("Select one private pipeline store")
+    if report_archive_root is not None and pipeline_db is None and not pipeline_postgres:
         raise ValueError("Encrypted archive requires a configured private pipeline database")
     history = History(root)
     auth_file = Path(root) / "portal-auth.json"
@@ -262,7 +258,7 @@ def create_app(root, session_seconds=3600, pipeline_db=None, report_archive_root
     app.state.sessions = {}
     app.state.history = history
     app.state.root = root
-    owner = OwnerPortal(app, history, root, password_hash, session_seconds, pipeline_db)
+    owner = OwnerPortal(app, history, root, password_hash, session_seconds, pipeline_db or pipeline_postgres)
     app.middleware("http")(owner.headers)
     routes = [
         (LOGIN_PATH, owner.login_page, ["GET"], HTMLResponse),
@@ -280,6 +276,6 @@ def create_app(root, session_seconds=3600, pipeline_db=None, report_archive_root
     for route, endpoint, methods, response_class in routes:
         options = {"response_class": response_class} if response_class else {}
         app.add_api_route(route, endpoint, methods=methods, **options)
-    if pipeline_db is not None:
-        _attach_private_pipeline(app, owner, pipeline_db, report_archive_root)
+    if pipeline_db is not None or pipeline_postgres:
+        _attach_private_pipeline(app, owner, pipeline_db, report_archive_root, pipeline_postgres)
     return app

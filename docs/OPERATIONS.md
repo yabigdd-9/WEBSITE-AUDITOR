@@ -40,3 +40,18 @@ No import runs on page load. Health identifies local custody separately from
 unverified hosted storage. Database backups require a separate ciphertext
 directory backup. Monitor the 50 MB/1,000-file local cap and act before GitHub's
 30-day expiry; no automated source download or hosted archive is activated.
+
+## Optional private Postgres operation
+
+Use the server-only `WA_POSTGRES_DSN` and `--postgres` for queue operations, or
+`--pipeline-postgres` for the existing owner portal. Missing/malformed credentials
+fail closed. Pause the queue for export/restore; competing writers are rejected
+before selection. Read-only dashboards see the last committed state. Failed
+reservations stay charged. The health view uses the same operational-summary
+interface on SQLite and Postgres and does not expose connection parameters.
+
+The selected hosted store is initialized by a synthetic storage event only;
+start with `--postgres --paused` and never bootstrap over it. The owner must
+securely configure the dedicated runtime login and secret before the manual
+independent-runner verification can run. Existing schedules, sending and paid
+service settings were not activated or changed.

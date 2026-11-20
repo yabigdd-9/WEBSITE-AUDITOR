@@ -129,7 +129,7 @@ class PipelineViews:
         identity = html.escape(identity, quote=True)
         form = ""
         if p.get("proposal_version"):
-            form = f'''<form method="post" action="/pipeline/prospects/{identity}/reject"><input type="hidden" name="csrf" value="{self.escaped(value["csrf"])}"><input type="hidden" name="version" value="{self.escaped(p["proposal_version"])}"><label>Reason for rejection<textarea name="reason" maxlength="1000" required></textarea></label><button formaction="/pipeline/prospects/{identity}/approve">Approve internal proposal</button> <button>Reject recommendation</button></form>'''
+            form = f'''<form method="post" action="/pipeline/prospects/{identity}/reject"><input type="hidden" name="csrf" value="{self.escaped(value["csrf"])}"><input type="hidden" name="version" value="{self.escaped(p["proposal_version"])}"><label>Review reason<textarea name="reason" maxlength="1000" required></textarea></label><button formaction="/pipeline/prospects/{identity}/approve">Approve internal proposal</button> <button>Reject recommendation</button></form>'''
             decisions = [a for a in p.get("approvals", []) if a["action_type"] == "proposal"]
             if (
                 decisions
@@ -176,22 +176,17 @@ class PipelineViews:
             ),
             "paid_api_calls": 0,
             "automatic_sending": "disabled",
-            "storage": "private SQLite",
+            "storage": self.store.storage_kind,
             "hosted_storage": "not verified",
             "free_tier_remaining": "unknown; provider accounting required",
             "encrypted_report_archive": "owner-controlled local ciphertext" if self.report_archive else "not configured",
             "hosted_archive": "not verified",
             "recent_events": document["events"][-25:],
         }
-        if self.store.operations_path.exists():
-            from scripts.operational_ledger import OperationalLedger
-
-            try:
-                report["operational_ledger"] = OperationalLedger(
-                    self.store.operations_path
-                ).summary(document)
-            except (ValueError, sqlite3.Error, OSError):
-                report["operational_ledger"] = "unavailable; processing must remain blocked"
+        try:
+            report["operational_ledger"] = self.store.operational_summary(document)
+        except (ValueError, sqlite3.Error, OSError):
+            report["operational_ledger"] = "unavailable; processing must remain blocked"
         return self.page(
             "System health", PRE_OPEN + self.escaped(json.dumps(report, indent=2)) + PRE_CLOSE
         )

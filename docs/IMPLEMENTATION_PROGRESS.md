@@ -1,5 +1,24 @@
 # Cloud platform implementation progress
 
+## Hosted owner dashboard and checkpoint cutover — 2026-11-18
+
+- Work is isolated on `cloud/hosted-owner-dashboard-20261118`, based on the
+  existing Postgres adapter PR #107. Added an HTTPS-only deployment factory,
+  private database-backed sessions and shared login/write limits, exact-origin
+  CSRF checks, host-only Secure cookies and cross-replica logout/rotation.
+- Added one-time trusted latest-checkpoint import, transactional preservation
+  of evidence/decisions/suppression and legacy audit budgets, explicit storage
+  selection with no fallback, and encrypted paired Postgres exports. Source
+  import cannot overwrite an occupied business database or charged reservations.
+- Local non-database configuration/import/source-selection checks: 15 passed.
+  Real local Postgres is blocked by the shell's socket policy; dedicated CI
+  covers real Postgres and restart/worker continuity before any readiness claim.
+- Native selected-project checks found zero prospects, one setup event and zero
+  reservations. No runner LOGIN exists. No production import, secret provisioning,
+  storage authority switch, hosted deployment, send or paid activation performed.
+- See `HOSTED_OWNER_DASHBOARD.md` for concrete deployment/cutover/recovery steps.
+  Runtime DSN and an eligible Python host remain external configuration gates.
+
 ## Session 2026-11-16
 
 - Fetched master; base e8da967379e38508fe3fee43ac6b49f202e35bbd; focused branch
@@ -331,3 +350,177 @@ The built wheel was installed outside the checkout and passed schema v4,
 ciphertext round-trip and authenticated report-page smoke checks. No deployment
 or production verification is implied by CI. This evidence-only update does not
 change tested source. Remaining owner/storage/security-release gates are unchanged.
+
+## Desktop/mobile owner workflow — cloud/dashboard-browser-verification
+
+Based on archive PR #90 evidence commit
+`cf983e070a7dbde6e17d8954e2cbccd4e8168910`, whose six workflows all passed:
+CI 43842126839, toolkit 43842126739, security 43842126802, CodeQL 43842126761,
+SonarCloud 43842126799 and cloud pipeline 43842126708.
+
+Completed:
+- Added real desktop/mobile Chromium acceptance covering synthetic private
+  pipeline review, search, ciphertext download, exact-version approval,
+  independently attested customer acceptance, project creation and logout.
+- Verified page loads preserve state, sessions protect records, downloads match
+  ciphertext, all screens fit the viewport, and browser requests remain loopback.
+- Fixed the reproduced mobile login viewport defect; clarified the proposal
+  review reason field for both approve/reject actions.
+- Added the suite to the existing required browser CI command.
+
+Local verification: **30 passed** across the new desktop/mobile workflows and
+existing pipeline/report portal/release tests. Ruff and whitespace checks passed.
+The first run reproduced mobile failure before the viewport fix; desktop passed.
+No owner key, actual customer acceptance, new storage service or send was used.
+Hosted persistence/project mapping remains unanswered. No merge, production
+activation or hosted mobile acceptance is claimed. Next: verify focused PR CI;
+connect storage only after the owner identifies its intended project/service.
+
+### Browser acceptance PR and verified CI
+
+Draft [PR #92](https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/92), targeting
+archive branch #90, implementation commit
+`cc9731b255909df87d3381ce317cd166fec4674d`:
+
+| Workflow | Run ID | Result |
+| --- | --- | --- |
+| CI | 43842972373 | success |
+| Local toolkit tests | 43842972269 | success; canonical 881 passed / 17 optional skips / 14 subtests; real Chromium suite 8 passed, including both new desktop/mobile workflows |
+| security | 43842972527 | success |
+| CodeQL | 43842972301 | success |
+| SonarCloud | 43842972348 | success; unchanged quality gate |
+
+All five workflows triggered by this focused diff passed. A separate cloud-worker
+run is not triggered by these UI/test-only paths. No production worker, hosted
+storage, client action or deployment was activated. This subsequent evidence
+update changes documentation only. The implementation is reviewable and browser
+verified locally and in GitHub CI; the complete platform is still gated on an
+identified durable cloud store, reviewed remote deployment and real recovery /
+bounded production execution evidence. The owner's storage question remains
+pending; no project was assumed from account names.
+
+## Supabase proposal and account verification — cloud/supabase-free-tier-proposal
+
+The owner requested a separate free-tier setup proposal and explicitly selected
+`yabigdd-9's Org` (`luvtvzzhzutxizpfdsgb`). Read-only account inspection verified
+its Free plan, one active/two inactive projects, and a project quote of **$0 per
+month**. Official current docs confirm the two-free-project allowance, excluded
+paused projects, included quotas, inactivity pausing and Free backup limitations.
+A free slot appears available; it has not been reserved or creation-tested.
+
+Completed: concrete `moneymachine` / Sydney proposal in DEPLOYMENT.md, cost
+boundaries, proposed private schema/RLS/roles and ciphertext custody, backup /
+restore gates, and staged activation plan preserving existing integrations.
+No existing project contents were inspected. No project, schema, bucket, paid
+add-on, secret or production workload was created or changed. This is a docs-only
+proposal; no implementation tests or production verification are claimed.
+The changelog endpoint returned HTTP 403; current official docs were consulted
+through the connected plugin. Next owner action: approve creation of this exact
+$0/month project. Creation is separate from approval to deploy or enable sending.
+
+## Approved Supabase project created — 2026-11-16
+
+The owner approved creation after reviewing the $0/month proposal in draft
+[PR #99](https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/99). A fresh cost quote
+remained zero, and inventory showed no existing `moneymachine`. Creation succeeded
+in the selected organization/region. Independent project lookup verified
+`srymerkhraklwuttzexi`, name `moneymachine`, `ap-southeast-2`, `ACTIVE_HEALTHY`;
+organization lookup verified `free` / `tier_free` after creation.
+
+A read-only SQL query succeeded on PostgreSQL 17.11 and returned zero public
+base tables and zero Storage buckets. Supabase's security advisor returned an
+empty lint list. No application schema, credentials, bucket, data collection,
+paid upgrade, external send, existing-project change or production deployment was
+performed. This is verified database provisioning, not platform deployment.
+
+Updated DEPLOYMENT.md with the public project reference and actual verification
+boundary. Docs-only whitespace check passed; no code changes/tests are implied.
+Next: implement/test the Postgres adapter against existing store/quota contracts,
+configure least-privilege server credentials securely, and prepare migrations and
+access/restore verification before production activation. Storage destination
+selection is resolved; the integration and production release gates remain open.
+
+## Supabase pipeline adapter — cloud/supabase-pipeline-adapter
+
+Recovered the published base `ca020ac` in the replacement workspace; the prior
+uncommitted adapter files and temporary environment were not retained. Recovered
+the exact already-applied migration SQL from Supabase migration history and
+reimplemented/retested the adapter before publishing. No existing schedules or
+production workloads were switched or deployed.
+
+Completed: private normalized Postgres store, shared immutable transition rules,
+CLI/portal integration, separately committed crash-durable job/request ledger,
+verified-TLS selected-project/dedicated-role checks, bounded private paired
+export/restore, pinned optional driver/lockfile, database CI job and manual-only
+independent-runner verification workflow. Documentation records secure credential
+configuration and the actual deployment boundary.
+
+Verified locally: **59 passed** across real Postgres, SQLite store, operational
+ledger and pipeline/report portal tests; Ruff and diff whitespace checks passed.
+Verified remotely: project healthy, migration `20261116105816` present, 12 private
+RLS-forced tables, denied anonymous/authenticated access and no quota-deletion
+privilege. After a prior automatic-review usage-limit failure (no execution),
+the normal continuation write succeeded. A separate restricted-reader connection
+confirmed one durable state/event with zero prospects and zero reservations.
+
+Blocked: dedicated runtime LOGIN/`WA_POSTGRES_DSN` must be provisioned through
+trusted configuration; available connectors do not provide or securely install
+this server credential in GitHub secrets. No password/key is requested in chat.
+Python-to-hosted worker connectivity, independent cloud-runner workflow, hosted
+restore, remote dashboard and formal security scan remain unverified. Next:
+publish focused PR, inspect CI, then configure the runtime secret securely before
+an owner-authorized manual persistence run. No sending, paid upgrade or live-site
+change is enabled by these additions.
+
+### Focused PR #107 and first integrated checks
+
+Published source `25c5af7de8b4f6c608a7af62a46a2e2aa7a0f8ba` in draft
+[PR #107](https://github.com/yabigdd-9/WEBSITE-AUDITOR/pull/107), targeting #99.
+Initial cloud/database CI 44075115686, CI 44075115675, toolkit 44075115876,
+CodeQL 44075115617 and secret scanning passed. Security audit failed because
+pip-audit treats `.[postgres]` as a project path rather than a selectable extra.
+Corrected by retaining the original root/email audits and separately auditing a
+requirements file derived from the declared optional Postgres dependency.
+The local optional-driver audit found no known vulnerabilities.
+
+Initial SonarCloud 44075115623 failed its unchanged quality gate with zero code
+issues in its issue summary. Its coverage environment lacked the new optional
+Postgres driver/server, skipping the portal's new Postgres path. Added those
+pinned test dependencies to coverage and added non-blocking gate-metric
+diagnostics without changing quality conditions, exclusions or scan results.
+
+Full local regression on that source: **909 passed, 7 optional skips, 14 passing
+subtests**, with the same three baseline supervisor/DNS environment failures.
+Added two positive direct/session verified-TLS configuration cases; the dedicated
+real Postgres suite now passes **23 tests**. Workflow YAML and embedded Python
+compile checks passed. Corrected CI is pending; no merge/deployment performed.
+
+### Verified corrected integration — PR #107
+
+Exact source: `e72f50eea8b14a59d68b466724a58b10872a9005`.
+All six triggered workflows passed after the audit/coverage corrections:
+
+| Workflow | Run ID | Result |
+| --- | --- | --- |
+| CI | 44075718056 | success |
+| Local toolkit tests | 44075718136 | success |
+| security | 44075718028 | success; existing root/email plus optional Postgres audit |
+| CodeQL | 44075718046 | success |
+| SonarCloud | 44075718196 | success; new-code coverage 88.2%, duplication 0%, unchanged quality gate |
+| Durable Cloud Draft Pipeline | 44075718150 | success, including real Postgres tests; production worker skipped |
+
+Dedicated local real Postgres suite: **23 passed**. Sonar's expanded full
+coverage job: **904 passed, 17 optional skips**. A built wheel installed outside
+the checkout passed real Postgres persistence, operational-summary and private
+export smoke checks. Workflow YAML and embedded Python were validated. Full
+local regression evidence and its three baseline environment failures are
+recorded above; no failures were hidden or tests disabled.
+
+Credential inspection checked presence only: no WA_POSTGRES_DSN, database URL or
+password was available in this workspace, and no local .env exists. A read-only
+GitHub check for the secret's name returned Forbidden, so its repository presence
+could not be verified. Never request or paste credentials in chat. The smallest
+remaining owner action is secure dedicated LOGIN provisioning and server/GitHub
+secret configuration according to DEPLOYMENT.md. Then the reviewed manual-only
+workflow can verify independent runner connectivity. No merge or dispatch was
+performed. This evidence-only follow-up changes no tested source.

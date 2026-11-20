@@ -107,3 +107,25 @@ preserve the audit's original status/canonical run ID and owner review record.
 Existing immutable audit snapshots are not rewritten. Index metadata and links
 are append-only through the store. Migrations from v1-v3 preserve earlier records.
 No key or decrypted report is stored. Ciphertext remains outside the database.
+
+## Private PostgreSQL schema v1
+
+The opt-in Postgres adapter uses the same validated business document and
+immutable transition rules as SQLite v4. Schema `moneymachine` contains
+`schema_version`, `metadata`, `prospects`, `audit_runs`, `events`, `business_events`,
+`discovery_candidates`, `discovery_events`, `report_artifacts`,
+`audit_artifact_links`, `jobs`, and `reservations`. Canonical domains/checksums
+are unique; relational records retain foreign keys; explicit audit sequence
+preserves append order. Bodies remain JSONB to reuse canonical evidence,
+proposal, approval and project records without competing implementations.
+
+A session advisory lock covers selection through state commit. Operational jobs
+and request reservations commit on a separate connection, so interrupted work
+cannot refund request limits. Reservations intentionally do not reference the
+uncommitted prospect/audit rows; job references remain enforced. Committed-job
+markers repair interrupted job finalization. Limits remain 3 requests/run,
+6/day, 3/prospect and 10,000 operational/history records.
+
+RLS is enabled and forced on every table, with policies for explicit private
+worker/reader groups. These groups are NOLOGIN. No public Data API schema or RPC
+was added. Runtime login provisioning is a separate secure configuration step.

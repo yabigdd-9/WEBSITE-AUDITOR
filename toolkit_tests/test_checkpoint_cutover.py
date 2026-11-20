@@ -1,0 +1,137 @@
+"""Synthetic cutover/recovery tests. No real download, audit or send."""
+
+import copy
+
+import pytest
+
+from scripts.checkpoint_to_postgres import import_checkpoint
+from scripts.cloud_prospect_pipeline import empty_state, event
+from scripts.fetch_migration_checkpoint import WORKFLOW_PATH, fetch_latest
+from scripts.pipeline_store import PipelineStore
+
+
+@pytest.fixture(autouse=True)
+def private_runner_directory(tmp_path, monkeypatch):
+    monkeypatch.setenv("RUNNER_TEMP", str(tmp_path))
+
+
+def target(tmp_path):
+    store = PipelineStore(tmp_path / "private.sqlite3")
+    with store.transaction(bootstrap=True) as state:
+        event(state, 0, "setup", "0" * 64, "pause", "disabled")
+    return store
+
+
+def test_import_preserves_history_and_is_idempotent(tmp_path):
+    store = target(tmp_path)
+    incoming = empty_state()
+    event(incoming, 1, "source", "a" * 64, "audit", "failed", "audit_failed")
+    original = copy.deepcopy(incoming)
+    result = import_checkpoint(store, incoming, source_run="123", actor="synthetic-owner", now=2)
+    saved = store.read()
+    assert saved["events"][0]["run_id"] == "setup"
+    assert saved["events"][1] == incoming["events"][0]
+    assert saved["storage_authority"] == "postgres"
+    assert result["already_imported"] is False
+    assert incoming == original
+    assert import_checkpoint(store, incoming, source_run="123", actor="synthetic-owner", now=3)["already_imported"] is True
+    assert store.read() == saved
+    with pytest.raises(ValueError, match="differs"):
+        import_checkpoint(store, incoming, source_run="124", actor="synthetic-owner", now=4)
+    assert store.read() == saved
+
+
+def test_import_refuses_unknown_settings_and_preserves_target(tmp_path):
+    store = target(tmp_path)
+    with store.transaction() as state:
+        state["owner_settings"] = {"paused": True}
+    before = store.read()
+    with pytest.raises(ValueError, match="destination"):
+        import_checkpoint(store, empty_state(), source_run="123", actor="owner", now=2)
+    assert store.read() == before
+
+
+def test_import_cannot_refund_aborted_reservations(tmp_path):
+    store = target(tmp_path)
+    with pytest.raises(RuntimeError):
+        with store.transaction():
+            assert store.reserve_attempt("a" * 64, "b" * 64, now=0, daily_limit=6)
+            raise RuntimeError("Synthetic interrupted work")
+    before = store.read()
+    with pytest.raises(ValueError, match="reservations"):
+        import_checkpoint(store, empty_state(), source_run="123", actor="owner", now=2)
+    assert store.read() == before
+    assert store.operational_summary()["reservations"] == 1
+
+
+@pytest.mark.parametrize("source,actor", [("0", "owner"), ("../123", "owner"), ("123", "")])
+def test_invalid_import_identity_fails_before_storage(source, actor):
+    with pytest.raises(ValueError):
+        import_checkpoint(None, empty_state(), source_run=source, actor=actor)
+
+
+def source_query(**options):
+    def query(args):
+        if args[0] == "run":
+            return [{"databaseId": 124 if options.get("newer") else 123}]
+        if args[-1].endswith("/jobs"):
+            return {"jobs": [{"name": "draft-pipeline", "conclusion": "failure" if options.get("failed") else "success"}]}
+        if args[-1].endswith("/artifacts"):
+            return {"artifacts": [{"id": 9, "name": "pipeline-state", "size_in_bytes": 100, "expired": options.get("expired", False)}]}
+        return {"head_branch": "untrusted" if options.get("untrusted") else "master", "event": "push",
+                "path": WORKFLOW_PATH, "status": "completed", "conclusion": "success"}
+    return query
+
+
+def test_migration_source_is_latest_trusted_completed_worker(tmp_path):
+    destination = tmp_path / "pipeline-state.enc"
+
+    def download(identity, directory):
+        assert identity == 123
+        (directory / "pipeline-state.enc").write_bytes(b"synthetic-ciphertext-only")
+
+    result = fetch_latest(repo="synthetic/repo", source_run=123, current_run=200,
+                          destination=destination, query=source_query(), download=download)
+    assert result == {"source_run": 123, "artifact_id": 9}
+    assert destination.read_bytes() == b"synthetic-ciphertext-only"
+    assert destination.stat().st_mode & 0o077 == 0
+
+
+@pytest.mark.parametrize("options", [{"newer": True}, {"failed": True}, {"expired": True}, {"untrusted": True}])
+def test_unverified_sources_never_download(tmp_path, options):
+    def forbid_download(*args):
+        pytest.fail("Unverified source was downloaded")
+
+    with pytest.raises(ValueError):
+        fetch_latest(repo="synthetic/repo", source_run=123, current_run=200,
+                     destination=tmp_path / "state.enc", query=source_query(**options), download=forbid_download)
+
+
+def test_checkpoint_default_and_unknown_backend_never_fall_back(tmp_path, monkeypatch):
+    from scripts import cloud_pipeline_checkpoint, cloud_prospect_pipeline, cloud_storage_runner
+
+    monkeypatch.setenv("RUNNER_TEMP", str(tmp_path))
+    monkeypatch.setenv("GITHUB_REPOSITORY", "synthetic/repo")
+    monkeypatch.setenv("GITHUB_RUN_ID", "200")
+    for name in ("WA_PIPELINE_STORAGE", "BOOTSTRAP", "WA_RECOVERY_RUN"):
+        monkeypatch.delenv(name, raising=False)
+    restored, executed = [], []
+    monkeypatch.setattr(cloud_pipeline_checkpoint, "restore", lambda **kwargs: restored.append(kwargs))
+    monkeypatch.setattr(cloud_prospect_pipeline, "main", lambda args: executed.append(args) or 0)
+    assert cloud_storage_runner.main() == 0
+    assert restored[0]["bootstrap"] is False
+    assert executed == [["--state", str(tmp_path / "pipeline-state.enc")]]
+    monkeypatch.setenv("WA_PIPELINE_STORAGE", "typo")
+    assert cloud_storage_runner.main() == 2
+    assert len(restored) == 1
+    assert len(executed) == 1
+
+
+def test_postgres_bootstrap_is_refused_before_connecting(tmp_path, monkeypatch):
+    fernet_module = pytest.importorskip("cryptography.fernet")
+
+    from scripts.cloud_storage_runner import run_postgres
+
+    monkeypatch.setenv("BOOTSTRAP", "true")
+    with pytest.raises(ValueError, match="migration"):
+        run_postgres(tmp_path / "state.enc", fernet_module.Fernet.generate_key().decode())

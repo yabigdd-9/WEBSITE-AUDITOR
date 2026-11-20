@@ -81,3 +81,20 @@ download. Expiry does not erase data: follow the owner's retention decision for
 secure deletion and backup removal; there is no automatic deletion or retention
 extension service. Lost private keys cannot be recovered from this index; use
 the owner's separate trusted key backup. Do not upload keys to recover service.
+
+## Postgres paired export and empty-target restore
+
+`PostgresPipelineStore.backup(private_path)` writes a new 0600 trusted-device
+JSON export outside Git, capped at 20 MB. It acquires the writer lock and reads
+state, committed-job marker, jobs and reservations in one consistent snapshot.
+A SHA-256 checksum detects changes; it is not authenticated encryption. This
+local file contains private plaintext: never upload it as an Actions artifact.
+Apply an approved encrypted off-site backup procedure before collecting real
+prospect data. Ciphertext report files still require separate custody/backups.
+
+`restore_empty(private_path)` checks format, checksum, size, private location and
+state validation, then restores state and operational history transactionally.
+It refuses an initialized destination or existing jobs/reservations, preserves
+failed charges, and cannot reset a live queue. Disposable local PostgreSQL tests
+verify recovery and tamper rejection; no hosted disaster restore was performed.
+Free Supabase managed backups remain insufficient for the release gate.
