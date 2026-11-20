@@ -135,3 +135,34 @@ def test_postgres_bootstrap_is_refused_before_connecting(tmp_path, monkeypatch):
     monkeypatch.setenv("BOOTSTRAP", "true")
     with pytest.raises(ValueError, match="migration"):
         run_postgres(tmp_path / "state.enc", fernet_module.Fernet.generate_key().decode())
+
+
+def test_verify_only_requires_a_valid_encrypted_source_and_never_connects(tmp_path, monkeypatch, capsys):
+    from cryptography.fernet import Fernet
+
+    from scripts import checkpoint_to_postgres, postgres_store
+    from scripts.cloud_prospect_pipeline import seal
+
+    key = Fernet.generate_key().decode()
+    checkpoint = tmp_path / "trusted.enc"
+    state = empty_state()
+    event(state, 0, "private-fixture", "a" * 64, "pause", "disabled")
+    seal(state, checkpoint, key)
+
+    def forbidden_connection():
+        pytest.fail("Verification connected to Postgres")
+
+    monkeypatch.setattr(postgres_store, "PostgresPipelineStore", forbidden_connection)
+    args = ["--verify-only", "--checkpoint", str(checkpoint), "--source-run", "123"]
+    monkeypatch.setenv("WA_PIPELINE_STATE_KEY", Fernet.generate_key().decode())
+    assert checkpoint_to_postgres.main(args) == 2
+    assert "blocked" in capsys.readouterr().out
+
+    monkeypatch.setenv("WA_PIPELINE_STATE_KEY", key)
+    assert checkpoint_to_postgres.main(args) == 0
+    assert capsys.readouterr().out == "Trusted encrypted checkpoint verified in memory.\n"
+
+    state["storage_authority"] = "postgres"
+    seal(state, checkpoint, key)
+    assert checkpoint_to_postgres.main(args) == 2
+    assert "blocked" in capsys.readouterr().out
