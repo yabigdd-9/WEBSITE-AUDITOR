@@ -12,7 +12,11 @@ import pytest
 from scripts import cloud_prospect_pipeline as pipeline
 from scripts.operational_ledger import OperationalLedger
 from scripts.pipeline_store import VERSION, PipelineStore
-from toolkit_tests.platform_helpers import interrupt_reserved_transaction
+from toolkit_tests.platform_helpers import (
+    assert_committed_attempt_allows_retry,
+    assert_replay_sends_no_requests,
+    interrupt_reserved_transaction,
+)
 
 
 def sha(value):
@@ -30,11 +34,11 @@ def store():
 
 def test_failed_queue_transactions_do_not_refund_request_reservations(store):
     for attempt in range(3):
-        prospect_id, audit_id = sha("prospect"), sha(str(attempt))
+        prospect_id, audit_id = sha(f"prospect-{attempt}"), sha(str(attempt))
         with pytest.raises(RuntimeError):
             interrupt_reserved_transaction(store, prospect_id, audit_id)
     with store.transaction():
-        assert not store.reserve_attempt(sha("prospect"), sha("fourth"), now=0, daily_limit=6)
+        assert not store.reserve_attempt(sha("prospect-0"), sha("fourth"), now=0, daily_limit=6)
     summary = OperationalLedger(store.operations_path).summary()
     assert summary["reservations"] == 3
     assert sum(j["status"] == "failed" for j in summary["jobs"]) == 3
@@ -67,7 +71,7 @@ from pathlib import Path
 from scripts.pipeline_store import PipelineStore
 store=PipelineStore(Path(sys.argv[1]))
 with store.transaction() as state:
-    assert store.reserve_attempt(hashlib.sha256(b'p').hexdigest(), hashlib.sha256(b'a').hexdigest(), now=0, daily_limit=6)
+    assert store.reserve_attempt(hashlib.sha256(b'example.com').hexdigest(), hashlib.sha256(b'a').hexdigest(), now=0, daily_limit=6)
     state['events'].append({'uncommitted': True})
     os._exit(19)
 """,
@@ -77,10 +81,15 @@ with store.transaction() as state:
     assert store.read()["events"] == []
     assert OperationalLedger(store.operations_path).summary()["jobs"][0]["status"] == "running"
     with store.transaction():
-        pass
+        assert not store.reserve_attempt(sha("example.com"), sha("a"), now=0, daily_limit=6)
+    assert_replay_sends_no_requests(store, store.path.parent)
     report = OperationalLedger(store.operations_path).summary()
     assert report["reservations"] == 1
     assert any(j["status"] == "interrupted" for j in report["jobs"])
+
+
+def test_committed_attempt_allows_retry_after_backoff(store):
+    assert_committed_attempt_allows_retry(store, store.path.parent)
 
 
 def test_daily_and_per_run_caps_include_legacy_state_and_failed_jobs(store):

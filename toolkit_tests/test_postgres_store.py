@@ -20,6 +20,8 @@ from scripts.postgres_store import (  # noqa: E402
     connection_options,
 )
 from toolkit_tests.platform_helpers import (  # noqa: E402
+    assert_committed_attempt_allows_retry,
+    assert_replay_sends_no_requests,
     commit_mutation,
     interrupt_reserved_transaction,
 )
@@ -129,11 +131,11 @@ def test_bootstrap_and_writer_lock_prevent_duplicate_work(store, postgres):
 def test_failed_transactions_never_refund_request_budget(store):
     initialize(store)
     for index in range(3):
-        prospect_id, audit_id = sha("p"), sha(str(index))
+        prospect_id, audit_id = sha(f"p-{index}"), sha(str(index))
         with pytest.raises(RuntimeError):
             interrupt_reserved_transaction(store, prospect_id, audit_id)
     with store.transaction():
-        assert not store.reserve_attempt(sha("p"), sha("fourth"), now=0, daily_limit=6)
+        assert not store.reserve_attempt(sha("p-0"), sha("fourth"), now=0, daily_limit=6)
     assert store.read() == pipeline.empty_state()
     assert store.operational_summary()["reservations"] == 3
 
@@ -153,24 +155,30 @@ def test_legacy_daily_per_run_and_idempotent_limits(store):
         assert not store.reserve_attempt(sha("fourth"), sha("fourth"), now=86400, daily_limit=6)
 
 
-def test_process_crash_preserves_quotas_and_recovers_lock(store, postgres):
+def test_process_crash_preserves_quotas_and_recovers_lock(store, postgres, tmp_path):
     initialize(store)
     command = [sys.executable, "-c", """
 import os,sys,hashlib,psycopg
 from scripts.postgres_store import PostgresPipelineStore
 store=PostgresPipelineStore(connect=lambda: psycopg.connect(sys.argv[1],autocommit=True))
 with store.transaction() as state:
- assert store.reserve_attempt(hashlib.sha256(b'p').hexdigest(),hashlib.sha256(b'a').hexdigest(),now=0,daily_limit=6)
+ assert store.reserve_attempt(hashlib.sha256(b'example.com').hexdigest(),hashlib.sha256(b'a').hexdigest(),now=0,daily_limit=6)
  state['events'].append({'uncommitted':True})
  os._exit(19)
 """, postgres]
     assert subprocess.run(command, check=False).returncode == 19
     assert store.read()["events"] == []
     with store.transaction():
-        pass
+        assert not store.reserve_attempt(sha("example.com"), sha("a"), now=0, daily_limit=6)
+    assert_replay_sends_no_requests(store, tmp_path)
     summary = store.operational_summary()
     assert summary["reservations"] == 1
     assert any(j["status"] == "interrupted" for j in summary["jobs"])
+
+
+def test_committed_attempt_allows_retry_after_backoff(store, tmp_path):
+    initialize(store)
+    assert_committed_attempt_allows_retry(store, tmp_path)
 
 
 def test_committed_job_marker_repairs_interrupted_status(store):
