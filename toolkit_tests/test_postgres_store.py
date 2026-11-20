@@ -281,11 +281,18 @@ def test_private_export_restores_failed_quota_on_independent_postgres(store):
                     prospect_id, sha("later-audit"), now=0, daily_limit=1
                 )
             assert recovered.operational_summary()["reservations"] == 1
-            target.write_bytes(
-                target.read_bytes().replace(b'"schema_version": 1', b'"schema_version": 2')
+            # Alter the actual nested state in the paired-export envelope,
+            # retaining the original checksum to prove integrity rejection.
+            envelope = json.loads(target.read_text())
+            envelope["content"]["state"]["schema_version"] = 2
+            target.write_text(json.dumps(envelope, sort_keys=True))
+        with local_postgres() as empty_uri:
+            empty_store = PostgresPipelineStore(
+                connect=lambda: psycopg.connect(empty_uri, autocommit=True)
             )
             with pytest.raises(ValueError, match="checksum"):
-                recovered.restore_empty(target)
+                empty_store.restore_empty(target)
+            assert empty_store.read() is None
         assert store.read() == before
         assert store.operational_summary()["reservations"] == 1
 
