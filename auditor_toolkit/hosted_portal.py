@@ -107,6 +107,13 @@ class HostedOwnerPortal(OwnerPortal):
         self.config = config
         self.auth = auth
 
+    @staticmethod
+    def backend_result(operation, *args):
+        try:
+            return operation(*args)
+        except ValueError:
+            raise HTTPException(503, UNAVAILABLE) from None
+
     def check_origin(self, request):
         if request.headers.getlist("origin") != [self.config.origin]:
             raise HTTPException(403, "Origin rejected")
@@ -116,10 +123,7 @@ class HostedOwnerPortal(OwnerPortal):
         if not re.fullmatch(r"[A-Za-z0-9_-]{43}", token):
             raise HTTPException(401, "Login required")
         key = hashlib.sha256(token.encode()).hexdigest()
-        try:
-            value = self.auth.get(key)
-        except ValueError:
-            raise HTTPException(503, UNAVAILABLE) from None
+        value = self.backend_result(self.auth.get, key)
         if value is None:
             raise HTTPException(401, "Login required")
         return key, value
@@ -128,10 +132,7 @@ class HostedOwnerPortal(OwnerPortal):
         self.check_origin(request)
         super().csrf(request, value, submitted)
         key, _ = self.session(request)
-        try:
-            allowed = self.auth.write_attempt(key)
-        except ValueError:
-            raise HTTPException(503, UNAVAILABLE) from None
+        allowed = self.backend_result(self.auth.write_attempt, key)
         if not allowed:
             raise HTTPException(429, "Review rate exceeded")
 
@@ -146,10 +147,7 @@ class HostedOwnerPortal(OwnerPortal):
         fields = await bounded_form(request)
         if set(fields) != {"password"}:
             raise HTTPException(400, "Invalid login form")
-        try:
-            allowed = self.auth.login_attempt(request.client.host if request.client else "unknown")
-        except ValueError:
-            raise HTTPException(503, UNAVAILABLE) from None
+        allowed = self.backend_result(self.auth.login_attempt, request.client.host if request.client else "unknown")
         if not allowed:
             raise HTTPException(429, "Try again in one minute")
         try:
@@ -157,13 +155,10 @@ class HostedOwnerPortal(OwnerPortal):
         except VerificationError:
             raise HTTPException(401, "Invalid password") from None
         token = secrets.token_urlsafe(32)
-        try:
-            self.auth.issue(
-                hashlib.sha256(token.encode()).hexdigest(), secrets.token_urlsafe(32),
-                time.time() + self.session_seconds,
-            )
-        except ValueError:
-            raise HTTPException(503, UNAVAILABLE) from None
+        self.backend_result(
+            self.auth.issue, hashlib.sha256(token.encode()).hexdigest(),
+            secrets.token_urlsafe(32), time.time() + self.session_seconds,
+        )
         response = RedirectResponse("/pipeline", status_code=303)
         response.set_cookie(
             HOSTED_COOKIE, token, httponly=True, secure=True, samesite="strict",
@@ -177,10 +172,7 @@ class HostedOwnerPortal(OwnerPortal):
         if set(form) != {"csrf"}:
             raise HTTPException(403, CSRF_REQUIRED)
         self.csrf(request, value, form["csrf"])
-        try:
-            self.auth.revoke(key)
-        except ValueError:
-            raise HTTPException(503, UNAVAILABLE) from None
+        self.backend_result(self.auth.revoke, key)
         response = RedirectResponse(LOGIN_PATH, status_code=303)
         response.delete_cookie(HOSTED_COOKIE, secure=True, httponly=True, samesite="strict")
         return response
@@ -214,11 +206,8 @@ def create_hosted_app(*, config=None, store=None):
 
     @app.get("/health")
     def health():
-        try:
-            if store.read() is None:
-                raise ValueError("No state")
-        except ValueError:
-            raise HTTPException(503, UNAVAILABLE) from None
+        if owner.backend_result(store.read) is None:
+            raise HTTPException(503, UNAVAILABLE)
         return {"status": "ok"}
 
     return app

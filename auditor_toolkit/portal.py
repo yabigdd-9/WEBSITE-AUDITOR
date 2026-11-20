@@ -22,8 +22,6 @@ LOGIN_PATH = "/login"
 
 
 def setup_password(root, password):
-    from argon2 import PasswordHasher
-
     if len(password) < 12:
         raise ValueError("Use at least 12 characters")
     path = Path(root) / "portal-auth.json"
@@ -136,33 +134,18 @@ class OwnerPortal:
         except HTTPException:
             return RedirectResponse(LOGIN_PATH, status_code=303)
         rows = "".join(
-            (
-                "<tr><td>"
-                + html.escape(r["url"])
-                + "</td><td>"
-                + html.escape(r["status"])
-                + "</td><td>"
-                + str(r["health_score"])
-                + '</td><td><a href="/runs/'
-                + r["run_id"]
-                + '">View evidence</a></td></tr>'
-                for r in self.history.list(q)
-            )
+            f'<tr><td>{html.escape(r["url"])}</td><td>{html.escape(r["status"])}</td>'
+            f'<td>{html.escape(str(r["health_score"]))}</td>'
+            f'<td><a href="/runs/{html.escape(r["run_id"], quote=True)}">View evidence</a></td></tr>'
+            for r in self.history.list(q)
         )
+        pipeline_link = '<a href="/pipeline">Business pipeline</a> · ' if self.pipeline_db is not None else ""
         return (
-            "<h1>Website Auditor</h1><p>"
-            + (
-                '<a href="/pipeline">Business pipeline</a> · '
-                if self.pipeline_db is not None
-                else ""
-            )
-            + '<a href="/monthly">Monthly report drafts</a></p><form><label>Search sites <input name="q" value="'
-            + html.escape(q, quote=True)
-            + '"></label><button>Search</button></form><table><thead><tr><th>Site</th><th>Status</th><th>Health</th><th>Report</th></tr></thead><tbody>'
-            + rows
-            + '</tbody></table><form method="post" action="/logout"><input type="hidden" name="csrf" value="'
-            + value["csrf"]
-            + '"><button>Log out</button></form>'
+            f'<h1>Website Auditor</h1><p>{pipeline_link}<a href="/monthly">Monthly report drafts</a></p>'
+            f'<form><label>Search sites <input name="q" value="{html.escape(q, quote=True)}"></label><button>Search</button></form>'
+            '<table><thead><tr><th>Site</th><th>Status</th><th>Health</th><th>Report</th></tr></thead>'
+            f'<tbody>{rows}</tbody></table><form method="post" action="/logout">'
+            f'<input type="hidden" name="csrf" value="{html.escape(value["csrf"], quote=True)}"><button>Log out</button></form>'
         )
 
     def monthly_reports(self, request: Request):
@@ -188,14 +171,10 @@ class OwnerPortal:
         return f'<h1>Monthly report drafts</h1><p><a href="/">Back to dashboard</a></p><table><thead><tr><th>Client</th><th>Month</th><th>Status</th><th>Artifacts</th></tr></thead><tbody>{body}</tbody></table>'
 
     def monthly_artifact(self, identity: str, kind: str, request: Request):
-        self.session(request)
         from .monthly import MonthlyStore
 
-        try:
-            path = MonthlyStore(self.root).artifact(identity, kind)
-        except (KeyError, ValueError, OSError):
-            raise HTTPException(404, "Monthly artifact unavailable") from None
-        return FileResponse(path, filename=path.name, media_type=BINARY_TYPE)
+        return self.download(request, lambda: MonthlyStore(self.root).artifact(identity, kind),
+                             "Monthly artifact unavailable")
 
     def run_view(self, run_id: str, request: Request):
         self.session(request)
@@ -210,20 +189,18 @@ class OwnerPortal:
                 for k in report["artifacts"]
             )
         )
-        return (
-            "<h1>Audit evidence</h1>"
-            + links
-            + "<pre>"
-            + html.escape(json.dumps(report, indent=2))
-            + "</pre>"
-        )
+        return f'<h1>Audit evidence</h1>{links}<pre>{html.escape(json.dumps(report, indent=2))}</pre>'
 
     def artifact(self, run_id: str, kind: str, request: Request):
+        return self.download(request, lambda: self.history.artifact(run_id, kind),
+                             "Artifact unavailable")
+
+    def download(self, request, resolve, unavailable):
         self.session(request)
         try:
-            path = self.history.artifact(run_id, kind)
-        except (KeyError, ValueError):
-            raise HTTPException(404, "Artifact unavailable") from None
+            path = resolve()
+        except (KeyError, ValueError, OSError):
+            raise HTTPException(404, unavailable) from None
         return FileResponse(path, filename=path.name, media_type=BINARY_TYPE)
 
     async def remediation(self, identity: str, request: Request):
@@ -238,8 +215,6 @@ class OwnerPortal:
 
     def health_check(self):
         try:
-            from pathlib import Path
-
             if not Path(self.app.state.root).exists():
                 raise RuntimeError("Root directory does not exist")
             return {"status": "ok"}
