@@ -56,7 +56,11 @@ def main():
                 state_path=state_path, bootstrap=bootstrap,
                 recovery_id=int(recovery) if recovery else None,
             )
-            args = ["--state", str(state_path)]
+            # End-of-run checkpoint artifacts cannot durably reserve an HTTP audit
+            # before it begins. A crash could therefore replay it (issue #139).
+            # Keep discovery, existing drafts and state continuity operational,
+            # but do not start new network audits without a durable barrier.
+            args = ["--state", str(state_path), "--daily-limit", "0"]
             if bootstrap:
                 args.append("--bootstrap")
             return pipeline_main(args)
