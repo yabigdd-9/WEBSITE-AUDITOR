@@ -120,7 +120,7 @@ def test_checkpoint_default_and_unknown_backend_never_fall_back(tmp_path, monkey
     monkeypatch.setattr(cloud_prospect_pipeline, "main", lambda args: executed.append(args) or 0)
     assert cloud_storage_runner.main() == 0
     assert restored[0]["bootstrap"] is False
-    assert executed == [["--state", str(tmp_path / "pipeline-state.enc")]]
+    assert executed == [["--state", str(tmp_path / "pipeline-state.enc"), "--daily-limit", "0"]]
     monkeypatch.setenv("WA_PIPELINE_STORAGE", "typo")
     assert cloud_storage_runner.main() == 2
     assert len(restored) == 1
