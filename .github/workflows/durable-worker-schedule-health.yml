@@ -7,6 +7,12 @@ on:
   schedule:
     - cron: '15 11 * * 2,3,5,6'
   workflow_dispatch:
+  pull_request:
+    branches: [master]
+    paths:
+      - '.github/workflows/durable-worker-schedule-health.yml'
+      - 'scripts/check_durable_schedule_health.py'
+      - 'toolkit_tests/test_durable_schedule_health.py'
   push:
     branches: [master]
     paths:
@@ -36,7 +42,7 @@ jobs:
       - name: Test missed, skipped, and artifactless runs without network
         run: python -m unittest toolkit_tests.test_durable_schedule_health -v
       - name: Verify scheduled worker and encrypted checkpoint via GitHub metadata
-        if: github.event_name != 'push'
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         env:
           GH_TOKEN: ${{ github.token }}
         run: python -m scripts.check_durable_schedule_health
