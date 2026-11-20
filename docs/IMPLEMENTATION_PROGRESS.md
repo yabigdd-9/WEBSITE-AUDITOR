@@ -505,3 +505,60 @@ remaining owner action is secure dedicated LOGIN provisioning and server/GitHub
 secret configuration according to DEPLOYMENT.md. Then the reviewed manual-only
 workflow can verify independent runner connectivity. No merge or dispatch was
 performed. This evidence-only follow-up changes no tested source.
+
+## Trusted-device runtime setup — cloud/private-postgres-credential-setup
+
+Continuation checks: Supabase healthy; one synthetic state/event and zero
+prospects remain. The dedicated `moneymachine_runner` LOGIN now exists. Read-only
+role inspection verified no superuser/CREATEDB/CREATEROLE/BYPASSRLS privileges,
+NOINHERIT and membership in `moneymachine_worker`. Its actual credential is not
+available here; environment presence checks were false, and a secret-name-only
+GitHub lookup still returned Forbidden. No role was created, reset or rotated.
+
+Added a private interactive setup command, read-only by default, with an explicit
+option to install the validated connection string in the fixed repository's
+Actions secret. It refuses non-TTY input/echo fallback, verifies the DB before
+upload, uses stdin rather than secret command arguments/files, redacts errors
+and unknown arguments, and never starts jobs/audits/sends/deployments. Pinned
+github.com authentication and destination prevent a GH_HOST override from
+selecting a different service. GitHub CLI 2.46 help verified the supported flags.
+Updated deployment/security/operations documentation and database CI coverage.
+
+Local checks: initial helper plus real Postgres suite **33 passed**; added an
+argument-redaction case brings helper coverage to **11 passed**. Ruff and diff
+whitespace checks passed. Real owner setup/secret installation has not run:
+all secret transports in tests are mocks with synthetic values. Next: publish
+focused PR and inspect CI; the remaining owner action is one trusted-device
+setup command using the existing runner credential, never a chat upload.
+
+Previous PR #107 evidence commit `232c274` was independently rechecked: all six
+workflows succeeded (CI44076207070, toolkit44076207009, security44076207152,
+CodeQL44076207077, Sonar44076207066, cloud/database44076206985).
+
+### Current integration base preserved
+
+When PR #130 opened, its remote base had advanced to `37808ac`. Fetched and
+merged that base into this feature branch, preserving current master activation
+guards, separate encrypted-checkpoint mirror/preflight work and owner-form fixes.
+The PR diff remains focused on private structured-store setup. No master merge
+or production dispatch occurred. Reconciled SUPABASE_RELEASE_STATUS.md with the
+new independent observation that `moneymachine_runner` is LOGIN-enabled; its
+credential remains unavailable, and this helper never creates/rotates it.
+
+Post-merge targeted regression: **57 passed, 22 passing subtests**, including
+all 11 credential boundary cases, real Postgres transactions/recovery, activation
+checks and both separate checkpoint/preflight contracts. The helper-plus-real
+Postgres suite alone passed **34 tests**. CI is rerunning on the integrated source.
+
+### Authenticated principal checked before secret installation
+
+Added an explicit read-only `session_user` check to distinguish the authenticated
+LOGIN from the adapter's switched worker group. Installation now rejects admin
+sessions or unsafe runner privilege drift before passing any value to GitHub.
+Real disposable Postgres tests verify the dedicated NOINHERIT runner succeeds,
+a fixture administrator fails, and a later CREATEDB grant is rejected. All DDL
+for this test remains inside the disposable local server; no hosted role changed.
+Combined helper/database suite: **36 passed** (12 credential cases, 24 database
+cases); Ruff/diff checks passed. Built-wheel installation outside the checkout
+verified command availability and argument redaction. No owner credential or
+real secret installation was used. CI will verify this final source revision.

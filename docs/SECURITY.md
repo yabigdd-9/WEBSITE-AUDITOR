@@ -76,3 +76,23 @@ Live schema/privilege checks and synthetic management-connection persistence
 succeeded. This does not verify credentials on a GitHub runner, hosted restore,
 remote dashboard authorization, or the still-unavailable formal diff-scan tool.
 No private report key is stored or requested by this integration.
+
+## Private runtime credential setup helper
+
+`python -m scripts.configure_postgres` accepts the connection string only through
+a hidden trusted-device terminal prompt, refusing non-TTY input and getpass's
+insecure echo fallback. Selected-project, dedicated-role and verified-TLS
+validation reuse the existing Postgres adapter. Verification reads state and
+operational metadata only. Optional `--install-github-secret` writes through
+GitHub CLI standard input to a fully qualified github.com repository, after
+GitHub authentication and database verification succeed. The helper does not
+write a plaintext file, export an environment variable, print connection values,
+rotate roles or dispatch workflows. It captures subprocess output and redacts
+provider errors and unknown arguments. Tests use synthetic credentials/mocks;
+real owner credentials were not entered or uploaded in this session.
+
+The helper also queries `session_user` privilege flags, independently of the
+adapter's `SET ROLE`. It refuses an administrator, unexpected authenticated
+identity, inherited broad roles, missing worker membership, replication,
+CREATEDB/CREATEROLE or BYPASSRLS capability before secret installation. A real
+local Postgres test verifies safe runner access and refusal after privilege drift.

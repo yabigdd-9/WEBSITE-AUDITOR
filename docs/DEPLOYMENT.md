@@ -225,12 +225,14 @@ The existing CLI supports `python -m scripts.cloud_prospect_pipeline --postgres
 setup. The Postgres flag changes persistence, not audit/approval business rules.
 It never migrates automatically or opens the dashboard to remote traffic.
 
-Runtime credentials are **not configured**. Through a trusted administrator
-connection, provision a dedicated LOGIN role named `moneymachine_runner` with a
-new locally generated password, no superuser/database/role creation/BYPASSRLS
-privileges, and membership in the existing `moneymachine_worker` NOLOGIN group.
-Do not use `postgres`, `service_role`, or an application API key as the runtime
-identity. The adapter explicitly switches into the restricted worker group.
+A later read-only inspection confirmed the dedicated `moneymachine_runner`
+LOGIN role exists, has no superuser/database/role creation/BYPASSRLS privileges,
+uses NOINHERIT and belongs to `moneymachine_worker`. Its password and actual
+runtime connectivity have not been verified here. No credential is available
+in this workspace, and repository secret access remains Forbidden. Do not
+recreate or rotate this role merely to repeat setup. Do not use `postgres`,
+`service_role`, or an application API key as the runtime identity. The adapter
+explicitly switches into the restricted worker group.
 
 Store its direct or session-pooler connection string as the private server
 variable / GitHub Actions secret `WA_POSTGRES_DSN`. Use the project's Connect
@@ -254,3 +256,41 @@ owner-authorized future master release. Its two independent runners persist and
 read pause events, verify unchanged request reservations, and perform no audits
 or sends. It requires `WA_POSTGRES_DSN`. Do not claim the worker integration is
 production-verified until that workflow completes on the reviewed commit.
+
+## Trusted-device runtime credential setup
+
+From a reviewed checkout containing `scripts.configure_postgres`, use an
+owner-controlled interactive terminal and GitHub CLI authenticated to github.com
+with permission to manage this repository's Actions secrets:
+
+```sh
+python -m pip install -e '.[postgres]'
+gh auth login --hostname github.com
+python -m scripts.configure_postgres --install-github-secret
+```
+
+Enter the dedicated runner connection string **only at the hidden prompt**.
+Use the selected project's direct or session endpoint and verified TLS settings
+above. Do not paste the password or connection string into chat, a command
+argument, shell history, .env file, screenshot or repository. The private report
+encryption key is unrelated and must never be entered into this command.
+
+The helper first verifies GitHub authentication, then validates the selected
+project/TLS/runner identity and reads initialized state plus operational history.
+It checks the authenticated session login is the dedicated NOINHERIT runner with
+worker membership and no superuser, create-DB/create-role, replication or bypass-
+RLS privileges; merely switching an administrator into the worker role fails.
+Only after those checks does it create/replace `WA_POSTGRES_DSN` in the fixed
+`github.com/yabigdd-9/WEBSITE-AUDITOR` repository. The value travels over standard
+input to `gh secret set`, which encrypts repository secrets before upload; the
+helper never writes or prints the value. It refuses non-interactive execution
+and getpass's echoing fallback. Errors and invalid command arguments are redacted.
+It stores no plaintext credential file and does not create/rotate database roles.
+
+Omit `--install-github-secret` for read-only connection verification without any
+GitHub write. Neither mode bootstraps state, consumes request reservations,
+starts a workflow, merges code, audits websites, sends messages or activates
+production. Installing a secret is not evidence that an Actions runner has used
+it successfully. Run the reviewed manual persistence workflow only after the
+release is authorized. Provider/permission/credential failures remain blocking;
+do not send the credential in chat to troubleshoot them.

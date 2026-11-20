@@ -325,3 +325,24 @@ def test_selected_direct_and_session_connections_are_accepted(pooled):
     assert options["user"] == user
     assert options["sslrootcert"] == "system"
     assert options["connect_timeout"] == 10
+
+
+def test_runtime_setup_checks_authenticated_identity_and_privilege_drift(store, postgres):
+    from scripts.postgres_store import PostgresPipelineStore
+    # The fixture's administrator can SET ROLE but is not a safe runtime login.
+    with pytest.raises(ValueError, match="restricted principal"):
+        store.verify_runtime_identity()
+    with psycopg.connect(postgres, autocommit=True) as db:
+        db.execute("CREATE ROLE moneymachine_runner LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS NOINHERIT")
+        db.execute("GRANT moneymachine_worker TO moneymachine_runner")
+    restricted = PostgresPipelineStore(connect=lambda: psycopg.connect(
+        postgres, user="moneymachine_runner", autocommit=True))
+    restricted.verify_runtime_identity()
+    with psycopg.connect(postgres, autocommit=True) as db:
+        db.execute("ALTER ROLE moneymachine_runner CREATEDB")
+    try:
+        with pytest.raises(ValueError, match="restricted principal"):
+            restricted.verify_runtime_identity()
+    finally:
+        with psycopg.connect(postgres, autocommit=True) as db:
+            db.execute("ALTER ROLE moneymachine_runner NOCREATEDB")
