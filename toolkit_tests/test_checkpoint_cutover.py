@@ -127,6 +127,76 @@ def test_checkpoint_default_and_unknown_backend_never_fall_back(tmp_path, monkey
     assert len(executed) == 1
 
 
+
+def test_checkpoint_runner_lost_upload_resume_cannot_reaudit(tmp_path, monkeypatch):
+    """Restore an older ciphertext twice as if the first job died before artifact upload.
+
+    The currently authorized checkpoint-only worker may resume queue/draft state
+    but must not make even a robots request until a pre-HTTP durable barrier exists.
+    """
+    import shutil
+
+    fernet = pytest.importorskip("cryptography.fernet").Fernet
+
+    from scripts import cloud_opportunities, cloud_pipeline_checkpoint, cloud_storage_runner
+    from scripts import cloud_prospect_pipeline as pipeline
+
+    key = fernet.generate_key().decode()
+    source = tmp_path / "last-trusted.enc"
+    pipeline.seal(pipeline.empty_state(), source, key)
+    for name, value in {
+        "RUNNER_TEMP": str(tmp_path),
+        "GITHUB_REPOSITORY": "synthetic/repo",
+        "GITHUB_RUN_ID": "501",
+        "WA_PIPELINE_STORAGE": "checkpoint",
+        "WA_PIPELINE_STATE_KEY": key,
+        "MM_PAID_ALLOWED": "0",
+        "MM_ALLOW_EXTERNAL_FREE_MODELS": "0",
+        "MM_EXTERNAL_SEND_ALLOWED": "0",
+    }.items():
+        monkeypatch.setenv(name, value)
+    for name in ("BOOTSTRAP", "WA_RECOVERY_RUN", "WA_OUTCOMES_ENCRYPTED"):
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setattr(
+        cloud_pipeline_checkpoint, "restore",
+        lambda **options: shutil.copyfile(source, options["state_path"]),
+    )
+    monkeypatch.setattr(pipeline, "policy_rows", lambda _: [
+        {"domain": "example.com", "url": "https://example.com/"}
+    ])
+    monkeypatch.setattr(cloud_opportunities, "load_policy", lambda _: None)
+
+    def forbidden_request(*_args, **_kwargs):
+        pytest.fail("Lost-upload recovery attempted to repeat a website request")
+
+    original_process = pipeline.process
+
+    def observe_process(*args, **kwargs):
+        assert kwargs["daily_limit"] == 0
+        return original_process(
+            *args, **kwargs, audit=forbidden_request, robots=forbidden_request,
+        )
+
+    monkeypatch.setattr(pipeline, "process", observe_process)
+    assert cloud_storage_runner.main() == 0
+    state_path = tmp_path / "pipeline-state.enc"
+    first_state = pipeline.unseal(state_path, key)
+    assert len(first_state["prospects"]) == 1
+    assert first_state["audit_runs"] == []
+    assert next(iter(first_state["prospects"].values()))["attempts"] == 0
+
+    # The first runner finished its script but never uploaded its new artifact;
+    # the second must restore the last trusted ciphertext, not use local state.
+    state_path.unlink()
+    monkeypatch.setenv("GITHUB_RUN_ID", "502")
+    assert cloud_storage_runner.main() == 0
+    resumed = pipeline.unseal(state_path, key)
+    assert len(resumed["prospects"]) == 1
+    assert resumed["audit_runs"] == []
+    assert next(iter(resumed["prospects"].values()))["attempts"] == 0
+    assert pipeline.metrics(resumed)["contacts_sent"] == 0
+
+
 def test_postgres_bootstrap_is_refused_before_connecting(tmp_path, monkeypatch):
     fernet_module = pytest.importorskip("cryptography.fernet")
 
