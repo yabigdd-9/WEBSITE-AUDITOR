@@ -505,3 +505,32 @@ remaining owner action is secure dedicated LOGIN provisioning and server/GitHub
 secret configuration according to DEPLOYMENT.md. Then the reviewed manual-only
 workflow can verify independent runner connectivity. No merge or dispatch was
 performed. This evidence-only follow-up changes no tested source.
+
+## Trusted-device runtime setup — cloud/private-postgres-credential-setup
+
+Continuation checks: Supabase healthy; one synthetic state/event and zero
+prospects remain. The dedicated `moneymachine_runner` LOGIN now exists. Read-only
+role inspection verified no superuser/CREATEDB/CREATEROLE/BYPASSRLS privileges,
+NOINHERIT and membership in `moneymachine_worker`. Its actual credential is not
+available here; environment presence checks were false, and a secret-name-only
+GitHub lookup still returned Forbidden. No role was created, reset or rotated.
+
+Added a private interactive setup command, read-only by default, with an explicit
+option to install the validated connection string in the fixed repository's
+Actions secret. It refuses non-TTY input/echo fallback, verifies the DB before
+upload, uses stdin rather than secret command arguments/files, redacts errors
+and unknown arguments, and never starts jobs/audits/sends/deployments. Pinned
+github.com authentication and destination prevent a GH_HOST override from
+selecting a different service. GitHub CLI 2.46 help verified the supported flags.
+Updated deployment/security/operations documentation and database CI coverage.
+
+Local checks: initial helper plus real Postgres suite **33 passed**; added an
+argument-redaction case brings helper coverage to **11 passed**. Ruff and diff
+whitespace checks passed. Real owner setup/secret installation has not run:
+all secret transports in tests are mocks with synthetic values. Next: publish
+focused PR and inspect CI; the remaining owner action is one trusted-device
+setup command using the existing runner credential, never a chat upload.
+
+Previous PR #107 evidence commit `232c274` was independently rechecked: all six
+workflows succeeded (CI44076207070, toolkit44076207009, security44076207152,
+CodeQL44076207077, Sonar44076207066, cloud/database44076206985).

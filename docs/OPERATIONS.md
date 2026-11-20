@@ -55,3 +55,13 @@ start with `--postgres --paused` and never bootstrap over it. The owner must
 securely configure the dedicated runtime login and secret before the manual
 independent-runner verification can run. Existing schedules, sending and paid
 service settings were not activated or changed.
+
+## Securely finish runtime configuration
+
+The runner LOGIN now exists with the expected restricted membership, but its
+credential is unavailable to this workspace. Use the trusted-device helper in
+DEPLOYMENT.md to verify it and optionally install the repository secret without
+passing a secret as an argument or saving a plaintext file. Repository secret
+access from this session still returns Forbidden; no configuration success is
+claimed. After owner-side configuration, perform the authorized independent
+runner verification before enabling any scheduled Postgres workloads.
