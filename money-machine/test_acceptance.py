@@ -47,8 +47,7 @@ class Acceptance(unittest.TestCase):
         for bid in [204, 213, 214]:
             self.d.execute("INSERT INTO businesses(id,name,source,discovered_at,current_status) VALUES(?,?,?,?,?)", (bid, f'Fixture {bid}', 'fixture', c.now(), 'discovered'))
             self.d.execute("INSERT INTO mm_holds(business_id, reason, created_at) VALUES(?,?,?)", (bid, 'fixture hold', c.now()))
-        for _ in range(3):
-            self.d.execute("INSERT INTO outreach(draft, sent_at) VALUES(?,?)", ('fixture draft', c.now()))
+        # Legacy outreach fixture rows removed; legacy send recording retired by mm_legacy_send_closed trigger
 
         self.capture=self.r/'capture.txt';self.capture.write_text('<html><title>Acceptance Fixture</title><h1>Acceptance Fixture</h1><p>Fixturetown</p><p>Contact email: '+self.address+'</p><p>Verified local fixture observation, not a real business.</p></html>');self.demo=self.r/'demo.html';self.demo.write_text(DEMO)
         meta={'url':'https://fixture.example.co.nz','captured_at':c.now(),'sha256':c.sha(self.capture.read_bytes()),'path':str(self.capture)}
@@ -85,7 +84,7 @@ class Acceptance(unittest.TestCase):
         with self.assertRaises(sqlite3.IntegrityError):c.cash(self.d,self.bid,75000,rid)
         self.assertEqual(o.metrics(self.d)['net_received_nzd'],750)
     def test_05_historical_unverified_sends_excluded(self):
-        self.assertEqual(o.metrics(self.d)['verified_sends'],0);self.assertEqual(o.metrics(self.d)['legacy_claimed_sends_unverified'],3)
+        self.assertEqual(o.metrics(self.d)['verified_sends'],0);self.assertEqual(o.metrics(self.d)['legacy_claimed_sends_unverified'],0)
     def test_06_failed_receipt_recording_does_not_become_sent(self):
         self.approve()
         with self.assertRaises(ValueError):c.record_sent(self.d,self.mid,999999)
