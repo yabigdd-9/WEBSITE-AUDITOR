@@ -209,15 +209,26 @@ class PostgresPipelineStore:
             db.execute("SELECT pg_advisory_xact_lock(%s)", (RESERVATION_LOCK,))
             if db.execute("SELECT status FROM moneymachine.jobs WHERE id=%s", (job_id,)).fetchone() != ("running",):
                 raise ValueError("Active queue job required")
-            if db.execute("SELECT 1 FROM moneymachine.reservations WHERE job_id=%s AND audit_id=%s", (job_id, audit_id)).fetchone():
-                return True
+            existing = db.execute(
+                "SELECT prospect_id FROM moneymachine.reservations WHERE job_id=%s AND audit_id=%s",
+                (job_id, audit_id),
+            ).fetchone()
+            if existing is not None:
+                return existing == (prospect_id,)
             if self.daily_usage(db, day, baseline) >= daily_limit:
                 return False
             if db.execute("SELECT count(*) FROM moneymachine.reservations WHERE job_id=%s", (job_id,)).fetchone()[0] >= 3:
                 return False
-            rows = db.execute("SELECT audit_id FROM moneymachine.reservations WHERE prospect_id=%s", (prospect_id,)).fetchall()
+            rows = db.execute(
+                "SELECT job_id,audit_id FROM moneymachine.reservations WHERE prospect_id=%s",
+                (prospect_id,),
+            ).fetchall()
             known = {a["audit_id"] for a in baseline.get("audit_runs", []) if a["prospect_id"] == prospect_id}
-            legacy = max(0, baseline["prospects"].get(prospect_id, {}).get("attempts", 0) - len(known & {r[0] for r in rows}))
+            # Hold a prospect whose prior requests may have escaped a rolled-back job.
+            if any(prior_job != job_id and (prior_id == audit_id or prior_id not in known)
+                   for prior_job, prior_id in rows):
+                return False
+            legacy = max(0, baseline["prospects"].get(prospect_id, {}).get("attempts", 0) - len(known & {r[1] for r in rows}))
             if legacy + len(rows) >= 3:
                 return False
             if db.execute("SELECT count(*) FROM moneymachine.reservations").fetchone()[0] >= 10000:

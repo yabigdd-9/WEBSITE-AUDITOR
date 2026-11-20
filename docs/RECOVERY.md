@@ -35,12 +35,18 @@ indefinite archive. Additional archive storage remains unactivated.
 
 ## Interrupted jobs and quota recovery
 
-State remains transactional, while the private operational ledger reserves
-requests before HTTP. Interrupted work can repeat only within the remaining
-reserved limits; it does not refund consumed capacity. A writer automatically
-classifies an orphan running job once it owns the main SQLite lock. A committed
-job marker distinguishes a successful queue commit from an interrupted commit.
-No continuously running supervisor or remote service is required for this logic.
+The private operational ledger reserves requests before HTTP. The SQLite and
+Postgres stores hold a prospect when an earlier job's reservation has no
+matching committed audit in the recovered queue. An interrupted request may
+already have reached the target, so a new run ID or a new quota day leaves the
+hold in place. Other eligible prospects can continue within the remaining budget.
+An audit with a committed outcome can follow the normal retry policy.
+
+The queue reports the existing budget-blocked status for a held prospect.
+Compare reservation and audit history privately before treating a blocked
+prospect as eligible. Preserve every reservation during reconciliation. A writer
+classifies orphan jobs after acquiring the queue lock and uses the committed job
+marker to distinguish completed queue commits from interrupted ones.
 
 Preserve/restore the **pair** `pipeline.sqlite3` + `pipeline.operations.sqlite3`.
 `PipelineStore.backup` writes `backup.sqlite3` + `backup.operations.sqlite3`.

@@ -100,8 +100,11 @@ class OperationalLedger:
         with self.connect() as db:
             if db.execute("SELECT status FROM jobs WHERE id=?", (job_id,)).fetchone() != ("running",):
                 raise ValueError("Active queue job required")
-            if db.execute("SELECT 1 FROM reservations WHERE job_id=? AND audit_id=?", (job_id, audit_id)).fetchone():
-                return True
+            existing = db.execute(
+                "SELECT prospect_id FROM reservations WHERE job_id=? AND audit_id=?", (job_id, audit_id)
+            ).fetchone()
+            if existing is not None:
+                return existing == (prospect_id,)
             # Count legacy committed events too, subtracting only committed
             # audit IDs represented in this ledger. Aborted reservations remain
             # charged even when the queue transaction rolls back.
@@ -109,14 +112,17 @@ class OperationalLedger:
                 return False
             if db.execute("SELECT COUNT(*) FROM reservations WHERE job_id=?", (job_id,)).fetchone()[0] >= 3:
                 return False
-            prospect_rows = {r[0] for r in db.execute(
-                "SELECT audit_id FROM reservations WHERE prospect_id=?", (prospect_id,)
-            )}
-            count = db.execute("SELECT COUNT(*) FROM reservations WHERE prospect_id=?", (prospect_id,)).fetchone()[0]
-            known_prospect = {a["audit_id"] for a in baseline.get("audit_runs", []) if a["prospect_id"] == prospect_id}
+            rows = db.execute(
+                "SELECT job_id,audit_id FROM reservations WHERE prospect_id=?", (prospect_id,)
+            ).fetchall()
+            known = {a["audit_id"] for a in baseline.get("audit_runs", []) if a["prospect_id"] == prospect_id}
+            # A prior job might have sent requests before its queue commit was lost.
+            if any(prior_job != job_id and (prior_id == audit_id or prior_id not in known)
+                   for prior_job, prior_id in rows):
+                return False
             legacy_attempts = max(0, baseline["prospects"].get(prospect_id, {}).get("attempts", 0)
-                                  - len(known_prospect & prospect_rows))
-            if legacy_attempts + count >= 3:
+                                  - len(known & {row[1] for row in rows}))
+            if legacy_attempts + len(rows) >= 3:
                 return False
             if db.execute("SELECT COUNT(*) FROM reservations").fetchone()[0] >= MAX_HISTORY:
                 raise ValueError("Archive reservations before continuing")
