@@ -1,10 +1,11 @@
 [run]
 relative_files = True
-source =
-    ./auditor_toolkit
-    ./website_auditor
+source = .
 
 [report]
+include =
+    auditor_toolkit/*
+    website_auditor/*
 show_missing = True
 skip_empty = True
 omit =
