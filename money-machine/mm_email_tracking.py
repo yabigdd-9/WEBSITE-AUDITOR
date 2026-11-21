@@ -8,6 +8,7 @@ from __future__ import annotations
 import datetime as dt
 import hashlib
 import json
+import fcntl
 from collections import Counter
 from pathlib import Path
 
@@ -18,7 +19,10 @@ EVENT_KINDS = {"approval", "queued", "provider_accepted", "delivered", "delayed"
 
 
 def _path(path=None) -> Path:
-    target = Path(path) if path else core.root() / "state" / "email-events.jsonl"
+    if path is None:
+        target = core.root() / "state" / "email-events.jsonl"
+    else:
+        target = core.safe_path(path, base=core.root())
     target.parent.mkdir(parents=True, exist_ok=True)
     return target
 
@@ -76,11 +80,19 @@ def normalize_event(event: dict) -> dict:
 
 def record(event: dict, path=None) -> dict:
     normalized = normalize_event(event)
-    rows = _rows(path)
-    if any(row.get("event_id") == normalized["event_id"] for row in rows):
-        return {"recorded": False, "duplicate": True, "event": normalized}
-    with _path(path).open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps(normalized, sort_keys=True) + "\n")
+    target = _path(path)
+    # Atomic check-then-append: hold an exclusive lock across the read+write
+    # so concurrent processes cannot interleave and produce duplicates (H-17).
+    with target.open("a", encoding="utf-8") as handle:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        try:
+            handle.seek(0)
+            rows = [json.loads(line) for line in handle if line.strip()]
+            if any(row.get("event_id") == normalized["event_id"] for row in rows):
+                return {"recorded": False, "duplicate": True, "event": normalized}
+            handle.write(json.dumps(normalized, sort_keys=True) + "\n")
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
     return {"recorded": True, "duplicate": False, "event": normalized}
 
 
