@@ -5,8 +5,10 @@ emergent property detection, and holographic integrity measurement.
 import json
 import sqlite3
 import math
+import logging
 from datetime import datetime, timezone
 from mm_core import now, connect
+from mm_pipeline import log as structured_log
 from typing import Dict, List, Any, Optional, Tuple
 
 def measure_cross_component_coherence(
@@ -104,6 +106,7 @@ def measure_cross_component_coherence(
         }
 
     except Exception as e:
+        structured_log({"kind": "cross_component_coherence_error", "error": str(e)})
         return {
             "status": "error",
             "message": f"Failed to measure cross-component coherence: {str(e)}",
@@ -250,6 +253,7 @@ def detect_emergent_behaviors(
         }
 
     except Exception as e:
+        structured_log({"kind": "emergent_behavior_detection_error", "error": str(e)})
         return {
             "status": "error",
             "message": f"Failed to detect emergent behaviors: {str(e)}",
@@ -442,7 +446,8 @@ def _get_component_time_series(
 
         return data
 
-    except Exception:
+    except (sqlite3.Error, TypeError, ValueError) as exc:
+        logging.debug(f"Metric time series failed for {component_name}: {exc}")
         return []
 
 def _get_metric_time_series(

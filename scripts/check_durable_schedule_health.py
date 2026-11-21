@@ -103,6 +103,10 @@ def verify_health(now: datetime, fetch_json, repo: str) -> dict:
     return {
         "due_utc": due.isoformat(),
         "run_id": run_id,
+        "run_url": f"https://github.com/{repo}/actions/runs/{run_id}",
+        "run_created_utc": created_utc(newest).isoformat(),
+        "schedule_delay_seconds": int((created_utc(newest) - due).total_seconds()),
+        "next_slot_utc": next_slot.isoformat(),
         "checkpoint_present": True,
         "checkpoint_expires_utc": expires.isoformat(),
         "retention_required_until_utc": required_until.isoformat(),

@@ -14,12 +14,12 @@ def installed(d):
 
 
 def _migrate_v3(d, backup_path, sql_path=None):
-    backup_path = Path(backup_path)
+    backup_path = core.safe_path(backup_path, base=core.root())
     manifest = json.loads((backup_path / 'manifest.json').read_text())
     if not manifest.get('items'): raise ValueError('Nonempty verified backup manifest required')
     has_database = False
     for item in manifest['items']:
-        p = Path(item.get('path', item.get('backup', '')))
+        p = core.safe_path(item.get('path', item.get('backup', '')), base=backup_path)
         if not p.is_file() or core.sha(p.read_bytes()) != item['sha256']: raise ValueError('Backup checksum mismatch')
         if p.name == 'money_machine.db':
             with contextlib.closing(sqlite3.connect('file:' + str(p) + '?mode=ro&immutable=1', uri=True)) as check:

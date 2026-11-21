@@ -43,7 +43,7 @@ def make_fetcher(routes: dict, monkeypatch) -> Fetcher:
         status, body = routes.get(path, (200, PAGE))
         return httpx.Response(status, text=body, request=request)
 
-    return Fetcher(transport=httpx.MockTransport(handler))
+    return Fetcher(transport=httpx.MockTransport(handler), allow_private=True)
 
 
 def assert_evidence_complete(findings, keys):
@@ -188,3 +188,18 @@ def test_pipeline_includes_hygiene_ux_and_links(tmp_path, monkeypatch):
             "robots-missing", "sitemap-missing", "broken-internal-link", "no-contact-path",
         }:
             assert d.get("evidence_summary"), d["defect_key"]
+
+    broken_link_id = next(
+        finding["finding_id"]
+        for finding in report["defects"]
+        if finding["defect_key"] == "broken-internal-link"
+    )
+    routes["/missing-page"] = (200, "Enquiry page")
+    rerun = run_audit(
+        "https://example.com/",
+        AuditOptions(output_root=tmp_path, deep=True),
+        fetcher,
+    )
+    assert rerun["status"] == "complete"
+    assert rerun["evidence"]["links"]["data"]["broken"] == 0
+    assert broken_link_id in rerun["comparison"]["resolved"]

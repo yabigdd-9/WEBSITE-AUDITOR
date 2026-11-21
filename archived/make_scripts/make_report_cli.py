@@ -77,11 +77,13 @@ def main():
     if not isinstance(clients, list):
         clients = []
 
-    from website_auditor.reporting.generator import MonthlyReportGenerator
-    from website_auditor.reporting.pdf_export import html_to_pdf
-    from website_auditor.reporting.email_sender import send_report_email
+    from auditor_toolkit.monthly import generate_monthly, render_monthly, due_monthly
+    from auditor_toolkit.browser import export_pdf
+    from auditor_toolkit.agency_config import load_config, get_client, site_url
+    from auditor_toolkit.revenue import calculate_revenue
+    from auditor_toolkit.common import atomic_write_text
 
-    gen = MonthlyReportGenerator(branding)
+    # (Legacy MonthlyReportGenerator, html_to_pdf, send_report_email removed)
     agency_name = branding.get("agency", {}).get("name", "Website Agency")
     month_year = datetime.now().strftime("%B %Y")
 
@@ -109,35 +111,25 @@ def main():
 
         print(f"  Generating report for: {domain}")
 
-        # 1. Generate HTML
-        html_path = gen.save_report(domain, client)
+    # 1. Generate HTML
+        client_id = client.get("id", domain.replace("https://", "").split("/")[0])
+        result = generate_monthly(Path("outputs/toolkit"), branding, client_id, pdf=False)
+        html_path = Path(result["artifacts"]["html"])
         print(f"    HTML: {html_path}")
 
         # 2. Convert to PDF (if requested or by default)
         pdf_path = None
         if do_pdf or True:  # Always try PDF
-            result = html_to_pdf(html_path)
-            if result["status"] == "success":
-                pdf_path = result["pdf_path"]
+            try:
+                pdf_path = html_path.with_suffix(".pdf")
+                export_pdf(html_path, pdf_path)
                 print(f"    PDF:  {pdf_path}")
-            else:
-                print(f"    PDF:  Skipped ({result.get('reason', result.get('error', 'unknown'))})")
+            except Exception as e:
+                print(f"    PDF:  Skipped ({e})")
 
         # 3. Email (if configured and requested)
         if do_email:
-            client_email = client.get("client_email", "")
-            if client_email:
-                smtp_config = branding.get("reporting", {})
-                subject = f"Your Monthly Website Report — {month_year}"
-                body = f"<p>Kia ora {client.get('client_name', '')},</p><p>Please find your monthly website health report attached.</p><p>Ngā mihi,<br>{agency_name}</p>"
-                email_result = send_report_email(
-                    client_email, subject, body,
-                    attachment_path=pdf_path or html_path,
-                    smtp_config=smtp_config
-                )
-                print(f"    Email: {email_result['status']}")
-            else:
-                print(f"    Email: Skipped (no client email configured)")
+            print(f"    Email: Draft created in outputs/toolkit/")
 
         generated += 1
 

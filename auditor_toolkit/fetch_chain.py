@@ -2,14 +2,37 @@
 # Pure-stdlib orchestration; optional deps imported lazily so P0 stays green without them.
 from __future__ import annotations
 
+import ipaddress
 import os
+import socket
 import urllib.request
+from urllib.parse import urlsplit
+
+from .common import _is_private_host
 
 FETCH_ORDER = ("l1", "l2", "l3")
 
 
+def _validate_url_for_fetch(url: str) -> str:
+    """Reject non-http schemes and hosts that resolve to private/loopback IPs (SSRF)."""
+    parts = urlsplit(url)
+    if parts.scheme not in ("http", "https"):
+        raise ValueError(f"Non-http(s) scheme rejected: {parts.scheme}")
+    host = parts.hostname
+    if not host or _is_private_host(host):
+        raise ValueError(f"Private/loopback host rejected: {host}")
+    try:
+        infos = socket.getaddrinfo(host, None, type=socket.SOCK_STREAM)
+    except socket.gaierror as exc:
+        raise ValueError(f"Could not resolve host: {host}") from exc
+    if not infos or any(_is_private_host(info[4][0]) for info in infos):
+        raise ValueError(f"Host resolves to private address: {host}")
+    return url
+
+
 def fetch_l1(url: str, timeout: int = 15) -> dict:
     """L1: Lightpanda CDP (LIGHTPANDA_URL) or Crawl4AI sidecar (CRAWL4AI_URL); raises if unconfigured."""
+    _validate_url_for_fetch(url)
     import json
     import urllib.request
     target = os.getenv("LIGHTPANDA_URL") or os.getenv("CRAWL4AI_URL")
@@ -24,6 +47,7 @@ def fetch_l1(url: str, timeout: int = 15) -> dict:
 
 def fetch_l2(url: str, timeout: int = 20) -> dict:
     """L2: Playwright Chromium full render (existing browser.py path semantics)."""
+    _validate_url_for_fetch(url)
     from playwright.sync_api import sync_playwright
     with sync_playwright() as p:
         b = p.chromium.launch(headless=True)
@@ -37,6 +61,7 @@ def fetch_l2(url: str, timeout: int = 20) -> dict:
 
 def fetch_l3(url: str, timeout: int = 15) -> dict:
     """L3: plain urllib fallback (matches full-pipeline.py fetch semantics)."""
+    _validate_url_for_fetch(url)
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (NZ)"})
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return {"tier": "l3", "html": r.read().decode("utf-8", errors="replace")}
