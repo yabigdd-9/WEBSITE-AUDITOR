@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlsplit
 
+
 class Watchdog:
     def __init__(self, output_root=None, snapshot_dir=None, webhook_url=None):
         if snapshot_dir is not None:
