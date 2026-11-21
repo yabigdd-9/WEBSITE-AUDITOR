@@ -30,6 +30,7 @@ from .external_tools import run_lighthouse, run_lychee
 from .faults import enrich as enrich_fault
 from .faults import group_root_causes
 from .faults import regression as fault_regression
+from .flows import flow_findings, run_flow_probe
 from .hygiene import (
     check_mixed_content,
     check_robots,
@@ -43,9 +44,7 @@ from .models import REGISTRY, SCHEMA_VERSION
 from .network import crawl, inspect_dns, inspect_headers, inspect_schema, inspect_tls
 from .quality_checks import run_quality_checks
 from .reporting import render_trend_svg, write_html_report
-from .flows import run_flow_probe, flow_findings
 from .storage import History, finding_id
-
 
 logger = logging.getLogger(__name__)
 

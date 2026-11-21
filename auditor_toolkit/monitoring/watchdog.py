@@ -1,5 +1,9 @@
-
-import json, os, re, ipaddress, socket, urllib.request
+import ipaddress
+import json
+import os
+import re
+import socket
+import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlsplit
