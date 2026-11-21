@@ -40,7 +40,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --only-binary=:all: --require-hashes -r requirements-hosted-ci.txt
+          python -m pip install --only-binary=:all: --require-hashes -r requirements-hosted-ci.txt -r requirements-money-machine-ci.txt
           python -m scripts.install_reviewed_package
 
       - name: Run tests with coverage

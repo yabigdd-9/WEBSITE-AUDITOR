@@ -41,6 +41,7 @@ ai = ["llama-cpp-python>=0.3,<1"]
 smtp = ["aiosmtplib>=3,<4"]
 dev = [
   "email-validator==2.3.0",
+  "tldextract==5.3.1",
   "pytest>=8.3",
   "pytest-asyncio>=0.24",
   "ruff>=0.6",
