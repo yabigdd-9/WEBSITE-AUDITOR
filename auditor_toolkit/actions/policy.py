@@ -36,8 +36,8 @@ class PolicyEngine:
             return Decision(False, "blocked", f"Category '{action.category}' blocked.")
         if action.environment == "production" and not self.config.get("allow_production_changes", False):
             return Decision(False, "blocked", "Production changes disabled.")
-        if action.risk.value in self.config.get("require_approval_risks", []) and not approved:
-            return Decision(False, "pending_approval", f"Risk '{action.risk.value}' requires approval.", requires_approval=True)
+        if action.risk.value.value in self.config.get("require_approval_risks", []) and not approved:
+            return Decision(False, "pending_approval", f"Risk '{action.risk.value.value}' requires approval.", requires_approval=True)
         if approved:
             return Decision(True, "execute", "Approved action allowed.")
         return Decision(False, "blocked", "No policy path allows execution.")
