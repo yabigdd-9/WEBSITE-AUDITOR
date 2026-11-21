@@ -50,8 +50,7 @@ jobs:
         run: |
           python -m pytest toolkit_tests tests \
             --cov-config=.coveragerc \
-            --cov=auditor_toolkit \
-            --cov=website_auditor \
+            --cov \
             --cov-report=xml:coverage.xml \
             --cov-report=term-missing
 
