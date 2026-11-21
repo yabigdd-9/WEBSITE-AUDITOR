@@ -45,7 +45,11 @@ def test_configured_policy_requires_authorization_and_approval(tmp_path, action)
     }))
     policy = PolicyEngine(path)
     assert policy.evaluate(action, approved=True).reason == "Authorization required."
-    assert policy.evaluate(action, authorized=True).effect == "pending_approval"
+    pending = policy.evaluate(action, authorized=True)
+    assert not pending.allowed
+    assert pending.effect == "blocked"
+    assert pending.reason == "pending_approval"
+    assert pending.requires_approval
     assert policy.evaluate(action, authorized=True, approved=True).effect == "execute"
     assert not policy.evaluate(replace(action, environment="production"),
                                authorized=True, approved=True).allowed
