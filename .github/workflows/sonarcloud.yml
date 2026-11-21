@@ -90,21 +90,20 @@ jobs:
           printf '%s\n' "$task_json" \
             | jq '{task: (.task | {id, status, type, componentKey, analysisId, warningCount, errorMessage})}'
 
-          # Main-branch quality gate can fail after the quota issue is fixed.
+          # Report the gate for the exact analysis, including pull requests.
           # Print only public metric keys, actual values and thresholds.
           # This step cannot change or bypass the quality gate.
-          if [ "${GITHUB_EVENT_NAME}" != "pull_request" ]; then
-            if ! analysis_id=$(jq -er '.task | select(.status == "SUCCESS") | .analysisId // empty' <<< "$task_json"); then
-              echo "This SonarCloud task produced no completed analysis. See the processing status above."
-              exit 0
-            fi
-            echo "Website Auditor SonarCloud quality gate for this analysis:"
-            curl --fail --silent --show-error --get \
-              --header "Authorization: Basic $(printf '%s:' "$SONAR_TOKEN" | base64 --wrap=0)" \
-              --data-urlencode "analysisId=${analysis_id}" \
-              "https://sonarcloud.io/api/qualitygates/project_status" \
-              | jq '{status: .projectStatus.status, failing_conditions: [.projectStatus.conditions[]? | select(.status != "OK") | {metricKey, status, actualValue, errorThreshold, comparator}]}'
+          if ! analysis_id=$(jq -er '.task | select(.status == "SUCCESS") | .analysisId // empty' <<< "$task_json"); then
+            echo "This SonarCloud task produced no completed analysis. See the processing status above."
+            exit 0
           fi
+          echo "Website Auditor SonarCloud quality gate for this analysis:"
+          curl --fail --silent --show-error --get \
+            --header "Authorization: Basic $(printf '%s:' "$SONAR_TOKEN" | base64 --wrap=0)" \
+            --data-urlencode "analysisId=${analysis_id}" \
+            "https://sonarcloud.io/api/qualitygates/project_status" \
+            | jq '{status: .projectStatus.status, failing_conditions: [.projectStatus.conditions[]? | select(.status != "OK") | {metricKey, status, actualValue, errorThreshold, comparator}]}'
+
 
           # Show source file coverage without conflating new vs overall metrics.
           # Sonar may omit file-level new-code measures; never mislabel zeroes.
