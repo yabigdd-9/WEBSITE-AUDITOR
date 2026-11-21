@@ -242,7 +242,10 @@ def main(argv=None):
         return 0
 
     if args.command == "watchdog":
-        root = Path(args.output_root)
+        workspace = Path.cwd().resolve()
+        root = (workspace / args.output_root).resolve()
+        if not root.is_relative_to(workspace):
+            parser.error("watchdog output directory must be inside the current workspace")
         history = History(root)
         reports = history.list(args.domain, 1)
         if not reports:
