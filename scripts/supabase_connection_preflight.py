@@ -80,6 +80,15 @@ def safe_failure_category(exc: Exception) -> str:
     return "UNCLASSIFIED"
 
 
+def validate_session_pooler(options: dict) -> None:
+    if options.get("user") != f"{USERNAME}.{PROJECT_REF}":
+        raise ValueError("Dedicated pooler login required")
+    if not options.get("host", "").lower().endswith(".pooler.supabase.com"):
+        raise ValueError("Session pooler host required")
+    if options.get("port") != "5432" or options.get("sslrootcert") != "system":
+        raise ValueError("Session port and system certificate roots required")
+
+
 def main() -> int:
     try:
         from psycopg import connect
@@ -92,9 +101,7 @@ def main() -> int:
         if project != PROJECT_REF:
             raise ValueError("Not the owner-approved database project")
         validate_supabase_dsn(dsn, expected_ref=PROJECT_REF)
-        supplied_user = conninfo_to_dict(dsn).get("user", "").split(".", 1)[0]
-        if supplied_user != USERNAME:
-            raise ValueError("This preflight accepts only the dedicated connector role")
+        validate_session_pooler(conninfo_to_dict(dsn))
 
         with connect(dsn, connect_timeout=8, application_name="mm-preflight-only") as db:
             with db.cursor() as cur:
