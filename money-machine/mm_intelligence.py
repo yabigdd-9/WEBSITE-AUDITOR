@@ -2,9 +2,7 @@
 import datetime as dt
 import json
 import math
-import sqlite3
-from pathlib import Path
-from mm_core import now, sha, fresh, timestamp, UTC, eligible, evidence, artifact_valid, event
+from mm_core import now, sha, timestamp, UTC, eligible, evidence, event
 
 ONTOLOGY = ('acquisition','conversion','sales','quoting','lead_capture','booking','follow_up','crm','operations','admin','retention','reviews','referrals','automation','reporting','customer_experience')
 OFFERS = {

@@ -11,7 +11,7 @@ import tempfile
 from pathlib import Path
 import pytest
 
-from mm_core import migrate, connect, SCHEMA, TRIGGERS, artifact_valid, digest, proposal_digest
+from mm_core import migrate, connect
 
 
 class TestMigrationContracts:
@@ -367,7 +367,6 @@ class TestSchemaIntegrity:
     def test_unique_constraints(self):
         """Test that unique constraints are enforced."""
         from mm_core import migrate
-        import shutil
 
         # Create backup
         self.conn.execute("CREATE TABLE IF NOT EXISTS dummy(id INTEGER)")
@@ -392,7 +391,6 @@ class TestSchemaIntegrity:
     def test_check_constraints(self):
         """Test that CHECK constraints are enforced."""
         from mm_core import migrate
-        import shutil
 
         self.conn.execute("CREATE TABLE IF NOT EXISTS dummy(id INTEGER)")
         self.conn.commit()

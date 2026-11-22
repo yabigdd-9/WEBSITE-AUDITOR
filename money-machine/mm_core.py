@@ -4,11 +4,9 @@ Local evidence attestation is not independent provider verification. A person wi
 write access to the DB can change its schema; these gates protect normal use.
 """
 import datetime as dt
-import contextlib
 import hashlib
 import ipaddress
 import json
-import math
 import os
 from pathlib import Path
 import sqlite3

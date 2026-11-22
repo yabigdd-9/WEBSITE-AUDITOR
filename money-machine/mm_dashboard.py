@@ -4,8 +4,6 @@
 import contextlib
 import json
 import sqlite3
-from datetime import datetime, timedelta
-from pathlib import Path
 from typing import Dict, Any
 
 from mm_core import connect, now, root
@@ -51,9 +49,7 @@ def get_system_health() -> Dict[str, Any]:
 
 def get_supervisor_status() -> Dict[str, Any]:
     """Get supervisor and worker status."""
-    import subprocess
-    import os
-    from supervisor.cli import _read_pid, _is_running, _log
+    from supervisor.cli import _read_pid
 
     pid = _read_pid()
     alive = pid is not None and _pid_alive(pid)

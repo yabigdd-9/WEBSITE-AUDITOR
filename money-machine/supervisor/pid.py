@@ -1,9 +1,7 @@
 """PID file management with atomic operations and locking."""
 import os
 import fcntl
-import signal
 import atexit
-import contextlib
 from pathlib import Path
 from typing import Optional
 

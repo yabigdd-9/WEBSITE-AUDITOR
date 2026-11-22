@@ -38,11 +38,11 @@ def create_evidence_brief(audit_report: Dict[str, Any]) -> Dict[str, Any]:
     total_defects = len(defects)
     critical_count = len(defects_by_severity["critical"])
     high_count = len(defects_by_severity["high"])
-    medium_count = len(defects_by_severity["medium"])
-    low_count = len(defects_by_severity["low"])
+    _ = len(defects_by_severity["medium"])
+    _ = len(defects_by_severity["low"])
 
     # Generate evidence summary
-    evidence_summary = _generate_evidence_summary(defects_by_severity)
+    _generate_evidence_summary(defects_by_severity)
 
     # Generate priority recommendations
     priority_recommendations = _generate_priority_recommendations(defects_by_severity)
@@ -173,11 +173,10 @@ def _get_quick_wins(defects_by_severity: Dict[str, List]) -> List[str]:
                     return quick_wins
 
     # If we don't have enough quick wins from specific checks, add general ones
-    if len(quick_wins) < 3:
-        if defects_by_severity["medium"]:
-            quick_wins.append(
-                f"Address {len(defects_by_severity['medium'])} medium-priority items for quick impact"
-            )
+    if len(quick_wins) < 3 and defects_by_severity["medium"]:
+        quick_wins.append(
+            f"Address {len(defects_by_severity['medium'])} medium-priority items for quick impact"
+        )
     if len(quick_wins) < 3 and defects_by_severity["low"]:
         quick_wins.append(
             f"Fix {min(5, len(defects_by_severity['low']))} low-priority issues for immediate improvement"

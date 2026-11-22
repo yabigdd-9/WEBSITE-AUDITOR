@@ -2,7 +2,6 @@
 # Pure-stdlib orchestration; optional deps imported lazily so P0 stays green without them.
 from __future__ import annotations
 
-import ipaddress
 import os
 import socket
 import urllib.request

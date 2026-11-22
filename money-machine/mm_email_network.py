@@ -1,5 +1,4 @@
 """Bounded GET/DNS adapters. No SMTP DATA, messages, model calls, or form submits."""
-import datetime as dt
 import http.client
 import json
 from pathlib import Path

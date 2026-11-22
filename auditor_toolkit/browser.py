@@ -1,5 +1,4 @@
 import hashlib
-import json
 from pathlib import Path
 
 from .common import validate_url, workspace_path
@@ -144,9 +143,12 @@ def export_pdf(html_path, pdf_path, opts=None):
     gotenberg_url = "http://localhost:3000"
     if opts is not None:
         use_gotenberg = getattr(opts, 'use_gotenberg', False)
-        # Allow overriding via environment variable
-        import os
-        gotenberg_url = os.getenv("GOTENBERG_URL", gotenberg_url)
+        # Use config if available, otherwise fall back to env var
+        from .config import get_settings
+        settings = get_settings()
+        gotenberg_url = settings.gotenberg_url
+        if settings.gotenberg_url:
+            gotenberg_url = settings.gotenberg_url
 
     if use_gotenberg:
         try:

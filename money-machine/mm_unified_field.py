@@ -6,10 +6,9 @@ import json
 import sqlite3
 import math
 import logging
-from datetime import datetime, timezone
-from mm_core import now, connect
+from mm_core import now
 from mm_pipeline import log as structured_log
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Tuple
 
 def measure_cross_component_coherence(
     conn: sqlite3.Connection,

@@ -5,10 +5,9 @@ from __future__ import annotations
 import argparse
 import contextlib
 import json
-import sys
 from pathlib import Path
 
-from .exceptions import OperatorError, ValidationError, OperationalError
+from .exceptions import OperatorError, ValidationError
 from .compat import *
 
 # Re-export for backward compatibility

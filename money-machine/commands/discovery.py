@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import argparse
 import contextlib
-import json
-from pathlib import Path
 
 
 def register(subparsers: argparse._SubParsersAction):

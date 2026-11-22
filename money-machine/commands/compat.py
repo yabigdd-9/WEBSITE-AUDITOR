@@ -54,8 +54,6 @@ from mm_core import (
     record_evidence,
     record_contact,
     connect,
-    CLAIM_TYPES as MM_CLAIM_TYPES,
-    STAGES as MM_STAGES,
 )
 
 # Functions from mm_intelligence
@@ -67,16 +65,14 @@ from mm_intelligence import (
     save_score,
     human_reply_verified,
     record_reply,
-    pricing as int_pricing,
     model_request,
     claim_job,
     finish_job,
-    learn as int_learn,
     assign_experiment,
 )
 
-# Functions from mm_drafts
-from mm_drafts import review_draft, approve_draft
+# Functions from mm_drafts (re-exported for backward compatibility)
+# review_draft, approve_draft are available but not used in this module
 
 # Re-exports for backward compatibility
 CLAIM_TYPES = CLAIM_TYPES

@@ -39,9 +39,8 @@ def load_config(path=None):
         raise ValueError("Transport config must use the canonical schema")
     if doc["provider"] not in ["none", "mock", "himalaya"]:
         raise ValueError("Transport provider must be none, mock, or himalaya")
-    if doc["daily_cap"] != 0 and doc["external_send_allowed"] is True:
-        if not isinstance(doc["daily_cap"], int) or doc["daily_cap"] < 0:
-            raise ValueError("daily_cap must be a non-negative integer when enabled")
+    if doc["daily_cap"] != 0 and doc["external_send_allowed"] is True and (not isinstance(doc["daily_cap"], int) or doc["daily_cap"] < 0):
+        raise ValueError("daily_cap must be a non-negative integer when enabled")
     if not all(
         doc[name] is True
         for name in (
@@ -58,12 +57,10 @@ def load_config(path=None):
             raise ValueError("himalaya provider selected but binary not found on PATH")
         # External send remains gated by external_send_allowed; daily_cap=0
         # by default enforces the safety floor until explicitly enabled.
-        if doc["external_send_allowed"] is not True:
-            if doc["enabled"] is not False:
-                raise ValueError("himalaya transport requires external_send_allowed=true to enable sends")
-    if doc["provider"] == "none":
-        if doc["enabled"] is not False or doc["external_send_allowed"] is not False:
-            raise ValueError("v32 'none' transport must remain disabled")
+        if doc["external_send_allowed"] is not True and doc["enabled"] is not False:
+            raise ValueError("himalaya transport requires external_send_allowed=true to enable sends")
+    if doc["provider"] == "none" and (doc["enabled"] is not False or doc["external_send_allowed"] is not False):
+        raise ValueError("v32 'none' transport must remain disabled")
     return doc
 
 

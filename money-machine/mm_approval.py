@@ -11,12 +11,11 @@ UNKNOWN can never become APPROVED: missing evidence fails the gate.
 Send execution is separate (this module sends nothing); it decides, records,
 rate-limits, prevents duplicates, and quarantines on abnormal signals.
 """
-import datetime as dt
 import json
 import re
 
-from mm_core import now, digest, timestamp
-from mm_pipeline import transition, item, rate_ok, log
+from mm_core import now, digest
+from mm_pipeline import item, rate_ok, log
 
 APPROVAL_STATES = ('PENDING', 'CHECKING', 'APPROVED', 'REJECTED', 'NEEDS_REVIEW')
 

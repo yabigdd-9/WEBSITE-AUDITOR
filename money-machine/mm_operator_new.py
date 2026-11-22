@@ -4,13 +4,11 @@
 This is the refactored version using command modules.
 """
 
-import argparse
-import contextlib
 import json
 import sys
 
 from commands import build_parser
-from mm_core import connect, root
+from mm_core import root
 
 
 def validate_environment():

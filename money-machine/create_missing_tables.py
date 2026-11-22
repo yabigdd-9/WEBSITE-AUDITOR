@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import sqlite3
 from pathlib import Path
-import os
 from mm_core import SCHEMA, TRIGGERS, now
 
 ROOT = Path(__file__).resolve().parent

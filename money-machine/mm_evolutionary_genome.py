@@ -3,13 +3,9 @@ Implements self-modifying architecture with genetic encoding, expression regulat
 """
 import json
 import sqlite3
-import hashlib
 import contextlib
-import math
-import contextlib
-from datetime import datetime, timezone
-from mm_core import now, connect, sha
-from typing import Dict, List, Any, Optional, Tuple
+from mm_core import now, sha
+from typing import Dict, Any
 
 def encode_architectural_genes(
     conn: sqlite3.Connection,
@@ -121,9 +117,8 @@ def express_genotype(
 
         # Decode the genetic information
         genetic_info = json.loads(row[0]) if row[0] else {}
-        evidence_ref = json.loads(row[1]) if row[1] else {}
-        storage_confidence = row[2] if row[2] else 0.0
-        created_at = row[3] if row[3] else now()
+        _ = row[2] if row[2] else 0.0
+        _ = row[3] if row[3] else now()
 
         # Calculate expression fitness based on business context and performance
         expression_fitness = _calculate_expression_fitness(
@@ -291,7 +286,7 @@ def _calculate_expression_fitness(
         parameters = genetic_info.get("parameters", {})
 
         # Check if this pattern is suitable for current business context
-        industry = business_context.get("industry", "")
+        _ = business_context.get("industry", "")
         problem_type = business_context.get("primary_problem", "")
         urgency = business_context.get("urgency", 0.5)  # 0.0 to 1.0
 

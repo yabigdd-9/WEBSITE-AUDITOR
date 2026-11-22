@@ -19,8 +19,6 @@ import os
 import random
 import socket
 import sqlite3
-import traceback
-from pathlib import Path
 
 from mm_core import now, root, sha, timestamp
 
@@ -724,7 +722,7 @@ def run_pipelineloop(d, workers, sleep_seconds=60, max_cycles=None,
     metrics but never takes external actions by itself (sends/approvals are
     still gated by the approval engine).
     """
-    metrics_sink = log_destination or (root() / 'state' / 'worker-logs')
+    log_destination or (root() / 'state' / 'worker-logs')
     migrate(d)
     for idx, w in enumerate(workers):
         register_worker(d, w.worker_id, w.kind, lease_seconds=w.lease_seconds)

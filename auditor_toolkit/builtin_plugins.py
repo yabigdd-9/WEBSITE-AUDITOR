@@ -6,7 +6,6 @@ These plugins implement the standard checks as plugins for the new architecture.
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 from .plugins import (
     CheckContext,
@@ -74,7 +73,7 @@ class FetchPlugin(CheckPlugin):
             )
             return findings, evidence
 
-        except Exception as exc:
+        except Exception:
             raise  # Let the caller handle it
 
 

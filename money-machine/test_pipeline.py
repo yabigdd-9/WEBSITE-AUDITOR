@@ -3,7 +3,6 @@
 All fixtures are synthetic and disposable. No network, no model calls, no real
 businesses, no sends.
 """
-import datetime as dt
 import json
 import os
 from pathlib import Path

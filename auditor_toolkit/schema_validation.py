@@ -288,7 +288,6 @@ def validate_all_configs(project_root: str | Path = ".") -> dict[str, Any]:
 def main() -> int:
     """Validate all configs and print results."""
     import json
-    import sys
 
     project_root = Path.cwd()
     results = validate_all_configs(project_root)

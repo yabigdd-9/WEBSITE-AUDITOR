@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 import contextlib
-import json
 
 
 def register(subparsers: argparse._SubParsersAction):
@@ -35,7 +34,6 @@ def handle(a: argparse.Namespace) -> dict:
     """Handle pipeline commands."""
     import mm_pipeline
     import mm_approval
-    import mm_model_router
     import mm_workers
     from mm_core import connect, root
 
@@ -81,4 +79,3 @@ def handle(a: argparse.Namespace) -> dict:
 
 
 import contextlib
-from mm_core import connect, root

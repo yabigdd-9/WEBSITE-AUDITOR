@@ -4,17 +4,12 @@ import json
 import threading
 import time
 from pathlib import Path
-from typing import Optional, Callable, Dict, Any
 
 try:
-    from watchdog.observers import Observer
     from watchdog.events import FileSystemEventHandler
     WATCHDOG_AVAILABLE = True
 except ImportError:
     WATCHDOG_AVAILABLE = False
-
-from mm_model_router import probe_llamacpp
-from mm_pipeline import log
 
 
 class ConfigChangeHandler(FileSystemEventHandler):

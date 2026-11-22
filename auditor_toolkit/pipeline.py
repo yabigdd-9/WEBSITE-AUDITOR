@@ -24,7 +24,7 @@ from .hygiene import (
     grade_security_headers,
     validate_links,
 )
-from .logging_config import get_logger, set_correlation_id, clear_correlation_id, LogContext
+from .logging_config import get_logger, set_correlation_id, clear_correlation_id
 from .metrics import record_audit_metrics
 from .models import REGISTRY, SCHEMA_VERSION
 from .network import crawl, inspect_dns, inspect_headers, inspect_schema, inspect_tls

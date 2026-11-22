@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Read all judge results and print a clean summary table."""
-import json, glob, os
+import json, glob
 
 reports = "/Users/yabigdd/MoneyMachine/reports"
 judge_files = sorted(glob.glob(reports + "/JUDGE_*.json"))

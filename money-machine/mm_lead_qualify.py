@@ -5,18 +5,7 @@ into the main email discovery pipeline, auto-assigning tiers (HOT, WARM, QUALIFI
 and adding explainability layer.
 """
 
-import re
 from mm_lead_qualifier import (
-    INDUSTRY_FRESHNESS_DAYS,
-    INDUSTRY_WEIGHT_MULTIPLIERS,
-    INDUSTRY_OFFER_MATCH,
-    INDUSTRY_ALIASES,
-    detect_job_signals,
-    detect_budget_signals,
-    industry_freshness_days,
-    industry_weight_multipliers,
-    industry_offer_matches,
-    normalize_industry,
     qualify_lead,
     hot_lead_reasons,
     export_qualification_config,

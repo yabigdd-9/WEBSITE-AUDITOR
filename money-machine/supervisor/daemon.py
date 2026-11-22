@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """SupervisorDaemon — PID-lock, graceful shutdown, heartbeat, log rotation."""
 
-import os, signal, time, json, gzip
+import os, signal, json, gzip
 from pathlib import Path
 from datetime import datetime, timezone
 

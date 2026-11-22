@@ -1,5 +1,3 @@
-import json
-from pathlib import Path
 
 import mm_email_tracking as tracking
 

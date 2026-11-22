@@ -60,6 +60,16 @@ class Settings(BaseSettings):
         default=False,
         description="Generate visual diff screenshots against previous runs",
     )
+    gotenberg_url: str = Field(
+        default="http://localhost:3000",
+        description="Gotenberg service URL for PDF generation",
+    )
+
+    # Portal settings
+    allowed_hosts: list[str] = Field(
+        default_factory=lambda: ["127.0.0.1", "localhost", "testserver"],
+        description="Allowed hosts for portal TrustedHostMiddleware",
+    )
 
     # External tools
     external_tools: bool = Field(
@@ -249,8 +259,7 @@ def validate_startup() -> dict[str, Any]:
         db_dir.mkdir(parents=True, exist_ok=True)
 
         # Verify AI model if enabled
-        if settings.ai_enabled and settings.ai_model_path:
-            if not settings.ai_model_path.exists():
+        if settings.ai_enabled and settings.ai_model_path and not settings.ai_model_path.exists():
                 return {
                     "valid": False,
                     "errors": [

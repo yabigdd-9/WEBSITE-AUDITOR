@@ -5,9 +5,8 @@ gratitude resonance calculation, and offering mindset assessment.
 import json
 import sqlite3
 import math
-from datetime import datetime, timezone
 from mm_core import now, connect
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, Any
 
 def measure_business_relational_depth(
     conn: sqlite3.Connection,

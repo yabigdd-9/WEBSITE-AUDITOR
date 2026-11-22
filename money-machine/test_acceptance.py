@@ -1,20 +1,14 @@
 #!/usr/bin/env python3
 """Behavioral tests on disposable snapshots; never writes fixtures to the live DB."""
-import contextlib
-import datetime as dt
-import importlib
-import io
 import json
 import os
 from pathlib import Path
-import shutil
 import socket
 import sqlite3
 import subprocess
 import sys
 import tempfile
 import time
-import traceback
 import unittest
 from unittest.mock import patch
 sys.path.insert(0,str(Path(__file__).resolve().parent/'scripts'))
@@ -175,7 +169,7 @@ class Acceptance(unittest.TestCase):
     def test_29_unavailable_free_model_fails_without_fallback(self):
         x=i.model_request(self.d,'does-not-exist:free','nous','fixture');self.assertEqual((x['status'],x['model_calls'],x['cost_usd']),('blocked',0,0))
     def test_30_send_gates_survive_connection_restart(self):
-        h=self.approve();self.d.commit()
+        self.approve();self.d.commit()
         with sqlite3.connect(self.path) as raw:
             with self.assertRaises(sqlite3.Error):raw.execute('UPDATE mm_messages SET sent_at=? WHERE id=?',(c.now(),self.mid))
     def test_31_mixed_legacy_timestamp_formats_supported(self):

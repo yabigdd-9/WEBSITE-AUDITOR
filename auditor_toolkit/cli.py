@@ -15,10 +15,9 @@ from .ai import generate_drafts, verify_model
 from .common import workspace_path
 from .external_tools import installed_tools
 from .logging_config import setup_logging
-from .metrics import record_audit_metrics, serve_metrics, create_metrics_app
+from .metrics import serve_metrics
 from .pipeline import AuditOptions, run_audit
 from .storage import History
-from .tracing import init_tracing_from_env
 
 
 def doctor(root, smoke=False):

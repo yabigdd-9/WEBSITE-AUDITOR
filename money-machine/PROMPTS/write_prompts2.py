@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Write plain .txt judge prompts for the 3 remaining businesses + re-process AES."""
-import os, json
+import os
 
 PROMPTS_DIR = "/Users/yabigdd/MoneyMachine/control-plane/PROMPTS"
 

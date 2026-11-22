@@ -10,7 +10,6 @@ Provides comprehensive health checking for:
 from __future__ import annotations
 
 import logging
-import os
 import shutil
 import socket
 import sqlite3
@@ -20,11 +19,8 @@ from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlparse
 
 import httpx
-
-from auditor_toolkit.common import validate_url
 
 logger = logging.getLogger(__name__)
 
@@ -475,7 +471,6 @@ def run_all_health_checks(
 def main() -> int:
     """Run health checks and print results as JSON."""
     import json
-    import sys
 
     result = run_all_health_checks()
     print(json.dumps(result, indent=2))

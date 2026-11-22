@@ -58,7 +58,7 @@ def register(subparsers: argparse._SubParsersAction):
 
 def handle(a: argparse.Namespace) -> dict:
     """Handle email commands."""
-    from mm_core import connect, root
+    from mm_core import root
 
     r = root()
     if not r.exists():
@@ -113,7 +113,6 @@ def handle(a: argparse.Namespace) -> dict:
                     "note": "Historical confidence is a capture-only score; it is not email verification.",
                 }
             elif a.cmd == "email-rollback":
-                from mm_core import connect as core_connect
                 d.executescript((Path(__file__).resolve().parent / "003_email_finder_v2_rollback.sql").read_text())
                 return {"mode": "v1_hold", "history_retained": True, "new_approvals_held": True, "external_sends": 0}
 

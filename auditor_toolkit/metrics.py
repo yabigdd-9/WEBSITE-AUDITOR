@@ -9,7 +9,6 @@ import logging
 import time
 from contextlib import contextmanager
 from dataclasses import dataclass, field
-from typing import Any
 
 from prometheus_client import (
     CONTENT_TYPE_LATEST,
@@ -287,9 +286,8 @@ def metrics_middleware(request, call_next):
     """ASGI middleware to record HTTP metrics."""
     import time
 
-    start = time.perf_counter()
+    _ = time.perf_counter()
     response = call_next(request)
-    duration = time.perf_counter() - start
 
     # Record request metrics
     http_requests_total.labels(

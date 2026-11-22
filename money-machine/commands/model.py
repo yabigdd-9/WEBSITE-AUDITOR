@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 
 
 def register(subparsers: argparse._SubParsersAction):
@@ -34,4 +33,3 @@ def handle(a: argparse.Namespace) -> dict:
 
 
 import contextlib
-from mm_core import connect, root

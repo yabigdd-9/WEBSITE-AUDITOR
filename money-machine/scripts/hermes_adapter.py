@@ -5,7 +5,6 @@ job, and a free-model label alone cannot authorize inference or tools.
 """
 import argparse
 import json
-import os
 from pathlib import Path
 import re
 import shutil

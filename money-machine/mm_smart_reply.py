@@ -1,6 +1,3 @@
-import json
-from pathlib import Path
-import mm_core as core
 
 def classify_thread(thread_context):
     # Intent/Urgency/Sentiment/Actions classification

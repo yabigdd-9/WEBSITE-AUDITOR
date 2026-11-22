@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Final consolidator: read all judge + audit files, produce ranked JSON."""
-import json, glob, os
+import json, glob
 
 reports = "/Users/yabigdd/MoneyMachine/reports"
 audit_files = glob.glob(reports + "/AUDIT_*.json")

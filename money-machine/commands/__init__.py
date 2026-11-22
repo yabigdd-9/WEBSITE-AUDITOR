@@ -7,7 +7,6 @@ The main operator then dispatches to registered handlers.
 from __future__ import annotations
 
 import argparse
-import contextlib
 from typing import Any, Callable
 
 # Command handler type
@@ -57,18 +56,6 @@ def list_subcommands(group: str) -> list[str]:
 
 def build_parser() -> argparse.ArgumentParser:
     """Build the complete argument parser with all registered commands."""
-    from mm_core import CLAIM_TYPES
-    from mm_operator import (
-        OperatorError,
-        ValidationError,
-        OperationalError,
-        REPLY_ACTIONS,
-        STAGES,
-        CLAIM_TYPES as OP_CLAIM_TYPES,
-        ONTOLOGY,
-        OFFERS,
-    )
-
     p = argparse.ArgumentParser(
         description="WEBSITES/BUISNESSaudits: deterministic local operator. Never sends or calls a model."
     )

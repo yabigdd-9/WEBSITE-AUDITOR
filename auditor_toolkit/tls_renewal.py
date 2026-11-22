@@ -6,11 +6,7 @@ Provides automated certificate renewal using ACME protocol (Let's Encrypt).
 from __future__ import annotations
 
 import json
-import logging
-import os
-import shutil
 import subprocess
-import tempfile
 import time
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
@@ -18,7 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from .logging_config import get_logger
-from .network import check_certificate_expiry, CertificateStatus
+from .network import check_certificate_expiry
 
 logger = get_logger(__name__)
 
@@ -80,7 +76,6 @@ class ACMEClient:
     def _sign_jws(self, payload: dict[str, Any], url: str, nonce: str) -> str:
         """Sign a JWS payload."""
         import base64
-        import hashlib
 
         header = {"alg": "RS256", "nonce": nonce, "url": url}
         if self.account and self.account.account_uri:
@@ -116,7 +111,6 @@ class ACMEClient:
     def _post(self, url: str, payload: dict[str, Any]) -> tuple[dict[str, Any], str]:
         """Post to ACME endpoint."""
         import urllib.request
-        import base64
 
         directory = self._get_directory()
         nonce_url = directory.get("newNonce", url)
@@ -189,7 +183,7 @@ class ACMEClient:
         order_uri = response.get("location") or response.get("order")
         authorizations = response.get("authorizations", [])
 
-        order = CertificateOrder(
+        CertificateOrder(
             domains=domains,
             status="processing",
             order_uri=order_uri,
@@ -319,7 +313,6 @@ class CertRenewalManager:
 def create_acme_cli():
     """Create CLI for ACME management."""
     import argparse
-    import sys
 
     parser = argparse.ArgumentParser(prog="wa acme")
     sub = parser.add_subparsers(dest="action", required=True)

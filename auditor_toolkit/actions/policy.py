@@ -3,7 +3,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-from ..models import Action, Risk
+from ..models import Action
 
 DEFAULT_POLICY: dict[str, Any] = {"enabled": True, "mode": "dry_run", "allow_production_changes": False, "allow_external_emails": False, "allow_external_connectors": False, "auto_approve_risks": ["low"], "require_approval_risks": ["medium", "high", "critical"], "environments_allowed_for_auto": ["local", "staging"], "blocked_categories": ["dns_write", "tls_install", "production_deploy", "outreach_send"]}
 

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 
 
 def register(subparsers: argparse._SubParsersAction):

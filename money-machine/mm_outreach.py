@@ -4,7 +4,6 @@ Evidence envelopes are operator attestations, not independent verification.
 Generated copy is constrained to catalogue wording; arbitrary copy still needs a
 human factual review. A passing audit never grants permission to send.
 """
-import datetime as dt
 import json
 import re
 from email import policy

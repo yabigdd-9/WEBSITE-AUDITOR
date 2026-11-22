@@ -202,6 +202,14 @@ class Fetcher:
         """Close the underlying HTTP client."""
         self.client.close()
 
+    def __enter__(self) -> "Fetcher":
+        """Enter context manager."""
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        """Exit context manager, closing the client."""
+        self.close()
+
     def _build_pinned_client(self, url: str, pinned_ip: str) -> httpx.Client:
         """Build a client that connects to a pinned IP."""
         transport = self._build_pinned_transport(pinned_ip)
@@ -307,7 +315,7 @@ class Fetcher:
         current, pinned_ip = validate_url(url, self.allow_private)
         chain = []
         # Build a client that connects to the pinned IP (DNS rebinding defense)
-        pinned_client = self._build_pinned_client(current, pinned_ip) if pinned_ip else self.client
+        client = self._build_pinned_client(current, pinned_ip) if pinned_ip else self.client
         for _ in range(6):
             host = urlparse(current).netloc
             delay = self.min_interval - (time.monotonic() - self.last_request.get(host, 0))
@@ -341,7 +349,7 @@ class Fetcher:
                             if cached["headers"].get(key):
                                 headers[conditional] = cached["headers"][key]
             started = time.monotonic()
-            with self.client.stream("GET", current, headers=headers) as response:
+            with client.stream("GET", current, headers=headers) as response:
                 chunks, size = [], 0
                 for chunk in response.iter_bytes():
                     size += len(chunk)
@@ -372,8 +380,12 @@ class Fetcher:
                 )
                 observed = cached["observed_at"]
                 result.extensions["revalidated_at"] = datetime.now(UTC).isoformat()
-            elif cache_path and result.status_code == 200 and not result.headers.get("set-cookie"):
-                if "no-store" not in result.headers.get("cache-control", "").lower():
+            elif (
+    cache_path
+    and result.status_code == 200
+    and not result.headers.get("set-cookie")
+    and "no-store" not in result.headers.get("cache-control", "").lower()
+):
                     atomic_write_json(
                         cache_path,
                         {

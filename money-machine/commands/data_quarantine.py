@@ -5,18 +5,13 @@ from __future__ import annotations
 import argparse
 import contextlib
 import json
-import sys
-from pathlib import Path
 
 from mm_operator import (
-    OperatorError,
-    ValidationError,
     OperationalError,
     backup,
     root,
     now,
     ensure_business_columns,
-    event,
 )
 
 

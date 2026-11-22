@@ -1,11 +1,7 @@
 """Database and adapter tests on disposable snapshots; live data read-only."""
-import contextlib
-import copy
-import json
 from pathlib import Path
 import socket
 import sqlite3
-import sys
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -15,7 +11,7 @@ import mm_core as c
 import mm_email as e
 import mm_email_store as s
 from mm_email_network import Crawler, DNSChecks
-from test_email_finder import page, good_dns, ROOT
+from test_email_finder import good_dns, ROOT
 import dns.resolver
 
 

@@ -28,6 +28,7 @@ def create_app(root, session_seconds=3600):
     from fastapi import FastAPI, HTTPException, Request
     from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
     from starlette.middleware.trustedhost import TrustedHostMiddleware
+    from .config import get_settings
 
     history = History(root)
     auth_file = Path(root) / "portal-auth.json"
@@ -35,8 +36,9 @@ def create_app(root, session_seconds=3600):
         raise ValueError("Run wa dashboard --set-password before serving")
     password_hash = json.loads(auth_file.read_text())["password_hash"]
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+    settings = get_settings()
     app.add_middleware(
-        TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost", "testserver"]
+        TrustedHostMiddleware, allowed_hosts=settings.allowed_hosts
     )
     app.state.sessions = {}
     app.state.history = history
