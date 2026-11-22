@@ -1,4 +1,8 @@
-"""Transactional history; old runs and their evidence are immutable."""
+"""Transactional history; old runs and their evidence are immutable.
+
+This module provides persistent storage for audit runs, findings, and remediation
+state using SQLite. All historical data is immutable once written.
+"""
 
 import hashlib
 import json
@@ -7,6 +11,7 @@ from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+# Valid remediation states for findings
 STATES = {
     "detected",
     "acknowledged",
@@ -20,7 +25,19 @@ STATES = {
 }
 
 
-def finding_id(finding):
+def finding_id(finding: dict) -> str:
+    """Generate a stable, unique identifier for a finding.
+
+    The ID is derived from the check name, defect key, source URL, and selector.
+    This allows tracking the same finding across multiple audit runs.
+
+    Args:
+        finding: Finding dictionary with keys "check", "defect_key",
+            "source_url", and optionally "selector".
+
+    Returns:
+        24-character hexadecimal string (SHA256 truncated).
+    """
     key = [
         finding.get("check"),
         finding.get("defect_key"),
@@ -31,7 +48,21 @@ def finding_id(finding):
 
 
 class History:
-    def __init__(self, root):
+    """Persistent audit history using SQLite.
+
+    Manages audit runs, findings, remediation tracking, and artifact integrity.
+    Each audit run is stored with its full report JSON for complete reproducibility.
+
+    Database schema:
+        - runs: Audit runs (id, url, timestamp, report JSON)
+        - remediations: Finding remediation state (id, state, metadata JSON)
+        - events: Audit trail events (timestamp, kind, payload JSON)
+
+    Args:
+        root: Root directory for history database and artifacts.
+    """
+
+    def __init__(self, root: str | Path):
         self.root = Path(root).resolve()
         self.root.mkdir(parents=True, exist_ok=True)
         self.path = self.root / "history.sqlite3"
@@ -47,6 +78,14 @@ class History:
             CREATE INDEX IF NOT EXISTS idx_runs_url_timestamp ON runs(url, timestamp DESC);
             PRAGMA user_version=1;
             """)
+
+
+
+
+
+
+
+
 
     @contextmanager
     def connect(self):

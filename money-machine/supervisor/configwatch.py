@@ -97,7 +97,7 @@ class ConfigWatcher:
 
             return True
 
-        except Exception:
+        except (OSError, IOError, json.JSONDecodeError):
             return False
 
     def get_last_known_good(self):

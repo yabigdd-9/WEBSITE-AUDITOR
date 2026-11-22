@@ -63,7 +63,7 @@ def get_supervisor_status() -> Dict[str, Any]:
         if _read_pid():
             hb_str = (root() / "state" / "supervisor.heartbeat").read_text().strip()
             hb = json.loads(hb_str) if hb_str else {}
-    except Exception:
+    except (OSError, IOError, json.JSONDecodeError):
         hb = {"error": "Unable to read heartbeat"}
 
     # Get worker stats from pipeline
@@ -310,7 +310,7 @@ def get_performance_indicators() -> Dict[str, Any]:
                 supervisor_start_str = (root() / "state" / "supervisor.heartbeat").read_text().strip()
                 if supervisor_start_str:
                     supervisor_start = json.loads(supervisor_start_str).get("started")
-            except Exception:
+            except (OSError, IOError, json.JSONDecodeError):
                 pass
 
             # Error rates
@@ -346,7 +346,7 @@ def get_performance_indicators() -> Dict[str, Any]:
                     "new_businesses_last_week": business_row[2] if business_row else 0
                 }
             }
-    except Exception as e:
+    except (sqlite3.Error, OSError, IOError, json.JSONDecodeError) as e:
         return {"error": str(e)}
 
 
@@ -356,7 +356,7 @@ def _read_supervisor_pid() -> int | None:
         pid_file = root() / "state" / "supervisor.pid"
         if pid_file.exists():
             return int(pid_file.read_text().strip())
-    except Exception:
+    except (OSError, IOError, ValueError):
         pass
     return None
 

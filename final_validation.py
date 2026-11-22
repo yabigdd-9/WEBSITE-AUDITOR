@@ -51,7 +51,7 @@ def validate_evidence_brief_integration():
 
         return all_passed
 
-    except Exception as e:
+    except (OSError, IOError, UnicodeDecodeError) as e:
         print(f"❌ Error validating pipeline integration: {e}")
         return False
 
@@ -85,7 +85,7 @@ def validate_ai_writer_integration():
 
         return all_passed
 
-    except Exception as e:
+    except (OSError, IOError, UnicodeDecodeError) as e:
         print(f"❌ Error validating AI writer integration: {e}")
         return False
 
@@ -122,7 +122,7 @@ def validate_evidence_brief_module():
 
         return all_passed
 
-    except Exception as e:
+    except (OSError, IOError, UnicodeDecodeError) as e:
         print(f"❌ Error validating evidence brief module: {e}")
         return False
 
@@ -161,7 +161,7 @@ def validate_email_quality_module():
 
         return all_passed
 
-    except Exception as e:
+    except (OSError, IOError, UnicodeDecodeError) as e:
         print(f"❌ Error validating email quality module: {e}")
         return False
 

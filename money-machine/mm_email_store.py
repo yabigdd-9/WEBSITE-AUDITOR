@@ -53,7 +53,7 @@ def _migrate_v3(d, backup_path, sql_path=None):
         d.execute('INSERT INTO email_schema_migrations VALUES(3,?,?,?)', (core.now(), str(backup_path), sql_hash))
         if d.execute('PRAGMA foreign_key_check').fetchall(): raise ValueError('Foreign key check failed')
         d.commit()
-    except Exception:
+    except (sqlite3.Error, ValueError, OSError):
         d.rollback(); raise
     return {'applied': True, 'version': 3, 'mode': 'shadow'}
 
@@ -72,7 +72,7 @@ def _migrate_v4(d, backup_path, sql_path=None):
         d.execute('INSERT INTO email_schema_migrations VALUES(4,?,?,?)', (core.now(), str(backup_path), digest))
         if d.execute('PRAGMA foreign_key_check').fetchall(): raise ValueError('Foreign key check failed')
         d.commit()
-    except Exception:
+    except (sqlite3.Error, ValueError, OSError):
         d.rollback(); raise
     return {'applied': True, 'version': 4, 'mode': 'POST_DEPLOYMENT_OBSERVATION'}
 
@@ -90,7 +90,7 @@ def migrate_email(d, backup_path, sql_path=None):
         d.executescript('BEGIN IMMEDIATE;\n' + sql)
         d.execute('INSERT INTO email_schema_migrations VALUES(5,?,?,?)', (core.now(), str(backup_path), digest))
         d.commit()
-    except Exception:
+    except (sqlite3.Error, ValueError, OSError):
         d.rollback(); raise
     return {'applied': True, 'version': 5, 'mode': 'POST_DEPLOYMENT_OBSERVATION'}
 

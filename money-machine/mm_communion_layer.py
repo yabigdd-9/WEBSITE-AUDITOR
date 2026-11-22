@@ -392,7 +392,7 @@ def _calculate_relational_depth(
         depth_score = sum(normalized[key] * weights[key] for key in normalized)
         return max(0.0, min(1.0, depth_score))
 
-    except Exception:
+    except (ValueError, KeyError, TypeError, ZeroDivisionError):
         return 0.5  # Return neutral depth on error
 
 def _calculate_gratitude_resonance(
@@ -426,7 +426,7 @@ def _calculate_gratitude_resonance(
 
         return max(0.0, min(1.0, gratitude))
 
-    except Exception:
+    except (ValueError, KeyError, TypeError, ZeroDivisionError):
         return 0.5  # Return neutral gratitude on error
 
 def _assess_offering_mindset(
@@ -466,7 +466,7 @@ def _assess_offering_mindset(
 
         return max(0.0, min(1.0, mindset_score))
 
-    except Exception:
+    except (ValueError, KeyError, TypeError, ZeroDivisionError):
         return 0.5  # Return neutral mindset on error
 
 def _calculate_interdependence(
@@ -513,7 +513,7 @@ def _calculate_interdependence(
         interdependence_score = sum(normalized[key] * weights[key] for key in normalized)
         return max(0.0, min(1.0, interdependence_score))
 
-    except Exception:
+    except (ValueError, KeyError, TypeError, AttributeError):
         return 0.5  # Return neutral interdependence on error
 
 def _calculate_ecosystem_awareness(
@@ -544,7 +544,7 @@ def _calculate_ecosystem_awareness(
         awareness = (indicator_understanding * 0.4) + (performance_understanding * 0.6)
         return max(0.0, min(1.0, awareness))
 
-    except Exception:
+    except (ValueError, KeyError, TypeError, AttributeError):
         return 0.5  # Return neutral awareness on error
 
 # Export functions for easy importing
