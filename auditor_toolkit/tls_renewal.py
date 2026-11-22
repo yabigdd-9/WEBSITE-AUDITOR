@@ -6,8 +6,8 @@ Provides automated certificate renewal using ACME protocol (Let's Encrypt).
 from __future__ import annotations
 
 import json
+import os
 import re
-import subprocess
 import time
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
@@ -163,26 +163,33 @@ class ACMEClient:
         if not self.account:
             self.register_account()
 
-        # Create private key for certificate
-        subprocess.run([
-            "openssl", "genrsa", "-out", str(key_path), "2048"
-        ], check=True)
-
-        # Create CSR
-        csr_path = key_path.with_suffix(".csr")
-        san_list = ",".join(f"DNS:{d}" for d in domains)
-        subprocess.run([
-            "openssl", "req", "-new", "-sha256", "-key", str(key_path),
-            "-subj", f"/CN={domains[0]}",
-            "-addext", f"subjectAltName={san_list}",
-            "-out", str(csr_path)
-        ], check=True)
-
-        with open(csr_path, "rb") as f:
-            csr = f.read()
-
         import base64
-        csr_b64 = base64.urlsafe_b64encode(csr).decode().rstrip("=")
+
+        from cryptography import x509
+        from cryptography.hazmat.primitives import hashes, serialization
+        from cryptography.hazmat.primitives.asymmetric import rsa
+        from cryptography.x509.oid import NameOID
+
+        if key_path.exists():
+            key = serialization.load_pem_private_key(key_path.read_bytes(), password=None)
+        else:
+            key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+            descriptor = os.open(key_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+            with os.fdopen(descriptor, "wb") as key_file:
+                key_file.write(key.private_bytes(
+                    serialization.Encoding.PEM,
+                    serialization.PrivateFormat.PKCS8,
+                    serialization.NoEncryption(),
+                ))
+        request = (
+            x509.CertificateSigningRequestBuilder()
+            .subject_name(x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, domains[0])]))
+            .add_extension(x509.SubjectAlternativeName([x509.DNSName(domain) for domain in domains]),
+                           critical=False)
+            .sign(key, hashes.SHA256())
+        )
+        csr_b64 = base64.urlsafe_b64encode(request.public_bytes(serialization.Encoding.DER))
+        csr_b64 = csr_b64.decode("ascii").rstrip("=")
 
         # Create order
         directory = self._get_directory()
@@ -220,7 +227,6 @@ class ACMEClient:
             challenge_file.unlink(missing_ok=True)
 
         # Finalize order
-        csr_b64 = base64.urlsafe_b64encode(open(key_path.with_suffix(".csr"), "rb").read()).decode().rstrip("=")
         self._post(directory["newOrder"] + "/finalize", {"csr": csr_b64})
 
         # Download certificate
@@ -228,7 +234,7 @@ class ACMEClient:
         cert_resp, _ = self._post(cert_url, {})
         cert_pem = cert_resp.get("certificate")
 
-        cert_path = key_path.with_suffix(".pem")
+        cert_path = workspace_path(key_path.with_suffix(".pem"))
         cert_path.write_text(cert_pem)
 
         return CertificateOrder(
