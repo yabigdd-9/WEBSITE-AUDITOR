@@ -1,0 +1,52 @@
+# Website Auditor Dashboard — HTTPS Reverse Proxy
+# Run: caddy run --config /mnt/wa-data/WEBSITE-AUDITOR/deploy/cloud/Caddyfile
+
+{
+    # Email for Let's Encrypt (REQUIRED - replace with your email)
+    admin your-email@example.com
+
+    # Disable HTTP challenge if using DNS challenge
+    # acme_dns challenge_provider route53
+}
+
+# Replace dashboard.yourdomain.com with your actual domain
+dashboard.yourdomain.com {
+    # Reverse proxy to local FastAPI portal
+    reverse_proxy 127.0.0.1:8080 {
+        header_up Host {host}
+        header_up X-Real-IP {remote}
+        header_up X-Forwarded-For {remote}
+        header_up X-Forwarded-Proto {scheme}
+    }
+
+    # Security headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Frame-Options "DENY"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    }
+
+    # Rate limiting for login endpoint
+    @login_post {
+        path /login
+        method POST
+    }
+    rate_limit @login_post {
+        zone login_limit
+        key {remote}
+        events 5
+        window 1m
+    }
+
+    # Logging
+    log {
+        output file /var/log/caddy/dashboard-access.log {
+            roll_size 10MB
+            roll_keep 5
+            roll_keep_for 168h
+        }
+        format json
+    }
+}

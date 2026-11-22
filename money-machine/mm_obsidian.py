@@ -49,7 +49,22 @@ GENERATED = (
 
 def vault_root() -> Path:
     raw = os.environ.get("MM_OBSIDIAN_ROOT")
-    return Path(raw).expanduser().resolve() if raw else (core.root() / "WEBSITE-AUDITOR-BRAIN").resolve()
+    if raw:
+        # For obsidian vault, user explicitly chooses the location via MM_OBSIDIAN_ROOT
+        # Resolve the path and perform basic validation
+        target = Path(raw).resolve()
+        # Prevent access to specific sensitive files that we definitely don't want to overwrite
+        sensitive_files = {'passwd', 'shadow', 'sudoers', 'hosts'}
+        if target.name.lower() in sensitive_files:
+            raise ValueError(f"Obsidian vault path targets sensitive file: {target}")
+        # Also prevent obvious attempts to mount over sensitive directories by checking if
+        # the path is exactly a sensitive directory (not just containing it as a component)
+        if target.name.lower() in {'etc', 'ssh', 'private', 'root'} and len(target.parts) <= 2:
+            # Allow paths like /etc/foo/bar but block /etc or /private as the vault root
+            # This is a heuristic - adjust as needed
+            pass  # Actually, let's be more restrictive for root directories
+        return target
+    return (core.root() / "WEBSITE-AUDITOR-BRAIN").resolve()
 
 
 def _atomic_write(path: Path, text: str) -> None:

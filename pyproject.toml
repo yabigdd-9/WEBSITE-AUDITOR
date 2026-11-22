@@ -33,6 +33,8 @@ exclude = ["toolkit_tests*", "money-machine*", "deepseek-harness*"]
 auditor_toolkit = ["assets/*.js", "assets/*.txt"]
 
 [project.optional-dependencies]
+configuration = ["pydantic-settings>=2,<3"]
+observability = ["prometheus-client>=0.20,<1", "opentelemetry-sdk>=1,<2", "opentelemetry-exporter-otlp>=1,<2"]
 postgres = ["psycopg[binary]==3.3.3"]
 vault = ["cryptography>=50.0.2,<51"]
 browser = ["playwright>=1.51,<2", "pillow>=12,<14"]
@@ -40,6 +42,8 @@ portal = ["fastapi>=0.115,<1", "uvicorn>=0.30,<1", "argon2-cffi>=23,<26", "pytho
 ai = ["llama-cpp-python>=0.3,<1"]
 smtp = ["aiosmtplib>=3,<4"]
 dev = [
+  "email-validator==2.3.0",
+  "tldextract==5.3.1",
   "pytest>=8.3",
   "pytest-asyncio>=0.24",
   "ruff>=0.6",

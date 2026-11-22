@@ -88,6 +88,7 @@ def _capture(path, text):
     path.write_text(text)
     return path
 
+
 def discover_own_site_contacts(d, bid, fetch=fetch_own_site, politeness=1.0,
                                paths=CRAWL_PATHS, capture_dir=CAPTURE_DIR):
     """Crawl the prospect's OWN site (homepage + contact/about pages) and record
@@ -112,7 +113,7 @@ def discover_own_site_contacts(d, bid, fetch=fetch_own_site, politeness=1.0,
         parser = ContactParser()
         try:
             parser.feed(text)
-        except Exception:
+        except (html.parser.HTMLParseError, ValueError, RecursionError):
             pass
         for addr in parser.mailtos + [m.group(0).lower() for m in EMAIL_RE.finditer(text)]:
             found.append({"kind": "email", "value": addr.strip().lower(), "source_url": final})

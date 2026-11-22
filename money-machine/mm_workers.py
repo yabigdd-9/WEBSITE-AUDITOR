@@ -9,6 +9,7 @@ items to APPROVAL_PENDING, where the evidence-gated approval engine decides.
 """
 import json
 import subprocess
+import sys
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -20,6 +21,8 @@ from mm_understanding_worker import understanding_worker_handler
 
 REPO = Path(__file__).resolve().parents[1]
 AUDIT_TIMEOUT = 60
+if str(REPO) not in sys.path:
+    sys.path.insert(0, str(REPO))
 
 
 def _business(d, bid):
@@ -84,8 +87,12 @@ def qualification_handler(d, it, worker):
     import mm_lead_qualifier as lq
     b = _business(d, it['business_id'])
 
-    # Get audit results from payload (set by audit_handler)
-    audit_payload = it.get('payload', {})
+    # Pipeline items are sqlite3.Row values; decode their JSON payload before
+    # reading fields. sqlite3.Row supports indexing but not dict.get().
+    try:
+        audit_payload = json.loads(it['payload'] or '{}')
+    except (KeyError, TypeError, ValueError):
+        audit_payload = {}
     audit_score = audit_payload.get('score', 0)  # defect score from audit (higher = more defects)
     defect_count = audit_payload.get('defect_count', 0)
     has_audit_evidence = defect_count > 0  # Consider as evidence if we found defects

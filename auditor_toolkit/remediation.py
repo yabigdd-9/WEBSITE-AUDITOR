@@ -85,6 +85,8 @@ def build_remediation(report: dict, output_dir) -> dict:
     if not isinstance(report, dict) or not isinstance(report.get("defects"), list):
         raise ValueError("Audit report with defects required")
     output = Path(output_dir)
+    if ".." in output.parts:
+        raise ValueError("Path traversal in output_dir is not allowed")
     output.mkdir(parents=True, exist_ok=True)
     items = []
     for index, defect in enumerate(report["defects"], 1):

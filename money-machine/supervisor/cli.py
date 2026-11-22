@@ -54,7 +54,7 @@ def _pidfile() -> Path:
 def _read_pid() -> int | None:
     try:
         return int(_pidfile().read_text().strip())
-    except Exception:
+    except (OSError, IOError, ValueError):
         return None
 
 
@@ -101,7 +101,7 @@ def cmd_status(args) -> dict:
     alive = pid is not None and _pid_alive(pid)
     try:
         hb = json.loads(HEARTBEAT.read_text())
-    except Exception:
+    except (OSError, IOError, json.JSONDecodeError):
         hb = None
     return {
         "running": bool(alive),
@@ -226,7 +226,7 @@ def cmd_run_foreground(args) -> int:
         _log({"kind": "supervisor_stop", "pid": pid, "cycles": cycles})
         try:
             lock.release()
-        except Exception:
+        except (RuntimeError, OSError):
             pass
         _pidfile().unlink(missing_ok=True)
     return 0

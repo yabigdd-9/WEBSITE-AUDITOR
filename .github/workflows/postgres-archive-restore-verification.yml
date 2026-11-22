@@ -53,4 +53,4 @@ jobs:
         env:
           WA_HOSTED_RECOVERY_DIR: ${{ runner.temp }}/hosted-recovery
           WA_PIPELINE_STATE_KEY: ${{ secrets.WA_PIPELINE_STATE_KEY }}
-        run: python -m pytest -q --tb=no --show-capture=no toolkit_tests/test_hosted_postgres_restore.py
+        run: python -m pytest -q --tb=no --show-capture=no --durations=0 --durations-min=0 toolkit_tests/test_hosted_postgres_restore.py

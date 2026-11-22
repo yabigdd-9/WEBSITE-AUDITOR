@@ -6,6 +6,7 @@ import os
 import socket
 import tempfile
 import time
+from contextlib import nullcontext
 from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import urljoin, urlparse, urlunparse
@@ -24,6 +25,12 @@ def _is_private_host(host):
 
 
 def validate_url(url, allow_private=False):
+    """Validate a URL's scheme and host, returning the URL and (if pinned) the
+    resolved IP address to connect to.  When allow_private is False the host is
+    resolved immediately and every resolved address is checked — this closes the
+    DNS-rebinding TOCTOU gap that existed when validation resolved DNS but the
+    HTTP client re-resolved later.
+    """
     if any(ord(c) < 32 for c in url):
         raise ValueError("Control characters are not allowed in URLs")
     parts = urlparse(url)
@@ -36,6 +43,7 @@ def validate_url(url, allow_private=False):
         raise ValueError("Only absolute HTTP(S) URLs without credentials are supported")
     host = parts.hostname
     port = parts.port or (443 if parts.scheme == "https" else 80)
+    pinned_ip = None
     if not allow_private:
         if _is_private_host(host):
             raise ValueError("Private and non-global URLs are disabled")
@@ -43,9 +51,14 @@ def validate_url(url, allow_private=False):
             infos = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
         except socket.gaierror as exc:
             raise ValueError(f"Could not resolve host: {host}") from exc
-        if not infos or any(_is_private_host(info[4][0]) for info in infos):
+        if not infos:
+            raise ValueError("No addresses resolved for host")
+        if any(_is_private_host(info[4][0]) for info in infos):
             raise ValueError("URL resolves to a non-global address")
-    return urlunparse(parts._replace(fragment=""))
+        # Pin to the first resolved global address so the HTTP client cannot
+        # be redirected to a different IP by a malicious DNS response later.
+        pinned_ip = infos[0][4][0]
+    return urlunparse(parts._replace(fragment="")), pinned_ip
 
 
 
@@ -103,6 +116,7 @@ class Fetcher:
         self.min_interval = min_interval
         self.cache_namespace = str(cache_namespace)
         self.last_request = {}
+        self._custom_transport = transport is not None
         self.client = httpx.Client(
             timeout=httpx.Timeout(timeout),
             follow_redirects=False,
@@ -118,10 +132,33 @@ class Fetcher:
     def close(self):
         self.client.close()
 
+    def _build_pinned_client(self, pinned_ip):
+        transport = self._build_pinned_transport(pinned_ip)
+        return httpx.Client(
+            timeout=self.client.timeout,
+            follow_redirects=False,
+            trust_env=False,
+            headers=self.client.headers,
+            transport=transport,
+        )
+
+    def _build_pinned_transport(self, pinned_ip):
+        class PinnedTransport(httpx.HTTPTransport):
+            def handle_request(self, request: httpx.Request) -> httpx.Response:
+                original_url = request.url
+                request.extensions["sni_hostname"] = original_url.host
+                request.url = original_url.copy_with(host=pinned_ip)
+                try:
+                    return super().handle_request(request)
+                finally:
+                    request.url = original_url
+
+        return PinnedTransport()
+
     def get(self, url):
         import hashlib
 
-        current = validate_url(url, self.allow_private)
+        current, pinned_ip = validate_url(url, self.allow_private)
         chain = []
         for _ in range(6):
             host = urlparse(current).netloc
@@ -146,7 +183,12 @@ class Fetcher:
                         if cached["headers"].get(key):
                             headers[conditional] = cached["headers"][key]
             started = time.monotonic()
-            with self.client.stream("GET", current, headers=headers) as response:
+            client_context = (
+                self._build_pinned_client(pinned_ip)
+                if pinned_ip and not self._custom_transport
+                else nullcontext(self.client)
+            )
+            with client_context as client, client.stream("GET", current, headers=headers) as response:
                 chunks, size = [], 0
                 for chunk in response.iter_bytes():
                     size += len(chunk)
@@ -165,7 +207,7 @@ class Fetcher:
                 if not location:
                     raise ValueError("Redirect missing location")
                 chain.append({"url": current, "status": result.status_code})
-                current = validate_url(urljoin(current, location), self.allow_private)
+                current, pinned_ip = validate_url(urljoin(current, location), self.allow_private)
                 continue
             observed = datetime.now(UTC).isoformat()
             if result.status_code == 304 and cached:

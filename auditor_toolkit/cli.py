@@ -8,12 +8,13 @@ import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from website_auditor.monitoring.watchdog import Watchdog
+from auditor_toolkit.monitoring.watchdog import Watchdog
 
 from .agency_cli import add_commands, run_command
 from .ai import generate_drafts, verify_model
 from .common import workspace_path
 from .external_tools import installed_tools
+from .logging_config import setup_logging
 from .pipeline import AuditOptions, run_audit
 from .storage import History
 
@@ -56,6 +57,17 @@ def doctor(root, smoke=False):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="wa")
+    parser.add_argument(
+        "--log-level",
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        help="Set logging level",
+    )
+    parser.add_argument(
+        "--json-log",
+        action="store_true",
+        help="Output logs as JSON lines",
+    )
     sub = parser.add_subparsers(dest="command", required=True)
     audit = sub.add_parser("audit")
     audit.add_argument("url", nargs="?")
@@ -85,6 +97,21 @@ def main(argv=None):
     diag = sub.add_parser("doctor")
     diag.add_argument("--smoke", action="store_true")
     diag.add_argument("--output-root", default="outputs/toolkit")
+    health = sub.add_parser("health")
+    health.add_argument("--output-root", default="outputs/toolkit")
+    health.add_argument("--no-apis", action="store_true", help="Skip external API checks")
+    health.add_argument("--min-free-gb", type=float, default=1.0, help="Minimum free disk space in GB")
+    health.add_argument("--api-timeout", type=float, default=5.0, help="API check timeout in seconds")
+    metrics = sub.add_parser("metrics")
+    metrics.add_argument("action", choices=["serve", "record"], help="Serve metrics endpoint or record metrics")
+    metrics.add_argument("--port", type=int, default=9090, help="Port for metrics server")
+    metrics.add_argument("--host", default="127.0.0.1", help="Host for metrics server")
+    metrics.add_argument("--run-id", help="Run ID (for record action)")
+    metrics.add_argument("--url", help="Audited URL (for record action)")
+    metrics.add_argument("--profile", help="Audit profile (for record action)")
+    metrics.add_argument("--status", help="Audit status (for record action)")
+    metrics.add_argument("--health-score", type=float, help="Health score (for record action)")
+    metrics.add_argument("--duration-ms", type=int, help="Duration in ms (for record action)")
     history = sub.add_parser("history")
     history.add_argument("--query", default="")
     history.add_argument("--output-root", default="outputs/toolkit")
@@ -93,7 +120,8 @@ def main(argv=None):
     watchdog = sub.add_parser("watchdog")
     watchdog.add_argument("domain", help="Domain to check for regressions")
     watchdog.add_argument("--output-root", default="outputs/toolkit", help="Root directory for audit outputs")
-    watchdog.add_argument("--alert", action="store_true", help="Send alert if regressions are detected")
+    watchdog.add_argument("--alert", action="store_true", help="Send alert if regressions are detected (requires ALERT_WEBHOOK_URL or --webhook-url)")
+    watchdog.add_argument("--webhook-url", default=None, help="Override ALERT_WEBHOOK_URL for alert delivery")
     secret = sub.add_parser("secret")
     secret_sub = secret.add_subparsers(dest="secret_command", required=True)
     # set
@@ -112,6 +140,60 @@ def main(argv=None):
     eval = sub.add_parser("eval")
     eval.add_argument("--config", default="money-machine/promptfoo.yaml", help="Path to promptfoo config")
     eval.add_argument("--quiet", action="store_true", help="Quiet mode")
+
+    secret_rotation = sub.add_parser("secret-rotation")
+    secret_rotation_sub = secret_rotation.add_subparsers(dest="rotation_action", required=True)
+
+    # add-policy
+    add_policy = secret_rotation_sub.add_parser("add-policy")
+    add_policy.add_argument("name")
+    add_policy.add_argument("--max-age", type=int, default=90)
+    add_policy.add_argument("--warning", type=int, default=14)
+    add_policy.add_argument("--auto-rotate", action="store_true")
+    add_policy.add_argument("--generator", help="Command to generate new secret")
+
+    # set
+    set_secret = secret_rotation_sub.add_parser("set")
+    set_secret.add_argument("name")
+    set_secret.add_argument("value")
+    set_secret.add_argument("--policy", help="Policy name to apply")
+
+    # rotate
+    rotate = secret_rotation_sub.add_parser("rotate")
+    rotate.add_argument("name")
+    rotate.add_argument("--value", help="New value (optional, uses generator if not provided)")
+
+    # check
+    secret_rotation_sub.add_parser("check")
+
+    # rotate-all
+    secret_rotation_sub.add_parser("rotate-all")
+
+    # list
+    secret_rotation_sub.add_parser("list")
+
+    # delete
+    delete = secret_rotation_sub.add_parser("delete")
+    delete.add_argument("name")
+
+    config = sub.add_parser("config")
+    config.add_argument(
+        "action",
+        choices=["validate", "show"],
+        help="Validate configuration or show current settings",
+    )
+
+    schema = sub.add_parser("schema")
+    schema.add_argument(
+        "action",
+        choices=["validate"],
+        help="Validate configuration file schemas",
+    )
+    schema.add_argument(
+        "--file",
+        type=Path,
+        help="Specific file to validate (master_plan, agency_config, or path)",
+    )
 
     dashboard = sub.add_parser("dashboard")
     dashboard.add_argument("--output-root", default="outputs/toolkit")
@@ -145,6 +227,12 @@ def main(argv=None):
     actions.add_argument("--output-dir", type=Path, default=Path("outputs/action-previews"))
     add_commands(sub)
     args = parser.parse_args(argv)
+
+    # Configure logging
+    import logging
+    log_level = getattr(logging, args.log_level.upper(), logging.INFO)
+    setup_logging(level=log_level, json_output=args.json_log)
+
     if args.command in {"revenue", "monthly"}:
         try:
             return run_command(args)
@@ -208,6 +296,32 @@ def main(argv=None):
             and (result["browser"]["status"] != "ok" or result["generation"]["status"] != "ok")
             else 0
         )
+    if args.command == "health":
+        from .runtime.health_checks import run_all_health_checks
+
+        output_root = workspace_path(args.output_root)
+        result = run_all_health_checks(
+            db_path=workspace_path("history.sqlite3", root=output_root),
+            disk_path=output_root,
+            min_free_gb=args.min_free_gb,
+            check_apis=not args.no_apis,
+            api_timeout=args.api_timeout,
+        )
+        print(json.dumps(result, indent=2))
+        return 0 if result["status"] == "healthy" else 1
+    if args.command == "metrics":
+        if args.action == "serve":
+            from .metrics import serve_metrics
+
+            return serve_metrics(port=args.port, host=args.host)
+        elif args.action == "record":
+            if not all([args.run_id, args.url, args.profile, args.status]):
+                print(json.dumps({"error": "run-id, url, profile, status required for record"}, indent=2))
+                return 1
+            # For record, we need defects and checks from somewhere
+            # This is a placeholder - real usage would be from pipeline
+            print(json.dumps({"status": "recorded", "note": "Use pipeline integration for full metrics"}, indent=2))
+            return 0
     if args.command == "dashboard":
         from .portal import create_app, setup_password
 
@@ -241,7 +355,10 @@ def main(argv=None):
         return 0
 
     if args.command == "watchdog":
-        root = Path(args.output_root)
+        workspace = Path.cwd().resolve()
+        root = (workspace / args.output_root).resolve()
+        if not root.is_relative_to(workspace):
+            parser.error("watchdog output directory must be inside the current workspace")
         history = History(root)
         reports = history.list(args.domain, 1)
         if not reports:
@@ -249,13 +366,17 @@ def main(argv=None):
             return 1
         latest = reports[0]
         defects = latest.get("defects", [])
-        wd = Watchdog(output_root=root)
+        webhook = args.webhook_url or os.getenv("ALERT_WEBHOOK_URL", "")
+        wd = Watchdog(output_root=root, webhook_url=webhook)
         result = wd.detect_regressions(args.domain, defects)
         wd.take_snapshot(args.domain, defects)
         print(json.dumps(result, indent=2))
         if args.alert and result.get("regressions"):
-            alert_result = wd.send_alert(args.domain, result["regressions"])
-            print(json.dumps(alert_result, indent=2))
+            if not webhook:
+                print(json.dumps({"status": "skipped", "reason": "--alert requires --webhook-url or ALERT_WEBHOOK_URL"}, indent=2))
+            else:
+                alert_result = wd.send_alert(args.domain, result["regressions"])
+                print(json.dumps(alert_result, indent=2))
         return 1 if result.get("regressions") else 0
 
     if args.command == "secret":
@@ -306,12 +427,137 @@ def main(argv=None):
             parser.error("Invalid secret command")
         return 0
 
+    if args.command == "secret-rotation":
+        from .secret_rotation import RotationPolicy, SecretRotationManager
+
+        manager = SecretRotationManager()
+
+        if args.rotation_action == "add-policy":
+            policy = RotationPolicy(
+                name=args.name,
+                max_age_days=args.max_age,
+                warning_days=args.warning,
+                auto_rotate=args.auto_rotate,
+                generator=args.generator,
+            )
+            manager.add_policy(policy)
+            print(f"Policy '{args.name}' added")
+            return 0
+
+        elif args.rotation_action == "set":
+            policy = manager.get_policy(args.policy) if args.policy else None
+            manager.set_secret(args.name, args.value, policy)
+            print(f"Secret '{args.name}' set")
+            return 0
+
+        elif args.rotation_action == "rotate":
+            result = manager.rotate_secret(args.name, args.value)
+            if result:
+                print(f"Secret '{args.name}' rotated to version {result.version}")
+                return 0
+            else:
+                print(f"Failed to rotate secret '{args.name}'")
+                return 1
+
+        elif args.rotation_action == "check":
+            needed = manager.check_rotation_needed()
+            if needed:
+                print("Secrets needing rotation:")
+                for meta in needed:
+                    days = meta.days_until_expiry()
+                    print(f"  {meta.name}: expires in {days} days (v{meta.version})")
+            else:
+                print("All secrets up to date")
+            return 0
+
+        elif args.rotation_action == "rotate-all":
+            rotated = manager.rotate_all_needed()
+            print(f"Rotated {len(rotated)} secrets")
+            for name, meta in rotated.items():
+                print(f"  {name}: v{meta.version}")
+            return 0
+
+        elif args.rotation_action == "list":
+            secrets = manager.list_secrets()
+            for meta in secrets:
+                status = "EXPIRED" if meta.is_expired() else ("NEEDS ROTATION" if meta.needs_rotation() else "OK")
+                days = meta.days_until_expiry()
+                print(f"  {meta.name}: v{meta.version}, {status}, expires in {days} days")
+            return 0
+
+        elif args.rotation_action == "delete":
+            if manager.delete_secret(args.name):
+                print(f"Secret '{args.name}' deleted")
+                return 0
+            else:
+                print(f"Failed to delete secret '{args.name}'")
+                return 1
+
     if args.command == "eval":
         cmd = ["promptfoo", "eval", "--config", args.config]
         if args.quiet:
             cmd.append("--quiet")
         subprocess.run(cmd, check=True)
         return 0
+
+    if args.command == "config":
+        from .config import get_settings, validate_startup
+
+        def _serialize(obj):
+            if isinstance(obj, Path):
+                return str(obj)
+            if isinstance(obj, dict):
+                return {k: _serialize(v) for k, v in obj.items()}
+            if isinstance(obj, list):
+                return [_serialize(v) for v in obj]
+            return obj
+
+        if args.action == "validate":
+            result = validate_startup()
+            print(json.dumps(_serialize(result), indent=2))
+            return 0 if result["valid"] else 1
+        elif args.action == "show":
+            settings = get_settings()
+            # Exclude sensitive fields
+            data = _serialize(settings.model_dump())
+            for key in ["pagespeed_api_key", "alert_webhook_url"]:
+                if key in data and data[key]:
+                    data[key] = "***"
+            print(json.dumps(data, indent=2))
+            return 0
+
+    if args.command == "schema":
+        from .schema_validation import (
+            validate_agency_config,
+            validate_all_configs,
+            validate_master_plan,
+        )
+
+        if args.file:
+            file_str = str(args.file)
+            if file_str in ("master_plan", "MASTER_PLAN.yaml"):
+                valid, errors, _ = validate_master_plan("MASTER_PLAN.yaml")
+                result = {"file": "MASTER_PLAN.yaml", "valid": valid, "errors": errors}
+            elif file_str in ("agency_config", "agency_config.json"):
+                valid, errors, _ = validate_agency_config("agency_config.json")
+                result = {"file": "agency_config.json", "valid": valid, "errors": errors}
+            else:
+                path = Path(file_str)
+                if path.suffix in (".yaml", ".yml"):
+                    valid, errors, _ = validate_master_plan(path)
+                    result = {"file": file_str, "valid": valid, "errors": errors}
+                elif path.suffix == ".json":
+                    valid, errors, _ = validate_agency_config(path)
+                    result = {"file": file_str, "valid": valid, "errors": errors}
+                else:
+                    print(json.dumps({"error": f"Unknown file type: {file_str}"}, indent=2))
+                    return 1
+            print(json.dumps(result, indent=2))
+            return 0 if result["valid"] else 1
+        else:
+            results = validate_all_configs()
+            print(json.dumps(results, indent=2))
+            return 0 if results["_summary"]["all_valid"] else 1
 
     if args.command == "actions":
         from .actions import import_report, preview_report

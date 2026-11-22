@@ -163,7 +163,8 @@ def cache_get(key: str, ttl: int = CACHE_TTL) -> Any | None:
     try:
         d = json.loads(p.read_text())
         if time.time() - d.get("_ts", 0) < ttl: return d["_data"]
-    except Exception: pass
+    except (json.JSONDecodeError, OSError, KeyError):
+        pass
     return None
 
 def cache_set(key: str, data: Any, ttl: int = CACHE_TTL) -> None:
@@ -180,7 +181,7 @@ async def fetch_html(session: httpx.AsyncClient, url: str) -> str:
         html = r.text
         cache_set(key, html, ttl=3600)
         return html
-    except Exception:
+    except (httpx.HTTPError, httpx.TimeoutException, httpx.ConnectError):
         return ""
 
 async def fetch_head(session: httpx.AsyncClient, url: str) -> dict:
@@ -193,7 +194,7 @@ async def fetch_head(session: httpx.AsyncClient, url: str) -> dict:
         result["status"] = r.status_code
         cache_set(key, result, ttl=1800)
         return result
-    except Exception:
+    except (httpx.HTTPError, httpx.TimeoutException, httpx.ConnectError):
         return {}
 
 async def fetch_url(session: httpx.AsyncClient, url: str) -> str:
@@ -201,7 +202,7 @@ async def fetch_url(session: httpx.AsyncClient, url: str) -> str:
         r = await session.get(url, timeout=10, follow_redirects=True)
         if r.status_code == 200:
             return r.text
-    except Exception:
+    except (httpx.HTTPError, httpx.TimeoutException, httpx.ConnectError):
         pass
     return ""
 
@@ -216,9 +217,9 @@ async def check_dns(session: httpx.AsyncClient, domain: str) -> dict:
             data = r.json()
             if "Answer" in data:
                 result["a_records"] = [a.get("data") for a in data["Answer"][:5]]
-    except Exception:
+    except (httpx.HTTPError, httpx.TimeoutException, httpx.ConnectError):
         pass
-    
+
     try:
         # MX record
         r = await session.get(f"https://dns.google/resolve?name={domain}&type=MX")
@@ -226,9 +227,9 @@ async def check_dns(session: httpx.AsyncClient, domain: str) -> dict:
             data = r.json()
             if "Answer" in data:
                 result["mx_records"] = [a.get("data") for a in data["Answer"][:5]]
-    except Exception:
+    except (httpx.HTTPError, httpx.TimeoutException, httpx.ConnectError):
         pass
-    
+
     try:
         # TXT records (SPF, DKIM, DMARC)
         r = await session.get(f"https://dns.google/resolve?name={domain}&type=TXT")
@@ -239,9 +240,9 @@ async def check_dns(session: httpx.AsyncClient, domain: str) -> dict:
                 result["txt_records"] = txt_records[:10]
                 result["has_spf"] = any("v=spf1" in t for t in txt_records)
                 result["has_dmarc"] = any("v=dmarc1" in t.lower() for t in txt_records)
-    except Exception:
+    except (httpx.HTTPError, httpx.TimeoutException, httpx.ConnectError):
         pass
-    
+
     return result
 
 async def check_whois(session: httpx.AsyncClient, domain: str) -> dict:
@@ -269,7 +270,7 @@ async def check_whois(session: httpx.AsyncClient, domain: str) -> dict:
             # Status
             result["status"] = data.get("status", [])
             return result
-    except Exception:
+    except (httpx.HTTPError, httpx.TimeoutException, httpx.ConnectError):
         pass
     return {}
 
@@ -291,7 +292,7 @@ def check_ssl(domain: str) -> dict:
         if "Verify return code: 0" not in out and r.returncode != 0:
             issues["ssl_error"] = True
         return issues
-    except Exception as e:
+    except (subprocess.SubprocessError, subprocess.TimeoutExpired, OSError, ValueError) as e:
         return {"error": str(e)}
 
 # ── defect checks (comprehensive) ──────────────────────────────────
@@ -418,7 +419,7 @@ def check_schema_org(soup: bs4.BeautifulSoup) -> dict:
         try:
             data = json.loads(s.string)
             schemas.append(data.get("@type", "Unknown"))
-        except Exception: pass
+        except (json.JSONDecodeError, TypeError, AttributeError): pass
     return {"count": len(schemas), "types": schemas}
 
 async def check_pagespeed(session: httpx.AsyncClient, url: str) -> dict:
@@ -436,7 +437,7 @@ async def check_pagespeed(session: httpx.AsyncClient, url: str) -> dict:
                 "best_practices": categories.get("best-practices", {}).get("score", 0) * 100,
                 "seo": categories.get("seo", {}).get("score", 0) * 100,
             }
-    except Exception:
+    except (httpx.HTTPError, httpx.TimeoutException, httpx.ConnectError):
         pass
     return {}
 
@@ -558,7 +559,7 @@ async def audit_one(session: httpx.AsyncClient, url: str, use_stealth: bool = Fa
         evidence["readability"] = {"flesch": round(flesch, 1) if flesch else None, "grade": round(fk, 1) if fk else None}
         if flesch is not None and flesch < 40:
             defects.append({"defect": f"Low readability (Flesch {flesch:.0f})", "impact": "Content too complex", "remediation": get_remediation("low_readability")})
-    except Exception:
+    except (ValueError, AttributeError, TypeError):
         evidence["readability"] = {"flesch": None, "grade": None}
 
     # Word count
@@ -576,7 +577,7 @@ async def audit_one(session: httpx.AsyncClient, url: str, use_stealth: bool = Fa
                 err_count = len(errs)
                 defects.append({"defect": f"{err_count} HTML errors", "impact": "Rendering inconsistencies", "remediation": get_remediation("html_errors")})
                 evidence["w3c_errors"] = err_count
-    except Exception:
+    except (httpx.HTTPError, httpx.TimeoutException, httpx.ConnectError):
         pass
 
     # Broken links (internal, sampled)
@@ -592,7 +593,7 @@ async def audit_one(session: httpx.AsyncClient, url: str, use_stealth: bool = Fa
                 try:
                     r = await session.head(full, timeout=8, follow_redirects=True)
                     if r.status_code >= 400: broken.append({"url": full, "status": r.status_code})
-                except Exception:
+                except (httpx.HTTPError, httpx.TimeoutException, httpx.ConnectError):
                     pass
         await asyncio.gather(*(check_link(h) for h in internal))
     if broken:

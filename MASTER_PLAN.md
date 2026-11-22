@@ -21,13 +21,13 @@ This file is the human-readable canonical companion to `MASTER_PLAN.yaml`.
 
 `auditor_toolkit` is the canonical audit engine. `./mm` is the canonical operator interface. SQLite plus state files are authoritative for durable state and the leased queue. launchd + `./mm supervisor` own runtime supervision. Hermes orchestrates agents. Obsidian is the human-facing master brain and review workspace, but it is never the runtime database, queue, pricing authority, or send authority.
 
-n8n is **not** part of the default stack. SearXNG may run as an optional Docker service.
+n8n is **not** part of the default stack. SearXNG may run as an optional service (Docker removed from plan).
 
 ## Execution phases
 
 1. **P0 Repository reconciliation** — preserve the canonical repo and selectively port only reviewed experimental improvements.
 2. **P1 Green baseline** — Python 3.11, one dependency source, full tests, gitleaks, strict dependency audit, clean working tree.
-3. **P2 Consolidation** — one audit engine, one operator CLI, archived legacy paths.
+3. **P2 Consolidation** — one audit engine, one operator CLI, archived legacy paths (COMPLETED 2026-09-26).
 4. **P3 Continuous control plane** — leased SQLite queue, PID/single-instance protection, graceful shutdown, heartbeats, stale recovery, retries/backoff/jitter, circuit breakers, DLQ, log rotation, disk/network guards, crash recovery.
 5. **P4 Audit engine** — deterministic checks plus efficient HTTP/lightweight/Playwright fetch chain, Lighthouse, Lychee, schema/TLS/mobile checks.
 6. **P5 Evidence-first findings** — evidence before scoring; every score deduction traces to a finding.
@@ -68,3 +68,7 @@ discover → dedupe → identity → audit → verify → score → select → r
 ## Acceptance
 
 The system is complete only when it runs unattended for 24+ hours, survives restart without duplicate work, exposes dead-letter triage, produces evidence-backed findings and contact provenance, creates deterministic demo/quote/draft outputs, keeps paid spend at $0, keeps live outreach disabled by default, and has one canonical repo/auditor/control plane/master plan.
+
+## v32 improvement roadmap
+
+See [the v32 improvement roadmap](docs/V32_IMPROVEMENT_ROADMAP.md) for release gates, reliability and report improvements, and commercial validation.

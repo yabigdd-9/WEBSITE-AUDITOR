@@ -86,7 +86,7 @@ def _get_campaign_config(d, campaign_id: str) -> Dict:
         ).fetchone()
         if row and row['config']:
             return json.loads(row['config'])
-    except Exception:
+    except (sqlite3.Error, json.JSONDecodeError):
         pass  # Fall back to fixture-based config
 
     # Load from fixture file
@@ -203,7 +203,7 @@ def _load_opportunity_recipe(recipe_id: str) -> Optional[Dict]:
     try:
         with open(fixture_path, 'r') as f:
             return json.load(f)
-    except Exception:
+    except (OSError, IOError, json.JSONDecodeError):
         return None
 
 
@@ -245,7 +245,7 @@ def _get_business_context(d, business_id: int) -> Optional[Dict]:
             'pipeline_history': [dict(row) for row in pipeline_rows],
             'last_checked': datetime.now(timezone.utc).isoformat()
         }
-    except Exception:
+    except (sqlite3.Error, json.JSONDecodeError, ValueError, OSError):
         return None
 
 

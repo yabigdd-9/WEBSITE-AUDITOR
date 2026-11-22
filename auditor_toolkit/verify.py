@@ -6,6 +6,7 @@ SMTP RCPT probe is opt-in (SMTP_PROBE=1) and rate-limited; default = DNS-only + 
 """
 from __future__ import annotations
 
+import asyncio
 import os
 import socket
 from pathlib import Path
@@ -20,7 +21,7 @@ for _p in (Path(__file__).resolve().parent.parent / "money-machine" / "disposabl
                 for line in _p.read_text().splitlines()
                 if line.strip() and not line.startswith("#")
             }
-    except Exception:
+    except (OSError, IOError, UnicodeDecodeError):
         pass
 BLOCKLIST |= {"mailinator.com", "tempmail.com", "10minutemail.com", "guerrillamail.com"}
 
@@ -29,20 +30,20 @@ def _mx_ok(domain: str) -> bool:
     try:
         import dns.resolver
         return bool(dns.resolver.resolve(domain, "MX", lifetime=5))
-    except Exception:
+    except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN, dns.resolver.Timeout, dns.exception.DNSException):
         try:  # fallback: domain resolves at all
-            socket.getaddrinfo(domain, 25, timeout=5)
+            socket.getaddrinfo(domain, 25, type=socket.SOCK_STREAM)
             return True
-        except Exception:
+        except (socket.gaierror, socket.timeout):
             return False
 
 
 def verify_local(email: str, first_party_source: bool = False, probe_smtp: bool = False) -> dict:
     try:
-        from email_validator import validate_email
+        from email_validator import EmailNotValidError, validate_email
         v = validate_email(email, check_deliverability=False)
         addr, domain = v.normalized.lower(), v.domain.lower()
-    except Exception as exc:
+    except EmailNotValidError as exc:
         return {"email": email, "score": 0.0, "verdict": "REJECTED", "reasons": [f"syntax: {exc}"]}
     mx = _mx_ok(domain)
     not_disp = domain not in BLOCKLIST
@@ -54,7 +55,7 @@ def verify_local(email: str, first_party_source: bool = False, probe_smtp: bool 
             import asyncio
 
             smtp_rcpt = float(asyncio.run(_smtp_probe(domain, addr)))
-        except Exception:
+        except (asyncio.TimeoutError, OSError, RuntimeError):
             smtp_rcpt = 0.0
     score = round(0.35 * mx + 0.25 * smtp_rcpt + 0.15 * not_disp + 0.15 * catchall_credit + 0.10 * first_party_source, 3)
     reasons = []
@@ -76,7 +77,7 @@ async def _smtp_probe(domain: str, addr: str) -> float:
     try:
         mx = dns.resolver.resolve(domain, "MX", lifetime=5)
         host = str(sorted(mx, key=lambda r: r.preference)[0].exchange).rstrip(".")
-    except Exception:
+    except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN, dns.resolver.Timeout, dns.exception.DNSException):
         return 0.0
     try:
         async with aiosmtplib.SMTP(hostname=host, port=25, timeout=8) as c:
@@ -88,5 +89,5 @@ async def _smtp_probe(domain: str, addr: str) -> float:
             else:
                 code = int(getattr(c, "last_response", (0,))[0])
             return 1.0 if 200 <= code < 300 else 0.0
-    except Exception:
+    except (aiosmtplib.SMTPException, asyncio.TimeoutError, OSError, ConnectionError):
         return 0.0

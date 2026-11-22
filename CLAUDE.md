@@ -36,10 +36,11 @@
 - n8n is excluded from the runtime. Do not reintroduce it.
 - Local SearXNG discovery is optional. Local LM Studio assistance is optional;
   deterministic work must not depend on a model.
-- Never enable paid models, paid APIs, purchases, remote pushes, or a paid
-  fallback. Keep `external_send_allowed=false`, `daily_cap=0`, and transport
-  disabled. Customer messages, publication, pricing commitments, deployments,
-  and final approvals always require a human.
+- Never enable paid models, paid APIs, purchases, or a paid fallback.
+  Transport is enabled, with external sends authorized only through the
+  mandated human-gated review workflow. Customer messages, publications,
+  pricing commitments, deployments, and final approvals always require a
+  human.
 - Never commit secrets, databases, generated reports, caches, approval
   snapshots, email captures, or runtime state.
 

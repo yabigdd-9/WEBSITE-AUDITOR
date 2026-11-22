@@ -29,9 +29,9 @@ class SupervisorDaemon:
                 other_pid = int(self.pidfile.read_text().strip())
                 if Path(f"/proc/{other_pid}").exists():
                     return False  # dual-start blocked
-            except Exception:
+            except (OSError, IOError, ValueError):
                 pass
-        self.pidfile.write_text(str(os.getpid()))
+            self.pidfile.write_text(str(os.getpid()))
         self.heartbeat.write_text(json.dumps({"pid": os.getpid(), "started": datetime.now(timezone.utc).isoformat()}))
         return True
 

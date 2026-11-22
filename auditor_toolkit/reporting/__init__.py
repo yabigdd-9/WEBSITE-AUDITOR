@@ -5,16 +5,22 @@ import json
 from pathlib import Path
 from typing import Any
 
-from .common import atomic_write_text
+from ..common import atomic_write_text
 
 
 def render_html_report(report: dict[str, Any]) -> str:
     rows = "\n".join(
         "<tr>"
-        f"<td>{html.escape(d.get('severity', ''))}</td>"
-        f"<td>{html.escape(d.get('defect', ''))}</td>"
-        f"<td>{html.escape(d.get('impact', ''))}</td>"
-        f"<td>{html.escape(d.get('check', ''))}</td>"
+        f"<td>{html.escape(d.get('severity') or '')}</td>"
+        f"<td>{html.escape(d.get('defect') or '')}</td>"
+        f"<td>{html.escape(d.get('source_url') or report.get('url') or '')}"
+        f"<br>{html.escape(d.get('observed_at') or report.get('timestamp') or '')}</td>"
+        f"<td>{html.escape(d.get('observed') or d.get('evidence_summary') or '')}"
+        f"<br>{html.escape(d.get('confidence') or '')}</td>"
+        f"<td>{html.escape(d.get('business_impact') or d.get('impact') or '')}</td>"
+        f"<td>{html.escape(d.get('remediation_action') or 'Review the finding')}"
+        f"<br>Rerun {html.escape(d.get('check') or 'the audit')}"
+        " after the change and confirm the finding is resolved.</td>"
         "</tr>"
         for d in report.get("defects", [])
     )
@@ -58,12 +64,13 @@ th,td {{ border-bottom: 1px solid #e6eef6; padding: .55rem; text-align: left; ve
 <p><code>{html.escape(str(report.get("url") or ""))}</code></p>
 <div class="score"><strong>Health</strong><br>{html.escape(str(report.get("health_score")))}</div>
 <div class="score"><strong>Defect severity</strong><br>{html.escape(str(report.get("severity_score")))}</div><h2>Findings</h2>
-<table><thead><tr><th>Severity</th><th>Finding</th><th>Evidence</th><th>Check</th></tr></thead><tbody>{rows}</tbody></table>
+<table><thead><tr><th>Severity</th><th>Finding</th><th>Page and observation time</th><th>Evidence</th><th>Impact</th><th>Fix and retest</th></tr></thead><tbody>{rows}</tbody></table>
 <h2>Root-cause groups</h2><ul>{root_causes}</ul>
 <h2>Visual evidence pack</h2><ul>{visual_rows}</ul>
 <h2>Claim ledger</h2><table><thead><tr><th>Claim ID</th><th>Claim</th><th>Confidence</th><th>Evidence ref</th></tr></thead><tbody>{claims}</tbody></table>
 <h2>Draft proofing</h2><ul>{proofing}</ul>
 <h2>Checks and coverage</h2>
+<p>Automated accessibility findings require manual review. Performance measurements should identify the source, such as Lighthouse lab data or CrUX field data.</p>
 <pre>{html.escape(json.dumps(report.get("checks", {}), indent=2))}</pre>
 <h2>Category scores</h2><pre>{html.escape(json.dumps(report.get("category_scores", {}), indent=2))}</pre>
 <h2>Historical comparison</h2><pre>{html.escape(json.dumps(report.get("comparison", {}), indent=2))}</pre>
@@ -90,3 +97,5 @@ def render_trend_svg(report: dict[str, Any]) -> str:
 
 def write_html_report(report: dict[str, Any], path: Path) -> None:
     atomic_write_text(path, render_html_report(report))
+
+__all__ = ["render_trend_svg", "write_html_report", "render_html_report"]
