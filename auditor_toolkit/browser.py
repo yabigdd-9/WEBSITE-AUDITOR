@@ -164,7 +164,7 @@ def export_pdf(html_path, pdf_path, opts=None):
             # Write the PDF
             workspace_path(pdf_path).write_bytes(response.content)
             return
-        except Exception:
+        except (httpx.HTTPError, httpx.TimeoutException, httpx.ConnectError, OSError):
             # Fall back to Playwright if Gotenberg fails
             pass
 

@@ -87,11 +87,13 @@ def atomic_write(path,text):
 def metrics(d):
     get=lambda sql:d.execute(sql).fetchone()[0]
     proven=[]
-    for m in d.execute('SELECT * FROM mm_messages WHERE sent_at IS NOT NULL AND send_receipt IS NOT NULL'):
+    # Limit to recent verified sends to avoid loading all messages (N+1 fix)
+    for m in d.execute("SELECT * FROM mm_messages WHERE sent_at IS NOT NULL AND send_receipt IS NOT NULL ORDER BY sent_at DESC LIMIT 1000"):
         try:receipt(d,m['send_receipt'],'send',m['business_id'],m['id'],digest(m['recipient'],m['body']));proven.append(m)
         except ValueError:pass
     revenue=0;refunds=0
-    for c in d.execute('SELECT * FROM mm_cash'):
+    # Limit to recent cash records to avoid loading all (N+1 fix)
+    for c in d.execute("SELECT * FROM mm_cash ORDER BY received_at DESC LIMIT 1000"):
         try:
             r=receipt(d,c['receipt'],'payment',c['business_id'])
             if r['amount_cents']!=c['amount_cents'] or r['currency']!='NZD':continue

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import ipaddress
 import json
 import os
@@ -13,7 +14,15 @@ from urllib.parse import urljoin, urlparse, urlunparse
 import httpx
 
 
-def _is_private_host(host):
+def _is_private_host(host: str) -> bool:
+    """Check if a host is private/non-global.
+
+    Args:
+        host: Hostname or IP address.
+
+    Returns:
+        True if host is localhost or a non-global IP address.
+    """
     if host.lower().rstrip(".") == "localhost":
         return True
     try:
@@ -23,12 +32,23 @@ def _is_private_host(host):
         return False
 
 
-def validate_url(url, allow_private=False):
-    """Validate a URL's scheme and host, returning the URL and (if pinned) the
-    resolved IP address to connect to.  When allow_private is False the host is
-    resolved immediately and every resolved address is checked — this closes the
-    DNS-rebinding TOCTOU gap that existed when validation resolved DNS but the
-    HTTP client re-resolved later.
+def validate_url(url: str, allow_private: bool = False) -> tuple[str, str | None]:
+    """Validate a URL's scheme and host, returning the URL and pinned IP.
+
+    Performs immediate DNS resolution and validates all resolved addresses
+    to prevent DNS rebinding attacks (TOCTOU gap between validation and
+    HTTP connection).
+
+    Args:
+        url: Absolute HTTP(S) URL to validate.
+        allow_private: If True, allow private/non-global IP addresses.
+
+    Returns:
+        Tuple of (validated URL with fragment removed, pinned IP or None).
+
+    Raises:
+        ValueError: If URL is invalid, contains credentials, resolves to
+            private addresses (when not allowed), or cannot be resolved.
     """
     if any(ord(c) < 32 for c in url):
         raise ValueError("Control characters are not allowed in URLs")
@@ -61,11 +81,30 @@ def validate_url(url, allow_private=False):
 
 
 
-def workspace_path(value, *, must_exist=False, file_only=False, root=None):
+def workspace_path(
+    value: str | Path,
+    *,
+    must_exist: bool = False,
+    file_only: bool = False,
+    root: str | Path | None = None,
+) -> Path:
     """Resolve an operator path beneath a trusted workspace root.
 
-    Existing symlink components are resolved before the containment check, so a
-    workspace symlink cannot be used to escape the allowed tree.
+    Resolves symlinks before containment check to prevent path traversal
+    via workspace symlinks.
+
+    Args:
+        value: Path to resolve (relative or absolute).
+        must_exist: If True, raise if path does not exist.
+        file_only: If True, raise if path is not a file.
+        root: Workspace root directory (defaults to current working directory).
+
+    Returns:
+        Resolved absolute Path within the workspace.
+
+    Raises:
+        ValueError: If path escapes workspace, doesn't exist (must_exist),
+            or is not a file (file_only).
     """
     base = Path(root or Path.cwd()).resolve()
     raw = Path(value)
@@ -78,7 +117,18 @@ def workspace_path(value, *, must_exist=False, file_only=False, root=None):
         raise ValueError("Required workspace file does not exist")
     return candidate
 
-def public_headers(headers):
+def public_headers(headers: dict) -> dict:
+    """Filter headers to only include safe, public-facing ones.
+
+    Excludes sensitive headers like Set-Cookie, Authorization, and Location
+    to prevent information leakage in cached responses.
+
+    Args:
+        headers: Raw HTTP response headers.
+
+    Returns:
+        Filtered dictionary of safe headers.
+    """
     allowed = {
         "content-type",
         "content-length",
@@ -94,19 +144,43 @@ def public_headers(headers):
         "server",
         "location",
     }
-    return {k: v for k, v in headers.items() if k.lower() in allowed and k.lower() != "location"}
+    return {
+        k: v
+        for k, v in headers.items()
+        if k.lower() in allowed and k.lower() != "location"
+    }
 
 
 class Fetcher:
+    """HTTP client with DNS pinning, caching, and rate limiting.
+
+    Features:
+        - DNS rebinding defense via IP pinning
+        - Conditional request caching (ETag, Last-Modified)
+        - Per-host rate limiting
+        - Configurable timeout and byte limits
+        - Redirect following (max 6) with chain tracking
+
+    Args:
+        timeout: Request timeout in seconds.
+        max_bytes: Maximum response body size.
+        allow_private: Allow private/non-global IP addresses.
+        transport: Custom httpx transport.
+        cache_dir: Directory for response caching.
+        min_interval: Minimum interval between requests to same host.
+        cache_namespace: Namespace prefix for cache keys.
+    """
+
     def __init__(
         self,
-        timeout=8.0,
-        max_bytes=2_000_000,
-        allow_private=False,
-        transport=None,
-        cache_dir=None,
-        min_interval=0.1,
-        cache_namespace="",
+        timeout: float = 8.0,
+        max_bytes: int = 2_000_000,
+        allow_private: bool = False,
+        transport: httpx.BaseTransport | None = None,
+        cache_dir: str | Path | None = None,
+        min_interval: float = 0.1,
+        cache_namespace: str = "",
+        cache_ttl_seconds: int | None = None,
     ):
         self.allow_private = allow_private
         self.max_bytes = max_bytes
@@ -114,7 +188,8 @@ class Fetcher:
         self.cache_dir = Path(cache_dir) if cache_dir else None
         self.min_interval = min_interval
         self.cache_namespace = str(cache_namespace)
-        self.last_request = {}
+        self.cache_ttl_seconds = cache_ttl_seconds
+        self.last_request: dict[str, float] = {}
         self.client = httpx.Client(
             timeout=httpx.Timeout(timeout),
             follow_redirects=False,
@@ -123,10 +198,12 @@ class Fetcher:
             transport=transport,
         )
 
-    def close(self):
+    def close(self) -> None:
+        """Close the underlying HTTP client."""
         self.client.close()
 
-    def _build_pinned_client(self, url, pinned_ip):
+    def _build_pinned_client(self, url: str, pinned_ip: str) -> httpx.Client:
+        """Build a client that connects to a pinned IP."""
         transport = self._build_pinned_transport(pinned_ip)
         return httpx.Client(
             timeout=self.client.timeout,
@@ -136,10 +213,9 @@ class Fetcher:
             transport=transport,
         )
 
-    def _build_pinned_transport(self, pinned_ip):
-        # Connect to pinned_ip while preserving the original Host header.
-        # We can achieve this by overriding the request's URL to use the IP
-        # and ensuring the 'Host' header is set to the original hostname.
+    def _build_pinned_transport(self, pinned_ip: str) -> httpx.HTTPTransport:
+        """Create a transport that connects to pinned_ip with original Host header."""
+
         class PinnedTransport(httpx.HTTPTransport):
             def handle_request(self, request: httpx.Request) -> httpx.Response:
                 # Store original hostname
@@ -157,9 +233,77 @@ class Fetcher:
 
         return PinnedTransport()
 
-    def get(self, url):
-        import hashlib
+    def invalidate_cache(self, url: str | None = None) -> int:
+        """Invalidate cache entries.
 
+        Args:
+            url: Specific URL to invalidate. If None, invalidates all cache entries.
+
+        Returns:
+            Number of cache entries removed.
+        """
+        if not self.cache_dir or not self.cache_dir.exists():
+            return 0
+
+        removed = 0
+        if url is None:
+            # Invalidate all
+            for cache_file in self.cache_dir.glob("*.json"):
+                try:
+                    cache_file.unlink()
+                    removed += 1
+                except OSError:
+                    pass
+        else:
+            # Invalidate specific URL
+            cache_key = url + "|" + self.cache_namespace
+            cache_path = self.cache_dir / (
+                hashlib.sha256(cache_key.encode()).hexdigest() + ".json"
+            )
+            if cache_path.exists():
+                try:
+                    cache_path.unlink()
+                    removed = 1
+                except OSError:
+                    pass
+        return removed
+
+    def _build_pinned_transport(self, pinned_ip: str) -> httpx.HTTPTransport:
+        """Create a transport that connects to pinned_ip with original Host header."""
+
+        class PinnedTransport(httpx.HTTPTransport):
+            def handle_request(self, request: httpx.Request) -> httpx.Response:
+                # Store original hostname
+                original_host = request.headers.get("Host")
+                if not original_host:
+                    original_host = request.url.host
+
+                # Replace host with pinned_ip
+                request.url = request.url.copy_with(host=pinned_ip)
+
+                # Ensure original host is in Host header
+                request.headers["Host"] = original_host
+
+                return super().handle_request(request)
+
+        return PinnedTransport()
+
+    def get(self, url: str) -> httpx.Response:
+        """Fetch a URL with caching, rate limiting, and DNS pinning.
+
+        Args:
+            url: Absolute HTTP(S) URL to fetch.
+
+        Returns:
+            httpx.Response with extensions:
+                - observed_at: ISO timestamp of response
+                - redirect_chain: List of redirect steps
+                - revalidated_at: Timestamp if served from cache (304)
+
+        Raises:
+            ValueError: If URL is invalid, too many redirects, or response
+                exceeds byte/time limits.
+        """
         current, pinned_ip = validate_url(url, self.allow_private)
         chain = []
         # Build a client that connects to the pinned IP (DNS rebinding defense)
@@ -180,12 +324,22 @@ class Fetcher:
                 )
                 if cache_path.exists():
                     cached = json.loads(cache_path.read_text())
-                    for key, conditional in [
-                        ("etag", "if-none-match"),
-                        ("last-modified", "if-modified-since"),
-                    ]:
-                        if cached["headers"].get(key):
-                            headers[conditional] = cached["headers"][key]
+                    # Check TTL-based cache invalidation
+                    if self.cache_ttl_seconds is not None:
+                        try:
+                            observed_at = datetime.fromisoformat(cached.get("observed_at", ""))
+                            if datetime.now(UTC) - observed_at > timedelta(seconds=self.cache_ttl_seconds):
+                                cached = None  # Invalidate expired cache
+                                cache_path.unlink(missing_ok=True)
+                        except (ValueError, KeyError):
+                            pass  # If parsing fails, treat as no cache
+                    if cached is not None:
+                        for key, conditional in [
+                            ("etag", "if-none-match"),
+                            ("last-modified", "if-modified-since"),
+                        ]:
+                            if cached["headers"].get(key):
+                                headers[conditional] = cached["headers"][key]
             started = time.monotonic()
             with self.client.stream("GET", current, headers=headers) as response:
                 chunks, size = [], 0
@@ -234,12 +388,27 @@ class Fetcher:
         raise ValueError("Too many redirects")
 
 
-def atomic_write_json(path, data):
+def atomic_write_json(path: str | Path, data: object) -> None:
+    """Atomically write JSON data to a file.
+
+    Uses a temporary file and atomic rename to prevent partial writes.
+
+    Args:
+        path: Target file path.
+        data: JSON-serializable object.
+    """
     atomic_write_text(path, json.dumps(data, indent=2, ensure_ascii=False) + "\n")
 
 
+def atomic_write_bytes(path: str | Path, data: bytes) -> None:
+    """Atomically write bytes to a file.
 
-def atomic_write_bytes(path, data):
+    Uses a temporary file and atomic rename to prevent partial writes.
+
+    Args:
+        path: Target file path.
+        data: Bytes to write.
+    """
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, tmp_name = tempfile.mkstemp(
@@ -254,7 +423,16 @@ def atomic_write_bytes(path, data):
         if os.path.exists(tmp_name):
             os.unlink(tmp_name)
 
-def atomic_write_text(path, text):
+
+def atomic_write_text(path: str | Path, text: str) -> None:
+    """Atomically write text to a file.
+
+    Uses a temporary file and atomic rename to prevent partial writes.
+
+    Args:
+        path: Target file path.
+        text: Text to write (UTF-8).
+    """
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, tmp_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=str(path.parent), text=True)

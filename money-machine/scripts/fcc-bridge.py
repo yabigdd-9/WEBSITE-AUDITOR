@@ -119,7 +119,7 @@ def check_process(name, pattern):
             pids = result.stdout.strip().split("\n")
             return True, pids
         return False, []
-    except Exception:
+    except (subprocess.SubprocessError, OSError):
         return False, []
 
 def start_fcc_server():
@@ -164,12 +164,12 @@ def start_fcc_server():
                     if resp.status == 200:
                         log_ok(f"FCC server started (PID: {proc.pid})")
                         return True
-            except Exception:
+            except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, OSError):
                 pass
-        
+
         log_error("FCC server failed to start")
         return False
-    except Exception as e:
+    except (OSError, subprocess.SubprocessError) as e:
         log_error(f"Failed to start FCC server: {e}")
         return False
 
@@ -181,7 +181,7 @@ def stop_fcc_server():
         for pid in pids:
             try:
                 os.kill(int(pid), signal.SIGTERM)
-            except Exception as e:
+            except (OSError, ProcessLookupError, ValueError) as e:
                 log_error(f"Failed to stop FCC server process {pid}: {e}")
         log_ok("FCC server stopped")
     else:

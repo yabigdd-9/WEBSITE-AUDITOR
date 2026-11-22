@@ -1,0 +1,44 @@
+[Unit]
+Description=Website Auditor Dashboard (HTTPS via Caddy)
+Documentation=https://github.com/yabigdd-9/WEBSITE-AUDITOR
+Wants=network-online.target caddy.service
+After=network-online.target caddy.service
+
+[Service]
+Type=simple
+User=websiteauditor
+Group=websiteauditor
+WorkingDirectory=/mnt/wa-data/WEBSITE-AUDITOR
+Environment=MM_ROOT=/mnt/wa-data/WEBSITE-AUDITOR
+Environment=WA_DATA_MOUNT=/mnt/wa-data
+Environment=PYTHONDONTWRITEBYTECODE=1
+# Portal runs on localhost:8080, Caddy terminates HTTPS on port 443
+ExecStartPre=/mnt/wa-data/WEBSITE-AUDITOR/.venv-email/bin/python -c "
+import sys, json
+from pathlib import Path
+root = Path('/mnt/wa-data/WEBSITE-AUDITOR')
+auth_file = root / 'outputs' / 'toolkit' / 'portal-auth.json'
+if not auth_file.is_file():
+    print('ERROR: portal-auth.json not found. Run: wa dashboard --set-password --output-root outputs/toolkit', file=sys.stderr)
+    sys.exit(1)
+"
+ExecStart=/mnt/wa-data/WEBSITE-AUDITOR/.venv-email/bin/python -m uvicorn auditor_toolkit.portal:create_app --factory --host 127.0.0.1 --port 8080
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=30
+KillSignal=SIGTERM
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+# Read-only access to code, read-write to outputs
+ReadWritePaths=/mnt/wa-data/WEBSITE-AUDITOR/outputs
+ReadOnlyPaths=/mnt/wa-data/WEBSITE-AUDITOR
+
+# Resource limits
+MemoryLimit=512M
+CPUQuota=50%
+
+[Install]
+WantedBy=multi-user.target

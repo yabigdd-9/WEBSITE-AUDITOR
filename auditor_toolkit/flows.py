@@ -153,7 +153,7 @@ def run_flow_probe(url, output_dir, enabled=True, allow_private=False):
                         if locator.count() and locator.is_visible():
                             cta = (selector, locator)
                             break
-                    except Exception:
+                    except (TimeoutError, Error):
                         continue
                 if cta is None:
                     evidence["outcome"] = {
@@ -176,7 +176,7 @@ def run_flow_probe(url, output_dir, enabled=True, allow_private=False):
                     page.wait_for_load_state("domcontentloaded", timeout=10_000)
                     page.wait_for_timeout(400)
                     record("CTA_ACTIVATED", {"landed_url": page.url}, "flow-2-activated.png")
-                except Exception as exc:
+                except (TimeoutError, Error) as exc:
                     evidence["steps"].append(
                         {"state": "CTA_ACTIVATED", "at": _now(), "failed": True, "reason": str(exc)[:300]}
                     )
@@ -196,7 +196,7 @@ def run_flow_probe(url, output_dir, enabled=True, allow_private=False):
                         if locator.count() and locator.is_visible():
                             form = (form_selector, locator)
                             break
-                    except Exception:
+                    except (TimeoutError, Error):
                         continue
                 if form is None:
                     # Phone/mailto fallbacks still count as a conversion path.
@@ -258,7 +258,7 @@ def run_flow_probe(url, output_dir, enabled=True, allow_private=False):
                             )
                             validation = {"tested": True, **validity}
                             probe.fill("", timeout=_STEP_TIMEOUT_MS)
-                    except Exception as exc:
+                    except (TimeoutError, Error) as exc:
                         validation = {"tested": False, "reason": str(exc)[:200]}
                 record("CLIENT_VALIDATION_WORKS", validation, "flow-5-validation.png")
 
@@ -284,7 +284,7 @@ def run_flow_probe(url, output_dir, enabled=True, allow_private=False):
                 return {"status": "ok", "evidence": evidence}
             finally:
                 browser.close()
-    except Exception as exc:
+    except Exception as exc:  # Top-level handler for flow probe; catches any unexpected error
         evidence["error"] = str(exc)[:500]
         evidence["finished_at"] = _now()
         return {"status": "error", "reason": str(exc)[:300], "evidence": evidence}

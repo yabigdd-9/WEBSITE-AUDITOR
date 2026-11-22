@@ -140,7 +140,7 @@ def probe_llamacpp(model=None, timeout=3):
     try:
         tags = _get_json(LLAMACPP_BASE.rstrip('/') + '/v1/models', timeout)
         models = [m.get('id') for m in tags.get('data', []) if m.get('id')]
-    except Exception:
+    except (httpx.HTTPError, httpx.TimeoutException, httpx.ConnectError, json.JSONDecodeError):
         return None
     if want:
         return want if want in models else None

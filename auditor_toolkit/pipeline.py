@@ -2,12 +2,9 @@ from __future__ import annotations
 
 import hashlib
 import time
-import logging
 import traceback
-
-logger = logging.getLogger(__name__)
-from concurrent.futures import ThreadPoolExecutor
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -27,6 +24,8 @@ from .hygiene import (
     grade_security_headers,
     validate_links,
 )
+from .logging_config import get_logger, set_correlation_id, clear_correlation_id, LogContext
+from .metrics import record_audit_metrics
 from .models import REGISTRY, SCHEMA_VERSION
 from .network import crawl, inspect_dns, inspect_headers, inspect_schema, inspect_tls
 from .reporting import render_trend_svg, write_html_report
@@ -34,9 +33,36 @@ from .flows import run_flow_probe, flow_findings
 from .storage import History, finding_id
 from .quality_checks import run_quality_checks
 
+logger = get_logger(__name__)
+
 
 @dataclass
 class AuditOptions:
+    """Configuration options for an audit run.
+
+    Attributes:
+        output_root: Root directory for audit outputs (reports, artifacts, cache).
+        allow_private: Allow auditing private/non-global IP addresses.
+        browser: Enable browser-based checks (Playwright/Chromium).
+        screenshot_diff: Generate visual diff screenshots against previous runs.
+        use_gotenberg: Use Gotenberg for PDF generation (requires gotenberg service).
+        tls: Perform TLS certificate inspection.
+        timeout: HTTP request timeout in seconds.
+        profile: Audit profile - one of "static", "rendered", "default", "service",
+            "ecommerce", "publishing", "nz".
+        deep: Enable deep checks (link validation, DNS, crawl).
+        max_pages: Maximum pages to crawl (1-100).
+        max_depth: Maximum crawl depth (0-5).
+        max_links: Maximum links to validate per page.
+        max_bytes: Maximum response body size in bytes.
+        respect_robots: Respect robots.txt during crawling.
+        cache: Enable HTTP response caching.
+        ai: Enable AI-powered draft generation.
+        ai_timeout: Timeout for AI generation in seconds.
+        brand: Brand name for report headers.
+        hourly_rate_nzd: Optional hourly rate in NZD for cost estimates.
+        external_tools: Require external tools (Lighthouse, Lychee) to be installed.
+    """
     output_root: Path = Path("outputs/toolkit")
     allow_private: bool = False
     browser: bool = False
@@ -101,7 +127,58 @@ def _execute_check(name, fn, required, url, timestamp, findings, evidence, check
         elapsed = int((time.perf_counter() - started) * 1000)
         checks[name]["elapsed_ms"] = checks[name].get("elapsed_ms", 0) + elapsed
 
-def run_audit(url, options=None, fetcher=None):
+def run_audit(url: str, options: AuditOptions | None = None, fetcher: "Fetcher | None" = None) -> dict:
+    """Run a complete website audit.
+
+    Executes a full audit pipeline including HTTP fetch, HTML analysis, schema validation,
+    security headers, hygiene checks (robots, sitemap, mixed content), UX signals,
+    optional deep checks (link validation, DNS, crawl), optional browser checks
+    (Playwright/Chromium), optional external tools (Lighthouse, Lychee), and
+    AI-powered draft generation.
+
+    Args:
+        url: Target URL to audit. Must be an absolute HTTP(S) URL.
+        options: Optional AuditOptions for configuration. Uses defaults if not provided.
+        fetcher: Optional Fetcher instance for HTTP requests. Creates a new one if not provided.
+
+    Returns:
+        Dict containing the complete audit report with the following keys:
+        - schema_version: Audit schema version.
+        - performance: Timing information for each check.
+        - run_id: Unique identifier for this audit run.
+        - url: The audited URL.
+        - domain: Extracted domain from URL.
+        - timestamp: ISO format timestamp of audit start.
+        - profile: Audit profile used.
+        - brand: Brand name for report.
+        - status: "complete" or "partial" depending on required checks.
+        - health_score: Overall health score (0-100).
+        - severity_score: Sum of severity-weighted findings.
+        - defects: List of finding dictionaries with finding_id, severity, etc.
+        - defect_count: Total number of defects.
+        - fault_taxonomy: Root cause analysis and confidence assessments.
+        - checks: Status of each executed check.
+        - evidence: Raw evidence data from each check.
+        - check_registry: Registry of all available checks.
+        - scoring: Scoring methodology and weights.
+        - financial_assumptions: Disclaimer about financial estimates.
+        - artifacts: Paths to generated artifacts (JSON, HTML, PDF, screenshots).
+        - category_scores: Scores broken down by category (SEO, security, etc.).
+        - comparison: Comparison with previous audits for same URL/profile.
+        - fault_regression: Regression analysis of defects.
+        - claim_ledger: Evidence claims for proofing.
+        - drafts: AI-generated drafts (if enabled).
+        - quality_checks: Quality validation of drafts (if enabled).
+        - proofing: Proofing results for drafts.
+        - proposal: Cost estimate proposal (if hourly rate provided).
+        - action_preview: Preview of remediation actions.
+        - manifest: Artifact manifest with SHA256 hashes.
+        - coverage: Required vs passed check counts.
+
+    Raises:
+        ValueError: If URL is invalid or options are out of bounds.
+        OSError: If output directory cannot be created.
+    """
     opts = options or AuditOptions()
     started_at = time.perf_counter()
     run_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%S") + "-" + uuid.uuid4().hex[:12]
@@ -109,6 +186,11 @@ def run_audit(url, options=None, fetcher=None):
     run_dir.mkdir(parents=True, exist_ok=False)
     timestamp = datetime.now(UTC).isoformat()
     checks, findings, evidence = {}, [], {}
+
+    # Set correlation ID for this audit run
+    correlation_id = set_correlation_id(run_id)
+    logger.info("Starting audit", extra={"url": url, "run_id": run_id, "profile": opts.profile})
+
     client = fetcher or Fetcher(
         opts.timeout,
         opts.max_bytes,
@@ -160,7 +242,9 @@ def run_audit(url, options=None, fetcher=None):
                 "revalidated_at": response.extensions.get("revalidated_at"),
             },
         }
+        logger.info("Fetch successful", extra={"url": url, "status_code": response.status_code, "run_id": run_id})
     except Exception as exc:
+        logger.error("Fetch failed", extra={"url": url, "error": str(exc), "run_id": run_id}, exc_info=True)
         checks["fetch"] = {"status": "error", "required": True, "reason": str(exc)}
     try:
         if checks["fetch"]["status"] == "ok":
@@ -253,16 +337,9 @@ def run_audit(url, options=None, fetcher=None):
             if opts.screenshot_diff and result.get("status") == "ok":
                 try:
                     history = History(opts.output_root)
-                    # Get previous complete runs for same URL and profile
-                    previous_runs = [
-                        r for r in history.list(url, 1000)
-                        if r["url"] == url
-                        and r["status"] == "complete"
-                        and r["profile"] == opts.profile
-                        and r["run_id"] != run_id
-                    ]
-                    if previous_runs:
-                        previous_run = previous_runs[0]  # most recent
+                    # Get previous complete run for same URL and profile using optimized query
+                    previous_run = history.get_latest_valid_audit(url, max_age_days=365)
+                    if previous_run and previous_run["profile"] == opts.profile and previous_run["run_id"] != run_id:
                         # Define screenshot types to check
                         screenshot_types = [
                             ("screenshot", "screenshot"),
@@ -295,7 +372,7 @@ def run_audit(url, options=None, fetcher=None):
                                     )
                                     if result_odiff.returncode == 0 and diff_path.exists():
                                         evidence["browser"][f"{evidence_key}_diff"] = str(diff_path)
-                except Exception:
+                except (subprocess.SubprocessError, subprocess.TimeoutExpired, OSError, FileNotFoundError):
                     # Log warning but do not fail the audit
                     pass
             if opts.browser:
@@ -557,4 +634,34 @@ def run_audit(url, options=None, fetcher=None):
     }
     atomic_write_json(report_path, report)
     history.save(report)
+
+    elapsed_ms = int((time.perf_counter() - started_at) * 1000)
+    logger.info(
+        "Audit completed",
+        extra={
+            "url": url,
+            "run_id": run_id,
+            "status": report["status"],
+            "health_score": report.get("health_score"),
+            "defect_count": len(defects),
+            "elapsed_ms": elapsed_ms,
+        },
+    )
+
+    # Record Prometheus metrics
+    try:
+        record_audit_metrics(
+            run_id=run_id,
+            url=url,
+            profile=opts.profile,
+            status=report["status"],
+            health_score=report.get("health_score"),
+            defects=report.get("defects", []),
+            checks=report.get("checks", {}),
+            duration_ms=elapsed_ms,
+        )
+    except Exception as e:
+        logger.warning(f"Failed to record metrics: {e}")
+
+    clear_correlation_id()
     return report
