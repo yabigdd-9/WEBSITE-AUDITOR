@@ -73,6 +73,12 @@ jobs:
             money-machine/test_lead_qualifier.py \
             money-machine/test_polish.py \
             -v
+      - name: Run synthetic MoneyMachine acceptance and outreach
+        env:
+          MM_PAID_ALLOWED: '0'
+          MM_ALLOW_EXTERNAL_FREE_MODELS: '0'
+          MM_EXTERNAL_SEND_ALLOWED: '0'
+        run: python -m pytest money-machine/test_acceptance.py money-machine/test_outreach.py -v
       - name: Operator CLI import smoke
         run: python money-machine/mm_operator.py --help >/tmp/mm-help.txt
 
