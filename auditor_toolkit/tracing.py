@@ -298,8 +298,7 @@ def traced_http(func):
                 })
 
             return result
-        return wrapper
-    return decorator
+    return wrapper
 
 
 # ─── Configuration from Environment ───

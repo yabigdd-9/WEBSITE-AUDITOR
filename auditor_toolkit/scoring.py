@@ -13,6 +13,7 @@ Conventions:
 """
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
 HEALTH_BASE = 100
@@ -68,44 +69,130 @@ class ScoreBreakdown:
         }
 
 
+class ScoringStrategy(ABC):
+    """Abstract base class for scoring strategies.
+
+    Different scoring algorithms can be implemented by subclassing this.
+    """
+
+    @abstractmethod
+    def score(self, records: list[dict], complete: bool = True) -> ScoreBreakdown:
+        """Score a list of finding records.
+
+        Args:
+            records: List of finding records with severity, confidence, evidence.
+            complete: Whether all required checks completed.
+
+        Returns:
+            ScoreBreakdown with health score and deductions.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        """Name of the scoring strategy."""
+        pass
+
+
+class SeveritySumStrategy(ScoringStrategy):
+    """Default severity sum scoring strategy.
+
+    Deductions are based on severity weights: low=4, medium=8, high=16, critical=30.
+    Health = max(0, 100 - total_deductions).
+    """
+
+    name = "severity_sum"
+
+    def __init__(
+        self,
+        health_base: int = HEALTH_BASE,
+        severity_weight: dict[str, int] | None = None,
+    ):
+        self.health_base = health_base
+        self.severity_weight = severity_weight or SEVERITY_WEIGHT
+
+    def score(self, records: list[dict], complete: bool = True) -> ScoreBreakdown:
+        deductions = []
+        for rec in records:
+            severity = rec.get("severity", "medium")
+            confidence = rec.get("confidence", "heuristic")
+            if confidence not in CONFIDENCE_LEVELS:
+                confidence = "heuristic"
+            has_evidence = bool(
+                rec.get("evidence_summary") or rec.get("selector") or rec.get("evidence_ref")
+            )
+            if not has_evidence and confidence == "observed":
+                confidence = "heuristic"
+            deductions.append(
+                Deduction(
+                    finding_id=rec.get("finding_id", ""),
+                    defect_key=rec.get("defect_key", ""),
+                    severity=severity,
+                    points=self.severity_weight.get(severity, 8),
+                    confidence=confidence,
+                    evidence_summary=rec.get("evidence_summary", "")
+                    or rec.get("selector", "")
+                    or rec.get("evidence_ref", ""),
+                )
+            )
+        total = min(self.health_base, sum(d.points for d in deductions))
+        return ScoreBreakdown(
+            health_score=max(0, self.health_base - total) if complete else None,
+            severity_total=total,
+            deductions=deductions,
+            heuristic_count=sum(1 for d in deductions if d.is_heuristic),
+        )
+
+
+class ScoringContext:
+    """Context for scoring with strategy pattern support.
+
+    Allows switching between different scoring strategies at runtime.
+    """
+
+    def __init__(self, strategy: ScoringStrategy | None = None):
+        self._strategy = strategy or SeveritySumStrategy()
+
+    @property
+    def strategy(self) -> ScoringStrategy:
+        return self._strategy
+
+    @strategy.setter
+    def strategy(self, strategy: ScoringStrategy) -> None:
+        self._strategy = strategy
+
+    def score(self, records: list[dict], complete: bool = True) -> ScoreBreakdown:
+        """Score records using the current strategy."""
+        return self._strategy.score(records, complete)
+
+    @property
+    def strategy_name(self) -> str:
+        return self._strategy.name
+
+
+# Default strategy instance for backward compatibility
+_default_strategy = SeveritySumStrategy()
+
+
 def weight_for(severity: str) -> int:
     return SEVERITY_WEIGHT.get(severity, 8)
 
 
 def score_from_findings(records: list[dict], complete: bool = True) -> ScoreBreakdown:
-    """Derive a score strictly from finding records.
+    """Derive a score strictly from finding records (backward compatibility).
 
-    Each record must already contain: finding_id, defect_key, severity,
-    confidence, and an evidence summary/selector/evidence_ref. Records without
-    evidence are still scored but flagged heuristic — never silently.
+    Uses the default SeveritySumStrategy.
     """
-    deductions = []
-    for rec in records:
-        severity = rec.get("severity", "medium")
-        confidence = rec.get("confidence", "heuristic")
-        if confidence not in CONFIDENCE_LEVELS:
-            confidence = "heuristic"
-        has_evidence = bool(
-            rec.get("evidence_summary") or rec.get("selector") or rec.get("evidence_ref")
-        )
-        if not has_evidence and confidence == "observed":
-            confidence = "heuristic"
-        deductions.append(
-            Deduction(
-                finding_id=rec.get("finding_id", ""),
-                defect_key=rec.get("defect_key", ""),
-                severity=severity,
-                points=weight_for(severity),
-                confidence=confidence,
-                evidence_summary=rec.get("evidence_summary", "")
-                or rec.get("selector", "")
-                or rec.get("evidence_ref", ""),
-            )
-        )
-    total = min(HEALTH_BASE, sum(d.points for d in deductions))
-    return ScoreBreakdown(
-        health_score=max(0, HEALTH_BASE - total) if complete else None,
-        severity_total=total,
-        deductions=deductions,
-        heuristic_count=sum(1 for d in deductions if d.is_heuristic),
-    )
+    return _default_strategy.score(records, complete)
+
+
+# ─── Opportunity Scoring Strategy (Cloud) ───
+
+from .scoring_opportunity import (
+    OpportunityScoringStrategy,
+    DefaultOpportunityStrategy,
+    register_opportunity_strategy,
+    get_opportunity_strategy,
+    list_opportunity_strategies,
+)

@@ -262,7 +262,7 @@ def test_completed_evidence_and_source_survive_restart_without_duplicate_audit(s
 
     def audit(sites, workspace, entries):
         entries.append(evidence)
-        return [{"status": "COMPLETE"}]
+        return [{"status": "complete"}]
 
     with store.transaction(bootstrap=True) as state:
         pipeline.process(

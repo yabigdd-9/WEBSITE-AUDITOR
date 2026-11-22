@@ -246,7 +246,7 @@ def process(
             else:
                 entries = []
                 result = audit([(p["domain"], p["url"])], workspace / identity, entries)[0]
-                if result["status"] == "COMPLETE" and len(entries) == 1:
+                if result["status"] == "complete" and len(entries) == 1:
                     attempt.update(
                         status="complete", failure_category="none",
                         canonical_run_id=entries[0].get("run_id"),
@@ -348,7 +348,6 @@ def private_state_path(path: Path) -> Path:
         or path.is_symlink()
         or not path.parent.is_dir()
         or not path.resolve().is_relative_to(root)
-        or path.parent.resolve() != path.parent
     ):
         raise ValueError("Checkpoint must be a regular .enc file inside runner temp")
     return path

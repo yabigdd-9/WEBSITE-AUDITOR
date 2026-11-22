@@ -305,3 +305,67 @@ def check_plugin(metadata: CheckPluginMetadata):
         return cls
 
     return decorator
+
+
+def load_plugins_from_entry_points(group: str = "auditor_toolkit.checks") -> int:
+    """Load plugins from entry points.
+
+    Args:
+        group: Entry point group name (default: "auditor_toolkit.checks").
+
+    Returns:
+        Number of plugins loaded.
+    """
+    import importlib.metadata
+
+    count = 0
+    for entry_point in importlib.metadata.entry_points(group=group):
+        try:
+            plugin_class = entry_point.load()
+            if isinstance(plugin_class, type) and issubclass(plugin_class, CheckPlugin):
+                register_plugin(plugin_class())
+                count += 1
+                logger.info(f"Loaded plugin from entry point: {entry_point.name}")
+            else:
+                logger.warning(f"Entry point {entry_point.name} does not point to a CheckPlugin class")
+        except Exception as e:
+            logger.error(f"Failed to load plugin from entry point {entry_point.name}: {e}")
+    return count
+
+
+def load_plugins_from_directory(plugins_dir: str | Path) -> int:
+    """Load plugins from a directory.
+
+    Scans the directory for Python modules and imports them.
+    Modules should register plugins using @check_plugin decorator or
+    by calling register_plugin() at module level.
+
+    Args:
+        plugins_dir: Path to directory containing plugin modules.
+
+    Returns:
+        Number of plugins loaded.
+    """
+    import importlib.util
+    from pathlib import Path
+
+    plugins_dir = Path(plugins_dir)
+    if not plugins_dir.is_dir():
+        logger.warning(f"Plugins directory not found: {plugins_dir}")
+        return 0
+
+    count = 0
+    for py_file in plugins_dir.glob("*.py"):
+        if py_file.name.startswith("_"):
+            continue
+        module_name = py_file.stem
+        try:
+            spec = importlib.util.spec_from_file_location(f"auditor_toolkit.plugins.{module_name}", py_file)
+            if spec and spec.loader:
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                count += 1
+                logger.info(f"Loaded plugin module: {module_name}")
+        except Exception as e:
+            logger.error(f"Failed to load plugin module {module_name}: {e}")
+    return count

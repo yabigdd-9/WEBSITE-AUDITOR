@@ -44,7 +44,7 @@ class PipelineTests(unittest.TestCase):
 
     def complete(self, sites, workspace, entries):
         entries.append(dict(run_id="audit-1", findings=[], internal_scope_draft="review"))
-        return [dict(status="COMPLETE")]
+        return [dict(status="complete")]
 
     @unittest.skipUnless(CRYPTO_AVAILABLE, "Optional vault dependency is not installed")
     def test_idempotent_queue_and_draft_across_checkpoint(self):

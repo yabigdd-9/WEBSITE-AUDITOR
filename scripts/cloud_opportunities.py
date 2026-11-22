@@ -7,25 +7,31 @@ dimensions. Scores are review priorities, never predictions of buying intent.
 
 from __future__ import annotations
 
-import hashlib
 import json
-from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
 
 from auditor_toolkit.quote import EFFORT_HOURS, calculate_quote
 from auditor_toolkit.remediation import DEFAULT_CLASS, classify
+from auditor_toolkit.scoring_opportunity import (
+    get_opportunity_strategy,
+    list_opportunity_strategies,
+    register_opportunity_strategy,
+)
+
+import hashlib
+
+
+def digest(document):
+    """Compute SHA256 digest of JSON-serializable object."""
+    return hashlib.sha256(json.dumps(
+        document, sort_keys=True, separators=(",", ":"), allow_nan=False
+    ).encode()).hexdigest()
 
 WEIGHTS = {
     "verified_technical_impact": 35, "evidence_quality": 25,
     "delivery_feasibility": 20, "business_service_fit": 15, "recency": 5,
 }
-
-
-def digest(document):
-    return hashlib.sha256(json.dumps(
-        document, sort_keys=True, separators=(",", ":"), allow_nan=False
-    ).encode()).hexdigest()
 
 
 def validate_policy(policy):
@@ -54,94 +60,34 @@ def load_policy(repo: Path):
     return validate_policy(json.loads((repo / "config/cloud-opportunity-policy.json").read_text()))
 
 
-def score(entry, context, policy, *, now):
-    validate_policy(policy)
-    if not isinstance(entry, dict) or not isinstance(context, dict):
-        raise ValueError("Audit entry and reviewed service context required")
-    result = dict(
-        status="quarantined", reason="incomplete_audit", score=None, breakdown={},
-        evidence=[], buying_intent="unknown", contact_eligible=False,
-        policy_sha256=digest(policy), source_run_id=entry.get("run_id"),
-    )
-    if context.get("suppressed") or context.get("contact_prohibited"):
-        return {**result, "reason": "suppressed_or_restricted"}
-    if entry.get("status") != "COMPLETE":
-        return result
-    from scripts.cloud_discovery import canonical_domain
+def score(entry, context, policy, *, now, strategy: str = "default"):
+    """Score an audit entry against an opportunity policy.
 
-    try:
-        domain = canonical_domain(entry.get("domain"))
-    except (ValueError, TypeError):
-        return {**result, "reason": "invalid_audit_identity"}
-    if not isinstance(entry.get("run_id"), str) or not entry["run_id"]:
-        return {**result, "reason": "missing_audit_identity"}
-    findings = entry.get("findings")
-    if not isinstance(findings, list) or not findings or len(findings) > 20:
-        return {**result, "reason": "no_observed_findings"}
-    for finding in findings:
-        if not isinstance(finding, dict):
-            return {**result, "reason": "missing_or_speculative_evidence"}
-        ref = finding.get("evidence_ref")
-        if not (
-            finding.get("confidence") == "observed"
-            and finding.get("evidence_check_status") == "ok"
-            and ref and ref == finding.get("evidence_check")
-            and finding.get("source_url") and finding.get("observed")
-            and finding.get("finding_id") and finding.get("remediation_action")
-            and finding.get("severity") in {"low", "medium", "high", "critical"}
-        ):
-            return {**result, "reason": "missing_or_speculative_evidence"}
-        try:
-            if canonical_domain(finding["source_url"]) != domain:
-                return {**result, "reason": "evidence_domain_mismatch"}
-        except (ValueError, TypeError):
-            return {**result, "reason": "invalid_evidence_url"}
-        if finding.get("defect_key") not in policy["supported_defect_keys"]:
-            return {**result, "reason": "unsupported_service"}
-    if len({f["finding_id"] for f in findings}) != len(findings):
-        return {**result, "reason": "duplicate_finding"}
-    severity = {"low": 25, "medium": 50, "high": 75, "critical": 100}
-    dimensions = {
-        "verified_technical_impact": max(severity[f["severity"]] for f in findings),
-        "evidence_quality": 100 if all(f.get("independently_verified") is True for f in findings) else 75,
-    }
-    reasons = dict(
-        verified_technical_impact="Highest observed severity; does not establish buying intent.",
-        evidence_quality="Observed canonical evidence; independent verification raises confidence.",
-    )
-    missing = []
-    for key in ("delivery_feasibility", "business_service_fit"):
-        value = context.get(key)
-        if value is None:
-            value = 0
-            missing.append(key)
-            reasons[key] = "Not configured or verified; contributes zero."
-        elif type(value) is not int or not 0 <= value <= 100:
-            raise ValueError("Owner service context must be 0-100 or unknown")
-        else:
-            reasons[key] = "Explicit reviewed service context; not customer intent."
-        dimensions[key] = value
-    try:
-        observed = datetime.fromisoformat(entry["timestamp"].replace("Z", "+00:00"))
-        age = now - observed.timestamp() if observed.tzinfo is not None else -1
-    except (KeyError, TypeError, ValueError):
-        age = -1
-    dimensions["recency"] = 100 if 0 <= age <= 7 * 86400 else 50 if 0 <= age <= 30 * 86400 else 0
-    reasons["recency"] = "Explicit evaluation time versus audit timestamp; missing/future dates contribute zero."
-    breakdown = {
-        key: dict(value=value, weight=policy["weights"][key],
-                  contribution=float(Decimal(value) * policy["weights"][key] / 100),
-                  explanation=reasons[key])
-        for key, value in dimensions.items()
-    }
+    Args:
+        entry: Audit entry with findings, status, run_id, etc.
+        context: Service context (delivery_feasibility, business_service_fit, etc.)
+        policy: Opportunity policy with weights and supported defect keys
+        now: Current timestamp
+        strategy: Scoring strategy name (default: "default")
+
+    Returns:
+        OpportunityResult as dict
+    """
+    validate_policy(policy)
+    # Use strategy pattern for scoring
+    scoring_strategy = get_opportunity_strategy(strategy)
+    result = scoring_strategy.score(entry, context, policy, now=now)
     return {
-        **result, "status": "qualified_for_internal_review", "reason": "observed_supported_work",
-        "score": float(sum(Decimal(v["value"]) * v["weight"] / 100 for v in breakdown.values())),
-        "breakdown": breakdown, "missing_context": missing,
-        "evidence": [dict(
-            finding_id=f["finding_id"], source_url=f["source_url"], evidence_ref=f["evidence_ref"],
-            audit_run_id=entry.get("run_id"),
-        ) for f in sorted(findings, key=lambda f: f["finding_id"])],
+        "status": result.status,
+        "reason": result.reason,
+        "score": result.score,
+        "breakdown": result.breakdown,
+        "missing_context": result.missing_context,
+        "evidence": result.evidence,
+        "buying_intent": result.buying_intent,
+        "contact_eligible": result.contact_eligible,
+        "policy_sha256": result.policy_sha256,
+        "source_run_id": result.source_run_id,
     }
 
 

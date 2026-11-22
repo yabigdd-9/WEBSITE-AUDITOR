@@ -341,9 +341,8 @@ class PipelineViews:
         reject_recommendation(p, actor="authenticated-owner", reason=data.get("reason"), now=now)
 
     def apply_decision(self, p, data, request, action, now):
-        if action != DecisionAction.COMPLETE:
-            if not p.get("proposal_version") or p["proposal_version"] != data.get("version"):
-                raise HTTPException(409, "Proposal version changed; review again")
+        if action != DecisionAction.COMPLETE and (not p.get("proposal_version") or p["proposal_version"] != data.get("version")):
+            raise HTTPException(409, "Proposal version changed; review again")
         handlers = {
             DecisionAction.COMPLETE: self.record_completion,
             DecisionAction.ACCEPT: self.record_acceptance,

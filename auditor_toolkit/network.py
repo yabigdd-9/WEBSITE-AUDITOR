@@ -423,3 +423,90 @@ def crawl(url, fetcher, options):
         "bounded": bool(queue),
         "limits": {"pages": options.max_pages, "depth": options.max_depth},
     }
+
+
+async def acrawl(url, fetcher, options):
+    """Async version of crawl using Fetcher.aget for concurrent requests."""
+    base = urlparse(url)
+    origin = f"{base.scheme}://{base.netloc}"
+    robots_response = await fetcher.aget(origin + "/robots.txt")
+    robot = RobotFileParser()
+    if robots_response.status_code == 200:
+        robot.parse(robots_response.text.splitlines())
+    elif robots_response.status_code in (404, 410):
+        robot.parse([])
+    else:
+        raise RuntimeError(f"robots.txt unavailable: HTTP {robots_response.status_code}")
+    queue = [(url, 0)]
+    sitemap_urls = robot.site_maps() or [origin + "/sitemap.xml"]
+    sitemap_evidence = []
+    for sitemap_url in sitemap_urls[:2]:
+        if urlparse(sitemap_url).netloc != base.netloc:
+            continue
+        response = await fetcher.aget(sitemap_url)
+        sitemap_evidence.append({"url": sitemap_url, "status": response.status_code})
+        if response.status_code == 200:
+            try:
+                xml = ET.fromstring(response.content)
+                if xml.tag.rsplit("}", 1)[-1] == "urlset":
+                    for loc in xml.iter():
+                        if loc.tag.rsplit("}", 1)[-1] == "loc" and loc.text:
+                            queue.append((loc.text.strip(), 1))
+                            if len(queue) >= options.max_pages * 2:
+                                break
+            except ET.ParseError:
+                sitemap_evidence[-1]["parse_error"] = "Not valid sitemap XML"
+    visited, pages, edges, findings, blocked = set(), [], [], [], []
+    while queue and len(visited) < options.max_pages:
+        target, depth = queue.pop(0)
+        if target in visited or urlparse(target).netloc != base.netloc or depth > options.max_depth:
+            continue
+        visited.add(target)
+        if options.respect_robots and not robot.can_fetch("WebsiteAuditorToolkit", target):
+            blocked.append(target)
+            continue
+        response = await fetcher.aget(target)
+        status, errors = classify_response(response.status_code, response.text)
+        for error in errors:
+            findings.append(
+                Finding(
+                    error.defect_key,
+                    error.defect,
+                    error.impact,
+                    error.severity,
+                    target,
+                    check="crawl",
+                )
+            )
+        links = []
+        if status == "ok" and ("html" in response.headers.get("content-type", "text/html")):
+            page_findings, evidence = analyse_html(response.text, str(response.url))
+            findings.extend(page_findings)
+            soup = BeautifulSoup(response.text, "lxml")
+            links = list(
+                dict.fromkeys(
+                    urljoin(str(response.url), a["href"]).split("#")[0]
+                    for a in soup.select("a[href]")
+                )
+            )
+            for link in links[: options.max_links]:
+                if urlparse(link).scheme in ("http", "https"):
+                    edges.append({"from": target, "to": link})
+                    if len(queue) < options.max_pages * 4:
+                        queue.append((link, depth + 1))
+        pages.append(
+            {
+                "url": target,
+                "status_code": response.status_code,
+                "depth": depth,
+                "links": links[: options.max_links],
+            }
+        )
+    return findings, {
+        "pages": pages,
+        "edges": edges,
+        "robots_blocked": blocked,
+        "sitemaps": sitemap_evidence,
+        "bounded": bool(queue),
+        "limits": {"pages": options.max_pages, "depth": options.max_depth},
+    }

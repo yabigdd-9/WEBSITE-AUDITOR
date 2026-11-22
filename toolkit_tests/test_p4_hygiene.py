@@ -176,9 +176,11 @@ def test_pipeline_includes_hygiene_ux_and_links(tmp_path, monkeypatch):
     report = run_audit("https://example.com/", AuditOptions(output_root=tmp_path, deep=True), fetcher)
     assert report["status"] == "complete"
     assert report["checks"]["hygiene"]["status"] == "ok"
-    assert "robots" in report["evidence"]["hygiene"]["data"]
-    assert report["evidence"]["ux"]["data"]["signals"]["phone"] is True
-    assert report["evidence"]["links"]["data"]["broken"] == 1
+    assert "robots" in report["evidence"]["hygiene"]
+    assert "signals" in report["evidence"]["ux"]
+    assert report["evidence"]["ux"]["signals"]["phone"] is True
+    assert "broken" in report["evidence"]["links"]
+    assert report["evidence"]["links"]["broken"] == 1
     keys = {d["defect_key"] for d in report["defects"]}
     assert {"robots-missing", "sitemap-missing", "broken-internal-link"} <= keys
     defect_ids = {d["finding_id"] for d in report["defects"]}

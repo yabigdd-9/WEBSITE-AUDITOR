@@ -216,12 +216,13 @@ def test_quote_partial_or_heuristic_lowers_confidence(tmp_path):
 
 
 def test_workspace_path_rejects_escape(tmp_path, monkeypatch):
+    from auditor_toolkit.common import workspace_path
     monkeypatch.chdir(tmp_path)
     outside = tmp_path.parent / "outside.json"
     outside.write_text("{}", encoding="utf-8")
     try:
         with pytest.raises(ValueError, match="current workspace"):
-            cli.workspace_path(outside, must_exist=True, file_only=True)
+            workspace_path(outside, must_exist=True, file_only=True)
     finally:
         outside.unlink(missing_ok=True)
 
@@ -246,16 +247,22 @@ def test_action_preview_rejects_manifest_path_escape(tmp_path, identifier):
         preview_report(report, tmp_path / "preview")
 
 
-def test_batch_cli_rejects_file_outside_workspace(tmp_path, monkeypatch):
+def test_batch_cli_rejects_file_outside_workspace(tmp_path, monkeypatch, capsys):
     monkeypatch.chdir(tmp_path)
-    with pytest.raises(ValueError, match="current workspace"):
+    with pytest.raises(SystemExit) as exc_info:
         cli.main(["audit", "--batch", str(tmp_path.parent / "outside.txt")])
+    assert exc_info.value.code == 2
+    captured = capsys.readouterr()
+    assert "current workspace" in captured.err
 
 
-def test_actions_cli_rejects_run_id_escape(tmp_path, monkeypatch):
+def test_actions_cli_rejects_run_id_escape(tmp_path, monkeypatch, capsys):
     monkeypatch.chdir(tmp_path)
     report, report_json = full_report(tmp_path)
     report["run_id"] = "../../escape"
     report_json.write_text(json.dumps(report), encoding="utf-8")
-    with pytest.raises(ValueError):
+    with pytest.raises(SystemExit) as exc_info:
         cli.main(["actions", "cancel", str(report_json)])
+    assert exc_info.value.code == 2
+    captured = capsys.readouterr()
+    assert "current workspace" in captured.err or "safe filename component" in captured.err

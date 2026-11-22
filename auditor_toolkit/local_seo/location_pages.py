@@ -372,9 +372,8 @@ def _extract_location_name_from_url(url: str) -> str:
     for i, seg in enumerate(segments):
         if seg.lower() in ("locations", "location", "branches", "branch",
                           "offices", "office", "stores", "store",
-                          "areas", "area", "service-areas", "service-area"):
-            if i + 1 < len(segments):
-                return segments[i + 1].replace("-", " ").title()
+                          "areas", "area", "service-areas", "service-area") and i + 1 < len(segments):
+            return segments[i + 1].replace("-", " ").title()
 
     # If no container keyword, try the last meaningful segment
     skip = {"www", "http:", "https:", "index.html", "index.php"}

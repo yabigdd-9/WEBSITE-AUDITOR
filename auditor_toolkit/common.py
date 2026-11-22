@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import ipaddress
 import json
@@ -7,7 +8,7 @@ import os
 import socket
 import tempfile
 import time
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from urllib.parse import urljoin, urlparse, urlunparse
 
@@ -214,9 +215,73 @@ class Fetcher:
         """Exit context manager, closing the client."""
         self.close()
 
+    @property
+    def async_client(self) -> httpx.AsyncClient:
+        """Get or create the async HTTP client."""
+        if not hasattr(self, "_async_client"):
+            self._async_client = httpx.AsyncClient(
+                timeout=httpx.Timeout(self.timeout),
+                follow_redirects=False,
+                trust_env=False,
+                headers={
+                    "user-agent": "WebsiteAuditorToolkit/2",
+                    "accept-encoding": "identity",
+                },
+                transport=httpx.AsyncHTTPTransport(),
+            )
+        return self._async_client
+
+    async def aclose(self) -> None:
+        """Close the async HTTP client."""
+        if hasattr(self, "_async_client"):
+            await self._async_client.aclose()
+
+    async def __aenter__(self) -> "Fetcher":
+        """Enter async context manager."""
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+        """Exit async context manager, closing the client."""
+        await self.aclose()
+
+    def _build_async_pinned_client(self, url: str, pinned_ip: str) -> httpx.AsyncClient:
+        """Build an async client that connects to a pinned IP."""
+        transport = self._build_async_pinned_transport(pinned_ip, base_transport=self.client._transport)
+        return httpx.AsyncClient(
+            timeout=self.async_client.timeout,
+            follow_redirects=False,
+            trust_env=False,
+            headers=self.async_client.headers,
+            transport=transport,
+        )
+
+    def _build_async_pinned_transport(self, pinned_ip: str, *, base_transport: httpx.BaseTransport) -> httpx.BaseTransport:
+        """Create an async transport that connects to pinned_ip with original Host header."""
+
+        class AsyncPinnedTransport(httpx.AsyncBaseTransport):
+            def __init__(self, base_transport: httpx.BaseTransport, pinned_ip: str):
+                self._base_transport = base_transport
+                self._pinned_ip = pinned_ip
+
+            async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+                # Store original hostname
+                original_host = request.headers.get("Host")
+                if not original_host:
+                    original_host = request.url.host
+
+                # Replace host with pinned_ip
+                request.url = request.url.copy_with(host=self._pinned_ip)
+
+                # Ensure original host is in Host header
+                request.headers["Host"] = original_host
+
+                return await self._base_transport.handle_async_request(request)
+
+        return AsyncPinnedTransport(base_transport, pinned_ip)
+
     def _build_pinned_client(self, url: str, pinned_ip: str) -> httpx.Client:
         """Build a client that connects to a pinned IP."""
-        transport = self._build_pinned_transport(pinned_ip)
+        transport = self._build_pinned_transport(pinned_ip, base_transport=self.client._transport)
         return httpx.Client(
             timeout=self.client.timeout,
             follow_redirects=False,
@@ -225,10 +290,14 @@ class Fetcher:
             transport=transport,
         )
 
-    def _build_pinned_transport(self, pinned_ip: str) -> httpx.HTTPTransport:
+    def _build_pinned_transport(self, pinned_ip: str, *, base_transport: httpx.BaseTransport) -> httpx.BaseTransport:
         """Create a transport that connects to pinned_ip with original Host header."""
 
-        class PinnedTransport(httpx.HTTPTransport):
+        class PinnedTransport(httpx.BaseTransport):
+            def __init__(self, base_transport: httpx.BaseTransport, pinned_ip: str):
+                self._base_transport = base_transport
+                self._pinned_ip = pinned_ip
+
             def handle_request(self, request: httpx.Request) -> httpx.Response:
                 # Store original hostname
                 original_host = request.headers.get("Host")
@@ -236,14 +305,14 @@ class Fetcher:
                     original_host = request.url.host
 
                 # Replace host with pinned_ip
-                request.url = request.url.copy_with(host=pinned_ip)
+                request.url = request.url.copy_with(host=self._pinned_ip)
 
                 # Ensure original host is in Host header
                 request.headers["Host"] = original_host
 
-                return super().handle_request(request)
+                return self._base_transport.handle_request(request)
 
-        return PinnedTransport()
+        return PinnedTransport(base_transport, pinned_ip)
 
     def invalidate_cache(self, url: str | None = None) -> int:
         """Invalidate cache entries.
@@ -279,26 +348,6 @@ class Fetcher:
                 except OSError:
                     pass
         return removed
-
-    def _build_pinned_transport(self, pinned_ip: str) -> httpx.HTTPTransport:
-        """Create a transport that connects to pinned_ip with original Host header."""
-
-        class PinnedTransport(httpx.HTTPTransport):
-            def handle_request(self, request: httpx.Request) -> httpx.Response:
-                # Store original hostname
-                original_host = request.headers.get("Host")
-                if not original_host:
-                    original_host = request.url.host
-
-                # Replace host with pinned_ip
-                request.url = request.url.copy_with(host=pinned_ip)
-
-                # Ensure original host is in Host header
-                request.headers["Host"] = original_host
-
-                return super().handle_request(request)
-
-        return PinnedTransport()
 
     def get(self, url: str) -> httpx.Response:
         """Fetch a URL with caching, rate limiting, and DNS pinning.
@@ -372,7 +421,7 @@ class Fetcher:
                 if not location:
                     raise ValueError("Redirect missing location")
                 chain.append({"url": current, "status": result.status_code})
-                current = validate_url(urljoin(current, location), self.allow_private)
+                current, _ = validate_url(urljoin(current, location), self.allow_private)
                 continue
             observed = datetime.now(UTC).isoformat()
             if result.status_code == 304 and cached:
@@ -385,20 +434,126 @@ class Fetcher:
                 observed = cached["observed_at"]
                 result.extensions["revalidated_at"] = datetime.now(UTC).isoformat()
             elif (
-    cache_path
-    and result.status_code == 200
-    and not result.headers.get("set-cookie")
-    and "no-store" not in result.headers.get("cache-control", "").lower()
-):
-                    atomic_write_json(
-                        cache_path,
-                        {
-                            "status": result.status_code,
-                            "headers": public_headers(result.headers),
-                            "body": result.content.hex(),
-                            "observed_at": observed,
-                        },
-                    )
+                cache_path
+                and result.status_code == 200
+                and not result.headers.get("set-cookie")
+                and "no-store" not in result.headers.get("cache-control", "").lower()
+            ):
+                atomic_write_json(
+                    cache_path,
+                    {
+                        "status": result.status_code,
+                        "headers": public_headers(result.headers),
+                        "body": result.content.hex(),
+                        "observed_at": observed,
+                    },
+                )
+            result.extensions.update({"observed_at": observed, "redirect_chain": chain})
+            return result
+        raise ValueError("Too many redirects")
+
+    # ========================================================================
+    # AsyncFetcher - Async version using httpx.AsyncClient
+    # ========================================================================
+    async def aget(self, url: str) -> httpx.Response:
+        """Async fetch a URL with caching, rate limiting, and DNS pinning.
+
+        Args:
+            url: Absolute HTTP(S) URL to fetch.
+
+        Returns:
+            httpx.Response with extensions:
+                - observed_at: ISO timestamp of response
+                - redirect_chain: List of redirect steps
+                - revalidated_at: Timestamp if served from cache (304)
+
+        Raises:
+            ValueError: If URL is invalid, too many redirects, or response
+                exceeds byte/time limits.
+        """
+        current, pinned_ip = validate_url(url, self.allow_private)
+        chain = []
+        # Build a client that connects to the pinned IP (DNS rebinding defense)
+        client = self._build_async_pinned_client(current, pinned_ip) if pinned_ip else self.async_client
+        for _ in range(6):
+            host = urlparse(current).netloc
+            delay = self.min_interval - (time.monotonic() - self.last_request.get(host, 0))
+            if delay > 0:
+                await asyncio.sleep(delay)
+            self.last_request[host] = time.monotonic()
+            cached = None
+            cache_path = None
+            headers = {}
+            if self.cache_dir:
+                cache_key = current + "|" + self.cache_namespace
+                cache_path = self.cache_dir / (
+                    hashlib.sha256(cache_key.encode()).hexdigest() + ".json"
+                )
+                if cache_path.exists():
+                    cached = json.loads(cache_path.read_text())
+                    # Check TTL-based cache invalidation
+                    if self.cache_ttl_seconds is not None:
+                        try:
+                            observed_at = datetime.fromisoformat(cached.get("observed_at", ""))
+                            if datetime.now(UTC) - observed_at > timedelta(seconds=self.cache_ttl_seconds):
+                                cached = None  # Invalidate expired cache
+                                cache_path.unlink(missing_ok=True)
+                        except (ValueError, KeyError):
+                            pass  # If parsing fails, treat as no cache
+                    if cached is not None:
+                        for key, conditional in [
+                            ("etag", "if-none-match"),
+                            ("last-modified", "if-modified-since"),
+                        ]:
+                            if cached["headers"].get(key):
+                                headers[conditional] = cached["headers"][key]
+            started = time.monotonic()
+            async with client.stream("GET", current, headers=headers) as response:
+                chunks, size = [], 0
+                async for chunk in response.aiter_bytes():
+                    size += len(chunk)
+                    if size > self.max_bytes or time.monotonic() - started > self.timeout:
+                        raise ValueError("Response exceeded configured byte/time limit")
+                    chunks.append(chunk)
+                body = b"".join(chunks)
+                result = httpx.Response(
+                    response.status_code,
+                    headers=response.headers,
+                    content=body,
+                    request=response.request,
+                )
+            if result.status_code in (301, 302, 303, 307, 308):
+                location = result.headers.get("location")
+                if not location:
+                    raise ValueError("Redirect missing location")
+                chain.append({"url": current, "status": result.status_code})
+                current, _ = validate_url(urljoin(current, location), self.allow_private)
+                continue
+            observed = datetime.now(UTC).isoformat()
+            if result.status_code == 304 and cached:
+                result = httpx.Response(
+                    cached["status"],
+                    headers=cached["headers"],
+                    content=bytes.fromhex(cached["body"]),
+                    request=result.request,
+                )
+                observed = cached["observed_at"]
+                result.extensions["revalidated_at"] = datetime.now(UTC).isoformat()
+            elif (
+                cache_path
+                and result.status_code == 200
+                and not result.headers.get("set-cookie")
+                and "no-store" not in result.headers.get("cache-control", "").lower()
+            ):
+                atomic_write_json(
+                    cache_path,
+                    {
+                        "status": result.status_code,
+                        "headers": public_headers(result.headers),
+                        "body": result.content.hex(),
+                        "observed_at": observed,
+                    },
+                )
             result.extensions.update({"observed_at": observed, "redirect_chain": chain})
             return result
         raise ValueError("Too many redirects")

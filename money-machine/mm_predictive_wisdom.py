@@ -5,7 +5,7 @@ import json
 import sqlite3
 import math
 from mm_core import now
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, List
 
 def forecast_pipeline_performance(
     conn: sqlite3.Connection,

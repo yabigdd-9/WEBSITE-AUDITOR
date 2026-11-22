@@ -40,16 +40,30 @@ class DLQEntry:
         return {"job_id": self.job_id, "reason": self.reason, "retries_exhausted": self.retries_exhausted, "created_at": self.created_at}
 
 
-class QuarantineStore:
+class _BaseStore:
+    """Base class for file-based stores with JSON entries."""
+
     def __init__(self, store_dir: Path):
         self.store_dir = store_dir
         self.store_dir.mkdir(parents=True, exist_ok=True)
 
-    def add(self, entry: QuarantineEntry) -> Path:
+    def add(self, entry: Any) -> Path:
         path = self.store_dir / f"{entry.job_id}.json"
         path.write_text(json.dumps(entry.to_dict(), indent=2))
         return path
 
+    def list(self) -> list[Any]:
+        entries = []
+        for p in self.store_dir.glob("*.json"):
+            data = json.loads(p.read_text())
+            entries.append(data)
+        return entries
+
+    def count(self) -> int:
+        return len(list(self.store_dir.glob("*.json")))
+
+
+class QuarantineStore(_BaseStore):
     def list(self) -> list[QuarantineEntry]:
         entries = []
         for p in self.store_dir.glob("*.json"):
@@ -58,18 +72,8 @@ class QuarantineStore:
         return entries
 
 
-class DLQStore:
-    def __init__(self, store_dir: Path):
-        self.store_dir = store_dir
-        self.store_dir.mkdir(parents=True, exist_ok=True)
-
-    def add(self, entry: DLQEntry) -> Path:
-        path = self.store_dir / f"{entry.job_id}.json"
-        path.write_text(json.dumps(entry.to_dict(), indent=2))
-        return path
-
-    def count(self) -> int:
-        return len(list(self.store_dir.glob("*.json")))
+class DLQStore(_BaseStore):
+    pass
 
 
 def quarantine_or_dlq(

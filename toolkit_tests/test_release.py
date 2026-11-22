@@ -94,11 +94,11 @@ def test_healthy_defective_history_and_counts(tmp_path):
 
 def test_browser_plugin_failure_is_partial(tmp_path, monkeypatch):
     monkeypatch.setattr(
-        "auditor_toolkit.pipeline.run_browser_checks",
+        "auditor_toolkit.pipeline_stages.run_browser_checks",
         lambda *a, **k: (_ for _ in ()).throw(RuntimeError("browser unavailable")),
     )
     monkeypatch.setattr(
-        "auditor_toolkit.pipeline.export_pdf",
+        "auditor_toolkit.pipeline_stages.export_pdf",
         lambda *a: (_ for _ in ()).throw(RuntimeError("no PDF")),
     )
     report = fixture_audit(tmp_path, browser=True)
@@ -110,7 +110,7 @@ def test_browser_plugin_failure_is_partial(tmp_path, monkeypatch):
 
 def test_page_plugin_failure_visible(tmp_path, monkeypatch):
     monkeypatch.setattr(
-        "auditor_toolkit.pipeline.analyse_html",
+        "auditor_toolkit.pipeline_stages.analyse_html",
         lambda *a: (_ for _ in ()).throw(RuntimeError("plugin crash")),
     )
     report = fixture_audit(tmp_path)
@@ -120,7 +120,7 @@ def test_page_plugin_failure_visible(tmp_path, monkeypatch):
 
 def test_failed_fetch_and_dns_are_not_healthy(tmp_path, monkeypatch):
     monkeypatch.setattr(
-        "auditor_toolkit.pipeline.inspect_dns",
+        "auditor_toolkit.pipeline_stages.inspect_dns",
         lambda *a: (_ for _ in ()).throw(RuntimeError("DNS timeout")),
     )
     report = fixture_audit(tmp_path, deep=True)

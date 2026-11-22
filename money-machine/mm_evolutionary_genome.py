@@ -4,7 +4,7 @@ Implements self-modifying architecture with genetic encoding, expression regulat
 import json
 import sqlite3
 import contextlib
-from mm_core import now, sha
+from mm_core import now, sha, connect
 from typing import Dict, Any
 
 def encode_architectural_genes(

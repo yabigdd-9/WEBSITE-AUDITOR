@@ -1,4 +1,6 @@
 import sqlite3
+import tempfile
+from pathlib import Path
 
 import pytest
 
@@ -7,7 +9,14 @@ import mm_email_lifecycle as lifecycle
 import mm_email_tracking as tracking
 
 
-def database(tmp_path):
+@pytest.fixture
+def project_tmp_path(tmp_path_factory):
+    """Create a temporary directory within the project root for testing."""
+    project_root = Path(__file__).resolve().parents[1]
+    return Path(tempfile.mkdtemp(dir=project_root))
+
+
+def database(project_tmp_path):
     db = sqlite3.connect(":memory:")
     db.row_factory = sqlite3.Row
     db.executescript(
@@ -42,18 +51,18 @@ def database(tmp_path):
     return db
 
 
-def test_intent_requires_exact_human_approval(tmp_path):
-    db = database(tmp_path)
-    event_path = tmp_path / "events.jsonl"
+def test_intent_requires_exact_human_approval(project_tmp_path):
+    db = database(project_tmp_path)
+    event_path = project_tmp_path / "events.jsonl"
     db.execute("UPDATE approval_records SET content_hash='wrong'")
     with pytest.raises(ValueError, match="exact human approval"):
         lifecycle.create_intent(db, 7, "fixture", event_store=event_path)
     assert db.execute("SELECT count(*) FROM email_delivery_intents").fetchone()[0] == 0
 
 
-def test_intent_is_idempotent_and_records_no_send(tmp_path):
-    db = database(tmp_path)
-    event_path = tmp_path / "events.jsonl"
+def test_intent_is_idempotent_and_records_no_send(project_tmp_path):
+    db = database(project_tmp_path)
+    event_path = project_tmp_path / "events.jsonl"
     first = lifecycle.create_intent(db, 7, "fixture", event_store=event_path)
     second = lifecycle.create_intent(db, 7, "fixture", event_store=event_path)
     assert first["status"] == "planned"
@@ -66,9 +75,9 @@ def test_intent_is_idempotent_and_records_no_send(tmp_path):
     assert first["external_sends"] == 0
 
 
-def test_suppression_blocks_intent_without_mutating_suppression(tmp_path):
-    db = database(tmp_path)
-    event_path = tmp_path / "events.jsonl"
+def test_suppression_blocks_intent_without_mutating_suppression(project_tmp_path):
+    db = database(project_tmp_path)
+    event_path = project_tmp_path / "events.jsonl"
     db.execute("INSERT INTO mm_suppression VALUES('team@fixture.example', 'human unsubscribe')")
     with pytest.raises(ValueError, match="suppressed"):
         lifecycle.create_intent(db, 7, "fixture", event_store=event_path)
@@ -76,9 +85,9 @@ def test_suppression_blocks_intent_without_mutating_suppression(tmp_path):
     assert db.execute("SELECT count(*) FROM mm_suppression").fetchone()[0] == 1
 
 
-def test_failures_are_bounded_and_dead_lettered(tmp_path):
-    db = database(tmp_path)
-    event_path = tmp_path / "events.jsonl"
+def test_failures_are_bounded_and_dead_lettered(project_tmp_path):
+    db = database(project_tmp_path)
+    event_path = project_tmp_path / "events.jsonl"
     intent = lifecycle.create_intent(db, 7, "fixture", max_attempts=2, event_store=event_path)
     retry = lifecycle.record_result(db, intent["idempotency_key"], "failed", error="temporary", event_store=event_path)
     dead = lifecycle.record_result(db, intent["idempotency_key"], "failed", error="still unavailable", event_store=event_path)
@@ -91,9 +100,9 @@ def test_failures_are_bounded_and_dead_lettered(tmp_path):
         lifecycle.record_result(db, intent["idempotency_key"], "delivered", event_store=event_path)
 
 
-def test_reconstruction_contains_message_approval_intent_and_events(tmp_path):
-    db = database(tmp_path)
-    event_path = tmp_path / "events.jsonl"
+def test_reconstruction_contains_message_approval_intent_and_events(project_tmp_path):
+    db = database(project_tmp_path)
+    event_path = project_tmp_path / "events.jsonl"
     intent = lifecycle.create_intent(db, 7, "fixture", event_store=event_path)
     lifecycle.record_result(db, intent["idempotency_key"], "provider_accepted", provider_message_id="fixture-provider-id", event_store=event_path)
     result = lifecycle.reconstruct(db, 7, event_store=event_path)
@@ -106,19 +115,19 @@ def test_reconstruction_contains_message_approval_intent_and_events(tmp_path):
     assert result["paid_calls"] == 0
 
 
-def test_draft_change_after_intent_is_blocked(tmp_path):
-    db = database(tmp_path)
-    event_path = tmp_path / "events.jsonl"
+def test_draft_change_after_intent_is_blocked(project_tmp_path):
+    db = database(project_tmp_path)
+    event_path = project_tmp_path / "events.jsonl"
     intent = lifecycle.create_intent(db, 7, "fixture", event_store=event_path)
     db.execute("UPDATE mm_messages SET body=body || ' changed' WHERE id=7")
     with pytest.raises(ValueError, match="draft changed"):
         lifecycle.record_result(db, intent["idempotency_key"], "delivered", event_store=event_path)
 
 
-def test_provider_acceptance_remains_open_until_final_outcome(tmp_path):
+def test_provider_acceptance_remains_open_until_final_outcome(project_tmp_path):
     """provider_accepted is not terminal: delivered/bounced must still land."""
-    db = database(tmp_path)
-    event_path = tmp_path / "events.jsonl"
+    db = database(project_tmp_path)
+    event_path = project_tmp_path / "events.jsonl"
     intent = lifecycle.create_intent(db, 7, "fixture", event_store=event_path)
     accepted = lifecycle.record_result(
         db, intent["idempotency_key"], "provider_accepted", provider_message_id="prov-1",
