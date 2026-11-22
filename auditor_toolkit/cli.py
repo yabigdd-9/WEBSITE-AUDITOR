@@ -15,7 +15,6 @@ from .ai import generate_drafts, verify_model
 from .common import workspace_path
 from .external_tools import installed_tools
 from .logging_config import setup_logging
-from .metrics import serve_metrics
 from .pipeline import AuditOptions, run_audit
 from .storage import History
 
@@ -311,6 +310,8 @@ def main(argv=None):
         return 0 if result["status"] == "healthy" else 1
     if args.command == "metrics":
         if args.action == "serve":
+            from .metrics import serve_metrics
+
             return serve_metrics(port=args.port, host=args.host)
         elif args.action == "record":
             if not all([args.run_id, args.url, args.profile, args.status]):
