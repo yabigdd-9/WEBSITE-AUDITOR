@@ -6,6 +6,7 @@ Provides automated certificate renewal using ACME protocol (Let's Encrypt).
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import time
 from dataclasses import dataclass, field
@@ -13,6 +14,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+from .common import workspace_path
 from .logging_config import get_logger
 from .network import check_certificate_expiry
 
@@ -151,6 +153,13 @@ class ACMEClient:
 
     def request_certificate(self, domains: list[str], key_path: Path) -> CertificateOrder:
         """Request a certificate for domains."""
+        dns_label = r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?"
+        if not domains or any(
+            len(domain) > 253 or not re.fullmatch(rf"{dns_label}(?:\.{dns_label})+", domain)
+            for domain in domains
+        ):
+            raise ValueError("Certificate domains must be valid DNS names")
+        key_path = workspace_path(key_path)
         if not self.account:
             self.register_account()
 
@@ -194,6 +203,8 @@ class ACMEClient:
                 continue
 
             token = http_challenge["token"]
+            if not re.fullmatch(r"[A-Za-z0-9_-]+", token):
+                raise ValueError("Invalid ACME challenge token")
             key_auth = token + "." + self._get_key_authorization()
 
             # Place challenge file
@@ -267,7 +278,7 @@ class CertRenewalManager:
         check_interval_hours: int = 24,
     ):
         self.acme_client = acme_client
-        self.cert_dir = Path(cert_dir)
+        self.cert_dir = workspace_path(cert_dir)
         self.cert_dir.mkdir(parents=True, exist_ok=True)
         self.renewal_days = renewal_days
         self.check_interval_hours = check_interval_hours

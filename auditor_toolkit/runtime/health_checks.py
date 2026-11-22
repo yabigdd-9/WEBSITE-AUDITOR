@@ -14,6 +14,7 @@ import shutil
 import socket
 import sqlite3
 import time
+from contextlib import closing
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
@@ -85,7 +86,7 @@ def check_database(db_path: str | Path | None = None) -> HealthCheck:
 
     db_path = Path(db_path)
     try:
-        if not db_path.exists():
+        if not db_path.is_file():
             return HealthCheck(
                 name="database",
                 status=HealthStatus.UNHEALTHY,
@@ -93,8 +94,9 @@ def check_database(db_path: str | Path | None = None) -> HealthCheck:
                 details={"path": str(db_path), "exists": False},
             )
 
-        with sqlite3.connect(db_path, timeout=5) as conn:
-            conn.execute("PRAGMA integrity_check")
+        with closing(sqlite3.connect(db_path.resolve().as_uri() + "?mode=ro", uri=True, timeout=5)) as conn:
+            if conn.execute("PRAGMA integrity_check").fetchone() != ("ok",):
+                raise sqlite3.DatabaseError("Database integrity check failed")
             conn.execute("SELECT 1 FROM runs LIMIT 1")
             cursor = conn.execute("SELECT COUNT(*) FROM runs")
             run_count = cursor.fetchone()[0]

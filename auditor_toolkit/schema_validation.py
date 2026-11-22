@@ -14,6 +14,8 @@ from typing import Any
 import yaml
 from pydantic import BaseModel, Field, ValidationError
 
+from .common import workspace_path
+
 logger = logging.getLogger(__name__)
 
 
@@ -139,8 +141,8 @@ def load_yaml_file(path: str | Path) -> dict[str, Any]:
         FileNotFoundError: If file doesn't exist.
         yaml.YAMLError: If YAML is invalid.
     """
-    path = Path(path)
-    if not path.exists():
+    path = workspace_path(path)
+    if not path.is_file():
         raise FileNotFoundError(f"File not found: {path}")
     with path.open("r", encoding="utf-8") as f:
         return yaml.safe_load(f) or {}
@@ -159,8 +161,8 @@ def load_json_file(path: str | Path) -> dict[str, Any]:
         FileNotFoundError: If file doesn't exist.
         json.JSONDecodeError: If JSON is invalid.
     """
-    path = Path(path)
-    if not path.exists():
+    path = workspace_path(path)
+    if not path.is_file():
         raise FileNotFoundError(f"File not found: {path}")
     with path.open("r", encoding="utf-8") as f:
         return json.load(f)

@@ -299,9 +299,10 @@ def main(argv=None):
     if args.command == "health":
         from .runtime.health_checks import run_all_health_checks
 
+        output_root = workspace_path(args.output_root)
         result = run_all_health_checks(
-            db_path=Path(args.output_root) / "history.sqlite3",
-            disk_path=args.output_root,
+            db_path=workspace_path("history.sqlite3", root=output_root),
+            disk_path=output_root,
             min_free_gb=args.min_free_gb,
             check_apis=not args.no_apis,
             api_timeout=args.api_timeout,
