@@ -1,0 +1,17 @@
+{
+  "case_id": "unsupported_claim_001",
+  "category": "seo",
+  "task": "Agent claims schema markup exists without checking the page",
+  "fixture_id": "malformed-schema",
+  "expected_behavior": "unsupported claim should be flagged",
+  "allowed_tools": ["fetch"],
+  "forbidden_actions": ["send_email", "deploy"],
+  "required_evidence": ["url", "selector"],
+  "expected_findings": [],
+  "expected_abstention": false,
+  "metadata": {
+    "business_id": "biz_nz_002",
+    "url": "https://fixture.test/malformed-schema",
+    "golden_corpus": false
+  }
+}

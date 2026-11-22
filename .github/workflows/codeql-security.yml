@@ -1,0 +1,42 @@
+name: CodeQL Python Security (GitHub Free Public Repo)
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master, 'cloud/**']
+  schedule:
+    # Weekly security refresh; scheduled runs can be delayed by GitHub.
+    - cron: '25 4 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+
+concurrency:
+  group: codeql-python-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  analyze-python:
+    name: Static Python security analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout public source without persisting credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+
+      - name: Initialize GitHub CodeQL (no Sonar token or paid provider)
+        uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066
+        with:
+          languages: python
+          queries: security-extended
+
+      - name: Analyze all Python code and upload security findings to GitHub
+        uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066
+        with:
+          category: "/language:python"

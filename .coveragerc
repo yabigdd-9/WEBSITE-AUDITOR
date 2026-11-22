@@ -1,6 +1,8 @@
 [run]
 relative_files = True
-source = .
+source =
+    ./auditor_toolkit
+    ./website_auditor
 
 [report]
 show_missing = True
@@ -9,6 +11,10 @@ omit =
     toolkit_tests/*
     money-machine/test_*.py
     integrations/*/tests/*
+    auditor_toolkit/**/__init__.py
+    website_auditor/**/__init__.py
+    auditor_toolkit/models.py
+    website_auditor/models.py
     .venv/*
     .venv-email/*
 

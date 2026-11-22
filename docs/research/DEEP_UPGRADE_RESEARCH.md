@@ -184,7 +184,7 @@ volumes: { kuma: {}, cd-data: {} }
 
 ## 5. RECOMMENDED MCP / PLUGIN STACK
 
-MCP servers that give Hermes/Goose/OpenCode agents safe, structured access — all local, all free:
+MCP servers that give the local agent stack safe, structured access — all local, all free:
 
 | MCP Server | Purpose | Verdict |
 |------------|---------|---------|
@@ -480,4 +480,3 @@ Key claims in this report verified against official sources:
 | Overture NZ coverage | inferred from sources | Foursquare+meta sources give strong SMB coverage incl. NZ; cross-check a sample of 20 known NZ businesses before relying on it as primary (OSM/Overpass remains the live-data complement). |
 
 **Verdict changes vs first draft:** Reacher downgraded in confidence (archived backend repo → use monorepo; AGPL boundary must be respected). All other INSTALL NOW items verified clean.
-

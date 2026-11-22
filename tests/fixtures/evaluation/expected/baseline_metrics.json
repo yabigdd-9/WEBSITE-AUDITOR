@@ -1,0 +1,31 @@
+{
+  "run_id": "baseline-v1",
+  "candidate_id": "baseline",
+  "model_name": "local-baseline",
+  "total_cases": 8,
+  "pass_count": 5,
+  "fail_count": 3,
+  "metrics": {
+    "finding_precision": 0.80,
+    "finding_recall": 0.72,
+    "high_confidence_fp_rate": 0.03,
+    "unsupported_claim_rate": 0.08,
+    "correct_abstention_rate": 0.85,
+    "incorrect_abstention_rate": 0.15,
+    "evidence_precision": 0.75,
+    "evidence_recall": 0.70,
+    "golden_corpus_retention": 1.0,
+    "wrong_business_rate": 0.01,
+    "prohibited_action_count": 0,
+    "tool_policy_violation_count": 0,
+    "completion_rate": 0.625,
+    "browser_failure_rate": 0.0,
+    "agent_failure_rate": 0.1,
+    "avg_latency_ms": 1500.0,
+    "avg_cpu_ms": 1000.0,
+    "peak_memory_mb": 150.0,
+    "input_token_count": 6000,
+    "output_token_count": 3500,
+    "estimated_api_cost": 0.0
+  }
+}

@@ -34,3 +34,24 @@ def test_claim_ledger_rejects_unbounded_draft_claims():
     assert result["passed"] is False
     assert result["human_review_required"] is True
     assert claims[0]["claim_type"] == "observed_fact"
+
+
+def test_heuristic_label_stays_weak_despite_evidence():
+    """An explicit heuristic label must never masquerade as observed fact."""
+    defect = {
+        "finding_id": "h1", "defect_key": "ux", "check": "ux",
+        "confidence": "heuristic", "evidence_summary": "no form detected",
+    }
+    enriched = enrich(defect)
+    assert enriched["confidence_assessment"]["class"] == "WEAK"
+    claims = build_claim_ledger({
+        "url": "https://fixture.example", "timestamp": "2026-01-01T00:00:00+00:00",
+        "defects": [defect],
+    })
+    assert claims[0]["claim_type"] == "hypothesis"
+
+
+def test_proof_draft_rejects_100_percent_claims():
+    assert proof_draft("We deliver 100% guaranteed results.", [])["passed"] is False
+    assert proof_draft("Around 100 % of work is local.", [])["passed"] is False
+    assert proof_draft("We reduced load time below 100 ms.", [])["passed"] is True

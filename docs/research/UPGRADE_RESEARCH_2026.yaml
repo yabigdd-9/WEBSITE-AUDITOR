@@ -203,7 +203,7 @@ architecture_diagram: |
     -> HUMAN APPROVAL (per-message) -> SEND-or-never
     -> OUTCOME -> EVAL(promptfoo/GEPA) -> back into prompts
   DATA: SQLite+WAL(+vector) · run-ID artifacts · Gatus · GlitchTip(optional)
-  AGENTS: Hermes/Goose/OpenCode via CLI-as-tool + scoped MCP; no mutation tools
+  AGENTS: Hermes/OpenCode via CLI-as-tool + scoped MCP; no mutation tools
 
 backlog:
   P0: [dockerise, ollama+model-stack, provider-failover-routes, nzbn-backbone, discovery-compliance, splink, unlighthouse, axe-core, vision-critique, provider-health-router]

@@ -78,6 +78,7 @@ def _adapt_source_row(row, lane):
             "source_record_id": str(row.get("id") or ""),
             "source_url": "",
             "source_lane": "osm",
+            "category": tags.get("craft") or tags.get("shop") or tags.get("amenity") or "",
         }
     if lane == "nzbn" or any(k in row for k in ("nzbn", "entityName", "entity_name")):
         trading = row.get("tradingName") or row.get("trading_name") or ""
@@ -97,6 +98,7 @@ def _adapt_source_row(row, lane):
             "source_record_id": str(row.get("nzbn") or row.get("NZBN") or row.get("id") or ""),
             "source_url": str(row.get("source_url") or ""),
             "source_lane": "nzbn",
+            "category": row.get("category") or row.get("industry") or "",
         }
     return dict(row)
 
@@ -121,11 +123,13 @@ def root_url(raw):
     return urlunsplit((scheme, parsed.netloc, "/", "", "")), host
 
 
-def normalize_candidate(row, default_region="", default_source="import"):
+def normalize_candidate(row, default_region="", default_source="import", *, url_validator=None):
     if not isinstance(row, dict):
         raise ValueError("candidate must be an object")
     row = _adapt_source_row(row, row.get("source_lane") or default_source)
     raw_url = _first(row, ("public_website", "website_url", "website", "url", "link"))
+    if url_validator is not None:
+        url_validator(raw_url)
     website, host = root_url(raw_url)
     name = _first(row, ("business_name", "company_name", "name", "title")) or host
     region = _first(row, ("region", "city", "area")) or str(default_region or "").strip()
@@ -140,11 +144,12 @@ def normalize_candidate(row, default_region="", default_source="import"):
         "public_website": website,
         "canonical_host": host,
         "source": source[:160],
+        "category": _first(row, ("category", "business_category", "industry"))[:160],
         "provenance": _source_provenance(row, source),
     }
 
 
-def read_candidates(path, default_region="", default_source="import"):
+def read_candidates(path, default_region="", default_source="import", *, url_validator=None):
     path = Path(path)
     if not path.is_file():
         raise FileNotFoundError(path)
@@ -183,7 +188,9 @@ def read_candidates(path, default_region="", default_source="import"):
     rejected = []
     for index, row in enumerate(rows, 1):
         try:
-            normalized.append(normalize_candidate(row, default_region, default_source))
+            normalized.append(normalize_candidate(
+                row, default_region, default_source, url_validator=url_validator
+            ))
         except (ValueError, TypeError) as exc:
             rejected.append({"row": index, "reason": str(exc)[:200]})
     return normalized, rejected

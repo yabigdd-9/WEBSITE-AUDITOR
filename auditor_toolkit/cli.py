@@ -85,6 +85,8 @@ def main(argv=None):
     audit.add_argument("--no-tls", action="store_true")
     audit.add_argument("--deep", action="store_true")
     audit.add_argument("--external-tools", action="store_true", help="Require installed local Lighthouse + Lychee checks")
+    audit.add_argument("--max-bytes", type=int, default=2_000_000,
+                       help="Maximum decoded bytes per HTTP response (1024 to 10000000)")
     audit.add_argument("--max-pages", type=int, default=10)
     audit.add_argument("--max-depth", type=int, default=2)
     audit.add_argument("--cache", action="store_true")
@@ -198,6 +200,10 @@ def main(argv=None):
     dashboard.add_argument("--output-root", default="outputs/toolkit")
     dashboard.add_argument("--set-password", action="store_true")
     dashboard.add_argument("--port", type=int, default=8080)
+    dashboard_storage = dashboard.add_mutually_exclusive_group()
+    dashboard_storage.add_argument("--pipeline-db", type=Path, help="Existing private pipeline SQLite database")
+    dashboard_storage.add_argument("--pipeline-postgres", action="store_true", help="Existing private Postgres via server-only WA_POSTGRES_DSN")
+    dashboard.add_argument("--report-archive-root", type=Path, help="Existing private ciphertext archive directory")
     remediate = sub.add_parser("remediate")
     remediate.add_argument("report", type=Path)
     remediate.add_argument("--output-dir", type=Path, required=True)
@@ -324,7 +330,7 @@ def main(argv=None):
             return 0
         import uvicorn
 
-        uvicorn.run(create_app(args.output_root), host="127.0.0.1", port=args.port)
+        uvicorn.run(create_app(args.output_root, pipeline_db=args.pipeline_db, report_archive_root=args.report_archive_root, pipeline_postgres=args.pipeline_postgres), host="127.0.0.1", port=args.port)
         return 0
     if args.command == "history":
         reports = History(args.output_root).list(args.query, 1000)
@@ -576,6 +582,7 @@ def main(argv=None):
         deep=args.deep,
         max_pages=args.max_pages,
         max_depth=args.max_depth,
+        max_bytes=args.max_bytes,
         cache=args.cache,
         ai=args.ai,
         ai_timeout=args.ai_timeout,

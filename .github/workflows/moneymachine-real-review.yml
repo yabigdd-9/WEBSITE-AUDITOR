@@ -1,0 +1,69 @@
+name: MoneyMachine Free Real-Site Shortlist
+
+on:
+  # Recurring review now runs in cloud-scheduled-audits.yml twice daily.
+  # Keep this entry point for manual recovery and focused regression checks.
+  workflow_dispatch:
+  pull_request:
+    branches: [master]
+    paths:
+      - '.github/workflows/moneymachine-real-review.yml'
+      - 'scripts/cloud_review_only_opportunities.py'
+      - 'scripts/report_vault.py'
+      - 'toolkit_tests/test_report_vault.py'
+      - 'pyproject.toml'
+      - 'toolkit_tests/test_cloud_review_only_opportunities.py'
+      - 'clients.txt'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: moneymachine-real-site-review
+  cancel-in-progress: false
+
+jobs:
+  review-one-real-allowlisted-site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      MM_ALLOW_EXTERNAL_FREE_MODELS: '0'
+      MM_PAID_ALLOWED: '0'
+      MM_EXTERNAL_SEND_ALLOWED: '0'
+      MM_REPORT_PUBLIC_KEY_B64: ${{ vars.MM_REPORT_PUBLIC_KEY_B64 }}
+    steps:
+      - name: Checkout reviewed code (no persisted token)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+
+      - name: Install auditor without optional browser or AI services
+        run: python -m pip install -e '.[vault]'
+
+      - name: Verify no-send review-only behavior and encrypted-vault safety
+        run: |
+          python -m unittest discover -s toolkit_tests -p 'test_cloud_review_only_opportunities.py' -v
+          python -m unittest discover -s toolkit_tests -p 'test_report_vault.py' -v
+
+      - name: Produce review-only shortlist and optional sealed owner archive
+        if: github.event_name != 'pull_request'
+        env:
+          MM_ENCRYPTED_REPORT_OUT: ${{ runner.temp }}/mm-private-review.enc.json
+        run: python -m scripts.cloud_review_only_opportunities --all
+
+      # The public repository's artifacts are downloadable by other users.
+      # NEVER upload plaintext reports. Skip unless the owner supplies a
+      # recipient PUBLIC key. Pull requests cannot upload even ciphertext.
+      - name: Store encrypted owner-only review bundle (30 days)
+        if: ${{ github.event_name != 'pull_request' && vars.MM_REPORT_PUBLIC_KEY_B64 != '' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: mm-sealed-review-${{ github.run_id }}
+          path: ${{ runner.temp }}/mm-private-review.enc.json
+          retention-days: 30
+          if-no-files-found: error

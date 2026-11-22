@@ -1,0 +1,56 @@
+{
+  "method": "Independent stdlib HTMLParser over public HTTPS source; robots respected",
+  "robots_status": 200,
+  "pages": [
+    {
+      "url": "https://davidrobertson.co.nz/",
+      "status": 200,
+      "bytes": 695380,
+      "sha256": "22feb846fd4e3877d9a8052dd64c2922c2f41f16f21672f6fc3391cebd7df707",
+      "description_count": 0,
+      "usable_descriptions": 0,
+      "og_description_count": 1,
+      "checked_at": "2026-11-16T06:38:21.171080+00:00"
+    },
+    {
+      "url": "https://davidrobertson.co.nz/interior-painting/",
+      "status": 200,
+      "bytes": 608685,
+      "sha256": "e70e532abc377655945050a956d24e1e5f5895af06b0e3da9d031a137ea11033",
+      "description_count": 1,
+      "usable_descriptions": 1,
+      "og_description_count": 1,
+      "checked_at": "2026-11-16T06:38:28.850745+00:00"
+    },
+    {
+      "url": "https://davidrobertson.co.nz/exterior-painting/",
+      "status": 200,
+      "bytes": 552723,
+      "sha256": "44c20c5138a75f8c4d2ef12a44d91801aa34124c816b67f2a9b4bbebda1e320d",
+      "description_count": 1,
+      "usable_descriptions": 1,
+      "og_description_count": 1,
+      "checked_at": "2026-11-16T06:38:39.494067+00:00"
+    },
+    {
+      "url": "https://davidrobertson.co.nz/commercial-painting/",
+      "status": 200,
+      "bytes": 540509,
+      "sha256": "1cb51ee5b4055a09397d826decd182a31c3cc7569d9330c42bc41bfd398807d1",
+      "description_count": 1,
+      "usable_descriptions": 1,
+      "og_description_count": 1,
+      "checked_at": "2026-11-16T06:38:46.568590+00:00"
+    },
+    {
+      "url": "https://davidrobertson.co.nz/roof-painting/",
+      "status": 200,
+      "bytes": 550141,
+      "sha256": "a17754741f88f3ef81a41f6b439fe36387e7253d7f2614a18de594fe664ac6ea",
+      "description_count": 1,
+      "usable_descriptions": 1,
+      "og_description_count": 1,
+      "checked_at": "2026-11-16T06:38:53.446133+00:00"
+    }
+  ]
+}

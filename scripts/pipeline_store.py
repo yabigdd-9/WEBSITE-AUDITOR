@@ -1,0 +1,473 @@
+"""Private single-owner SQLite persistence for the existing bounded queue.
+
+Never upload this plaintext database as an Actions artifact. A trusted durable
+filesystem is required; this module does not provision a cloud service.
+"""
+
+from __future__ import annotations
+
+import copy
+import hashlib
+import json
+import os
+import re
+import sqlite3
+from contextlib import contextmanager
+from pathlib import Path
+
+from scripts.review_ledger import _is_safe_db_location
+
+VERSION = 4
+MAX_BYTES = 5_000_000
+SCHEMA = (
+    "CREATE TABLE metadata (singleton INTEGER PRIMARY KEY CHECK(singleton=1), "
+    "body TEXT NOT NULL CHECK(json_valid(body)))",
+    "CREATE TABLE audit_runs (audit_id TEXT PRIMARY KEY, "
+    "prospect_id TEXT NOT NULL REFERENCES prospects(id), "
+    "body TEXT NOT NULL CHECK(json_valid(body)))",
+    "CREATE TABLE prospects (id TEXT PRIMARY KEY, domain TEXT NOT NULL UNIQUE, "
+    "body TEXT NOT NULL CHECK(json_valid(body)))",
+    "CREATE TABLE system_events (sequence INTEGER PRIMARY KEY, "
+    "body TEXT NOT NULL CHECK(json_valid(body)))",
+    "CREATE TABLE business_events (sequence INTEGER PRIMARY KEY, event_id TEXT UNIQUE NOT NULL, "
+    "prospect_id TEXT NOT NULL REFERENCES prospects(id), "
+    "body TEXT NOT NULL CHECK(json_valid(body)))",
+)
+DISCOVERY_SCHEMA = (
+    "CREATE TABLE discovery_candidates (id TEXT PRIMARY KEY, domain TEXT NOT NULL UNIQUE, "
+    "prospect_id TEXT REFERENCES prospects(id), body TEXT NOT NULL CHECK(json_valid(body)))",
+    "CREATE TABLE discovery_events (sequence INTEGER PRIMARY KEY, "
+    "candidate_id TEXT NOT NULL REFERENCES discovery_candidates(id), "
+    "body TEXT NOT NULL CHECK(json_valid(body)))",
+)
+ARTIFACT_SCHEMA = (
+    "CREATE TABLE report_artifacts (id TEXT PRIMARY KEY, ciphertext_sha256 TEXT NOT NULL UNIQUE, "
+    "body TEXT NOT NULL CHECK(json_valid(body)))",
+    "CREATE TABLE audit_artifact_links (artifact_id TEXT NOT NULL REFERENCES report_artifacts(id), "
+    "audit_id TEXT NOT NULL REFERENCES audit_runs(audit_id), body TEXT NOT NULL CHECK(json_valid(body)), "
+    "PRIMARY KEY(artifact_id,audit_id))",
+)
+
+
+def validate(state):
+    if (
+        not isinstance(state, dict)
+        or state.get("schema_version") != 1
+        or not isinstance(state.get("prospects"), dict)
+        or not isinstance(state.get("events"), list)
+        or not isinstance(state.get("business_events", []), list)
+        or len(state["prospects"]) > 100
+        or len(state["events"]) > 10000
+        or len(state.get("business_events", [])) > 10000
+        or not isinstance(state.get("audit_runs", []), list)
+        or len(state.get("audit_runs", [])) > 10000
+        or not isinstance(state.get("discovery_candidates", {}), dict)
+        or len(state.get("discovery_candidates", {})) > 100
+        or not isinstance(state.get("discovery_events", []), list)
+        or len(state.get("discovery_events", [])) > 10000
+        or ("discovery_candidates" in state) != ("discovery_events" in state)
+        or not isinstance(state.get("report_artifacts", {}), dict)
+        or len(state.get("report_artifacts", {})) > 1000
+        or not isinstance(state.get("audit_artifact_links", []), list)
+        or len(state.get("audit_artifact_links", [])) > 10000
+        or ("report_artifacts" in state) != ("audit_artifact_links" in state)
+        or any(k.startswith("_store_") for k in state)
+    ):
+        raise ValueError("Invalid bounded pipeline state")
+    for records in (state.get("discovery_candidates", {}), state["prospects"]):
+        domains = set()
+        for identity, prospect in records.items():
+            domain = prospect.get("domain")
+            if (
+                not isinstance(domain, str)
+                or domain != domain.lower().rstrip(".")
+                or not re.fullmatch(r"[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?", domain)
+                or "." not in domain
+                or domain in domains
+                or hashlib.sha256(domain.encode()).hexdigest() != identity
+            ):
+                raise ValueError("Invalid canonical prospect identity")
+            domains.add(domain)
+    from scripts.report_archive import validate_metadata
+
+    for identity, artifact in state.get("report_artifacts", {}).items():
+        validate_metadata(artifact)
+        if artifact["artifact_id"] != identity:
+            raise ValueError("Invalid archive index identity")
+    audits = {audit["audit_id"]: audit for audit in state.get("audit_runs", [])}
+    linked = set()
+    for link in state.get("audit_artifact_links", []):
+        if not isinstance(link, dict):
+            raise ValueError("Invalid archive association")
+        artifact_id, audit_id = link.get("artifact_id"), link.get("audit_id")
+        if not isinstance(artifact_id, str) or not isinstance(audit_id, str):
+            raise ValueError("Invalid archive association identity")
+        pair = (artifact_id, audit_id)
+        if (artifact_id not in state.get("report_artifacts", {}) or audit_id not in audits
+                or pair in linked or link.get("owner_reviewed") is not True
+                or link.get("audit_status") != audits[audit_id]["status"]
+                or link.get("canonical_run_id") != audits[audit_id].get("canonical_run_id")):
+            raise ValueError("Invalid or duplicate archive association")
+        linked.add(pair)
+    raw = json.dumps(state, sort_keys=True, allow_nan=False)
+    if len(raw.encode()) > MAX_BYTES:
+        raise ValueError("Archive pipeline history before continuing")
+    return raw
+
+
+def validate_transition(previous, state):
+    validate(state)
+    if previous is not None:
+        for key in ("events", "business_events", "audit_runs", "discovery_events", "audit_artifact_links"):
+            prior = previous.get(key, [])
+            if state.get(key, [])[:len(prior)] != prior:
+                raise ValueError("Persisted history is append-only; use explicit backup recovery")
+        for identity, artifact in previous.get("report_artifacts", {}).items():
+            if state.get("report_artifacts", {}).get(identity) != artifact:
+                raise ValueError("Registered ciphertext metadata is immutable")
+        for identity, prospect in previous["prospects"].items():
+            current = state["prospects"].get(identity)
+            if current is None or current["domain"] != prospect["domain"]:
+                raise ValueError("Prospect deletion/identity change requires a retention migration")
+            if prospect.get("status") == "suppressed" and current.get("status") != "suppressed":
+                raise ValueError("Suppression cannot be cleared by a worker")
+            for key in ("proposal_versions", "recommendation_reviews", "approvals",
+                        "outreach_drafts", "outreach_events", "suppression_events", "project_events"):
+                prior = prospect.get(key, [])
+                if current.get(key, [])[:len(prior)] != prior:
+                    raise ValueError("Proposal and review history is append-only")
+            for project_id, project in prospect.get("projects", {}).items():
+                latest = current.get("projects", {}).get(project_id)
+                if latest is None or any(
+                    latest[key] != project[key] for key in ("frozen_proposal", "proposal_version", "acceptance")
+                ):
+                    raise ValueError("Accepted proposal and project acceptance are immutable")
+                for key in ("tasks", "milestones"):
+                    if len(latest[key]) != len(project[key]):
+                        raise ValueError("Accepted project scope is immutable")
+                    for old, new in zip(project[key], latest[key], strict=True):
+                        if (
+                            {k: v for k, v in old.items() if k not in {"status", "evidence_sha256"}}
+                            != {k: v for k, v in new.items() if k not in {"status", "evidence_sha256"}}
+                            or old["status"] == "complete" and old != new
+                        ):
+                            raise ValueError("Project scope and completed evidence are immutable")
+        for identity, candidate in previous.get("discovery_candidates", {}).items():
+            current = state.get("discovery_candidates", {}).get(identity)
+            if (
+                current is None or current["domain"] != candidate["domain"]
+                or current["first_seen"] != candidate["first_seen"]
+                or any(s not in current["sources"] for s in candidate["sources"])
+            ):
+                raise ValueError("Discovery provenance cannot be discarded by a worker")
+
+
+class PipelineStore:
+    storage_kind = "private SQLite"
+
+    def __init__(self, path: Path):
+        self.path = _is_safe_db_location(path)
+        self.operations_path = self.path.with_name(self.path.stem + ".operations.sqlite3")
+        self._active_job = None
+
+    def _connect(self):
+        # Repeat validation for every access, including backups and reopen.
+        _is_safe_db_location(self.path)
+        if not self.path.exists():
+            fd = os.open(
+                self.path, os.O_CREAT | os.O_EXCL | os.O_WRONLY | getattr(os, "O_NOFOLLOW", 0),
+                0o600,
+            )
+            os.close(fd)
+        db = sqlite3.connect(self.path, timeout=1)
+        db.execute("PRAGMA foreign_keys=ON")
+        db.execute("PRAGMA synchronous=FULL")
+        try:
+            version = db.execute("PRAGMA user_version").fetchone()[0]
+            if version != VERSION:
+                db.execute("BEGIN IMMEDIATE")
+                version = db.execute("PRAGMA user_version").fetchone()[0]
+            if version == 0:
+                # Refuse a legacy MoneyMachine/History/review ledger DB.
+                if db.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchone():
+                    raise ValueError("Use a separate pipeline database")
+                for statement in (*SCHEMA, *DISCOVERY_SCHEMA, *ARTIFACT_SCHEMA):
+                    db.execute(statement)
+                db.execute(f"PRAGMA user_version={VERSION}")
+            elif version == 1:
+                tables = {r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+                if not {"metadata", "prospects", "audit_runs", "system_events", "business_events"} <= tables:
+                    raise ValueError("Unrecognized version 1 database")
+                for statement in DISCOVERY_SCHEMA:
+                    db.execute(statement)
+                for statement in ARTIFACT_SCHEMA:
+                    db.execute(statement)
+                db.execute(f"PRAGMA user_version={VERSION}")
+            elif version in (2, 3):
+                tables = {r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+                if not {"metadata", "prospects", "audit_runs", "system_events", "business_events",
+                        "discovery_candidates", "discovery_events"} <= tables:
+                    raise ValueError("Unrecognized prior pipeline database")
+                for statement in ARTIFACT_SCHEMA:
+                    db.execute(statement)
+                db.execute(f"PRAGMA user_version={VERSION}")
+            elif version != VERSION:
+                raise ValueError("Unsupported pipeline schema; migration required")
+            if db.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
+                raise ValueError("Database integrity check failed")
+            row = db.execute("SELECT body FROM metadata WHERE singleton=1").fetchone()
+            if row is None or not json.loads(row[0]).get("_store_operations_required"):
+                if not db.in_transaction:
+                    db.execute("BEGIN IMMEDIATE")
+                # Re-read under the lock: another initializer may have finished.
+                row = db.execute("SELECT body FROM metadata WHERE singleton=1").fetchone()
+                metadata = json.loads(row[0]) if row else {"schema_version": 1, "_store_initialized": False}
+                if not metadata.get("_store_operations_required"):
+                    from scripts.operational_ledger import OperationalLedger
+
+                    with OperationalLedger(self.operations_path, allow_create=True).connect():
+                        pass
+                    metadata["_store_operations_required"] = True
+                    db.execute("INSERT OR REPLACE INTO metadata VALUES(1,?)", (json.dumps(metadata),))
+            if not self.operations_path.is_file():
+                raise ValueError("Operational ledger missing; explicit paired recovery required")
+            _is_safe_db_location(self.operations_path)
+            db.commit()
+            return db
+        except BaseException:
+            db.rollback()
+            db.close()
+            raise
+
+    @staticmethod
+    def _load(db):
+        row = db.execute("SELECT body FROM metadata WHERE singleton=1").fetchone()
+        if row is None:
+            return None
+        state = json.loads(row[0])
+        if state.pop("_store_initialized", True) is False:
+            return None
+        state.pop("_store_operations_required", None)
+        state.pop("_store_last_committed_job", None)
+        state["prospects"] = {
+            identity: json.loads(body)
+            for identity, body in db.execute("SELECT id,body FROM prospects ORDER BY rowid")
+        }
+        state["events"] = [
+            json.loads(row[0])
+            for row in db.execute("SELECT body FROM system_events ORDER BY sequence")
+        ]
+        if state.pop("_store_has_business_events", False):
+            state["business_events"] = [
+                json.loads(row[0])
+                for row in db.execute("SELECT body FROM business_events ORDER BY sequence")
+            ]
+        if state.pop("_store_has_audit_runs", False):
+            state["audit_runs"] = [
+                json.loads(row[0])
+                for row in db.execute("SELECT body FROM audit_runs ORDER BY rowid")
+            ]
+        if state.pop("_store_has_discovery", False):
+            state["discovery_candidates"] = {
+                identity: json.loads(body) for identity, body in db.execute(
+                    "SELECT id,body FROM discovery_candidates ORDER BY rowid"
+                )
+            }
+            state["discovery_events"] = [
+                json.loads(row[0]) for row in db.execute(
+                    "SELECT body FROM discovery_events ORDER BY sequence"
+                )
+            ]
+        if state.pop("_store_has_report_artifacts", False):
+            state["report_artifacts"] = {
+                identity: json.loads(body) for identity, body in db.execute(
+                    "SELECT id,body FROM report_artifacts ORDER BY rowid"
+                )
+            }
+            state["audit_artifact_links"] = [
+                json.loads(row[0]) for row in db.execute(
+                    "SELECT body FROM audit_artifact_links ORDER BY rowid"
+                )
+            ]
+        validate(state)
+        return state
+
+    @staticmethod
+    def _save(db, state, job_id=None):
+        validate(state)
+        previous = PipelineStore._load(db)
+        validate_transition(previous, state)
+        metadata = {
+            k: v for k, v in state.items()
+            if k not in {"prospects", "events", "business_events", "audit_runs",
+                         "discovery_candidates", "discovery_events", "report_artifacts", "audit_artifact_links"}
+        }
+        metadata["_store_has_business_events"] = "business_events" in state
+        metadata["_store_has_audit_runs"] = "audit_runs" in state
+        metadata["_store_has_discovery"] = "discovery_candidates" in state
+        metadata["_store_has_report_artifacts"] = "report_artifacts" in state
+        metadata["_store_operations_required"] = True
+        metadata["_store_initialized"] = True
+        metadata["_store_last_committed_job"] = job_id
+        # All replacement writes share the caller's transaction. A failed FK,
+        # constraint or process interruption preserves the previous full state.
+        for table in ("audit_artifact_links", "report_artifacts", "discovery_events", "discovery_candidates", "business_events", "audit_runs",
+                      "system_events", "prospects", "metadata"):
+            db.execute(f"DELETE FROM {table}")
+        db.execute("INSERT INTO metadata VALUES (1,?)", (json.dumps(metadata),))
+        db.executemany(
+            "INSERT INTO prospects VALUES (?,?,?)",
+            [(i, p["domain"], json.dumps(p)) for i, p in state["prospects"].items()],
+        )
+        db.executemany(
+            "INSERT INTO discovery_candidates VALUES (?,?,?,?)",
+            [(i, c["domain"], c.get("prospect_id"), json.dumps(c))
+             for i, c in state.get("discovery_candidates", {}).items()],
+        )
+        db.executemany(
+            "INSERT INTO discovery_events VALUES (?,?,?)",
+            [(i, e["candidate_id"], json.dumps(e))
+             for i, e in enumerate(state.get("discovery_events", []))],
+        )
+        db.executemany(
+            "INSERT INTO audit_runs VALUES (?,?,?)",
+            [(a["audit_id"], a["prospect_id"], json.dumps(a)) for a in state.get("audit_runs", [])],
+        )
+        db.executemany(
+            "INSERT INTO report_artifacts VALUES (?,?,?)",
+            [(i, a["ciphertext_sha256"], json.dumps(a)) for i, a in state.get("report_artifacts", {}).items()],
+        )
+        db.executemany(
+            "INSERT INTO audit_artifact_links VALUES (?,?,?)",
+            [(link["artifact_id"], link["audit_id"], json.dumps(link))
+             for link in state.get("audit_artifact_links", [])],
+        )
+        db.executemany(
+            "INSERT INTO system_events VALUES (?,?)",
+            [(i, json.dumps(e)) for i, e in enumerate(state["events"])],
+        )
+        db.executemany(
+            "INSERT INTO business_events VALUES (?,?,?,?)",
+            [
+                (i, e["event_id"], e["entity_id"], json.dumps(e))
+                for i, e in enumerate(state.get("business_events", []))
+            ],
+        )
+
+    @contextmanager
+    def transaction(self, *, bootstrap=False):
+        """Hold a single writer lock across selection, audit and state commit.
+
+        Competing workers fail before performing requests. Crash rolls back the
+        transaction; no claim of exactly-once HTTP fetching is made.
+        """
+        db = self._connect()
+        job_id = None
+        from scripts.operational_ledger import OperationalLedger
+
+        operations = None
+        try:
+            operations = OperationalLedger(self.operations_path)
+            db.execute("BEGIN IMMEDIATE")
+            state = self._load(db)
+            if bootstrap:
+                if state is not None:
+                    raise ValueError("Refusing to bootstrap over existing state")
+                from scripts.cloud_prospect_pipeline import empty_state
+
+                state = empty_state()
+            elif state is None:
+                raise ValueError("First run requires explicit bootstrap")
+            committed = db.execute(
+                "SELECT json_extract(body,'$._store_last_committed_job') FROM metadata WHERE singleton=1"
+            ).fetchone()
+            job_id = operations.start(committed[0] if committed else None)
+            self._active_job = (job_id, copy.deepcopy(state))
+            yield state
+            self._save(db, state, job_id=job_id)
+            db.commit()
+            operations.finish(job_id, "succeeded")
+        except BaseException:
+            db.rollback()
+            if job_id is not None:
+                operations.finish(job_id, "failed")
+            raise
+        finally:
+            self._active_job = None
+            db.close()
+
+    def reserve_attempt(self, prospect_id, audit_id, *, now, daily_limit):
+        """Commit quota reservation before HTTP, even if queue state rolls back."""
+        if self._active_job is None:
+            raise ValueError("A serialized queue transaction is required")
+        from scripts.operational_ledger import OperationalLedger
+
+        job_id, baseline = self._active_job
+        return OperationalLedger(self.operations_path).reserve(
+            job_id, prospect_id, audit_id, now=now, daily_limit=daily_limit, baseline=baseline,
+        )
+
+    def read(self):
+        db = self._connect()
+        try:
+            # A consistent read snapshot across all tables.
+            db.execute("BEGIN")
+            return self._load(db)
+        finally:
+            db.close()
+
+    def prospects(self, *, query="", limit=25, offset=0):
+        """Bounded pagination for future authenticated owner-facing callers."""
+        if (
+            not isinstance(query, str) or len(query) > 253
+            or type(limit) is not int or not 1 <= limit <= 100
+            or type(offset) is not int or offset < 0
+        ):
+            raise ValueError("Invalid page parameters")
+        db = self._connect()
+        try:
+            # instr treats user % and _ as literal text, never SQL patterns.
+            return [
+                json.loads(row[0]) for row in db.execute(
+                    "SELECT body FROM prospects WHERE instr(domain,?)>0 "
+                    "ORDER BY domain LIMIT ? OFFSET ?", (query.lower(), limit, offset),
+                )
+            ]
+        finally:
+            db.close()
+
+    def operational_summary(self, baseline=None):
+        from scripts.operational_ledger import OperationalLedger
+
+        return OperationalLedger(self.operations_path).summary(baseline)
+
+    def backup(self, destination: Path):
+        """SQLite online backup, private new file only; no remote upload."""
+        target = _is_safe_db_location(destination)
+        if target == self.path:
+            raise ValueError("Backup must use a separate new file")
+        operational_target = target.with_name(target.stem + ".operations.sqlite3")
+        if operational_target.exists():
+            raise FileExistsError("Use a new backup pair")
+        fd = os.open(target, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+        os.close(fd)
+        source = None
+        output = None
+        try:
+            source = self._connect()
+            output = sqlite3.connect(target)
+            source.backup(output)
+            if output.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
+                raise ValueError("Backup failed integrity validation")
+            if self.operations_path.exists():
+                from scripts.operational_ledger import OperationalLedger
+
+                OperationalLedger(self.operations_path).backup(operational_target)
+        except BaseException:
+            target.unlink(missing_ok=True)
+            raise
+        finally:
+            if output is not None:
+                output.close()
+            if source is not None:
+                source.close()

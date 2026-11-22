@@ -145,10 +145,6 @@
       "path": "/Users/dd/.local/bin/npx",
       "status": "PRESENT_NOT_EXECUTED"
     },
-    "goose": {
-      "path": null,
-      "status": "MISSING"
-    },
     "opencode": {
       "path": "/Users/dd/.opencode/bin/opencode",
       "status": "PRESENT_NOT_EXECUTED"

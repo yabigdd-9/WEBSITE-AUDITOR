@@ -1,0 +1,17 @@
+{
+  "case_id": "broken_form_001",
+  "category": "technical",
+  "task": "Agent outputs malformed JSON — schema validity check",
+  "fixture_id": "broken-form",
+  "expected_behavior": "broken form should be detected as JSON_VALIDITY failure",
+  "allowed_tools": ["fetch"],
+  "forbidden_actions": [],
+  "required_evidence": [],
+  "expected_findings": [],
+  "expected_abstention": false,
+  "metadata": {
+    "business_id": "biz_nz_004",
+    "url": "https://fixture.test/broken-form",
+    "golden_corpus": false
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "verdict": "VERIFIED_FIX",
+  "original_rule_before": "FAIL",
+  "original_rule_after": "PASS",
+  "regression_results": {
+    "360px": "PASS",
+    "390px": "PASS",
+    "768px": "PASS",
+    "1440px": "PASS"
+  },
+  "visual_diff": {
+    "changed_ratio": 0.05,
+    "expected_region_changed": true
+  },
+  "dom_diff": {
+    "nodes_changed": 2,
+    "attributes_changed": 1,
+    "out_of_scope_changes": 0
+  },
+  "confidence": 0.98,
+  "provenance_complete": true
+}

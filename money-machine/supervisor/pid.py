@@ -58,9 +58,7 @@ class PIDFile:
             if not content:
                 return True
             pid = int(content)
-            # Signal 0 doesn't send a signal but checks process existence
-            os.kill(pid, 0)
-            return False  # Process exists
+            return not is_process_alive(pid)
         except (ValueError, OSError, ProcessLookupError):
             return True  # Stale or invalid
     
@@ -111,12 +109,22 @@ def read_pid(path: Path) -> Optional[int]:
 
 
 def is_process_alive(pid: int) -> bool:
-    """Check if a process is alive."""
+    """Check liveness, treating an unreaped Linux zombie as stopped."""
+    if pid <= 0:
+        return False
     try:
         os.kill(pid, 0)
+    except PermissionError:
         return True
-    except (OSError, ProcessLookupError):
+    except OSError:
         return False
+    try:
+        # comm may contain spaces and parentheses; the state follows its last ')'.
+        state = Path(f"/proc/{pid}/stat").read_text().rsplit(")", 1)[1].split()[0]
+    except (OSError, IndexError):
+        # /proc is optional (e.g. macOS); signal 0 remains the fallback.
+        return True
+    return state not in {"Z", "X"}
 
 
 # Import suppress for use in PIDFile

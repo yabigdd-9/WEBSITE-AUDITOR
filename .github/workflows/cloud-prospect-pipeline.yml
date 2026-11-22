@@ -1,0 +1,185 @@
+name: Durable Cloud Draft Pipeline
+
+on:
+  # Verify the existing enabled worker after platform integrations. Pushes
+  # always continue encrypted state; bootstrap remains an explicit input.
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/cloud-prospect-pipeline.yml'
+      - 'scripts/**'
+      - 'auditor_toolkit/**'
+      - 'website_auditor/**'
+      - 'money-machine/mm_discovery.py'
+      - 'config/cloud-*.json'
+      - 'pyproject.toml'
+  schedule:
+    - cron: '50 4 * * 2,5'
+  workflow_dispatch:
+    inputs:
+      bootstrap:
+        description: 'Create first checkpoint only (requires no previous runs)'
+        type: boolean
+        default: false
+      recovery_run:
+        description: 'Explicit owner recovery from a trusted older checkpoint run ID'
+        type: string
+        required: false
+      outcomes:
+        description: 'Optional encrypted owner-verified outcome bundle; never plaintext'
+        type: string
+        required: false
+  pull_request:
+    paths:
+      - 'scripts/cloud_prospect_pipeline.py'
+      - 'toolkit_tests/test_cloud_prospect_pipeline.py'
+      - 'scripts/report_archive.py'
+      - 'toolkit_tests/test_report_archive.py'
+      - 'scripts/postgres_store.py'
+      - 'scripts/postgres_backup.py'
+      - 'toolkit_tests/test_postgres_store.py'
+      - 'supabase/migrations/**'
+      - 'scripts/pipeline_store.py'
+      - 'toolkit_tests/test_pipeline_store.py'
+      - '.github/workflows/cloud-prospect-pipeline.yml'
+      - 'config/cloud-prospects.json'
+      - 'scripts/cloud_pipeline_outcomes.py'
+      - 'toolkit_tests/test_cloud_pipeline_outcomes.py'
+      - 'scripts/cloud_pipeline_checkpoint.py'
+      - 'toolkit_tests/test_cloud_pipeline_checkpoint.py'
+      - 'toolkit_tests/test_cloud_activation_gate.py'
+      - 'scripts/cloud_discovery.py'
+      - 'toolkit_tests/test_cloud_discovery.py'
+      - 'money-machine/mm_discovery.py'
+      - 'scripts/cloud_opportunities.py'
+      - 'toolkit_tests/test_cloud_opportunities.py'
+      - 'config/cloud-opportunity-policy.json'
+      - 'scripts/approval_controls.py'
+      - 'toolkit_tests/test_approval_controls.py'
+      - 'scripts/client_projects.py'
+      - 'toolkit_tests/test_client_projects.py'
+      - 'scripts/operational_ledger.py'
+      - 'toolkit_tests/test_operational_ledger.py'
+      - 'toolkit_tests/test_platform_internal_e2e.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: durable-cloud-draft-pipeline
+  cancel-in-progress: false
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev,vault]'
+      - run: python -m pytest toolkit_tests/test_cloud_prospect_pipeline.py toolkit_tests/test_cloud_pipeline_outcomes.py toolkit_tests/test_cloud_pipeline_checkpoint.py toolkit_tests/test_pipeline_store.py toolkit_tests/test_cloud_activation_gate.py toolkit_tests/test_report_archive.py -q toolkit_tests/test_cloud_discovery.py money-machine/test_discovery.py toolkit_tests/test_cloud_opportunities.py toolkit_tests/test_approval_controls.py toolkit_tests/test_client_projects.py toolkit_tests/test_operational_ledger.py toolkit_tests/test_platform_internal_e2e.py
+      - run: ruff check scripts/pipeline_store.py scripts/cloud_prospect_pipeline.py toolkit_tests/test_pipeline_store.py scripts/cloud_discovery.py toolkit_tests/test_cloud_discovery.py scripts/cloud_opportunities.py toolkit_tests/test_cloud_opportunities.py scripts/approval_controls.py toolkit_tests/test_approval_controls.py scripts/client_projects.py toolkit_tests/test_client_projects.py scripts/operational_ledger.py toolkit_tests/test_operational_ledger.py
+  configuration:
+    name: Check durable worker activation
+    needs: tests
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    env:
+      PIPELINE_ENABLED: ${{ vars.WA_PIPELINE_ENABLED }}
+      STATE_KEY_CONFIGURED: ${{ secrets.WA_PIPELINE_STATE_KEY != '' }}
+    steps:
+      - name: Report actual activation separately from offline tests
+        shell: bash
+        run: |
+          # A feature-branch manual dispatch can pass offline tests while the
+          # actual worker is skipped by the master-only guard below. Fail
+          # explicitly rather than showing a misleading green workflow.
+          if [ "$GITHUB_REF" != 'refs/heads/master' ]; then
+            echo '## Durable worker: BLOCKED - wrong branch' >> "$GITHUB_STEP_SUMMARY"
+            echo '::error::Run this workflow on master; feature-branch checks never activate the worker.'
+            exit 1
+          fi
+          if [ "$PIPELINE_ENABLED" != 'true' ]; then
+            echo '## Durable worker: DISABLED' >> "$GITHUB_STEP_SUMMARY"
+            echo 'Offline tests do not prove live queue execution. Set WA_PIPELINE_ENABLED=true and configure WA_PIPELINE_STATE_KEY before the first bootstrap dispatch.' >> "$GITHUB_STEP_SUMMARY"
+            if [ "$GITHUB_EVENT_NAME" = 'workflow_dispatch' ] || [ "$GITHUB_EVENT_NAME" = 'push' ]; then
+              echo '::error::Requested verification did not execute the worker: WA_PIPELINE_ENABLED is not true.'
+              exit 1
+            fi
+          elif [ "$STATE_KEY_CONFIGURED" != 'true' ]; then
+            echo '## Durable worker: BLOCKED - state key missing' >> "$GITHUB_STEP_SUMMARY"
+            echo '::error::WA_PIPELINE_STATE_KEY must be configured before activation.'
+            exit 1
+          else
+            echo '## Durable worker: configured; verify worker steps and checkpoint upload below' >> "$GITHUB_STEP_SUMMARY"
+          fi
+  postgres-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev,portal,postgres,vault]' 'pgserver==0.1.4'
+      - run: python -m pytest toolkit_tests/test_postgres_store.py -q
+      - run: ruff check scripts/postgres_store.py scripts/postgres_backup.py toolkit_tests/test_postgres_store.py
+  draft-pipeline:
+    permissions:
+      contents: read
+      actions: read
+    needs: [tests, postgres-tests, configuration]
+    # Existing owner activation is required for scheduled and post-merge runs.
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && vars.WA_PIPELINE_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      WA_PIPELINE_STORAGE: ${{ vars.WA_PIPELINE_STORAGE || 'checkpoint' }}
+      WA_POSTGRES_DSN: ${{ secrets.WA_POSTGRES_DSN }}
+      WA_PIPELINE_STATE_KEY: ${{ secrets.WA_PIPELINE_STATE_KEY }}
+      MM_PAID_ALLOWED: '0'
+      MM_ALLOW_EXTERNAL_FREE_MODELS: '0'
+      MM_EXTERNAL_SEND_ALLOWED: '0'
+      BOOTSTRAP: ${{ inputs.bootstrap || false }}
+      WA_RECOVERY_RUN: ${{ inputs.recovery_run || '' }}
+      WA_OUTCOMES_ENCRYPTED: ${{ inputs.outcomes || '' }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Configure verified Supabase TLS
+        if: env.WA_PIPELINE_STORAGE == 'postgres'
+        uses: ./.github/actions/supabase-tls
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+      - run: |
+          python -m pip install --only-binary=:all: --require-hashes -r requirements-hosted-runtime.txt
+      - run: python -m scripts.install_reviewed_package
+      - name: Run the explicitly selected private storage authority
+        run: python -m scripts.cloud_storage_runner
+      # A failed/cancelled prior run without a checkpoint blocks the next run.
+      - name: Preserve encrypted checkpoint
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: pipeline-state
+          path: ${{ runner.temp }}/pipeline-state.enc
+          retention-days: 30
+          if-no-files-found: error
+      - name: Preserve encrypted paired Postgres recovery archive
+        if: env.WA_PIPELINE_STORAGE == 'postgres'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: pipeline-postgres-backup
+          path: ${{ runner.temp }}/pipeline-postgres-backup.enc
+          retention-days: 30
+          if-no-files-found: error

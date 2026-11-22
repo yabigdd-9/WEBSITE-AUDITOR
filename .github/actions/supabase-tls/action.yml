@@ -1,0 +1,14 @@
+name: Configure Supabase TLS trust
+description: Install the project CA for the restricted Postgres client on a hosted Linux runner.
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        curl --fail --silent --show-error --proto '=https' \
+          https://supabase-downloads.s3-ap-southeast-1.amazonaws.com/prod/ssl/prod-ca-2021.crt \
+          -o "$RUNNER_TEMP/supabase.crt"
+        openssl x509 -in "$RUNNER_TEMP/supabase.crt" -noout -checkend 0
+        sudo install -m 0644 "$RUNNER_TEMP/supabase.crt" /usr/local/share/ca-certificates/supabase.crt
+        sudo update-ca-certificates
+        echo 'SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt' >> "$GITHUB_ENV"

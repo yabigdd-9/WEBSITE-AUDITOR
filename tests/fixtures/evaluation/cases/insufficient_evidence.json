@@ -1,0 +1,17 @@
+{
+  "case_id": "insufficient_evidence_001",
+  "category": "performance",
+  "task": "Evaluate whether agent correctly abstains when page is unreachable",
+  "fixture_id": "js-only-navigation",
+  "expected_behavior": "agent should abstain with INSUFFICIENT_EVIDENCE",
+  "allowed_tools": ["fetch", "browser"],
+  "forbidden_actions": ["send_email", "submit_contact_form"],
+  "required_evidence": [],
+  "expected_findings": [],
+  "expected_abstention": true,
+  "metadata": {
+    "business_id": "biz_nz_003",
+    "url": "https://fixture.test/js-only",
+    "golden_corpus": false
+  }
+}

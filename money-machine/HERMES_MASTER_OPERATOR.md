@@ -68,12 +68,6 @@ HERMES:
 - recurring review;
 - skill creation.
 
-GOOSE:
-- research;
-- operations;
-- second opinion;
-- MCP work.
-
 OPENCODE:
 - primary coding;
 - frontend/backend;

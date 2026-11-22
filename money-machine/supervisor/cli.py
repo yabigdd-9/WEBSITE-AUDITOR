@@ -41,7 +41,7 @@ HEARTBEAT = STATE / "supervisor.heartbeat"
 LEASE_SECONDS = 300
 
 from supervisor.daemon import rotate_logs  # noqa: E402
-from supervisor.pid import PIDFile  # noqa: E402
+from supervisor.pid import PIDFile, is_process_alive  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # helpers
@@ -59,17 +59,7 @@ def _read_pid() -> int | None:
 
 
 def _pid_alive(pid: int) -> bool:
-    if pid <= 0:
-        return False
-    try:
-        os.kill(pid, 0)
-    except ProcessLookupError:
-        return False
-    except PermissionError:
-        return True
-    except OSError:
-        return False
-    return True
+    return is_process_alive(pid)
 
 
 def _is_running() -> int | None:

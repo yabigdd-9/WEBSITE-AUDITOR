@@ -1,0 +1,29 @@
+[Unit]
+Description=Website Auditor single-node supervised pipeline
+Wants=network-online.target
+After=network-online.target
+RequiresMountsFor=/mnt/wa-data
+ConditionPathIsMountPoint=/mnt/wa-data
+
+[Service]
+Type=simple
+User=websiteauditor
+Group=websiteauditor
+WorkingDirectory=/mnt/wa-data/WEBSITE-AUDITOR/money-machine
+Environment=MM_ROOT=/mnt/wa-data/WEBSITE-AUDITOR
+Environment=WA_DATA_MOUNT=/mnt/wa-data
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStartPre=/mnt/wa-data/WEBSITE-AUDITOR/.venv-email/bin/python /mnt/wa-data/WEBSITE-AUDITOR/deploy/cloud/preflight.py
+ExecStart=/mnt/wa-data/WEBSITE-AUDITOR/.venv-email/bin/python -m supervisor.cli _run-foreground --sleep 15 --lease 300 --rotate-every 60
+Restart=on-failure
+RestartSec=20
+TimeoutStopSec=30
+KillSignal=SIGTERM
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

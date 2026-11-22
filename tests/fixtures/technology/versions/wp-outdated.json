@@ -1,0 +1,12 @@
+{
+  "finding_id": "version_001",
+  "component": "WordPress",
+  "detected_version": "5.8",
+  "latest_version": "6.4",
+  "is_outdated": true,
+  "severity": "high",
+  "evidence": [
+    {"type": "meta_generator", "value": "WordPress 5.8"},
+    {"type": "css_version_param", "value": "style.min.css?ver=5.8"}
+  ]
+}

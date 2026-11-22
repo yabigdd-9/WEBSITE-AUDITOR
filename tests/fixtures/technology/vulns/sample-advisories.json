@@ -1,0 +1,22 @@
+[
+  {
+    "cve_id": "CVE-2023-1234",
+    "component": "WordPress",
+    "affected_versions": "< 6.0",
+    "severity": "high",
+    "description": "Privilege escalation in WordPress core affecting versions below 6.0.",
+    "remediation": "Update to WordPress 6.0 or later.",
+    "source": "embedded_advisory_db",
+    "detected_at": "2026-01-01T00:00:00Z"
+  },
+  {
+    "cve_id": "CVE-2023-5678",
+    "component": "jQuery",
+    "affected_versions": "< 3.7.0",
+    "severity": "medium",
+    "description": "XSS vulnerability in jQuery versions below 3.7.0.",
+    "remediation": "Update jQuery to 3.7.0 or later.",
+    "source": "embedded_advisory_db",
+    "detected_at": "2026-01-01T00:00:00Z"
+  }
+]
