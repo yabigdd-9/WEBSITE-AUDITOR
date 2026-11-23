@@ -15,6 +15,8 @@ import hashlib
 from datetime import datetime, timezone
 from pathlib import Path
 
+from playwright._impl._errors import Error as PlaywrightError
+
 from .common import validate_url
 
 # Finite-state machine states, ordered by expected traversal.
@@ -97,7 +99,7 @@ def run_flow_probe(url, output_dir, enabled=True, allow_private=False):
         "started_at": _now(),
     }
     try:
-        from playwright.sync_api import Error as PlaywrightError, sync_playwright
+        from playwright.sync_api import sync_playwright
 
         validate_url(url, allow_private)
         with sync_playwright() as p:
