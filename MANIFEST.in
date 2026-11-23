@@ -1,0 +1,4 @@
+include auditor_toolkit/*.py
+include auditor_toolkit/**/*.py
+include website_auditor/**/*.py
+include scripts/*.py
