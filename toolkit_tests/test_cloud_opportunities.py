@@ -147,7 +147,7 @@ def test_pipeline_persists_exact_versions_and_owner_rejections(entry, policy):
 
         def audit(sites, workspace, entries):
             entries.append(copy.deepcopy(entry))
-            return [{"status": "COMPLETE"}]
+            return [{"status": "complete"}]
 
         with store.transaction(bootstrap=True) as state:
             pipeline.process(

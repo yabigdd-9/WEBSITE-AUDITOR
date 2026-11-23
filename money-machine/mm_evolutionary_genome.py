@@ -3,11 +3,9 @@ Implements self-modifying architecture with genetic encoding, expression regulat
 """
 import json
 import sqlite3
-import hashlib
-import math
-from datetime import datetime, timezone
-from mm_core import now, connect, sha
-from typing import Dict, List, Any, Optional, Tuple
+import contextlib
+from mm_core import now, sha, connect
+from typing import Dict, Any
 
 def encode_architectural_genes(
     conn: sqlite3.Connection,
@@ -71,7 +69,7 @@ def encode_architectural_genes(
             "timestamp": now()
         }
 
-    except Exception as e:
+    except (json.JSONDecodeError, sqlite3.Error, ValueError, TypeError) as e:
         return {
             "status": "error",
             "message": f"Failed to encode architectural genes for {architectural_pattern}: {str(e)}",
@@ -119,9 +117,8 @@ def express_genotype(
 
         # Decode the genetic information
         genetic_info = json.loads(row[0]) if row[0] else {}
-        evidence_ref = json.loads(row[1]) if row[1] else {}
-        storage_confidence = row[2] if row[2] else 0.0
-        created_at = row[3] if row[3] else now()
+        _ = row[2] if row[2] else 0.0
+        _ = row[3] if row[3] else now()
 
         # Calculate expression fitness based on business context and performance
         expression_fitness = _calculate_expression_fitness(
@@ -169,7 +166,7 @@ def express_genotype(
             "timestamp": now()
         }
 
-    except Exception as e:
+    except (json.JSONDecodeError, sqlite3.Error, ValueError, TypeError) as e:
         return {
             "status": "error",
             "message": f"Failed to express genotype {genetic_hash}: {str(e)}",
@@ -237,9 +234,9 @@ def track_genetic_fitness(
             UPDATE mm_learning
             SET actual = ?,
                 evidence_ref = ?,
-                confidence = ?,
-                created_at = ?
+                confidence = ?
             WHERE pattern = ? AND actual LIKE ?
+              AND id = (SELECT MAX(id) FROM mm_learning WHERE pattern = ? AND actual LIKE ?)
         ''', (
             json.dumps({
                 "genetic_hash": genetic_hash,
@@ -267,7 +264,7 @@ def track_genetic_fitness(
             "timestamp": now()
         }
 
-    except Exception as e:
+    except (json.JSONDecodeError, sqlite3.Error, ValueError, TypeError) as e:
         return {
             "status": "error",
             "message": f"Failed to track fitness for genotype {genetic_hash}: {str(e)}",
@@ -289,7 +286,7 @@ def _calculate_expression_fitness(
         parameters = genetic_info.get("parameters", {})
 
         # Check if this pattern is suitable for current business context
-        industry = business_context.get("industry", "")
+        _ = business_context.get("industry", "")
         problem_type = business_context.get("primary_problem", "")
         urgency = business_context.get("urgency", 0.5)  # 0.0 to 1.0
 
@@ -323,7 +320,7 @@ def _calculate_expression_fitness(
         # Ensure fitness stays in valid range
         return max(0.0, min(1.0, fitness))
 
-    except Exception:
+    except (KeyError, TypeError, ValueError):
         return 0.5  # Return neutral fitness on error
 
 def _calculate_fitness_score(
@@ -361,7 +358,7 @@ def _calculate_fitness_score(
 
         return max(0.0, min(1.0, fitness))
 
-    except Exception:
+    except (KeyError, TypeError, ValueError, ZeroDivisionError):
         return 0.5  # Return neutral fitness on error
 
 def get_genetic_diversity_metrics() -> Dict[str, Any]:
@@ -420,7 +417,7 @@ def get_genetic_diversity_metrics() -> Dict[str, Any]:
                 "timestamp": now()
             }
 
-    except Exception as e:
+    except (sqlite3.Error, json.JSONDecodeError, ValueError, TypeError) as e:
         return {
             "error": f"Failed to get genetic diversity metrics: {str(e)}",
             "total_genetic_encodings": 0,

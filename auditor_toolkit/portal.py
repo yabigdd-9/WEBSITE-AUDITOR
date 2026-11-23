@@ -1,4 +1,4 @@
-"""Single-owner portal with explicit authenticated route composition."""
+"""Single-operator local portal with opaque, expiring server-side sessions."""
 
 import hashlib
 import html
@@ -28,18 +28,19 @@ def setup_password(root, password):
         raise ValueError("Use at least 12 characters")
     path = Path(root) / "portal-auth.json"
     atomic_write_json(path, {"password_hash": PasswordHasher().hash(password)})
-    path.chmod(384)
+    path.chmod(0o600)
     return path
 
 
 class OwnerPortal:
-    def __init__(self, app, history, root, password_hash, session_seconds, pipeline_db):
+    def __init__(self, app, history, root, password_hash, session_seconds, pipeline_db, region="default"):
         self.app = app
         self.history = history
         self.root = root
         self.password_hash = password_hash
         self.session_seconds = session_seconds
         self.pipeline_db = pipeline_db
+        self.region = region
         self.attempts = {}
 
     def session(self, request):
@@ -50,6 +51,14 @@ class OwnerPortal:
             self.app.state.sessions.pop(key, None)
             raise HTTPException(401, "Login required")
         return (key, value)
+
+    def session_info(self, request):
+        token = request.cookies.get("wa_session", "")
+        key = hashlib.sha256(token.encode()).hexdigest()
+        value = self.app.state.sessions.get(key)
+        if not value or value["expires"] <= time.time():
+            raise HTTPException(401, "Login required")
+        return {"csrf": value["csrf"], "expires": value["expires"]}
 
     def csrf(self, request, value, submitted=None):
         expected_origin = str(request.base_url).rstrip("/")
@@ -102,113 +111,213 @@ class OwnerPortal:
         except VerificationError:
             raise HTTPException(401, "Invalid password") from None
         token = secrets.token_urlsafe(32)
-        self.app.state.sessions = {
-            k: v for k, v in self.app.state.sessions.items() if v["expires"] > now
-        }
+        self.app.state.sessions = {k: v for k, v in self.app.state.sessions.items() if v["expires"] > time.time()}
         self.app.state.sessions[hashlib.sha256(token.encode()).hexdigest()] = {
             "expires": now + self.session_seconds,
             "csrf": secrets.token_urlsafe(32),
         }
         response = RedirectResponse("/", status_code=303)
         response.set_cookie(
-            "wa_session", token, httponly=True, samesite="strict", max_age=self.session_seconds
+            "wa_session",
+            token,
+            httponly=True,
+            samesite="strict",
+            max_age=self.session_seconds,
+            path="/",
         )
         return response
-
-    def session_info(self, request: Request):
-        _, value = self.session(request)
-        return {"csrf": value["csrf"], "expires": value["expires"]}
 
     async def logout(self, request: Request):
         key, value = self.session(request)
         form = await request.form()
         submitted = request.headers.get("x-csrf-token") or str(form.get("csrf", ""))
         if not secrets.compare_digest(submitted, value["csrf"]):
-            raise HTTPException(403, CSRF_REQUIRED)
+            raise HTTPException(403, "CSRF token required")
         self.app.state.sessions.pop(key, None)
-        response = RedirectResponse(LOGIN_PATH, status_code=303)
+        response = RedirectResponse("/login", status_code=303)
         response.delete_cookie("wa_session")
         return response
 
-    def dashboard(self, request: Request, q: str = ""):
+
+def create_app(root, session_seconds=3600, pipeline_db=None, report_archive_root=None, pipeline_postgres=False, region="default", region_config=None):
+    """Create the portal app with multi-region support.
+
+    Args:
+        root: Root directory for portal data.
+        session_seconds: Session timeout in seconds.
+        pipeline_db: Optional pipeline database path.
+        report_archive_root: Optional report archive root.
+        pipeline_postgres: Use Postgres for pipeline storage.
+        region: Region identifier (default: "default").
+        region_config: Optional region-specific configuration dict.
+    """
+    from scripts.pipeline_store import PipelineStore
+    from scripts.postgres_store import PostgresPipelineStore
+
+    from .config import get_settings
+    from .pipeline_portal import attach_pipeline
+
+    # Apply region-specific settings
+    region_config = region_config or {}
+
+    # Support both multi-region and legacy single-region modes
+    # Check if we're in multi-region mode (regions/ subdirectory exists)
+    regions_dir = Path(root) / "regions"
+    if regions_dir.is_dir() and (regions_dir / region).is_dir():
+        # Multi-region mode
+        region_root = regions_dir / region
+    else:
+        # Legacy single-region mode - use root directly
+        region_root = Path(root)
+
+    history = History(region_root)
+    auth_file = region_root / "portal-auth.json"
+    if not auth_file.is_file():
+        raise ValueError(f"Run wa dashboard --set-password --region {region} before serving")
+    password_hash = json.loads(auth_file.read_text())["password_hash"]
+    app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+    settings = get_settings()
+    app.add_middleware(
+        TrustedHostMiddleware, allowed_hosts=settings.allowed_hosts
+    )
+    app.state.sessions = {}
+    app.state.history = history
+    app.state.root = region_root
+    app.state.region = region
+
+    # Determine pipeline database
+    if pipeline_postgres:
+        pipeline_db = PostgresPipelineStore()
+    elif pipeline_db is None:
+        pipeline_db = PipelineStore(region_root / "pipeline.sqlite3")
+
+    owner_portal = OwnerPortal(app, history, region_root, password_hash, session_seconds, pipeline_db, region)
+
+    @app.middleware("http")
+    async def headers(request: Request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Cache-Control"] = "no-store"
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; script-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'; form-action 'self'"
+        )
+        return response
+
+    @app.get("/login", response_class=HTMLResponse)
+    def login_page():
+        return owner_portal.login_page()
+
+    @app.post("/login")
+    async def login(request: Request):
+        return await owner_portal.login(request)
+
+    @app.get("/api/session")
+    def session_info(request: Request):
+        return owner_portal.session_info(request)
+
+    @app.post("/logout")
+    async def logout(request: Request):
+        return await owner_portal.logout(request)
+
+    @app.get("/", response_class=HTMLResponse)
+    def dashboard(request: Request, q: str = ""):
         try:
-            _, value = self.session(request)
+            _, value = owner_portal.session(request)
         except HTTPException:
-            return RedirectResponse(LOGIN_PATH, status_code=303)
+            return RedirectResponse("/login", status_code=303)
         rows = "".join(
-            (
-                "<tr><td>"
-                + html.escape(r["url"])
-                + "</td><td>"
-                + html.escape(r["status"])
-                + "</td><td>"
-                + str(r["health_score"])
-                + '</td><td><a href="/runs/'
-                + r["run_id"]
-                + '">View evidence</a></td></tr>'
-                for r in self.history.list(q)
-            )
+            "<tr><td>"
+            + html.escape(r["url"])
+            + "</td><td>"
+            + html.escape(r["status"])
+            + "</td><td>"
+            + str(r["health_score"])
+            + '</td><td><a href="/runs/'
+            + r["run_id"]
+            + '">View evidence</a></td></tr>'
+            for r in history.list(q)
         )
         return (
-            "<h1>Website Auditor</h1><p>"
-            + (
-                '<a href="/pipeline">Business pipeline</a> · '
-                if self.pipeline_db is not None
-                else ""
-            )
-            + '<a href="/monthly">Monthly report drafts</a></p><form><label>Search sites <input name="q" value="'
+            '<h1>Website Auditor</h1><p><a href="/monthly">Monthly report drafts</a></p><form><label>Search sites <input name="q" value="'
             + html.escape(q, quote=True)
-            + '"></label><button>Search</button></form><table><thead><tr><th>Site</th><th>Status</th><th>Health</th><th>Report</th></tr></thead><tbody>'
+            + '"></label><button>Search</button></form><table><thead><tr>'
+            "<th>Site</th><th>Status</th><th>Health</th><th>Report</th></tr></thead><tbody>"
             + rows
             + '</tbody></table><form method="post" action="/logout"><input type="hidden" name="csrf" value="'
             + value["csrf"]
             + '"><button>Log out</button></form>'
         )
 
-    def monthly_reports(self, request: Request):
-        self.session(request)
+    @app.get("/monthly", response_class=HTMLResponse)
+    def monthly_reports(request: Request):
+        owner_portal.session(request)
+
         from .monthly import MonthlyStore
 
-        store = MonthlyStore(self.root)
+        store = MonthlyStore(root)
         rows = []
+
         for report in store.list():
             identity = report["id"]
             manifest = report.get("manifest", {})
-            links = " ".join(
-                (
-                    f'<a href="/monthly-artifacts/{identity}/{kind}">{html.escape(kind)}</a>'
-                    for kind in ("pdf", "html", "email", "json", "revenue", "roi", "action")
-                    if kind in manifest
-                )
-            )
-            rows.append(
-                f"<tr><td>{html.escape(str(report.get('client_id', '')))}</td><td>{html.escape(str(report.get('month', '')))}</td><td>{html.escape(str(report.get('status', '')))}</td><td>{links}</td></tr>"
-            )
-        body = "".join(rows) or '<tr><td colspan="4">No monthly report drafts available.</td></tr>'
-        return f'<h1>Monthly report drafts</h1><p><a href="/">Back to dashboard</a></p><table><thead><tr><th>Client</th><th>Month</th><th>Status</th><th>Artifacts</th></tr></thead><tbody>{body}</tbody></table>'
 
-    def monthly_artifact(self, identity: str, kind: str, request: Request):
-        self.session(request)
+            links = " ".join(
+                f'<a href="/monthly-artifacts/{identity}/{kind}">{html.escape(kind)}</a>'
+                for kind in ("pdf", "html", "email", "json", "revenue", "roi", "action")
+                if kind in manifest
+            )
+
+            rows.append(
+                "<tr>"
+                f"<td>{html.escape(str(report.get('client_id', '')))}</td>"
+                f"<td>{html.escape(str(report.get('month', '')))}</td>"
+                f"<td>{html.escape(str(report.get('status', '')))}</td>"
+                f"<td>{links}</td>"
+                "</tr>"
+            )
+
+        body = "".join(rows) or (
+            '<tr><td colspan="4">No monthly report drafts available.</td></tr>'
+        )
+
+        return (
+            "<h1>Monthly report drafts</h1>"
+            '<p><a href="/">Back to dashboard</a></p>'
+            "<table>"
+            "<thead><tr>"
+            "<th>Client</th><th>Month</th><th>Status</th><th>Artifacts</th>"
+            "</tr></thead>"
+            f"<tbody>{body}</tbody>"
+            "</table>"
+        )
+
+    @app.get("/monthly-artifacts/{identity}/{kind}")
+    def monthly_artifact(identity: str, kind: str, request: Request):
+        owner_portal.session(request)
+
         from .monthly import MonthlyStore
 
         try:
-            path = MonthlyStore(self.root).artifact(identity, kind)
+            path = MonthlyStore(root).artifact(identity, kind)
         except (KeyError, ValueError, OSError):
             raise HTTPException(404, "Monthly artifact unavailable") from None
-        return FileResponse(path, filename=path.name, media_type=BINARY_TYPE)
 
-    def run_view(self, run_id: str, request: Request):
-        self.session(request)
+        return FileResponse(
+            path,
+            filename=path.name,
+            media_type="application/octet-stream",
+        )
+
+    @app.get("/runs/{run_id}", response_class=HTMLResponse)
+    def run_view(run_id: str, request: Request):
+        owner_portal.session(request)
         try:
-            report = self.history.get(run_id)
+            report = history.get(run_id)
         except KeyError:
             raise HTTPException(404, "Unknown run") from None
-        safe_run_id = html.escape(run_id, quote=True)
         links = " ".join(
-            (
-                f'<a href="/artifacts/{safe_run_id}/{html.escape(k)}">Download {html.escape(k)}</a>'
-                for k in report["artifacts"]
-            )
+            f'<a href="/artifacts/{run_id}/{html.escape(k)}">Download {html.escape(k)}</a>'
+            for k in report["artifacts"]
         )
         return (
             "<h1>Audit evidence</h1>"
@@ -218,89 +327,57 @@ class OwnerPortal:
             + "</pre>"
         )
 
-    def artifact(self, run_id: str, kind: str, request: Request):
-        self.session(request)
+    @app.get("/artifacts/{run_id}/{kind}")
+    def artifact(run_id: str, kind: str, request: Request):
+        owner_portal.session(request)
         try:
-            path = self.history.artifact(run_id, kind)
+            path = history.artifact(run_id, kind)
         except (KeyError, ValueError):
             raise HTTPException(404, "Artifact unavailable") from None
-        return FileResponse(path, filename=path.name, media_type=BINARY_TYPE)
+        return FileResponse(path, filename=path.name, media_type="application/octet-stream")
 
-    async def remediation(self, identity: str, request: Request):
-        _, value = self.session(request)
-        self.csrf(request, value)
+    @app.post("/api/remediations/{identity}")
+    async def remediation(identity: str, request: Request):
+        _, value = owner_portal.session(request)
+        owner_portal.csrf(request, value)
         data = await request.json()
         try:
-            self.history.transition(identity, data["state"], data.get("metadata"))
+            history.transition(identity, data["state"], data.get("metadata"))
         except (KeyError, ValueError) as exc:
             raise HTTPException(400, str(exc)) from None
         return {"status": "updated"}
 
-    def health_check(self):
+    @app.get("/health")
+    def health_check():
         try:
             from pathlib import Path
-
-            if not Path(self.app.state.root).exists():
+            if not Path(app.state.root).exists():
                 raise RuntimeError("Root directory does not exist")
             return {"status": "ok"}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
+    # Validate report_archive_root if provided
+    if report_archive_root:
+        if not report_archive_root.exists():
+            raise ValueError("Report archive directory does not exist")
+        if not report_archive_root.is_dir():
+            raise ValueError("Report archive path is not a directory")
+        # Check permissions (must be 0700)
+        if report_archive_root.stat().st_mode & 0o077:
+            raise ValueError("Report archive directory must have 0700 permissions")
 
-def _attach_private_pipeline(app, owner, pipeline_db, report_archive_root=None, pipeline_postgres=False):
+    # Attach pipeline routes if pipeline_db is provided
+    if pipeline_db:
+        if isinstance(pipeline_db, Path):
+            if not pipeline_db.exists():
+                raise ValueError("Pipeline database does not exist")
+            if not pipeline_db.is_file():
+                raise ValueError("Pipeline database path is not a file")
+            store = PipelineStore(pipeline_db)
+        else:
+            # PostgresPipelineStore instance
+            store = pipeline_db
+        attach_pipeline(app, store, owner_portal.session, owner_portal.csrf, report_archive_root)
 
-    from .pipeline_portal import attach_pipeline
-
-    if pipeline_postgres:
-        from scripts.postgres_store import PostgresPipelineStore
-
-        store = PostgresPipelineStore()
-    else:
-        from scripts.pipeline_store import PipelineStore
-
-        if not Path(pipeline_db).is_file():
-            raise ValueError("Initialize the private pipeline database before serving")
-        store = PipelineStore(Path(pipeline_db))
-    if store.read() is None:
-        raise ValueError("Initialize the private pipeline database before serving")
-    attach_pipeline(app, store, owner.session, owner.csrf, archive_root=report_archive_root)
-
-
-def create_app(root, session_seconds=3600, pipeline_db=None, report_archive_root=None, pipeline_postgres=False):
-    if pipeline_db is not None and pipeline_postgres:
-        raise ValueError("Select one private pipeline store")
-    if report_archive_root is not None and pipeline_db is None and not pipeline_postgres:
-        raise ValueError("Encrypted archive requires a configured private pipeline database")
-    history = History(root)
-    auth_file = Path(root) / "portal-auth.json"
-    if not auth_file.is_file():
-        raise ValueError("Run wa dashboard --set-password before serving")
-    password_hash = json.loads(auth_file.read_text())["password_hash"]
-    app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
-    app.add_middleware(
-        TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost", "testserver"]
-    )
-    app.state.sessions = {}
-    app.state.history = history
-    app.state.root = root
-    owner = OwnerPortal(app, history, root, password_hash, session_seconds, pipeline_db or pipeline_postgres)
-    app.middleware("http")(owner.headers)
-    routes = [
-        (LOGIN_PATH, owner.login_page, ["GET"], HTMLResponse),
-        (LOGIN_PATH, owner.login, ["POST"], None),
-        ("/api/session", owner.session_info, ["GET"], None),
-        ("/logout", owner.logout, ["POST"], None),
-        ("/", owner.dashboard, ["GET"], HTMLResponse),
-        ("/monthly", owner.monthly_reports, ["GET"], HTMLResponse),
-        ("/monthly-artifacts/{identity}/{kind}", owner.monthly_artifact, ["GET"], None),
-        ("/runs/{run_id}", owner.run_view, ["GET"], HTMLResponse),
-        ("/artifacts/{run_id}/{kind}", owner.artifact, ["GET"], None),
-        ("/api/remediations/{identity}", owner.remediation, ["POST"], None),
-        ("/health", owner.health_check, ["GET"], None),
-    ]
-    for route, endpoint, methods, response_class in routes:
-        options = {"response_class": response_class} if response_class else {}
-        app.add_api_route(route, endpoint, methods=methods, **options)
-    if pipeline_db is not None or pipeline_postgres:
-        _attach_private_pipeline(app, owner, pipeline_db, report_archive_root, pipeline_postgres)
     return app

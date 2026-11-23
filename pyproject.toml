@@ -18,7 +18,12 @@ dependencies = [
   "requests>=2.32",
   "pyyaml>=6",
   "dnspython>=2.6,<3",
+  "pydantic-settings>=2.0",
+  "email-validator>=2.0",
   "phonenumbers>=8.13,<10",
+  "prometheus-client>=0.20",
+  "opentelemetry-exporter-otlp>=1.45,<2",
+  "tldextract>=5.1,<6",
 ]
 
 [project.scripts]
@@ -41,6 +46,7 @@ ai = ["llama-cpp-python>=0.3,<1"]
 smtp = ["aiosmtplib>=3,<4"]
 dev = [
   "pytest>=8.3",
+  "pytest-cov>=4.0",
   "pytest-asyncio>=0.24",
   "ruff>=0.6",
 ]

@@ -48,7 +48,7 @@ def check_2_schema_policy_match() -> bool:
 
 def check_3_escape_prevention() -> bool:
     """Verify path traversal is blocked even via symlinks."""
-    import subprocess, tempfile, os
+    import tempfile
     from pathlib import Path
     
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -80,7 +80,6 @@ def check_3_escape_prevention() -> bool:
 
 def check_4_url_private_blocking() -> bool:
     """Verify private/local URLs are blocked."""
-    import subprocess, tempfile, os
     sys.path.insert(0, "integrations/deepseek-harness/scripts")
     from dsh_mm_bridge import _public_http_url
     import importlib

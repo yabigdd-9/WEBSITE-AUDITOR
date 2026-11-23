@@ -26,7 +26,12 @@ non_negotiables:
       - "Back up databases/state before migrations."
       - "Never allow concurrent coding agents to edit the same file."
   outreach_safety:
+    transport_enabled: true
     send_enabled: false
+    external_send_authorization: "Mandated human-gated review workflow only."
+    human_approval_required_for:
+      - "External sends through the mandated review workflow."
+      - "Customer messages, pricing commitments and deployments."
     rules:
       - "No guessed email pattern is verified."
       - "Catch-all does not equal verified."
@@ -43,13 +48,21 @@ canonical_direction:
   repository: "/Users/dd/WEBSITE-AUDITOR"
   audit_engine: "auditor_toolkit + thin CLI layer"
   operator_cli: "./mm"
+  operator_python_default: ".venv-email/bin/python"
+  python_override_rule: "Set MM_PYTHON only to a verified Python 3.11+ environment."
+  operator_entrypoint: "money-machine/mm_operator.py"
   runtime_state: "SQLite + state files"
   queue: "SQLite leased work queue"
   supervisor: "launchd + ./mm supervisor"
+  supervisor_package: "money-machine/supervisor/"
   orchestrator: "Hermes"
   human_workspace: "Obsidian"
   obsidian_authoritative: false
   n8n_default_runtime: false
+  optional_local_tools:
+    discovery: "SearXNG"
+    assistant: "LM Studio"
+    deterministic_work_requires_model: false
 
 phases:
   P0:
@@ -82,6 +95,8 @@ phases:
     name: "Code consolidation"
     priority: HIGH
     goal: "One canonical audit engine and operator CLI."
+    status: "COMPLETED"
+    completed_at: "2026-09-26"
   P3:
     name: "Continuous control plane"
     priority: CRITICAL
@@ -145,6 +160,8 @@ phases:
     name: "Remediation engine"
     priority: HIGH
     classes: ["AUTO_SAFE", "AUTO_PREVIEW", "HUMAN_REVIEW", "CLIENT_ACCESS_REQUIRED", "UNSUPPORTED"]
+    external_send_authorization: "Mandated human-gated review workflow only."
+    human_required_for: ["customer messages", "pricing commitments", "deployments"]
   P11:
     name: "Demo factory"
     priority: HIGH
@@ -160,7 +177,9 @@ phases:
   P14:
     name: "Outreach engine"
     priority: HIGH
+    transport_enabled: true
     send_enabled: false
+    external_send_authorization: "Mandated human-gated review workflow only."
     rule: "Agents cannot bypass transport policy."
   P15:
     name: "Free model router"
@@ -185,6 +204,81 @@ phases:
     priority: MEDIUM
     flow: ["propose", "branch", "test", "evaluate", "shadow run", "compare metrics", "judge", "merge or reject"]
     rule: "No direct autonomous modification of production."
+
+catalyxlabs_rebuild:
+  name: "Catalyx Labs website rebuild"
+  site: "catalyxlabs.com"
+  status: "PLANNED"
+  source_document: "MASTER_EXECUTION_PLAN.md"
+  execution_workspace:
+    isolation: "phase1-rebuild worktree"
+    branch_from_sha: "0348b3f9"
+  safety_gates:
+    external_send_allowed: false
+    max_cost_usd: 0
+    redact_absolute_paths_before_report_generation: true
+    import_shop_repository_code_config_or_assets: false
+  source_status:
+    not_done_phase_numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    detailed_scope_available_through_phase: 5
+  phases:
+    phase_1:
+      name: "Environment"
+      status: "NOT_COMPLETE"
+      actions:
+        - "Initialize a Python virtual environment and install the audit engine in editable mode."
+        - "Create the project structure: src/, pages/, public/ and lib/."
+        - "Configure build scripts and linting; deployment is out of scope."
+      gate: "Owner review of the environment."
+      prior_setup_attempt:
+        status: "BLOCKED_REPORTED"
+        reason: "A prior sandboxed pip install could not reach pypi.org for dependency resolution."
+        recovery_options:
+          - "Use a verified pre-existing local environment."
+          - "Use a local vendor directory or pre-built wheel index."
+          - "Recheck network policy before using a network-enabled environment."
+    phase_2:
+      name: "Skeleton"
+      status: "NOT_STARTED"
+      actions:
+        - "Create the landing page layout with consolidated brand tokens in assets/brand_tokens.css."
+        - "Implement responsive navigation and a demo preview."
+      gate: "Owner review of UI and assets."
+    phase_3:
+      name: "Integration"
+      status: "NOT_STARTED"
+      actions:
+        - "Link the auditor_toolkit package without executing audits."
+        - "Create a dry-run mock to validate module connectivity."
+      gate: "Owner review of engine mapping."
+    phase_4:
+      name: "Hardening"
+      status: "NOT_STARTED"
+      actions:
+        - "Replace absolute paths in report DTOs with relative or redacted aliases."
+        - "Add runtime assertions that block transport/config access from mm_transport.py."
+      gate: "Automated security audit."
+    phase_5:
+      name: "Pipeline"
+      status: "NOT_STARTED"
+      actions:
+        - "Integrate the Money Machine FSM into workflow triggers."
+        - "Hard-disable the model router and approval engine in local mode."
+      gate: "Automated integration test."
+  scope_note: "The source marks phases 6-9 not done but does not define their scope."
+
+historical_verified_baseline:
+  as_of: "2026-09-22"
+  source_status: "Reported in the supplied canonical execution plan; not re-verified in this edit."
+  results:
+    toolkit_suite: "145 passed, 2 skipped"
+    money_machine_acceptance_suite: "56 passed, 2 intentional safety skips"
+    real_chromium_browser_pdf_portal_test: "passed"
+    real_monthly_browser_pdf_portal_test: "passed"
+    doctor_research_only: "Database integrity OK; models intentionally disabled."
+  branch_notes:
+    - "The acceptance CLI/path repair was included."
+    - "Duplicate-prospect validation tolerated malformed historical URLs without weakening validation of new intake URLs."
 
 obsidian_operator_workspace:
   priority: HIGH

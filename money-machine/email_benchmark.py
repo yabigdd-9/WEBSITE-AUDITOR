@@ -3,7 +3,6 @@ import argparse
 import datetime as dt
 import json
 from pathlib import Path
-import sys
 
 import mm_email as e
 from mm_email_network import DNSChecks, atomic_json

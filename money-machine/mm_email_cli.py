@@ -1,7 +1,6 @@
 """Operator email commands; single-business discovery or reproducible shadow replay."""
 import datetime as dt
 import json
-from pathlib import Path
 
 import mm_core as c
 import mm_email as e

@@ -4,10 +4,10 @@ purification ritual execution, and seasonal transition management.
 """
 import json
 import sqlite3
-import math
+import contextlib
 from datetime import datetime, timezone
 from mm_core import now, connect
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional
 
 def calculate_ritual_timing(
     ritual_type: str,
@@ -356,7 +356,7 @@ def _calculate_ritual_schedule(
     """Calculate the schedule for a specific ritual type."""
     try:
         # Convert timestamp to datetime
-        dt = datetime.fromtimestamp(reference_time, timezone.utc)
+        datetime.fromtimestamp(reference_time, timezone.utc)
 
         # Define ritual cycles
         ritual_cycles = {

@@ -1,0 +1,154 @@
+[
+  {
+    "phase": 0,
+    "status": "PASS",
+    "summary": "Live paths, Git/dirty state, source and SQLite backups established.",
+    "findings": "Live paths, Git/dirty state, source and SQLite backups established.",
+    "evidence": "preflight-preservation.json, environment.json",
+    "files_changed": "Exact per-file change-manifest.json (shared repairs; see scope summary)",
+    "tests_run": "Original source239-file restore and database integrity checked.",
+    "test_results": "Original source239-file restore and database integrity checked.",
+    "blockers": [],
+    "rollback": "Preflight backup plus guarded rollback-local.py and reverse binary Git patch; live DB never restored",
+    "next_action": "Use current root mm; retain evidence"
+  },
+  {
+    "phase": 1,
+    "status": "PASS",
+    "summary": "Canonical display identity and namespace added; source retained with relative compatibility paths.",
+    "findings": "Canonical display identity and namespace added; source retained with relative compatibility paths.",
+    "evidence": "layout-repairs.json; reports/WEBSITES_BUISNESSAUDITS_RENAME_MAP.md",
+    "files_changed": "Exact per-file change-manifest.json (shared repairs; see scope summary)",
+    "tests_run": "Current CLI/import/layout and tests checked; historical entrypoints explicitly unvalidated.",
+    "test_results": "Current CLI/import/layout and tests checked; historical entrypoints explicitly unvalidated.",
+    "blockers": [],
+    "rollback": "Preflight backup plus guarded rollback-local.py and reverse binary Git patch; live DB never restored",
+    "next_action": "Use current root mm; retain evidence"
+  },
+  {
+    "phase": 2,
+    "status": "PARTIAL",
+    "summary": "Local zero-cost inference route verified end to end (llama-server + Qwen3-4B on 127.0.0.1:8080, one bounded completion, cost_usd=0) and wired into mm_model_router as the preferred route. The full model-backed chain has not been executed and no paid route exists as a fallback.",
+    "findings": "Local zero-cost inference route verified end to end (llama-server + Qwen3-4B on 127.0.0.1:8080, one bounded completion, cost_usd=0) and wired into mm_model_router as the preferred route. The full model-backed chain has not been executed and no paid route exists as a fallback.",
+    "evidence": "phase2-unblock-evidence.json, llama-server curl test",
+    "files_changed": "Exact per-file change-manifest.json (shared repairs; see scope summary)",
+    "tests_run": "Missing/nonzero/malformed interface tested. Deterministic stages pass separately. test_pipeline covers local-route preference and BLOCKED_COST deferral.",
+    "test_results": "Missing/nonzero/malformed interface tested. Deterministic stages pass separately. test_pipeline covers local-route preference and BLOCKED_COST deferral.",
+    "blockers": [
+      "End-to-end model-backed chain not executed",
+      "No :free external route configured (OPENROUTER_API_KEY unset) - deferral, not payment, is the fallback"
+    ],
+    "rollback": "Preflight backup plus guarded rollback-local.py and reverse binary Git patch; live DB never restored",
+    "next_action": "Run a bounded model-backed chain against the local route; external actions still require APR-004 (price bands) and per-prospect consent ratification (APR-007)"
+  },
+  {
+    "phase": 3,
+    "status": "PASS",
+    "summary": "Current local runtime and CLI/Desktop paths repaired.",
+    "findings": "Current local runtime and CLI/Desktop paths repaired.",
+    "evidence": "local-runtime.json, local-installation.json",
+    "files_changed": "Exact per-file change-manifest.json (shared repairs; see scope summary)",
+    "tests_run": "Pinned offline dependency restore, pip check, imports, CLI/Desktop runtime equality and read-only email status.",
+    "test_results": "Pinned offline dependency restore, pip check, imports, CLI/Desktop runtime equality and read-only email status.",
+    "blockers": [],
+    "rollback": "Preflight backup plus guarded rollback-local.py and reverse binary Git patch; live DB never restored",
+    "next_action": "Use current root mm; retain evidence"
+  },
+  {
+    "phase": 4,
+    "status": "PASS",
+    "summary": "Fresh25-business batch completed; precision release remains blocked as required.",
+    "findings": "Fresh25-business batch completed; precision release remains blocked as required.",
+    "evidence": "fresh/sample.json, fresh/candidate-ledger.json, fresh/agent-review.json",
+    "files_changed": "Exact per-file change-manifest.json (shared repairs; see scope summary)",
+    "tests_run": "25 cases hash-replayed,17selected,8abstentions;13agent-attributed,4uncertain;0human labels.",
+    "test_results": "25 cases hash-replayed,17selected,8abstentions;13agent-attributed,4uncertain;0human labels.",
+    "blockers": [
+      "Independent human precision release and external approval held"
+    ],
+    "rollback": "Preflight backup plus guarded rollback-local.py and reverse binary Git patch; live DB never restored",
+    "next_action": "Resolve listed gate before any external action"
+  },
+  {
+    "phase": 5,
+    "status": "PASS",
+    "summary": "Bounded evidence schema and browser-confirmed findings feed offer generation.",
+    "findings": "Bounded evidence schema and browser-confirmed findings feed offer generation.",
+    "evidence": "reports/AUDIT_ENGINE_ACCEPTANCE.md, browser, demo-browser-tests.json",
+    "files_changed": "Exact per-file change-manifest.json (shared repairs; see scope summary)",
+    "tests_run": "Hidden/static-only findings, duplicate names, tampering and network uncertainty checked.",
+    "test_results": "Hidden/static-only findings, duplicate names, tampering and network uncertainty checked.",
+    "blockers": [],
+    "rollback": "Preflight backup plus guarded rollback-local.py and reverse binary Git patch; live DB never restored",
+    "next_action": "Use current root mm; retain evidence"
+  },
+  {
+    "phase": 6,
+    "status": "PASS",
+    "summary": "11-dimension scorecard requires verified business problem; unknown buying value stays null.",
+    "findings": "11-dimension scorecard requires verified business problem; unknown buying value stays null.",
+    "evidence": "pilot packet scorecards",
+    "files_changed": "Exact per-file change-manifest.json (shared repairs; see scope summary)",
+    "tests_run": "Email-only lead cannot qualify; thresholds unchanged.",
+    "test_results": "Email-only lead cannot qualify; thresholds unchanged.",
+    "blockers": [],
+    "rollback": "Preflight backup plus guarded rollback-local.py and reverse binary Git patch; live DB never restored",
+    "next_action": "Use current root mm; retain evidence"
+  },
+  {
+    "phase": 7,
+    "status": "PASS",
+    "summary": "Scoped offers, local demos and exact drafts pass deterministic judge/proofer checks.",
+    "findings": "Scoped offers, local demos and exact drafts pass deterministic judge/proofer checks.",
+    "evidence": "pilot-001/packet.json, pilot-002/packet.json",
+    "files_changed": "Exact per-file change-manifest.json (shared repairs; see scope summary)",
+    "tests_run": "Both demos pass360/1280px interaction/layout checks. Price unset and no execution.",
+    "test_results": "Both demos pass360/1280px interaction/layout checks. Price unset and no execution.",
+    "blockers": [
+      "Independent human precision release and external approval held"
+    ],
+    "rollback": "Preflight backup plus guarded rollback-local.py and reverse binary Git patch; live DB never restored",
+    "next_action": "Resolve listed gate before any external action"
+  },
+  {
+    "phase": 8,
+    "status": "PASS",
+    "summary": "Primary and second business reach HUMAN_APPROVAL_REQUIRED through same code.",
+    "findings": "Primary and second business reach HUMAN_APPROVAL_REQUIRED through same code.",
+    "evidence": "reports/PILOT_001_RESULT.md",
+    "files_changed": "Exact per-file change-manifest.json (shared repairs; see scope summary)",
+    "tests_run": "Repeated final CLI runs without intervening code repair;0external sends.",
+    "test_results": "Repeated final CLI runs without intervening code repair;0external sends.",
+    "blockers": [
+      "Independent human precision release and external approval held"
+    ],
+    "rollback": "Preflight backup plus guarded rollback-local.py and reverse binary Git patch; live DB never restored",
+    "next_action": "Resolve listed gate before any external action"
+  },
+  {
+    "phase": 9,
+    "status": "PASS",
+    "summary": "Current state, doctor, rename, validation, audit, pilot, blockers and change reports supplied.",
+    "findings": "Current state, doctor, rename, validation, audit, pilot, blockers and change reports supplied.",
+    "evidence": "reports, test-summary.json, change-manifest.json",
+    "files_changed": "Exact per-file change-manifest.json (shared repairs; see scope summary)",
+    "tests_run": "polish-status shows dated metrics and blockers; current daily dashboard identity updated.",
+    "test_results": "polish-status shows dated metrics and blockers; current daily dashboard identity updated.",
+    "blockers": [],
+    "rollback": "Preflight backup plus guarded rollback-local.py and reverse binary Git patch; live DB never restored",
+    "next_action": "Use current root mm; retain evidence"
+  },
+  {
+    "phase": 10,
+    "status": "PASS",
+    "summary": "Current README pointers distinguish superseded historical material; no destructive cleanup.",
+    "findings": "Current README pointers distinguish superseded historical material; no destructive cleanup.",
+    "evidence": "reports/CHANGELOG_POLISH_RUN.md",
+    "files_changed": "Exact per-file change-manifest.json (shared repairs; see scope summary)",
+    "tests_run": "Historical reports and user edits retained; patch/rollback checks recorded.",
+    "test_results": "Historical reports and user edits retained; patch/rollback checks recorded.",
+    "blockers": [],
+    "rollback": "Preflight backup plus guarded rollback-local.py and reverse binary Git patch; live DB never restored",
+    "next_action": "Use current root mm; retain evidence"
+  }
+]

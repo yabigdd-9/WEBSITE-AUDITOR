@@ -18,7 +18,7 @@ os.environ.setdefault("SSL_CERT_FILE", "/etc/ssl/cert.pem")
 os.environ.setdefault("REQUESTS_CA_BUNDLE", "/etc/ssl/cert.pem")
 
 MODULES = [
-    {"name": "Single-Site Audit",    "script": "website_auditor.py",    "args": ["{domain}"],  "phase": "AUDIT"},
+    {"name": "Single-Site Audit",    "script": "wa.py",    "args": ["audit", "{domain}"],  "phase": "AUDIT"},
     {"name": "Batch Remediation",    "script": "remediation-engine.py", "args": ["--all", "--output-dir", "outputs/remediations"], "phase": "AUDIT"},
     {"name": "Dashboard",            "script": "audit-dashboard.py",    "args": ["--output", "report.html"], "phase": "AUDIT"},
     {"name": "Revenue Calculator",   "script": "revenue_report.py",     "args": [],            "phase": "REVENUE"},
@@ -209,6 +209,13 @@ def main():
 
     cmd = sys.argv[1].lower()
 
+    if cmd == "audit":
+        if len(sys.argv) > 2:
+            import website_auditor as auditor
+            auditor.run(sys.argv[2])
+        else:
+            print("Usage: python3 wa.py audit <domain>")
+        return
     if cmd == "run":
         domain = None
         if len(sys.argv) > 2 and sys.argv[2] != "--all":

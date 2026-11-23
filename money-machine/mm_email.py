@@ -67,7 +67,7 @@ def is_disposable_email(email: str) -> bool:
                 return True
 
         return False
-    except Exception:
+    except (socket.gaierror, socket.timeout, OSError):
         return False
 
 

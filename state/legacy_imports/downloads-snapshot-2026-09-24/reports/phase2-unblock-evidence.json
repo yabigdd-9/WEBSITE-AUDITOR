@@ -1,0 +1,29 @@
+{
+  "unblocked_at": "2026-09-20T04:25:00+12:00",
+  "blocker": "BLOCKED_COST",
+  "phase": 2,
+  "resolution": "Local zero-cost inference route available and verified",
+  "model": {
+    "name": "Qwen3-4B-GGUF",
+    "quantization": "Q4_K_M",
+    "source": "ggml-org/Qwen3-4B-GGUF",
+    "endpoint": "http://127.0.0.1:8080/v1/chat/completions",
+    "cost": "NZD 0 (local, no API key)",
+    "license": "Apache 2.0 (Qwen3)"
+  },
+  "verification": {
+    "prompt": "What is 2+2? Answer in one word.",
+    "response": "Four.",
+    "tokens": 27,
+    "prompt_ms": 17784,
+    "predicted_ms": 571,
+    "route_type": "local_free"
+  },
+  "runner": {
+    "binary": "/Applications/llama.cpp-metal/build/bin/llama-server",
+    "version": "0.4.1",
+    "args": "-hf ggml-org/Qwen3-4B-GGUF:Q4_K_M -c 16384 -np 1 -ngl 0 -t 2 -ctk q8_0 -ctv q8_0 --jinja --reasoning off --host 127.0.0.1 --port 8080"
+  },
+  "chains_affected": ["model-backed-outreach-chain", "model-backed-audit-chain"],
+  "limit": "Qwen3-4B is capable of drafting outreach and summarizing audit findings but is not a substitute for human review of any external communication"
+}

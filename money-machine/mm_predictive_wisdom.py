@@ -4,9 +4,8 @@ Implements time series forecasting, seasonal trend detection, and anomaly predic
 import json
 import sqlite3
 import math
-from datetime import datetime, timezone
-from mm_core import now, connect
-from typing import Dict, List, Any, Optional, Tuple
+from mm_core import now
+from typing import Dict, Any, Tuple, List
 
 def forecast_pipeline_performance(
     conn: sqlite3.Connection,

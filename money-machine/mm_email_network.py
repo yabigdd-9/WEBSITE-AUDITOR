@@ -1,9 +1,9 @@
 """Bounded GET/DNS adapters. No SMTP DATA, messages, model calls, or form submits."""
-import datetime as dt
+import asyncio
 import http.client
 import json
-from pathlib import Path
 import time
+from pathlib import Path
 from urllib.parse import urljoin, urlsplit
 import xml.etree.ElementTree as ET
 import dns.resolver
@@ -150,4 +150,111 @@ class Crawler:
                 atomic_json(index, state)
             time.sleep(.3)
         state['complete'] = True; atomic_json(index, state)
+        return parsed, state['errors']
+
+
+class AsyncCrawler:
+    """Async version of Crawler using async fetcher."""
+
+    def __init__(self, root, max_pages=5, max_requests=8, fetcher=None):
+        if not 1 <= max_pages <= 5 or not max_pages <= max_requests <= 8:
+            raise ValueError('Crawl bounds exceeded')
+        self.root = Path(root)
+        self.folder = self.root / 'cache/email-v2'
+        self.folder.mkdir(parents=True, exist_ok=True)
+        self.max_pages = max_pages
+        self.max_requests = max_requests
+        self.fetch = fetcher
+
+    async def crawl(self, website):
+        if not website:
+            return [], ['No website recorded']
+        index = self.folder / (hash_bytes(website) + '.json')
+        state = json.loads(index.read_text()) if index.exists() else {
+            'pages': [], 'errors': [], 'pending': [website], 'requests': 0, 'started_at': utcnow(), 'complete': False
+        }
+        if 0 <= age_days(state['started_at']) <= 1:
+            if state.get('complete'):
+                try:
+                    results = []
+                    for p in state['pages']:
+                        data = (self.root / p['path']).read_bytes()
+                        results.append(parse_page(p, data))
+                    return results, state['errors']
+                except (OSError, ValueError):
+                    pass
+            else:
+                state = {'pages': [], 'errors': [], 'pending': [website], 'requests': 0, 'started_at': utcnow(), 'complete': False}
+        seen = {p['url'] for p in state['pages']}
+        parsed = []
+        attempts = state.setdefault('attempts', {})
+        for p in state['pages']:
+            try:
+                data = (self.root / p['path']).read_bytes()
+                parsed.append(parse_page(p, data))
+            except (ValueError, OSError):
+                state['errors'].append('Cached capture failed integrity')
+        canonical = root_domain(parsed[0]['url']) if parsed else root_domain(website)
+        while state['pending'] and len(parsed) < self.max_pages and state['requests'] < self.max_requests:
+            url = state['pending'].pop(0)
+            if url in seen:
+                continue
+            if parsed and root_domain(url) != canonical:
+                continue
+            seen.add(url)
+            state['requests'] += 1
+            attempts[url] = attempts.get(url, 0) + 1
+            try:
+                if self.fetch:
+                    meta, data = await self.fetch(url)
+                else:
+                    from email_baseline_capture import get_public
+                    meta, data = get_public(url)
+                meta['requested_url'] = url
+                if parsed and root_domain(meta['url']) != canonical:
+                    raise ValueError('Cross-domain contact redirect')
+                canonical = root_domain(meta['url'])
+                path = self.folder / (meta['sha256'] + '.capture')
+                path.write_bytes(data)
+                meta['path'] = str(path.relative_to(self.root))
+                if 'xml' in meta.get('content_type', '') or urlsplit(url).path.endswith('sitemap.xml'):
+                    tree = ET.fromstring(data)
+                    for loc in tree.iter():
+                        if loc.tag.endswith('loc') and loc.text and root_domain(loc.text) == canonical and any(x in loc.text for x in CONTACT_PATHS):
+                            state['pending'].append(loc.text)
+                    continue
+                page = parse_page(meta, data)
+                if page['url'] not in {p['url'] for p in parsed}:
+                    parsed.append(page)
+                    state['pages'].append(meta)
+                links = []
+                for link in page['links']:
+                    dest = urljoin(meta['url'], link['href']).split('#')[0]
+                    part = urlsplit(dest)
+                    if part.scheme not in ('http', 'https') or part.query or root_domain(dest) != canonical:
+                        continue
+                    label = link['text'].lower()
+                    path = part.path.lower()
+                    if 'contact' in label or 'contact' in path:
+                        links.append((0, dest))
+                    elif any(t in path for t in CONTACT_PATHS):
+                        links.append((1, dest))
+                    elif path.endswith('.pdf') and any(t in label + path for t in ('contact', 'team', 'staff')):
+                        links.append((2, dest))
+                state['pending'].extend(u for _, u in sorted(links) if u not in seen)
+                if state['requests'] == 1:
+                    base = urlsplit(meta['url'])
+                    state['pending'].append(base.scheme + '://' + base.netloc + '/sitemap.xml')
+            except (OSError, ValueError, ET.ParseError, http.client.HTTPException) as e:
+                state['errors'].append({'url': url, 'reason': type(e).__name__ + ': ' + str(e)[:120]})
+                if isinstance(e, (OSError, http.client.HTTPException)) and attempts[url] < 2:
+                    seen.discard(url)
+                    state['pending'].append(url)
+                    await asyncio.sleep(.3 * 2 ** (attempts[url] - 1))
+            finally:
+                # Checkpoint every request; crash recovery preserves known errors.
+                atomic_json(index, state)
+            await asyncio.sleep(.3)
+        state['complete'] = True
+        atomic_json(index, state)
         return parsed, state['errors']

@@ -1,10 +1,9 @@
 """No-network behavioral tests for the free-only role dispatcher."""
-import copy
 from pathlib import Path
 import unittest
 
 import yaml
-from free_role_router import RouteError, free_model, route, validate
+from free_role_router import RouteError, route, validate
 
 ROOT = Path(__file__).resolve().parents[2]
 

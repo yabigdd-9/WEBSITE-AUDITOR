@@ -10,13 +10,11 @@ Implements the opportunity scoring system for Loop B:
 """
 
 import json
-import re
 from datetime import datetime, timezone
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional
 from pathlib import Path
 
-from mm_core import now, sha, connect
-from mm_lead_qualifier import qualify_lead, detect_job_signals, detect_budget_signals
+from mm_core import now
 
 
 class OpportunityScorer:
@@ -209,7 +207,6 @@ class OpportunityScorer:
         Evaluates: What problem does the business have that we can solve?
         Is there an explicit request for help?
         """
-        business_info = business_context.get('business_info', {})
         recent_evidence = business_context.get('recent_evidence', [])
         pipeline_history = business_context.get('pipeline_history', [])
 
@@ -302,7 +299,6 @@ class OpportunityScorer:
         Evaluates: How well does our proposed solution fit the observed evidence?
         Does our solution address the actual problems we see?
         """
-        business_info = business_context.get('business_info', {})
         recent_evidence = business_context.get('recent_evidence', [])
         supported_services = campaign_context.get('supported_services', [])
 
@@ -385,7 +381,6 @@ class OpportunityScorer:
         """
         business_info = business_context.get('business_info', {})
         target_region = campaign_context.get('target_region', 'global')
-        business_characteristics = campaign_context.get('business_characteristics', [])
         region = business_info.get('region', '').lower()
 
         score_factors = []
@@ -461,9 +456,7 @@ class OpportunityScorer:
         Evaluates: Can we realistically deliver a solution within bounds?
         Do we have the capability, resources, and constraints understood?
         """
-        business_info = business_context.get('business_info', {})
         recent_evidence = business_context.get('recent_evidence', [])
-        supported_services = campaign_context.get('supported_services', [])
 
         score_factors = []
 
@@ -651,7 +644,6 @@ class OpportunityScorer:
         Evaluates: Is there a time-sensitive reason to engage now?
         Are there triggers that make this moment opportune?
         """
-        business_info = business_context.get('business_info', {})
         recent_evidence = business_context.get('recent_evidence', [])
 
         score_factors = []

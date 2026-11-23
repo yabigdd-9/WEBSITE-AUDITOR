@@ -15,10 +15,18 @@ import mm_core as c
 import mm_pipeline as p
 import mm_runtime_guards as guards
 from supervisor import cli as supervisor_cli
+import pytest
 
 
-def fresh_db(tmp):
-    path = Path(tmp) / "t.db"
+@pytest.fixture
+def project_tmp_path(tmp_path_factory):
+    """Create a temporary directory within the project root for testing."""
+    project_root = Path(__file__).resolve().parents[1]
+    return Path(tempfile.mkdtemp(dir=project_root))
+
+
+def fresh_db(project_tmp_path):
+    path = Path(project_tmp_path) / "t.db"
     sqlite3.connect(path).close()  # mode=rw opens require an existing file
     d = c.connect(path)
     d.executescript("""
@@ -70,7 +78,10 @@ class MultiProbeGuard(unittest.TestCase):
 
 class GuardCacheAndDedupe(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory()
+        project_root = Path(__file__).resolve().parents[1]
+        state_base = project_root / "state"
+        state_base.mkdir(parents=True, exist_ok=True)
+        self.tmp = tempfile.TemporaryDirectory(dir=state_base)
         self.cache = Path(self.tmp.name) / "network_guard.json"
 
     def tearDown(self):
@@ -124,7 +135,8 @@ class GuardCacheAndDedupe(unittest.TestCase):
 
 class DeferredWorkerHeartbeat(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory()
+        project_root = Path(__file__).resolve().parents[1]
+        self.tmp = tempfile.TemporaryDirectory(dir=project_root)
         self.d = fresh_db(self.tmp.name)
         self.bid = self.d.execute(
             "INSERT INTO businesses(name,public_website,discovered_at) "

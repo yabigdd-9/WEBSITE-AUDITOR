@@ -2,9 +2,7 @@
 import datetime as dt
 import json
 import math
-import sqlite3
-from pathlib import Path
-from mm_core import now, sha, fresh, timestamp, UTC, eligible, evidence, artifact_valid, event
+from mm_core import now, sha, timestamp, UTC, eligible, evidence, event
 
 ONTOLOGY = ('acquisition','conversion','sales','quoting','lead_capture','booking','follow_up','crm','operations','admin','retention','reviews','referrals','automation','reporting','customer_experience')
 OFFERS = {
@@ -115,7 +113,7 @@ def record_reply(d,mid,classification,rid):
     receipt(d,rid,'reply',m['business_id'],mid)
     d.execute('UPDATE mm_messages SET reply=? WHERE id=?',(classification,mid))
     stop=classification in ('not_interested','unsubscribe','hostile','bounce')
-    if stop:d.execute('INSERT OR IGNORE INTO mm_suppression VALUES(?,?,?)',(m['recipient'],classification,now()))
+    if stop:d.execute('INSERT OR IGNORE INTO mm_suppression(address, reason, created_at) VALUES(?,?,?)',(m['recipient'],classification,now()))
     change_stage(d,m['business_id'],'SUPPRESSED' if stop else 'REPLIED',REPLY_ACTIONS[classification])
     event(d,'verified_reply',m['business_id'],classification)
 

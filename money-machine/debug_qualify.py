@@ -1,4 +1,3 @@
-import sys
 import mm_lead_qualifier as q
 
 def debug_qualify_lead(text, industry="", extra_signals=None):

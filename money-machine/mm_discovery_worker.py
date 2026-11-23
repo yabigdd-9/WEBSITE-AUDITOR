@@ -9,12 +9,10 @@ Works with opportunity recipes and source-quality accounting.
 """
 
 import json
-import os
 from datetime import datetime, timezone
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional
 
-from mm_core import now, root, sha
-from mm_pipeline import get_loop_for_state, advance, enqueue, transition, RetryableError, PermanentError
+from mm_core import now, root
 
 
 def discover_worker_handler(d, item_row, worker):
@@ -86,7 +84,7 @@ def _get_campaign_config(d, campaign_id: str) -> Dict:
         ).fetchone()
         if row and row['config']:
             return json.loads(row['config'])
-    except Exception:
+    except (sqlite3.Error, json.JSONDecodeError):
         pass  # Fall back to fixture-based config
 
     # Load from fixture file
@@ -203,7 +201,7 @@ def _load_opportunity_recipe(recipe_id: str) -> Optional[Dict]:
     try:
         with open(fixture_path, 'r') as f:
             return json.load(f)
-    except Exception:
+    except (OSError, IOError, json.JSONDecodeError):
         return None
 
 
@@ -245,7 +243,7 @@ def _get_business_context(d, business_id: int) -> Optional[Dict]:
             'pipeline_history': [dict(row) for row in pipeline_rows],
             'last_checked': datetime.now(timezone.utc).isoformat()
         }
-    except Exception:
+    except (sqlite3.Error, json.JSONDecodeError, ValueError, OSError):
         return None
 
 
@@ -256,7 +254,6 @@ def _discover_problem_led(d, business_id: int, business_context: Dict,
     supported_signals = []
     confidence_factors = []
 
-    business_info = business_context.get('business_info', {})
     recent_evidence = business_context.get('recent_evidence', [])
 
     # Check for common problems mentioned in evidence
@@ -313,7 +310,6 @@ def _discover_strength_led(d, business_id: int, business_context: Dict,
     supported_signals = []
     confidence_factors = []
 
-    business_info = business_context.get('business_info', {})
     recent_evidence = business_context.get('recent_evidence', [])
 
     # Look for existing strengths to build upon
@@ -370,7 +366,6 @@ def _discover_change_led(d, business_id: int, business_context: Dict,
     supported_signals = []
     confidence_factors = []
 
-    business_info = business_context.get('business_info', {})
     recent_evidence = business_context.get('recent_evidence', [])
     pipeline_history = business_context.get('pipeline_history', [])
 

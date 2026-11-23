@@ -171,6 +171,10 @@ class HostedOwnerPortal(OwnerPortal):
         )
         return response
 
+    def session_info(self, request: Request):
+        key, value = self.session(request)
+        return {"csrf": value["csrf"], "expires": value["expires"]}
+
     async def logout(self, request: Request):
         key, value = self.session(request)
         form = await bounded_form(request)

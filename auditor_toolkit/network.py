@@ -3,9 +3,12 @@
 import json
 import socket
 import ssl
+import time
 import xml.etree.ElementTree as ET
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from http.cookies import SimpleCookie
+from typing import Any
 from urllib.parse import urljoin, urlparse
 from urllib.robotparser import RobotFileParser
 
@@ -13,6 +16,9 @@ from bs4 import BeautifulSoup
 
 from .checks import Finding, analyse_html, classify_response
 from .common import public_headers
+from .logging_config import get_logger
+
+logger = get_logger(__name__)
 
 
 def inspect_headers(response):
@@ -46,7 +52,7 @@ def inspect_headers(response):
         parsed = SimpleCookie()
         try:
             parsed.load(raw)
-        except Exception:
+        except (ValueError, KeyError):
             continue
         for name, cookie in parsed.items():
             attrs = {
@@ -100,7 +106,151 @@ def inspect_tls(url, timeout):
             }
 
 
-def inspect_dns(url, timeout):
+@dataclass
+class CertificateStatus:
+    """Certificate monitoring status."""
+
+    url: str
+    hostname: str
+    expires_at: str
+    days_remaining: int
+    protocol: str
+    cipher: str
+    is_expired: bool
+    is_expiring_soon: bool
+    issuer: str
+    subject: str
+    san: list[str]
+
+
+def check_certificate_expiry(url: str, timeout: float = 10.0, warning_days: int = 30, critical_days: int = 7) -> CertificateStatus:
+    """Check certificate expiry and return detailed status.
+
+    Args:
+        url: HTTPS URL to check.
+        timeout: Connection timeout in seconds.
+        warning_days: Days before expiry to warn.
+        critical_days: Days before expiry to mark as critical.
+
+    Returns:
+        CertificateStatus with detailed information.
+    """
+    parsed = urlparse(url)
+    if parsed.scheme != "https":
+        raise ValueError("URL must be HTTPS")
+
+    with socket.create_connection((parsed.hostname, parsed.port or 443), timeout=timeout) as raw:
+        with ssl.create_default_context().wrap_socket(raw, server_hostname=parsed.hostname) as conn:
+            cert = conn.getpeercert()
+            expires = datetime.fromtimestamp(ssl.cert_time_to_seconds(cert["notAfter"]), UTC)
+            days = (expires - datetime.now(UTC)).days
+
+            # Parse issuer and subject
+            issuer = dict(x[0] for x in cert.get("issuer", []))
+            subject = dict(x[0] for x in cert.get("subject", []))
+
+            # Extract SAN
+            san = []
+            for ext in cert.get("subjectAltName", []):
+                if ext[0] == "DNS":
+                    san.append(ext[1])
+
+            return CertificateStatus(
+                url=url,
+                hostname=parsed.hostname,
+                expires_at=expires.isoformat(),
+                days_remaining=days,
+                protocol=conn.version(),
+                cipher=conn.cipher()[0],
+                is_expired=days < 0,
+                is_expiring_soon=days <= warning_days,
+                issuer=issuer.get("organizationName", issuer.get("commonName", "")),
+                subject=subject.get("commonName", ""),
+                san=san,
+            )
+
+
+def monitor_certificates(urls: list[str], timeout: float = 10.0, warning_days: int = 30) -> dict[str, Any]:
+    """Monitor multiple certificates for expiry.
+
+    Args:
+        urls: List of HTTPS URLs to check.
+        timeout: Connection timeout in seconds.
+        warning_days: Days before expiry to warn.
+
+    Returns:
+        Dictionary with monitoring results and summary.
+    """
+    results = {}
+    critical = []
+    expiring_soon = []
+    ok = []
+
+    for url in urls:
+        try:
+            status = check_certificate_expiry(url, timeout=timeout, warning_days=warning_days)
+            results[url] = {
+                "hostname": status.hostname,
+                "expires_at": status.expires_at,
+                "days_remaining": status.days_remaining,
+                "protocol": status.protocol,
+                "cipher": status.cipher,
+                "is_expired": status.is_expired,
+                "is_expiring_soon": status.is_expiring_soon,
+                "issuer": status.issuer,
+                "subject": status.subject,
+                "san": status.san,
+            }
+
+            if status.is_expired:
+                critical.append(url)
+            elif status.is_expiring_soon:
+                expiring_soon.append(url)
+            else:
+                ok.append(url)
+
+        except Exception as e:
+            logger.error(f"Failed to check certificate for {url}: {e}")
+            results[url] = {"error": str(e)}
+            critical.append(url)
+
+    return {
+        "timestamp": datetime.now(UTC).isoformat(),
+        "summary": {
+            "total": len(urls),
+            "critical": len(critical),
+            "expiring_soon": len(expiring_soon),
+            "ok": len(ok),
+        },
+        "critical": critical,
+        "expiring_soon": expiring_soon,
+        "ok": ok,
+        "details": results,
+    }
+
+
+# Module-level DNS cache with TTL
+_DNS_CACHE: dict[str, tuple[dict, float]] = {}
+_DNS_CACHE_TTL = 300  # 5 minutes default
+
+
+def _get_dns_cache(key: str) -> dict | None:
+    """Get cached DNS result if not expired."""
+    if key in _DNS_CACHE:
+        value, timestamp = _DNS_CACHE[key]
+        if time.time() - timestamp < _DNS_CACHE_TTL:
+            return value
+        else:
+            del _DNS_CACHE[key]
+    return None
+
+
+def _set_dns_cache(key: str, value: dict) -> None:
+    """Store DNS result in cache with timestamp."""
+    _DNS_CACHE[key] = (value, time.time())
+
+
+def inspect_dns(url: str, timeout: float = 10.0, use_cache: bool = True) -> tuple[list, dict]:
     import dns.exception
     import dns.resolver
 
@@ -116,19 +266,32 @@ def inspect_dns(url, timeout):
         ("_dmarc." + host, "TXT"),
     ]:
         key = name + ":" + kind
+        if use_cache:
+            cached = _get_dns_cache(key)
+            if cached is not None:
+                result[key] = cached
+                continue
         try:
-            result[key] = {
-                "status": "ok",
-                "records": [str(r) for r in resolver.resolve(name, kind)],
-            }
+            records = [str(r) for r in resolver.resolve(name, kind)]
+            result[key] = {"status": "ok", "records": records}
         except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
             result[key] = {"status": "absent", "records": []}
         except dns.exception.DNSException as exc:
             raise RuntimeError(f"DNS unavailable for {key}: {exc}") from exc
+        if use_cache:
+            _set_dns_cache(key, result[key])
     result["limitations"] = (
         "DKIM needs a supplied selector; absent email records do not prove a website defect."
     )
     return [], result
+
+
+def clear_dns_cache() -> int:
+    """Clear the DNS cache. Returns number of entries cleared."""
+    global _DNS_CACHE
+    count = len(_DNS_CACHE)
+    _DNS_CACHE.clear()
+    return count
 
 
 def inspect_schema(html, url, profile):
@@ -216,6 +379,93 @@ def crawl(url, fetcher, options):
             blocked.append(target)
             continue
         response = fetcher.get(target)
+        status, errors = classify_response(response.status_code, response.text)
+        for error in errors:
+            findings.append(
+                Finding(
+                    error.defect_key,
+                    error.defect,
+                    error.impact,
+                    error.severity,
+                    target,
+                    check="crawl",
+                )
+            )
+        links = []
+        if status == "ok" and ("html" in response.headers.get("content-type", "text/html")):
+            page_findings, evidence = analyse_html(response.text, str(response.url))
+            findings.extend(page_findings)
+            soup = BeautifulSoup(response.text, "lxml")
+            links = list(
+                dict.fromkeys(
+                    urljoin(str(response.url), a["href"]).split("#")[0]
+                    for a in soup.select("a[href]")
+                )
+            )
+            for link in links[: options.max_links]:
+                if urlparse(link).scheme in ("http", "https"):
+                    edges.append({"from": target, "to": link})
+                    if len(queue) < options.max_pages * 4:
+                        queue.append((link, depth + 1))
+        pages.append(
+            {
+                "url": target,
+                "status_code": response.status_code,
+                "depth": depth,
+                "links": links[: options.max_links],
+            }
+        )
+    return findings, {
+        "pages": pages,
+        "edges": edges,
+        "robots_blocked": blocked,
+        "sitemaps": sitemap_evidence,
+        "bounded": bool(queue),
+        "limits": {"pages": options.max_pages, "depth": options.max_depth},
+    }
+
+
+async def acrawl(url, fetcher, options):
+    """Async version of crawl using Fetcher.aget for concurrent requests."""
+    base = urlparse(url)
+    origin = f"{base.scheme}://{base.netloc}"
+    robots_response = await fetcher.aget(origin + "/robots.txt")
+    robot = RobotFileParser()
+    if robots_response.status_code == 200:
+        robot.parse(robots_response.text.splitlines())
+    elif robots_response.status_code in (404, 410):
+        robot.parse([])
+    else:
+        raise RuntimeError(f"robots.txt unavailable: HTTP {robots_response.status_code}")
+    queue = [(url, 0)]
+    sitemap_urls = robot.site_maps() or [origin + "/sitemap.xml"]
+    sitemap_evidence = []
+    for sitemap_url in sitemap_urls[:2]:
+        if urlparse(sitemap_url).netloc != base.netloc:
+            continue
+        response = await fetcher.aget(sitemap_url)
+        sitemap_evidence.append({"url": sitemap_url, "status": response.status_code})
+        if response.status_code == 200:
+            try:
+                xml = ET.fromstring(response.content)
+                if xml.tag.rsplit("}", 1)[-1] == "urlset":
+                    for loc in xml.iter():
+                        if loc.tag.rsplit("}", 1)[-1] == "loc" and loc.text:
+                            queue.append((loc.text.strip(), 1))
+                            if len(queue) >= options.max_pages * 2:
+                                break
+            except ET.ParseError:
+                sitemap_evidence[-1]["parse_error"] = "Not valid sitemap XML"
+    visited, pages, edges, findings, blocked = set(), [], [], [], []
+    while queue and len(visited) < options.max_pages:
+        target, depth = queue.pop(0)
+        if target in visited or urlparse(target).netloc != base.netloc or depth > options.max_depth:
+            continue
+        visited.add(target)
+        if options.respect_robots and not robot.can_fetch("WebsiteAuditorToolkit", target):
+            blocked.append(target)
+            continue
+        response = await fetcher.aget(target)
         status, errors = classify_response(response.status_code, response.text)
         for error in errors:
             findings.append(

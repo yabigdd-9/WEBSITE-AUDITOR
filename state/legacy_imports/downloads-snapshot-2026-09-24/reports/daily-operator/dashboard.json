@@ -1,0 +1,528 @@
+{
+  "generated_at": "2026-09-11T11:03:54.740430+00:00",
+  "metrics": {
+    "real_prospects": 21,
+    "fresh_legacy_observation_prospects": 14,
+    "independently_verified_current_claims": 0,
+    "prospects_without_any_evidence": 7,
+    "verified_sends": 0,
+    "verified_replies": 0,
+    "legacy_claimed_sends_unverified": 3,
+    "suppressed_businesses": 3,
+    "suppressed_addresses": 6,
+    "active_drafts": 0,
+    "invalidated_drafts": 1,
+    "proposal_drafts": 0,
+    "gross_received_nzd": 0.0,
+    "refunded_nzd": 0.0,
+    "net_received_nzd": 0.0,
+    "model_calls_this_workflow": 0,
+    "model_cost_this_workflow_usd": 0,
+    "models_enabled": false,
+    "historical_billing_status": "Not reconciled against provider statements; zero ledger values are not proof of historical zero spend"
+  },
+  "email_contacts": [
+    {
+      "business_id": 2,
+      "business": "Blizzard HVAC & Electrical",
+      "website": "https://blizzard.co.nz/",
+      "canonical_domain": "blizzard.co.nz",
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": [],
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": "2026-09-09 08:04:29",
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 3,
+      "business": "Trident Electrical & Air Conditioning",
+      "website": "https://trident.nz/heat-pumps",
+      "canonical_domain": "trident.nz",
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": [],
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": "2026-09-09 08:04:29",
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 4,
+      "business": "ATL Heat Pumps",
+      "website": "https://www.atlelectrical.co.nz/heat-pumps",
+      "canonical_domain": "atlelectrical.co.nz",
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": [],
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": "2026-09-08T05:45:09.489848+00:00",
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 5,
+      "business": "Heat Force",
+      "website": "https://www.heatforce.co.nz/",
+      "canonical_domain": "heatforce.co.nz",
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": [],
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": "2026-09-09 08:04:29",
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 6,
+      "business": "BA Heat Pumps",
+      "website": "https://www.baheatpumps.co.nz/",
+      "canonical_domain": "baheatpumps.co.nz",
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": [],
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": "2026-09-09 08:04:29",
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 7,
+      "business": "AES",
+      "website": "https://www.aes.nz/heat-pumps/",
+      "canonical_domain": "aes.nz",
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": [],
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": "2026-09-08T05:45:09.698995+00:00",
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 8,
+      "business": "Simpson Climate Control",
+      "website": "https://www.simpsoncc.co.nz/",
+      "canonical_domain": "simpsoncc.co.nz",
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": [],
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": "2026-09-08T05:45:09.718271+00:00",
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 9,
+      "business": "Kiwi Heat Pumps",
+      "website": "https://kiwiheatpumps.co.nz/",
+      "canonical_domain": "kiwiheatpumps.co.nz",
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": [],
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": "2026-09-08T05:45:09.731835+00:00",
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 10,
+      "business": "Imperial HVAC",
+      "website": "https://imperialhvac.co.nz/",
+      "canonical_domain": "imperialhvac.co.nz",
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": [],
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": "2026-09-09 08:04:29",
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 11,
+      "business": "New Zealand Heat Pumps",
+      "website": "https://newzealandheatpumps.co.nz/",
+      "canonical_domain": "newzealandheatpumps.co.nz",
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": [],
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": "2026-09-08T05:45:09.781515+00:00",
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 12,
+      "business": "Superior Renovations",
+      "website": "https://superiorrenovations.co.nz/",
+      "canonical_domain": "superiorrenovations.co.nz",
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": [],
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": "2026-09-09 08:04:29",
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 13,
+      "business": "Christchurch Renovations",
+      "website": "https://www.chchrenovations.nz/",
+      "canonical_domain": "chchrenovations.nz",
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": [],
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": "2026-09-08T05:45:09.845983+00:00",
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 14,
+      "business": "Butterfield Bathrooms",
+      "website": "https://www.butterfieldbathrooms.co.nz/",
+      "canonical_domain": "butterfieldbathrooms.co.nz",
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": [],
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": "2026-09-08T05:45:09.858625+00:00",
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 15,
+      "business": "Evoke Renovations",
+      "website": "https://www.evoke-reno.co.nz/",
+      "canonical_domain": "evoke-reno.co.nz",
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": [],
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": "2026-09-08T05:45:09.976525+00:00",
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 16,
+      "business": "Modern Age Kitchens",
+      "website": null,
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": [
+        "Business name not confirmed in title/headings/organization",
+        "Location/phone/address/structured corroboration missing",
+        "Third-party or unrecognized domain"
+      ],
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": "2026-09-08T05:45:10.098338+00:00",
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 17,
+      "business": "Kitchen Studio Christchurch",
+      "website": "https://kitchenstudio.co.nz",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": [
+        "Multiple branches: exact branch association requires review"
+      ],
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": "2026-09-08T05:45:10.105575+00:00",
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 18,
+      "business": "Best Nest Building Co",
+      "website": "https://bestnestbuilding.co.nz/",
+      "canonical_domain": "bestnestbuilding.co.nz",
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": [],
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": "2026-09-09 08:04:29",
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 19,
+      "business": "Fendalton Construction",
+      "website": "https://www.fendaltonconstruction.co.nz/",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": [
+        "Recorded region conflicts with site location evidence"
+      ],
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": "2026-09-08T05:45:10.180467+00:00",
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 20,
+      "business": "Alpha Heat Pumps",
+      "website": "https://alphaheatpumps.co.nz",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 21,
+      "business": "EnergySmart",
+      "website": "https://energysmart.co.nz",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    },
+    {
+      "business_id": 22,
+      "business": "Rise Residential",
+      "website": "https://riseresidential.co.nz",
+      "canonical_domain": null,
+      "email": "NO_VERIFIED_EMAIL",
+      "confidence": null,
+      "why": null,
+      "evidence_count": 0,
+      "verification": "NO_VERIFIED_EMAIL",
+      "catch_all": "unknown",
+      "last_checked": null,
+      "human_review": "REQUIRED",
+      "outreach_eligible": false
+    }
+  ],
+  "pipeline_stages": {
+    "AUDITED": 3,
+    "DISCOVERED": 12,
+    "SUPPRESSED": 3
+  },
+  "human_queue": [
+    {
+      "priority": 5,
+      "id": 5,
+      "name": "Heat Force",
+      "action": "Requalify Heat Force against its existing Tradify form; verify a specific unmet need before creating another offer",
+      "ev_hour_low": 0
+    },
+    {
+      "priority": 6,
+      "id": 2,
+      "name": "Blizzard HVAC & Electrical",
+      "action": "Verify website and contact permission",
+      "ev_hour_low": 0
+    },
+    {
+      "priority": 6,
+      "id": 3,
+      "name": "Trident Electrical & Air Conditioning",
+      "action": "Verify website and contact permission",
+      "ev_hour_low": 0
+    },
+    {
+      "priority": 6,
+      "id": 6,
+      "name": "BA Heat Pumps",
+      "action": "Verify website and contact permission",
+      "ev_hour_low": 0
+    },
+    {
+      "priority": 6,
+      "id": 7,
+      "name": "AES",
+      "action": "Verify website and contact permission",
+      "ev_hour_low": 0
+    },
+    {
+      "priority": 6,
+      "id": 8,
+      "name": "Simpson Climate Control",
+      "action": "Verify website and contact permission",
+      "ev_hour_low": 0
+    },
+    {
+      "priority": 6,
+      "id": 9,
+      "name": "Kiwi Heat Pumps",
+      "action": "Verify website and contact permission",
+      "ev_hour_low": 0
+    },
+    {
+      "priority": 6,
+      "id": 10,
+      "name": "Imperial HVAC",
+      "action": "Verify website and contact permission",
+      "ev_hour_low": 0
+    },
+    {
+      "priority": 6,
+      "id": 11,
+      "name": "New Zealand Heat Pumps",
+      "action": "Evidence recorded; score and prioritize",
+      "ev_hour_low": 0
+    },
+    {
+      "priority": 6,
+      "id": 12,
+      "name": "Superior Renovations",
+      "action": "Verify website and contact permission",
+      "ev_hour_low": 0
+    },
+    {
+      "priority": 6,
+      "id": 15,
+      "name": "Evoke Renovations",
+      "action": "Verify screen-reader exposure of offscreen template content before scoping a smaller offer",
+      "ev_hour_low": 0
+    },
+    {
+      "priority": 6,
+      "id": 18,
+      "name": "Best Nest Building Co",
+      "action": "Verify website and contact permission",
+      "ev_hour_low": 0
+    },
+    {
+      "priority": 7,
+      "id": 16,
+      "name": "Modern Age Kitchens",
+      "action": "Capture current website evidence; verify a commercial problem before offering work",
+      "ev_hour_low": 0
+    },
+    {
+      "priority": 7,
+      "id": 17,
+      "name": "Kitchen Studio Christchurch",
+      "action": "Capture current website evidence; verify a commercial problem before offering work",
+      "ev_hour_low": 0
+    },
+    {
+      "priority": 7,
+      "id": 19,
+      "name": "Fendalton Construction",
+      "action": "Capture current website evidence; verify a commercial problem before offering work",
+      "ev_hour_low": 0
+    }
+  ],
+  "blocked": [
+    {
+      "id": 4,
+      "name": "ATL Heat Pumps",
+      "reason": "Suppressed business / unresolved legacy hold"
+    },
+    {
+      "id": 13,
+      "name": "Christchurch Renovations",
+      "reason": "Suppressed business / unresolved legacy hold"
+    },
+    {
+      "id": 14,
+      "name": "Butterfield Bathrooms",
+      "reason": "Suppressed business / unresolved legacy hold"
+    }
+  ],
+  "missing_or_stale": [
+    {
+      "id": 16,
+      "name": "Modern Age Kitchens",
+      "reason": "Missing"
+    },
+    {
+      "id": 17,
+      "name": "Kitchen Studio Christchurch",
+      "reason": "Missing"
+    },
+    {
+      "id": 19,
+      "name": "Fendalton Construction",
+      "reason": "Missing"
+    }
+  ],
+  "next_revenue_action": {
+    "priority": 5,
+    "id": 5,
+    "name": "Heat Force",
+    "action": "Requalify Heat Force against its existing Tradify form; verify a specific unmet need before creating another offer",
+    "ev_hour_low": 0
+  },
+  "elapsed_ms": 5014.56,
+  "model_calls": 0,
+  "external_sends": 0,
+  "outreach_self_audit": {
+    "version": "outreach-v1.0.0",
+    "checked_at": "2026-09-11T11:03:54.820127+00:00",
+    "messages_checked": 1,
+    "copy_issues": [
+      {
+        "message_id": 1,
+        "business_id": 5,
+        "errors": [
+          "unfilled_placeholder"
+        ]
+      }
+    ],
+    "locally_attested_sends": 0,
+    "invalid_send_receipts": 0,
+    "independently_verified_deliveries": null,
+    "bounce_rate": null,
+    "bounce_rate_reason": "No independently verified delivery-outcome cohort is connected; unknown is not zero.",
+    "external_send_allowed": false,
+    "model_calls": 0,
+    "paid_api_calls": 0,
+    "improvement": "Review the highest-priority supported need and up to two related services; measure outcomes before promoting a template."
+  }
+}

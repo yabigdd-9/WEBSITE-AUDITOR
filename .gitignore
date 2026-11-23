@@ -1,17 +1,9 @@
 # Caches / builds
 __pycache__/
-*.py[cod]
-*.egg-info/
+*.pyc
 build/
 dist/
 .cache/
-.pytest_cache/
-.ruff_cache/
-.mypy_cache/
-.coverage
-.coverage.*
-coverage.xml
-htmlcov/
 .DS_Store
 *.log
 
@@ -33,13 +25,12 @@ id_rsa.*
 service-account*.json
 *credentials*
 *secret*
+!auditor_toolkit/commands/secret.py
+!auditor_toolkit/commands/secret_rotation.py
+!auditor_toolkit/secret_rotation.py
 
 # Local state / outputs
-# Nightly baseline snapshots are intentionally persisted by CI so the watchdog
-# can compare one run with the next. All other generated outputs remain ignored.
-outputs/*
-!outputs/snapshots/
-!outputs/snapshots/**
+outputs/
 audits/
 *.db
 *.db-shm
@@ -54,22 +45,23 @@ state/supervisor.heartbeat
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
+.pytest_cache/
+.ruff_cache/
 node_modules/
 
 # Generated human-facing Obsidian operator workspace
 WEBSITE-AUDITOR-BRAIN/
-
 # Ignore .env files in any subdirectory
 **/.env
 **/.env.*
 !**/.env.example
 
-# Runtime state (regenerated; never track).
+# Runtime state (regenerated; never track). Verified missing before 2026-09-22:
+# these were untracked-but-committable, and errors.jsonl carries business ids.
 state/errors.jsonl
 state/health.json
 state/metrics.jsonl
 state/deployments.jsonl
 state/HERMES_EXECUTION_STATE.yaml
 reports/acceptance-results.json
-state/
-supabase/.temp/
+.vscode/

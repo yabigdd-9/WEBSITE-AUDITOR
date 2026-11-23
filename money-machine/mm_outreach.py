@@ -4,7 +4,6 @@ Evidence envelopes are operator attestations, not independent verification.
 Generated copy is constrained to catalogue wording; arbitrary copy still needs a
 human factual review. A passing audit never grants permission to send.
 """
-import datetime as dt
 import json
 import re
 from email import policy
@@ -306,7 +305,8 @@ def preflight(d, message_id):
         'delivery_guarantee':None,'related_message_ids':[x['id'] for x in others],'external_send_allowed':False}
 
 def health(d):
-    messages=list(d.execute('SELECT * FROM mm_messages'))
+    # Limit to recent messages to avoid N+1 loading all messages
+    messages=list(d.execute("SELECT * FROM mm_messages ORDER BY created_at DESC LIMIT 1000"))
     attested=0; invalid_receipts=0; issues=[]
     for m in messages:
         if m['sent_at']:

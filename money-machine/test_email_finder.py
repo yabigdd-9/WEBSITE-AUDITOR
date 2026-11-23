@@ -1,5 +1,4 @@
 """Synthetic policy regressions, kept separate from real golden accuracy."""
-import copy
 import datetime as dt
 import html
 import json
@@ -132,7 +131,7 @@ class EmailUnit(unittest.TestCase):
 
     def test_disposable_email_is_hard_rejected(self):
         p=page('<p>Contact office@koruplumbing.co.nz</p>');i=e.identify({'name':'Koru Plumbing','region':'Auckland','public_website':p['url']},[p])
-        obs=email_obs='user@mailinator.com'
+        email_obs='user@mailinator.com'
         p2=page('<p>Contact '+email_obs+'</p>')
         v=e.verification({'email':email_obs,'observations':p2['observations']},i,good_dns())
         self.assertEqual(v['disposable_status'],'known_disposable')

@@ -1,0 +1,59 @@
+{
+  "generated_at": "2026-09-21T14:53:55.899710+00:00",
+  "system_health": {
+    "database": "healthy",
+    "supervisor": "running",
+    "timestamp": "2026-09-21T14:53:55.902822+00:00"
+  },
+  "supervisor_status": {
+    "running": true,
+    "pid": 97982,
+    "heartbeat": {
+      "pid": 97982,
+      "status": "running",
+      "at": "2026-09-21T14:53:55.408741+00:00"
+    },
+    "workers": {
+      "error": "near \"WHEN\": syntax error"
+    }
+  },
+  "model_router_stats": {
+    "providers": {},
+    "summary": {
+      "total_calls_24h": 0,
+      "blocked_calls_24h": 0,
+      "zero_cost_compliance_percentage": 100.0,
+      "total_cost_usd_24h": 0
+    }
+  },
+  "pipeline_metrics": {
+    "stage_distribution": {},
+    "processing_rates": {
+      "processed_last_hour": 0,
+      "successful_last_hour": null,
+      "success_rate_percentage": 0
+    },
+    "average_processing_times_seconds": {}
+  },
+  "learning_insights": {
+    "error": "no such column: result"
+  },
+  "financial_metrics": {
+    "error": "no such column: cents"
+  },
+  "performance_indicators": {
+    "system": {
+      "supervisor_started": null,
+      "uptime_approximation_hours": null
+    },
+    "error_rates": {
+      "total_errors": 0,
+      "errors_last_24h": null
+    },
+    "business_metrics": {
+      "total_businesses": 0,
+      "real_businesses": null,
+      "new_businesses_last_week": null
+    }
+  }
+}

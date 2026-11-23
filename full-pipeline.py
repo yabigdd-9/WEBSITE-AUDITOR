@@ -151,21 +151,73 @@ def guess_email(domain):
     prefixes = ["info","hello","contact","sales","admin","support","enquiries","bookings","team","office","call","webmaster","help"]
     return ["{}@{}".format(p, domain) for p in prefixes]
 
-def verify_email(email):
+def verify_email(email: str) -> bool:
     import socket
     domain = email.split("@")[-1]
     for prefix in ["mx", ""]:
         try:
-            if prefix: socket.getaddrinfo("{}.{}".format(prefix, domain), None)
-            else: socket.getaddrinfo(domain, None)
+            if prefix:
+                socket.getaddrinfo("{}.{}".format(prefix, domain), None)
+            else:
+                socket.getaddrinfo(domain, None)
             return True
-        except: continue
+        except (socket.gaierror, socket.timeout):
+            continue
     return False
 
 # ─── Tech stack detection ──────────────────────────────────
-def detect_tech(html, headers_text=""):
+# Module-level cache for tech fingerprint detection
+_TECH_CACHE: dict[str, tuple[dict, float]] = {}
+_TECH_CACHE_TTL = 3600  # 1 hour default
+
+
+def _get_tech_cache(key: str) -> dict | None:
+    """Get cached tech fingerprint if not expired."""
+    if key in _TECH_CACHE:
+        value, timestamp = _TECH_CACHE[key]
+        if time.time() - timestamp < _TECH_CACHE_TTL:
+            return value
+        else:
+            del _TECH_CACHE[key]
+    return None
+
+
+def _set_tech_cache(key: str, value: dict) -> None:
+    """Store tech fingerprint in cache with timestamp."""
+    _TECH_CACHE[key] = (value, time.time())
+
+
+def clear_tech_cache() -> int:
+    """Clear the tech fingerprint cache. Returns number of entries cleared."""
+    global _TECH_CACHE
+    count = len(_TECH_CACHE)
+    _TECH_CACHE.clear()
+    return count
+
+
+def detect_tech(html, headers_text="", use_cache=True):
+    """Detect technology stack from HTML and headers.
+
+    Args:
+        html: HTML content of the page.
+        headers_text: HTTP headers text.
+        use_cache: Whether to use caching (default True).
+
+    Returns:
+        Dict with detected cms, framework, language, cdn, builder.
+    """
+    # Create cache key from content hash
+    import hashlib
+    content = (html + " " + headers_text).lower()
+    cache_key = hashlib.sha256(content.encode()).hexdigest()[:32]
+
+    if use_cache:
+        cached = _get_tech_cache(cache_key)
+        if cached is not None:
+            return cached
+
     tech = {"cms": None, "framework": None, "language": None, "cdn": None, "builder": None}
-    combined = (html + " " + headers_text).lower()
+    combined = content
     cms_signals = {
         "wordpress": ["wp-content", "wp-includes", "wordpress", "wp-json"],
         "shopify": ["shopify", "cdn.shopify.com", "myshopify.com"],
@@ -194,15 +246,19 @@ def detect_tech(html, headers_text=""):
         for name, signals in cms_signals.items():
             for s in signals:
                 if s.lower() in combined: tech["framework"] = name; break
-            if tech["framework"]: break
+        if tech["framework"]: break
     cdn_signals = {"cloudflare": ["cloudflare", "cf-"], "aws": ["aws.", "amazonaws.com", "cloudfront"], "fastly": ["fastly"], "vercel": ["vercel", "__vercel"], "netlify": ["netlify", "netlify-app"]}
     for name, signals in cdn_signals.items():
         for s in signals:
             if s.lower() in combined: tech["cdn"] = name; break
         if tech["cdn"]: break
+
+    if use_cache:
+        _set_tech_cache(cache_key, tech)
+
     return tech
 
-# ─── Phone detection (NZ) ─────────────────────────────────
+# ─── Phone detection (NZ) ─────────────────────────────────# ─── Phone detection (NZ) ─────────────────────────────────
 def extract_phones(html):
     phones = set()
     for m in re.finditer(r'\+64\s?[-.\s]?\(?(\d{1,4})\)?[-.\s]?(\d{3,4})[-.\s]?(\d{3,4})', html):
@@ -226,10 +282,12 @@ def extract_social(html):
     return social
 
 # ─── State / resume ───────────────────────────────────────
-def load_state():
+def load_state() -> dict:
     if STATE_FILE.exists():
-        try: return json.loads(STATE_FILE.read_text())
-        except: return {}
+        try:
+            return json.loads(STATE_FILE.read_text())
+        except (json.JSONDecodeError, OSError):
+            return {}
     return {}
 
 def save_state(state): STATE_FILE.write_text(json.dumps(state, indent=2, default=str))
@@ -353,7 +411,8 @@ def run_email_discovery(max_workers=8, state=None):
             domain = data.get("domain", "").replace("www.", "").lower()
             url = data.get("url", "https://{}".format(domain))
             tasks.append((domain, url))
-        except: continue
+        except (json.JSONDecodeError, OSError, KeyError):
+            continue
 
     results = {}
     errors = {}
@@ -377,12 +436,15 @@ def run_email_discovery(max_workers=8, state=None):
     return results, errors
 
 # ─── 3. MOCKUP GENERATION ─────────────────────────────────
-def generate_mockup(aj, provider="pollinations"):
+def generate_mockup(aj: Path, provider: str = "pollinations") -> tuple[str, bool, str]:
     name = aj.stem
     out = MOCKUPS / "{}.png".format(name)
-    if out.exists() and out.stat().st_size > 1000: return name, True, "already exists"
-    try: data = json.loads(open(aj).read())
-    except: return name, False, "bad audit json"
+    if out.exists() and out.stat().st_size > 1000:
+        return name, True, "already exists"
+    try:
+        data = json.loads(open(aj).read())
+    except (json.JSONDecodeError, OSError):
+        return name, False, "bad audit json"
     score = data.get("score", 0)
     defects = [d.get("defect", "") for d in data.get("defects", [])]
     domain = data.get("domain", name)
@@ -458,8 +520,10 @@ def run_proofreading(target=None):
     if not CFG["quiet"]: print(clr("=== Proofreading (LanguageTool free) ===", C.BOLD))
     files = [Path(target)] if target else sorted(AUDITS.glob("*.json"))
     for f in files:
-        try: data = json.loads(open(f).read())
-        except: continue
+        try:
+            data = json.loads(open(f).read())
+        except (json.JSONDecodeError, OSError):
+            continue
         domain = data.get("domain", "")
         parts = ["Website: {}".format(domain), "Score: {}/100".format(data.get("score", "N/A"))]
         for d in data.get("defects", []): parts.append("- {}: {}".format(d.get("defect", ""), d.get("impact", "")))
@@ -469,7 +533,8 @@ def run_proofreading(target=None):
             readability = textstat.flesch_reading_ease(text)
             grade = textstat.flesch_kincaid_grade(text)
             rs = " (readability: {:.0f}/100, grade: {:.1f})".format(readability, grade)
-        except: rs = " (readability: N/A)"
+        except (ValueError, AttributeError, TypeError):
+            rs = " (readability: N/A)"
         if not CFG["quiet"]: print("  {}: clean ✓{}".format(domain, rs))
         time.sleep(CFG["delay"])
 
@@ -483,7 +548,8 @@ def run_ranking():
             sites.append({"domain": data.get("domain", ""), "score": data.get("score", 0),
                           "defects": len(data.get("defects", [])),
                           "title": (data.get("meta") or {}).get("title") or "", "timestamp": data.get("timestamp", "")})
-        except: continue
+        except (json.JSONDecodeError, OSError, KeyError):
+            continue
     sites.sort(key=lambda s: s["score"])
     if not CFG["quiet"]:
         print("  {:4s}  {:35s}  {:6s}  {:4s}  {}".format("Rank", "Domain", "Score", "Def", "Title"))
@@ -501,13 +567,17 @@ def run_outreach_report():
     emails = {}
     ep = Path(CFG["output_dir"]) / "email-discovery.json"
     if ep.exists():
-        try: emails = json.load(ep.open()).get("results", {})
-        except: pass
+        try:
+            emails = json.load(ep.open()).get("results", {})
+        except (json.JSONDecodeError, OSError):
+            pass
 
     sites = []
     for aj in sorted(AUDITS.glob("*.json")):
-        try: data = json.loads(open(aj).read())
-        except: continue
+        try:
+            data = json.loads(open(aj).read())
+        except (json.JSONDecodeError, OSError):
+            continue
         domain = data.get("domain", "").replace("www.", "").lower()
         ei = emails.get(domain, {})
         sites.append({"domain": domain, "score": data.get("score", 0), "defects": data.get("defects", []),
@@ -521,8 +591,10 @@ def run_outreach_report():
         parts = ["Website: {}".format(s["domain"]), "Score: {}/100".format(s["score"])]
         for d in s.get("defects", []): parts.append("- {}: {}".format(d.get("defect", ""), d.get("impact", "")))
         text = "\n".join(parts)
-        try: s["readability"] = textstat.flesch_reading_ease(text)
-        except: s["readability"] = 0
+        try:
+            s["readability"] = textstat.flesch_reading_ease(text)
+        except (ValueError, AttributeError, TypeError):
+            s["readability"] = 0
         s["score_class"] = "low" if s["score"] < 30 else ("mid" if s["score"] < 50 else "ok")
         s["defect_count"] = len(s["defects"])
         s["severity"] = {"critical": 0, "high": 0, "medium": 0, "low": 0}
@@ -568,13 +640,17 @@ def run_cold_emails():
     emails = {}
     ep = Path(CFG["output_dir"]) / "email-discovery.json"
     if ep.exists():
-        try: emails = json.load(ep.open()).get("results", {})
-        except: pass
+        try:
+            emails = json.load(ep.open()).get("results", {})
+        except (json.JSONDecodeError, OSError):
+            pass
 
     drafts = []
     for aj in sorted(AUDITS.glob("*.json")):
-        try: data = json.loads(open(aj).read())
-        except: continue
+        try:
+            data = json.loads(open(aj).read())
+        except (json.JSONDecodeError, OSError):
+            continue
         domain = data.get("domain", "")
         score = data.get("score", 0)
         defects = data.get("defects", [])
@@ -601,8 +677,10 @@ def run_csv_export():
     emails = {}
     ep = Path(CFG["output_dir"]) / "email-discovery.json"
     if ep.exists():
-        try: emails = json.load(ep.open()).get("results", {})
-        except: pass
+        try:
+            emails = json.load(ep.open()).get("results", {})
+        except (json.JSONDecodeError, OSError):
+            pass
 
     import csv
     out = Path(CFG["output_dir"]) / "outputs" / "outreach-list.csv"
@@ -610,15 +688,19 @@ def run_csv_export():
 
     sites = []
     for aj in sorted(AUDITS.glob("*.json")):
-        try: data = json.loads(open(aj).read())
-        except: continue
+        try:
+            data = json.loads(open(aj).read())
+        except (json.JSONDecodeError, OSError):
+            continue
         domain = data.get("domain", "").replace("www.", "").lower()
         ei = emails.get(domain, {})
         parts = ["Website: {}".format(domain), "Score: {}/100".format(data.get("score", 0))]
         for d in data.get("defects", []): parts.append("- {}: {}".format(d.get("defect", ""), d.get("impact", "")))
         text = "\n".join(parts)
-        try: readability = textstat.flesch_reading_ease(text)
-        except: readability = 0
+        try:
+            readability = textstat.flesch_reading_ease(text)
+        except (ValueError, AttributeError, TypeError):
+            readability = 0
         sites.append({"domain": domain, "score": data.get("score", 0), "defects": data.get("defects", []),
                       "email": ei.get("best", "N/A"), "alt_emails": "; ".join(ei.get("html_emails", [])[:3]),
                       "readability": readability, "tech": data.get("tech", {}),
@@ -644,8 +726,10 @@ def run_dedup():
     emails = {}
     ep = Path(CFG["output_dir"]) / "email-discovery.json"
     if ep.exists():
-        try: emails = json.load(ep.open()).get("results", {})
-        except: pass
+        try:
+            emails = json.load(ep.open()).get("results", {})
+        except (json.JSONDecodeError, OSError):
+            pass
 
     email_to_domains = {}
     for domain, info in emails.items():
@@ -677,8 +761,10 @@ def run_summary():
     """Print summary statistics for the full pipeline run."""
     audits = []
     for aj in sorted(AUDITS.glob("*.json")):
-        try: audits.append(json.loads(open(aj).read()))
-        except: continue
+        try:
+            audits.append(json.loads(open(aj).read()))
+        except (json.JSONDecodeError, OSError):
+            continue
     if not audits:
         if not CFG["quiet"]: print("No audit data found.")
         return None

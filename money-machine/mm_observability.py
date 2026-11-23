@@ -154,7 +154,7 @@ def errors(limit=100, show_root_causes=False) -> dict:
                         if business_row:
                             row['business_name'] = business_row['name']
                             row['business_website'] = business_row['public_website']
-                    except Exception:
+                    except (sqlite3.Error, KeyError):
                         pass  # Business might have been deleted
 
             return {

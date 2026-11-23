@@ -1,5 +1,4 @@
 """Behavioral repair checks. Synthetic cases stay in disposable directories."""
-import copy
 import datetime as dt
 import importlib.util
 import json

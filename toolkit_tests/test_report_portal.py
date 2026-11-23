@@ -115,6 +115,13 @@ def test_download_rate_limit_and_invalid_archive_configuration(owner_archive):
     for _ in range(10):
         assert client.get(path).status_code == 200
     assert client.get(path).status_code == 429
-    archive_path = archive.root
+    # Test that invalid archive configuration (non-existent directory) raises ValueError
     with pytest.raises(ValueError):
-        create_app(history, report_archive_root=archive_path)
+        create_app(history, report_archive_root=history / "nonexistent_archive")
+    # Test that archive with wrong permissions raises ValueError
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        bad_archive = Path(tmp) / "bad_archive"
+        bad_archive.mkdir(mode=0o755)  # Wrong permissions (not 0700)
+        with pytest.raises(ValueError):
+            create_app(history, report_archive_root=bad_archive)

@@ -5,9 +5,7 @@ from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 import hashlib
 import json
-import os
 from pathlib import Path
-import time
 import urllib.error
 import urllib.request
 

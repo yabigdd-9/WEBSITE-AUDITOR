@@ -6,7 +6,6 @@ no model calls, $0.
 import datetime as dt
 import gzip
 import json
-import re
 from pathlib import Path
 
 import mm_core as core

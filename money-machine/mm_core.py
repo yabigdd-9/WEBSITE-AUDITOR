@@ -4,11 +4,9 @@ Local evidence attestation is not independent provider verification. A person wi
 write access to the DB can change its schema; these gates protect normal use.
 """
 import datetime as dt
-import contextlib
 import hashlib
 import ipaddress
 import json
-import math
 import os
 from pathlib import Path
 import sqlite3
@@ -24,8 +22,73 @@ CLAIM_TYPES = (
     'contradiction',
 )
 
+
+class OperatorError(Exception):
+    """Base exception for mm_operator."""
+    pass
+
+
+class ValidationError(OperatorError):
+    """Raised for input/data validation failures."""
+    pass
+
+
+class OperationalError(OperatorError):
+    """Raised for runtime/operational failures."""
+    pass
+
 def now(): return dt.datetime.now(UTC).isoformat()
 def root(): return Path(os.environ.get('MM_ROOT', Path(__file__).resolve().parents[1])).resolve()
+
+
+def validate_environment():
+    """Fail-fast environment validation for runtime operations.
+
+    Skipped for commands that do not touch the MoneyMachine database
+    (e.g. ``supervisor stop``, ``init`` which creates the DB).
+    """
+    r = root()
+    if not r.exists():
+        raise OperationalError(f"MM_ROOT directory does not exist: {r}")
+    if not (r / 'database').exists():
+        raise OperationalError("Database directory missing")
+
+
+def safe_path(path, base=None) -> Path:
+    """Resolve *path* relative to *base*, rejecting any result that escapes *base*.
+
+    Prevents path-traversal attacks (e.g. ``../../etc/passwd``) by ensuring the
+    resolved path stays within the allowed base directory.
+
+    Args:
+        path:  Filesystem path to resolve (may be relative or absolute).
+        base:  Containment root.  Defaults to :func:`root`.  When *path* is
+               relative it is joined to *base*; when absolute it must already
+               lie within *base*.
+
+    Returns:
+        Resolved, normalised :class:`~pathlib.Path`.
+
+    Raises:
+        ValueError: If the resolved path escapes *base*.
+    """
+    base = (Path(base) if base else root()).resolve()
+    p = Path(path)
+    # For both relative and absolute paths, resolve to absolute path first
+    if p.is_absolute():
+        target = p.resolve()
+    else:
+        target = (base / p).resolve()
+    # Check that the resolved path is within the base directory
+    try:
+        target.relative_to(base)        # containment check
+    except ValueError:
+        raise ValueError(f"Path escapes base directory: {target}")
+    return target
+# Alias for callers that prefer an explicit name.
+workspace_path = safe_path
+
+
 def sha(data): return hashlib.sha256(data if isinstance(data, bytes) else data.encode()).hexdigest()
 def digest(recipient, body): return sha(recipient.strip().lower()+'\n'+body)
 def proposal_digest(recipient, body, price): return sha(json.dumps([recipient.strip().lower(),body,price],separators=(',',':')))
@@ -70,19 +133,24 @@ BUSINESS_OPERATIONAL_COLUMNS = (
 
 
 def ensure_business_columns(d):
-    """Idempotently add v32 operational columns to businesses.
+    """Add v32 business metadata columns to legacy databases, idempotently."""
+    columns = {row[1] for row in d.execute('PRAGMA table_info(businesses)')}
+    for name, sql_type in BUSINESS_OPERATIONAL_COLUMNS:
+        if name not in columns:
+            d.execute(f'ALTER TABLE businesses ADD COLUMN {name} {sql_type}')
+            columns.add(name)
+    return columns
 
-    Returns the list of columns added by this call (empty when already applied).
-    Safe to call before any migration or bulk data change path; callers remain
-    responsible for their own backup policy.
-    """
-    cols = {r[1] for r in d.execute('PRAGMA table_info(businesses)')}
-    added = []
-    for name, decl in BUSINESS_OPERATIONAL_COLUMNS:
-        if name not in cols:
-            d.execute('ALTER TABLE businesses ADD COLUMN %s %s' % (name, decl))
-            added.append(name)
-    return added
+
+def ensure_message_columns(d):
+    """Idempotently add approval_status to messages/proposals."""
+    cols = {r[1] for r in d.execute('PRAGMA table_info(mm_messages)')}
+    if 'approval_status' not in cols:
+        d.execute('ALTER TABLE mm_messages ADD COLUMN approval_status TEXT DEFAULT "DRAFT"')
+
+    cols = {r[1] for r in d.execute('PRAGMA table_info(mm_proposals)')}
+    if 'approval_status' not in cols:
+        d.execute('ALTER TABLE mm_proposals ADD COLUMN approval_status TEXT DEFAULT "DRAFT"')
 
 def backup(r=None):
     r=Path(r or root());folder=r/'backups'/('mm-v2-'+dt.datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ')+'-'+uuid.uuid4().hex[:6]);folder.mkdir(parents=True,mode=0o700)
@@ -123,7 +191,35 @@ def backup(r=None):
     return folder
 
 SCHEMA = '''
+CREATE TABLE IF NOT EXISTS industries(id INTEGER PRIMARY KEY,name TEXT NOT NULL UNIQUE,region TEXT,market_notes TEXT,pain_score REAL DEFAULT 0,ability_to_pay_score REAL DEFAULT 0,recurring_revenue_score REAL DEFAULT 0,total_score REAL DEFAULT 0,evidence TEXT,last_reviewed TEXT,frontend_weakness_score REAL DEFAULT 0,backend_pain_score REAL DEFAULT 0,competition_score REAL DEFAULT 0,build_ease_score REAL DEFAULT 0);
+CREATE TABLE IF NOT EXISTS businesses(id INTEGER PRIMARY KEY,name TEXT NOT NULL,industry_id INTEGER REFERENCES industries(id),region TEXT,public_website TEXT,source TEXT NOT NULL,discovered_at TEXT NOT NULL,current_status TEXT NOT NULL,is_dummy INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE IF NOT EXISTS audits(id INTEGER PRIMARY KEY,business_id INTEGER NOT NULL REFERENCES businesses(id),mobile_quality REAL,conversion_quality REAL,quote_flow REAL,booking_flow REAL,seo_basics REAL,trust_signals REAL,page_speed REAL,accessibility REAL,broken_paths TEXT,follow_up_quality REAL,crm_signal REAL,automation_opportunities TEXT,evidence TEXT NOT NULL,opportunity_score REAL,created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS experiments(id INTEGER PRIMARY KEY,hypothesis TEXT NOT NULL,target_segment TEXT,variable TEXT,expected_result TEXT,actual_result TEXT,decision TEXT,lesson TEXT,created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS projects(id INTEGER PRIMARY KEY,client_business_id INTEGER REFERENCES businesses(id),scope TEXT NOT NULL,repository TEXT,status TEXT NOT NULL,estimated_hours REAL,actual_hours REAL,delivery_date TEXT,qa_status TEXT,rollback_plan TEXT);
+CREATE TABLE IF NOT EXISTS revenue(id INTEGER PRIMARY KEY,project_id INTEGER REFERENCES projects(id),quoted_nzd REAL NOT NULL DEFAULT 0,invoiced_nzd REAL NOT NULL DEFAULT 0,collected_nzd REAL NOT NULL DEFAULT 0,recurring_mrr_nzd REAL NOT NULL DEFAULT 0,costs_nzd REAL NOT NULL DEFAULT 0);
+CREATE TABLE IF NOT EXISTS product_signals(id INTEGER PRIMARY KEY,repeated_problem TEXT NOT NULL,occurrence_count INTEGER NOT NULL DEFAULT 1,customers_affected INTEGER NOT NULL DEFAULT 0,willingness_to_pay_evidence TEXT,build_reusability REAL,productization_score REAL,next_test TEXT,last_updated TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS agent_runs(id INTEGER PRIMARY KEY,task TEXT NOT NULL,agent TEXT NOT NULL,model TEXT,cost_nzd REAL NOT NULL DEFAULT 0,duration_seconds REAL,output_quality REAL,outcome TEXT,failure_reason TEXT,created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS approval_events(id INTEGER PRIMARY KEY,action_type TEXT NOT NULL,object_type TEXT NOT NULL,object_id INTEGER,requested_at TEXT NOT NULL,approved INTEGER NOT NULL DEFAULT 0,approved_by TEXT,approved_at TEXT,notes TEXT);
+CREATE TABLE IF NOT EXISTS pipeline_events(id INTEGER PRIMARY KEY,business_id INTEGER NOT NULL REFERENCES businesses(id),stage TEXT NOT NULL,event_at TEXT NOT NULL,detail TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS offers(id INTEGER PRIMARY KEY AUTOINCREMENT,business_id INTEGER,problem TEXT NOT NULL,proposed_outcome TEXT NOT NULL,implementation_scope TEXT NOT NULL,price_test REAL,estimated_delivery_effort REAL,expected_value REAL,offer_score REAL DEFAULT 0,draft TEXT NOT NULL DEFAULT '',external_send_approved INTEGER DEFAULT 0,created_at TEXT NOT NULL DEFAULT '',FOREIGN KEY (business_id) REFERENCES businesses(id));
+CREATE TABLE IF NOT EXISTS outreach(id INTEGER PRIMARY KEY AUTOINCREMENT,offer_id INTEGER,draft TEXT NOT NULL,approved_by_human INTEGER DEFAULT 0,sent_at TEXT,reply_status TEXT,reply_class TEXT,next_action TEXT,unsubscribe_status TEXT,FOREIGN KEY (offer_id) REFERENCES offers(id));
+CREATE TABLE IF NOT EXISTS data_quality_flags(id INTEGER PRIMARY KEY,object_type TEXT NOT NULL,object_id INTEGER NOT NULL,flag TEXT NOT NULL,reason TEXT NOT NULL,created_at TEXT NOT NULL,resolved INTEGER NOT NULL DEFAULT 0,UNIQUE(object_type, object_id, flag));
+CREATE TABLE IF NOT EXISTS contacts(id INTEGER PRIMARY KEY AUTOINCREMENT,business_id INTEGER,contact_name TEXT,role TEXT,address_or_channel TEXT,source TEXT,contact_permission_basis TEXT,do_not_contact INTEGER DEFAULT 0,last_verified TEXT,FOREIGN KEY (business_id) REFERENCES businesses(id));
+CREATE TABLE IF NOT EXISTS campaign_configs(id INTEGER PRIMARY KEY,campaign_id TEXT NOT NULL UNIQUE,name TEXT,description TEXT,config TEXT NOT NULL,created_at TEXT NOT NULL,updated_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS source_quality_metrics(id INTEGER PRIMARY KEY,business_id INTEGER NOT NULL REFERENCES businesses(id),evidence_sources_count INTEGER DEFAULT 0,unique_evidence_sources INTEGER DEFAULT 0,duplicate_business_records INTEGER DEFAULT 0,pipeline_history_length INTEGER DEFAULT 0,total_research_time_seconds INTEGER DEFAULT 0,is_data_stale INTEGER DEFAULT 0,quality_score REAL DEFAULT 0,latest_update TEXT,measured_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS campaign_businesses(id INTEGER PRIMARY KEY,campaign_id TEXT NOT NULL,business_id INTEGER NOT NULL REFERENCES businesses(id),assigned_at TEXT NOT NULL,last_researched TEXT,research_allocation INTEGER DEFAULT 180,FOREIGN KEY (campaign_id) REFERENCES campaign_configs(campaign_id),UNIQUE(campaign_id, business_id));
+CREATE TABLE IF NOT EXISTS opportunity_tracking(id INTEGER PRIMARY KEY,business_id INTEGER NOT NULL REFERENCES businesses(id),opportunity_type TEXT NOT NULL,discovery_angle TEXT NOT NULL,confidence_score REAL NOT NULL,discovery_timestamp TEXT NOT NULL,pipeline_state TEXT NOT NULL,campaign_id TEXT,recipe_id TEXT,supported_signals TEXT,evidence_sources TEXT,shortlist_eligible INTEGER NOT NULL DEFAULT 0,created_at TEXT NOT NULL,updated_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS opportunity_evidence(id INTEGER PRIMARY KEY,opportunity_id INTEGER NOT NULL REFERENCES opportunity_tracking(id),evidence_type TEXT NOT NULL,evidence_data TEXT NOT NULL,source_url TEXT,timestamp TEXT NOT NULL,relevance_score REAL NOT NULL,created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS pipeline_transitions(id INTEGER PRIMARY KEY,business_id INTEGER NOT NULL REFERENCES businesses(id),from_state TEXT NOT NULL,to_state TEXT NOT NULL,transition_reason TEXT NOT NULL,transition_actor TEXT NOT NULL,evidence TEXT,timestamp TEXT NOT NULL,loop_transition INTEGER NOT NULL DEFAULT 0);
+
 CREATE TABLE IF NOT EXISTS mm_migrations(version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL, backup_path TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS mm_events(id INTEGER PRIMARY KEY,event_at TEXT NOT NULL,action TEXT NOT NULL,business_id INTEGER NOT NULL REFERENCES businesses(id),detail TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS mm_evidence(id INTEGER PRIMARY KEY,business_id INTEGER NOT NULL REFERENCES businesses(id),url TEXT NOT NULL,observation TEXT NOT NULL,limitation TEXT NOT NULL,checked_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS mm_deals(business_id INTEGER PRIMARY KEY REFERENCES businesses(id),stage TEXT NOT NULL DEFAULT 'DISCOVERED',next_action TEXT,last_contact TEXT,due TEXT,updated_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS mm_cash(id INTEGER PRIMARY KEY,business_id INTEGER NOT NULL REFERENCES businesses(id),amount_cents INTEGER NOT NULL,receipt TEXT NOT NULL UNIQUE,received_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS mm_holds(business_id INTEGER PRIMARY KEY REFERENCES businesses(id),reason TEXT NOT NULL,created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS mm_suppression(id INTEGER PRIMARY KEY,address TEXT NOT NULL,reason TEXT NOT NULL,created_at TEXT NOT NULL,UNIQUE(address));
+CREATE TABLE IF NOT EXISTS mm_messages(id INTEGER PRIMARY KEY,business_id INTEGER NOT NULL REFERENCES businesses(id),evidence_id INTEGER NOT NULL REFERENCES mm_evidence(id),recipient TEXT NOT NULL,body TEXT NOT NULL,digest TEXT NOT NULL,kind TEXT NOT NULL CHECK(kind IN ('initial','followup')),parent_id INTEGER REFERENCES mm_messages(id),created_at TEXT NOT NULL,approved_hash TEXT,approved_by TEXT,approval_ref TEXT,permission_basis TEXT,sent_at TEXT,send_receipt TEXT,invalidated_reason TEXT,reply TEXT);
 CREATE TABLE IF NOT EXISTS mm_evidence_meta(evidence_id INTEGER PRIMARY KEY REFERENCES mm_evidence(id),status TEXT NOT NULL CHECK(status IN ('verified','refuted','partial','unverified')),method TEXT NOT NULL,confidence REAL NOT NULL CHECK(confidence BETWEEN 0 AND 1),claim_type TEXT NOT NULL,commercial_relevance TEXT NOT NULL,expires_at TEXT NOT NULL,capture_path TEXT NOT NULL,capture_hash TEXT NOT NULL,verified_by TEXT NOT NULL,verification_count INTEGER NOT NULL CHECK(verification_count>0));
 CREATE TABLE IF NOT EXISTS mm_contact_evidence(id INTEGER PRIMARY KEY,business_id INTEGER NOT NULL REFERENCES businesses(id),recipient TEXT NOT NULL,source_url TEXT NOT NULL,checked_at TEXT NOT NULL,relevance TEXT NOT NULL,permission_basis TEXT NOT NULL,permission_verified_by TEXT,unsubscribe_state TEXT NOT NULL CHECK(unsubscribe_state IN ('none_recorded','unsubscribed','unknown')),confidence REAL NOT NULL CHECK(confidence BETWEEN 0 AND 1),capture_path TEXT NOT NULL,capture_hash TEXT NOT NULL,UNIQUE(business_id,recipient));
 CREATE TABLE IF NOT EXISTS mm_demo_qa(business_id INTEGER PRIMARY KEY REFERENCES businesses(id),path TEXT NOT NULL,file_hash TEXT NOT NULL,score INTEGER NOT NULL CHECK(score BETWEEN 0 AND 100),checks_json TEXT NOT NULL,passed INTEGER NOT NULL CHECK(passed IN (0,1)),checked_at TEXT NOT NULL);
@@ -134,7 +230,19 @@ CREATE TABLE IF NOT EXISTS mm_scores(business_id INTEGER PRIMARY KEY REFERENCES 
 CREATE TABLE IF NOT EXISTS mm_jobs(job_key TEXT PRIMARY KEY,kind TEXT NOT NULL,business_id INTEGER REFERENCES businesses(id),state TEXT NOT NULL CHECK(state IN ('pending','running','failed','completed')),checkpoint TEXT NOT NULL DEFAULT '{}',attempts INTEGER NOT NULL DEFAULT 0 CHECK(attempts BETWEEN 0 AND 3),lease_until TEXT,updated_at TEXT NOT NULL,error TEXT);
 CREATE TABLE IF NOT EXISTS mm_model_invocations(id INTEGER PRIMARY KEY,run_key TEXT NOT NULL UNIQUE,model TEXT NOT NULL,provider TEXT NOT NULL,purpose_hash TEXT NOT NULL,status TEXT NOT NULL CHECK(status IN ('blocked','started','failed','completed')),model_calls INTEGER NOT NULL DEFAULT 0 CHECK(model_calls>=0),input_tokens INTEGER,output_tokens INTEGER,cost_usd REAL NOT NULL DEFAULT 0 CHECK(cost_usd=0),created_at TEXT NOT NULL,finished_at TEXT,error TEXT);
 CREATE TABLE IF NOT EXISTS mm_experiments(id INTEGER PRIMARY KEY,business_id INTEGER NOT NULL REFERENCES businesses(id),message_id INTEGER NOT NULL UNIQUE REFERENCES mm_messages(id),industry TEXT NOT NULL,problem TEXT NOT NULL,offer TEXT NOT NULL,price_band TEXT NOT NULL,style TEXT NOT NULL,demo_type TEXT NOT NULL,variant TEXT NOT NULL,created_at TEXT NOT NULL);
-CREATE TABLE IF NOT EXISTS mm_learning(id INTEGER PRIMARY KEY,pattern TEXT NOT NULL,expected TEXT NOT NULL,actual TEXT NOT NULL,evidence_ref TEXT NOT NULL,confidence REAL NOT NULL CHECK(confidence BETWEEN 0 AND 1),recommended_change TEXT NOT NULL,created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS mm_email_drafts(
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  message_id INTEGER NOT NULL REFERENCES mm_messages(id),
+  business_id INTEGER NOT NULL REFERENCES businesses(id),
+  recipient TEXT NOT NULL,
+  draft_body TEXT NOT NULL,
+  status TEXT NOT NULL CHECK(status IN ('DRAFT_READY', 'APPROVED', 'INVALIDATED')),
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS mm_email_drafts_message ON mm_email_drafts(message_id);
+
+
 CREATE INDEX IF NOT EXISTS mm_evidence_business_date ON mm_evidence(business_id,checked_at DESC);
 CREATE INDEX IF NOT EXISTS mm_message_business ON mm_messages(business_id,kind,sent_at);
 CREATE INDEX IF NOT EXISTS mm_event_business_time ON mm_events(business_id,event_at);
@@ -154,135 +262,34 @@ def migrate(d, backup_path):
         if not p.is_file() or sha(p.read_bytes())!=item['sha256']:raise ValueError('Backup checksum mismatch')
     # executescript begins its own explicit transaction; no half-applied migration.
     sql='BEGIN IMMEDIATE;\n'+SCHEMA
-    cols={x[1] for x in d.execute('PRAGMA table_info(mm_messages)')}
-    if 'invalidated_reason' not in cols: sql+='ALTER TABLE mm_messages ADD COLUMN invalidated_reason TEXT;\n'
     sql+=TRIGGERS
     try:
         d.executescript(sql)
         d.execute('INSERT OR IGNORE INTO mm_migrations VALUES(2,?,?)',(now(),str(backup_path)))
         d.commit()
-    except Exception:d.rollback();raise
+    except (sqlite3.Error, ValueError, OSError):
+        d.rollback()
+        raise
 
-# Pure SQL guards also protect callers that do not use this Python module.
-# Hash UDFs intentionally fail closed on unregistered SQLite connections.
-TRIGGERS = '''
-DROP TRIGGER IF EXISTS prevent_unapproved_mm_messages_send;
-CREATE TRIGGER prevent_unapproved_mm_messages_send BEFORE UPDATE OF sent_at,send_receipt ON mm_messages
-WHEN NEW.sent_at IS NOT NULL BEGIN
- SELECT CASE WHEN OLD.sent_at IS NOT NULL OR OLD.approved_hash IS NULL OR OLD.approved_hash IS NOT mm_digest(NEW.recipient,NEW.body) OR OLD.approval_ref IS NULL OR NEW.invalidated_reason IS NOT NULL THEN RAISE(ABORT,'send blocked: exact current approval required') END;
- SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM mm_receipts r WHERE cast(r.id AS TEXT)=NEW.send_receipt AND r.kind='send' AND r.business_id=NEW.business_id AND r.object_id=NEW.id AND r.content_hash=OLD.approved_hash) THEN RAISE(ABORT,'send blocked: verified external receipt required') END;
- SELECT CASE WHEN EXISTS(SELECT 1 FROM mm_holds WHERE business_id=NEW.business_id) OR EXISTS(SELECT 1 FROM mm_deals WHERE business_id=NEW.business_id AND stage='SUPPRESSED') OR EXISTS(SELECT 1 FROM mm_suppression WHERE lower(trim(address))=lower(trim(NEW.recipient))) OR EXISTS(SELECT 1 FROM contacts WHERE lower(trim(address_or_channel))=lower(trim(NEW.recipient)) AND do_not_contact=1) THEN RAISE(ABORT,'suppression overrides approval') END;
-END;
-CREATE TRIGGER IF NOT EXISTS mm_message_queue_guard BEFORE INSERT ON mm_messages BEGIN
- SELECT CASE WHEN EXISTS(SELECT 1 FROM mm_holds WHERE business_id=NEW.business_id) OR EXISTS(SELECT 1 FROM mm_deals WHERE business_id=NEW.business_id AND stage='SUPPRESSED') OR EXISTS(SELECT 1 FROM mm_suppression WHERE lower(trim(address))=lower(trim(NEW.recipient))) OR EXISTS(SELECT 1 FROM contacts WHERE lower(trim(address_or_channel))=lower(trim(NEW.recipient)) AND do_not_contact=1) THEN RAISE(ABORT,'suppressed prospect cannot enter queue') END;
- SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM mm_evidence WHERE id=NEW.evidence_id AND business_id=NEW.business_id) THEN RAISE(ABORT,'evidence belongs to different prospect') END;
-END;
-CREATE TRIGGER IF NOT EXISTS mm_message_edit AFTER UPDATE OF body,recipient,evidence_id,digest,kind,parent_id,business_id,invalidated_reason ON mm_messages
-WHEN NEW.body IS NOT OLD.body OR NEW.recipient IS NOT OLD.recipient OR NEW.evidence_id IS NOT OLD.evidence_id OR NEW.digest IS NOT OLD.digest OR NEW.kind IS NOT OLD.kind OR NEW.parent_id IS NOT OLD.parent_id OR NEW.business_id IS NOT OLD.business_id OR NEW.invalidated_reason IS NOT OLD.invalidated_reason BEGIN
- UPDATE mm_messages SET approved_hash=NULL,approved_by=NULL,approval_ref=NULL,permission_basis=NULL WHERE id=NEW.id;
-END;
-CREATE TRIGGER IF NOT EXISTS mm_sent_immutable BEFORE UPDATE OF body,recipient,evidence_id,digest,kind,parent_id,business_id ON mm_messages WHEN OLD.sent_at IS NOT NULL BEGIN SELECT RAISE(ABORT,'sent content is immutable');END;
-CREATE TRIGGER IF NOT EXISTS mm_proposal_edit AFTER UPDATE OF recipient,body,price_cents,evidence_id,digest,invalidated_reason ON mm_proposals WHEN NEW.recipient IS NOT OLD.recipient OR NEW.body IS NOT OLD.body OR NEW.price_cents IS NOT OLD.price_cents OR NEW.evidence_id IS NOT OLD.evidence_id OR NEW.digest IS NOT OLD.digest OR NEW.invalidated_reason IS NOT OLD.invalidated_reason BEGIN UPDATE mm_proposals SET approved_hash=NULL,approved_by=NULL,approval_ref=NULL,permission_basis=NULL WHERE id=NEW.id;END;
-CREATE TRIGGER IF NOT EXISTS mm_proposal_insert BEFORE INSERT ON mm_proposals WHEN NEW.sent_at IS NOT NULL BEGIN SELECT RAISE(ABORT,'proposal requires draft and human approval');END;
-CREATE TRIGGER IF NOT EXISTS mm_proposal_send BEFORE UPDATE OF sent_at,send_receipt ON mm_proposals WHEN NEW.sent_at IS NOT NULL BEGIN
- SELECT CASE WHEN OLD.sent_at IS NOT NULL OR OLD.approved_hash IS NULL OR OLD.approved_hash IS NOT mm_proposal_digest(NEW.recipient,NEW.body,NEW.price_cents) OR OLD.approval_ref IS NULL OR NEW.invalidated_reason IS NOT NULL THEN RAISE(ABORT,'proposal requires exact price and content approval') END;
- SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM mm_receipts WHERE cast(id AS TEXT)=NEW.send_receipt AND kind='proposal_send' AND business_id=NEW.business_id AND object_id=NEW.id AND content_hash=OLD.approved_hash) THEN RAISE(ABORT,'proposal receipt required') END;
- SELECT CASE WHEN EXISTS(SELECT 1 FROM mm_holds WHERE business_id=NEW.business_id) OR EXISTS(SELECT 1 FROM mm_deals WHERE business_id=NEW.business_id AND stage='SUPPRESSED') OR EXISTS(SELECT 1 FROM mm_suppression WHERE lower(trim(address))=lower(trim(NEW.recipient))) THEN RAISE(ABORT,'suppression overrides proposal approval') END;
-END;
-CREATE TRIGGER IF NOT EXISTS mm_cash_proof BEFORE INSERT ON mm_cash BEGIN
- SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM mm_receipts WHERE cast(id AS TEXT)=NEW.receipt AND kind='payment' AND business_id=NEW.business_id AND amount_cents=NEW.amount_cents AND currency='NZD') THEN RAISE(ABORT,'payment evidence required') END;
-END;
-CREATE TRIGGER IF NOT EXISTS mm_cash_immutable BEFORE UPDATE ON mm_cash BEGIN SELECT RAISE(ABORT,'cash ledger immutable; record a refund');END;
-CREATE TRIGGER IF NOT EXISTS mm_cash_no_delete BEFORE DELETE ON mm_cash BEGIN SELECT RAISE(ABORT,'cash ledger immutable; record a refund');END;
-CREATE TRIGGER IF NOT EXISTS mm_refund_proof BEFORE INSERT ON mm_refunds BEGIN
- SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM mm_receipts r JOIN mm_cash c ON c.id=NEW.payment_id WHERE cast(r.id AS TEXT)=NEW.receipt AND r.kind='refund' AND r.object_id=c.id AND r.business_id=c.business_id AND r.amount_cents=NEW.amount_cents AND r.currency='NZD') THEN RAISE(ABORT,'refund evidence required') END;
- SELECT CASE WHEN NEW.amount_cents+coalesce((SELECT sum(amount_cents) FROM mm_refunds WHERE payment_id=NEW.payment_id),0)>(SELECT amount_cents FROM mm_cash WHERE id=NEW.payment_id) THEN RAISE(ABORT,'refund exceeds payment') END;
-END;
-CREATE TRIGGER IF NOT EXISTS mm_refund_immutable BEFORE UPDATE ON mm_refunds BEGIN SELECT RAISE(ABORT,'refund ledger immutable');END;
-CREATE TRIGGER IF NOT EXISTS mm_refund_no_delete BEFORE DELETE ON mm_refunds BEGIN SELECT RAISE(ABORT,'refund ledger immutable');END;
-CREATE TRIGGER IF NOT EXISTS mm_receipt_immutable BEFORE UPDATE ON mm_receipts BEGIN SELECT RAISE(ABORT,'receipt immutable');END;
-CREATE TRIGGER IF NOT EXISTS mm_receipt_no_delete BEFORE DELETE ON mm_receipts BEGIN SELECT RAISE(ABORT,'receipt immutable');END;
-CREATE TRIGGER IF NOT EXISTS mm_hold_no_delete BEFORE DELETE ON mm_holds BEGIN SELECT RAISE(ABORT,'manual reconciliation required; no unsuppression path');END;
-CREATE TRIGGER IF NOT EXISTS mm_suppression_no_delete BEFORE DELETE ON mm_suppression BEGIN SELECT RAISE(ABORT,'no unsuppression path');END;
-CREATE TRIGGER IF NOT EXISTS mm_suppression_revoke AFTER INSERT ON mm_suppression BEGIN
- UPDATE mm_messages SET approved_hash=NULL,approval_ref=NULL WHERE lower(trim(recipient))=lower(trim(NEW.address));
- UPDATE mm_proposals SET approved_hash=NULL,approval_ref=NULL WHERE lower(trim(recipient))=lower(trim(NEW.address));
- UPDATE mm_deals SET stage='SUPPRESSED',next_action='Do not contact',updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE business_id IN(SELECT business_id FROM mm_messages WHERE lower(trim(recipient))=lower(trim(NEW.address)) UNION SELECT business_id FROM contacts WHERE lower(trim(address_or_channel))=lower(trim(NEW.address)));
-END;
-CREATE TRIGGER IF NOT EXISTS mm_stage_guard BEFORE UPDATE OF stage ON mm_deals BEGIN
- SELECT CASE WHEN (OLD.stage='SUPPRESSED' OR EXISTS(SELECT 1 FROM mm_holds WHERE business_id=NEW.business_id)) AND NEW.stage!='SUPPRESSED' THEN RAISE(ABORT,'suppressed businesses cannot reopen') END;
- SELECT CASE WHEN NEW.stage='SENT' AND NOT EXISTS(SELECT 1 FROM mm_messages m JOIN mm_receipts r ON cast(r.id AS TEXT)=m.send_receipt WHERE m.business_id=NEW.business_id AND m.sent_at IS NOT NULL AND r.kind='send') THEN RAISE(ABORT,'SENT requires external-send evidence') END;
- SELECT CASE WHEN NEW.stage='PROPOSAL_SENT' AND NOT EXISTS(SELECT 1 FROM mm_proposals p JOIN mm_receipts r ON cast(r.id AS TEXT)=p.send_receipt WHERE p.business_id=NEW.business_id AND p.sent_at IS NOT NULL AND r.kind='proposal_send') THEN RAISE(ABORT,'proposal send evidence required') END;
- SELECT CASE WHEN NEW.stage='WON' AND NOT EXISTS(SELECT 1 FROM mm_cash WHERE business_id=NEW.business_id) THEN RAISE(ABORT,'WON requires payment evidence in current workflow') END;
-END;
-CREATE TRIGGER IF NOT EXISTS mm_stage_event AFTER UPDATE OF stage ON mm_deals WHEN NEW.stage IS NOT OLD.stage BEGIN
- UPDATE mm_deals SET updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE business_id=NEW.business_id;
- INSERT INTO mm_events(event_at,action,business_id,detail) VALUES(strftime('%Y-%m-%dT%H:%M:%fZ','now'),'stage_transition',NEW.business_id,OLD.stage||' -> '||NEW.stage);
-END;
-CREATE TRIGGER IF NOT EXISTS mm_legacy_send_closed BEFORE UPDATE OF sent_at,approved_by_human ON outreach WHEN NEW.sent_at IS NOT NULL AND (NEW.sent_at IS NOT OLD.sent_at OR NEW.approved_by_human IS NOT OLD.approved_by_human) BEGIN SELECT RAISE(ABORT,'legacy send recording retired; use verified receipt workflow');END;
-CREATE TRIGGER IF NOT EXISTS mm_legacy_revenue_closed BEFORE INSERT ON revenue WHEN NEW.collected_nzd!=0 BEGIN SELECT RAISE(ABORT,'use verified cash ledger');END;
-CREATE TRIGGER IF NOT EXISTS mm_legacy_revenue_update BEFORE UPDATE OF collected_nzd ON revenue WHEN NEW.collected_nzd IS NOT OLD.collected_nzd BEGIN SELECT RAISE(ABORT,'use verified cash ledger');END;
-'''
+# Load schema and triggers from versioned migration files
+try:
+    from .database.migration_loader import load_schema, load_triggers
+except ImportError:
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from database.migration_loader import load_schema, load_triggers
 
-TRIGGERS += '''
-CREATE TRIGGER IF NOT EXISTS mm_message_approval_proof BEFORE UPDATE OF approved_hash ON mm_messages WHEN NEW.approved_hash IS NOT NULL BEGIN
- SELECT CASE WHEN NEW.invalidated_reason IS NOT NULL OR NOT EXISTS(SELECT 1 FROM mm_receipts WHERE cast(id AS TEXT)=NEW.approval_ref AND kind='approval' AND business_id=NEW.business_id AND object_id=NEW.id AND content_hash=NEW.approved_hash AND verified_by=NEW.approved_by AND mm_artifact_valid(artifact_path,artifact_hash)=1) THEN RAISE(ABORT,'approval evidence artifact required') END;
-END;
-CREATE TRIGGER IF NOT EXISTS mm_message_readiness_guard BEFORE UPDATE OF approved_hash,sent_at ON mm_messages WHEN NEW.approved_hash IS NOT NULL OR (NEW.sent_at IS NOT OLD.sent_at AND NEW.sent_at IS NOT NULL) BEGIN
- SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM mm_evidence e JOIN mm_evidence_meta m ON m.evidence_id=e.id WHERE e.id=NEW.evidence_id AND e.business_id=NEW.business_id AND m.status='verified' AND m.confidence>=0.7 AND julianday(e.checked_at) BETWEEN julianday('now','-7 days') AND julianday('now') AND julianday(m.expires_at)>=julianday('now') AND mm_artifact_valid(m.capture_path,m.capture_hash)=1) THEN RAISE(ABORT,'current verified captured evidence required') END;
- SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM mm_contact_evidence c WHERE c.business_id=NEW.business_id AND lower(c.recipient)=lower(NEW.recipient) AND length(c.permission_verified_by)>0 AND length(c.permission_basis)>0 AND c.unsubscribe_state='none_recorded' AND c.confidence>=0.7 AND julianday(c.checked_at) BETWEEN julianday('now','-7 days') AND julianday('now') AND mm_artifact_valid(c.capture_path,c.capture_hash)=1) THEN RAISE(ABORT,'verified contact source and permission required') END;
- SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM mm_demo_qa q WHERE q.business_id=NEW.business_id AND q.passed=1 AND q.score>=80 AND julianday(q.checked_at) BETWEEN julianday('now','-7 days') AND julianday('now') AND mm_artifact_valid(q.path,q.file_hash)=1) THEN RAISE(ABORT,'current demo QA required') END;
- SELECT CASE WHEN EXISTS(SELECT 1 FROM mm_holds WHERE business_id=NEW.business_id) OR EXISTS(SELECT 1 FROM mm_deals WHERE business_id=NEW.business_id AND stage='SUPPRESSED') OR EXISTS(SELECT 1 FROM mm_suppression WHERE lower(trim(address))=lower(trim(NEW.recipient))) OR EXISTS(SELECT 1 FROM contacts WHERE lower(trim(address_or_channel))=lower(trim(NEW.recipient)) AND do_not_contact=1) THEN RAISE(ABORT,'suppression overrides approval') END;
-END;
-CREATE TRIGGER IF NOT EXISTS mm_message_sent_record_immutable BEFORE UPDATE OF sent_at,send_receipt ON mm_messages WHEN OLD.sent_at IS NOT NULL AND (NEW.sent_at IS NOT OLD.sent_at OR NEW.send_receipt IS NOT OLD.send_receipt) BEGIN SELECT RAISE(ABORT,'recorded send is immutable');END;
-CREATE TRIGGER IF NOT EXISTS mm_message_approval_insert BEFORE INSERT ON mm_messages WHEN NEW.approved_hash IS NOT NULL BEGIN SELECT RAISE(ABORT,'create draft before recording exact human approval');END;
+SCHEMA = load_schema()
+TRIGGERS = load_triggers()
 
-CREATE TRIGGER IF NOT EXISTS mm_proposal_approval_proof BEFORE UPDATE OF approved_hash ON mm_proposals WHEN NEW.approved_hash IS NOT NULL BEGIN
- SELECT CASE WHEN NEW.invalidated_reason IS NOT NULL OR NOT EXISTS(SELECT 1 FROM mm_receipts WHERE cast(id AS TEXT)=NEW.approval_ref AND kind='approval' AND business_id=NEW.business_id AND object_id=NEW.id AND content_hash=NEW.approved_hash AND verified_by=NEW.approved_by AND mm_artifact_valid(artifact_path,artifact_hash)=1) THEN RAISE(ABORT,'approval evidence artifact required') END;
-END;
-CREATE TRIGGER IF NOT EXISTS mm_proposal_readiness_guard BEFORE UPDATE OF approved_hash,sent_at ON mm_proposals WHEN NEW.approved_hash IS NOT NULL OR (NEW.sent_at IS NOT OLD.sent_at AND NEW.sent_at IS NOT NULL) BEGIN
- SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM mm_evidence e JOIN mm_evidence_meta m ON m.evidence_id=e.id WHERE e.id=NEW.evidence_id AND e.business_id=NEW.business_id AND m.status='verified' AND m.confidence>=0.7 AND julianday(e.checked_at) BETWEEN julianday('now','-7 days') AND julianday('now') AND julianday(m.expires_at)>=julianday('now') AND mm_artifact_valid(m.capture_path,m.capture_hash)=1) THEN RAISE(ABORT,'current verified captured evidence required') END;
- SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM mm_contact_evidence c WHERE c.business_id=NEW.business_id AND lower(c.recipient)=lower(NEW.recipient) AND length(c.permission_verified_by)>0 AND length(c.permission_basis)>0 AND c.unsubscribe_state='none_recorded' AND c.confidence>=0.7 AND julianday(c.checked_at) BETWEEN julianday('now','-7 days') AND julianday('now') AND mm_artifact_valid(c.capture_path,c.capture_hash)=1) THEN RAISE(ABORT,'verified contact source and permission required') END;
- SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM mm_demo_qa q WHERE q.business_id=NEW.business_id AND q.passed=1 AND q.score>=80 AND julianday(q.checked_at) BETWEEN julianday('now','-7 days') AND julianday('now') AND mm_artifact_valid(q.path,q.file_hash)=1) THEN RAISE(ABORT,'current demo QA required') END;
- SELECT CASE WHEN EXISTS(SELECT 1 FROM mm_holds WHERE business_id=NEW.business_id) OR EXISTS(SELECT 1 FROM mm_deals WHERE business_id=NEW.business_id AND stage='SUPPRESSED') OR EXISTS(SELECT 1 FROM mm_suppression WHERE lower(trim(address))=lower(trim(NEW.recipient))) OR EXISTS(SELECT 1 FROM contacts WHERE lower(trim(address_or_channel))=lower(trim(NEW.recipient)) AND do_not_contact=1) THEN RAISE(ABORT,'suppression overrides approval') END;
-END;
-CREATE TRIGGER IF NOT EXISTS mm_proposal_sent_record_immutable BEFORE UPDATE OF sent_at,send_receipt ON mm_proposals WHEN OLD.sent_at IS NOT NULL AND (NEW.sent_at IS NOT OLD.sent_at OR NEW.send_receipt IS NOT OLD.send_receipt) BEGIN SELECT RAISE(ABORT,'recorded send is immutable');END;
-CREATE TRIGGER IF NOT EXISTS mm_proposal_approval_insert BEFORE INSERT ON mm_proposals WHEN NEW.approved_hash IS NOT NULL BEGIN SELECT RAISE(ABORT,'create draft before recording exact human approval');END;
 
-CREATE TRIGGER IF NOT EXISTS mm_proposal_sent_content_immutable BEFORE UPDATE OF recipient,body,price_cents,evidence_id,digest,business_id ON mm_proposals WHEN OLD.sent_at IS NOT NULL BEGIN SELECT RAISE(ABORT,'sent proposal immutable');END;
-CREATE TRIGGER IF NOT EXISTS mm_evidence_change_revoke AFTER UPDATE ON mm_evidence BEGIN
- UPDATE mm_messages SET approved_hash=NULL,approval_ref=NULL WHERE evidence_id=NEW.id;
- UPDATE mm_proposals SET approved_hash=NULL,approval_ref=NULL WHERE evidence_id=NEW.id;
-END;
-CREATE TRIGGER IF NOT EXISTS mm_evidence_meta_change_revoke AFTER UPDATE ON mm_evidence_meta BEGIN
- UPDATE mm_messages SET approved_hash=NULL,approval_ref=NULL WHERE evidence_id=NEW.evidence_id;
- UPDATE mm_proposals SET approved_hash=NULL,approval_ref=NULL WHERE evidence_id=NEW.evidence_id;
-END;
-CREATE TRIGGER IF NOT EXISTS mm_contact_change_revoke AFTER UPDATE ON mm_contact_evidence BEGIN
- UPDATE mm_messages SET approved_hash=NULL,approval_ref=NULL WHERE business_id=NEW.business_id;
- UPDATE mm_proposals SET approved_hash=NULL,approval_ref=NULL WHERE business_id=NEW.business_id;
-END;
-'''
 
-TRIGGERS += '''
-CREATE TRIGGER IF NOT EXISTS mm_ready_stage_guard BEFORE UPDATE OF stage ON mm_deals WHEN NEW.stage IN ('DRAFT_READY','AWAITING_APPROVAL','APPROVED_TO_SEND','PROPOSAL_READY') BEGIN
- SELECT CASE WHEN NOT EXISTS(
-  SELECT 1 FROM (SELECT business_id,evidence_id,recipient,approved_hash,invalidated_reason,'message' AS kind FROM mm_messages UNION ALL SELECT business_id,evidence_id,recipient,approved_hash,invalidated_reason,'proposal' AS kind FROM mm_proposals) p
-  JOIN mm_evidence e ON e.id=p.evidence_id AND e.business_id=p.business_id JOIN mm_evidence_meta m ON m.evidence_id=e.id
-  JOIN mm_contact_evidence c ON c.business_id=p.business_id AND lower(c.recipient)=lower(p.recipient)
-  JOIN mm_demo_qa q ON q.business_id=p.business_id
-  WHERE p.business_id=NEW.business_id AND p.invalidated_reason IS NULL AND m.status='verified' AND m.confidence>=0.7
-   AND ((NEW.stage='PROPOSAL_READY' AND p.kind='proposal') OR (NEW.stage!='PROPOSAL_READY' AND p.kind='message'))
-   AND (NEW.stage!='APPROVED_TO_SEND' OR p.approved_hash IS NOT NULL)
-   AND e.id=(SELECT id FROM mm_evidence WHERE business_id=p.business_id ORDER BY julianday(checked_at) DESC,id DESC LIMIT 1)
-   AND julianday(e.checked_at) BETWEEN julianday('now','-7 days') AND julianday('now') AND julianday(m.expires_at)>=julianday('now')
-   AND mm_artifact_valid(m.capture_path,m.capture_hash)=1 AND length(c.permission_verified_by)>0 AND length(c.permission_basis)>0 AND c.unsubscribe_state='none_recorded' AND c.confidence>=0.7
-   AND julianday(c.checked_at) BETWEEN julianday('now','-7 days') AND julianday('now') AND mm_artifact_valid(c.capture_path,c.capture_hash)=1
-   AND q.passed=1 AND q.score>=80 AND julianday(q.checked_at) BETWEEN julianday('now','-7 days') AND julianday('now') AND mm_artifact_valid(q.path,q.file_hash)=1
-   AND NOT EXISTS(SELECT 1 FROM mm_suppression WHERE lower(trim(address))=lower(trim(p.recipient)))
- ) THEN RAISE(ABORT,'approval-ready stage requires current complete packet') END;
-END;
-'''
+
+
+
+
+
 
 def business(d,bid):
     b=d.execute('SELECT * FROM businesses WHERE id=? AND is_dummy=0',(bid,)).fetchone()

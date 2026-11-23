@@ -1,0 +1,22 @@
+{
+  "business_id": 215,
+  "site": "https://unreachable-fixture.example.co.nz",
+  "captured_at": "2026-11-22T07:53:16.578550+00:00",
+  "pages": [
+    "https://unreachable-fixture.example.co.nz",
+    "https://unreachable-fixture.example.co.nz/contact",
+    "https://unreachable-fixture.example.co.nz/about",
+    "https://unreachable-fixture.example.co.nz/contact-us"
+  ],
+  "attempts": [],
+  "contacts": [
+    "guess@unreachable-fixture.example.co.nz",
+    "guess@unreachable-fixture.example.co.nz",
+    "guess@unreachable-fixture.example.co.nz",
+    "guess@unreachable-fixture.example.co.nz",
+    "guess@unreachable-fixture.example.co.nz",
+    "guess@unreachable-fixture.example.co.nz",
+    "guess@unreachable-fixture.example.co.nz",
+    "guess@unreachable-fixture.example.co.nz"
+  ]
+}

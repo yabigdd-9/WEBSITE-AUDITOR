@@ -3,9 +3,9 @@ Implements self-observation, pattern analysis, and insight generation capabiliti
 """
 import json
 import sqlite3
-from datetime import datetime, timezone
+import contextlib
 from mm_core import now, connect
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 
 def record_self_observation(
     worker_name: str,
@@ -48,7 +48,7 @@ def record_self_observation(
                 now()
             ))
             conn.commit()
-    except Exception:
+    except (sqlite3.Error, OSError):
         # Fail silently to avoid disrupting pipeline operations
         pass
 
@@ -111,7 +111,7 @@ def observe_intention_alignment(
                 now()
             ))
             conn.commit()
-    except Exception:
+    except (sqlite3.Error, OSError):
         pass
 
 def observe_purpose_relationship(
@@ -154,7 +154,7 @@ def observe_purpose_relationship(
                 now()
             ))
             conn.commit()
-    except Exception:
+    except (sqlite3.Error, OSError):
         pass
 
 def analyze_meta_cognitive_patterns(
@@ -341,12 +341,12 @@ def generate_self_insights(
                                     "success_rate": avg_rate
                                 })
 
-        except Exception:
+        except (sqlite3.Error, OSError, ValueError, KeyError):
             pass  # Don't let worker analysis break insight generation
 
         return insights
 
-    except Exception as e:
+    except (sqlite3.Error, OSError, ValueError, KeyError) as e:
         return [{
             "type": "insight_generation_error",
             "message": f"Failed to generate self-insights: {str(e)}",
@@ -423,6 +423,3 @@ def get_self_awareness_metrics() -> Dict[str, Any]:
             "self_awareness_level": "unknown",
             "timestamp": now()
         }
-
-# Import contextlib at the top level to avoid issues
-import contextlib

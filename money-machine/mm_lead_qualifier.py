@@ -7,12 +7,9 @@ This module adds intelligence to prospect discovery by detecting:
 
 All signals are deterministic and evidence-based. No model calls are made.
 """
-import datetime as dt
-import json
 import re
-from pathlib import Path
 
-from mm_core import now, sha
+from mm_core import now
 
 
 # Industry-aware freshness windows (days)

@@ -9,10 +9,8 @@ import http.server
 import io
 import json
 from pathlib import Path
-import sqlite3
 import threading
 import unittest
-from unittest.mock import patch
 
 import test_acceptance as legacy
 import mm_core as c

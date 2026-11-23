@@ -118,19 +118,18 @@ class SchemaValidityGrader(Grader):
                         )
                     )
                     return "FAIL"
-        elif isinstance(data, dict):
-            if not required_keys.issubset(data.keys()):
-                missing = required_keys - set(data.keys())
-                result.add_failure(
-                    EvalFailure(
-                        failure_class="BROKEN_FORM",
-                        case_id=case.case_id,
-                        grader=self.name,
-                        message=f"Schema missing required keys: {missing}",
-                        severity="critical",
-                    )
+        elif isinstance(data, dict) and not required_keys.issubset(data.keys()):
+            missing = required_keys - set(data.keys())
+            result.add_failure(
+                EvalFailure(
+                    failure_class="BROKEN_FORM",
+                    case_id=case.case_id,
+                    grader=self.name,
+                    message=f"Schema missing required keys: {missing}",
+                    severity="critical",
                 )
-                return "FAIL"
+            )
+            return "FAIL"
         return "PASS"
 
 

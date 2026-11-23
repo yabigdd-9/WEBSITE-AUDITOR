@@ -3,9 +3,7 @@ import importlib
 import threading
 import time
 from pathlib import Path
-from typing import Dict, Any
 
-from mm_pipeline import Worker
 from mm_pipeline import log
 
 

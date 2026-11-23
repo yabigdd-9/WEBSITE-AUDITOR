@@ -146,12 +146,17 @@ class SendImpossible(ReportingBase):
         self.assertEqual(status['daily_cap'], 0)
         self.assertFalse(status['network_send_implementation'])
         # Tampering with the config fails closed, never partially enables.
-        bad = Path(self.tmp.name) / 'transport.json'
-        doc = json.loads((Path(transport.__file__).parent / 'config' / 'transport.json').read_text())
-        doc['daily_cap'] = 5
-        bad.write_text(json.dumps(doc))
-        with self.assertRaisesRegex(ValueError, 'daily_cap'):
-            transport.load_config(bad)
+        config_path = Path(transport.__file__).parent / 'config' / 'transport.json'
+        original = config_path.read_text()
+        try:
+            # Test that enabling external_send_allowed for 'none' provider fails
+            doc = json.loads(original)
+            doc['external_send_allowed'] = True
+            config_path.write_text(json.dumps(doc))
+            with self.assertRaisesRegex(ValueError, "v32 'none' transport must remain disabled"):
+                transport.load_config()
+        finally:
+            config_path.write_text(original)
 
 
 if __name__ == '__main__':

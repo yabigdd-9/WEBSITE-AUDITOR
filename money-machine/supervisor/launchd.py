@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""User-scoped launchd wrapper for the current WEBSITE-AUDITOR supervisor CLI.
+"""User-scoped launchd liveness check for the WEBSITE-AUDITOR supervisor.
 
-launchd owns host restart semantics. The existing supervisor CLI owns the
-single-instance lock, worker lifecycle, leases, retries, heartbeats and logs.
-External send is explicitly disabled in the launchd environment.
+launchd periodically invokes the existing idempotent ``ensure-running`` CLI.
+That CLI owns the supervisor's PID lock, worker lifecycle, leases, retries,
+heartbeats and logs. External send stays explicitly disabled.
 """
 from __future__ import annotations
 
@@ -23,32 +23,30 @@ PLIST_PATH = Path.home() / "Library" / "LaunchAgents" / (LABEL + ".plist")
 def python_path() -> Path:
     configured = os.environ.get("MM_PYTHON", "").strip()
     if configured:
-        return Path(configured).expanduser().resolve()
-    return (REPO_ROOT / ".venv-email" / "bin" / "python").resolve()
+        # Preserve the virtualenv entry point. Resolving its symlink points at
+        # the base interpreter and drops the venv's dependency environment.
+        return Path(configured).expanduser()
+    return REPO_ROOT / ".venv-email" / "bin" / "python"
 
 
-def plist_payload(sleep: float = 5, lease: int = 300, rotate_every: int = 60) -> dict:
+def plist_payload(interval_seconds: int = 300) -> dict:
+    if interval_seconds < 30:
+        raise ValueError("launchd supervisor check interval must be at least 30 seconds")
     return {
         "Label": LABEL,
         "ProgramArguments": [
-            str(python_path()),
-            "-m",
-            "supervisor.cli",
-            "_run-foreground",
-            "--sleep",
-            str(sleep),
-            "--lease",
-            str(lease),
-            "--rotate-every",
-            str(rotate_every),
+            "/bin/sh",
+            "-c",
+            'exec "$MM_ROOT/money-machine/mm" supervisor ensure-running',
         ],
-        "WorkingDirectory": str(MM_DIR),
+        "WorkingDirectory": str(REPO_ROOT),
         "RunAtLoad": True,
-        "KeepAlive": True,
+        "StartInterval": interval_seconds,
         "ProcessType": "Background",
         "ThrottleInterval": 10,
         "EnvironmentVariables": {
             "MM_ROOT": str(REPO_ROOT),
+            "MM_PYTHON": str(python_path()),
             "MM_EXTERNAL_SEND_DISABLED": "1",
             "PATH": "/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin",
         },
@@ -59,11 +57,11 @@ def plist_payload(sleep: float = 5, lease: int = 300, rotate_every: int = 60) ->
 
 def write_plist(**kwargs) -> Path:
     py = python_path()
-    cli = MM_DIR / "supervisor" / "cli.py"
+    operator = MM_DIR / "mm"
     if not py.is_file():
         raise FileNotFoundError("Python runtime missing: " + str(py))
-    if not cli.is_file():
-        raise FileNotFoundError("Supervisor CLI missing: " + str(cli))
+    if not operator.is_file() or not os.access(operator, os.X_OK):
+        raise FileNotFoundError("MoneyMachine operator missing or not executable: " + str(operator))
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     PLIST_PATH.parent.mkdir(parents=True, exist_ok=True)
     PLIST_PATH.write_bytes(plistlib.dumps(plist_payload(**kwargs), fmt=plistlib.FMT_XML, sort_keys=True))
@@ -136,9 +134,7 @@ def parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="cmd", required=True)
     q = sub.add_parser("install")
     q.add_argument("--no-load", action="store_true")
-    q.add_argument("--sleep", type=float, default=5)
-    q.add_argument("--lease", type=int, default=300)
-    q.add_argument("--rotate-every", type=int, default=60)
+    q.add_argument("--interval-seconds", type=int, default=300)
     sub.add_parser("status")
     q = sub.add_parser("uninstall")
     q.add_argument("--keep-plist", action="store_true")
@@ -150,9 +146,7 @@ def main(argv=None) -> int:
     if args.cmd == "install":
         result = install(
             load=not args.no_load,
-            sleep=args.sleep,
-            lease=args.lease,
-            rotate_every=args.rotate_every,
+            interval_seconds=args.interval_seconds,
         )
         print(result)
         return 0 if result.get("installed") else 2
