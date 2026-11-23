@@ -71,14 +71,17 @@ class Acceptance(unittest.TestCase):
     def test_02_modified_approved_body_invalidates_approval(self):
         self.approve();self.d.execute('UPDATE mm_messages SET body=body||? WHERE id=?',(' modified',self.mid));self.assertIsNone(self.d.execute('SELECT approved_hash FROM mm_messages WHERE id=?',(self.mid,)).fetchone()[0])
     def test_03_suppressed_prospect_cannot_enter_queue(self):
-        self.d.execute('INSERT INTO mm_holds(business_id, reason, created_at) VALUES(?,?,?)',(self.bid,'fixture hold',c.now()))
+        self.d.execute("INSERT INTO mm_holds(business_id, reason, created_at) VALUES(?,?,?)", (self.bid, "fixture hold", c.now()))
         with self.assertRaises(sqlite3.IntegrityError):self.d.execute("INSERT INTO mm_messages(business_id,evidence_id,recipient,body,digest,kind,created_at) VALUES(?,?,?,?,?,'followup',?)",(self.bid,self.eid,self.address,BODY,'new',c.now()))
     def test_04_duplicate_payment_cannot_inflate_revenue(self):
         pid,rid=self.pay()
         with self.assertRaises(sqlite3.IntegrityError):c.cash(self.d,self.bid,75000,rid)
         self.assertEqual(o.metrics(self.d)['net_received_nzd'],750)
     def test_05_historical_unverified_sends_excluded(self):
-        self.assertEqual(o.metrics(self.d)['verified_sends'],0);self.assertEqual(o.metrics(self.d)['legacy_claimed_sends_unverified'],0)
+        historical = self.d.execute("SELECT count(*) FROM outreach WHERE sent_at IS NOT NULL").fetchone()[0]
+        metrics = o.metrics(self.d)
+        self.assertEqual(metrics["verified_sends"], 0)
+        self.assertEqual(metrics["legacy_claimed_sends_unverified"], historical)
     def test_06_failed_receipt_recording_does_not_become_sent(self):
         self.approve()
         with self.assertRaises(ValueError):c.record_sent(self.d,self.mid,999999)
