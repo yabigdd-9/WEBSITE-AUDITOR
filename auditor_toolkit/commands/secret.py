@@ -68,7 +68,7 @@ class SecretCommand(Command):
             ], check=True)
             print(f"Secret '{args.name}' deleted.")
         else:
-            parser.error("Invalid secret command")
+            print("error: Invalid secret command", file=sys.stderr)
             return 1
         return 0
 

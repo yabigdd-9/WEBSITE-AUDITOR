@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+import sys
 from argparse import ArgumentParser, Namespace
 
 from auditor_toolkit.storage import History
@@ -24,9 +26,8 @@ class HistoryCommand(Command):
         reports = History(args.output_root).list(args.query, 1000)
         if args.retention_preview is not None:
             if args.retention_preview < 1:
-                parser.error("Retention must keep at least one run")
+                print("error: Retention must keep at least one run", file=sys.stderr)
                 return 1
-            import json
             print(
                 json.dumps(
                     {
@@ -39,7 +40,6 @@ class HistoryCommand(Command):
                 )
             )
         else:
-            import json
             print(json.dumps(reports, indent=2))
         return 0
 
