@@ -25,6 +25,8 @@ id_rsa.*
 service-account*.json
 *credentials*
 *secret*
+!auditor_toolkit/commands/secret.py
+!auditor_toolkit/commands/secret_rotation.py
 
 # Local state / outputs
 outputs/
