@@ -6,8 +6,8 @@ human-written, template-based) to improve the quality and effectiveness
 of generated content.
 """
 
-from typing import Dict, List, Any
 from datetime import datetime, timezone
+from typing import Any, Dict, List
 
 
 def create_evidence_brief(audit_report: Dict[str, Any]) -> Dict[str, Any]:

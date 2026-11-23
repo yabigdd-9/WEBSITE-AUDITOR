@@ -239,6 +239,7 @@ def audit_metrics_context(run_id: str, url: str, profile: str):
 def record_system_metrics():
     """Record current system metrics (disk, memory)."""
     import shutil
+
     import psutil
 
     # Disk usage for current directory

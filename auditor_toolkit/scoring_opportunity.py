@@ -6,15 +6,13 @@ against opportunity policies to determine qualification and scores.
 
 from __future__ import annotations
 
+import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from datetime import datetime
 from decimal import Decimal
-from datetime import datetime, UTC
 from hashlib import sha256
-import json
 from typing import Any
-
-from .models import CheckDefinition
 
 
 @dataclass(frozen=True)

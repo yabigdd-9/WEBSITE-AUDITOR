@@ -2,14 +2,15 @@
 
 from __future__ import annotations
 
-import json
 import getpass
-from pathlib import Path
+import json
 from argparse import ArgumentParser, Namespace
+from pathlib import Path
+
+from auditor_toolkit.common import atomic_write_json
+from auditor_toolkit.portal import setup_password
 
 from .base import Command, register_command
-from auditor_toolkit.portal import setup_password
-from auditor_toolkit.common import atomic_write_json
 
 
 class RegionCommand(Command):

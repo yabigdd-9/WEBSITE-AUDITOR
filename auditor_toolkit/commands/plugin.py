@@ -6,12 +6,13 @@ import argparse
 import json
 from pathlib import Path
 
-from .base import Command, register_command
 from auditor_toolkit.plugins import (
     get_registry,
     load_plugins_from_directory,
     load_plugins_from_entry_points,
 )
+
+from .base import Command, register_command
 
 
 class PluginCommand(Command):
@@ -119,7 +120,7 @@ class PluginCommand(Command):
                 if p.metadata.limitation:
                     print(f"    Limitation: {p.metadata.limitation}")
                 if p.metadata.requires_external:
-                    print(f"    Requires external: yes")
+                    print("    Requires external: yes")
                 if p.metadata.author:
                     print(f"    Author: {p.metadata.author}")
                 print()
@@ -175,7 +176,7 @@ class PluginCommand(Command):
 
         # Show definition
         definition = plugin.get_definition()
-        print(f"\nCheckDefinition:")
+        print("\nCheckDefinition:")
         print(f"  ID: {definition.id}")
         print(f"  Category: {definition.category}")
         print(f"  Mode: {definition.mode}")

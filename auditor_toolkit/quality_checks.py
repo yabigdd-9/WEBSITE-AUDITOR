@@ -5,8 +5,8 @@ against quality criteria to ensure they meet standards for specificity,
 actionability, and professionalism.
 """
 
-from typing import Dict, Any
 import re
+from typing import Any, Dict
 
 
 def check_outreach_draft_quality(draft_text: str, evidence_brief: Dict[str, Any] = None) -> Dict[str, Any]:

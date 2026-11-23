@@ -1,20 +1,17 @@
 """Tests for the plugin architecture."""
 
-import tempfile
-from pathlib import Path
 
 import pytest
 
+from auditor_toolkit.checks import Finding
+from auditor_toolkit.models import Evidence
 from auditor_toolkit.plugins import (
     CheckContext,
     CheckPlugin,
     CheckPluginMetadata,
     PluginRegistry,
     get_registry,
-    register_plugin,
 )
-from auditor_toolkit.models import Evidence
-from auditor_toolkit.checks import Finding
 
 
 class DummyPlugin(CheckPlugin):
@@ -199,13 +196,10 @@ def test_plugin_registry_execute_by_category():
 
 def test_plugin_decorator():
     """Test the @check_plugin decorator."""
-    # Reset registry for clean test
-    from auditor_toolkit.plugins import _registry
-    _registry = None
 
     @pytest.mark.usefixtures("reset_registry")
     def inner():
-        from auditor_toolkit.plugins import check_plugin, get_registry, CheckPluginMetadata
+        from auditor_toolkit.plugins import CheckPluginMetadata, check_plugin
 
         @check_plugin(CheckPluginMetadata(
             id="decorated_plugin",
@@ -231,10 +225,6 @@ def test_plugin_decorator():
 
 def test_load_plugins_from_directory(tmp_path):
     """Test loading plugins from a directory."""
-    # Reset registry
-    from auditor_toolkit.plugins import _registry
-    _registry = None
-
     # Create a plugin module
     plugin_file = tmp_path / "my_plugin.py"
     plugin_file.write_text("""
@@ -262,7 +252,7 @@ class MyPlugin(CheckPlugin):
 register_plugin(MyPlugin())
 """)
 
-    from auditor_toolkit.plugins import load_plugins_from_directory, get_registry
+    from auditor_toolkit.plugins import load_plugins_from_directory
 
     count = load_plugins_from_directory(tmp_path)
     assert count == 1
@@ -274,10 +264,6 @@ register_plugin(MyPlugin())
 
 def test_load_plugins_from_directory_invalid(tmp_path):
     """Test loading from directory with invalid Python."""
-    # Reset registry
-    from auditor_toolkit.plugins import _registry
-    _registry = None
-
     # Create an invalid plugin file
     plugin_file = tmp_path / "bad_plugin.py"
     plugin_file.write_text("this is not valid python")
@@ -291,10 +277,6 @@ def test_load_plugins_from_directory_invalid(tmp_path):
 
 def test_global_registry_singleton():
     """Test that get_registry returns singleton."""
-    from auditor_toolkit.plugins import _registry
-    _registry = None
-
-    from auditor_toolkit.plugins import get_registry
 
     r1 = get_registry()
     r2 = get_registry()

@@ -6,6 +6,7 @@ SMTP RCPT probe is opt-in (SMTP_PROBE=1) and rate-limited; default = DNS-only + 
 """
 from __future__ import annotations
 
+import asyncio
 import os
 import socket
 from pathlib import Path
@@ -39,7 +40,7 @@ def _mx_ok(domain: str) -> bool:
 
 def verify_local(email: str, first_party_source: bool = False, probe_smtp: bool = False) -> dict:
     try:
-        from email_validator import validate_email, EmailNotValidError
+        from email_validator import EmailNotValidError, validate_email
         v = validate_email(email, check_deliverability=False)
         addr, domain = v.normalized.lower(), v.domain.lower()
     except EmailNotValidError as exc:

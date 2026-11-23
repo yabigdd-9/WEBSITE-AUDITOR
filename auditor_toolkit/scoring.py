@@ -189,10 +189,3 @@ def score_from_findings(records: list[dict], complete: bool = True) -> ScoreBrea
 
 # ─── Opportunity Scoring Strategy (Cloud) ───
 
-from .scoring_opportunity import (
-    OpportunityScoringStrategy,
-    DefaultOpportunityStrategy,
-    register_opportunity_strategy,
-    get_opportunity_strategy,
-    list_opportunity_strategies,
-)

@@ -7,15 +7,10 @@ from __future__ import annotations
 
 import logging
 
-from .plugins import (
-    CheckContext,
-    CheckPlugin,
-    CheckPluginMetadata,
-    register_plugin,
-)
-from .models import Evidence
-from .checks import Finding
-from .checks import analyse_html, classify_response
+from .browser import run_browser_checks
+from .checks import Finding, analyse_html, classify_response
+from .external_tools import run_lighthouse, run_lychee
+from .flows import flow_findings, run_flow_probe
 from .hygiene import (
     check_mixed_content,
     check_robots,
@@ -25,10 +20,14 @@ from .hygiene import (
     grade_security_headers,
     validate_links,
 )
+from .models import Evidence
 from .network import crawl, inspect_dns, inspect_headers, inspect_schema, inspect_tls
-from .external_tools import run_lighthouse, run_lychee
-from .browser import run_browser_checks
-from .flows import run_flow_probe, flow_findings
+from .plugins import (
+    CheckContext,
+    CheckPlugin,
+    CheckPluginMetadata,
+    register_plugin,
+)
 
 logger = logging.getLogger(__name__)
 

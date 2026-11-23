@@ -6,9 +6,10 @@ from argparse import ArgumentParser, Namespace
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from .base import Command, register_command
 from auditor_toolkit.common import workspace_path
 from auditor_toolkit.pipeline import AuditOptions, run_audit
+
+from .base import Command, register_command
 
 
 class AuditCommand(Command):

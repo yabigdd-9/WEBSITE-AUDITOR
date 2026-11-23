@@ -7,8 +7,8 @@ import time
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any
 from http.cookies import SimpleCookie
+from typing import Any
 from urllib.parse import urljoin, urlparse
 from urllib.robotparser import RobotFileParser
 

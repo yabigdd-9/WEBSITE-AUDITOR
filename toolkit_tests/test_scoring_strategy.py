@@ -1,15 +1,17 @@
 """Tests for the scoring strategy pattern."""
 
 import copy
+from pathlib import Path
+
 import pytest
 
 from auditor_toolkit.scoring_opportunity import (
     DefaultOpportunityStrategy,
+    OpportunityResult,
+    OpportunityScoringStrategy,
     get_opportunity_strategy,
     list_opportunity_strategies,
     register_opportunity_strategy,
-    OpportunityScoringStrategy,
-    OpportunityResult,
 )
 
 
@@ -63,7 +65,6 @@ def test_get_default_strategy():
 def test_register_custom_strategy():
     """Test registering a custom strategy."""
     # Use a unique name to avoid conflicts
-    from auditor_toolkit.scoring_opportunity import register_opportunity_strategy
 
     class CustomStrategy2(OpportunityScoringStrategy):
         name = "custom2"
@@ -103,7 +104,6 @@ def test_duplicate_registration_raises():
     """Test that duplicate registration raises error."""
     from auditor_toolkit.scoring_opportunity import _OPPORTUNITY_STRATEGIES
     _OPPORTUNITY_STRATEGIES.clear()
-    from auditor_toolkit.scoring_opportunity import register_opportunity_strategy
 
     register_opportunity_strategy(DefaultOpportunityStrategy())
     with pytest.raises(ValueError, match="already registered"):
@@ -114,7 +114,7 @@ def test_get_nonexistent_strategy_raises():
     """Test that getting nonexistent strategy raises error."""
     from auditor_toolkit.scoring_opportunity import _OPPORTUNITY_STRATEGIES
     _OPPORTUNITY_STRATEGIES.clear()
-    from auditor_toolkit.scoring_opportunity import register_opportunity_strategy, get_opportunity_strategy
+    from auditor_toolkit.scoring_opportunity import get_opportunity_strategy
 
     register_opportunity_strategy(DefaultOpportunityStrategy())
     with pytest.raises(ValueError, match="not found"):
@@ -137,8 +137,9 @@ def test_custom_strategy_execution():
 
 def test_strategy_integration_with_cloud_opportunities():
     """Test that strategy pattern works with cloud_opportunities.score."""
-    import scripts.cloud_opportunities as opportunities
     from pathlib import Path
+
+    import scripts.cloud_opportunities as opportunities
 
     entry = {
         "domain": "example.com",
@@ -175,7 +176,7 @@ def test_invalid_policy_still_rejected():
     import scripts.cloud_opportunities as opportunities
 
     policy = opportunities.load_policy(Path(__file__).resolve().parents[1])
-    original = copy.deepcopy(policy)
+    copy.deepcopy(policy)
 
     # Modify weights to not sum to 100
     policy["weights"]["recency"] = 10
@@ -204,9 +205,6 @@ def test_invalid_policy_still_rejected():
 
     with pytest.raises(ValueError):
         opportunities.score(entry, {"delivery_feasibility": 80, "business_service_fit": 60}, policy, now=1000000000)
-
-
-from pathlib import Path
 
 
 if __name__ == "__main__":

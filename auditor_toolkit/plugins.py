@@ -8,10 +8,11 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
-from .models import CheckDefinition, Evidence
 from .checks import Finding
+from .models import CheckDefinition, Evidence
 
 logger = logging.getLogger(__name__)
 

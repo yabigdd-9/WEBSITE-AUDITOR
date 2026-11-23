@@ -5,8 +5,9 @@ from __future__ import annotations
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
-from .base import Command, register_command
 from auditor_toolkit.config import get_settings, validate_startup
+
+from .base import Command, register_command
 
 
 class ConfigCommand(Command):

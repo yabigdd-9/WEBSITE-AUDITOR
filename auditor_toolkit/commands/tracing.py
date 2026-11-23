@@ -4,14 +4,14 @@ from __future__ import annotations
 
 from argparse import ArgumentParser, Namespace
 
-from .base import Command, register_command
 from auditor_toolkit.tracing import (
+    get_tracer,
     init_tracing,
     init_tracing_from_env,
-    get_tracer,
     is_tracing_enabled,
-    TracedAuditContext,
 )
+
+from .base import Command, register_command
 
 
 class TracingCommand(Command):
@@ -53,7 +53,7 @@ class TracingCommand(Command):
         )
 
         # status subcommand
-        status_parser = sub.add_parser("status", help="Show tracing status")
+        sub.add_parser("status", help="Show tracing status")
 
         # env subcommand
         env_parser = sub.add_parser("env", help="Initialize from environment variables")
@@ -132,7 +132,7 @@ class TracingCommand(Command):
         return 0
 
     def _cmd_test(self, args: Namespace) -> int:
-        from auditor_toolkit.tracing import audit_span, check_span, http_span, add_span_event
+        from auditor_toolkit.tracing import add_span_event, audit_span, check_span, http_span
 
         # Initialize with console export
         init_tracing(

@@ -1,25 +1,25 @@
 """Tests for distributed tracing."""
 
 import os
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 import pytest
 
 from auditor_toolkit.tracing import (
-    init_tracing,
-    init_tracing_from_env,
-    get_tracer,
-    is_tracing_enabled,
+    TracedAuditContext,
+    add_span_event,
     audit_span,
     check_span,
-    http_span,
     external_api_span,
-    add_span_event,
-    set_span_attribute,
+    get_tracer,
+    http_span,
+    init_tracing,
+    init_tracing_from_env,
+    is_tracing_enabled,
     record_span_exception,
+    set_span_attribute,
     traced_check,
     traced_http,
-    TracedAuditContext,
 )
 
 

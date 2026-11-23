@@ -260,7 +260,7 @@ def validate_all_configs(project_root: str | Path = ".") -> dict[str, Any]:
     if env_example_path.exists():
         try:
             content = env_example_path.read_text()
-            lines = [l.strip() for l in content.splitlines() if l.strip() and not l.startswith("#")]
+            lines = [line.strip() for line in content.splitlines() if line.strip() and not line.startswith("#")]
             results[".env.example"] = {
                 "valid": True,
                 "errors": [],

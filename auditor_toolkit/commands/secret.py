@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from argparse import ArgumentParser, Namespace
 import subprocess
 import sys
+from argparse import ArgumentParser, Namespace
 
 from .base import Command, register_command
 

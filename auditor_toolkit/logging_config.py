@@ -11,7 +11,6 @@ from contextvars import ContextVar
 from datetime import UTC, datetime
 from typing import Any
 
-
 # Context variable for correlation ID propagation
 correlation_id_var: ContextVar[str | None] = ContextVar("correlation_id", default=None)
 

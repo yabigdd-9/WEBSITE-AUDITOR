@@ -208,7 +208,7 @@ class ACMEClient:
             challenge_file.write_text(key_auth)
 
             # Validate challenge
-            self._post(challenge_url, {})
+            self._post(http_challenge["url"], {})
 
             # Clean up
             challenge_file.unlink(missing_ok=True)
@@ -238,6 +238,7 @@ class ACMEClient:
         """Get key authorization for challenge."""
         import base64
         import hashlib
+
         from cryptography.hazmat.primitives import serialization
 
         with open(self.account_key_path, "rb") as f:

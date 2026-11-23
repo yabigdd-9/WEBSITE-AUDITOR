@@ -5,9 +5,10 @@ from __future__ import annotations
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
-from .base import Command, register_command
 from auditor_toolkit.actions import import_report, preview_report
 from auditor_toolkit.common import atomic_write_text, workspace_path
+
+from .base import Command, register_command
 
 
 class ActionsCommand(Command):

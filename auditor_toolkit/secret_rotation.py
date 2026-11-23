@@ -6,15 +6,11 @@ Provides scheduled secret rotation with configurable policies.
 from __future__ import annotations
 
 import json
-import logging
-import os
 import subprocess
 import sys
-import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any
 
 from .logging_config import get_logger
 
@@ -268,7 +264,6 @@ class SecretRotationManager:
 def create_rotation_cli():
     """Create CLI for secret rotation management."""
     import argparse
-    import sys
 
     parser = argparse.ArgumentParser(prog="wa secret-rotation")
     sub = parser.add_subparsers(dest="action", required=True)
@@ -293,10 +288,10 @@ def create_rotation_cli():
     rotate.add_argument("--value", help="New value (optional, uses generator if not provided)")
 
     # Check rotation
-    check = sub.add_parser("check")
+    sub.add_parser("check")
 
     # Rotate all needed
-    rotate_all = sub.add_parser("rotate-all")
+    sub.add_parser("rotate-all")
 
     # List
     sub.add_parser("list")

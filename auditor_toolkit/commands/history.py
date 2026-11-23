@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from argparse import ArgumentParser, Namespace
 
-from .base import Command, register_command
 from auditor_toolkit.storage import History
+
+from .base import Command, register_command
 
 
 class HistoryCommand(Command):

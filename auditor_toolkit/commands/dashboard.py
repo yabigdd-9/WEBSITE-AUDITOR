@@ -1,12 +1,14 @@
 """Dashboard command implementation."""
 
 from __future__ import annotations
-from pathlib import Path
-from argparse import ArgumentParser, Namespace
+
 import getpass
+from argparse import ArgumentParser, Namespace
+from pathlib import Path
+
+from auditor_toolkit.portal import create_app, setup_password
 
 from .base import Command, register_command
-from auditor_toolkit.portal import create_app, setup_password
 
 
 class DashboardCommand(Command):

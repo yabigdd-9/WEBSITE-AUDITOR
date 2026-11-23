@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from .base import Command, CommandRegistry, register_command, registry
-
 # Import all command modules to register them
 # These imports trigger the register_command() calls in each module
 from . import (  # noqa: F401
@@ -28,6 +26,7 @@ from . import (  # noqa: F401
     tracing,
     watchdog,
 )
+from .base import Command, CommandRegistry, register_command, registry
 
 __all__ = [
     "Command",

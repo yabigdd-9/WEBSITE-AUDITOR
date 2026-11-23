@@ -5,12 +5,13 @@ from __future__ import annotations
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
-from .base import Command, register_command
 from auditor_toolkit.schema_validation import (
+    validate_agency_config,
     validate_all_configs,
     validate_master_plan,
-    validate_agency_config,
 )
+
+from .base import Command, register_command
 
 
 class SchemaCommand(Command):

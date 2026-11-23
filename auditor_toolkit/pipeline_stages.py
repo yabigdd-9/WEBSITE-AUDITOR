@@ -24,8 +24,10 @@ from .browser import export_pdf, run_browser_checks
 from .checks import Finding, analyse_html, classify_response, dedupe_findings, score_findings
 from .common import Fetcher, atomic_write_json, atomic_write_text, validate_url
 from .external_tools import run_lighthouse, run_lychee
-from .faults import enrich as enrich_fault, group_root_causes, regression as fault_regression
-from .flows import run_flow_probe, flow_findings
+from .faults import enrich as enrich_fault
+from .faults import group_root_causes
+from .faults import regression as fault_regression
+from .flows import flow_findings, run_flow_probe
 from .hygiene import (
     check_mixed_content,
     check_robots,
@@ -35,12 +37,12 @@ from .hygiene import (
     grade_security_headers,
     validate_links,
 )
-from .logging_config import get_logger, set_correlation_id, clear_correlation_id
+from .logging_config import clear_correlation_id, get_logger, set_correlation_id
 from .models import REGISTRY, SCHEMA_VERSION
 from .network import crawl, inspect_dns, inspect_headers, inspect_schema, inspect_tls
+from .quality_checks import run_quality_checks
 from .reporting import render_trend_svg, write_html_report
 from .storage import History, finding_id
-from .quality_checks import run_quality_checks
 
 logger = get_logger(__name__)
 
@@ -358,7 +360,7 @@ class LinksStage(PipelineStage):
             ctx.checks["links"] = {"status": "ok", "required": False}
         except Exception as exc:
             logger.error("Link validation failed", extra={"url": ctx.url, "error": str(exc)}, exc_info=True)
-            checks["links"] = {"status": "error", "reason": str(exc), "required": False}
+            ctx.checks["links"] = {"status": "error", "reason": str(exc), "required": False}
 
 
 class ExternalToolsStage(PipelineStage):
@@ -524,7 +526,7 @@ class BrowserStage(PipelineStage):
             if opts.screenshot_diff and result.get("status") == "ok":
                 try:
                     history = History(opts.output_root)
-                    previous_run = history.get_latest_valid_audit(url, max_age_days=365)
+                    previous_run = history.get_latest_valid_audit(final_url, max_age_days=365)
                     if previous_run and previous_run["profile"] == opts.profile and previous_run["run_id"] != ctx.run_id:
                         screenshot_types = [
                             ("screenshot", "screenshot"),
@@ -722,10 +724,6 @@ class ReportGenerationStage(PipelineStage):
                 previous_defects = []
         report["fault_regression"] = fault_regression(defects, previous_defects)
 
-        from .actions import preview_report
-        from .ai import generate_drafts
-        from .evidence_brief import create_evidence_brief
-        from .proofing import build_claim_ledger, proof_draft
 
         evidence_brief = create_evidence_brief(report)
         report["claim_ledger"] = build_claim_ledger(report)

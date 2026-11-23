@@ -5,9 +5,10 @@ from __future__ import annotations
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
-from .base import Command, register_command
 from auditor_toolkit.common import atomic_write_json, workspace_path
 from auditor_toolkit.quote import calculate_quote
+
+from .base import Command, register_command
 
 
 class QuoteCommand(Command):

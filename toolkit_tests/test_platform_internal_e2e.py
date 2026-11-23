@@ -11,23 +11,19 @@ import httpx
 import pytest
 
 import auditor_toolkit.pipeline as auditor
+import scripts.cloud_review_only_opportunities as review_module
 from auditor_toolkit import common as auditor_common
 from auditor_toolkit import pipeline_stages
 from auditor_toolkit.common import Fetcher
 from scripts import approval_controls as approvals
 from scripts import cloud_prospect_pipeline as pipeline
-import scripts.cloud_review_only_opportunities as review_module
-from scripts.cloud_review_only_opportunities import (
-    _safe_text,
-    eligible_findings,
-    make_internal_brief,
-    SITE_MAX_RESPONSE_BYTES,
-    DEFAULT_MAX_RESPONSE_BYTES,
-)
-from scripts.client_projects import accept_proposal, complete
+from scripts.client_projects import accept_proposal
 from scripts.cloud_discovery import import_export
 from scripts.cloud_opportunities import load_policy
-from scripts.operational_ledger import OperationalLedger
+from scripts.cloud_review_only_opportunities import (
+    eligible_findings,
+    make_internal_brief,
+)
 from scripts.pipeline_store import PipelineStore
 
 
@@ -109,7 +105,7 @@ def test_canonical_audit_through_project_closure_and_paired_restore(monkeypatch)
     )
 
     # Patch run_review_sites in cloud_review_only_opportunities (used by pipeline.process)
-    original_run_review_sites = review_module.run_review_sites
+    _ = review_module.run_review_sites
 
     def mock_run_review_sites(sites_tuples, workspace, entries=None):
         if entries is None:
@@ -163,11 +159,7 @@ def test_canonical_audit_through_project_closure_and_paired_restore(monkeypatch)
                             "remediation_action": "Add viewport meta tag",
                             "evidence_check": "html",
                             "evidence_check_status": "ok",
-                            "confidence": "observed",
                             "independently_verified": True,
-                            "evidence_ref": "html",
-                            "observed": "Missing viewport meta tag",
-                            "remediation_action": "Add viewport meta tag",
                         }
                     ]
                 }

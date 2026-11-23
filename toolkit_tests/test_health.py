@@ -12,8 +12,8 @@ from auditor_toolkit.runtime.health import (
     HealthStatus,
     check_database,
     check_disk_space,
-    check_memory,
     check_external_apis,
+    check_memory,
     check_network_connectivity,
     run_all_health_checks,
 )
@@ -150,9 +150,10 @@ class TestHealthCheckCLI:
 
     def test_health_cli(self):
         """Test health CLI command."""
-        from auditor_toolkit.cli import main
         import sys
         from io import StringIO
+
+        from auditor_toolkit.cli import main
 
         # Capture stdout
         old_stdout = sys.stdout

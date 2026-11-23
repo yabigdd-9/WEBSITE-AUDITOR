@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from argparse import ArgumentParser, Namespace
 
+from auditor_toolkit.secret_rotation import RotationPolicy, SecretRotationManager
+
 from .base import Command, register_command
-from auditor_toolkit.secret_rotation import SecretRotationManager, RotationPolicy
 
 
 class SecretRotationCommand(Command):

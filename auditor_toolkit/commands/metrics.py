@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from argparse import ArgumentParser, Namespace
 
-from .base import Command, register_command
 from auditor_toolkit.metrics import serve_metrics
+
+from .base import Command, register_command
 
 
 class MetricsCommand(Command):

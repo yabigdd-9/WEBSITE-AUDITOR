@@ -4,7 +4,9 @@ from .browser import export_pdf, run_browser_checks
 from .checks import analyse_html, classify_response, dedupe_findings, score_findings
 from .common import Fetcher, atomic_write_json, atomic_write_text, validate_url
 from .external_tools import run_lighthouse, run_lychee
-from .faults import enrich as enrich_fault, group_root_causes, regression as fault_regression
+from .faults import enrich as enrich_fault
+from .faults import group_root_causes
+from .faults import regression as fault_regression
 from .hygiene import (
     check_mixed_content,
     check_robots,

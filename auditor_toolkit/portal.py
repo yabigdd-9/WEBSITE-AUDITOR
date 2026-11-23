@@ -7,13 +7,14 @@ import secrets
 import time
 from pathlib import Path
 
-from .common import atomic_write_json
-from .storage import History
 from argon2 import PasswordHasher
 from argon2.exceptions import VerificationError
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from starlette.middleware.trustedhost import TrustedHostMiddleware
+
+from .common import atomic_write_json
+from .storage import History
 
 CSRF_REQUIRED = "CSRF token required"
 BINARY_TYPE = "application/octet-stream"
@@ -150,10 +151,11 @@ def create_app(root, session_seconds=3600, pipeline_db=None, report_archive_root
         region: Region identifier (default: "default").
         region_config: Optional region-specific configuration dict.
     """
-    from .config import get_settings
-    from .pipeline_portal import attach_pipeline
     from scripts.pipeline_store import PipelineStore
     from scripts.postgres_store import PostgresPipelineStore
+
+    from .config import get_settings
+    from .pipeline_portal import attach_pipeline
 
     # Apply region-specific settings
     region_config = region_config or {}
