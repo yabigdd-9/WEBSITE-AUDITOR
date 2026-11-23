@@ -10,11 +10,12 @@ permissions:
   contents: write
 
 concurrency:
-  group: nightly-website-watchdog-${{ github.ref }}
+  group: nightly-website-watchdog
   cancel-in-progress: false
 
 jobs:
   nightly-audit:
+    if: github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -31,20 +32,44 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install httpx beautifulsoup4 lxml
 
+      - name: Restore baseline snapshots
+        shell: bash
+        run: |
+          state_dir="$RUNNER_TEMP/watchdog-state"
+          state_branch="automation/watchdog-snapshots"
+          git init --initial-branch="$state_branch" "$state_dir"
+          if git ls-remote --exit-code origin "refs/heads/$state_branch" >/dev/null; then
+            git fetch origin "refs/heads/$state_branch:refs/watchdog/state"
+            git -C "$state_dir" fetch "$PWD" refs/watchdog/state
+            git -C "$state_dir" checkout -B "$state_branch" FETCH_HEAD
+            mkdir -p outputs/snapshots
+            cp -R "$state_dir/snapshots/." outputs/snapshots/
+          else
+            status=$?
+            if [[ "$status" != 2 ]]; then
+              exit "$status"
+            fi
+          fi
+
       - name: Run Nightly Watchdog
         run: python nightly_watchdog.py
 
-      - name: Commit changed baseline snapshots
+      - name: Save baseline snapshots to state branch
         shell: bash
         run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add outputs/snapshots/
+          state_dir="$RUNNER_TEMP/watchdog-state"
+          state_branch="automation/watchdog-snapshots"
+          mkdir -p "$state_dir/snapshots"
+          cp -R outputs/snapshots/. "$state_dir/snapshots/"
+          git -C "$state_dir" config user.name 'github-actions[bot]'
+          git -C "$state_dir" config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C "$state_dir" add snapshots/
 
-          if git diff --staged --quiet; then
+          if git -C "$state_dir" diff --staged --quiet; then
             echo "No snapshot changes to commit."
             exit 0
           fi
 
-          git commit -m "chore: update nightly snapshots [skip ci]"
-          git push origin "HEAD:${GITHUB_REF_NAME}"
+          git -C "$state_dir" commit -m "chore: update nightly snapshots [skip ci]"
+          git fetch "$state_dir" HEAD
+          git push origin "FETCH_HEAD:refs/heads/$state_branch"
