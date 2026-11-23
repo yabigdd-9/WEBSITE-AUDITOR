@@ -6,7 +6,7 @@ from argparse import ArgumentParser, Namespace
 import os
 from pathlib import Path
 
-from auditor_toolkit.commands.base import Command, register_command
+from .base import Command, register_command
 from auditor_toolkit.monitoring.watchdog import Watchdog
 from auditor_toolkit.storage import History
 

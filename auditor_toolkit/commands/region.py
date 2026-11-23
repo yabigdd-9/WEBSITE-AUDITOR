@@ -7,7 +7,7 @@ import getpass
 from pathlib import Path
 from argparse import ArgumentParser, Namespace
 
-from auditor_toolkit.commands.base import Command, register_command
+from .base import Command, register_command
 from auditor_toolkit.portal import setup_password
 from auditor_toolkit.common import atomic_write_json
 

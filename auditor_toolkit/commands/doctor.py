@@ -8,7 +8,7 @@ import os
 import sys
 from pathlib import Path
 
-from auditor_toolkit.commands.base import Command, register_command
+from .base import Command, register_command
 from auditor_toolkit.ai import generate_drafts, verify_model
 from auditor_toolkit.external_tools import installed_tools
 

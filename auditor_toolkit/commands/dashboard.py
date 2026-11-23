@@ -5,7 +5,7 @@ from pathlib import Path
 from argparse import ArgumentParser, Namespace
 import getpass
 
-from auditor_toolkit.commands.base import Command, register_command
+from .base import Command, register_command
 from auditor_toolkit.portal import create_app, setup_password
 
 

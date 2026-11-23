@@ -5,7 +5,7 @@ from __future__ import annotations
 from argparse import ArgumentParser, Namespace
 import subprocess
 
-from auditor_toolkit.commands.base import Command, register_command
+from .base import Command, register_command
 
 
 class EvalCommand(Command):

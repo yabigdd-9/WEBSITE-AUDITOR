@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from argparse import ArgumentParser, Namespace
 
-from auditor_toolkit.commands.base import Command, register_command
+from .base import Command, register_command
 from auditor_toolkit.metrics import serve_metrics
 
 

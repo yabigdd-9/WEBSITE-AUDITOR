@@ -5,7 +5,7 @@ from __future__ import annotations
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
-from auditor_toolkit.commands.base import Command, register_command
+from .base import Command, register_command
 from auditor_toolkit.common import workspace_path
 from auditor_toolkit.packet import build_packet
 

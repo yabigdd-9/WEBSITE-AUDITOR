@@ -6,7 +6,7 @@ import argparse
 import json
 from pathlib import Path
 
-from auditor_toolkit.commands.base import Command, register_command
+from .base import Command, register_command
 from auditor_toolkit.plugins import (
     get_registry,
     load_plugins_from_directory,
