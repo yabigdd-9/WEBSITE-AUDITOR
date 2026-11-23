@@ -1,6 +1,8 @@
 import hashlib
 from pathlib import Path
 
+import httpx
+
 from .common import validate_url, workspace_path
 
 VIEWPORTS = {

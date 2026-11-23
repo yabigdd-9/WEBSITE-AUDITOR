@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from argparse import ArgumentParser, Namespace
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -46,13 +47,13 @@ class AuditCommand(Command):
 
     def execute(self, args: Namespace) -> int:
         if not args.url and not args.batch:
-            parser.error("Provide a URL or --batch")
+            print("error: Provide a URL or --batch", file=sys.stderr)
             return 1
         if not 1 <= args.concurrency <= 4:
-            parser.error("Concurrency must be between 1 and 4")
+            print("error: Concurrency must be between 1 and 4", file=sys.stderr)
             return 1
         if args.hourly_rate_nzd is not None and args.hourly_rate_nzd < 0:
-            parser.error("Hourly rate must be non-negative")
+            print("error: Hourly rate must be non-negative", file=sys.stderr)
             return 1
 
         batch_path = workspace_path(args.batch, must_exist=True, file_only=True) if args.batch else None
@@ -84,7 +85,7 @@ class AuditCommand(Command):
         )
         urls = list(dict.fromkeys(urls))
         if len(urls) > 100:
-            parser.error("Maximum batch size is 100 URLs")
+            print("error: Maximum batch size is 100 URLs", file=sys.stderr)
             return 1
 
         with ThreadPoolExecutor(max_workers=args.concurrency) as pool:

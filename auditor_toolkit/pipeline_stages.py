@@ -17,9 +17,6 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-# Module-level counter for ensuring unique run_ids in fast test runs
-_run_id_counter = 0
-
 from .browser import export_pdf, run_browser_checks
 from .checks import Finding, analyse_html, classify_response, dedupe_findings, score_findings
 from .common import Fetcher, atomic_write_json, atomic_write_text, validate_url
@@ -43,6 +40,9 @@ from .network import crawl, inspect_dns, inspect_headers, inspect_schema, inspec
 from .quality_checks import run_quality_checks
 from .reporting import render_trend_svg, write_html_report
 from .storage import History, finding_id
+
+# Module-level counter for ensuring unique run_ids in fast test runs
+_run_id_counter = 0
 
 logger = get_logger(__name__)
 

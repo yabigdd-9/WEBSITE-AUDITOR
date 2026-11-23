@@ -15,6 +15,8 @@ import hashlib
 from datetime import datetime, timezone
 from pathlib import Path
 
+from playwright._impl._errors import Error as PlaywrightError
+
 from .common import validate_url
 
 # Finite-state machine states, ordered by expected traversal.
@@ -153,7 +155,7 @@ def run_flow_probe(url, output_dir, enabled=True, allow_private=False):
                         if locator.count() and locator.is_visible():
                             cta = (selector, locator)
                             break
-                    except (TimeoutError, Error):
+                    except (TimeoutError, PlaywrightError):
                         continue
                 if cta is None:
                     evidence["outcome"] = {
@@ -176,7 +178,7 @@ def run_flow_probe(url, output_dir, enabled=True, allow_private=False):
                     page.wait_for_load_state("domcontentloaded", timeout=10_000)
                     page.wait_for_timeout(400)
                     record("CTA_ACTIVATED", {"landed_url": page.url}, "flow-2-activated.png")
-                except (TimeoutError, Error) as exc:
+                except (TimeoutError, PlaywrightError) as exc:
                     evidence["steps"].append(
                         {"state": "CTA_ACTIVATED", "at": _now(), "failed": True, "reason": str(exc)[:300]}
                     )
@@ -196,7 +198,7 @@ def run_flow_probe(url, output_dir, enabled=True, allow_private=False):
                         if locator.count() and locator.is_visible():
                             form = (form_selector, locator)
                             break
-                    except (TimeoutError, Error):
+                    except (TimeoutError, PlaywrightError):
                         continue
                 if form is None:
                     # Phone/mailto fallbacks still count as a conversion path.
@@ -258,7 +260,7 @@ def run_flow_probe(url, output_dir, enabled=True, allow_private=False):
                             )
                             validation = {"tested": True, **validity}
                             probe.fill("", timeout=_STEP_TIMEOUT_MS)
-                    except (TimeoutError, Error) as exc:
+                    except (TimeoutError, PlaywrightError) as exc:
                         validation = {"tested": False, "reason": str(exc)[:200]}
                 record("CLIENT_VALIDATION_WORKS", validation, "flow-5-validation.png")
 
