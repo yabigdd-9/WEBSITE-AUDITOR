@@ -27,6 +27,7 @@ service-account*.json
 *secret*
 !auditor_toolkit/commands/secret.py
 !auditor_toolkit/commands/secret_rotation.py
+!auditor_toolkit/secret_rotation.py
 
 # Local state / outputs
 outputs/
