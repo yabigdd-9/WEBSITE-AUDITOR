@@ -20,6 +20,7 @@ jobs:
           python-version: '3.11'
       - run: python -m pip cache purge
       - run: python -m pip install --no-cache-dir -e '.[dev,browser,portal]'
+      - run: python -c "import auditor_toolkit.pipeline_stages; print('pipeline_stages import OK')"
       - run: python -m pytest toolkit_tests -q --cov=auditor_toolkit --cov-report=xml
       - run: ruff check auditor_toolkit toolkit_tests
       - run: python -m pip check
